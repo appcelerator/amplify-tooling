@@ -23,6 +23,8 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "@axway/amplify-cli-auth": "^0.1.0",
+    "@axway/amplify-cli-pm": "^0.1.0",
     "appcd-path": "^1.1.0",
     "cli-kit": "^0.0.12",
     "source-map-support": "^0.5.4"
