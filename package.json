@@ -1,0 +1,14 @@
+{
+  "name": "amplify-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "lerna": "^2.10.1"
+  },
+  "scripts": {},
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  }
+}

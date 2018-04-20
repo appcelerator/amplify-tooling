@@ -1,0 +1,46 @@
+{
+  "name": "@axway/amplify-cli-auth",
+  "version": "0.1.0",
+  "description": "Authenicates machines with the Axway AMPLIFY platform.",
+  "author": "Axway, Inc. <npmjs@appcelerator.com>",
+  "maintainers": [
+    "Chris Barber <cbarber@axway.com>"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "axway",
+    "amplify"
+  ],
+  "bin": {
+    "amplify-cli-auth": "./bin/amplify-cli-auth"
+  },
+  "preferGlobal": true,
+  "scripts": {
+    "build": "gulp build",
+    "coverage": "gulp coverage",
+    "docs": "gulp docs",
+    "prepare": "gulp build",
+    "test": "gulp test"
+  },
+  "dependencies": {
+    "cli-kit": "^0.0.12",
+    "source-map-support": "^0.5.4"
+  },
+  "devDependencies": {
+    "appcd-gulp": "^1.1.1",
+    "gulp": "^3.9.1"
+  },
+  "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
+  "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appcelerator/amplify-tooling.git"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "cli-kit": {
+    "main": "./dist/cli",
+	"name": "auth"
+  }
+}

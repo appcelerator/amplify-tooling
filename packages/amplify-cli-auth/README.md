@@ -1,0 +1,27 @@
+# AMPLIFY CLI Authentication
+
+Authenticates a machine with the Axway AMPLIFY platform.
+
+## Installation
+
+This package is bundled with the AMPLIFY CLI and thus does not need to be directly installed.
+
+	npm i -g @axway/amplify-cli
+
+## Quick Start
+
+Log into the Axway platform:
+
+	amplify auth login
+
+Log out of the Axway platform:
+
+	amplify auth logout
+
+## Legal
+
+This project is open source under the [Apache Public License v2][1] and is developed by
+[Axway, Inc](http://www.axway.com/) and the community. Please read the [`LICENSE`][1] file included
+in this distribution for more information.
+
+[1]: https://github.com/appcelerator/amplify-tooling/blob/master/packages/amplify-cli/LICENSE
