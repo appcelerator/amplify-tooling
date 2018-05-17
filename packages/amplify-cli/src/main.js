@@ -18,13 +18,14 @@ try {
 } catch (e) { }
 
 new CLI({
+	extensions: [
+		...(Array.isArray(config.extensions) ? config.extensions : []),
+		require.resolve('@axway/amplify-cli-auth'),
+		require.resolve('@axway/amplify-cli-pm')
+	],
 	help: true,
 	helpExitCode: 2,
 	name: 'amplify',
-	extensions: {
-		...(typeof cfg.extensions === 'object' && cfg.extensions || {}),
-		...pkgJson.extensions
-	},
 	version: pkgJson.version
 }).exec()
 	.catch(err => {

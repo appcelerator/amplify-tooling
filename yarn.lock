@@ -1244,7 +1244,7 @@ cli-cursor@^2.1.0:
   dependencies:
     restore-cursor "^2.0.0"
 
-cli-kit@^0.1.0:
+cli-kit@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.1.1.tgz#8f42dd7a47d9f33a447cca7fa766990632683621"
   dependencies:
