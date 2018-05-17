@@ -23,7 +23,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "cli-kit": "^0.0.12",
+    "cli-kit": "^0.1.1",
     "source-map-support": "^0.5.4"
   },
   "devDependencies": {
