@@ -1,20 +1,16 @@
 {
-  "name": "@axway/amplify-cli-pm",
+  "name": "@axway/amplify-cli-utils",
   "version": "0.1.0",
-  "description": "Package manager for Axway products.",
+  "description": "Common utils for AMPLIFY CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
-    "Chris Barber <cbarber@axway.com>"
+    "Ewan Harris <eharri@axway.com>"
   ],
   "license": "Apache-2.0",
   "keywords": [
     "axway",
     "amplify"
   ],
-  "bin": {
-    "amplify-cli-pm": "./bin/amplify-cli-pm"
-  },
-  "main": "./dist/cli",
   "preferGlobal": true,
   "scripts": {
     "build": "gulp build",
@@ -24,7 +20,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "cli-kit": "^0.1.2",
+    "fs-extra": "^6.0.0",
     "source-map-support": "^0.5.4"
   },
   "devDependencies": {
@@ -40,7 +36,5 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "cli-kit": {
-    "name": "pm"
-  }
+  "main": "./dist/index"
 }

@@ -5,25 +5,26 @@ if (!Error.prepareStackTrace) {
 
 import CLI from 'cli-kit';
 
-import { expandPath } from 'appcd-path';
+import { config } from '@axway/amplify-cli-utils';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
 
-let config = {};
+let cfg = {};
 try {
-	config = JSON.parse(readFileSync(expandPath('~/.config/axway/amplify-cli.json')));
+	cfg = config.read();
 } catch (e) { }
 
 new CLI({
+	extensions: [
+		...(Array.isArray(cfg.extensions) ? cfg.extensions : []),
+		require.resolve('@axway/amplify-cli-auth'),
+		require.resolve('@axway/amplify-cli-pm')
+	],
 	help: true,
 	helpExitCode: 2,
 	name: 'amplify',
-	plugins: {
-		...(typeof config.plugins === 'object' && config.plugins || {}),
-		...pkgJson.plugins
-	},
 	version: pkgJson.version
 }).exec()
 	.catch(err => {
