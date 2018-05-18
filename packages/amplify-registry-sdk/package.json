@@ -1,20 +1,16 @@
 {
-  "name": "@axway/amplify-cli-pm",
+  "name": "@axway/amplify-registry-sdk",
   "version": "0.1.0",
-  "description": "Package manager for Axway products.",
+  "description": "SDK for AMPLIFY Package Registry",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
-    "Chris Barber <cbarber@axway.com>"
+    "Ewan Harris <eharri@axway.com>"
   ],
   "license": "Apache-2.0",
   "keywords": [
     "axway",
     "amplify"
   ],
-  "bin": {
-    "amplify-cli-pm": "./bin/amplify-cli-pm"
-  },
-  "main": "./dist/cli",
   "preferGlobal": true,
   "scripts": {
     "build": "gulp build",
@@ -24,24 +20,28 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-registry-sdk": "0.1.0",
-    "cli-kit": "^0.1.2",
-    "columnify": "^1.5.4",
-    "npm-package-arg": "^6.1.0",
-    "semver": "^5.5.0",
-    "source-map-support": "^0.5.6"
+    "@awam/gittar": "^0.1.2",
+    "@axway/amplify-cli-utils": "^0.1.0",
+    "appcd-subprocess": "^1.1.0",
+    "fs-extra": "^6.0.0",
+    "got": "^8.3.0",
+    "pacote": "^8.1.1",
+    "source-map-support": "^0.5.4",
+    "tar": "^4.4.2",
+    "tmp": "^0.0.33"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.1.4",
+    "appcd-gulp": "^1.1.1",
     "gulp": "^3.9.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
-  "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-pm",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appcelerator/amplify-tooling.git"
+  },
   "engines": {
     "node": ">=8.0.0"
   },
-  "cli-kit": {
-    "name": "pm"
-  }
+  "main": "./dist/index"
 }
