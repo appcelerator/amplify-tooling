@@ -1244,9 +1244,9 @@ cli-cursor@^2.1.0:
   dependencies:
     restore-cursor "^2.0.0"
 
-cli-kit@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.1.1.tgz#8f42dd7a47d9f33a447cca7fa766990632683621"
+cli-kit@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.1.2.tgz#9586e65a80876d61d9219d36cd07d73acb718856"
   dependencies:
     hook-emitter "^2.1.0"
     isexe "^2.0.0"

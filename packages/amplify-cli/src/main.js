@@ -5,7 +5,6 @@ if (!Error.prepareStackTrace) {
 
 import CLI from 'cli-kit';
 
-import { expandPath } from 'appcd-path';
 import { config } from '@axway/amplify-cli-utils';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
@@ -19,7 +18,7 @@ try {
 
 new CLI({
 	extensions: [
-		...(Array.isArray(config.extensions) ? config.extensions : []),
+		...(Array.isArray(cfg.extensions) ? cfg.extensions : []),
 		require.resolve('@axway/amplify-cli-auth'),
 		require.resolve('@axway/amplify-cli-pm')
 	],
