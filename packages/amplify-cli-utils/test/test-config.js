@@ -19,8 +19,6 @@ describe('config', () => {
 		if (fs.existsSync(temp)) {
 			fs.copyFileSync(temp, configFile, { overwrite: true });
 			fs.unlinkSync(temp);
-		} else {
-			fs.unlinkSync(configFile);
 		}
 		done();
 	});
