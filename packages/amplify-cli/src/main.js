@@ -16,12 +16,13 @@ try {
 	cfg = config.read();
 } catch (e) { }
 
+const extensions = [
+	...Object.values(cfg.extensions || {}),
+	require.resolve('@axway/amplify-cli-auth'),
+	require.resolve('@axway/amplify-cli-pm')
+];
 new CLI({
-	extensions: [
-		...(Array.isArray(cfg.extensions) ? cfg.extensions : []),
-		require.resolve('@axway/amplify-cli-auth'),
-		require.resolve('@axway/amplify-cli-pm')
-	],
+	extensions,
 	help: true,
 	helpExitCode: 2,
 	name: 'amplify',
@@ -31,3 +32,4 @@ new CLI({
 		console.error(err.message);
 		process.exit(err.exitCode || 1);
 	});
+
