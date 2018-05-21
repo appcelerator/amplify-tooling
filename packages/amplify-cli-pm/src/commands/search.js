@@ -27,6 +27,7 @@ export default {
 			const registry = new Registry();
 			const { repositories, search, type } = argv;
 			const body = await registry.search({ text: search, repositories, type });
+
 			const columnConfig = {
 				columnSplitter: ' | ',
 				showHeaders: true,
@@ -60,7 +61,7 @@ export default {
 				console.log('Unable to connect to registry server');
 				process.exit(3);
 			}
-			// console.log(e);
+			console.log(e);
 		}
 	}
 };

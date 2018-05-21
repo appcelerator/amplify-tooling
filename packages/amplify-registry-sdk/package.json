@@ -24,7 +24,6 @@
     "@axway/amplify-cli-utils": "^0.1.0",
     "appcd-subprocess": "^1.1.0",
     "fs-extra": "^6.0.0",
-    "got": "^8.3.0",
     "pacote": "^8.1.1",
     "source-map-support": "^0.5.4",
     "tar": "^4.4.2",

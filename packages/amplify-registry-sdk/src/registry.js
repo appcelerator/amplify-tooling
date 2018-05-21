@@ -1,4 +1,5 @@
-import got from 'got';
+
+import { request } from '@axway/amplify-cli-utils';
 
 export default class Registry {
 
@@ -19,8 +20,12 @@ export default class Registry {
 		if (type) {
 			url = `${url}&type=${encodeURIComponent(type)}`;
 		}
-		const { body } = await got(url);
-		return JSON.parse(body.result);
+		const params = {
+			url
+		};
+		let { body } = await request(params);
+		body = JSON.parse(body);
+		return body.result;
 	}
 
 	async metadata({ name, version, repository, type }) {
@@ -35,7 +40,10 @@ export default class Registry {
 			const sep = url.includes('?') ? '&' : '?';
 			url = `${url}${sep}type=${encodeURIComponent(type)}`;
 		}
-		let { body } = await got(url);
+		const params = {
+			url
+		};
+		let { body } = await request(params);
 		body = JSON.parse(body);
 		return body.result;
 	}

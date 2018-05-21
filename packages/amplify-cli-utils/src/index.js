@@ -5,8 +5,10 @@ if (!Error.prepareStackTrace) {
 
 import loadConfig from './config';
 import * as locations from './locations';
+import request from './request';
 
 export {
 	loadConfig,
-	locations
+	locations,
+	request
 };
