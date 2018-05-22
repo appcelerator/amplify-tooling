@@ -8,23 +8,26 @@ export async function fetchAndInstall({ name, repository, type, fetchSpec }) {
 		err.code = 'NO_DATA';
 		throw err;
 	}
+	const actions = await getActions(pkgInfo.type);
+	if (actions.pre) {
+		await actions.pre();
+	}
 	const fetcher = await getFetcher(pkgInfo.dist.repository);
 	const installLocation = await fetcher.fetchPackage({ pkgInfo: pkgInfo });
 	const extracter = await getExtracter(pkgInfo.type);
 	const extractLocation = await extracter.extractPackage(installLocation);
-	const postSteps = await getPostSteps(pkgInfo.type);
-	if (postSteps) {
-		await postSteps.run({ pkgInfo, location: extractLocation });
+	if (actions.post) {
+		await actions.post({ pkgInfo, location: extractLocation });
 	}
 	return pkgInfo;
 }
 
-async function getPostSteps(packageType) {
+async function getActions(packageType) {
 	switch (packageType) {
 		case 'apib-data-connector':
-			return await import('./actions/post/apib-data-connector');
+			return await import('./actions/apib-data-connector');
 		case 'amplify-cli-plugin':
-			return await import('./actions/post/amplify-cli-plugin');
+			return await import('./actions/amplify-cli-plugin');
 		default:
 			return undefined;
 	}
