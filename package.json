@@ -3,9 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "lerna": "^2.10.1"
+    "globule": "^1.2.0",
+    "gulp": "^3.9.1",
+    "gulp-chug": "^0.5.1",
+    "gulp-debug": "^3.2.0",
+    "gulp-plumber": "^1.2.0",
+    "istanbul": "^0.4.5",
+    "lerna": "^2.11.0",
+    "pretty-log": "^0.1.0"
   },
-  "scripts": {},
   "workspaces": {
     "packages": [
       "packages/*"
