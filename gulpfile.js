@@ -94,7 +94,7 @@ function runTests(cover, cb) {
 		}, Promise.resolve())
 		.then(() => {
 			if (cover) {
-				fm.removeSync(coverageDir);
+				fs.removeSync(coverageDir);
 				fs.mkdirsSync(coverageDir);
 				console.log();
 
