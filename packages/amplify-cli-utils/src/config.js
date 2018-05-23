@@ -1,7 +1,7 @@
 import { existsSync, writeFileSync } from 'fs';
 import Config from 'appcd-config';
 
-import { config } from './locations';
+import { configFile as amplifyConfig } from './locations';
 
 /**
  * Load a users config, if no userConfig is given then the default AMPLIFY CLI config will be loaded.
@@ -14,7 +14,7 @@ import { config } from './locations';
  */
 export default function loadConfig({ configFile, userConfig } = {}) {
 	if (!userConfig) {
-		userConfig = config;
+		userConfig = amplifyConfig;
 	}
 
 	if (!existsSync(userConfig)) {

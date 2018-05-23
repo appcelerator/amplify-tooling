@@ -22,6 +22,7 @@ const extensions = [
 	require.resolve('@axway/amplify-cli-auth'),
 	require.resolve('@axway/amplify-cli-pm')
 ];
+
 new CLI({
 	commands: {
 		config

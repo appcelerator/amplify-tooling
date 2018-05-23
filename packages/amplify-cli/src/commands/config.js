@@ -118,17 +118,13 @@ export default {
 					}
 					break;
 			}
-			console.log(cfg);
-			await cfg.save(locations.config);
+
+			await cfg.save(locations.configFile);
 
 			printAndExit(null, result, argv.json);
-
 		} catch (err) {
-			console.log(err);
 			printAndExit(null, argv.json ? err.message : err.toString(), argv.json, 1);
 		}
-		console.log(cfg);
-		await cfg.save(locations.config);
 	}
 };
 

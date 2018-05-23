@@ -2,22 +2,23 @@ import path from 'path';
 import fs from 'fs';
 
 import loadConfig from '../dist/config';
-import { config } from '../dist/locations';
+import { configFile } from '../dist/locations';
 
 const fixturesDir = path.join(__dirname, 'fixtures', 'config');
 const temp = path.join(__dirname, 'fixtures', 'axway-config.json');
+
 describe('config', () => {
 	before(done => {
-		if (fs.existsSync(config)) {
-			fs.copyFileSync(config, temp, { overwrite: true });
-			fs.unlinkSync(config);
+		if (fs.existsSync(configFile)) {
+			fs.copyFileSync(configFile, temp, { overwrite: true });
+			fs.unlinkSync(configFile);
 		}
 		done();
 	});
 
 	after(done => {
 		if (fs.existsSync(temp)) {
-			fs.copyFileSync(temp, config, { overwrite: true });
+			fs.copyFileSync(temp, configFile, { overwrite: true });
 			fs.unlinkSync(temp);
 		}
 		// Cleanup incase test fails
@@ -29,14 +30,14 @@ describe('config', () => {
 	});
 
 	afterEach(done => {
-		if (fs.existsSync(config)) {
-			fs.unlinkSync(config);
+		if (fs.existsSync(configFile)) {
+			fs.unlinkSync(configFile);
 		}
 		done();
 	});
 
 	it('should default to loading amplify config', done => {
-		fs.copyFileSync(path.join(fixturesDir, 'existing-file.json'), config, { overwrite: true });
+		fs.copyFileSync(path.join(fixturesDir, 'existing-file.json'), configFile, { overwrite: true });
 		const cfg = loadConfig();
 		expect(cfg.toString(0)).to.equal('{"existing":true}');
 		done();
