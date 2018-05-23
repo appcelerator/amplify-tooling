@@ -1,14 +1,28 @@
-import fs from 'fs-extra';
+import { existsSync, writeFileSync } from 'fs';
+import Config from 'appcd-config';
 
-import { configFile } from './locations';
+import { configFile as amplifyConfigFile } from './locations';
 
-export function read() {
-	if (!fs.existsSync(configFile)) {
-		write({});
+/**
+ * Load a users config, if no userConfig is given then the default AMPLIFY CLI config will be loaded.
+ *
+ * @param {Object} [opts] - An object with various options.
+ * @param {String} [opts.configFile] - Path to the config file to load as the reference.
+ * @param {String} [opts.userConfig=~/.axway/amplify-cli.json] - Path to the user defined config file.
+ * If the file does not exist, an empty object will be written
+ * @returns {Object} An appcd-config instance
+ */
+export default function loadConfig({ configFile, userConfig } = {}) {
+	if (!userConfig) {
+		userConfig = amplifyConfigFile;
 	}
-	return fs.readJsonSync(configFile);
-}
 
-export function write(contents) {
-	fs.outputJsonSync(configFile, contents, { spaces: '\t' });
+	if (!existsSync(userConfig)) {
+		writeFileSync(userConfig, JSON.stringify({}));
+	}
+
+	const cfg = new Config({ configFile });
+	cfg.loadUserConfig(userConfig);
+
+	return cfg;
 }

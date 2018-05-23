@@ -20,7 +20,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "fs-extra": "^6.0.1",
+    "appcd-config": "^1.1.0",
     "source-map-support": "^0.5.6"
   },
   "devDependencies": {

@@ -1,11 +1,12 @@
 import path from 'path';
-import fs from 'fs-extra';
+import fs from 'fs';
 
-import * as config from '../dist/config';
+import loadConfig from '../dist/config';
 import { configFile } from '../dist/locations';
 
 const fixturesDir = path.join(__dirname, 'fixtures', 'config');
 const temp = path.join(__dirname, 'fixtures', 'axway-config.json');
+
 describe('config', () => {
 	before(done => {
 		if (fs.existsSync(configFile)) {
@@ -20,38 +21,41 @@ describe('config', () => {
 			fs.copyFileSync(temp, configFile, { overwrite: true });
 			fs.unlinkSync(temp);
 		}
+		// Cleanup incase test fails
+		const noExist = path.join(fixturesDir, 'no-exist-config.json');
+		if (fs.existsSync(noExist)) {
+			fs.unlinkSync(noExist);
+		}
 		done();
 	});
 
 	afterEach(done => {
-		fs.unlinkSync(configFile);
+		if (fs.existsSync(configFile)) {
+			fs.unlinkSync(configFile);
+		}
 		done();
 	});
 
-	describe('readConfig()', () => {
-
-		it('should handle reading when no file exists', done => {
-			const cfg = config.read();
-			expect(cfg).to.deep.equal({});
-			done();
-		});
-
-		it('should handle reading when a file does exist', done => {
-			fs.copyFileSync(path.join(fixturesDir, 'existing-file.json'), configFile, { overwrite: true });
-			const cfg = config.read();
-			expect(cfg).to.deep.equal({ existing: true });
-			done();
-		});
+	it('should default to loading amplify config', done => {
+		fs.copyFileSync(path.join(fixturesDir, 'existing-file.json'), configFile, { overwrite: true });
+		const cfg = loadConfig();
+		expect(cfg.toString(0)).to.equal('{"existing":true}');
+		done();
 	});
 
-	describe('writeConfig()', () => {
-
-		it('should write a config', done => {
-			config.write({ writeTest: true });
-			const cfg = config.read();
-			expect(cfg).to.deep.equal({ writeTest: true });
-			done();
-		});
+	it('should allow a custom userConfig to be passed in', done => {
+		const userConfig = path.join(fixturesDir, 'my-own-config.json');
+		const cfg = loadConfig({ userConfig });
+		expect(cfg.toString(0)).to.equal('{"ownConfig":true}');
+		done();
 	});
 
+	it('should write userConfig if it does not exist', done => {
+		const userConfig = path.join(fixturesDir, 'no-exist-config.json');
+		expect(fs.existsSync(userConfig)).to.equal(false);
+		const cfg = loadConfig({ userConfig });
+		expect(cfg.toString(0)).to.equal('{}');
+		fs.unlinkSync(userConfig);
+		done();
+	});
 });
