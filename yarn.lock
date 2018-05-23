@@ -214,7 +214,7 @@
     invariant "^2.2.0"
     lodash "^4.2.0"
 
-"@babel/traverse@7.0.0-beta.47":
+"@babel/traverse@7.0.0-beta.47", "@babel/traverse@latest":
   version "7.0.0-beta.47"
   resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.0.0-beta.47.tgz#0e57fdbb9ff3a909188b6ebf1e529c641e6c82a4"
   dependencies:
@@ -237,7 +237,7 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@babel/types@7.0.0-beta.47":
+"@babel/types@7.0.0-beta.47", "@babel/types@latest":
   version "7.0.0-beta.47"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.0.0-beta.47.tgz#e6fcc1a691459002c2671d558a586706dddaeef8"
   dependencies:
@@ -381,6 +381,27 @@ ansi-wrap@0.1.0, ansi-wrap@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/ansi-wrap/-/ansi-wrap-0.1.0.tgz#a82250ddb0015e9a27ca82e82ea603bbfa45efaf"
 
+appcd-config@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/appcd-config/-/appcd-config-1.1.0.tgz#4fe142c45ccbe34fc437fd4324819c849bc2f3f7"
+  dependencies:
+    "@babel/traverse" latest
+    "@babel/types" latest
+    appcd-fs "^1.1.1"
+    appcd-logger "^1.1.0"
+    appcd-path "^1.1.0"
+    babylon next
+    doctrine "^2.1.0"
+    fs-extra "^5.0.0"
+    gawk "^4.4.5"
+    source-map-support "^0.5.4"
+
+appcd-fs@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/appcd-fs/-/appcd-fs-1.1.1.tgz#72e8c4b441f11838f2189c477ce7e08449b03b21"
+  dependencies:
+    source-map-support "^0.5.4"
+
 appcd-gulp@^1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/appcd-gulp/-/appcd-gulp-1.1.4.tgz#a8565b8bbf2b463e5ceb33b836d733db8fda56a7"
@@ -422,6 +443,13 @@ appcd-gulp@^1.1.4:
     nyc "^11.8.0"
     sinon "^5.0.7"
     sinon-chai "^3.0.0"
+
+appcd-logger@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/appcd-logger/-/appcd-logger-1.1.0.tgz#e1f7690702b06dae395f2ca5b8e46cc5adef9646"
+  dependencies:
+    snooplogg "^1.9.2"
+    source-map-support "^0.5.4"
 
 appcd-path@^1.1.0:
   version "1.1.0"
@@ -1048,7 +1076,7 @@ babylon@7.0.0-beta.44:
   version "7.0.0-beta.44"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-7.0.0-beta.44.tgz#89159e15e6e30c5096e22d738d8c0af8a0e8ca1d"
 
-babylon@7.0.0-beta.47:
+babylon@7.0.0-beta.47, babylon@next:
   version "7.0.0-beta.47"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-7.0.0-beta.47.tgz#6d1fa44f0abec41ab7c780481e62fd9aafbdea80"
 
@@ -2564,7 +2592,7 @@ fs-extra@1.0.0:
     jsonfile "^2.1.0"
     klaw "^1.0.0"
 
-fs-extra@5.0.0:
+fs-extra@5.0.0, fs-extra@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-5.0.0.tgz#414d0110cdd06705734d055652c5411260c31abd"
   dependencies:
@@ -2575,14 +2603,6 @@ fs-extra@5.0.0:
 fs-extra@^4.0.1:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-4.0.3.tgz#0d852122e5bc5beb453fb028e9c0c9bf36340c94"
-  dependencies:
-    graceful-fs "^4.1.2"
-    jsonfile "^4.0.0"
-    universalify "^0.1.0"
-
-fs-extra@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-6.0.1.tgz#8abc128f7946e310135ddc93b98bddb410e7a34b"
   dependencies:
     graceful-fs "^4.1.2"
     jsonfile "^4.0.0"
@@ -2612,6 +2632,13 @@ gauge@~2.7.3:
     string-width "^1.0.1"
     strip-ansi "^3.0.1"
     wide-align "^1.1.0"
+
+gawk@^4.4.5:
+  version "4.4.5"
+  resolved "https://registry.yarnpkg.com/gawk/-/gawk-4.4.5.tgz#f3f4b950fd52e9e238de72e70a82afe049cc0421"
+  dependencies:
+    fast-deep-equal "^1.0.0"
+    source-map-support "^0.5.0"
 
 gaze@^0.5.1:
   version "0.5.2"
@@ -5301,7 +5328,7 @@ source-map-support@^0.4.11, source-map-support@^0.4.15, source-map-support@^0.4.
   dependencies:
     source-map "^0.5.6"
 
-source-map-support@^0.5.4, source-map-support@^0.5.6:
+source-map-support@^0.5.0, source-map-support@^0.5.4, source-map-support@^0.5.6:
   version "0.5.6"
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.6.tgz#4435cee46b1aab62b8e8610ce60f788091c51c13"
   dependencies:
