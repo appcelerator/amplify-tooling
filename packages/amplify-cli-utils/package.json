@@ -20,11 +20,11 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "fs-extra": "^6.0.0",
-    "source-map-support": "^0.5.4"
+    "fs-extra": "^6.0.1",
+    "source-map-support": "^0.5.6"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.1.1",
+    "appcd-gulp": "^1.1.4",
     "gulp": "^3.9.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",

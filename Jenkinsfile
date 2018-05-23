@@ -39,7 +39,7 @@ timestamps {
         // TODO: Anything other than test? Test also runs lint so pointless having a separate lint step
 
         stage('Test') {
-            sh 'yarn run lerna exec gulp test'
+            sh 'yarn run gulp coverage'
         }
 
       } // ansiColor

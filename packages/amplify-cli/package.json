@@ -24,14 +24,14 @@
   },
   "dependencies": {
     "@axway/amplify-cli-auth": "^0.1.0",
-    "@axway/amplify-cli-utils": "^0.1.0",
     "@axway/amplify-cli-pm": "^0.1.0",
+    "@axway/amplify-cli-utils": "^0.1.0",
     "appcd-path": "^1.1.0",
     "cli-kit": "^0.1.2",
-    "source-map-support": "^0.5.4"
+    "source-map-support": "^0.5.6"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.1.1",
+    "appcd-gulp": "^1.1.4",
     "gulp": "^3.9.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
