@@ -1,7 +1,5 @@
 import fs from 'fs-extra';
-import { homedir } from 'os';
 import { join } from 'path';
-import { run } from 'appcd-subprocess';
 
 import { loadConfig, locations } from '@axway/amplify-cli-utils';
 

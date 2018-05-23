@@ -14,3 +14,5 @@ export {
 	Registry,
 	fetchAndInstall
 };
+
+export default Registry;

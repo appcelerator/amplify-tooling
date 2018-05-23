@@ -1,35 +1,64 @@
 
 import { request } from '@axway/amplify-cli-utils';
-
+/**
+ * Class for simplifying communication with registry server for the packages APIs
+ */
 export default class Registry {
 
-	constructor(opts) {
+	/**
+	 * Create a registry instance
+	 * @param {Object} [opts] - Various options
+	 * @param {String} [opts.url=http://localhost:8082] - URL for the registry server
+	 */
+	constructor({ url } = {}) {
 
-		if (!opts) {
-			opts = {};
-		}
-
-		this.url = opts.url || 'http://localhost:8082';
+		this.url = url || 'http://localhost:8082';
 	}
 
+	/**
+	 * Search the registry for packages.
+	 * @param {Object} opts - Various options.
+	 * @param {String} opts.text - Search text to apply.
+	 * @param {String} [opts.repositories] - Comma separated list of repositories to restrict search to.
+	 * @param {String} [opts.type] - Type of package to restrict search to.
+	 * @returns {Object} - The result of the search
+	 */
 	async search({ text, repositories, type }) {
+
+		if (!text || typeof text) {
+			throw new Error('Expected text to be a valid string');
+		}
+
 		let url = `${this.url}/api/packages/v1/-/search?text=${encodeURIComponent(text)}`;
+
 		if (repositories) {
 			url = `${url}&repositories=${encodeURIComponent(repositories)}`;
 		}
 		if (type) {
 			url = `${url}&type=${encodeURIComponent(type)}`;
 		}
+
 		const params = {
 			url
 		};
+
 		let { body } = await request(params);
 		body = JSON.parse(body);
 		return body.result;
 	}
 
+	/**
+	 * Query the registry for the metadata for a package.
+	 * @param {Object} opts - Various options.
+	 * @param {String} opts.text - Search text to apply.
+	 * @param {String} [opts.version] - Version to restrict the search to, can be a semver range.
+	 * @param {String} [opts.repository] - Comma separated list of repositories to restrict search to.
+	 * @param {String} [opts.type] - Type of package to restrict search to.
+	 * @returns {Object} - Metadata for the package, if a version is supplied then only the metadata for that version is returned
+	 * otherwise the entire document for the package is returned.
+	 */
 	async metadata({ name, version, repository, type }) {
-		let url = `http://localhost:8082/api/packages/v1/${encodeURIComponent(name)}`;
+		let url = `${this.url}/api/packages/v1/${encodeURIComponent(name)}`;
 		if (version) {
 			url = `${url}/${version}`;
 		}
@@ -45,18 +74,7 @@ export default class Registry {
 		};
 		let { body } = await request(params);
 		body = JSON.parse(body);
+		console.log(body);
 		return body.result;
-	}
-
-	async install({ name, version, repository, type }) {
-		const body = await this.metadata({ name, version, repository, type });
-		if (body.length) {
-			return undefined;
-		}
-		if (!version) {
-			const version = body.latest_version.replace(/\./g, '_');
-			return body.versions[version];
-		}
-		return body;
 	}
 }

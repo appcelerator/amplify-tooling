@@ -1,8 +1,9 @@
 import Registry from '../registry';
+import extractPackage from './extract';
 
 export async function fetchAndInstall({ name, repository, type, fetchSpec }) {
 	const registry = new Registry();
-	const pkgInfo = await registry.install({ name, repository, type, version: fetchSpec });
+	const pkgInfo = await registry.metadata({ name, repository, type, version: fetchSpec });
 	if (!pkgInfo) {
 		const err = new Error('No data returned');
 		err.code = 'NO_DATA';
@@ -13,9 +14,9 @@ export async function fetchAndInstall({ name, repository, type, fetchSpec }) {
 		await actions.pre();
 	}
 	const fetcher = await getFetcher(pkgInfo.dist.repository);
-	const installLocation = await fetcher.fetchPackage({ pkgInfo: pkgInfo });
-	const extracter = await getExtracter(pkgInfo.type);
-	const extractLocation = await extracter.extractPackage(installLocation);
+	const zipLocation = await fetcher.fetchPackage({ pkgInfo: pkgInfo });
+	const extractLocation = await extractPackage({ zipLocation, type: pkgInfo.type });
+	console.log(extractLocation);
 	if (actions.post) {
 		await actions.post({ pkgInfo, location: extractLocation });
 	}
