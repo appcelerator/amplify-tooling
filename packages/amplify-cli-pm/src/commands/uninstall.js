@@ -39,7 +39,7 @@ export default {
 			replacement.path = installed.versionInfo[newVersion].installPath;
 			replacement.version = newVersion;
 		}
-		common.removePackageFromConfig(name, replacement.path);
+		await common.removePackageFromConfig(name, replacement.path);
 		if (versions.length) {
 			for (const { version, installPath } of versions) {
 				fs.removeSync(installPath);

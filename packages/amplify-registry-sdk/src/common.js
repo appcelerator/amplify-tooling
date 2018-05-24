@@ -3,36 +3,42 @@ import { homedir } from 'os';
 import { join } from 'path';
 import { run } from 'appcd-subprocess';
 
-import { config, locations } from '@axway/amplify-cli-utils';
+import { loadConfig, locations } from '@axway/amplify-cli-utils';
 
-export const cacheDir = join(locations.axwayDir, 'cache');
-export const packagesDir = join(locations.axwayDir, 'packages');
+export const cacheDir = join(locations.axwayHome, 'cache');
+export const packagesDir = join(locations.axwayHome, 'packages');
 
-export function addPackageToConfig(name, path) {
-	const cfg = config.read();
-	if (!cfg.extensions) {
-		cfg.extensions = {};
-	}
-	cfg.extensions[name] = path;
-	config.write(cfg);
+/**
+ * Add a package to the amplify cli config
+ * @param {String} name - Name of the package.
+ * @param {String} path - Path to the package.
+ */
+export async function addPackageToConfig(name, path) {
+	const cfg = loadConfig();
+	cfg.set(`extensions.${name}`, path);
+	await cfg.save(locations.configFile);
 }
 
-export function removePackageFromConfig(name, replacementPath) {
-	const cfg = config.read();
-	if (!cfg.extensions) {
-		cfg.extensions = {};
-	}
+/**
+ * Remove a package from the amplify cli config, optionally replacing it with another version.
+ * @param {String} name - Name of the package to remove/replace.
+ * @param {String} [replacementPath] - Path to replace the existing version with.
+ */
+export async function removePackageFromConfig(name, replacementPath) {
+	const cfg = loadConfig();
 	if (replacementPath) {
-		cfg.extensions[name] = replacementPath;
+		cfg.set(`extensions.${name}`, replacementPath);
 	} else {
-		delete cfg.extensions[name];
+		cfg.delete(`extensions.${name}`);
 	}
-	config.write(cfg);
+	await cfg.save(locations.configFile);
 }
 
 export function getInstalledPackages(wantedName) {
 	const plugins = [];
-	const activePkgs = getActivePackages();
+	const cfg = loadConfig();
+
+	const activePkgs = cfg.get('extensions', {});
 	for (const name of fs.readdirSync(packagesDir)) {
 		const nameDir = join(packagesDir, name);
 		if (!fs.statSync(nameDir).isDirectory()) {
@@ -64,11 +70,6 @@ export function getInstalledPackages(wantedName) {
 		return plugins[0];
 	}
 	return plugins;
-}
-
-export function getActivePackages() {
-	const cfg = config.read();
-	return cfg.extensions || {};
 }
 
 function getPackageInfo(pluginPath) {
