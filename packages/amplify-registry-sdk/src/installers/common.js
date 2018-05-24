@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import { run } from 'appcd-subprocess';
 
 export async function npmInstall({ directory }) {
-	const { err } = await run('npm', [ 'install', '--production' ], { cwd: directory });
+	const { err } = await run('npm', [ 'install', '--production' ], { cwd: directory, shell: true, windowsHide: true });
 	if (err) {
 		throw err;
 	}
