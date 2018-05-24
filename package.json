@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "chalk": "^2.4.1",
     "globule": "^1.2.0",
     "gulp": "^3.9.1",
     "gulp-chug": "^0.5.1",
