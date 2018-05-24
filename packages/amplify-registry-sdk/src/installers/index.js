@@ -1,5 +1,6 @@
 import Registry from '../registry';
-import extractPackage from './extract';
+import extractPackage from './extracters';
+import fetchPackage from './fetchers';
 
 export async function fetchAndInstall({ name, repository, type, fetchSpec }) {
 	const registry = new Registry();
@@ -13,10 +14,8 @@ export async function fetchAndInstall({ name, repository, type, fetchSpec }) {
 	if (actions.pre) {
 		await actions.pre();
 	}
-	const fetcher = await getFetcher(pkgInfo.dist.repository);
-	const zipLocation = await fetcher.fetchPackage({ pkgInfo: pkgInfo });
+	const zipLocation = await fetchPackage(pkgInfo);
 	const extractLocation = await extractPackage({ zipLocation, type: pkgInfo.type });
-	console.log(extractLocation);
 	if (actions.post) {
 		await actions.post({ pkgInfo, location: extractLocation });
 	}

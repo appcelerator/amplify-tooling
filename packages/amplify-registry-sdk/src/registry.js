@@ -11,7 +11,6 @@ export default class Registry {
 	 * @param {String} [opts.url=http://localhost:8082] - URL for the registry server
 	 */
 	constructor({ url } = {}) {
-
 		this.url = url || 'http://localhost:8082';
 	}
 
@@ -44,6 +43,7 @@ export default class Registry {
 
 		let { body } = await request(params);
 		body = JSON.parse(body);
+
 		return body.result;
 	}
 
@@ -58,23 +58,29 @@ export default class Registry {
 	 * otherwise the entire document for the package is returned.
 	 */
 	async metadata({ name, version, repository, type }) {
+
 		let url = `${this.url}/api/packages/v1/${encodeURIComponent(name)}`;
+
 		if (version) {
 			url = `${url}/${version}`;
 		}
+
 		if (repository) {
 			url = `${url}?repository=${encodeURIComponent(repository)}`;
 		}
+
 		if (type) {
 			const sep = url.includes('?') ? '&' : '?';
 			url = `${url}${sep}type=${encodeURIComponent(type)}`;
 		}
+
 		const params = {
 			url
 		};
+
 		let { body } = await request(params);
 		body = JSON.parse(body);
-		console.log(body);
+
 		return body.result;
 	}
 }
