@@ -11,6 +11,8 @@ const plumber      = require('gulp-plumber');
 const spawn        = require('child_process').spawn;
 const spawnSync    = require('child_process').spawnSync;
 
+const { red }      = require('chalk');
+
 gulp.task('node-info', () => {
 	log(`Node.js ${process.version} (${process.platform})`);
 	log(process.env);
