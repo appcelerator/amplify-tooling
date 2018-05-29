@@ -24,7 +24,7 @@ export default class Registry {
 	 */
 	async search({ text, repositories, type }) {
 
-		if (!text || typeof text) {
+		if (!text || typeof text !== 'string') {
 			throw new Error('Expected text to be a valid string');
 		}
 
