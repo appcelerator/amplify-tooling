@@ -1,4 +1,3 @@
-import { expandPath } from 'appcd-path';
 import { loadConfig, locations } from '@axway/amplify-cli-utils';
 
 const readActions = {

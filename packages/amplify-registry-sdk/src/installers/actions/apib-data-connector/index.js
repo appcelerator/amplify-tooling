@@ -41,7 +41,7 @@ function validateProject() {
 	}
 
 	const appcJson = path.join(location, 'appc.json');
-	if (!fs.existsSync(pkgJson)) {
+	if (!fs.existsSync(appcJson)) {
 		const err =  new Error('Expected directory to have a appc.json');
 		err.code = 'E_NO_APPCJSON';
 		throw err;

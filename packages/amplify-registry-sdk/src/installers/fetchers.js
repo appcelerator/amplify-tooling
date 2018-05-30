@@ -2,6 +2,7 @@ import gittar from '@awam/gittar';
 import pacote from 'pacote';
 
 import { cacheDir } from '../common';
+import { existsSync } from 'fs';
 import { join } from 'path';
 
 const npmCacheDir =  join(cacheDir, 'npm');
@@ -28,7 +29,10 @@ export default async function fetchPackage(pkgInfo) {
 			}
 
 			downloadLocation = join(npmCacheDir, name, version, 'package.tgz');
-			await pacote.tarball.toFile(`${name}@${version}`, downloadLocation, opts);
+			
+			if (!existsSync(downloadLocation)) {
+				await pacote.tarball.toFile(`${name}@${version}`, downloadLocation, opts);
+			}
 			break;
 		case 'git':
 			downloadLocation = await gittar.fetch(pkgInfo.dist.download_url);

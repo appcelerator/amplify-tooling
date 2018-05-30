@@ -29,24 +29,6 @@ async function getActions(packageType) {
 		case 'amplify-cli-plugin':
 			return await import('./actions/amplify-cli-plugin');
 		default:
-			return undefined;
-	}
-}
-
-async function getExtracter(packageType) {
-	switch (packageType) {
-		case 'apib-data-connector':
-			return await import('./extracters/apib-data-connector');
-		case 'amplify-cli-plugin':
-			return await import('./extracters/amplify-cli-plugin');
-	}
-}
-
-async function getFetcher(repository) {
-	switch (repository) {
-		case 'marketplace':
-			return await import('./fetchers/marketplace');
-		case 'npm':
-			return await import('./fetchers/npm');
+			return {};
 	}
 }
