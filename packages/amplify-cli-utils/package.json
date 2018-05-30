@@ -30,10 +30,7 @@
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/appcelerator/amplify-tooling.git"
-  },
+  "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-utils",
   "engines": {
     "node": ">=8.0.0"
   },
