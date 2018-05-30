@@ -33,17 +33,18 @@ export async function pre() {
 
 function validateProject() {
 	const location = process.cwd();
+
 	const pkgJson = path.join(location, 'package.json');
 	if (!fs.existsSync(pkgJson)) {
 		const err =  new Error('Expected directory to have a package.json');
-		err.code = 'E_NO_PACKAGEJSON';
+		err.code = 'EINVALIDIR';
 		throw err;
 	}
 
 	const appcJson = path.join(location, 'appc.json');
 	if (!fs.existsSync(appcJson)) {
 		const err =  new Error('Expected directory to have a appc.json');
-		err.code = 'E_NO_APPCJSON';
+		err.code = 'EINVALIDIR';
 		throw err;
 	}
 

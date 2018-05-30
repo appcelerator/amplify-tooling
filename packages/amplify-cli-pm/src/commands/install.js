@@ -31,14 +31,22 @@ export default {
 			const info = await fetchAndInstall({ name, type: packageType, fetchSpec });
 			console.log(`Installed ${name}@${info.version}`);
 		} catch (e) {
-			if (e.code === 'ECONNREFUSED') {
-				console.log('Unable to connect to registry server');
-				process.exit(3);
-			} else if (e.code === 'NO_DATA') {
-				console.log('No results found');
-				process.exit(1);
+			switch (e.code) {
+				case 'ECONNREFUSED':
+					console.log('Unable to connect to registry server');
+					process.exit(3);
+				case 'EINVALIDIR':
+					console.log('You are in an invalid directory to install this component type');
+					console.log(e.message);
+					break;
+				case 'NO_DATA':
+					console.log('No results found');
+					break;
+				default:
+					console.log(e);
+					break;
 			}
-			console.log(e);
+			process.exit(1);
 		}
 	}
 };

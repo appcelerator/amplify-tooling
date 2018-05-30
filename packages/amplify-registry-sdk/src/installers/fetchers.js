@@ -29,7 +29,7 @@ export default async function fetchPackage(pkgInfo) {
 			}
 
 			downloadLocation = join(npmCacheDir, name, version, 'package.tgz');
-			
+
 			if (!existsSync(downloadLocation)) {
 				await pacote.tarball.toFile(`${name}@${version}`, downloadLocation, opts);
 			}
