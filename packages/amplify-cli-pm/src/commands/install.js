@@ -33,17 +33,25 @@ export default {
 		} catch (e) {
 			switch (e.code) {
 				case 'ECONNREFUSED':
-					console.log('Unable to connect to registry server');
+					console.error('Unable to connect to registry server');
 					process.exit(3);
 				case 'EINVALIDIR':
-					console.log('You are in an invalid directory to install this component type');
-					console.log(e.message);
+					console.error('You are in an invalid directory to install this component type');
+					console.error(e.message);
+					break;
+				case 'ENONPM':
+					console.error(e.message);
+					break;
+				case 'ENPMINSTALLERROR':
+					// TODO: Need to break this error down into some sort of actionable items
+					console.error('An error occurred when running "npm install"');
+					console.error(e);
 					break;
 				case 'NO_DATA':
-					console.log('No results found');
+					console.error('No results found');
 					break;
 				default:
-					console.log(e);
+					console.error(e);
 					break;
 			}
 			process.exit(1);

@@ -1,15 +1,16 @@
 import columninfy from 'columnify';
-import { common } from '@axway/amplify-registry-sdk';
+import { getInstalledPackages } from '@axway/amplify-registry-sdk';
 
 export default {
 	aliases: [ 'ls' ],
 	desc: 'lists all installed packages',
 	async action({ argv }) {
-		const installed = common.getInstalledPackages();
+		const installed = getInstalledPackages();
 		if (!installed.length) {
 			console.log('No packages installed');
 			return;
 		}
+
 		const columnConfig = {
 			columnSplitter: ' | ',
 			showHeaders: true,

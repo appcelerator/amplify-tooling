@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import npa from 'npm-package-arg';
 import semver from 'semver';
 
-import { common } from '@axway/amplify-registry-sdk';
+import { getInstalledPackages, removePackageFromConfig } from '@axway/amplify-registry-sdk';
 
 export default {
 	desc: 'uninstalls the specified package',
@@ -19,7 +19,7 @@ export default {
 		const { type, name, fetchSpec } = info;
 		const { packageType } = argv;
 
-		const installed = common.getInstalledPackages(name);
+		const installed = getInstalledPackages().filter(pkg => pkg.name === name)[0];
 		const versions = [];
 
 		if (type === 'range') {
@@ -39,7 +39,7 @@ export default {
 			replacement.path = installed.versionInfo[newVersion].installPath;
 			replacement.version = newVersion;
 		}
-		await common.removePackageFromConfig(name, replacement.path);
+		await removePackageFromConfig(name, replacement.path);
 		if (versions.length) {
 			for (const { version, installPath } of versions) {
 				fs.removeSync(installPath);

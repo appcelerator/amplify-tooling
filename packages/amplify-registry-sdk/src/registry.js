@@ -15,17 +15,17 @@ export default class Registry {
 	}
 
 	/**
-	 * Search the registry for packages.
+	 * Search the registry for packages and parses reponse as JSON.
 	 * @param {Object} opts - Various options.
 	 * @param {String} opts.text - Search text to apply.
 	 * @param {String} [opts.repositories] - Comma separated list of repositories to restrict search to.
 	 * @param {String} [opts.type] - Type of package to restrict search to.
 	 * @returns {Object} - The result of the search
 	 */
-	async search({ text, repositories, type }) {
+	async search({ text, repositories, type } = {}) {
 
 		if (!text || typeof text !== 'string') {
-			throw new Error('Expected text to be a valid string');
+			throw new TypeError('Expected text to be a valid string');
 		}
 
 		let url = `${this.url}/api/packages/v1/-/search?text=${encodeURIComponent(text)}`;
@@ -48,30 +48,23 @@ export default class Registry {
 	}
 
 	/**
-	 * Query the registry for the metadata for a package.
+	 * Query the registry for the metadata for a package and parses reponse as JSON.
 	 * @param {Object} opts - Various options.
-	 * @param {String} opts.text - Search text to apply.
-	 * @param {String} [opts.version] - Version to restrict the search to, can be a semver range.
-	 * @param {String} [opts.repository] - Comma separated list of repositories to restrict search to.
-	 * @param {String} [opts.type] - Type of package to restrict search to.
+	 * @param {String} opts.name - Name of the package.
+	 * @param {String} [opts.version] - Version to fetch metadata for.
 	 * @returns {Object} - Metadata for the package, if a version is supplied then only the metadata for that version is returned
 	 * otherwise the entire document for the package is returned.
 	 */
-	async metadata({ name, version, repository, type }) {
+	async metadata({ name, version } = {}) {
+
+		if (!name || typeof name !== 'string') {
+			throw new TypeError('Expected name to be a valid string');
+		}
 
 		let url = `${this.url}/api/packages/v1/${encodeURIComponent(name)}`;
 
 		if (version) {
 			url = `${url}/${version}`;
-		}
-
-		if (repository) {
-			url = `${url}?repository=${encodeURIComponent(repository)}`;
-		}
-
-		if (type) {
-			const sep = url.includes('?') ? '&' : '?';
-			url = `${url}${sep}type=${encodeURIComponent(type)}`;
 		}
 
 		const params = {

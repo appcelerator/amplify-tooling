@@ -7,12 +7,18 @@ import Registry from './registry';
 
 import { fetchAndInstall } from './installers';
 
-import * as common from './common';
+import {
+	addPackageToConfig,
+	getInstalledPackages,
+	removePackageFromConfig
+} from './installers/common';
 
 export {
-	common,
+	addPackageToConfig,
+	fetchAndInstall,
+	getInstalledPackages,
 	Registry,
-	fetchAndInstall
+	removePackageFromConfig
 };
 
 export default Registry;

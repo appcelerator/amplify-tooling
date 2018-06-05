@@ -1,7 +1,7 @@
 import gittar from '@awam/gittar';
 import pacote from 'pacote';
 
-import { cacheDir } from '../common';
+import { cacheDir } from './common';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
