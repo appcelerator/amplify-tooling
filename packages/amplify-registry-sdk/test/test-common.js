@@ -1,7 +1,11 @@
-import { addPackageToConfig, getInstalledPackages, removePackageFromConfig } from '../dist/installers/common';
+import { addPackageToConfig, extractTar, getInstalledPackages, npmInstall, removePackageFromConfig } from '../dist/installers/common';
 import { join } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
 import { removeSync } from 'fs-extra';
+import { EventEmitter } from 'events';
+// We need to require this in order to mock it
+const child_process = require('child_process');
+const tar = require('tar');
 
 const fixturesDir = join(__dirname, 'fixtures');
 const userConfig = join(fixturesDir, 'my-config.json');
@@ -31,7 +35,7 @@ describe('common utils', () => {
 		});
 
 		it('should add a package to the config', async function () {
-			const pluginDir =  join(fixturesDir, 'common', 'foo');
+			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo');
 			await addPackageToConfig('foo', pluginDir, this.config, userConfig);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir
@@ -62,7 +66,7 @@ describe('common utils', () => {
 		});
 
 		it('should remove a package from the config', async function () {
-			const pluginDir =  join(fixturesDir, 'common', 'foo');
+			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo');
 			await addPackageToConfig('foo', pluginDir, this.config, userConfig);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir
@@ -79,8 +83,8 @@ describe('common utils', () => {
 		});
 
 		it('should allow setting a replacement path', async function () {
-			const pluginDir =  join(fixturesDir, 'common', 'foo', '1.0.0');
-			const pluginDir2 =  join(fixturesDir, 'common', 'bar', '1.0.0');
+			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo', '1.0.0');
+			const pluginDir2 =  join(fixturesDir, 'common', 'packages', 'bar', '1.0.0');
 			await addPackageToConfig('foo', pluginDir, this.config, userConfig);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir
@@ -103,11 +107,11 @@ describe('common utils', () => {
 		});
 
 		it('should list all packages', async function () {
-			const pluginDir =  join(fixturesDir, 'common', 'foo', '1.0.0');
-			const pluginDir2 =  join(fixturesDir, 'common', 'bar', '1.0.0');
+			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo', '1.0.0');
+			const pluginDir2 =  join(fixturesDir, 'common', 'packages', 'bar', '1.0.0');
 			await addPackageToConfig('foo', pluginDir, this.config, userConfig);
 			await removePackageFromConfig('bar', pluginDir2, this.config, userConfig);
-			const packages = getInstalledPackages(this.config, join(fixturesDir, 'common'));
+			const packages = getInstalledPackages(this.config, join(fixturesDir, 'common', 'packages'));
 			expect(packages).to.deep.equal([
 				{
 					activePath: pluginDir2,
@@ -134,6 +138,63 @@ describe('common utils', () => {
 					}
 				},
 			]);
+		});
+	});
+
+	describe('npminstall()', function () {
+
+		beforeEach(function () {
+			this.fakeChild = new EventEmitter();
+			this.fakeChild.stdout = new EventEmitter();
+			this.fakeChild.stderr = new EventEmitter();
+			this.sandbox.stub(child_process, 'spawn').returns(this.fakeChild);
+		});
+
+		afterEach(function () {
+			this.fakeChild = null;
+			this.sandbox.restore();
+		});
+
+		it('should error if no package.json', () => {
+			return expect(npmInstall({ directory: join(fixturesDir, 'common'), npm: 'npm' })).to.be.rejectedWith(Error, 'Directory does not contain a package.json');
+		});
+
+		it('should run npm install', async function () {
+			this.timeout(25000);
+			setTimeout(() => {
+				this.fakeChild.stdout.emit('data', '');
+				this.fakeChild.emit('close');
+			}, 1000);
+			await npmInstall({ directory: join(fixturesDir, 'common', 'npm-install-dir'), npm: 'npm' });
+		});
+
+		it('should error if npm install fails', function () {
+			this.timeout(25000);
+			setTimeout(() => {
+				this.fakeChild.stdout.emit('data', '');
+				this.fakeChild.emit('close', 1);
+			}, 1000);
+			return expect(npmInstall({ directory: join(fixturesDir, 'common', 'npm-install-dir'), npm: 'npm' })).to.be.rejectedWith(Error, 'Subprocess exited with code 1');
+		});
+
+		it('should attempt to find npm if no npm executable is passed in', async function () {
+			this.timeout(25000);
+			setTimeout(() => {
+				this.fakeChild.stdout.emit('data', '');
+				this.fakeChild.emit('close');
+			}, 1000);
+			await npmInstall({ directory: join(fixturesDir, 'common', 'npm-install-dir') });
+		});
+	});
+
+	describe('extract()', function () {
+
+		beforeEach(function () {
+			this.sandbox.stub(tar, 'extract').resolves('/a/directory/');
+		});
+
+		it('should extract contents', () => {
+			return expect(extractTar({ file: 'test.tgz', dest: join(fixturesDir, 'common', 'extract-dir') })).to.eventually.equal('/a/directory/');
 		});
 	});
 });

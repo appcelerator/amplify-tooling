@@ -10,6 +10,12 @@ export const packagesDir = join(locations.axwayHome, 'packages');
 
 export async function npmInstall({ directory, npm }) {
 
+	if (!existsSync(join(directory, 'package.json'))) {
+		const error = new Error('Directory does not contain a package.json');
+		error.code = 'ENOPKGJSON';
+		throw error;
+	}
+
 	if (!npm) {
 		try {
 			npm = await which('npm');
@@ -22,12 +28,11 @@ export async function npmInstall({ directory, npm }) {
 
 	try {
 		const { err, stdout, stderr } = await run(npm, [ 'install', '--production' ], { cwd: directory, shell: true, windowsHide: true });
-
 		if (err) {
 			throw err;
 		}
 	} catch (err) {
-		// Add a error code but move the original code value here into an exitCode prop
+		// Add an error code but move the original code value here into an exitCode prop
 		err.exitCode = err.code;
 		err.code = 'ENPMINSTALLERROR';
 		throw err;

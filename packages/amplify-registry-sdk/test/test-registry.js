@@ -28,7 +28,7 @@ describe('Registry', function () {
 		done();
 	});
 
-	it('metadata(): should require name', () => {
+	it('metadata() should require name', () => {
 		const r = new Registry({ url: 'http://localhost:1337' });
 		return expect(r.metadata()).to.be.rejectedWith(TypeError, 'Expected name to be a valid string');
 	});
@@ -86,7 +86,7 @@ describe('Registry', function () {
 		});
 	});
 
-	it('search(): should allow searching with repository', function (done) {
+	it('search() should allow searching with repository', function (done) {
 		this.server = http.createServer((req, res) => {
 			res.end(JSON.stringify({ result: { name: 'foo' } }));
 		});
@@ -102,7 +102,7 @@ describe('Registry', function () {
 		});
 	});
 
-	it('metadata(): should allow searching with type', function (done) {
+	it('metadata() should allow searching with type', function (done) {
 		this.server = http.createServer((req, res) => {
 			res.end(JSON.stringify({ result: { name: 'foo' } }));
 		});
