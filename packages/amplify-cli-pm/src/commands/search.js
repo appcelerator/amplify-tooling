@@ -1,4 +1,6 @@
 import columninfy from 'columnify';
+
+import { getRegistryURL } from './utils';
 import { Registry } from '@axway/amplify-registry-sdk';
 
 export default {
@@ -24,7 +26,8 @@ export default {
 	],
 	async action({ argv }) {
 		try {
-			const registry = new Registry();
+			const url = getRegistryURL();
+			const registry = new Registry({ url });
 			const { repositories, search, type } = argv;
 			const body = await registry.search({ text: search, repositories, type });
 

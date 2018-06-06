@@ -1,6 +1,7 @@
 import npa from 'npm-package-arg';
 
 import { fetchAndInstall } from '@axway/amplify-registry-sdk';
+import { getRegistryURL } from './utils';
 
 export default {
 	aliases: [ 'i' ],
@@ -25,10 +26,10 @@ export default {
 		const info = npa(argv.package);
 		const { name, fetchSpec } = info;
 		const { packageType } = argv;
-
+		const url = getRegistryURL();
 		try {
 			console.log(`Fetching ${name}`);
-			const info = await fetchAndInstall({ name, type: packageType, fetchSpec });
+			const info = await fetchAndInstall({ name, type: packageType, fetchSpec, url });
 			console.log(`Installed ${name}@${info.version}`);
 		} catch (e) {
 			switch (e.code) {

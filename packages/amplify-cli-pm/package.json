@@ -24,6 +24,7 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "@axway/amplify-cli-utils": "^0.1.0",
     "@axway/amplify-registry-sdk": "0.1.0",
     "cli-kit": "^0.1.2",
     "columnify": "^1.5.4",

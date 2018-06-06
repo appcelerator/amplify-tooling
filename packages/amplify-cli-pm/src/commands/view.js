@@ -1,5 +1,6 @@
 import npa from 'npm-package-arg';
 
+import { getRegistryURL } from './utils';
 import { Registry } from '@axway/amplify-registry-sdk';
 
 export default {
@@ -19,7 +20,8 @@ export default {
 		}
 	],
 	async action({ argv }) {
-		const registry = new Registry();
+		const url = getRegistryURL();
+		const registry = new Registry({ url });
 		const info = npa(argv.package);
 		const { name, fetchSpec } = info;
 		const { packageType } = argv;
