@@ -10,8 +10,8 @@ export default {
 		'--auth <account>': {
 			desc: 'the authorization account to use'
 		},
-		'--repositories <repository>': {
-			desc: 'comma separated list of repositories to search'
+		'--repository <repository>': {
+			desc: 'repository to search'
 		},
 		'--type <type>': {
 			desc: 'type of component to search'
@@ -21,15 +21,15 @@ export default {
 		{
 			name: 'search',
 			desc: 'the package name or keywords',
-			required: true
+			required: false
 		}
 	],
 	async action({ argv }) {
 		try {
 			const url = getRegistryURL();
 			const registry = new Registry({ url });
-			const { repositories, search, type } = argv;
-			const body = await registry.search({ text: search, repositories, type });
+			const { repository, search, type } = argv;
+			const body = await registry.search({ text: search, repository, type });
 
 			const columnConfig = {
 				columnSplitter: ' | ',

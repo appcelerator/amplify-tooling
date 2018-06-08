@@ -9,9 +9,6 @@ export default {
 	options: {
 		'--auth <account>': {
 			desc: 'the authorization account to use'
-		},
-		'--package-type <type>': {
-			desc: 'type of component to search'
 		}
 	},
 	args: [
@@ -25,11 +22,10 @@ export default {
 	async action({ argv }) {
 		const info = npa(argv.package);
 		const { name, fetchSpec } = info;
-		const { packageType } = argv;
 		const url = getRegistryURL();
 		try {
 			console.log(`Fetching ${name}`);
-			const info = await fetchAndInstall({ name, type: packageType, fetchSpec, url });
+			const info = await fetchAndInstall({ name, fetchSpec, url });
 			console.log(`Installed ${name}@${info.version}`);
 		} catch (e) {
 			switch (e.code) {

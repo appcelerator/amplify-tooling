@@ -17,24 +17,27 @@ export default class Registry {
 	/**
 	 * Search the registry for packages and parses reponse as JSON.
 	 * @param {Object} opts - Various options.
-	 * @param {String} opts.text - Search text to apply.
-	 * @param {String} [opts.repositories] - Comma separated list of repositories to restrict search to.
+	 * @param {String} [opts.text] - Search text to apply.
+	 * @param {String} [opts.repository] - Repository to restrict search to.
 	 * @param {String} [opts.type] - Type of package to restrict search to.
 	 * @returns {Object} - The result of the search
 	 */
-	async search({ text, repositories, type } = {}) {
+	async search({ text, repository, type } = {}) {
 
-		if (!text || typeof text !== 'string') {
-			throw new TypeError('Expected text to be a valid string');
+		let url = `${this.url}/api/packages/v1/-/search`;
+
+		if (text) {
+			url = `${url}?text=${encodeURIComponent(text)}`;
 		}
 
-		let url = `${this.url}/api/packages/v1/-/search?text=${encodeURIComponent(text)}`;
-
-		if (repositories) {
-			url = `${url}&repositories=${encodeURIComponent(repositories)}`;
+		if (repository) {
+			const sep = url.includes('?') ? '&' : '?';
+			url = `${url}${sep}repository=${encodeURIComponent(repository)}`;
 		}
+
 		if (type) {
-			url = `${url}&type=${encodeURIComponent(type)}`;
+			const sep = url.includes('?') ? '&' : '?';
+			url = `${url}${sep}type=${encodeURIComponent(type)}`;
 		}
 
 		const params = {

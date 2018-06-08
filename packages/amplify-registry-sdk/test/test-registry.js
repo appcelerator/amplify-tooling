@@ -65,11 +65,6 @@ describe('Registry', function () {
 		});
 	});
 
-	it('search() should require text', () => {
-		const r = new Registry({ url: 'http://localhost:1337' });
-		return expect(r.search()).to.be.rejectedWith(TypeError, 'Expected text to be a valid string');
-	});
-
 	it('search() should allow searching by just text', function (done) {
 		this.server = http.createServer((req, res) => {
 			res.end(JSON.stringify({ result: { name: 'foo' } }));
@@ -93,7 +88,7 @@ describe('Registry', function () {
 		const r = new Registry({ url: 'http://localhost:1337' });
 
 		this.server.listen(1337, '127.0.0.1', () => {
-			r.search({ text: 'foo', repositories: 'npm' })
+			r.search({ text: 'foo', repository: 'npm' })
 				.then(data => {
 					expect(data).to.deep.equal({ name: 'foo' });
 					done();
