@@ -1,0 +1,79 @@
+import Authenticator from './authenticator';
+
+const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
+
+/**
+ * Authentication scheme using a pre-shared secret token. By default, the authentication process is
+ * interactive unless it is a service account.
+ */
+export default class ClientSecret extends Authenticator {
+	/**
+	 * Initializes an client secret authentication instance.
+	 *
+	 * @param {Object} opts - Various options.
+	 * @param {String} opts.clientSecret - The secret token to use to authenticate.
+	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
+	 * requested by a service instead of a user.
+	 * @access public
+	 */
+	constructor(opts) {
+		if (!opts || typeof opts !== 'object') {
+			const err = new TypeError('Expected options to be an object');
+			err.code = 'INVALID_ARGUMENT';
+			throw err;
+		}
+
+		if (!opts.clientSecret || typeof opts.clientSecret !== 'string') {
+			const err = new TypeError('Expected client secret to be a non-empty string');
+			err.code = 'INVALID_ARGUMENT';
+			throw err;
+		}
+
+		super(opts);
+
+		this.interactive = !opts.serviceAccount;
+
+		this.authorizationUrl = this.generateAuthorizationUrl({
+			grantType: this.interactive ? AuthorizationCode : ClientCredentials
+		});
+
+		this.clientSecret = opts.clientSecret;
+	}
+
+	/**
+	 * Parameters to include with authentication requests.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get getTokenParams() {
+		return {
+			clientSecret: this.clientSecret,
+			grantType:    this.interactive ? AuthorizationCode : ClientCredentials
+		};
+	}
+
+	/**
+	 * Parameters to include with refresh requests.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get refreshTokenParams() {
+		return {
+			clientSecret: this.clientSecret
+		};
+	}
+
+	/**
+	 * Parameters to include with revoke requests.
+	 *
+	 * @type {?Object}
+	 * @access private
+	 */
+	get revokeTokenParams() {
+		return {
+			clientSecret: this.clientSecret
+		};
+	}
+}
