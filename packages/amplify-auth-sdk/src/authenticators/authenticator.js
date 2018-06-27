@@ -1,7 +1,10 @@
+import crypto from 'crypto';
+import E from '../errors';
 import fetch from 'node-fetch';
 import http from 'http';
 import jws from 'jws';
 import opn from 'opn';
+import querystring from 'querystring';
 import snooplogg from 'snooplogg';
 
 import { getServerInfo, stringifyQueryString } from '../util';
@@ -54,12 +57,6 @@ export default class Authenticator {
 	accessType = 'offline';
 
 	/**
-	 * The authorize URL.
-	 * @type {?String}
-	 */
-	authorizationUrl = null;
-
-	/**
 	 * The email address associated with the login used for persisting the tokens.
 	 *
 	 * @type {?String}
@@ -88,6 +85,14 @@ export default class Authenticator {
 	interactive = false;
 
 	/**
+	 * A lookup of pending interactive logins.
+	 *
+	 * @type {Map}
+	 * @access private
+	 */
+	pending = new Map();
+
+	/**
 	 * The authorize URL.
 	 *
 	 * @type {String}
@@ -112,7 +117,7 @@ export default class Authenticator {
 	server = null;
 
 	/**
-	 * The hostname to listen on when interactively authenticating.
+	 * The local HTTP server hostname or IP address to listen on when interactively authenticating.
 	 *
 	 * @type {String}
 	 * @access private
@@ -120,12 +125,20 @@ export default class Authenticator {
 	serverHost = '127.0.0.1';
 
 	/**
-	 * The port to listen on when interactively authenticating.
+	 * The local HTTP server port to listen on when interactively authenticating.
 	 *
 	 * @type {Number}
 	 * @access private
 	 */
 	serverPort = 3000;
+
+	/**
+	 * The number of milliseconds to wait before shutting down the local HTTP server.
+	 *
+	 * @type {Number}
+	 * @access private
+	 */
+	interactiveLoginTimeout = 120000; // 2 minutes
 
 	/**
 	 * The local HTTP server URL.
@@ -169,15 +182,19 @@ export default class Authenticator {
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
 	 * @param {String} [opts.responseType=code] - The response type to send with requests.
 	 * @param {String} [opts.scope=openid] - The name of the scope to send with requests.
+	 * @param {String} [opts.serverHost=127.0.0.1] - The local HTTP server hostname or IP address to
+	 * listen on when interactively authenticating.
+	 * @param {Number} [opts.serverPort=3000] - The local HTTP server port to listen on when
+	 * interactively authenticating.
+	 * @param {Number} [opts.interactiveLoginTimeout=120000] - The number of milliseconds to wait
+	 * before shutting down the local HTTP server.
 	 * @access public
 	 */
 	constructor(opts) {
 		// check the environment
 		const env = Authenticator.Environments[opts.env || 'prod'];
 		if (!env) {
-			const err = new Error(`Invalid environment: ${opts.env}`);
-			err.code = 'INVALID_ENVIRONMENT';
-			throw err;
+			throw E.INVALID_VALUE(`Invalid environment: ${opts.env}`);
 		}
 		Object.assign(this, env);
 
@@ -186,61 +203,61 @@ export default class Authenticator {
 			this.baseUrl = opts.baseUrl;
 		}
 		if (!this.baseUrl || typeof this.baseUrl !== 'string') {
-			const err = new Error('Invalid base URL: env or baseUrl required');
-			err.code = 'INVALID_BASE_URL';
-			throw err;
+			throw E.INVALID_BASE_URL('Invalid base URL: env or baseUrl required');
 		}
 		this.baseUrl = this.baseUrl.replace(/\/+$/, '');
 
-		// validate the required properties
+		// validate the required string properties
 		for (const prop of [ 'clientId', 'realm' ]) {
 			if (!opts.hasOwnProperty(prop) || !opts[prop] || typeof opts[prop] !== 'string') {
-				const err = new TypeError(`Expected required parameter "${prop}" to be a non-empty string`);
-				err.code = 'MISSING_REQUIRED_PARAMETER';
-				throw err;
+				throw E.MISSING_REQUIRED_PARAMETER(`Expected required parameter "${prop}" to be a non-empty string`);
 			}
 			this[prop] = opts[prop];
 		}
 
-		// validate optional properties
+		// validate optional string options
 		for (const prop of [ 'accessType', 'responseType', 'scope', 'serverHost' ]) {
 			if (opts.hasOwnProperty(prop)) {
 				if (typeof opts[prop] !== 'string') {
-					const err = new TypeError(`Expected parameter "${prop}" to be a string`);
-					err.code = 'INVALID_PARAMETER';
-					throw err;
+					throw E.INVALID_PARAMETER(`Expected parameter "${prop}" to be a string`);
 				}
 				this[prop] = opts[prop];
 			}
 		}
 
+		// validate optional numeric options
+		if (opts.hasOwnProperty('interactiveLoginTimeout')) {
+			const timeout = parseInt(opts.interactiveLoginTimeout, 10);
+			if (isNaN(timeout)) {
+				throw E.INVALID_PARAMETER('Expected interactive login timeout to be a number of milliseconds');
+			}
+
+			if (timeout < 0) {
+				throw E.INVALID_RANGE('Interactive login timeout must be greater than or equal to zero');
+			}
+
+			this.interactiveLoginTimeout = timeout;
+		}
+
 		if (opts.hasOwnProperty('serverPort')) {
 			this.serverPort = parseInt(opts.serverPort, 10);
 			if (isNaN(this.serverPort)) {
-				const err = new TypeError('Expected server port to be a number between 1024 and 65535');
-				err.code = 'INVALID_PARAMETER';
-				throw err;
+				throw E.INVALID_PARAMETER('Expected server port to be a number between 1024 and 65535');
 			}
 
 			if (this.serverPort < 1024 || this.serverPort > 65535) {
-				const err = new RangeError('Expected server port to be a number between 1024 and 65535');
-				err.code = 'INVALID_PARAMETER';
-				throw err;
+				throw E.INVALID_RANGE('Expected server port to be a number between 1024 and 65535');
 			}
 		}
 
 		if (opts.hasOwnProperty('tokenRefreshThreshold')) {
 			const threshold = parseInt(opts.tokenRefreshThreshold, 10);
 			if (isNaN(threshold)) {
-				const err = new TypeError('Expected token refresh threshold to be a number of seconds');
-				err.code = 'INVALID_PARAMETER';
-				throw err;
+				throw E.INVALID_PARAMETER('Expected token refresh threshold to be a number of seconds');
 			}
 
 			if (threshold < 0) {
-				const err = new RangeError('Token refresh threshold must be greater than or equal to zero');
-				err.code = 'INVALID_PARAMETER';
-				throw err;
+				throw E.INVALID_RANGE('Token refresh threshold must be greater than or equal to zero');
 			}
 
 			this.tokenRefreshThreshold = threshold * 1000;
@@ -259,24 +276,29 @@ export default class Authenticator {
 		// set any endpoint overrides
 		if (opts.endpoints) {
 			if (typeof opts.endpoints !== 'object') {
-				const err = new TypeError('Expected endpoints to be an object of names to URLs');
-				err.code = 'INVALID_PARAMETER';
-				throw err;
+				throw E.INVALID_PARAMETER('Expected endpoints to be an object of names to URLs');
 			}
 			for (const [ name, url ] of Object.entries(opts.endpoints)) {
 				if (!url || typeof url !== 'string') {
-					const err = new TypeError(`Expected "${name}" endpoint URL to be a non-empty string`);
-					err.code = 'INVALID_PARAMETER';
-					throw err;
+					throw E.INVALID_PARAMETER(`Expected "${name}" endpoint URL to be a non-empty string`);
 				}
 				if (!this.endpoints.hasOwnProperty(name)) {
-					const err = new Error(`Cannot override invalid endpoint "${name}"`);
-					err.code = 'INVALID_PARAMETER';
-					throw err;
+					throw E.INVALID_VALUE(`Invalid endpoint "${name}"`);
 				}
 				this.endpoints[name] = url;
 			}
 		}
+	}
+
+	/* istanbul ignore next */
+	/**
+	 * This property is meant to be overridden by authenticator implementations.
+	 *
+	 * @type {?Object}
+	 * @access private
+	 */
+	get authorizationUrlParams() {
+		return null;
 	}
 
 	/**
@@ -289,26 +311,6 @@ export default class Authenticator {
 	get expiresIn() {
 		const { access } = this.expires;
 		return access && access > Date.now() ? access : null;
-	}
-
-	/**
-	 * Constructs a authorize URL based on the supplied parameters.
-	 *
-	 * @param {Object} params - Various parameters to include in the query string.
-	 * @param {String} params.grantType - The grant type to send.
-	 * @returns {String}
-	 * @access private
-	 */
-	generateAuthorizationUrl(params) {
-		params = Object.assign({
-			accessType:   this.accessType,
-			clientId:     this.clientId,
-			scope:        this.scope,
-			responseType: this.responseType,
-			redirectUri:  `${this.serverUrl}/callback`
-		}, params);
-
-		return `${this.endpoints.auth}?${stringifyQueryString(params)}`;
 	}
 
 	/**
@@ -326,9 +328,7 @@ export default class Authenticator {
 		// if we don't have an access token and we're interactive, then the refresh token is useless
 		// and login is required
 		if (this.interactive) {
-			const err = new Error('Login required');
-			err.code = 'LOGIN_REQUIRED';
-			throw err;
+			throw E.LOGIN_REQUIRED('Login required');
 		}
 
 		return await this.getToken();
@@ -344,9 +344,7 @@ export default class Authenticator {
 	 */
 	async getToken(code) {
 		if (this.interactive && (!code || typeof code !== 'string')) {
-			const err = new TypeError('Expected code for interactive authentication to be a non-empty string');
-			err.code = 'MISSING_AUTH_CODE';
-			throw err;
+			throw E.MISSING_AUTH_CODE('Expected code for interactive authentication to be a non-empty string');
 		}
 
 		const params = {
@@ -379,10 +377,7 @@ export default class Authenticator {
 		if (!res.ok) {
 			// authentication failed
 			const msg = await res.text();
-			const err = new Error(msg.trim() || 'Authentication failed');
-			err.code = 'AUTH_FAILED';
-			err.status = res.status;
-			throw err;
+			throw E.AUTH_FAILED(msg.trim() || 'Authentication failed', { status: res.status });
 		}
 
 		const tokens = await res.json();
@@ -397,9 +392,7 @@ export default class Authenticator {
 				throw new Error();
 			}
 		} catch (e) {
-			const err = new Error('Authentication failed: invalid response from server');
-			err.code = 'AUTH_FAILED';
-			throw err;
+			throw E.AUTH_FAILED('Authentication failed: invalid response from server');
 		}
 
 		const now = Date.now();
@@ -432,6 +425,8 @@ export default class Authenticator {
 	 * array with the app and app arguments.
 	 * @param {Boolean} [opts.headless=false] - When `true`, it will return the auth URL instead of
 	 * launching the auth URL in the default browser.
+	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
+	 * Defaults to the `interactiveLoginTimeout` property.
 	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
 	 * promise. If `false` it's fulfilled immediately when opening the app.
 	 * @returns {Promise}
@@ -439,9 +434,7 @@ export default class Authenticator {
 	 */
 	async login(opts = {}) {
 		if (typeof opts !== 'object') {
-			const err = new TypeError('Expected options to be an object');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
 		if (!this.interactive) {
@@ -451,57 +444,128 @@ export default class Authenticator {
 
 		// we're interactive, so we either are headless or starting a web server
 
+		const queryParams = Object.assign({
+			accessType:   this.accessType,
+			clientId:     this.clientId,
+			scope:        this.scope,
+			responseType: this.responseType,
+			redirectUri:  `${this.serverUrl}/callback`
+		}, this.authorizationUrlParams);
+
 		if (opts.headless) {
-			return { url: this.authorizationUrl };
+			return { url: `${this.endpoints.auth}?${stringifyQueryString(queryParams)}` };
 		}
 
-		// we can only do 1 login at a time because we can only have 1 web server at a time since
-		// the callback success is bound to a single login call
+		// generate a request id so that we can match up successful callbacks with *this* login()
+		const id = crypto.randomBytes(4).toString('hex').toUpperCase();
 
-		await this.stop();
+		log(`Starting login request ${id}`);
 
-		return new Promise((resolve, reject) => {
-			log('Starting local HTTP server');
-			this.server = http
-				.createServer(async (req, res) => {
-					const url = parse(req.url);
+		// set up the timer to stop the server
+		const timer = setTimeout(() => {
+			const pending = this.pending.get(id);
+			if (pending) {
+				log(`Request ${id} timed out`);
+				this.pending.delete(id);
+				pending.reject(E.AUTH_TIMEOUT('Authentication timed out'));
+			}
+			this.stopServer();
+		}, opts.timeout || this.interactiveLoginTimeout);
 
-					try {
-						switch (url.pathname) {
-							case '/callback':
-								// TODO: get the code from the query string, then use it to get the tokens
-								console.log(url);
+		if (!this.server) {
+			// the server is not running, so start it
+			await new Promise((resolve, reject) => {
+				const callbackRegExp = /^\/(callback)(?:\/([A-Z0-9]+))?/;
+				const connections = {};
 
-								// await this.getToken(code);
+				const server = http
+					.createServer(async (req, res) => {
+						try {
+							const url = parse(req.url);
+							const m = url.pathname.match(callbackRegExp);
 
-								res.end('Authorization successful! Please return to the console.');
+							if (m && m[1] === 'callback') {
+								const { code } = querystring.parse(url.query);
+								const id = m[2];
+								const pending = this.pending.get(id);
 
-								// only close the server if auth was successful
-								await this.stop();
+								if (!code) {
+									throw new Error('Invalid auth code');
+								}
 
-								resolve();
+								if (!pending) {
+									throw new Error('Invalid request id');
+								}
 
-								break;
+								log(`Request ${id} got code: ${code}`);
 
-							default:
+								log('Clearing timeout and pending');
+								clearTimeout(pending.timer);
+								this.pending.delete(id);
+
+								// we do an inner try/catch because the request is valid, but auth
+								// could still fail
+								try {
+									log('Getting token...');
+									pending.resolve({
+										accessToken: await this.getToken(code)
+									});
+									res.writeHead(200, { 'Content-Type': 'text/plain' });
+									res.end('Authorization successful! Please return to the console.');
+								} catch (e) {
+									pending.reject(e);
+									throw e;
+								} finally {
+									this.stopServer();
+								}
+							} else {
 								res.writeHead(404, { 'Content-Type': 'text/plain' });
 								res.end('Not Found');
+							}
+						} catch (e) {
+							res.writeHead(400, { 'Content-Type': 'text/plain' });
+							res.end(e.message);
 						}
-					} catch (e) {
-						res.writeHead(400, { 'Content-Type': 'text/plain' });
-						res.end(e.message);
+					})
+					.on('connection', conn => {
+						const key = `${conn.remoteAddress}:${conn.remotePort}`;
+						connections[key] = conn;
+						conn.on('close', () => {
+							delete connections[key];
+						});
+					})
+					.on('listening', () => {
+						log('Local HTTP server started');
+						resolve();
+					})
+					.on('error', err => {
+						this.server = null;
+						reject(err);
+					})
+					.listen(this.serverPort);
+
+				server.destroy = function destroy() {
+					const p = new Promise(resolve => server.close(resolve));
+					for (const conn of Object.values(connections)) {
+						conn.destroy();
 					}
-				})
-				.on('listening', () => {
-					log(`Local HTTP server started, launching default web browser: ${this.authorizationUrl}`);
-					if (!opts.hasOwnProperty('wait')) {
-						opts.wait = false;
-					}
-					opn(this.authorizationUrl, opts);
-				})
-				.on('error', reject)
-				.listen(this.serverPort);
-		});
+					return p;
+				};
+
+				this.server = server;
+			});
+		}
+
+		queryParams.redirectUri += `/${id}`;
+		const authorizationUrl = `${this.endpoints.auth}?${stringifyQueryString(queryParams)}`;
+		if (!opts.hasOwnProperty('wait')) {
+			opts.wait = false;
+		}
+		log(`Launching default web browser: ${authorizationUrl}`);
+		opn(authorizationUrl, opts);
+
+		// wait for authentication to succeed or fail
+		return new Promise((resolve, reject) => this.pending.set(id, { resolve, reject, timer }));
 	}
 
 	/**
@@ -582,16 +646,15 @@ export default class Authenticator {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async stop() {
-		if (this.server) {
-			await new Promise(resolve => {
-				this.server.close(() => {
-					log('Local HTTP server stopped');
-					resolve();
-				});
-			});
-
+	async stopServer() {
+		const { server } = this;
+		if (server && !this.pending.size) {
+			// null the server ref asap
 			this.server = null;
+
+			log('Destroying local HTTP server...');
+			await server.destroy();
+			log('Local HTTP server stopped');
 		}
 	}
 

@@ -80,6 +80,37 @@ describe('Auth', () => {
 			}).to.throw(TypeError, 'Expected parameter "serverHost" to be a string');
 		});
 
+		it('should error if interactive login timeout is invalid', () => {
+			expect(() => {
+				new Auth({
+					baseUrl: '###',
+					clientId: 'test-client',
+					realm: 'test-realm',
+					interactiveLoginTimeout: 'foo'
+				});
+			}).to.throw(TypeError, 'Expected interactive login timeout to be a number of milliseconds');
+
+			expect(() => {
+				new Auth({
+					baseUrl: '###',
+					clientId: 'test-client',
+					realm: 'test-realm',
+					interactiveLoginTimeout: -123
+				});
+			}).to.throw(RangeError, 'Interactive login timeout must be greater than or equal to zero');
+		});
+
+		it('should set the interactive login timeout', () => {
+			const auth = new Auth({
+				baseUrl: '###',
+				clientId: 'test-client',
+				realm: 'test-realm',
+				interactiveLoginTimeout: 1234
+			});
+
+			expect(auth.authenticator.interactiveLoginTimeout).to.equal(1234);
+		});
+
 		it('should error if server port is invalid', () => {
 			expect(() => {
 				new Auth({
@@ -176,7 +207,7 @@ describe('Auth', () => {
 						foo: 'bar'
 					}
 				});
-			}).to.throw(Error, 'Cannot override invalid endpoint "foo"');
+			}).to.throw(Error, 'Invalid endpoint "foo"');
 		});
 	});
 

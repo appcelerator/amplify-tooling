@@ -3,6 +3,7 @@ import http from 'http';
 import jws from 'jws';
 import querystring from 'querystring';
 
+import { createLoginServer } from './common';
 import { parse } from 'url';
 
 const { Authenticator, ClientSecret } = internal;
@@ -27,33 +28,6 @@ describe('Client Secret', () => {
 			expect(() => {
 				new ClientSecret({ clientSecret: '' });
 			}).to.throw(TypeError, 'Expected client secret to be a non-empty string');
-		});
-	});
-
-	describe('Authorization URL', () => {
-		it('should generate a authorization URL for a service account', () => {
-			const auth = new Auth({
-				clientSecret: '###',
-				serviceAccount: true,
-
-				baseUrl: '<URL>',
-				clientId: 'test_client',
-				realm: 'test_realm'
-			});
-
-			expect(auth.authenticator.authorizationUrl).to.equal('<URL>/auth/realms/test_realm/protocol/openid-connect/auth?access_type=offline&client_id=test_client&grant_type=client_credentials&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=openid');
-		});
-
-		it('should generate a authorization URL for a non-service account', () => {
-			const auth = new Auth({
-				clientSecret: '###',
-
-				baseUrl: '<URL>',
-				clientId: 'test_client',
-				realm: 'test_realm'
-			});
-
-			expect(auth.authenticator.authorizationUrl).to.equal('<URL>/auth/realms/test_realm/protocol/openid-connect/auth?access_type=offline&client_id=test_client&grant_type=authorization_code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&response_type=code&scope=openid');
 		});
 	});
 
@@ -83,7 +57,7 @@ describe('Client Secret', () => {
 	describe('Login/Logout', () => {
 		afterEach(async function () {
 			if (this.server) {
-				await new Promise(resolve => this.server.close(resolve));
+				await this.server.destroy();
 				this.server = null;
 			}
 		});
@@ -111,7 +85,7 @@ describe('Client Secret', () => {
 			});
 
 			try {
-				await auth.authenticator.getToken();
+				await auth.getToken();
 			} catch (e) {
 				expect(e).to.be.instanceof(TypeError);
 				expect(e.message).to.equal('Expected code for interactive authentication to be a non-empty string');
@@ -122,15 +96,6 @@ describe('Client Secret', () => {
 		});
 
 		it('should authenticate using code, then logout', async function () {
-			const auth = new Auth({
-				clientSecret: '###',
-				serviceAccount: false,
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
-				tokenRefreshThreshold: 0
-			});
-
 			const accessToken = jws.sign({
 				header: { alg: 'HS256' },
 				payload: '{"email":"foo@bar.com"}',
@@ -139,65 +104,37 @@ describe('Client Secret', () => {
 
 			let counter = 0;
 
-			this.server = http.createServer(async (req, res) => {
-				try {
-					const url = parse(req.url);
-					expect(req.method).to.equal('POST');
-
-					const post = await new Promise((resolve, reject) => {
-						const body = [];
-						req.on('data', chunk => body.push(chunk));
-						req.on('error', reject);
-						req.on('end', () => resolve(querystring.parse(Buffer.concat(body).toString())));
-					});
-
-					switch (url.pathname) {
-						case '/auth/realms/test_realm/protocol/openid-connect/token':
-							switch (++counter) {
-								case 1:
-									expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
-									expect(post.client_secret).to.equal('###');
-									break;
-
-								case 2:
-									expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
-									expect(post.refresh_token).to.equal('bar1');
-									break;
-							}
-
-							res.writeHead(200, { 'Content-Type': 'application/json' });
-							res.end(JSON.stringify({
-								access_token:       accessToken,
-								refresh_token:      `bar${counter}`,
-								expires_in:         10,
-								refresh_expires_in: 600
-							}));
+			this.server = createLoginServer({
+				accessToken,
+				expiresIn: 10,
+				token: post => {
+					switch (++counter) {
+						case 1:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
+							expect(post.client_secret).to.equal('###');
 							break;
 
-						case '/auth/realms/test_realm/protocol/openid-connect/logout':
-							expect(post.refresh_token).to.equal('bar2');
-							res.writeHead(200, { 'Content-Type': 'text/plain' });
-							res.end('OK');
+						case 2:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
+							expect(post.refresh_token).to.equal('bar1');
 							break;
-
-						default:
-							res.writeHead(404, { 'Content-Type': 'text/plain' });
-							res.end('Not Found');
 					}
-				} catch (e) {
-					res.writeHead(400, { 'Content-Type': 'text/plain' });
-					res.end(e.toString());
+				},
+				logout: post => {
+					expect(post.refresh_token).to.equal('bar2');
 				}
 			});
 
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
+			const auth = new Auth({
+				clientSecret:   '###',
+				serviceAccount: false,
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenRefreshThreshold: 0
 			});
 
-			const result = await auth.authenticator.getToken('foo');
+			const result = await auth.getToken('foo');
 			expect(result).to.equal(accessToken);
 
 			expect(auth.authenticator.email).to.equal('foo@bar.com');
@@ -323,17 +260,10 @@ describe('Client Secret', () => {
 
 			let counter = 0;
 
-			this.server = http.createServer(async (req, res) => {
-				try {
-					expect(req.method).to.equal('POST');
-
-					const post = await new Promise((resolve, reject) => {
-						const body = [];
-						req.on('data', chunk => body.push(chunk));
-						req.on('error', reject);
-						req.on('end', () => resolve(querystring.parse(Buffer.concat(body).toString())));
-					});
-
+			this.server = createLoginServer({
+				accessToken,
+				expiresIn: 1,
+				token: post => {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -345,25 +275,7 @@ describe('Client Secret', () => {
 							expect(post.refresh_token).to.equal('bar1');
 							break;
 					}
-
-					res.writeHead(200, { 'Content-Type': 'application/json' });
-					res.end(JSON.stringify({
-						access_token:       accessToken,
-						refresh_token:      `bar${counter}`,
-						expires_in:         1,
-						refresh_expires_in: 600
-					}));
-				} catch (e) {
-					res.writeHead(400, { 'Content-Type': 'text/plain' });
-					res.end(e.toString());
 				}
-			});
-
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
 			});
 
 			const auth = new Auth({
@@ -400,43 +312,20 @@ describe('Client Secret', () => {
 				tokenRefreshThreshold: 0
 			});
 
-			let counter = 0;
-
-			this.server = http.createServer(async (req, res) => {
-				try {
-					const url = parse(req.url);
-					expect(req.method).to.equal('POST');
-
-					const post = await new Promise((resolve, reject) => {
-						const body = [];
-						req.on('data', chunk => body.push(chunk));
-						req.on('error', reject);
-						req.on('end', () => resolve(querystring.parse(Buffer.concat(body).toString())));
-					});
-
-					switch (url.pathname) {
-						case '/auth/realms/test_realm/protocol/openid-connect/logout':
-							counter++;
-							expect(post.refresh_token).to.be.ok;
-							res.writeHead(200, { 'Content-Type': 'text/plain' });
-							res.end('OK');
-							break;
-
-						default:
-							res.writeHead(404, { 'Content-Type': 'text/plain' });
-							res.end('Not Found');
-					}
-				} catch (e) {
-					res.writeHead(400, { 'Content-Type': 'text/plain' });
-					res.end(e.toString());
-				}
+			const accessToken = jws.sign({
+				header: { alg: 'HS256' },
+				payload: '{"email":"foo@bar.com"}',
+				secret: 'test'
 			});
 
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
+			let counter = 0;
+
+			this.server = createLoginServer({
+				accessToken,
+				logout: post => {
+					counter++;
+					expect(post.refresh_token).to.be.ok;
+				}
 			});
 
 			await auth.logout();
@@ -454,7 +343,7 @@ describe('Client Secret', () => {
 	describe('User Info', () => {
 		afterEach(async function () {
 			if (this.server) {
-				await new Promise(resolve => this.server.close(resolve));
+				await this.server.destroy();
 				this.server = null;
 			}
 		});
@@ -476,39 +365,9 @@ describe('Client Secret', () => {
 
 			let counter = 0;
 
-			this.server = http.createServer((req, res) => {
-				const url = parse(req.url);
-
-				switch (url.pathname) {
-					case '/auth/realms/test_realm/protocol/openid-connect/token':
-						res.writeHead(200, { 'Content-Type': 'application/json' });
-						res.end(JSON.stringify({
-							access_token:       accessToken,
-							refresh_token:      'bar',
-							expires_in:         10,
-							refresh_expires_in: 600
-						}));
-						break;
-
-					case '/auth/realms/test_realm/protocol/openid-connect/userinfo':
-						res.writeHead(200, { 'Content-Type': 'application/json' });
-						res.end(JSON.stringify({
-							name: `tester${++counter}`,
-							email: 'foo@bar.com'
-						}));
-						break;
-
-					default:
-						res.writeHead(404, { 'Content-Type': 'text/plain' });
-						res.end('Not Found');
-				}
-			});
-
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
+			this.server = createLoginServer({
+				accessToken,
+				expiresIn: 10,
 			});
 
 			let info = await auth.userInfo();
@@ -539,36 +398,14 @@ describe('Client Secret', () => {
 				secret: 'test'
 			});
 
-			this.server = http.createServer((req, res) => {
-				const url = parse(req.url);
-
-				switch (url.pathname) {
-					case '/auth/realms/test_realm/protocol/openid-connect/token':
-						res.writeHead(200, { 'Content-Type': 'application/json' });
-						res.end(JSON.stringify({
-							access_token:       accessToken,
-							refresh_token:      'bar',
-							expires_in:         10,
-							refresh_expires_in: 600
-						}));
-						break;
-
-					case '/auth/realms/test_realm/protocol/openid-connect/userinfo':
-						res.writeHead(200, { 'Content-Type': 'text/plain' });
-						res.end('{{{{{{');
-						break;
-
-					default:
-						res.writeHead(404, { 'Content-Type': 'text/plain' });
-						res.end('Not Found');
+			this.server = createLoginServer({
+				accessToken,
+				expiresIn: 10,
+				userinfo(post, req, res) {
+					res.writeHead(200, { 'Content-Type': 'text/plain' });
+					res.end('{{{{{{');
+					return true;
 				}
-			});
-
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
 			});
 
 			try {

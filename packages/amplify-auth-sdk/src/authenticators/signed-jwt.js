@@ -1,4 +1,5 @@
 import Authenticator from './authenticator';
+import E from '../errors';
 import fs from 'fs';
 import jws from 'jws';
 
@@ -17,15 +18,11 @@ export default class SignedJWT extends Authenticator {
 	 */
 	constructor(opts) {
 		if (!opts || typeof opts !== 'object') {
-			const err = new TypeError('Expected options to be an object');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
 		if (!opts.secretFile || typeof opts.secretFile !== 'string') {
-			const err = new TypeError('Expected JWT secret key file to be a non-empty string');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected JWT secret key file to be a non-empty string');
 		}
 
 		super(opts);
@@ -47,9 +44,7 @@ export default class SignedJWT extends Authenticator {
 		try {
 			fs.statSync(this.secretFile).isFile();
 		} catch (e) {
-			const err = new Error(`JWT secret key file does not exist: ${this.secretFile}`);
-			err.code = 'INVALID_JWT_FILE';
-			throw err;
+			throw E.INVALID_FILE(`JWT secret key file does not exist: ${this.secretFile}`);
 		}
 
 		const issuedAt = Math.floor(Date.now() / 1000);

@@ -1,3 +1,4 @@
+import E from './errors';
 import fetch from 'node-fetch';
 import querystring from 'querystring';
 import snooplogg from 'snooplogg';
@@ -13,7 +14,7 @@ const { log } = snooplogg('amplify-auth:util');
  */
 export async function getServerInfo(url) {
 	if (!url || typeof url !== 'string') {
-		throw new TypeError('Expected URL to be a non-empty string');
+		throw E.INVALID_ARGUMENT('Expected URL to be a non-empty string');
 	}
 
 	log(`Fetching server info: ${url}...`);

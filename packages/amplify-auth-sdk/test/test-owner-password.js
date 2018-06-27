@@ -1,8 +1,8 @@
 import Auth, { internal } from '../dist/index';
 import http from 'http';
 import jws from 'jws';
-import querystring from 'querystring';
 
+import { createLoginServer } from './common';
 import { serverInfo } from './server-info';
 
 const { Authenticator, OwnerPassword } = internal;
@@ -37,21 +37,6 @@ describe('Owner Password', () => {
 			expect(() => {
 				new OwnerPassword({ username: 'foo', password: null });
 			}).to.throw(TypeError, 'Expected password to be a string');
-		});
-	});
-
-	describe('Authorization URL', () => {
-		it('should generate a authorization URL', () => {
-			const auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-
-				baseUrl: '<URL>',
-				clientId: 'test-client',
-				realm: 'test-realm'
-			});
-
-			expect(auth.authenticator.authorizationUrl).to.be.null;
 		});
 	});
 
@@ -132,21 +117,9 @@ describe('Owner Password', () => {
 				secret: 'test'
 			});
 
-			this.server = http.createServer((req, res) => {
-				res.writeHead(200, { 'Content-Type': 'application/json' });
-				res.end(JSON.stringify({
-					access_token:       accessToken,
-					refresh_token:      'bar',
-					expires_in:         600,
-					refresh_expires_in: 600
-				}));
-			});
-
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
+			this.server = await createLoginServer({
+				accessToken,
+				expiresIn: 600
 			});
 
 			const auth = new Auth({
@@ -276,17 +249,10 @@ describe('Owner Password', () => {
 
 			let counter = 0;
 
-			this.server = http.createServer(async (req, res) => {
-				try {
-					expect(req.method).to.equal('POST');
-
-					const post = await new Promise((resolve, reject) => {
-						const body = [];
-						req.on('data', chunk => body.push(chunk));
-						req.on('error', reject);
-						req.on('end', () => resolve(querystring.parse(Buffer.concat(body).toString())));
-					});
-
+			this.server = await createLoginServer({
+				accessToken,
+				expiresIn: 1,
+				token: post => {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
@@ -299,25 +265,7 @@ describe('Owner Password', () => {
 							expect(post.refresh_token).to.equal('bar1');
 							break;
 					}
-
-					res.writeHead(200, { 'Content-Type': 'application/json' });
-					res.end(JSON.stringify({
-						access_token:       accessToken,
-						refresh_token:      `bar${counter}`,
-						expires_in:         1,
-						refresh_expires_in: 600
-					}));
-				} catch (e) {
-					res.writeHead(400, { 'Content-Type': 'text/plain' });
-					res.end(e.toString());
 				}
-			});
-
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
 			});
 
 			const auth = new Auth({
@@ -334,7 +282,7 @@ describe('Owner Password', () => {
 
 			await new Promise(resolve => setTimeout(resolve, 2000));
 
-			accessToken = jws.sign({
+			this.server.accessToken = accessToken = jws.sign({
 				header: { alg: 'HS256' },
 				payload: '{"email":"foo@bar.com"}',
 				secret: 'test2'

@@ -26,6 +26,16 @@ export default class PKCE extends Authenticator {
 			.replace(/\+/g, '.')
 			.replace(/[=/]/g, '_');
 
+		this.interactive = true;
+	}
+
+	/**
+	 * Parameters to include in the interactive authorization URL.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get authorizationUrlParams() {
 		const codeChallenge = crypto.createHash('sha256')
 			.update(this.codeVerifier)
 			.digest('base64')
@@ -33,13 +43,11 @@ export default class PKCE extends Authenticator {
 			.replace(/\+/g, '-')
 			.replace(/\//g, '_');
 
-		this.authorizationUrl = this.generateAuthorizationUrl({
+		return {
 			codeChallenge:       codeChallenge,
 			codeChallengeMethod: 'S256',
 			grantType:           Authenticator.GrantTypes.AuthorizationCode
-		});
-
-		this.interactive = true;
+		};
 	}
 
 	/**

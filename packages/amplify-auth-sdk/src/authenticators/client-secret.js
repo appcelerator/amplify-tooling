@@ -1,4 +1,5 @@
 import Authenticator from './authenticator';
+import E from '../errors';
 
 const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
 
@@ -18,26 +19,30 @@ export default class ClientSecret extends Authenticator {
 	 */
 	constructor(opts) {
 		if (!opts || typeof opts !== 'object') {
-			const err = new TypeError('Expected options to be an object');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
 		if (!opts.clientSecret || typeof opts.clientSecret !== 'string') {
-			const err = new TypeError('Expected client secret to be a non-empty string');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected client secret to be a non-empty string');
 		}
 
 		super(opts);
 
 		this.interactive = !opts.serviceAccount;
 
-		this.authorizationUrl = this.generateAuthorizationUrl({
-			grantType: this.interactive ? AuthorizationCode : ClientCredentials
-		});
-
 		this.clientSecret = opts.clientSecret;
+	}
+
+	/**
+	 * Parameters to include in the interactive authorization URL.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get authorizationUrlParams() {
+		return {
+			grantType: this.interactive ? AuthorizationCode : ClientCredentials
+		};
 	}
 
 	/**

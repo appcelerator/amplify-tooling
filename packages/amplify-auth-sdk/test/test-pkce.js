@@ -1,14 +1,17 @@
 /* eslint-disable max-len */
 
 import Auth from '../dist/index';
-import http from 'http';
 import jws from 'jws';
+
+import { createLoginServer } from './common';
+
+const isCI = process.env.CI || process.env.JENKINS;
 
 describe('PKCE', () => {
 	describe('Login', () => {
 		afterEach(async function () {
 			if (this.server) {
-				await new Promise(resolve => this.server.close(resolve));
+				await this.server.destroy();
 				this.server = null;
 			}
 		});
@@ -38,14 +41,8 @@ describe('PKCE', () => {
 				secret: 'test'
 			});
 
-			this.server = http.createServer((req, res) => {
-				res.writeHead(200, { 'Content-Type': 'application/json' });
-				res.end(JSON.stringify({
-					access_token:       accessToken,
-					refresh_token:      'bar',
-					expires_in:         10,
-					refresh_expires_in: 600
-				}));
+			this.server = await createLoginServer({
+				accessToken
 			});
 
 			await new Promise((resolve, reject) => {
@@ -64,6 +61,58 @@ describe('PKCE', () => {
 			expect(expires).to.not.be.null;
 			const target = Date.now() + 10000;
 			expect(expires).to.be.within(target - 100, target + 100);
+		});
+
+		it('should timeout during interactive login', async function () {
+			const auth = new Auth({
+				baseUrl: 'http://127.0.0.1:1337',
+				clientId: 'test_client',
+				realm: 'test_realm',
+				tokenRefreshThreshold: 0
+			});
+
+			const accessToken = jws.sign({
+				header: { alg: 'HS256' },
+				payload: '{"email":"foo@bar.com"}',
+				secret: 'test'
+			});
+
+			this.server = await createLoginServer({
+				accessToken
+			});
+
+			try {
+				await auth.login({ timeout: 100 });
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.equal('Authentication timed out');
+				expect(e.toString()).to.equal('ERR_AUTH_TIMEOUT');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
+
+		(isCI ? it.skip : it)('should do interactive login', async function () {
+			const auth = new Auth({
+				baseUrl: 'http://127.0.0.1:1337',
+				clientId: 'test_client',
+				realm: 'test_realm',
+				tokenRefreshThreshold: 0
+			});
+
+			const accessToken = jws.sign({
+				header: { alg: 'HS256' },
+				payload: '{"email":"foo@bar.com"}',
+				secret: 'test'
+			});
+
+			this.server = await createLoginServer({
+				accessToken
+			});
+
+			const result = await auth.login();
+			expect(result.accessToken).to.equal(accessToken);
 		});
 	});
 

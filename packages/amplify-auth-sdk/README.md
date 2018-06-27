@@ -106,7 +106,7 @@ passed into the constructor.
 
 #### `options`: (Object)
 
- * Global Options:
+ * Global:
    * `accessType`: (String) [optional] The access type to send with requests. Defaults to
      `"offline"`.
    * `baseUrl`: (String) [optional] The base URL to use for all outgoing requests.
@@ -115,21 +115,29 @@ passed into the constructor.
      are: `"auth"`, `"certs"`, `"logout"`, `"token"`, `"userinfo"`, and `"wellKnown"`.
    * `env`: (String) [optional] The environment name. Must be `"dev"`, `"preprod"`, or `"prod"`. The
      environment is a shorthand way of specifying a Axway default base URL. Defaults to `"prod"`.
+   * `interactiveLoginTimeout`: (Number) [optional] The number of milliseconds to wait before
+     shutting down the local HTTP server. Defaults to `120000`.
    * `realm`: (String) **[required]** The name of the realm to authenticate with.
    * `responseType`: (String) [optional] The response type to send with requests. Defaults to
      `"code"`.
    * `scope`: (String) [optional] The name of the scope to send with requests. Defaults to
      `"openid"`.
+   * `serverHost`: (String) [optional] The local HTTP server hostname or IP address to listen on
+     when interactively authenticating. Defaults to `"127.0.0.1"`.
+   * `serverPort`: (Number) [optional] The local HTTP server port to listen on when interactively
+     authenticating. Defaults to `3000`
    * `tokenRefreshThreshold`: (Number) [optional] The number of seconds before the access token
      expires and should be refreshed. Defaults to 5 minutes (or 300 seconds).
- * Username/Password Options:
+ * PKCE:
+   * This is the default authentication method and has no options.
+ * Username/Password:
    * `username`: (String) **[required]** The username to login as.
    * `password`: (String) **[required]** The password use.
- * Client Secret Credentials
+ * Client Secret Credentials:
    * `clientSecret`: (String) **[required]** The client-specific secret key to login with.
    * `serviceAccount`: (Boolean) [optional] When `true`, indicates the consumer is a service and not
      a user and that authentication should be _non-interactive_.
- * JSON Web Token
+ * JSON Web Token:
    * `secretFile`: (String) **[required]** The path to the file containing the secret key to login
      with. This is RSA private key, usually stored in a `.pem` file.
 
@@ -172,6 +180,8 @@ All other authentication methods are non-interactive and pass along the paramete
    `true`, it will return the auth URL instead of starting the local web server and launching the
    web browser. It is then up to the consumer to connect to the URL, login, and retrieve the auth
    code. Defaults to `false`.
+ * `timeout`: (Number) [optional] The number of milliseconds to wait before timing out. Defaults to
+   the `interactiveLoginTimeout` property.
  * `wait`: (Boolean) [optional] Wait for the opened app to exit before fulfilling the promise. If
    `false` it's fulfilled immediately when opening the app. Defaults to `false`.
 
@@ -217,11 +227,10 @@ Returns `Promise` that resolves the access token.
 
 #### `serverInfo(url)`
 
-*Advanced Feature*
-
 Discovers available endpoints based on the remote server's OpenID configuration.
 
- * `url`: (String) [optional]  An URL to discover the available endpoints.
+ * `url`: (String) [optional]  An URL to discover the available endpoints. Defaults to the URL
+   derived from the `baseUrl`.
 
 ##### Return Value
 

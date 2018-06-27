@@ -1,4 +1,5 @@
 import Authenticator from './authenticator';
+import E from '../errors';
 
 /**
  * Authentication scheme using a username and password.
@@ -14,21 +15,15 @@ export default class OwnerPassword extends Authenticator {
 	 */
 	constructor(opts) {
 		if (!opts || typeof opts !== 'object') {
-			const err = new TypeError('Expected options to be an object');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
 		if (!opts.username || typeof opts.username !== 'string') {
-			const err = new TypeError('Expected username to be a non-empty string');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected username to be a non-empty string');
 		}
 
 		if (typeof opts.password !== 'string') {
-			const err = new TypeError('Expected password to be a string');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected password to be a string');
 		}
 
 		super(opts);
