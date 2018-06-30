@@ -30,6 +30,7 @@ describe('Signed JWT', () => {
 		});
 	});
 
+	/*
 	describe('Login/Logout', () => {
 		afterEach(async function () {
 			if (this.server) {
@@ -251,4 +252,5 @@ describe('Signed JWT', () => {
 			// console.log(info);
 		});
 	});
+	*/
 });

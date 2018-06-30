@@ -1,13 +1,32 @@
 /* eslint-disable max-len */
 
 import Auth from '../dist/index';
-import jws from 'jws';
 
-import { createLoginServer } from './common';
+import { createLoginServer, stopLoginServer } from './common';
 
 const isCI = process.env.CI || process.env.JENKINS;
 
 describe('PKCE', () => {
+	describe('Access Token', async () => {
+		it('should fail getting an access token if not logged in', async () => {
+			const auth = new Auth({
+				baseUrl: '<URL>',
+				clientId: 'test_client',
+				realm: 'test_realm'
+			});
+
+			try {
+				await auth.getAccessToken();
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.equal('Login required');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
+	});
+	/*
 	describe('Login', () => {
 		afterEach(async function () {
 			if (this.server) {
@@ -64,24 +83,15 @@ describe('PKCE', () => {
 		});
 
 		it('should timeout during interactive login', async function () {
-			const auth = new Auth({
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
-				tokenRefreshThreshold: 0
-			});
-
-			const accessToken = jws.sign({
-				header: { alg: 'HS256' },
-				payload: '{"email":"foo@bar.com"}',
-				secret: 'test'
-			});
-
-			this.server = await createLoginServer({
-				accessToken
-			});
+			this.server = await createLoginServer();
 
 			try {
+				const auth = new Auth({
+					baseUrl: 'http://127.0.0.1:1337',
+					clientId: 'test_client',
+					realm: 'test_realm',
+					tokenRefreshThreshold: 0
+				});
 				await auth.login({ timeout: 100 });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
@@ -128,4 +138,5 @@ describe('PKCE', () => {
 			// console.log(info);
 		});
 	});
+	*/
 });

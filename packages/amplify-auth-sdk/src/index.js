@@ -73,11 +73,13 @@ export default class Auth {
 	 * Retrieves the access token. If the authenticator is interactive and the authenticator has not
 	 * yet authenticated with the server, an error is thrown.
 	 *
+	 * @param {Boolean} [doLogin=false] - When `true` and non-interactive, it will attempt to log in
+	 * using the refresh token.
 	 * @returns {Promise<String>}
 	 * @access public
 	 */
-	getAccessToken() {
-		return this.authenticator.getAccessToken();
+	getAccessToken(doLogin) {
+		return this.authenticator.getAccessToken(doLogin);
 	}
 
 	/**

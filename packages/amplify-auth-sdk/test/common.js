@@ -1,12 +1,13 @@
 import http from 'http';
+import jws from 'jws';
 import querystring from 'querystring';
 
 import { parse } from 'url';
 
-export async function createLoginServer(opts) {
+export async function createLoginServer(opts = {}) {
 	let counter = 0;
 
-	const server = http.createServer(async (req, res) => {
+	const handler = opts.handler || (async (req, res) => {
 		try {
 			const url = parse(req.url);
 			let post = {};
@@ -43,10 +44,22 @@ export async function createLoginServer(opts) {
 						opts.token(post, req, res);
 					}
 
+					server.accessToken = jws.sign({
+						header: { alg: 'HS256' },
+						payload: '{"email":"foo@bar.com"}',
+						secret: `access${counter}`
+					});
+
+					server.refreshToken = jws.sign({
+						header: { alg: 'HS256' },
+						payload: '{"email":"foo@bar.com"}',
+						secret: `refresh${counter}`
+					});
+
 					res.writeHead(200, { 'Content-Type': 'application/json' });
 					res.end(JSON.stringify({
 						access_token:       server.accessToken,
-						refresh_token:      `bar${counter}`,
+						refresh_token:      server.refreshToken,
 						expires_in:         opts.expiresIn || 10,
 						refresh_expires_in: 600
 					}));
@@ -85,16 +98,19 @@ export async function createLoginServer(opts) {
 		}
 	});
 
-	server.accessToken = opts.accessToken;
-
+	const server = http.createServer(handler);
 	const connections = {};
 
 	server.destroy = () => {
-		const p = new Promise(resolve => server.close(resolve));
-		for (const conn of Object.values(connections)) {
-			conn.destroy();
-		}
-		return p;
+		return Promise.all([
+			new Promise(resolve => server.close(resolve)),
+			new Promise(resolve => {
+				for (const conn of Object.values(connections)) {
+					conn.destroy();
+				}
+				resolve();
+			})
+		]);
 	};
 
 	await new Promise((resolve, reject) => {
@@ -112,4 +128,11 @@ export async function createLoginServer(opts) {
 	});
 
 	return server;
+}
+
+export async function stopLoginServer() {
+	if (this.server) {
+		await this.server.destroy();
+		this.server = null;
+	}
 }

@@ -1,12 +1,10 @@
 import Auth, { internal } from '../dist/index';
-import http from 'http';
-import jws from 'jws';
-import querystring from 'querystring';
 
-import { createLoginServer } from './common';
-import { parse } from 'url';
+import { createLoginServer, stopLoginServer } from './common';
 
 const { Authenticator, ClientSecret } = internal;
+
+const isCI = process.env.CI || process.env.JENKINS;
 
 describe('Client Secret', () => {
 	describe('Constructor', () => {
@@ -54,13 +52,8 @@ describe('Client Secret', () => {
 		});
 	});
 
-	describe('Login/Logout', () => {
-		afterEach(async function () {
-			if (this.server) {
-				await this.server.destroy();
-				this.server = null;
-			}
-		});
+	describe('Login', () => {
+		afterEach(stopLoginServer);
 
 		it('should retrieve a URL for an interactive headless flow', async () => {
 			const auth = new Auth({
@@ -95,19 +88,12 @@ describe('Client Secret', () => {
 			throw new Error('Expected error');
 		});
 
-		it('should authenticate using code, then logout', async function () {
-			const accessToken = jws.sign({
-				header: { alg: 'HS256' },
-				payload: '{"email":"foo@bar.com"}',
-				secret: 'test'
-			});
-
+		it('should authenticate using code', async function () {
 			let counter = 0;
 
-			this.server = createLoginServer({
-				accessToken,
+			this.server = await createLoginServer({
 				expiresIn: 10,
-				token: post => {
+				token(post) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
@@ -116,11 +102,11 @@ describe('Client Secret', () => {
 
 						case 2:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
-							expect(post.refresh_token).to.equal('bar1');
+							expect(post.refresh_token).to.equal(this.server.refreshToken);
 							break;
 					}
 				},
-				logout: post => {
+				logout(post) {
 					expect(post.refresh_token).to.equal('bar2');
 				}
 			});
@@ -130,12 +116,11 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenRefreshThreshold: 0
+				realm:          'test_realm'
 			});
 
 			const result = await auth.getToken('foo');
-			expect(result).to.equal(accessToken);
+			expect(result).to.equal(this.server.accessToken);
 
 			expect(auth.authenticator.email).to.equal('foo@bar.com');
 
@@ -143,28 +128,51 @@ describe('Client Secret', () => {
 			expect(expires).to.not.be.null;
 			const target = Date.now() + 10000;
 			expect(expires).to.be.within(target - 100, target + 100);
+		});
 
-			await auth.logout();
+		it('should timeout during interactive login', async function () {
+			this.server = await createLoginServer();
 
-			expect(auth.authenticator.email).to.be.null;
-			expect(auth.authenticator.expires).to.deep.equal({
-				access: null,
-				refresh: null
+			try {
+				const auth = new Auth({
+					clientSecret:   '###',
+					serviceAccount: false,
+					baseUrl:        'http://127.0.0.1:1337',
+					clientId:       'test_client',
+					realm:          'test_realm'
+				});
+				await auth.login({ timeout: 100 });
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.equal('Authentication timed out');
+				expect(e.toString()).to.equal('ERR_AUTH_TIMEOUT');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
+
+		(isCI ? it.skip : it)('should do interactive login', async function () {
+			const auth = new Auth({
+				clientSecret:   '###',
+				serviceAccount: false,
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm'
 			});
-			expect(auth.authenticator.tokens).to.deep.equal({});
+
+			this.server = await createLoginServer();
+
+			const result = await auth.login();
+			expect(result.accessToken).to.equal(this.server.accessToken);
 		});
 
 		it('should fail if code is incorrect', async function () {
-			this.server = http.createServer((req, res) => {
-				res.writeHead(401, { 'Content-Type': 'text/plain' });
-				res.end('Unauthorized');
-			});
-
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
+			this.server = await createLoginServer({
+				handler(req, res) {
+					res.writeHead(401, { 'Content-Type': 'text/plain' });
+					res.end('Unauthorized');
+				}
 			});
 
 			const auth = new Auth({
@@ -214,27 +222,15 @@ describe('Client Secret', () => {
 				realm: 'test_realm'
 			});
 
-			const accessToken = jws.sign({
-				header: { alg: 'HS256' },
-				payload: { email: '' },
-				secret: 'test'
-			});
-
-			this.server = http.createServer((req, res) => {
-				res.writeHead(200, { 'Content-Type': 'application/json' });
-				res.end(JSON.stringify({
-					access_token:       accessToken,
-					refresh_token:      'bar',
-					expires_in:         600,
-					refresh_expires_in: 600
-				}));
-			});
-
-			await new Promise((resolve, reject) => {
-				this.server
-					.on('listening', resolve)
-					.on('error', reject)
-					.listen(1337, '127.0.0.1');
+			this.server = await createLoginServer({
+				handler(req, res) {
+					res.writeHead(200, { 'Content-Type': 'application/json' });
+					res.end(JSON.stringify({
+						refresh_token:      'bar',
+						expires_in:         600,
+						refresh_expires_in: 600
+					}));
+				}
 			});
 
 			try {
@@ -252,16 +248,9 @@ describe('Client Secret', () => {
 			this.slow(4000);
 			this.timeout(5000);
 
-			let accessToken = jws.sign({
-				header: { alg: 'HS256' },
-				payload: '{"email":"foo@bar.com"}',
-				secret: 'test1'
-			});
-
 			let counter = 0;
 
-			this.server = createLoginServer({
-				accessToken,
+			this.server = await createLoginServer({
 				expiresIn: 1,
 				token: post => {
 					switch (++counter) {
@@ -272,57 +261,92 @@ describe('Client Secret', () => {
 
 						case 2:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
-							expect(post.refresh_token).to.equal('bar1');
+							expect(post.refresh_token).to.equal(this.server.refreshToken);
 							break;
 					}
 				}
 			});
 
 			const auth = new Auth({
-				clientSecret: '###',
+				clientSecret:   '###',
 				serviceAccount: true,
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
-				tokenRefreshThreshold: 0
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm'
 			});
 
-			let results = await auth.authenticator.getToken('foo');
-			expect(results).to.equal(accessToken);
+			let results = await auth.getToken('foo');
+			expect(results).to.equal(this.server.accessToken);
 
-			await new Promise(resolve => setTimeout(resolve, 2000));
-
-			accessToken = jws.sign({
-				header: { alg: 'HS256' },
-				payload: '{"email":"foo@bar.com"}',
-				secret: 'test2'
-			});
+			await new Promise(resolve => setTimeout(resolve, 1200));
 
 			results = await auth.login();
-			expect(results.accessToken).to.equal(accessToken);
+			expect(results.accessToken).to.equal(this.server.accessToken);
+		});
+	});
+
+	describe('Logout', () => {
+		afterEach(stopLoginServer);
+
+		it('should log out', async function () {
+			let counter = 0;
+
+			this.server = await createLoginServer({
+				expiresIn: 10,
+				token(post) {
+					switch (++counter) {
+						case 1:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
+							expect(post.client_secret).to.equal('###');
+							break;
+
+						case 2:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
+							expect(post.refresh_token).to.equal(this.server.refreshToken);
+							break;
+					}
+				},
+				logout(post) {
+					expect(post.refresh_token).to.equal('bar2');
+				}
+			});
+
+			const auth = new Auth({
+				clientSecret:   '###',
+				serviceAccount: false,
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm'
+			});
+
+			const result = await auth.getToken('foo');
+			expect(result).to.equal(this.server.accessToken);
+
+			expect(auth.authenticator.email).to.equal('foo@bar.com');
+
+			await auth.logout();
+
+			expect(auth.authenticator.email).to.be.null;
+			expect(auth.authenticator.expires).to.deep.equal({
+				access: null,
+				refresh: null
+			});
+			expect(auth.authenticator.tokens).to.deep.equal({});
 		});
 
 		it('should not error logging out if not logged in', async function () {
 			const auth = new Auth({
-				clientSecret: '###',
+				clientSecret:   '###',
 				serviceAccount: false,
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
-				tokenRefreshThreshold: 0
-			});
-
-			const accessToken = jws.sign({
-				header: { alg: 'HS256' },
-				payload: '{"email":"foo@bar.com"}',
-				secret: 'test'
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm'
 			});
 
 			let counter = 0;
 
-			this.server = createLoginServer({
-				accessToken,
-				logout: post => {
+			this.server = await createLoginServer({
+				logout(post) {
 					counter++;
 					expect(post.refresh_token).to.be.ok;
 				}
@@ -341,44 +365,74 @@ describe('Client Secret', () => {
 	});
 
 	describe('User Info', () => {
-		afterEach(async function () {
-			if (this.server) {
-				await this.server.destroy();
-				this.server = null;
+		afterEach(stopLoginServer);
+
+		it('should error if not logged in', async function () {
+			const auth = new Auth({
+				clientSecret:   '###',
+				serviceAccount: true,
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm'
+			});
+
+			this.server = await createLoginServer();
+
+			try {
+				await auth.userInfo();
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.equal('Login required');
+				return;
 			}
+
+			throw new Error('Expected error');
 		});
 
-		it('should login and get user info', async function () {
+		it('should error if logging in interactively', async function () {
 			const auth = new Auth({
-				clientSecret: '###',
+				clientSecret:   '###',
 				serviceAccount: true,
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm'
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm'
 			});
 
-			const accessToken = jws.sign({
-				header: { alg: 'HS256' },
-				payload: '{"email":"foo@bar.com"}',
-				secret: 'test'
+			this.server = await createLoginServer();
+
+			try {
+				await auth.userInfo(true);
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.equal('Login required');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
+
+		it('should get user info', async function () {
+			const auth = new Auth({
+				clientSecret:   '###',
+				serviceAccount: true,
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm'
 			});
 
-			let counter = 0;
+			this.server = await createLoginServer();
 
-			this.server = createLoginServer({
-				accessToken,
-				expiresIn: 10,
-			});
+			await auth.getToken('foo');
 
 			let info = await auth.userInfo();
 			expect(info).to.deep.equal({
-				name: 'tester1',
+				name: 'tester2',
 				email: 'foo@bar.com'
 			});
 
 			info = await auth.userInfo();
 			expect(info).to.deep.equal({
-				name: 'tester2',
+				name: 'tester3',
 				email: 'foo@bar.com'
 			});
 		});
@@ -392,21 +446,15 @@ describe('Client Secret', () => {
 				realm: 'test_realm'
 			});
 
-			const accessToken = jws.sign({
-				header: { alg: 'HS256' },
-				payload: '{"email":"foo@bar.com"}',
-				secret: 'test'
-			});
-
-			this.server = createLoginServer({
-				accessToken,
-				expiresIn: 10,
+			this.server = await createLoginServer({
 				userinfo(post, req, res) {
 					res.writeHead(200, { 'Content-Type': 'text/plain' });
 					res.end('{{{{{{');
 					return true;
 				}
 			});
+
+			await auth.getToken('foo');
 
 			try {
 				await auth.userInfo();

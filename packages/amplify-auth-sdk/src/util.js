@@ -10,7 +10,6 @@ const { log } = snooplogg('amplify-auth:util');
  *
  * @param {String} [url] - An optional URL to discover the available endpoints.
  * @returns {Promise<Object>}
- * @access public
  */
 export async function getServerInfo(url) {
 	if (!url || typeof url !== 'string') {
@@ -20,6 +19,50 @@ export async function getServerInfo(url) {
 	log(`Fetching server info: ${url}...`);
 	const res = await fetch(url);
 	return res.json();
+}
+
+/**
+ * Generates an HTML page with a panel containing a title and a message.
+ *
+ * @param {String} title - The title to display.
+ * @param {String} message - The message to inject into the page.
+ * @returns {String}
+ */
+export function renderHTML(title, message) {
+	return `<!doctype html>
+<html>
+<head>
+	<title>${title}</title>
+	<style>
+	body {
+		background-color: #fff;
+		color: #333;
+		font-family: "Open Sans","Helvetica Neue","Arial",sans-serif;
+		font-size: 15px;
+	}
+
+	body > div {
+		background-color: #f7f7f7;
+		border: 1px solid #cbcbcb;
+		border-radius: 4px;
+		margin: 30px auto;
+		padding: 20px 30px;
+		width: 360px;
+	}
+
+	h1 {
+		font-size: 24px;
+		font-weight: bold;
+	}
+	</style>
+</head>
+<body>
+	<div>
+		<h1>${title}</h1>
+		<p>${String(message).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+	</div>
+</body>
+</html>`;
 }
 
 /**

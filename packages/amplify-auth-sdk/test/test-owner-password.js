@@ -40,6 +40,7 @@ describe('Owner Password', () => {
 		});
 	});
 
+	/*
 	describe('Server Info', () => {
 		afterEach(async function () {
 			if (this.server) {
@@ -307,4 +308,5 @@ describe('Owner Password', () => {
 			console.log(info);
 		});
 	});
+	*/
 });

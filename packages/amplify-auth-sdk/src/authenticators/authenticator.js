@@ -1,3 +1,4 @@
+import accepts from 'accepts';
 import crypto from 'crypto';
 import E from '../errors';
 import fetch from 'node-fetch';
@@ -7,7 +8,7 @@ import opn from 'opn';
 import querystring from 'querystring';
 import snooplogg from 'snooplogg';
 
-import { getServerInfo, stringifyQueryString } from '../util';
+import { getServerInfo, renderHTML, stringifyQueryString } from '../util';
 import { parse } from 'url';
 
 const { log } = snooplogg('amplify-auth:authenticator');
@@ -85,6 +86,27 @@ export default class Authenticator {
 	interactive = false;
 
 	/**
+	 * The number of milliseconds to wait before shutting down the local HTTP server.
+	 *
+	 * @type {Number}
+	 * @access private
+	 */
+	interactiveLoginTimeout = 120000; // 2 minutes
+
+	/**
+	 * Message strings displayed to the end user.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	messages = {
+		interactiveSuccess: {
+			text: 'Authorization successful! Please return to the console.',
+			html: renderHTML('Authorization Successful!', 'Please return to the console.')
+		}
+	};
+
+	/**
 	 * A lookup of pending interactive logins.
 	 *
 	 * @type {Map}
@@ -133,14 +155,6 @@ export default class Authenticator {
 	serverPort = 3000;
 
 	/**
-	 * The number of milliseconds to wait before shutting down the local HTTP server.
-	 *
-	 * @type {Number}
-	 * @access private
-	 */
-	interactiveLoginTimeout = 120000; // 2 minutes
-
-	/**
 	 * The local HTTP server URL.
 	 *
 	 * @type {String}
@@ -156,7 +170,7 @@ export default class Authenticator {
 	 * @type {Number}
 	 * @access private
 	 */
-	tokenRefreshThreshold = 5 * 60 * 1000; // 5 minutes
+	tokenRefreshThreshold = 0;
 
 	/**
 	 * The tokens returned from the server.
@@ -177,7 +191,9 @@ export default class Authenticator {
 	 * endpoints are: `auth`, `certs`, `logout`, `token`, `userinfo`, and `wellKnown`.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
-	 * @param {Boolean} [opts.tokenRefreshThreshold=300] - The number of seconds before the access
+	 * @param {Object} [opts.messages] - A map of categorized messages to display to the end user.
+	 * Supports plain text or HTML strings.
+	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
 	 * token expires and should be refreshed.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
 	 * @param {String} [opts.responseType=code] - The response type to send with requests.
@@ -288,6 +304,25 @@ export default class Authenticator {
 				this.endpoints[name] = url;
 			}
 		}
+
+		// set any message overrides
+		if (opts.messages) {
+			if (typeof opts.messages !== 'object') {
+				throw E.INVALID_PARAMETER('Expected messages to be an object');
+			}
+
+			for (const [ name, value ] of Object.entries(opts.message)) {
+				const dest = this.messages[name] = this.messages[name] || {};
+
+				if (typeof value === 'object') {
+					for (const [ type, msg ] of Object.entries(value)) {
+						dest[type] = String(msg).trim();
+					}
+				} else {
+					dest.text = String(value).trim();
+				}
+			}
+		}
 	}
 
 	/* istanbul ignore next */
@@ -317,21 +352,75 @@ export default class Authenticator {
 	 * Retrieves the access token. If the authenticator is interactive and the authenticator has not
 	 * yet authenticated with the server, an error is thrown.
 	 *
+	 * @param {Boolean} [doLogin=false] - When `true` and non-interactive, it will attempt to log in
+	 * using the refresh token.
 	 * @returns {Promise<String>}
 	 * @access public
 	 */
-	async getAccessToken() {
+	async getAccessToken(doLogin) {
 		if (this.tokens.access_token && this.expires.access > (Date.now() + this.tokenRefreshThreshold)) {
 			return this.tokens.access_token;
 		}
 
+		log(this.tokens.access_token ? 'Access token expired' : 'No access token');
+
 		// if we don't have an access token and we're interactive, then the refresh token is useless
 		// and login is required
-		if (this.interactive) {
+		if (!doLogin || this.interactive) {
 			throw E.LOGIN_REQUIRED('Login required');
 		}
 
 		return await this.getToken();
+	}
+
+	/**
+	 * Generates an response from the local HTML server.
+	 *
+	 * @param {IncomingRequest} req - The incoming HTTP request.
+	 * @param {String} result - An error or message id.
+	 * @returns {Object}
+	 * @access private
+	 */
+	getResponse(req, result) {
+		const accept = accepts(req);
+		const err = result instanceof Error ? result : null;
+		const msg = err ? null : (this.messages[result] || { text: result });
+		let contentType = 'text/plain';
+		let message;
+
+		switch (accept.type([ 'html', 'json' ])) {
+			case 'html':
+				contentType = 'text/html';
+				if (err) {
+					message = renderHTML('Authentication Error', err.message);
+				} else {
+					message = msg.html || renderHTML('Authentication', msg.text);
+				}
+				break;
+
+			case 'json':
+				contentType = 'application/json';
+				if (err) {
+					message = JSON.stringify({
+						message: err.message,
+						success: false
+					});
+				} else {
+					message = JSON.stringify({
+						message: msg.text,
+						success: true
+					});
+				}
+				break;
+
+			default:
+				message = err ? err.toString() : msg.text;
+		}
+
+		return {
+			contentType,
+			message
+		};
 	}
 
 	/**
@@ -377,6 +466,7 @@ export default class Authenticator {
 		if (!res.ok) {
 			// authentication failed
 			const msg = await res.text();
+			log(`Authentication failed: ${msg} (${res.status})`);
 			throw E.AUTH_FAILED(msg.trim() || 'Authentication failed', { status: res.status });
 		}
 
@@ -394,6 +484,10 @@ export default class Authenticator {
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: invalid response from server');
 		}
+
+		log('Authentication successful');
+		log(tokens);
+		log(`Email address: ${this.email}`);
 
 		const now = Date.now();
 		this.expires.access  = (tokens.expires_in * 1000) + now;
@@ -439,7 +533,7 @@ export default class Authenticator {
 
 		if (!this.interactive) {
 			log('Retrieving tokens non-interactively');
-			return { accessToken: await this.getAccessToken() };
+			return { accessToken: await this.getAccessToken(true) };
 		}
 
 		// we're interactive, so we either are headless or starting a web server
@@ -510,8 +604,10 @@ export default class Authenticator {
 									pending.resolve({
 										accessToken: await this.getToken(code)
 									});
-									res.writeHead(200, { 'Content-Type': 'text/plain' });
-									res.end('Authorization successful! Please return to the console.');
+
+									const { contentType, message } = this.getResponse(req, 'interactiveSuccess');
+									res.writeHead(200, { 'Content-Type': contentType });
+									res.end(message);
 								} catch (e) {
 									pending.reject(e);
 									throw e;
@@ -519,12 +615,14 @@ export default class Authenticator {
 									this.stopServer();
 								}
 							} else {
-								res.writeHead(404, { 'Content-Type': 'text/plain' });
-								res.end('Not Found');
+								const err = new Error('Not Found');
+								err.status = 404;
+								throw err;
 							}
 						} catch (e) {
-							res.writeHead(400, { 'Content-Type': 'text/plain' });
-							res.end(e.message);
+							const { contentType, message } = this.getResponse(req, e);
+							res.writeHead(e.status || 400, { 'Content-Type': contentType });
+							res.end(message);
 						}
 					})
 					.on('connection', conn => {
@@ -661,18 +759,21 @@ export default class Authenticator {
 	/**
 	 * Retrieves the user info associated with the access token.
 	 *
+	 * @param {Boolean} [doLogin=false] - When `true` and non-interactive, it will attempt to log in
+	 * using the refresh token.
 	 * @returns {Promise<Object>}
 	 * @access public
 	 */
-	async userInfo() {
-		const accessToken = await this.getAccessToken();
+	async userInfo(doLogin) {
+		const accessToken = await this.getAccessToken(doLogin);
+
+		log(`Fetching user info: ${this.endpoints.userinfo}`);
 
 		const res = await fetch(this.endpoints.userinfo, {
 			headers: {
 				Authorization: `Bearer ${accessToken}`
 			}
 		});
-
 		return await res.json();
 	}
 }

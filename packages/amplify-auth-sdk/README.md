@@ -35,7 +35,30 @@ import Auth from '@axway/amplify-auth-sdk';
 	});
 
 	// this will launch the default browser and wait for the user to complete the process
-	await auth.login();
+	const { accessToken } = await auth.login();
+
+	console.log('Authenticated successfully!');
+})().catch(console.error);
+```
+
+You can also manually authenticate headless without a browser.
+
+```js
+import Auth from '@axway/amplify-auth-sdk';
+import fetch from 'node-fetch';
+import querystring from 'querystring';
+import url from 'url';
+
+(async function main() {
+	const auth = new Auth({
+		clientId: 'my_app',
+		realm: 'realm_to_auth_into'
+	});
+
+	const { url } = await auth.login({ headless: true });
+	const res = await fetch(url, { redirect: 'manual' });
+	const { code } = querystring.parse(url.parse(res.headers.get('location')).query);
+	const { accessToken } = await auth.getToken(code);
 
 	console.log('Authenticated successfully!');
 })().catch(console.error);
@@ -54,7 +77,7 @@ import Auth from '@axway/amplify-auth-sdk';
 		password: 'password1'
 	});
 
-	await auth.login();
+	const { accessToken } = await auth.login();
 
 	console.log('Authenticated successfully!');
 })().catch(console.error);
@@ -73,7 +96,7 @@ import Auth from '@axway/amplify-auth-sdk';
 	});
 
 	// this will launch the default browser and wait for the user to complete the process
-	await auth.login();
+	const { accessToken } = await auth.login();
 
 	console.log('Authenticated successfully!');
 })().catch(console.error);
@@ -91,7 +114,7 @@ import Auth from '@axway/amplify-auth-sdk';
 		secretFile: '/path/to/rsa-private-key.pem'
 	});
 
-	await auth.login();
+	const { accessToken } = await auth.login();
 
 	console.log('Authenticated successfully!');
 })().catch(console.error);
@@ -117,6 +140,8 @@ passed into the constructor.
      environment is a shorthand way of specifying a Axway default base URL. Defaults to `"prod"`.
    * `interactiveLoginTimeout`: (Number) [optional] The number of milliseconds to wait before
      shutting down the local HTTP server. Defaults to `120000`.
+   * `messages`: (Object) [optional] A map of categorized messages to display to the end user.
+     Supports plain text or HTML strings.
    * `realm`: (String) **[required]** The name of the realm to authenticate with.
    * `responseType`: (String) [optional] The response type to send with requests. Defaults to
      `"code"`.
@@ -127,7 +152,7 @@ passed into the constructor.
    * `serverPort`: (Number) [optional] The local HTTP server port to listen on when interactively
      authenticating. Defaults to `3000`
    * `tokenRefreshThreshold`: (Number) [optional] The number of seconds before the access token
-     expires and should be refreshed. Defaults to 5 minutes (or 300 seconds).
+     expires and should be refreshed. Defaults to `0`.
  * PKCE:
    * This is the default authentication method and has no options.
  * Username/Password:
@@ -151,11 +176,14 @@ notification.
 
 ### Methods
 
-#### `getAccessToken()`
+#### `getAccessToken(doLogin)`
 
 Retrieves the access token. If the machine has not authenticated yet, it will attempt to login. If
 the authentication method is interactive (PKCE or non-service client secret), then it will throw an
 error.
+
+ * `doLogin`: (Boolean) [optional] When `true`, and non-interactive, it will attempt to log in using
+   the refresh token. Defaults to `false`.
 
 ##### Return Value
 
@@ -199,11 +227,14 @@ Returns `Promise` that resolves once the local access token and the remote sessi
 invalidated. This function will always succeed regardless if it the Axway platform was able to
 invalidate the access token.
 
-#### `userInfo()`
+#### `userInfo(doLogin)`
 
 Retrieves the user info associated with the access token. If the machine has not authenticated yet,
 it will attempt to login. If the authentication method is interactive (PKCE or non-service client
 secret), then it will throw an error.
+
+ * `doLogin`: (Boolean) [optional] When `true`, and non-interactive, it will attempt to log in using
+   the refresh token. Defaults to `false`.
 
 ##### Return Value
 
