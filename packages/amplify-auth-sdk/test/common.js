@@ -1,8 +1,13 @@
 import http from 'http';
 import jws from 'jws';
 import querystring from 'querystring';
+import snooplogg from 'snooplogg';
 
+import { internal } from '../dist/index';
 import { parse } from 'url';
+import { serverInfo } from './server-info';
+
+const { log } = snooplogg('test:amplify-auth:common');
 
 export async function createLoginServer(opts = {}) {
 	let counter = 0;
@@ -88,6 +93,17 @@ export async function createLoginServer(opts = {}) {
 					}));
 					break;
 
+				case '/auth/realms/test_realm/.well-known/openid-configuration':
+					if (typeof opts.serverinfo === 'function') {
+						if (opts.serverinfo(post, req, res)) {
+							break;
+						}
+					}
+
+					res.writeHead(200, { 'Content-Type': 'application/json' });
+					res.end(JSON.stringify(serverInfo));
+					break;
+
 				default:
 					res.writeHead(404, { 'Content-Type': 'text/plain' });
 					res.end('Not Found');
@@ -131,7 +147,12 @@ export async function createLoginServer(opts = {}) {
 }
 
 export async function stopLoginServer() {
+	this.timeout(5000);
+
+	await internal.server.stop(true);
+
 	if (this.server) {
+		log('Destroying test auth server...');
 		await this.server.destroy();
 		this.server = null;
 	}

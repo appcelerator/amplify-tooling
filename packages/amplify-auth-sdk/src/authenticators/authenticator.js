@@ -2,14 +2,17 @@ import accepts from 'accepts';
 import crypto from 'crypto';
 import E from '../errors';
 import fetch from 'node-fetch';
-import http from 'http';
 import jws from 'jws';
 import opn from 'opn';
-import querystring from 'querystring';
 import snooplogg from 'snooplogg';
 
-import { getServerInfo, renderHTML, stringifyQueryString } from '../util';
-import { parse } from 'url';
+import * as server from '../server';
+
+import {
+	getServerInfo,
+	renderHTML,
+	stringifyQueryString
+} from '../util';
 
 const { log } = snooplogg('amplify-auth:authenticator');
 
@@ -107,14 +110,6 @@ export default class Authenticator {
 	};
 
 	/**
-	 * A lookup of pending interactive logins.
-	 *
-	 * @type {Map}
-	 * @access private
-	 */
-	pending = new Map();
-
-	/**
 	 * The authorize URL.
 	 *
 	 * @type {String}
@@ -131,14 +126,6 @@ export default class Authenticator {
 	scope = 'openid';
 
 	/**
-	 * The HTTP server to use for interactive authentication.
-	 *
-	 * @type {http.Server}
-	 * @access private
-	 */
-	server = null;
-
-	/**
 	 * The local HTTP server hostname or IP address to listen on when interactively authenticating.
 	 *
 	 * @type {String}
@@ -153,16 +140,6 @@ export default class Authenticator {
 	 * @access private
 	 */
 	serverPort = 3000;
-
-	/**
-	 * The local HTTP server URL.
-	 *
-	 * @type {String}
-	 * @access private
-	 */
-	get serverUrl() {
-		return `http://${this.serverHost}:${this.serverPort}`;
-	}
 
 	/**
 	 * The age in milliseconds before the access token expires and should be refreshed.
@@ -311,7 +288,7 @@ export default class Authenticator {
 				throw E.INVALID_PARAMETER('Expected messages to be an object');
 			}
 
-			for (const [ name, value ] of Object.entries(opts.message)) {
+			for (const [ name, value ] of Object.entries(opts.messages)) {
 				const dest = this.messages[name] = this.messages[name] || {};
 
 				if (typeof value === 'object') {
@@ -538,124 +515,39 @@ export default class Authenticator {
 
 		// we're interactive, so we either are headless or starting a web server
 
+		// generate a request id so that we can match up successful callbacks with *this* login()
+		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();
+		log(`Starting login request ${requestId}`);
+
 		const queryParams = Object.assign({
 			accessType:   this.accessType,
 			clientId:     this.clientId,
 			scope:        this.scope,
 			responseType: this.responseType,
-			redirectUri:  `${this.serverUrl}/callback`
+			redirectUri:  `${this.serverUrl}/callback/${requestId}`
 		}, this.authorizationUrlParams);
-
-		if (opts.headless) {
-			return { url: `${this.endpoints.auth}?${stringifyQueryString(queryParams)}` };
-		}
-
-		// generate a request id so that we can match up successful callbacks with *this* login()
-		const id = crypto.randomBytes(4).toString('hex').toUpperCase();
-
-		log(`Starting login request ${id}`);
-
-		// set up the timer to stop the server
-		const timer = setTimeout(() => {
-			const pending = this.pending.get(id);
-			if (pending) {
-				log(`Request ${id} timed out`);
-				this.pending.delete(id);
-				pending.reject(E.AUTH_TIMEOUT('Authentication timed out'));
-			}
-			this.stopServer();
-		}, opts.timeout || this.interactiveLoginTimeout);
-
-		if (!this.server) {
-			// the server is not running, so start it
-			await new Promise((resolve, reject) => {
-				const callbackRegExp = /^\/(callback)(?:\/([A-Z0-9]+))?/;
-				const connections = {};
-
-				const server = http
-					.createServer(async (req, res) => {
-						try {
-							const url = parse(req.url);
-							const m = url.pathname.match(callbackRegExp);
-
-							if (m && m[1] === 'callback') {
-								const { code } = querystring.parse(url.query);
-								const id = m[2];
-								const pending = this.pending.get(id);
-
-								if (!code) {
-									throw new Error('Invalid auth code');
-								}
-
-								if (!pending) {
-									throw new Error('Invalid request id');
-								}
-
-								log(`Request ${id} got code: ${code}`);
-
-								log('Clearing timeout and pending');
-								clearTimeout(pending.timer);
-								this.pending.delete(id);
-
-								// we do an inner try/catch because the request is valid, but auth
-								// could still fail
-								try {
-									log('Getting token...');
-									pending.resolve({
-										accessToken: await this.getToken(code)
-									});
-
-									const { contentType, message } = this.getResponse(req, 'interactiveSuccess');
-									res.writeHead(200, { 'Content-Type': contentType });
-									res.end(message);
-								} catch (e) {
-									pending.reject(e);
-									throw e;
-								} finally {
-									this.stopServer();
-								}
-							} else {
-								const err = new Error('Not Found');
-								err.status = 404;
-								throw err;
-							}
-						} catch (e) {
-							const { contentType, message } = this.getResponse(req, e);
-							res.writeHead(e.status || 400, { 'Content-Type': contentType });
-							res.end(message);
-						}
-					})
-					.on('connection', conn => {
-						const key = `${conn.remoteAddress}:${conn.remotePort}`;
-						connections[key] = conn;
-						conn.on('close', () => {
-							delete connections[key];
-						});
-					})
-					.on('listening', () => {
-						log('Local HTTP server started');
-						resolve();
-					})
-					.on('error', err => {
-						this.server = null;
-						reject(err);
-					})
-					.listen(this.serverPort);
-
-				server.destroy = function destroy() {
-					const p = new Promise(resolve => server.close(resolve));
-					for (const conn of Object.values(connections)) {
-						conn.destroy();
-					}
-					return p;
-				};
-
-				this.server = server;
-			});
-		}
-
-		queryParams.redirectUri += `/${id}`;
 		const authorizationUrl = `${this.endpoints.auth}?${stringifyQueryString(queryParams)}`;
+
+		// start the server and wait for it to start
+		const { cancel, promise } = await server.start({
+			getResponse: (req, result) => this.getResponse(req, result),
+			getToken:    code => this.getToken(code),
+			requestId,
+			serverHost:  this.serverHost,
+			serverPort:  this.serverPort,
+			timeout:     opts.timeout || this.interactiveLoginTimeout
+		});
+
+		// if headless, return now with the auth url
+		if (opts.headless) {
+			return {
+				cancel,
+				promise,
+				url: authorizationUrl
+			};
+		}
+
+		// launch the default web browser
 		if (!opts.hasOwnProperty('wait')) {
 			opts.wait = false;
 		}
@@ -663,7 +555,7 @@ export default class Authenticator {
 		opn(authorizationUrl, opts);
 
 		// wait for authentication to succeed or fail
-		return new Promise((resolve, reject) => this.pending.set(id, { resolve, reject, timer }));
+		return promise;
 	}
 
 	/**
@@ -739,21 +631,13 @@ export default class Authenticator {
 	}
 
 	/**
-	 * Stops the internal web server used for interactive authentication.
+	 * The local HTTP server URL.
 	 *
-	 * @returns {Promise}
-	 * @access public
+	 * @type {String}
+	 * @access private
 	 */
-	async stopServer() {
-		const { server } = this;
-		if (server && !this.pending.size) {
-			// null the server ref asap
-			this.server = null;
-
-			log('Destroying local HTTP server...');
-			await server.destroy();
-			log('Local HTTP server stopped');
-		}
+	get serverUrl() {
+		return `http://${this.serverHost}:${this.serverPort}`;
 	}
 
 	/**

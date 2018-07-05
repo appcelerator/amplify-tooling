@@ -9,6 +9,8 @@ import OwnerPassword from './authenticators/owner-password';
 import PKCE from './authenticators/pkce';
 import SignedJWT from './authenticators/signed-jwt';
 
+import * as server from './server';
+
 import { getServerInfo } from './util';
 
 const internal = {
@@ -16,6 +18,7 @@ const internal = {
 	ClientSecret,
 	OwnerPassword,
 	PKCE,
+	server,
 	SignedJWT
 };
 

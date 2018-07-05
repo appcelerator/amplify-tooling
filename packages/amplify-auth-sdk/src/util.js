@@ -18,7 +18,12 @@ export async function getServerInfo(url) {
 
 	log(`Fetching server info: ${url}...`);
 	const res = await fetch(url);
-	return res.json();
+
+	if (!res.ok) {
+		throw new Error(`Failed to get server info (status ${res.status})`);
+	}
+
+	return await res.json();
 }
 
 /**
