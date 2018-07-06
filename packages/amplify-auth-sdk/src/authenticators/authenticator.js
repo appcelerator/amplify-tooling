@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import jws from 'jws';
 import opn from 'opn';
 import snooplogg from 'snooplogg';
+import TokenStore from '../stores/token-store';
 
 import * as server from '../server';
 
@@ -158,6 +159,14 @@ export default class Authenticator {
 	tokens = {};
 
 	/**
+	 * The store to persist the token.
+	 *
+	 * @type {TokenStore}
+	 * @access private
+	 */
+	tokenStore = null;
+
+	/**
 	 * Initializes the authenticator instance.
 	 *
 	 * @param {Object} opts - Various options.
@@ -168,10 +177,10 @@ export default class Authenticator {
 	 * endpoints are: `auth`, `certs`, `logout`, `token`, `userinfo`, and `wellKnown`.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {Number} [opts.interactiveLoginTimeout=120000] - The number of milliseconds to wait
+	 * before shutting down the local HTTP server.
 	 * @param {Object} [opts.messages] - A map of categorized messages to display to the end user.
 	 * Supports plain text or HTML strings.
-	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
-	 * token expires and should be refreshed.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
 	 * @param {String} [opts.responseType=code] - The response type to send with requests.
 	 * @param {String} [opts.scope=openid] - The name of the scope to send with requests.
@@ -179,8 +188,9 @@ export default class Authenticator {
 	 * listen on when interactively authenticating.
 	 * @param {Number} [opts.serverPort=3000] - The local HTTP server port to listen on when
 	 * interactively authenticating.
-	 * @param {Number} [opts.interactiveLoginTimeout=120000] - The number of milliseconds to wait
-	 * before shutting down the local HTTP server.
+	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
+	 * token expires and should be refreshed.
+	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
 	 * @access public
 	 */
 	constructor(opts) {
@@ -299,6 +309,13 @@ export default class Authenticator {
 					dest.text = String(value).trim();
 				}
 			}
+		}
+
+		if (opts.tokenStore) {
+			if (!(opts.tokenStore instanceof TokenStore)) {
+				throw E.INVALID_PARAMETER('Expected the token store to be a "TokenStore" instance');
+			}
+			this.tokenStore = opts.tokenStore;
 		}
 	}
 
@@ -472,7 +489,10 @@ export default class Authenticator {
 
 		this.tokens = tokens;
 
-		// TODO: persist the tokens using this.email, this.baseUrl, and this.tokens
+		// persist the tokens
+		if (this.tokenStore) {
+			await this.tokenStore.set(`${this.email}:${this.baseUrl}`, this.tokens);
+		}
 
 		return this.tokens.access_token;
 	}
@@ -565,8 +585,10 @@ export default class Authenticator {
 	 * @access public
 	 */
 	async logout() {
-		// TODO: remove token from store
-		// this.tokenStore.removeToken(this.email, this.baseUrl);
+		// remove token from store
+		if (this.tokenStore) {
+			await this.tokenStore.delete(`${this.email}:${this.baseUrl}`);
+		}
 
 		const refreshToken = this.tokens.refresh_token;
 

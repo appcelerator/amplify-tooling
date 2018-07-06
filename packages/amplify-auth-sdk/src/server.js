@@ -143,10 +143,10 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 /**
  * Stops the HTTP server used for interactive authentication.
  *
- * @param {Boolean} [force] - When `true`, removes all pending requests and stops the local HTTP
- * server.
+ * @param {Boolean} [force=false] - When `true`, removes all pending requests and stops the local
+ * HTTP server.
  * @param {String|Array.<String>} [serverIds] - A server id of a specific HTTP server or a list of
- * specific server ids to stop. Defaults to all active servers.
+ * specific server ids to stop. Defaults to all servers.
  * @returns {Promise}
  */
 export async function stop(force, serverIds) {

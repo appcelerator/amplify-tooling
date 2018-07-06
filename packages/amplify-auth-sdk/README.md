@@ -5,18 +5,23 @@ AxwayID in order to access Amplify Services.
 
 ## Installation
 
-	npm i @axway/amplify-auth-sdk
+	npm i @axway/amplify-auth-sdk --save
+	npm i keytar --save-optional
 
 ## Overview
 
 There are 4 supported authentication methods:
 
  * Resource Owner Accounts:
-   - Authorization Code Grant with PKCE
+   - Authorization Code Grant with PKCE (Proof Key for Code Exchange)
    - Username/Password
  * Service Accounts:
    - Client Secret Credentials
    - JSON Web Token
+
+The token can be persisted across program execution. By default, the token is stored in a file. You
+can optionally install [`keytar`](https://www.npmjs.com/package/keytar) to securely store the token
+in the operating system's secure storage mechanism (keychain, libsecret, or credential vault).
 
 ## Examples
 
@@ -153,6 +158,14 @@ passed into the constructor.
      authenticating. Defaults to `3000`
    * `tokenRefreshThreshold`: (Number) [optional] The number of seconds before the access token
      expires and should be refreshed. Defaults to `0`.
+   * `tokenStore`: (TokenStore) [optional] A token store instance for persisting the tokens.
+   * `tokenStoreDir`: (String) [optional] The directory to save the token file when the `default`
+     token store is used.
+   * `tokenStoreType`: (String) [optional] The type of store to persist the access token. Possible
+     values include: `auto` (which tries to use the `keytar` store, but falls back to the default
+     store), [`keytar`](https://www.npmjs.com/package/keytar) to use the operating system's secure
+     storage mechanism (or errors if keytar is not installed), or `default` to use the built-in
+     store. If `null`, it will not persist the access token.
  * PKCE:
    * This is the default authentication method and has no options.
  * Username/Password:
@@ -215,7 +228,22 @@ All other authentication methods are non-interactive and pass along the paramete
 
 ##### Return Value
 
-Returns `Promise` when the authentication has completed or failed.
+Returns a `Promise` that resolves an `Object`. The contents of that object depends on whether
+`headless=true`.
+
+If `headless`, the resolved object contains:
+
+ * `cancel()`: (Function) A function that cancels the interactive login request and stops the local
+   HTTP server.
+ * `promise`: (Promise) Resolves an `Object` containing the `accessToken` if authentication
+   succeeds.
+ * `url`: (String) The URL to call that when successful should return a 301 redirect to the local
+   HTTP server containing the authorization code used to retreive the access token when calling
+   `getToken(code)`.
+
+If *NOT* `headless`, the resolved object contains:
+
+ * `accessToken`: The access token when authentication succeeds.
 
 #### `logout()`
 
@@ -268,20 +296,46 @@ Discovers available endpoints based on the remote server's OpenID configuration.
 Returns `Promise` that resolves an `Object` containing information about the authentication
 endpoint.
 
-## Internal API
+## Internal APIs
 
 The `Auth` class is a convenience wrapper around a specific authenticator implementation. This SDK
-exports an `internal` namespace which defines the actual implementation classes and the base
-`Authenticator` class.
+exports all internal classes for authenticators and token stores.
 
-These implementation specific authentication methods can be used directly. This is useful for
-testing or adding new authentication methods. These classes expose additional methods that are
-considered undocumented.
+These implementation specific authentication and token store classes can be used directly, but
+generally for testing or defining new authentication and token store classes.
 
- * `ClientSecret`
- * `OwnerPassword`
- * `PKCE`
- * `SignedJWT`
+### Authenticators
+
+ * `Authenticator`: The base class for all authenticators.
+   * `ClientSecret`: The client secret authenticator.
+   * `OwnerPassword`: The username/password authenticator.
+   * `PKCE`: The PKCE authenticator.
+   * `SignedJWT`: The JSON web token authenticator.
+
+### Token Stores
+
+ * `TokenStore`: The base class for all token stores.
+   * `FileStore`: The default file-based token store.
+   * `KeytarStore`: A secure token store that uses [`keytar`](https://www.npmjs.com/package/keytar).
+
+### Misc Internal APIs
+
+ * `server`: An object with a methods for starting and stopping the local HTTP server.
+
+#### `server.stop(force, serverIds)`
+
+Stops the local HTTP interactive login callback server. This can be called by consumers to abort all
+interactive logins.
+
+ * `force`: (Boolean) When `true`, it will stop the server regardless if there are any pending
+   interactive logins or connections. Any pending interactive requests will be rejected.
+ * `serverIds`: (String|Array<String>) A list of server ids to stop. A server id is defined by
+   `"<server_host>:<server_port>"`. By default, all servers are stopped.
+
+##### Return Value
+
+Returns `Promise` when all connections have been disconnected and the HTTP server(s) have been
+stopped.
 
 ## Legal
 

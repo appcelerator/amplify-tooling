@@ -1,10 +1,9 @@
 /* eslint-disable max-len */
 
-import Auth, { internal } from '../dist/index';
+import Auth, { Authenticator } from '../dist/index';
 
 import { createLoginServer, stopLoginServer } from './common';
 
-const { Authenticator } = internal;
 const isCI = process.env.CI || process.env.JENKINS;
 
 describe('PKCE', () => {

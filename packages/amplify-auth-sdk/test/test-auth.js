@@ -1,11 +1,9 @@
-import Auth, { internal } from '../dist/index';
+import Auth, { Authenticator } from '../dist/index';
 import fetch from 'node-fetch';
 import snooplogg from 'snooplogg';
 
 import { createLoginServer, stopLoginServer } from './common';
 import { serverInfo } from './server-info';
-
-const { Authenticator } = internal;
 
 const { log } = snooplogg('test:amplify-auth:auth');
 
@@ -367,6 +365,17 @@ describe('Auth', () => {
 				message: 'Invalid auth code',
 				success: false
 			});
+		});
+
+		it('should error if token store is invalid', () => {
+			expect(() => {
+				new Auth({
+					baseUrl: 'http://127.0.0.1:1337',
+					clientId: 'test_client',
+					realm: 'test_realm',
+					tokenStore: 'foo'
+				});
+			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
 		});
 	});
 

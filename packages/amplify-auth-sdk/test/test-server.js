@@ -1,4 +1,4 @@
-import Auth, { internal } from '../dist/index';
+import Auth, { server } from '../dist/index';
 import fetch from 'node-fetch';
 import querystring from 'querystring';
 
@@ -6,7 +6,7 @@ import { parse } from 'url';
 
 describe('Server', () => {
 	afterEach(async () => {
-		await internal.server.stop(true);
+		await server.stop(true);
 	});
 
 	it('should error if callback does not have an auth code', async () => {
@@ -108,7 +108,7 @@ describe('Server', () => {
 
 		const { promise } = await auth.login({ headless: true });
 
-		setImmediate(() => internal.server.stop(true));
+		setImmediate(() => server.stop(true));
 
 		return promise
 			.then(() => {

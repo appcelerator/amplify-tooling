@@ -3,24 +3,21 @@ if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
+import E from './errors';
+
 import Authenticator from './authenticators/authenticator';
 import ClientSecret from './authenticators/client-secret';
 import OwnerPassword from './authenticators/owner-password';
 import PKCE from './authenticators/pkce';
 import SignedJWT from './authenticators/signed-jwt';
 
+import FileStore from './stores/file-store';
+import KeytarStore from './stores/keytar-store';
+import TokenStore from './stores/token-store';
+
 import * as server from './server';
 
 import { getServerInfo } from './util';
-
-const internal = {
-	Authenticator,
-	ClientSecret,
-	OwnerPassword,
-	PKCE,
-	server,
-	SignedJWT
-};
 
 /**
  * Authenticates the machine and retreives the auth token.
@@ -41,15 +38,45 @@ export default class Auth {
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
+	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
+	 * @param {String} [opts.tokenStoreDir] - The directory to save the token file when the
+	 * `default` token store is used.
+	 * @param {String} [opts.tokenStoreType=auto] - The type of store to persist the access token.
+	 * Possible values include: `auto` (which tries to use the `keytar` store, but falls back to the
+	 * default store), `keytar` to use the operating system's secure storage mechanism (or errors if
+	 * keytar is not installed), or `default` to use the built-in store. If `null`, it will not
+	 * persist the access token.
 	 * @access public
 	 */
 	constructor(opts) {
 		if (!opts || typeof opts !== 'object') {
-			const err = new TypeError('Expected options to be an object');
-			err.code = 'INVALID_ARGUMENT';
-			throw err;
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
+		// init the token store
+		if (!opts.tokenStore) {
+			const tokenStoreType = opts.tokenStoreType === undefined ? 'auto' :  opts.tokenStoreType;
+			switch (tokenStoreType) {
+				case 'auto':
+				case 'keytar':
+					try {
+						opts.tokenStore = new KeytarStore(opts);
+						break;
+					} catch (e) {
+						if (tokenStoreType === 'keytar') {
+							throw e;
+						}
+
+						// let 'auto' fall through
+					}
+
+				case 'default':
+					// default file store
+					opts.tokenStore = new FileStore(opts);
+			}
+		}
+
+		// create the authenticator
 		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
 			this.authenticator = new OwnerPassword(opts);
 		} else if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
@@ -153,5 +180,16 @@ export default class Auth {
 
 export {
 	Auth,
-	internal
+
+	Authenticator,
+	ClientSecret,
+	OwnerPassword,
+	PKCE,
+	SignedJWT,
+
+	FileStore,
+	KeytarStore,
+	TokenStore,
+
+	server
 };

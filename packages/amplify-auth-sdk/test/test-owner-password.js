@@ -1,9 +1,7 @@
-import Auth, { internal } from '../dist/index';
+import Auth, { Authenticator, OwnerPassword } from '../dist/index';
 import jws from 'jws';
 
 import { createLoginServer, stopLoginServer } from './common';
-
-const { Authenticator, OwnerPassword } = internal;
 
 describe('Owner Password', () => {
 	describe('Constructor', () => {

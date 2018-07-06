@@ -1,9 +1,7 @@
-import Auth, { internal } from '../dist/index';
+import Auth, { Authenticator, SignedJWT } from '../dist/index';
 import path from 'path';
 
 import { createLoginServer, stopLoginServer } from './common';
-
-const { Authenticator, SignedJWT } = internal;
 
 describe('Signed JWT', () => {
 	describe('Constructor', () => {

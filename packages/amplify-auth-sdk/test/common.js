@@ -3,8 +3,8 @@ import jws from 'jws';
 import querystring from 'querystring';
 import snooplogg from 'snooplogg';
 
-import { internal } from '../dist/index';
 import { parse } from 'url';
+import { server } from '../dist/index';
 import { serverInfo } from './server-info';
 
 const { log } = snooplogg('test:amplify-auth:common');
@@ -149,7 +149,7 @@ export async function createLoginServer(opts = {}) {
 export async function stopLoginServer() {
 	this.timeout(5000);
 
-	await internal.server.stop(true);
+	await server.stop(true);
 
 	if (this.server) {
 		log('Destroying test auth server...');
