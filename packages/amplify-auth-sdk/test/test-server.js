@@ -72,7 +72,7 @@ describe('Server', () => {
 		const id = params.redirect_uri.match(/\/callback\/([A-Z0-9]+)/)[1];
 
 		// squeltch unhandled rejections
-		promise.catch(err => {});
+		promise.catch(() => {});
 
 		try {
 			const res = await fetch(`http://127.0.0.1:3000/callback/${id}?code=123`);
@@ -97,5 +97,24 @@ describe('Server', () => {
 		} finally {
 			await cancel();
 		}
+	});
+
+	it('should reject login when manual login is cancelled', async () => {
+		const auth = new Auth({
+			baseUrl: 'http://127.0.0.1:1337',
+			clientId: 'test_client',
+			realm: 'test_realm'
+		});
+
+		const { promise } = await auth.login({ headless: true });
+
+		setImmediate(() => internal.server.stop(true));
+
+		return promise
+			.then(() => {
+				throw new Error('Expected promise to be rejected with server stopped error');
+			}, err => {
+				expect(err.message).to.equal('Server stopped');
+			});
 	});
 });

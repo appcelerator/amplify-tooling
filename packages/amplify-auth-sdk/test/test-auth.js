@@ -290,6 +290,84 @@ describe('Auth', () => {
 			expect(res.status).to.equal(200);
 			expect(await res.text()).to.equal(html);
 		});
+
+		it('should respond to interactive login as json', async function () {
+			this.server = await createLoginServer();
+
+			const text = 'It worked!';
+
+			const auth = new Auth({
+				baseUrl: 'http://127.0.0.1:1337',
+				clientId: 'test_client',
+				realm: 'test_realm',
+				messages: {
+					interactiveSuccess: text
+				}
+			});
+
+			let { url } = await auth.login({ headless: true });
+
+			log(`Manually fetching ${url}`);
+			let res = await fetch(url, {
+				redirect: 'manual'
+			});
+			expect(res.status).to.equal(301);
+
+			url = res.headers.get('location');
+			log(`Fetching ${url}`);
+
+			res = await fetch(url, {
+				headers: {
+					Accept: 'application/json'
+				}
+			});
+
+			expect(res.status).to.equal(200);
+			expect(await res.json()).to.deep.equal({
+				message: 'It worked!',
+				success: true
+			});
+		});
+
+		it('should respond to failed interactive login as json', async function () {
+			this.server = await createLoginServer();
+
+			const text = 'It worked!';
+
+			const auth = new Auth({
+				baseUrl: 'http://127.0.0.1:1337',
+				clientId: 'test_client',
+				realm: 'test_realm',
+				messages: {
+					interactiveSuccess: text
+				}
+			});
+
+			let { promise, url } = await auth.login({ headless: true });
+
+			promise.catch(() => {});
+
+			log(`Manually fetching ${url}`);
+			let res = await fetch(url, {
+				redirect: 'manual'
+			});
+			expect(res.status).to.equal(301);
+
+			url = res.headers.get('location').split('?')[0];
+			log(`Fetching ${url}`);
+
+			res = await fetch(url, {
+				headers: {
+					Accept: 'application/json'
+				}
+			});
+
+			expect(res.status).to.equal(400);
+			expect(await res.json()).to.deep.equal({
+				message: 'Invalid auth code',
+				success: false
+			});
+		});
 	});
 
 	describe('Environment', () => {

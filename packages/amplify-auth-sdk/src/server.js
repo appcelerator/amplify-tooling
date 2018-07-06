@@ -33,8 +33,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 	const serverId = `${serverHost}:${serverPort}`;
 
 	if (!servers[serverId]) {
-		// the server is not running, so create it
-		// register the server
+		// the server is not running, so create and register it
 		servers[serverId] = {
 			pending: new Map(),
 			server: createServer(async (req, res) => {
@@ -91,16 +90,18 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 					res.end(message);
 				} finally {
 					if (stopServer) {
-						stop(false, serverId);
+						await stop(false, serverId);
 					}
 				}
 			})
 		};
 
+		// now that we have defined and set the server, we need to wait for the HTTP server to start
+		// listening
 		await new Promise((resolve, reject) => {
 			servers[serverId].server
 				.on('listening', () => {
-					log('Local HTTP server started');
+					log(`Local HTTP server started: ${serverId}`);
 					resolve();
 				})
 				.on('error', reject)
@@ -122,6 +123,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 		}
 	}, timeout);
 
+	// return the cancel callback and authentication promise
 	return {
 		async cancel() {
 			const request = servers[serverId] && servers[serverId].pending.get(requestId);
@@ -167,8 +169,9 @@ export async function stop(force, serverIds) {
 
 			// we need to notify all pending logins that the server was shut down
 			const err = new Error('Server stopped');
-			for (const [ id, { reject } ] of pending.entries()) {
+			for (const [ id, { reject, timer } ] of pending.entries()) {
 				log(`Rejecting request ${id}`);
+				clearTimeout(timer);
 				reject(err);
 			}
 		}
