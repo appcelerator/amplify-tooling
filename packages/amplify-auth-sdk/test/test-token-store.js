@@ -4,6 +4,8 @@ import tmp from 'tmp';
 
 import { createLoginServer, stopLoginServer } from './common';
 
+const isCI = process.env.CI || process.env.JENKINS;
+
 tmp.setGracefulCleanup();
 
 describe('Token Store', () => {
@@ -168,7 +170,7 @@ describe('Token Store', () => {
 	describe('Keytar Token Store', () => {
 		afterEach(stopLoginServer);
 
-		it('should securely store the token', async function () {
+		(isCI && process.platform === 'linux' ? it.skip : it)('should securely store the token', async function () {
 			this.server = await createLoginServer();
 
 			const auth = new Auth({
