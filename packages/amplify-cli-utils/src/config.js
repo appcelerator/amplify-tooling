@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync } from 'fs';
+import { existsSync, outputJSONSync } from 'fs-extra';
 import Config from 'appcd-config';
 
 import { configFile as amplifyConfigFile } from './locations';
@@ -18,7 +18,7 @@ export default function loadConfig({ configFile, userConfig } = {}) {
 	}
 
 	if (!existsSync(userConfig)) {
-		writeFileSync(userConfig, JSON.stringify({}));
+		outputJSONSync(userConfig, {});
 	}
 
 	const cfg = new Config({ configFile });

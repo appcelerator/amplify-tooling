@@ -1,4 +1,3 @@
-import { expandPath } from 'appcd-path';
 import { loadConfig, locations } from '@axway/amplify-cli-utils';
 
 const readActions = {
@@ -11,6 +10,9 @@ const writeActions = {
 	set:     'set',
 
 	delete:  'delete',
+	remove:  'delete',
+	rm:      'delete',
+	unset:   'delete',
 
 	push:    'push',
 	pop:     'pop',
@@ -70,7 +72,8 @@ export default {
 		try {
 			let result = 'Saved';
 			let value;
-
+			// If it's an aliased action, then get the real action
+			action = writeActions[action];
 			switch (action) {
 				case 'set':
 					cfg.set(key, data.value);
