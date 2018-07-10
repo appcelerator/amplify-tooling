@@ -7,6 +7,6 @@ import cli from './cli';
 
 cli.exec()
 	.catch(err => {
-		console.error(err.message);
+		console.error(err);
 		process.exit(err.exitCode || 1);
 	});

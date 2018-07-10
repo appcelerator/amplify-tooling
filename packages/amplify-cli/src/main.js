@@ -12,10 +12,7 @@ import { resolve } from 'path';
 
 const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
 
-let cfg = {};
-try {
-	cfg = loadConfig();
-} catch (e) { }
+const cfg =  loadConfig();
 
 const extensions = [
 	...Object.values(cfg.get('extensions', {})),
