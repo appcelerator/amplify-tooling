@@ -336,6 +336,7 @@ export default class Authenticator {
 						this.tokenStore = new KeytarStore(opts);
 						break;
 					} catch (e) {
+						/* istanbul ignore if */
 						if (tokenStoreType === 'keytar') {
 							throw e;
 						}

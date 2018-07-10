@@ -17,6 +17,7 @@ export default class KeytarStore extends TokenStore {
 		try {
 			this.keytar = require('keytar');
 		} catch (e) {
+			/* istanbul ignore next */
 			throw E.KEYTAR_NOT_FOUND('"keytar" package not found, is it installed?');
 		}
 
