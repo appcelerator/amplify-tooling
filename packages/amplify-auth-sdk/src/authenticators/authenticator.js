@@ -2,7 +2,9 @@ import accepts from 'accepts';
 import crypto from 'crypto';
 import E from '../errors';
 import fetch from 'node-fetch';
+import FileStore from '../stores/file-store';
 import jws from 'jws';
+import KeytarStore from '../stores/keytar-store';
 import opn from 'opn';
 import snooplogg from 'snooplogg';
 import TokenStore from '../stores/token-store';
@@ -179,6 +181,8 @@ export default class Authenticator {
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Number} [opts.interactiveLoginTimeout=120000] - The number of milliseconds to wait
 	 * before shutting down the local HTTP server.
+	 * @param {String} [opts.keytarServiceName="amplify-auth"] - The name of the consumer using this
+	 * library when using the "keytar" token store.
 	 * @param {Object} [opts.messages] - A map of categorized messages to display to the end user.
 	 * Supports plain text or HTML strings.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
@@ -191,6 +195,13 @@ export default class Authenticator {
 	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
 	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
+	 * @param {String} [opts.tokenStoreDir] - The directory to save the token file when the
+	 * `default` token store is used.
+	 * @param {String} [opts.tokenStoreType=auto] - The type of store to persist the access token.
+	 * Possible values include: `auto` (which tries to use the `keytar` store, but falls back to the
+	 * default store), `keytar` to use the operating system's secure storage mechanism (or errors if
+	 * keytar is not installed), or `default` to use the built-in store. If `null`, it will not
+	 * persist the access token.
 	 * @access public
 	 */
 	constructor(opts) {
@@ -316,6 +327,26 @@ export default class Authenticator {
 				throw E.INVALID_PARAMETER('Expected the token store to be a "TokenStore" instance');
 			}
 			this.tokenStore = opts.tokenStore;
+		} else {
+			const tokenStoreType = opts.tokenStoreType === undefined ? 'auto' :  opts.tokenStoreType;
+			switch (tokenStoreType) {
+				case 'auto':
+				case 'keytar':
+					try {
+						this.tokenStore = new KeytarStore(opts);
+						break;
+					} catch (e) {
+						if (tokenStoreType === 'keytar') {
+							throw e;
+						}
+
+						// let 'auto' fall through
+					}
+
+				case 'default':
+					// default file store
+					this.tokenStore = new FileStore(opts);
+			}
 		}
 	}
 
@@ -352,6 +383,15 @@ export default class Authenticator {
 	 * @access public
 	 */
 	async getAccessToken(doLogin) {
+		if (!this.tokens.access_token && this.tokenStore) {
+			const data = await this.tokenStore.get(`${this.constructor.name}:${this.baseUrl}`);
+			if (data && data.tokens && data.expires) {
+				log('Loaded access token from token store');
+				Object.assign(this.tokens, data.tokens);
+				Object.assign(this.expires, data.expires);
+			}
+		}
+
 		if (this.tokens.access_token && this.expires.access > (Date.now() + this.tokenRefreshThreshold)) {
 			return this.tokens.access_token;
 		}
@@ -491,7 +531,13 @@ export default class Authenticator {
 
 		// persist the tokens
 		if (this.tokenStore) {
-			await this.tokenStore.set(`${this.email}:${this.baseUrl}`, this.tokens);
+			await this.tokenStore.set(`${this.constructor.name}:${this.baseUrl}`, {
+				authenticator: this.constructor.name,
+				baseUrl:       this.baseUrl,
+				email:         this.email,
+				expires:       this.expires,
+				tokens:        this.tokens
+			});
 		}
 
 		return this.tokens.access_token;
@@ -587,7 +633,7 @@ export default class Authenticator {
 	async logout() {
 		// remove token from store
 		if (this.tokenStore) {
-			await this.tokenStore.delete(`${this.email}:${this.baseUrl}`);
+			await this.tokenStore.delete(`${this.constructor.name}:${this.baseUrl}`);
 		}
 
 		const refreshToken = this.tokens.refresh_token;
@@ -677,6 +723,7 @@ export default class Authenticator {
 
 		const res = await fetch(this.endpoints.userinfo, {
 			headers: {
+				Accept: 'application/json',
 				Authorization: `Bearer ${accessToken}`
 			}
 		});

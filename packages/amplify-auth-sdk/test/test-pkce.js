@@ -11,14 +11,15 @@ describe('PKCE', () => {
 		afterEach(stopLoginServer);
 
 		it('should error getting an access token if not logged in', async function () {
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.getAccessToken();
+				await auth.getAccessToken();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Login required');
@@ -29,14 +30,15 @@ describe('PKCE', () => {
 		});
 
 		it('should error attempting to automatically login and get token', async function () {
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.getAccessToken(true);
+				await auth.getAccessToken(true);
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Login required');
@@ -51,26 +53,28 @@ describe('PKCE', () => {
 		afterEach(stopLoginServer);
 
 		it('should retrieve a URL for an interactive headless flow', async function () {
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			const { cancel, url } = await this.auth.login({ headless: true });
+			const { cancel, url } = await auth.login({ headless: true });
 			await cancel();
 			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&code_challenge=.+&code_challenge_method=S256&grant_type=authorization_code&redirect_uri=http%3A%2F%2F127\.0\.0\.1%3A3000%2Fcallback%2F.+&response_type=code&scope=openid$/);
 		});
 
 		it('should error if getting token without a code', async function () {
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.getToken();
+				await auth.getToken();
 			} catch (e) {
 				expect(e).to.be.instanceof(TypeError);
 				expect(e.message).to.equal('Expected code for interactive authentication to be a non-empty string');
@@ -88,14 +92,15 @@ describe('PKCE', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.getToken('foo');
+				await auth.getToken('foo');
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Unauthorized');
@@ -108,14 +113,15 @@ describe('PKCE', () => {
 		it('should timeout during interactive login', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.login({ app: [ 'echo', 'hi' ], timeout: 100 });
+				await auth.login({ app: [ 'echo', 'hi' ], timeout: 100 });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication timed out');
@@ -147,32 +153,34 @@ describe('PKCE', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			const result = await this.auth.getToken('foo');
+			const result = await auth.getToken('foo');
 			expect(result).to.equal(this.server.accessToken);
 
-			expect(this.auth.authenticator.email).to.equal('foo@bar.com');
+			expect(auth.authenticator.email).to.equal('foo@bar.com');
 
-			const expires = this.auth.expiresIn;
+			const expires = auth.expiresIn;
 			expect(expires).to.not.be.null;
 			const target = Date.now() + 10000;
 			expect(expires).to.be.within(target - 100, target + 100);
 		});
 
 		it('should error if server is unreachable', async function () {
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.getToken('foo');
+				await auth.getToken('foo');
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/^request to .+ failed,/i);
@@ -196,14 +204,15 @@ describe('PKCE', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.getToken('foo');
+				await auth.getToken('foo');
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication failed: invalid response from server');
@@ -216,16 +225,17 @@ describe('PKCE', () => {
 		(isCI ? it.skip : it)('should do interactive login', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			const result = await this.auth.login();
+			const result = await auth.login();
 			expect(result.accessToken).to.equal(this.server.accessToken);
 
-			expect(this.auth.authenticator.email).to.equal('foo@bar.com');
+			expect(auth.authenticator.email).to.equal('foo@bar.com');
 		});
 
 		(isCI ? it.skip : it)('should refresh the access token', async function () {
@@ -250,18 +260,19 @@ describe('PKCE', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			let results = await this.auth.getToken('foo');
+			let results = await auth.getToken('foo');
 			expect(results).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			results = await this.auth.login();
+			results = await auth.login();
 			expect(results.accessToken).to.equal(this.server.accessToken);
 		});
 	});
@@ -290,26 +301,27 @@ describe('PKCE', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			await this.auth.getToken('foo');
+			await auth.getToken('foo');
 
-			expect(this.auth.authenticator.email).to.equal('foo@bar.com');
-			expect(this.auth.authenticator.expires.access).to.not.be.null;
-			expect(this.auth.authenticator.expires.refresh).to.not.be.null;
+			expect(auth.authenticator.email).to.equal('foo@bar.com');
+			expect(auth.authenticator.expires.access).to.not.be.null;
+			expect(auth.authenticator.expires.refresh).to.not.be.null;
 
-			await this.auth.logout();
+			await auth.logout();
 
-			expect(this.auth.authenticator.email).to.be.null;
-			expect(this.auth.authenticator.expires).to.deep.equal({
+			expect(auth.authenticator.email).to.be.null;
+			expect(auth.authenticator.expires).to.deep.equal({
 				access: null,
 				refresh: null
 			});
-			expect(this.auth.authenticator.tokens).to.deep.equal({});
+			expect(auth.authenticator.tokens).to.deep.equal({});
 		});
 
 		it('should not error logging out if not logged in', async function () {
@@ -322,20 +334,21 @@ describe('PKCE', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			await this.auth.logout();
+			await auth.logout();
 
-			expect(this.auth.authenticator.email).to.be.null;
-			expect(this.auth.authenticator.expires).to.deep.equal({
+			expect(auth.authenticator.email).to.be.null;
+			expect(auth.authenticator.expires).to.deep.equal({
 				access: null,
 				refresh: null
 			});
-			expect(this.auth.authenticator.tokens).to.deep.equal({});
+			expect(auth.authenticator.tokens).to.deep.equal({});
 			expect(counter).to.equal(0);
 		});
 	});
@@ -346,14 +359,15 @@ describe('PKCE', () => {
 		it('should error if not logged in', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.userInfo();
+				await auth.userInfo();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Login required');
@@ -366,14 +380,15 @@ describe('PKCE', () => {
 		it('should error if logging in interactively', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.userInfo(true);
+				await auth.userInfo(true);
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Login required');
@@ -386,21 +401,22 @@ describe('PKCE', () => {
 		it('should get user info', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			await this.auth.getToken('foo');
+			await auth.getToken('foo');
 
-			let info = await this.auth.userInfo();
+			let info = await auth.userInfo();
 			expect(info).to.deep.equal({
 				name: 'tester2',
 				email: 'foo@bar.com'
 			});
 
-			info = await this.auth.userInfo();
+			info = await auth.userInfo();
 			expect(info).to.deep.equal({
 				name: 'tester3',
 				email: 'foo@bar.com'
@@ -416,16 +432,17 @@ describe('PKCE', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			await this.auth.getToken('foo');
+			await auth.getToken('foo');
 
 			try {
-				await this.auth.userInfo();
+				await auth.userInfo();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/^invalid json response body at /i);

@@ -145,6 +145,8 @@ passed into the constructor.
      environment is a shorthand way of specifying a Axway default base URL. Defaults to `"prod"`.
    * `interactiveLoginTimeout`: (Number) [optional] The number of milliseconds to wait before
      shutting down the local HTTP server. Defaults to `120000`.
+   * `keytarServiceName`: (String) [optional] The name of the consumer using this library when using
+     the `"keytar"` token store. Defaults to `"amplify-auth"`.
    * `messages`: (Object) [optional] A map of categorized messages to display to the end user.
      Supports plain text or HTML strings.
    * `realm`: (String) **[required]** The name of the realm to authenticate with.

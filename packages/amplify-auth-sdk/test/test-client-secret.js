@@ -38,7 +38,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -58,7 +59,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -80,7 +82,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			const results = await auth.getAccessToken(true);
@@ -97,7 +100,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			const { cancel, url } = await auth.login({ headless: true });
@@ -111,7 +115,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -138,7 +143,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -160,7 +166,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -202,7 +209,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			const result = await auth.getToken('foo');
@@ -222,7 +230,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -255,7 +264,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -277,7 +287,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			const result = await auth.login();
@@ -314,7 +325,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			let results = await auth.getToken('foo');
@@ -336,7 +348,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -356,7 +369,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -389,7 +403,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -411,7 +426,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			const results = await auth.login({ headless: true });
@@ -426,7 +442,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			const accessToken = await auth.getToken();
@@ -463,7 +480,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			let results = await auth.getToken();
@@ -506,7 +524,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			await auth.getToken('foo');
@@ -540,7 +559,8 @@ describe('Client Secret', () => {
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			await auth.logout();
@@ -566,7 +586,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -588,7 +609,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -610,7 +632,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			await auth.getToken('foo');
@@ -642,7 +665,8 @@ describe('Client Secret', () => {
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				realm:          'test_realm'
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			await auth.getToken('foo');

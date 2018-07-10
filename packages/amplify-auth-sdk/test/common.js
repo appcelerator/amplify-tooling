@@ -66,7 +66,7 @@ export async function createLoginServer(opts = {}) {
 						access_token:       server.accessToken,
 						refresh_token:      server.refreshToken,
 						expires_in:         opts.expiresIn || 10,
-						refresh_expires_in: 600
+						refresh_expires_in: opts.refreshExpiresIn || 10
 					}));
 					break;
 

@@ -31,10 +31,11 @@ describe('Signed JWT', () => {
 
 		it('should error getting an access token if not logged in', async function () {
 			this.auth = new Auth({
-				secretFile: 'foo',
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     'foo',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -54,9 +55,10 @@ describe('Signed JWT', () => {
 			try {
 				this.auth = new Auth({
 					secretFile,
-					baseUrl:  'http://127.0.0.1:1337',
-					clientId: 'test_client',
-					realm:    'test_realm'
+					baseUrl:        'http://127.0.0.1:1337',
+					clientId:       'test_client',
+					realm:          'test_realm',
+					tokenStoreType: null
 				});
 
 				await this.auth.getAccessToken(true);
@@ -73,10 +75,11 @@ describe('Signed JWT', () => {
 			this.server = await createLoginServer();
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			const results = await this.auth.getAccessToken(true);
@@ -92,9 +95,10 @@ describe('Signed JWT', () => {
 
 			this.auth = new Auth({
 				secretFile,
-				baseUrl: '<URL>',
-				clientId: 'test_client',
-				realm: 'test_realm'
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -110,10 +114,11 @@ describe('Signed JWT', () => {
 
 		it('should error if login options is not an object', async function () {
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -129,10 +134,11 @@ describe('Signed JWT', () => {
 
 		it('should error if server is unreachable', async function () {
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -156,10 +162,11 @@ describe('Signed JWT', () => {
 			});
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -175,10 +182,11 @@ describe('Signed JWT', () => {
 
 		it('should error if server returns an invalid user identity', async function () {
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			this.server = await createLoginServer({
@@ -226,10 +234,11 @@ describe('Signed JWT', () => {
 			});
 
 			const auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			let results = await auth.login();
@@ -279,10 +288,11 @@ describe('Signed JWT', () => {
 			});
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			let results = await this.auth.login();
@@ -323,10 +333,11 @@ describe('Signed JWT', () => {
 			});
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			await this.auth.login();
@@ -356,10 +367,11 @@ describe('Signed JWT', () => {
 			});
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			await this.auth.logout();
@@ -381,10 +393,11 @@ describe('Signed JWT', () => {
 			this.server = await createLoginServer();
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -402,10 +415,11 @@ describe('Signed JWT', () => {
 			this.server = await createLoginServer();
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
@@ -423,10 +437,11 @@ describe('Signed JWT', () => {
 			this.server = await createLoginServer();
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			await this.auth.getToken('foo');
@@ -454,10 +469,11 @@ describe('Signed JWT', () => {
 			});
 
 			this.auth = new Auth({
-				secretFile: path.join(__dirname, 'rsa-private.pem'),
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm'
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			await this.auth.getToken('foo');

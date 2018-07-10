@@ -40,16 +40,17 @@ describe('Owner Password', () => {
 		afterEach(stopLoginServer);
 
 		it('should error getting an access token if not logged in', async function () {
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.getAccessToken();
+				await auth.getAccessToken();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Login required');
@@ -62,15 +63,16 @@ describe('Owner Password', () => {
 		it('should automatically login when getting the access token', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			const results = await this.auth.getAccessToken(true);
+			const results = await auth.getAccessToken(true);
 			expect(results).to.equal(this.server.accessToken);
 		});
 	});
@@ -79,16 +81,17 @@ describe('Owner Password', () => {
 		afterEach(stopLoginServer);
 
 		it('should error if login options is not an object', async function () {
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.login('foo');
+				await auth.login('foo');
 			} catch (err) {
 				expect(err).to.be.instanceof(TypeError);
 				expect(err.message).to.equal('Expected options to be an object');
@@ -99,16 +102,17 @@ describe('Owner Password', () => {
 		});
 
 		it('should error if server is unreachable', async function () {
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.login();
+				await auth.login();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/^request to .+ failed,/i);
@@ -127,16 +131,17 @@ describe('Owner Password', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.login();
+				await auth.login();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Unauthorized');
@@ -147,12 +152,13 @@ describe('Owner Password', () => {
 		});
 
 		it('should error if server returns an invalid user identity', async function () {
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			this.server = await createLoginServer({
@@ -172,7 +178,7 @@ describe('Owner Password', () => {
 			});
 
 			try {
-				await this.auth.login();
+				await auth.login();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication failed: invalid response from server');
@@ -186,11 +192,12 @@ describe('Owner Password', () => {
 			this.server = await createLoginServer();
 
 			const auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			let results = await auth.login();
@@ -199,9 +206,6 @@ describe('Owner Password', () => {
 
 			// stop the web server to prove subsequent logins don't make requests
 			await stopLoginServer.call(this);
-
-			// do this after stop server above
-			this.auth = auth;
 
 			results = await auth.login();
 			expect(results.accessToken).to.equal(accessToken);
@@ -232,21 +236,22 @@ describe('Owner Password', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			let results = await this.auth.login();
+			let results = await auth.login();
 			const { accessToken } = this.server;
 			expect(results.accessToken).to.equal(accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1500));
 
-			results = await this.auth.login();
+			results = await auth.login();
 			expect(results.accessToken).to.not.equal(accessToken);
 			expect(results.accessToken).to.equal(this.server.accessToken);
 		});
@@ -279,28 +284,29 @@ describe('Owner Password', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			await this.auth.login();
+			await auth.login();
 
-			expect(this.auth.authenticator.email).to.equal('foo@bar.com');
-			expect(this.auth.authenticator.expires.access).to.not.be.null;
-			expect(this.auth.authenticator.expires.refresh).to.not.be.null;
+			expect(auth.authenticator.email).to.equal('foo@bar.com');
+			expect(auth.authenticator.expires.access).to.not.be.null;
+			expect(auth.authenticator.expires.refresh).to.not.be.null;
 
-			await this.auth.logout();
+			await auth.logout();
 
-			expect(this.auth.authenticator.email).to.be.null;
-			expect(this.auth.authenticator.expires).to.deep.equal({
+			expect(auth.authenticator.email).to.be.null;
+			expect(auth.authenticator.expires).to.deep.equal({
 				access: null,
 				refresh: null
 			});
-			expect(this.auth.authenticator.tokens).to.deep.equal({});
+			expect(auth.authenticator.tokens).to.deep.equal({});
 		});
 
 		it('should not error logging out if not logged in', async function () {
@@ -313,22 +319,23 @@ describe('Owner Password', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			await this.auth.logout();
+			await auth.logout();
 
-			expect(this.auth.authenticator.email).to.be.null;
-			expect(this.auth.authenticator.expires).to.deep.equal({
+			expect(auth.authenticator.email).to.be.null;
+			expect(auth.authenticator.expires).to.deep.equal({
 				access: null,
 				refresh: null
 			});
-			expect(this.auth.authenticator.tokens).to.deep.equal({});
+			expect(auth.authenticator.tokens).to.deep.equal({});
 			expect(counter).to.equal(0);
 		});
 	});
@@ -339,16 +346,17 @@ describe('Owner Password', () => {
 		it('should error if not logged in', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.userInfo();
+				await auth.userInfo();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Login required');
@@ -361,16 +369,17 @@ describe('Owner Password', () => {
 		it('should error if logging in interactively', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			try {
-				await this.auth.userInfo(true);
+				await auth.userInfo(true);
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Login required');
@@ -383,23 +392,24 @@ describe('Owner Password', () => {
 		it('should get user info', async function () {
 			this.server = await createLoginServer();
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			await this.auth.getToken('foo');
+			await auth.getToken('foo');
 
-			let info = await this.auth.userInfo();
+			let info = await auth.userInfo();
 			expect(info).to.deep.equal({
 				name: 'tester2',
 				email: 'foo@bar.com'
 			});
 
-			info = await this.auth.userInfo();
+			info = await auth.userInfo();
 			expect(info).to.deep.equal({
 				name: 'tester3',
 				email: 'foo@bar.com'
@@ -415,18 +425,19 @@ describe('Owner Password', () => {
 				}
 			});
 
-			this.auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm:    'test_realm'
+			const auth = new Auth({
+				username:       'foo',
+				password:       'bar',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
-			await this.auth.getToken('foo');
+			await auth.getToken('foo');
 
 			try {
-				await this.auth.userInfo();
+				await auth.userInfo();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/^invalid json response body at /i);

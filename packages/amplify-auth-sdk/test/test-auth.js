@@ -28,13 +28,13 @@ describe('Auth', () => {
 		it('should error if client id is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###'
+					baseUrl: 'http://127.0.0.1:1337'
 				});
 			}).to.throw(TypeError, 'Expected required parameter "clientId" to be a non-empty string');
 
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: ''
 				});
 			}).to.throw(TypeError, 'Expected required parameter "clientId" to be a non-empty string');
@@ -43,7 +43,7 @@ describe('Auth', () => {
 		it('should error if access type is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					accessType: 123
@@ -54,7 +54,7 @@ describe('Auth', () => {
 		it('should error if response type is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					responseType: 123
@@ -65,7 +65,7 @@ describe('Auth', () => {
 		it('should error if scope is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					scope: 123
@@ -76,7 +76,7 @@ describe('Auth', () => {
 		it('should error if server host is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					serverHost: 123
@@ -87,7 +87,7 @@ describe('Auth', () => {
 		it('should error if interactive login timeout is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					interactiveLoginTimeout: 'foo'
@@ -96,7 +96,7 @@ describe('Auth', () => {
 
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					interactiveLoginTimeout: -123
@@ -106,7 +106,7 @@ describe('Auth', () => {
 
 		it('should set the interactive login timeout', () => {
 			const auth = new Auth({
-				baseUrl: '###',
+				baseUrl: 'http://127.0.0.1:1337',
 				clientId: 'test_client',
 				realm: 'test_realm',
 				interactiveLoginTimeout: 1234
@@ -118,7 +118,7 @@ describe('Auth', () => {
 		it('should error if server port is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					serverPort: 'foo'
@@ -127,7 +127,7 @@ describe('Auth', () => {
 
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					serverPort: 123
@@ -137,7 +137,7 @@ describe('Auth', () => {
 
 		it('should set the server port', () => {
 			const auth = new Auth({
-				baseUrl: '###',
+				baseUrl: 'http://127.0.0.1:1337',
 				clientId: 'test_client',
 				realm: 'test_realm',
 				serverPort: 1234
@@ -149,7 +149,7 @@ describe('Auth', () => {
 		it('should error if token refresh threshold is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					tokenRefreshThreshold: 'foo'
@@ -158,7 +158,7 @@ describe('Auth', () => {
 
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					tokenRefreshThreshold: -123
@@ -168,7 +168,7 @@ describe('Auth', () => {
 
 		it('should set the token refresh threshold', () => {
 			const auth = new Auth({
-				baseUrl: '###',
+				baseUrl: 'http://127.0.0.1:1337',
 				clientId: 'test_client',
 				realm: 'test_realm',
 				tokenRefreshThreshold: 10
@@ -180,7 +180,7 @@ describe('Auth', () => {
 		it('should error when overriding endpoints parameter is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
+					baseUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					endpoints: 'foo'
@@ -191,9 +191,10 @@ describe('Auth', () => {
 		it('should error when overriding with invalid endpoint URL', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
-					clientId: 'test_client',
-					realm: 'test_realm',
+					baseUrl:        'http://127.0.0.1:1337',
+					clientId:       'test_client',
+					realm:          'test_realm',
+					tokenStoreType: null,
 					endpoints: {
 						auth: ''
 					}
@@ -204,9 +205,10 @@ describe('Auth', () => {
 		it('should error when overriding invalid endpoint', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
-					clientId: 'test_client',
-					realm: 'test_realm',
+					baseUrl:        'http://127.0.0.1:1337',
+					clientId:       'test_client',
+					realm:          'test_realm',
+					tokenStoreType: null,
 					endpoints: {
 						foo: 'bar'
 					}
@@ -217,10 +219,11 @@ describe('Auth', () => {
 		it('should error if messages is not an object', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: '###',
-					clientId: 'test_client',
-					realm: 'test_realm',
-					messages: 'foo'
+					baseUrl:        'http://127.0.0.1:1337',
+					clientId:       'test_client',
+					realm:          'test_realm',
+					tokenStoreType: null,
+					messages:       'foo'
 				});
 			}).to.throw(TypeError, 'Expected messages to be an object');
 		});
@@ -231,9 +234,10 @@ describe('Auth', () => {
 			const text = 'It worked!';
 
 			const auth = new Auth({
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
 				messages: {
 					interactiveSuccess: text
 				}
@@ -266,9 +270,10 @@ describe('Auth', () => {
 			const html = '<html><body>It worked!!</body></html>';
 
 			const auth = new Auth({
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
 				messages: {
 					interactiveSuccess: {
 						html,
@@ -295,9 +300,10 @@ describe('Auth', () => {
 			const text = 'It worked!';
 
 			const auth = new Auth({
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
 				messages: {
 					interactiveSuccess: text
 				}
@@ -333,9 +339,10 @@ describe('Auth', () => {
 			const text = 'It worked!';
 
 			const auth = new Auth({
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
 				messages: {
 					interactiveSuccess: text
 				}
@@ -370,10 +377,11 @@ describe('Auth', () => {
 		it('should error if token store is invalid', () => {
 			expect(() => {
 				new Auth({
-					baseUrl: 'http://127.0.0.1:1337',
-					clientId: 'test_client',
-					realm: 'test_realm',
-					tokenStore: 'foo'
+					baseUrl:        'http://127.0.0.1:1337',
+					clientId:       'test_client',
+					realm:          'test_realm',
+					tokenStore:     'foo',
+					tokenStoreType: null
 				});
 			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
 		});
@@ -382,9 +390,10 @@ describe('Auth', () => {
 	describe('Environment', () => {
 		it('should assign environment specific value', () => {
 			const auth = new Auth({
-				clientId: 'test_client',
-				env: 'dev',
-				realm: 'test_realm'
+				clientId:       'test_client',
+				env:            'dev',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			expect(auth.authenticator.baseUrl).to.equal(Authenticator.Environments.dev.baseUrl);
@@ -402,10 +411,11 @@ describe('Auth', () => {
 	describe('Properties', () => {
 		it('should set an optional property', () => {
 			const auth = new Auth({
-				baseUrl: '###',
-				clientId: 'test_client',
-				realm: 'test_realm',
-				accessType: 'foo'
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
+				accessType:     'foo'
 			});
 
 			expect(auth.authenticator.accessType).to.equal('foo');
@@ -413,9 +423,10 @@ describe('Auth', () => {
 
 		it('should override endpoint', () => {
 			const auth = new Auth({
-				baseUrl: '###',
-				clientId: 'test_client',
-				realm: 'test_realm',
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
 				endpoints: {
 					auth: 'foo'
 				}

@@ -37,6 +37,8 @@ export default class Auth {
 	 * @param {String} opts.clientId - The client id to specify when authenticating.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {String} [opts.keytarServiceName="amplify-auth"] - The name of the consumer using this
+	 * library when using the "keytar" token store.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
 	 * @param {String} [opts.tokenStoreDir] - The directory to save the token file when the
@@ -51,29 +53,6 @@ export default class Auth {
 	constructor(opts) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
-		}
-
-		// init the token store
-		if (!opts.tokenStore) {
-			const tokenStoreType = opts.tokenStoreType === undefined ? 'auto' :  opts.tokenStoreType;
-			switch (tokenStoreType) {
-				case 'auto':
-				case 'keytar':
-					try {
-						opts.tokenStore = new KeytarStore(opts);
-						break;
-					} catch (e) {
-						if (tokenStoreType === 'keytar') {
-							throw e;
-						}
-
-						// let 'auto' fall through
-					}
-
-				case 'default':
-					// default file store
-					opts.tokenStore = new FileStore(opts);
-			}
 		}
 
 		// create the authenticator
@@ -122,6 +101,17 @@ export default class Auth {
 	 */
 	getToken(code) {
 		return this.authenticator.getToken(code);
+	}
+
+	/**
+	 * Returns a list of active access tokens.
+	 *
+	 * @returns {Promise<Array>}
+	 * @access public
+	 */
+	async listTokens() {
+		const { tokenStore } = this.authenticator;
+		return tokenStore ? await tokenStore.list() : [];
 	}
 
 	/**
