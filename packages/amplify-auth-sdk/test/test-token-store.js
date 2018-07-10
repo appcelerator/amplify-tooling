@@ -32,7 +32,14 @@ describe('Token Store', () => {
 	});
 
 	describe('File Token Store', () => {
-		afterEach(stopLoginServer);
+		afterEach(function () {
+			if (this.tempDir && fs.existsSync(this.tempDir)) {
+				fs.removeSync(this.tempDir);
+			}
+			this.tempDir = null;
+
+			return stopLoginServer.call(this);
+		});
 
 		it('should error if token store directory is invalid', () => {
 			expect(() => {
@@ -48,7 +55,7 @@ describe('Token Store', () => {
 		it('should persist the token to a file', async function () {
 			this.server = await createLoginServer();
 
-			const dir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const dir = this.tempDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 
 			const auth = new Auth({
 				username:       'foo',
@@ -90,7 +97,7 @@ describe('Token Store', () => {
 				refreshExpiresIn: 1
 			});
 
-			const dir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const dir = this.tempDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 
 			const auth = new Auth({
 				username:       'foo',
@@ -123,7 +130,7 @@ describe('Token Store', () => {
 		it('should skip login if valid token exists', async function () {
 			this.server = await createLoginServer();
 
-			const dir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const dir = this.tempDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 
 			const auth1 = new Auth({
 				username:       'foo',
