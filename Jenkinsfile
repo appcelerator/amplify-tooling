@@ -39,7 +39,13 @@ timestamps {
         // TODO: Anything other than test? Test also runs lint so pointless having a separate lint step
 
         stage('Test') {
-            sh 'yarn run gulp coverage'
+            try {
+              sh 'yarn run gulp coverage'
+            } finally {
+              // record results even if tests/coverage 'fails'
+              junit 'packages/*/junit.xml'
+              step([$class: 'CoberturaPublisher', autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage/cobertura-coverage.xml', failUnhealthy: false, failUnstable: false, maxNumberOfBuilds: 0, onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false])
+            }
         }
 
       } // ansiColor
