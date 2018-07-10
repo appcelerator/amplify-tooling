@@ -444,7 +444,7 @@ describe('Signed JWT', () => {
 				tokenStoreType: null
 			});
 
-			await this.auth.getToken('foo');
+			await this.auth.login({ code: 'foo' });
 
 			let info = await this.auth.userInfo();
 			expect(info).to.deep.equal({
@@ -476,7 +476,7 @@ describe('Signed JWT', () => {
 				tokenStoreType: null
 			});
 
-			await this.auth.getToken('foo');
+			await this.auth.login({ code: 'foo' });
 
 			try {
 				await this.auth.userInfo();

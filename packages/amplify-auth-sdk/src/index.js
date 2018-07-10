@@ -92,18 +92,6 @@ export default class Auth {
 	}
 
 	/**
-	 * Authenticates with the server and retrieves the access and refresh tokens.
-	 *
-	 * @param {String} [code] - When present, adds the code to the payload along with a redirect
-	 * URL.
-	 * @returns {Promise<String>} Resolves the access token.
-	 * @access public
-	 */
-	getToken(code) {
-		return this.authenticator.getToken(code);
-	}
-
-	/**
 	 * Returns a list of active access tokens.
 	 *
 	 * @returns {Promise<Array>}

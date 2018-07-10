@@ -63,7 +63,7 @@ import url from 'url';
 	const { url } = await auth.login({ headless: true });
 	const res = await fetch(url, { redirect: 'manual' });
 	const { code } = querystring.parse(url.parse(res.headers.get('location')).query);
-	const { accessToken } = await auth.getToken(code);
+	const { accessToken } = await auth.login({ code });
 
 	console.log('Authenticated successfully!');
 })().catch(console.error);
@@ -241,7 +241,7 @@ If `headless`, the resolved object contains:
    succeeds.
  * `url`: (String) The URL to call that when successful should return a 301 redirect to the local
    HTTP server containing the authorization code used to retreive the access token when calling
-   `getToken(code)`.
+   `login({ code })`.
 
 If *NOT* `headless`, the resolved object contains:
 
@@ -271,20 +271,6 @@ secret), then it will throw an error.
 Returns `Promise` that resovles an `Object` containing the associated user information.
 
 ### Advanced Methods
-
-#### `getToken(code)`
-
-> :warning: You should almost always use `login()` instead of `getToken()`.
-
-This method is intended for consumers that are using interactive authentication methods and logging
-in using the "headless" mode.
-
- * `code`: (String) [optional] The auth code returned after successfully authenticating using the
-   headless interactive flow.
-
-##### Return Value
-
-Returns `Promise` that resolves the access token.
 
 #### `serverInfo(url)`
 

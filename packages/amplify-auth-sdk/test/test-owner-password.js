@@ -401,7 +401,7 @@ describe('Owner Password', () => {
 				tokenStoreType: null
 			});
 
-			await auth.getToken('foo');
+			await auth.login({ code: 'foo' });
 
 			let info = await auth.userInfo();
 			expect(info).to.deep.equal({
@@ -434,7 +434,7 @@ describe('Owner Password', () => {
 				tokenStoreType: null
 			});
 
-			await auth.getToken('foo');
+			await auth.login({ code: 'foo' });
 
 			try {
 				await auth.userInfo();

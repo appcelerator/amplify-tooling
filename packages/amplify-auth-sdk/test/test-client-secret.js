@@ -120,7 +120,7 @@ describe('Client Secret', () => {
 			});
 
 			try {
-				await auth.getToken();
+				await auth.login({ code: '' });
 			} catch (e) {
 				expect(e).to.be.instanceof(TypeError);
 				expect(e.message).to.equal('Expected code for interactive authentication to be a non-empty string');
@@ -148,7 +148,7 @@ describe('Client Secret', () => {
 			});
 
 			try {
-				await auth.getToken('foo');
+				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Unauthorized');
@@ -213,8 +213,8 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			const result = await auth.getToken('foo');
-			expect(result).to.equal(this.server.accessToken);
+			const result = await auth.login({ code: 'foo' });
+			expect(result.accessToken).to.equal(this.server.accessToken);
 
 			expect(auth.authenticator.email).to.equal('foo@bar.com');
 
@@ -235,7 +235,7 @@ describe('Client Secret', () => {
 			});
 
 			try {
-				await auth.getToken('foo');
+				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/^request to .+ failed,/i);
@@ -269,7 +269,7 @@ describe('Client Secret', () => {
 			});
 
 			try {
-				await auth.getToken('foo');
+				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication failed: invalid response from server');
@@ -329,8 +329,8 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			let results = await auth.getToken('foo');
-			expect(results).to.equal(this.server.accessToken);
+			let results = await auth.login({ code: 'foo' });
+			expect(results.accessToken).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
@@ -374,7 +374,7 @@ describe('Client Secret', () => {
 			});
 
 			try {
-				await auth.getToken();
+				await auth.login();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/^request to .+ failed,/i);
@@ -408,7 +408,7 @@ describe('Client Secret', () => {
 			});
 
 			try {
-				await auth.getToken();
+				await auth.login();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication failed: invalid response from server');
@@ -446,7 +446,7 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			const accessToken = await auth.getToken();
+			const { accessToken } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
 
 			expect(auth.authenticator.email).to.equal('foo@bar.com');
@@ -484,8 +484,8 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			let results = await auth.getToken();
-			expect(results).to.equal(this.server.accessToken);
+			let results = await auth.login();
+			expect(results.accessToken).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
@@ -528,7 +528,7 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			await auth.getToken('foo');
+			await auth.login({ code: 'foo' });
 
 			expect(auth.authenticator.email).to.equal('foo@bar.com');
 			expect(auth.authenticator.expires.access).to.not.be.null;
@@ -636,7 +636,7 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			await auth.getToken('foo');
+			await auth.login({ code: 'foo' });
 
 			let info = await auth.userInfo();
 			expect(info).to.deep.equal({
@@ -669,7 +669,7 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			await auth.getToken('foo');
+			await auth.login({ code: 'foo' });
 
 			try {
 				await auth.userInfo();

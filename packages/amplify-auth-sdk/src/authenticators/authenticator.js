@@ -579,7 +579,13 @@ export default class Authenticator {
 			return { accessToken: await this.getAccessToken(true) };
 		}
 
-		// we're interactive, so we either are headless or starting a web server
+		// we're interactive, so we either are headless, have an auth code, or starting a web server
+
+		if (opts.hasOwnProperty('code')) {
+			return {
+				accessToken: await this.getToken(opts.code)
+			};
+		}
 
 		// generate a request id so that we can match up successful callbacks with *this* login()
 		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();

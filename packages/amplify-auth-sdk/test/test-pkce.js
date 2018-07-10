@@ -74,7 +74,7 @@ describe('PKCE', () => {
 			});
 
 			try {
-				await auth.getToken();
+				await auth.login({ code: '' });
 			} catch (e) {
 				expect(e).to.be.instanceof(TypeError);
 				expect(e.message).to.equal('Expected code for interactive authentication to be a non-empty string');
@@ -100,7 +100,7 @@ describe('PKCE', () => {
 			});
 
 			try {
-				await auth.getToken('foo');
+				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Unauthorized');
@@ -160,8 +160,8 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			const result = await auth.getToken('foo');
-			expect(result).to.equal(this.server.accessToken);
+			const { accessToken } = await auth.login({ code: 'foo' });
+			expect(accessToken).to.equal(this.server.accessToken);
 
 			expect(auth.authenticator.email).to.equal('foo@bar.com');
 
@@ -180,7 +180,7 @@ describe('PKCE', () => {
 			});
 
 			try {
-				await auth.getToken('foo');
+				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/^request to .+ failed,/i);
@@ -212,7 +212,7 @@ describe('PKCE', () => {
 			});
 
 			try {
-				await auth.getToken('foo');
+				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication failed: invalid response from server');
@@ -267,8 +267,8 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			let results = await auth.getToken('foo');
-			expect(results).to.equal(this.server.accessToken);
+			let results = await auth.login({ code: 'foo' });
+			expect(results.accessToken).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
@@ -308,7 +308,7 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			await auth.getToken('foo');
+			await auth.login({ code: 'foo' });
 
 			expect(auth.authenticator.email).to.equal('foo@bar.com');
 			expect(auth.authenticator.expires.access).to.not.be.null;
@@ -408,7 +408,7 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			await auth.getToken('foo');
+			await auth.login({ code: 'foo' });
 
 			let info = await auth.userInfo();
 			expect(info).to.deep.equal({
@@ -439,7 +439,7 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			await auth.getToken('foo');
+			await auth.login({ code: 'foo' });
 
 			try {
 				await auth.userInfo();
