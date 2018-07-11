@@ -8,6 +8,13 @@ import TokenStore from './token-store';
 const { log } = snooplogg('amplify-auth:file-store');
 
 /**
+ * Matches the token filename which is a SHA of the key (40 characters).
+ *
+ * @type {RegExp}
+ */
+const tokenFileRegExp = /^[A-Za-z0-9]{40}$/;
+
+/**
  * A file-based token store.
  */
 export default class FileStore extends TokenStore {
@@ -79,24 +86,23 @@ export default class FileStore extends TokenStore {
 	 */
 	async list() {
 		const dir = this.tokenStoreDir;
-		if (!fs.existsSync(dir)) {
-			return [];
-		}
+		const tokens = [];
 
-		const tokens = await Promise.all(fs.readdirSync(dir).map(name => new Promise(resolve => {
-			const file = path.join(dir, name);
-			fs.readFile(file, 'utf8', (err, str) => {
-				if (!err) {
+		if (fs.existsSync(dir)) {
+			for (const name of fs.readdirSync(dir)) {
+				if (tokenFileRegExp.test(name)) {
+					const file = path.join(dir, name);
 					try {
-						return resolve(this.decode(str));
+						tokens.push(this.decode(fs.readFileSync(file, 'utf8')));
 					} catch (e) {
-						log(`Failed to decode ${file}: ${e.message}`);
-						deleteFile(file);
+						if (e.code === 'ERR_TOKEN_EXPIRED') {
+							log(`Failed to decode ${file}: ${e.message}`);
+							deleteFile(file);
+						}
 					}
 				}
-				resolve();
-			});
-		})));
+			}
+		}
 
 		return tokens.filter(t => t);
 	}

@@ -4,10 +4,10 @@
   "private": true,
   "dependencies": {
     "chalk": "^2.4.1",
-    "globule": "^1.2.0",
+    "globule": "^1.2.1",
     "gulp": "^3.9.1",
     "gulp-chug": "^0.5.1",
-    "gulp-debug": "^3.2.0",
+    "gulp-debug": "^4.0.0",
     "gulp-plumber": "^1.2.0",
     "istanbul": "^0.4.5",
     "lerna": "^2.11.0",

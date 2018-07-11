@@ -59,9 +59,11 @@ export default class TokenStore {
 			if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
 				return data;
 			}
+
+			throw E.TOKEN_EXPIRED('Token is expired');
 		}
 
-		throw new Error('Invalid or expired tokens');
+		throw E.INVALID_TOKEN('Unable to decode token');
 	}
 
 	/**

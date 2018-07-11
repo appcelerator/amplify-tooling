@@ -20,13 +20,13 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "appcd-config": "^1.1.0",
-    "appcd-fs": "^1.1.1",
+    "appcd-config": "^1.1.1",
+    "appcd-fs": "^1.1.2",
     "fs-extra": "^6.0.1",
     "source-map-support": "^0.5.6"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.1.4",
+    "appcd-gulp": "^1.1.5",
     "fs-extra": "^6.0.1",
     "gulp": "^3.9.1"
   },

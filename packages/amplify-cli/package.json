@@ -30,7 +30,7 @@
     "source-map-support": "^0.5.6"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.1.4",
+    "appcd-gulp": "^1.1.5",
     "gulp": "^3.9.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
