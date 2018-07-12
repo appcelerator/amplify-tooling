@@ -243,7 +243,7 @@ describe('Auth', () => {
 				}
 			});
 
-			let { url } = await auth.login({ headless: true });
+			let { url } = await auth.login({ manual: true });
 
 			log(`Manually fetching ${url}`);
 			let res = await fetch(url, {
@@ -282,7 +282,7 @@ describe('Auth', () => {
 				}
 			});
 
-			const { url } = await auth.login({ headless: true });
+			const { url } = await auth.login({ manual: true });
 
 			let res = await fetch(url, {
 				redirect: 'manual'
@@ -309,7 +309,7 @@ describe('Auth', () => {
 				}
 			});
 
-			let { url } = await auth.login({ headless: true });
+			let { url } = await auth.login({ manual: true });
 
 			log(`Manually fetching ${url}`);
 			let res = await fetch(url, {
@@ -348,7 +348,7 @@ describe('Auth', () => {
 				}
 			});
 
-			let { promise, url } = await auth.login({ headless: true });
+			let { promise, url } = await auth.login({ manual: true });
 
 			promise.catch(() => {});
 

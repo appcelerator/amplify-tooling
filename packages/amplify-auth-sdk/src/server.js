@@ -1,6 +1,6 @@
 import E from './errors';
 import http from 'http';
-import querystring from 'querystring';
+import qs from 'qs';
 import snooplogg from 'snooplogg';
 
 import { parse } from 'url';
@@ -43,7 +43,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 
 				try {
 					if (m && m[1] === 'callback') {
-						const { code } = querystring.parse(url.query);
+						const { code } = qs.parse(url.query);
 						const id = m[2];
 						const request = servers[serverId].pending.get(id);
 

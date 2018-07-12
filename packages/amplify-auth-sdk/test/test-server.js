@@ -1,6 +1,6 @@
 import Auth, { server } from '../dist/index';
 import fetch from 'node-fetch';
-import querystring from 'querystring';
+import qs from 'qs';
 
 import { parse } from 'url';
 
@@ -16,7 +16,7 @@ describe('Server', () => {
 			realm: 'test_realm'
 		});
 
-		const { cancel } = await auth.login({ headless: true });
+		const { cancel } = await auth.login({ manual: true });
 
 		try {
 			const res = await fetch('http://127.0.0.1:3000/callback');
@@ -33,7 +33,7 @@ describe('Server', () => {
 			realm: 'test_realm'
 		});
 
-		const { cancel } = await auth.login({ headless: true });
+		const { cancel } = await auth.login({ manual: true });
 
 		try {
 			const res = await fetch('http://127.0.0.1:3000/callback?code=123');
@@ -50,7 +50,7 @@ describe('Server', () => {
 			realm: 'test_realm'
 		});
 
-		const { cancel } = await auth.login({ headless: true });
+		const { cancel } = await auth.login({ manual: true });
 
 		try {
 			const res = await fetch('http://127.0.0.1:3000/callback/foo?code=123');
@@ -67,8 +67,8 @@ describe('Server', () => {
 			realm: 'test_realm'
 		});
 
-		const { cancel, promise, url } = await auth.login({ headless: true });
-		const params = querystring.parse(parse(url).query);
+		const { cancel, promise, url } = await auth.login({ manual: true });
+		const params = qs.parse(parse(url).query);
 		const id = params.redirect_uri.match(/\/callback\/([A-Z0-9]+)/)[1];
 
 		// squeltch unhandled rejections
@@ -89,7 +89,7 @@ describe('Server', () => {
 			realm: 'test_realm'
 		});
 
-		const { cancel } = await auth.login({ headless: true });
+		const { cancel } = await auth.login({ manual: true });
 
 		try {
 			const res = await fetch('http://127.0.0.1:3000');
@@ -106,7 +106,7 @@ describe('Server', () => {
 			realm: 'test_realm'
 		});
 
-		const { promise } = await auth.login({ headless: true });
+		const { promise } = await auth.login({ manual: true });
 
 		setImmediate(() => server.stop(true));
 

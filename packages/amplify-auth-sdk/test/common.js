@@ -1,6 +1,6 @@
 import http from 'http';
 import jws from 'jws';
-import querystring from 'querystring';
+import qs from 'qs';
 import snooplogg from 'snooplogg';
 
 import { parse } from 'url';
@@ -21,7 +21,7 @@ export async function createLoginServer(opts = {}) {
 					const body = [];
 					req.on('data', chunk => body.push(chunk));
 					req.on('error', reject);
-					req.on('end', () => resolve(querystring.parse(Buffer.concat(body).toString())));
+					req.on('end', () => resolve(qs.parse(Buffer.concat(body).toString())));
 				});
 			}
 
@@ -33,7 +33,7 @@ export async function createLoginServer(opts = {}) {
 						opts.auth(post, req, res);
 					}
 
-					const { redirect_uri } = querystring.parse(url.query);
+					const { redirect_uri } = qs.parse(url.query);
 					if (!redirect_uri) {
 						throw new Error('No redirect uri!');
 					}

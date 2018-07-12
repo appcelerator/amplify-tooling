@@ -1,6 +1,6 @@
 import E from './errors';
 import fetch from 'node-fetch';
-import querystring from 'querystring';
+import qs from 'qs';
 import snooplogg from 'snooplogg';
 
 const { log } = snooplogg('amplify-auth:util');
@@ -83,5 +83,5 @@ export function stringifyQueryString(params) {
 		const name = prop.replace(/[A-Z]/g, (m, i) => `${i ? '_' : ''}${m.toLowerCase()}`);
 		queryParams[name] = params[prop];
 	}
-	return querystring.stringify(queryParams);
+	return qs.stringify(queryParams);
 }

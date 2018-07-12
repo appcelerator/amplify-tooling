@@ -21,9 +21,9 @@ export default class FileStore extends TokenStore {
 	/**
 	 * Initializes the file store.
 	 *
-	 * @param {Object} [opts] - Various options.
-	 * @param {String} [opts.tokenStoreDir] - The directory to save the token file when the
-	 * `default` token store is used.
+	 * @param {Object} opts - Various options.
+	 * @param {String} opts.tokenStoreDir - The directory to save the token file when the `default`
+	 * token store is used.
 	 * @access public
 	 */
 	constructor(opts = {}) {

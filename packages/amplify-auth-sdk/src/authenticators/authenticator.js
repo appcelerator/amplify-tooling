@@ -561,7 +561,8 @@ export default class Authenticator {
 	 * @param {Object} [opts] - Various options.
 	 * @param {String|Array.<String>} [opt.app] - Specify the app to open the `target` with, or an
 	 * array with the app and app arguments.
-	 * @param {Boolean} [opts.headless=false] - When `true`, it will return the auth URL instead of
+	 * @param {String} [opts.code] - The authentication code from a successful interactive login.
+	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
 	 * launching the auth URL in the default browser.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * Defaults to the `interactiveLoginTimeout` property.
@@ -580,7 +581,7 @@ export default class Authenticator {
 			return { accessToken: await this.getAccessToken(true) };
 		}
 
-		// we're interactive, so we either are headless, have an auth code, or starting a web server
+		// we're interactive, so we either are manual, have an auth code, or starting a web server
 
 		if (opts.hasOwnProperty('code')) {
 			return {
@@ -611,8 +612,8 @@ export default class Authenticator {
 			timeout:     opts.timeout || this.interactiveLoginTimeout
 		});
 
-		// if headless, return now with the auth url
-		if (opts.headless) {
+		// if manual, return now with the auth url
+		if (opts.manual) {
 			return {
 				cancel,
 				promise,

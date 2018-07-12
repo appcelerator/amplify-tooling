@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "appcd-gulp": "^1.1.5",
-    "fs-extra": "^6.0.1",
     "gulp": "^3.9.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",

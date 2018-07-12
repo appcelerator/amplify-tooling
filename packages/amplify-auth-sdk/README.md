@@ -46,7 +46,7 @@ import Auth from '@axway/amplify-auth-sdk';
 })().catch(console.error);
 ```
 
-You can also manually authenticate headless without a browser.
+You can also manually authenticate manually without a browser.
 
 ```js
 import Auth from '@axway/amplify-auth-sdk';
@@ -60,7 +60,7 @@ import url from 'url';
 		realm: 'realm_to_auth_into'
 	});
 
-	const { url } = await auth.login({ headless: true });
+	const { url } = await auth.login({ manual: true });
 	const res = await fetch(url, { redirect: 'manual' });
 	const { code } = querystring.parse(url.parse(res.headers.get('location')).query);
 	const { accessToken } = await auth.login({ code });
@@ -219,10 +219,11 @@ All other authentication methods are non-interactive and pass along the paramete
 
  * `app`: (String|Array) [optional] Specify the app to open the `target` with, or an array with the
    app and app arguments. Defaults to the system default web browser.
- * `headless`: (Boolean) [optional] When the authentication method is interactive and headless is
-   `true`, it will return the auth URL instead of starting the local web server and launching the
-   web browser. It is then up to the consumer to connect to the URL, login, and retrieve the auth
-   code. Defaults to `false`.
+ * `code`: (String) [optional] The authentication code from a successful interactive login.
+ * `manual`: (Boolean) [optional] When the authentication method is interactive and manual is `true`
+   it will return the auth URL instead of starting the local web server and launching the web
+   browser. It is then up to the consumer to connect to the URL, login, and retrieve the auth code.
+   Defaults to `false`.
  * `timeout`: (Number) [optional] The number of milliseconds to wait before timing out. Defaults to
    the `interactiveLoginTimeout` property.
  * `wait`: (Boolean) [optional] Wait for the opened app to exit before fulfilling the promise. If
@@ -231,9 +232,9 @@ All other authentication methods are non-interactive and pass along the paramete
 ##### Return Value
 
 Returns a `Promise` that resolves an `Object`. The contents of that object depends on whether
-`headless=true`.
+`manual=true`.
 
-If `headless`, the resolved object contains:
+If `manual`, the resolved object contains:
 
  * `cancel()`: (Function) A function that cancels the interactive login request and stops the local
    HTTP server.
@@ -243,7 +244,7 @@ If `headless`, the resolved object contains:
    HTTP server containing the authorization code used to retreive the access token when calling
    `login({ code })`.
 
-If *NOT* `headless`, the resolved object contains:
+If *NOT* `manual`, the resolved object contains:
 
  * `accessToken`: The access token when authentication succeeds.
 
