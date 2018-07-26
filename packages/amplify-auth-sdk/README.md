@@ -43,6 +43,7 @@ import Auth from '@axway/amplify-auth-sdk';
 	const { accessToken } = await auth.login();
 
 	console.log('Authenticated successfully!');
+	console.log(await auth.userinfo());
 })().catch(console.error);
 ```
 
@@ -66,6 +67,7 @@ import url from 'url';
 	const { accessToken } = await auth.login({ code });
 
 	console.log('Authenticated successfully!');
+	console.log(await auth.userinfo());
 })().catch(console.error);
 ```
 
@@ -85,6 +87,7 @@ import Auth from '@axway/amplify-auth-sdk';
 	const { accessToken } = await auth.login();
 
 	console.log('Authenticated successfully!');
+	console.log(await auth.userinfo());
 })().catch(console.error);
 ```
 
@@ -104,6 +107,7 @@ import Auth from '@axway/amplify-auth-sdk';
 	const { accessToken } = await auth.login();
 
 	console.log('Authenticated successfully!');
+	console.log(await auth.userinfo());
 })().catch(console.error);
 ```
 
@@ -122,6 +126,7 @@ import Auth from '@axway/amplify-auth-sdk';
 	const { accessToken } = await auth.login();
 
 	console.log('Authenticated successfully!');
+	console.log(await auth.userinfo());
 })().catch(console.error);
 ```
 
@@ -270,6 +275,19 @@ secret), then it will throw an error.
 ##### Return Value
 
 Returns `Promise` that resovles an `Object` containing the associated user information.
+
+##### Example
+
+```js
+(async function main() {
+	const auth = new Auth({
+		clientId: 'my_app',
+		realm: 'realm_to_auth_into'
+	});
+
+	console.log(await auth.userinfo(true));
+})().catch(console.error);
+```
 
 ### Advanced Methods
 

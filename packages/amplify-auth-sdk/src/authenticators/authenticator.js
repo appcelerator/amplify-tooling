@@ -385,7 +385,7 @@ export default class Authenticator {
 	 */
 	async getAccessToken(doLogin) {
 		if (!this.tokens.access_token && this.tokenStore) {
-			const data = await this.tokenStore.get(`${this.constructor.name}:${this.baseUrl}`);
+			const data = await this.tokenStore.get(`${this.baseUrl}`);
 			if (data && data.tokens && data.expires) {
 				log('Loaded access token from token store');
 				Object.assign(this.tokens, data.tokens);
@@ -532,7 +532,7 @@ export default class Authenticator {
 
 		// persist the tokens
 		if (this.tokenStore) {
-			await this.tokenStore.set(`${this.constructor.name}:${this.baseUrl}`, {
+			await this.tokenStore.set(`${this.baseUrl}`, {
 				authenticator: this.constructor.name,
 				baseUrl:       this.baseUrl,
 				email:         this.email,
@@ -641,7 +641,7 @@ export default class Authenticator {
 	async logout() {
 		// remove token from store
 		if (this.tokenStore) {
-			await this.tokenStore.delete(`${this.constructor.name}:${this.baseUrl}`);
+			await this.tokenStore.delete(`${this.baseUrl}`);
 		}
 
 		const refreshToken = this.tokens.refresh_token;
