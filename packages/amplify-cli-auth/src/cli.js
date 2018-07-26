@@ -17,7 +17,7 @@ export default new CLI({
 	helpExitCode: 2,
 	name: 'amplify-cli-auth',
 	options: {
-		'--env <env>': {
+		'--env <name>': {
 			desc: 'the environment to use'
 		}
 	},

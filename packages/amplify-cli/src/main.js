@@ -12,7 +12,7 @@ import { resolve } from 'path';
 
 const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
 
-const cfg =  loadConfig();
+const cfg = loadConfig();
 
 const extensions = [
 	...Object.values(cfg.get('extensions', {})),
@@ -22,7 +22,7 @@ const extensions = [
 
 let banner;
 if (!process.env.hasOwnProperty('APPC_NPM_VERSION')) {
-	banner = `${chalk.cyan('Amplify CLI')}, version ${version}\n`
+	banner = `${chalk.cyan('AMPLIFY CLI')}, version ${version}\n`
 		+ 'Copyright (c) 2018, Axway, Inc. All Rights Reserved.';
 }
 
@@ -31,6 +31,7 @@ new CLI({
 	commands: {
 		config
 	},
+	desc: 'The AMPLIFY CLI is a unified command line interface for the Axway AMPLIFY platform.',
 	extensions,
 	help: true,
 	helpExitCode: 2,

@@ -45,19 +45,22 @@ function createError(code, type, desc) {
 				configurable: true,
 				value: meta || undefined,
 				writable: true
-			},
-			name: {
-				configurable: true,
-				value: code,
-				writable: true
-			},
-			toString: {
-				configurable: true,
-				value: function toString() {
-					return `ERR_${code}`;
-				},
-				writable: true
 			}
 		});
 	};
+
+	Object.defineProperties(errors[code], {
+		name: {
+			configurable: true,
+			value: code,
+			writable: true
+		},
+		toString: {
+			configurable: true,
+			value: function toString() {
+				return `ERR_${code}`;
+			},
+			writable: true
+		}
+	});
 }
