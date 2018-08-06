@@ -1,12 +1,11 @@
 import E from './errors';
 import http from 'http';
-import qs from 'qs';
 import snooplogg from 'snooplogg';
 
-import { parse } from 'url';
+import { parse, URLSearchParams } from 'url';
 
-const { log } = snooplogg('amplify-auth:server');
-const { highlight } = snooplogg.styles;
+const { error, log } = snooplogg('amplify-auth:server');
+const { gray, highlight, magenta } = snooplogg.styles;
 
 /**
  * Matches the incoming request as a authorization callback and selects the request id.
@@ -44,7 +43,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 
 				try {
 					if (m && m[1] === 'callback') {
-						const { code } = qs.parse(url.query);
+						const code = new URLSearchParams(url.query).get('code');
 						const id = m[2];
 						const request = servers[serverId].pending.get(id);
 
@@ -83,8 +82,8 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 						throw err;
 					}
 				} catch (e) {
-					log(`[${serverId}] 400 ${url.pathname}`);
-					log(e);
+					log(`${gray(`[${serverId}]`)} ${magenta(e.status || '400')} ${url.pathname}`);
+					error(e);
 
 					const { contentType, message } = getResponse(req, e);
 					res.writeHead(e.status || 400, { 'Content-Type': contentType });

@@ -1,8 +1,7 @@
 import Auth, { server } from '../dist/index';
 import fetch from 'node-fetch';
-import qs from 'qs';
 
-import { parse } from 'url';
+import { parse, URLSearchParams } from 'url';
 
 describe('Server', () => {
 	afterEach(async () => {
@@ -68,8 +67,8 @@ describe('Server', () => {
 		});
 
 		const { cancel, promise, url } = await auth.login({ manual: true });
-		const params = qs.parse(parse(url).query);
-		const id = params.redirect_uri.match(/\/callback\/([A-Z0-9]+)/)[1];
+		const redirect_uri = new URLSearchParams(parse(url).query).get('redirect_uri');
+		const id = redirect_uri.match(/\/callback\/([A-Z0-9]+)/)[1];
 
 		// squeltch unhandled rejections
 		promise.catch(() => {});

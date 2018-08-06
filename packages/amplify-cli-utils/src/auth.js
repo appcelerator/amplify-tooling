@@ -13,7 +13,7 @@ export const environments = {
 	},
 	preprod: {
 		clientId: 'cli-test-public',
-		realm: 'Axway'
+		realm: 'AppcID'
 	},
 	prod: {
 		clientId: 'cli',

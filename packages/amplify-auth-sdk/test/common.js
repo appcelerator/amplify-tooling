@@ -1,9 +1,8 @@
 import http from 'http';
 import jws from 'jws';
-import qs from 'qs';
 import snooplogg from 'snooplogg';
 
-import { parse } from 'url';
+import { parse, URLSearchParams } from 'url';
 import { server } from '../dist/index';
 import { serverInfo } from './server-info';
 
@@ -21,7 +20,7 @@ export async function createLoginServer(opts = {}) {
 					const body = [];
 					req.on('data', chunk => body.push(chunk));
 					req.on('error', reject);
-					req.on('end', () => resolve(qs.parse(Buffer.concat(body).toString())));
+					req.on('end', () => resolve(Array.from(new URLSearchParams(Buffer.concat(body).toString()).entries()).reduce((p, [k,v]) => (p[k]=v,p), {})));
 				});
 			}
 
@@ -33,7 +32,7 @@ export async function createLoginServer(opts = {}) {
 						opts.auth(post, req, res);
 					}
 
-					const { redirect_uri } = qs.parse(url.query);
+					const redirect_uri = new URLSearchParams(url.query).get('redirect_uri');
 					if (!redirect_uri) {
 						throw new Error('No redirect uri!');
 					}

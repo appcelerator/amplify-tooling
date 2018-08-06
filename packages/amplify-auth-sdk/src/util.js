@@ -1,7 +1,8 @@
 import E from './errors';
 import fetch from 'node-fetch';
-import qs from 'qs';
 import snooplogg from 'snooplogg';
+
+import { URLSearchParams } from 'url';
 
 const { log } = snooplogg('amplify-auth:util');
 
@@ -78,10 +79,10 @@ export function renderHTML(title, message) {
  * @returns {String}
  */
 export function stringifyQueryString(params) {
-	const queryParams = {};
+	const queryParams = new URLSearchParams();
 	for (const prop of Object.keys(params).sort()) {
 		const name = prop.replace(/[A-Z]/g, (m, i) => `${i ? '_' : ''}${m.toLowerCase()}`);
-		queryParams[name] = params[prop];
+		queryParams.append(name, params[prop]);
 	}
-	return qs.stringify(queryParams);
+	return queryParams.toString();
 }

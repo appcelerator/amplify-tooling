@@ -18,7 +18,7 @@ import {
 } from '../util';
 
 const { log } = snooplogg('amplify-auth:authenticator');
-const { highlight } = snooplogg.styles;
+const { highlight, note } = snooplogg.styles;
 
 /**
  * Orchestrates authentication and token management.
@@ -491,19 +491,35 @@ export default class Authenticator {
 			params.code = code;
 		}
 
-		log(`Fetching token: ${this.endpoints.token}`);
-		log(params);
+		const url = this.endpoints.token;
+		const body = stringifyQueryString(params);
 
-		const res = await fetch(this.endpoints.token, {
-			body: stringifyQueryString(params),
+		log(`Fetching token: ${highlight(url)}`);
+		log(`Post body: ${highlight(body)}`);
+
+		const res = await fetch(url, {
+			body,
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+			},
 			method: 'post'
 		});
 
 		if (!res.ok) {
 			// authentication failed
-			const msg = await res.text();
-			log(`Authentication failed: ${msg} (${res.status})`);
-			throw E.AUTH_FAILED(msg.trim() || 'Authentication failed', { status: res.status });
+			let msg = await res.text();
+
+			try {
+				const obj = JSON.parse(msg);
+				msg = `${obj.error}: ${obj.error_description}`;
+			} catch (e) {
+				// squelch
+			}
+
+			msg = msg.trim() || `Authentication failed: auth server returned ${res.status}`;
+
+			log(`Authentication failed: ${msg} ${note(`(${res.status})`)}`);
+			throw E.AUTH_FAILED(msg, { status: res.status });
 		}
 
 		const tokens = await res.json();
