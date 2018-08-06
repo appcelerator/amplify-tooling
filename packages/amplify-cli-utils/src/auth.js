@@ -2,18 +2,24 @@ import Auth from '@axway/amplify-auth-sdk';
 import loadConfig from './config';
 
 /**
- * The default authentication client id.
+ * Environment specific auth settings.
  *
- * @type {String}
+ * @type {Object}
  */
-const clientId = 'amplify-cli';
-
-/**
- * The default authentication realm.
- *
- * @type {String}
- */
-const realm = 'Axway';
+export const environments = {
+	dev: {
+		clientId: 'cli-test-public',
+		realm: 'Axway'
+	},
+	preprod: {
+		clientId: 'cli-test-public',
+		realm: 'Axway'
+	},
+	prod: {
+		clientId: 'cli',
+		realm: 'Axway'
+	}
+};
 
 /**
  * Logs into the Axway platform and returns the user information.
@@ -50,12 +56,18 @@ function buildParams(opts) {
 	}
 
 	const config = loadConfig();
+	const env = opts.env || config.get('env') || 'prod';
+	if (!environments.hasOwnProperty(env)) {
+		throw new Error(`Invalid environment "${env}", expected ${Object.keys(environments).reduce((p, s, i, a) => `${p}"${s}"${i + 1 < a.length ? `, ${i + 2 === a.length ? 'or ' : ''}` : ''}`, '')}`);
+	}
+
+	const { clientId, realm } = environments[env];
 	const params = {};
 	const props = {
 		baseUrl:      undefined,
 		clientId,
 		clientSecret: undefined,
-		env:          undefined,
+		env,
 		password:     undefined,
 		realm,
 		secretFile:   undefined,

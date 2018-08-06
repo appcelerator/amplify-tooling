@@ -6,6 +6,7 @@ import snooplogg from 'snooplogg';
 import { parse } from 'url';
 
 const { log } = snooplogg('amplify-auth:server');
+const { highlight } = snooplogg.styles;
 
 /**
  * Matches the incoming request as a authorization callback and selects the request id.
@@ -55,7 +56,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 							throw new Error('Invalid Request ID');
 						}
 
-						log(`Request ${id} received auth code ${code}, clearing timeout and request`);
+						log(`Request ${highlight(id)} received auth code ${highlight(code)}, clearing timeout and request`);
 						clearTimeout(request.timer);
 						servers[serverId].pending.delete(requestId);
 						stopServer = true;
@@ -63,7 +64,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 						// we do an inner try/catch because the request is valid, but auth could
 						// still fail
 						try {
-							log(`Getting token using code: ${code}`);
+							log(`Getting token using code: ${highlight(code)}`);
 							const accessToken = await getToken(code);
 							request.resolve({ accessToken });
 
@@ -101,7 +102,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 		await new Promise((resolve, reject) => {
 			servers[serverId].server
 				.on('listening', () => {
-					log(`Local HTTP server started: ${serverId}`);
+					log(`Local HTTP server started: ${highlight(serverId)}`);
 					resolve();
 				})
 				.on('error', reject)
@@ -115,7 +116,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 			const { pending } = servers[serverId];
 			const request = pending.get(requestId);
 			if (request) {
-				log(`Request ${requestId} timed out`);
+				log(`Request ${highlight(requestId)} timed out`);
 				pending.delete(requestId);
 				request.reject(E.AUTH_TIMEOUT('Authentication timed out'));
 			}
@@ -128,7 +129,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 		async cancel() {
 			const request = servers[serverId] && servers[serverId].pending.get(requestId);
 			if (request) {
-				log(`Cancelling request ${requestId}`);
+				log(`Cancelling request ${highlight(requestId)}`);
 				clearTimeout(request.timer);
 				servers[serverId].pending.delete(requestId);
 				await stop(false, serverId);
@@ -170,7 +171,7 @@ export async function stop(force, serverIds) {
 			// we need to notify all pending logins that the server was shut down
 			const err = new Error('Server stopped');
 			for (const [ id, { reject, timer } ] of pending.entries()) {
-				log(`Rejecting request ${id}`);
+				log(`Rejecting request ${highlight(id)}`);
 				clearTimeout(timer);
 				reject(err);
 			}

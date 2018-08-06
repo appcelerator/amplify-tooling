@@ -18,6 +18,7 @@ import {
 } from '../util';
 
 const { log } = snooplogg('amplify-auth:authenticator');
+const { highlight } = snooplogg.styles;
 
 /**
  * Orchestrates authentication and token management.
@@ -134,7 +135,7 @@ export default class Authenticator {
 	 * @type {String}
 	 * @access private
 	 */
-	serverHost = '127.0.0.1';
+	serverHost = 'localhost';
 
 	/**
 	 * The local HTTP server port to listen on when interactively authenticating.
@@ -591,8 +592,6 @@ export default class Authenticator {
 
 		// generate a request id so that we can match up successful callbacks with *this* login()
 		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();
-		log(`Starting login request ${requestId}`);
-
 		const queryParams = Object.assign({
 			accessType:   this.accessType,
 			clientId:     this.clientId,
@@ -601,6 +600,8 @@ export default class Authenticator {
 			redirectUri:  `${this.serverUrl}/callback/${requestId}`
 		}, this.authorizationUrlParams);
 		const authorizationUrl = `${this.endpoints.auth}?${stringifyQueryString(queryParams)}`;
+
+		log(`Starting login request ${highlight(requestId)} clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
 		// start the server and wait for it to start
 		const { cancel, promise } = await server.start({
@@ -625,7 +626,7 @@ export default class Authenticator {
 		if (!opts.hasOwnProperty('wait')) {
 			opts.wait = false;
 		}
-		log(`Launching default web browser: ${authorizationUrl}`);
+		log(`Launching default web browser: ${highlight(authorizationUrl)}`);
 		opn(authorizationUrl, opts);
 
 		// wait for authentication to succeed or fail
