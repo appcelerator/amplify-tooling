@@ -500,9 +500,9 @@ export default class Authenticator {
 		const res = await fetch(url, {
 			body,
 			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+				'Content-Type': 'application/x-www-form-urlencoded'
 			},
-			method: 'post'
+			method: 'POST'
 		});
 
 		if (!res.ok) {
