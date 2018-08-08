@@ -8,7 +8,7 @@ export default {
 		}
 	],
 	desc: 'log out of the AMPLIFY platform',
-	async action({ argv }) {
+	async action({ argv, console }) {
 		try {
 			await auth.logout({
 				baseUrl:  argv.baseUrl,

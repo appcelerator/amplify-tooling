@@ -20,7 +20,7 @@ export default {
 			desc: 'path to the PEM key used to authenticate'
 		}
 	},
-	async action({ argv, _ }) {
+	async action({ _, argv, console }) {
 		try {
 			const info = await auth.login({
 				baseUrl:      argv.baseUrl,
@@ -33,8 +33,7 @@ export default {
 				username:     _[0]
 			});
 
-			console.log(info);
-			console.log(`Welcome ${info.name}`);
+			console.log(`You are logged in as ${info.preferred_username || info.email}.`);
 		} catch (e) {
 			console.error(e.message);
 		}
