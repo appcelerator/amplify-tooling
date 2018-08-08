@@ -6,9 +6,9 @@ if (!Error.prepareStackTrace) {
 import CLI, { chalk } from 'cli-kit';
 import config from './commands/config';
 
+import { dirname, resolve } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
 
@@ -16,8 +16,8 @@ const cfg = loadConfig();
 
 const extensions = [
 	...Object.values(cfg.get('extensions', {})),
-	require.resolve('@axway/amplify-cli-auth'),
-	require.resolve('@axway/amplify-cli-pm')
+	dirname(require.resolve('@axway/amplify-cli-auth')),
+	dirname(require.resolve('@axway/amplify-cli-pm'))
 ];
 
 let banner;
@@ -47,7 +47,7 @@ new CLI({
 				result: err.toString()
 			}, null, 2));
 		} else {
-			console.error(err.message);
+			console.error(err.message || err);
 		}
 
 		process.exit(exitCode);

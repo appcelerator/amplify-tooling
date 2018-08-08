@@ -516,9 +516,9 @@ export default class Authenticator {
 				// squelch
 			}
 
-			msg = msg.trim() || `Authentication failed: auth server returned ${res.status}`;
+			msg = `Authentication failed: ${msg.trim() || `auth server returned ${res.status}`}`;
 
-			log(`Authentication failed: ${msg} ${note(`(${res.status})`)}`);
+			log(`${msg} ${note(`(${res.status})`)}`);
 			throw E.AUTH_FAILED(msg, { status: res.status });
 		}
 

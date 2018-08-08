@@ -14,7 +14,7 @@
   "bin": {
     "amplify-cli-auth": "./bin/amplify-cli-auth"
   },
-  "main": "./dist/cli",
+  "main": "./dist/main",
   "preferGlobal": true,
   "scripts": {
     "build": "gulp build",
@@ -39,6 +39,7 @@
     "node": ">=8.0.0"
   },
   "cli-kit": {
+    "main": "./dist/cli",
     "name": "auth"
   }
 }
