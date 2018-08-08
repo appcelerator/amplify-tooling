@@ -24,7 +24,7 @@ export default {
 	aliases: [ 'c' ],
 	desc: 'get and set config options',
 	options: {
-		'--json': { desc: 'outputs the config as JSON' }
+		'--json': 'outputs the config as JSON'
 	},
 	args: [ 'action', 'key', 'value' ],
 	async action({ argv }) {

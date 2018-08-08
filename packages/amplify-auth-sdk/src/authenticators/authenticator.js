@@ -109,7 +109,7 @@ export default class Authenticator {
 	messages = {
 		interactiveSuccess: {
 			text: 'Authorization successful! Please return to the console.',
-			html: renderHTML('Authorization Successful!', 'Please return to the console.')
+			html: renderHTML({ cls: 'success', title: 'Authorization Successful!', message: 'Please return to the console.' })
 		}
 	};
 
@@ -428,9 +428,9 @@ export default class Authenticator {
 			case 'html':
 				contentType = 'text/html';
 				if (err) {
-					message = renderHTML('Authentication Error', err.message);
+					message = renderHTML({ cls: 'error', title: 'Authentication Error', message: err.message });
 				} else {
-					message = msg.html || renderHTML('Authentication', msg.text);
+					message = msg.html || renderHTML({ title: 'Authentication', message: msg.text });
 				}
 				break;
 
@@ -464,10 +464,11 @@ export default class Authenticator {
 	 *
 	 * @param {String} [code] - When present, adds the code to the payload along with a redirect
 	 * URL.
+	 * @param {String} [requestId] - Used to construct the redirect URI when using the `code`.
 	 * @returns {Promise<String>} Resolves the access token.
 	 * @access public
 	 */
-	async getToken(code) {
+	async getToken(code, requestId) {
 		if (this.interactive && (!code || typeof code !== 'string')) {
 			throw E.MISSING_AUTH_CODE('Expected code for interactive authentication to be a non-empty string');
 		}
@@ -489,6 +490,7 @@ export default class Authenticator {
 
 		if (this.interactive) {
 			params.code = code;
+			params.redirectUri = `${this.serverUrl}/callback/${requestId}`;
 		}
 
 		const url = this.endpoints.token;
@@ -526,9 +528,7 @@ export default class Authenticator {
 
 		try {
 			const info = jws.decode(tokens.id_token || tokens.access_token);
-			const payload = JSON.parse(info.payload);
-
-			this.email = payload.email.trim();
+			this.email = info.payload.email.trim();
 			if (!this.email) {
 				// trigger the catch
 				throw new Error();
@@ -622,7 +622,7 @@ export default class Authenticator {
 		// start the server and wait for it to start
 		const { cancel, promise } = await server.start({
 			getResponse: (req, result) => this.getResponse(req, result),
-			getToken:    code => this.getToken(code),
+			getToken:    (code, id) => this.getToken(code, id),
 			requestId,
 			serverHost:  this.serverHost,
 			serverPort:  this.serverPort,

@@ -5,7 +5,7 @@ import snooplogg from 'snooplogg';
 import { parse, URLSearchParams } from 'url';
 
 const { error, log } = snooplogg('amplify-auth:server');
-const { gray, highlight, magenta } = snooplogg.styles;
+const { gray, green, highlight, magenta, red } = snooplogg.styles;
 
 /**
  * Matches the incoming request as a authorization callback and selects the request id.
@@ -64,11 +64,11 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 						// still fail
 						try {
 							log(`Getting token using code: ${highlight(code)}`);
-							const accessToken = await getToken(code);
+							const accessToken = await getToken(code, id);
 							request.resolve({ accessToken });
 
 							const { contentType, message } = getResponse(req, 'interactiveSuccess');
-							log(`[${serverId}] 200 ${url.pathname} (${m[2]})`);
+							log(`[${serverId}] ${green(200)} ${url.pathname} (${m[2]})`);
 							res.writeHead(200, { 'Content-Type': contentType });
 							res.end(message);
 						} catch (e) {
@@ -76,13 +76,13 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 							throw e;
 						}
 					} else {
-						log(`[${serverId}] 404 ${url.pathname}`);
+						log(`[${serverId}] ${magenta(404)} ${url.pathname}`);
 						const err = new Error('Not Found');
 						err.status = 404;
 						throw err;
 					}
 				} catch (e) {
-					log(`${gray(`[${serverId}]`)} ${magenta(e.status || '400')} ${url.pathname}`);
+					log(`${gray(`[${serverId}]`)} ${red(e.status || '400')} ${url.pathname}`);
 					error(e);
 
 					const { contentType, message } = getResponse(req, e);

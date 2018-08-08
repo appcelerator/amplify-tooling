@@ -22,6 +22,17 @@ export const environments = {
 };
 
 /**
+ * Lists all active credentials.
+ *
+ * @param {Object} opts - User option overrides.
+ * @returns {Promise<Object>}
+ */
+export async function list(opts = {}) {
+	const auth = new Auth(buildParams(opts));
+	return await auth.listTokens();
+}
+
+/**
  * Logs into the Axway platform and returns the user information.
  *
  * @param {Object} opts - User option overrides.
@@ -30,7 +41,7 @@ export const environments = {
 export async function login(opts = {}) {
 	const auth = new Auth(buildParams(opts));
 	await auth.login();
-	return await auth.userinfo();
+	return await auth.userInfo();
 }
 
 /**

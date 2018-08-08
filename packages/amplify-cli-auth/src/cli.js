@@ -1,5 +1,6 @@
 import CLI from 'cli-kit';
 
+import list from './commands/list';
 import login from './commands/login';
 import logout from './commands/logout';
 
@@ -10,6 +11,7 @@ const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.js
 
 export default new CLI({
 	commands: {
+		list,
 		login,
 		logout
 	},

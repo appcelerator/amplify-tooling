@@ -1,6 +1,12 @@
 import { auth } from '@axway/amplify-cli-utils';
 
 export default {
+	args: [
+		{
+			name: 'accounts...',
+			desc: 'one or more specific accounts to revoke credentials'
+		}
+	],
 	desc: 'log out of the AMPLIFY platform',
 	async action({ argv }) {
 		try {

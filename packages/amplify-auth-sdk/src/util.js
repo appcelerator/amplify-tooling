@@ -34,7 +34,7 @@ export async function getServerInfo(url) {
  * @param {String} message - The message to inject into the page.
  * @returns {String}
  */
-export function renderHTML(title, message) {
+export function renderHTML({ cls, message, title }) {
 	return `<!doctype html>
 <html>
 <head>
@@ -56,13 +56,25 @@ export function renderHTML(title, message) {
 		width: 360px;
 	}
 
+	.success > div {
+		background-color: #daffdb;
+		border: 1px solid #00cb06;
+		color: #00cb06;
+	}
+
+	.error > div {
+		background-color: #ffdada;
+		border: 1px solid #cb0000;
+		color: #cb0000;
+	}
+
 	h1 {
 		font-size: 24px;
 		font-weight: bold;
 	}
 	</style>
 </head>
-<body>
+<body class="${cls || ''}">
 	<div>
 		<h1>${title}</h1>
 		<p>${String(message).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
