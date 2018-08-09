@@ -65,14 +65,6 @@ export default class Authenticator {
 	accessType = 'offline';
 
 	/**
-	 * The email address associated with the login used for persisting the tokens.
-	 *
-	 * @type {?String}
-	 * @access private
-	 */
-	email = null;
-
-	/**
 	 * Expiry timestamps for the access and refresh tokens.
 	 *
 	 * @type {Object}
@@ -207,7 +199,8 @@ export default class Authenticator {
 	 */
 	constructor(opts) {
 		// check the environment
-		const env = Authenticator.Environments[opts.env || 'prod'];
+		this.env = opts.env || 'prod';
+		const env = Authenticator.Environments[this.env];
 		if (!env) {
 			throw E.INVALID_VALUE(`Invalid environment: ${opts.env}`);
 		}
@@ -386,7 +379,8 @@ export default class Authenticator {
 	 */
 	async getAccessToken(doLogin) {
 		if (!this.tokens.access_token && this.tokenStore) {
-			const data = await this.tokenStore.get(`${this.baseUrl}`);
+			const accounts = await this.tokenStore.get(this.baseUrl);
+			const data = accounts && accounts[0]; // FIXME
 			if (data && data.tokens && data.expires) {
 				log('Loaded access token from token store');
 				Object.assign(this.tokens, data.tokens);
@@ -526,20 +520,22 @@ export default class Authenticator {
 
 		const tokens = await res.json();
 
+		log('Authentication successful');
+		log(tokens);
+
+		let email;
+
 		try {
 			const info = jws.decode(tokens.id_token || tokens.access_token);
-			this.email = info.payload.email.trim();
-			if (!this.email) {
+			log(info);
+			email = info.payload.email.trim();
+			if (!email) {
 				// trigger the catch
 				throw new Error();
 			}
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: invalid response from server');
 		}
-
-		log('Authentication successful');
-		log(tokens);
-		log(`Email address: ${this.email}`);
 
 		const now = Date.now();
 		this.expires.access  = (tokens.expires_in * 1000) + now;
@@ -549,13 +545,31 @@ export default class Authenticator {
 
 		// persist the tokens
 		if (this.tokenStore) {
-			await this.tokenStore.set(`${this.baseUrl}`, {
+			const account = {
 				authenticator: this.constructor.name,
 				baseUrl:       this.baseUrl,
-				email:         this.email,
+				email,
+				env:           this.env,
 				expires:       this.expires,
+				realm:         this.realm,
 				tokens:        this.tokens
-			});
+			};
+			let accounts = await this.tokenStore.get(this.baseUrl);
+			let prev;
+			if (Array.isArray(accounts)) {
+				for (let i = 0, len = accounts.length; i < len; i++) {
+					if (accounts[i].email === email) {
+						prev = accounts.splice(i, 1, account);
+						break;
+					}
+				}
+			} else {
+				accounts = [];
+			}
+			if (!prev || !prev.length) {
+				accounts.push(account);
+			}
+			await this.tokenStore.set(this.baseUrl, accounts);
 		}
 
 		return this.tokens.access_token;
@@ -655,40 +669,39 @@ export default class Authenticator {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async logout() {
-		// remove token from store
-		if (this.tokenStore) {
-			await this.tokenStore.delete(`${this.baseUrl}`);
-		}
-
-		const refreshToken = this.tokens.refresh_token;
-
-		this.email = null;
-		this.expires.access = null;
-		this.expires.refresh = null;
-		this.tokens = {};
-
-		if (!refreshToken) {
-			log('No refresh token, skipping logout');
-			return;
-		}
-
-		const params = Object.assign({
-			clientId: this.clientId,
-			refreshToken
-		}, this.revokeTokenParams);
-
-		const res = await fetch(this.endpoints.logout, {
-			body: stringifyQueryString(params),
-			method: 'post'
-		});
-
-		if (!res.ok) {
-			const msg = await res.text();
-			log('Invalidated local tokens, but server failed to revoke access token');
-			log(msg);
-		}
-	}
+	// async logout() {
+	// 	// remove token from store
+	// 	if (this.tokenStore) {
+	// 		await this.tokenStore.delete(this.baseUrl);
+	// 	}
+	//
+	// 	const refreshToken = this.tokens.refresh_token;
+	//
+	// 	this.expires.access = null;
+	// 	this.expires.refresh = null;
+	// 	this.tokens = {};
+	//
+	// 	if (!refreshToken) {
+	// 		log('No refresh token, skipping logout');
+	// 		return;
+	// 	}
+	//
+	// 	const params = Object.assign({
+	// 		clientId: this.clientId,
+	// 		refreshToken
+	// 	}, this.revokeTokenParams);
+	//
+	// 	const res = await fetch(this.endpoints.logout, {
+	// 		body: stringifyQueryString(params),
+	// 		method: 'post'
+	// 	});
+	//
+	// 	if (!res.ok) {
+	// 		const msg = await res.text();
+	// 		log('Invalidated local tokens, but server failed to revoke access token');
+	// 		log(msg);
+	// 	}
+	// }
 
 	/* istanbul ignore next */
 	/**

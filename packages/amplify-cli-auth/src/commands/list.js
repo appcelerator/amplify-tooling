@@ -1,18 +1,20 @@
 import { auth } from '@axway/amplify-cli-utils';
 
 export default {
-	desc: 'lists all active credentials',
+	desc: 'lists all active accounts',
 	options: {
-		'--json': 'outputs credentials as JSON'
+		'--json': 'outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
 		try {
-			const tokens = await auth.list({
+			const params = auth.buildParams({
 				baseUrl:  argv.baseUrl,
 				clientId: argv.clientId,
 				env:      argv.env,
 				realm:    argv.realm
 			});
+
+			const tokens = await auth.list(params);
 
 			if (argv.json) {
 				console.log(JSON.stringify(tokens, null, '  '));

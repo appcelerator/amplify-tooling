@@ -119,8 +119,19 @@ export default class Auth {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	logout() {
-		return this.authenticator.logout();
+	// logout() {
+	// 	return this.authenticator.logout();
+	// }
+
+	/**
+	 * Revokes a list of specific account access tokens.
+	 *
+	 * @param {Array.<String>} [accounts] - A list of account email addresses.
+	 * @returns {Promise}
+	 * @access public
+	 */
+	static async revoke(opts, accounts) {
+		//
 	}
 
 	/**

@@ -28,7 +28,7 @@ export const environments = {
  * @returns {Promise<Object>}
  */
 export async function list(opts = {}) {
-	const auth = new Auth(buildParams(opts));
+	const auth = new Auth(opts);
 	return await auth.listTokens();
 }
 
@@ -39,34 +39,42 @@ export async function list(opts = {}) {
  * @returns {Promise<Object>}
  */
 export async function login(opts = {}) {
-	const auth = new Auth(buildParams(opts));
+	const auth = new Auth(opts);
 	await auth.login();
-	return await auth.userInfo();
+
+	return await Promise.all([
+		auth.userInfo(),
+		auth.listTokens()
+	]);
 }
 
 /**
  * Invalidates the access tokens.
  *
- * @param {Object} opts - User option overrides.
+ * @param {?Array.<String>} [accounts] - A list of accounts to log out of.
  * @returns {Promise}
  */
-export async function logout(opts = {}) {
-	const auth = new Auth(buildParams(opts));
-	await auth.logout();
+export async function logout(accounts) {
+	// const auth = new Auth();
+	// await auth.logout();
 }
 
 /**
  * Constructs a parameters object to pass into an Auth instance.
  *
  * @param {Object} opts - User option overrides.
+ * @param {Config} [config] - The AMPLIFY config object.
  * @returns {Object}
  */
-function buildParams(opts) {
+export function buildParams(opts, config) {
 	if (opts && typeof opts !== 'object') {
 		throw new Error('Expected options to be an object');
 	}
 
-	const config = loadConfig();
+	if (!config) {
+		config = loadConfig();
+	}
+
 	const env = opts.env || config.get('env') || 'prod';
 	if (!environments.hasOwnProperty(env)) {
 		throw new Error(`Invalid environment "${env}", expected ${Object.keys(environments).reduce((p, s, i, a) => `${p}"${s}"${i + 1 < a.length ? `, ${i + 2 === a.length ? 'or ' : ''}` : ''}`, '')}`);
