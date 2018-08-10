@@ -9,6 +9,8 @@ export default class KeytarStore extends TokenStore {
 	 * Loads the `keytar` library.
 	 *
 	 * @param {Object} [opts] - Various options.
+	 * @param {String} [opts.keytarServiceName="Axway amplify-auth-sdk"] - The name of the consumer
+	 * using this library when using the "keytar" token store.
 	 * @access public
 	 */
 	constructor(opts = {}) {
@@ -21,7 +23,7 @@ export default class KeytarStore extends TokenStore {
 			throw E.KEYTAR_NOT_FOUND('"keytar" package not found, is it installed?');
 		}
 
-		this.service = opts.keytarServiceName || 'amplify-auth';
+		this.service = opts.keytarServiceName || 'Axway amplify-auth-sdk';
 	}
 
 	/**
@@ -61,7 +63,7 @@ export default class KeytarStore extends TokenStore {
 		const tokens = [];
 		for (const token of await this.keytar.findCredentials(this.service)) {
 			try {
-				tokens.push(this.decode(token.password));
+				tokens.push.apply(tokens, this.decode(token.password));
 			} catch (e) {
 				await this.delete(token.account);
 			}
@@ -78,6 +80,6 @@ export default class KeytarStore extends TokenStore {
 	 * @access public
 	 */
 	async set(key, data) {
-		return await this.keytar.setPassword(this.service, key, this.encode(data));
+		await this.keytar.setPassword(this.service, key, this.encode(data));
 	}
 }

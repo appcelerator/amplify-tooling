@@ -1,41 +1,46 @@
-import { auth } from '@axway/amplify-cli-utils';
+import { auth, loadConfig } from '@axway/amplify-cli-utils';
 
 export default {
-	desc: 'lists all active accounts',
+	desc: 'lists all authenticated accounts',
 	options: {
 		'--json': 'outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
-		try {
-			const params = auth.buildParams({
-				baseUrl:  argv.baseUrl,
-				clientId: argv.clientId,
-				env:      argv.env,
-				realm:    argv.realm
-			});
+		const config = loadConfig();
 
-			const tokens = await auth.list(params);
+		const params = auth.buildParams({
+			baseUrl:  argv.baseUrl,
+			clientId: argv.clientId,
+			env:      argv.env,
+			realm:    argv.realm
+		});
 
-			if (argv.json) {
-				console.log(JSON.stringify(tokens, null, '  '));
-				return;
-			}
+		const active = config.get('auth.account');
+		const tokens = await auth.list(params);
 
-			if (!tokens.length) {
-				console.log('No credentials found');
-				return;
-			}
+		for (const token of tokens) {
+			token.active = token.email === active;
+		}
 
-			const pretty = require('pretty-ms');
-			let i = 0;
-			for (const token of tokens) {
-				i++ && console.log();
-				console.log(token.email);
-				console.log(`  ${token.baseUrl.replace(/^.*\/\//, '')} (${token.authenticator})`);
-				console.log(`  Expires in ${pretty(Date.now() - token.expires.access, { secDecimalDigits: 0, msDecimalDigits: 0 })}`);
-			}
-		} catch (e) {
-			console.error(e.message);
+		if (argv.json) {
+			console.log(JSON.stringify(tokens, null, '  '));
+			return;
+		}
+
+		if (!tokens.length) {
+			console.log('No authenticated accounts.');
+			return;
+		}
+
+		console.log('| Active | Account | Expires | Auth Type | Environment |');
+		console.log('| ------ | ------- | ------- | --------- | ----------- |');
+
+		const now = Date.now();
+		const pretty = require('pretty-ms');
+		const urlRE = /^.*\/\//;
+
+		for (const token of tokens) {
+			console.log(`| ${token.active ? ':check:' : ' '} | ${token.email} | ${pretty(token.expires.access - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} | ${token.authenticator} | ${token.baseUrl.replace(urlRE, '')} |`);
 		}
 	}
 };

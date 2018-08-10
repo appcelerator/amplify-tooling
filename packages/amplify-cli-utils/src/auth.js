@@ -24,39 +24,52 @@ export const environments = {
 /**
  * Lists all active credentials.
  *
- * @param {Object} opts - User option overrides.
+ * @param {Object} params - User option overrides.
  * @returns {Promise<Object>}
  */
-export async function list(opts = {}) {
-	const auth = new Auth(opts);
-	return await auth.listTokens();
+export async function list(params) {
+	const auth = new Auth(params);
+	return await auth.list();
 }
 
 /**
  * Logs into the Axway platform and returns the user information.
  *
- * @param {Object} opts - User option overrides.
+ * @param {Object} params - User option overrides.
  * @returns {Promise<Object>}
  */
-export async function login(opts = {}) {
-	const auth = new Auth(opts);
-	await auth.login();
-
-	return await Promise.all([
-		auth.userInfo(),
-		auth.listTokens()
-	]);
+export async function login(params) {
+	const auth = new Auth(params);
+	const { accessToken, userInfo } = await auth.login(params);
+	return {
+		accessToken,
+		accounts: await auth.list(),
+		userInfo
+	};
 }
 
 /**
- * Invalidates the access tokens.
+ * Revokes all or some account tokens.
  *
- * @param {?Array.<String>} [accounts] - A list of accounts to log out of.
+ * @param {Object} params - User option overrides.
+ * @param {?Array.<String>} [accounts] - A list of accounts to revoke. If falsey, revokes all
+ * credentials.
  * @returns {Promise}
  */
-export async function logout(accounts) {
-	// const auth = new Auth();
+export async function revoke(params, accounts) {
+	const auth = new Auth(params);
 	// await auth.logout();
+}
+
+/**
+ * ?
+ *
+ * @param {Object} params - User option overrides.
+ * @returns {Promise}
+ */
+export async function serverInfo(params) {
+	const auth = new Auth();
+	return await auth.serverInfo(params);
 }
 
 /**
@@ -83,14 +96,15 @@ export function buildParams(opts, config) {
 	const { clientId, realm } = environments[env];
 	const params = {};
 	const props = {
-		baseUrl:      undefined,
+		baseUrl:           undefined,
 		clientId,
-		clientSecret: undefined,
+		clientSecret:      undefined,
 		env,
-		password:     undefined,
+		keytarServiceName: 'Axway AMPLIFY CLI',
+		password:          undefined,
 		realm,
-		secretFile:   undefined,
-		username:     undefined
+		secretFile:        undefined,
+		username:          undefined
 	};
 
 	for (const prop of Object.keys(props)) {

@@ -65,7 +65,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 						try {
 							log(`Getting token using code: ${highlight(code)}`);
 							const accessToken = await getToken(code, id);
-							request.resolve({ accessToken });
+							request.resolve(accessToken);
 
 							const { contentType, message } = getResponse(req, 'interactiveSuccess');
 							log(`[${serverId}] ${green(200)} ${url.pathname} (${m[2]})`);

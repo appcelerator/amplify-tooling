@@ -50,20 +50,7 @@ export default class TokenStore {
 	 * @access private
 	 */
 	decode(str) {
-		const data = JSON.parse(zlib.unzipSync(Buffer.from(str, 'base64')));
-		const tokens = data && data.tokens;
-
-		if (tokens && tokens.access_token && tokens.refresh_token) {
-			const expires = data && data.expires;
-			const now = Date.now();
-			if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
-				return data;
-			}
-
-			throw E.TOKEN_EXPIRED('Token is expired');
-		}
-
-		throw E.INVALID_TOKEN('Unable to decode token');
+		return JSON.parse(zlib.unzipSync(Buffer.from(str, 'base64')));
 	}
 
 	/**

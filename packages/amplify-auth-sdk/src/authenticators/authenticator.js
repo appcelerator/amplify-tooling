@@ -2,20 +2,15 @@ import accepts from 'accepts';
 import crypto from 'crypto';
 import E from '../errors';
 import fetch from 'node-fetch';
-import FileStore from '../stores/file-store';
+import getEndpoints from '../endpoints';
 import jws from 'jws';
-import KeytarStore from '../stores/keytar-store';
 import opn from 'opn';
 import snooplogg from 'snooplogg';
 import TokenStore from '../stores/token-store';
 
 import * as server from '../server';
 
-import {
-	getServerInfo,
-	renderHTML,
-	stringifyQueryString
-} from '../util';
+import { renderHTML, stringifyQueryString } from '../util';
 
 const { log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
@@ -24,24 +19,6 @@ const { highlight, note } = snooplogg.styles;
  * Orchestrates authentication and token management.
  */
 export default class Authenticator {
-	/**
-	 * Environment specific settings.
-	 *
-	 * @type {Object}
-	 * @access public
-	 */
-	static Environments = {
-		dev: {
-			baseUrl: 'https://login-dev.axway.com'
-		},
-		preprod: {
-			baseUrl: 'https://login-preprod.axway.com'
-		},
-		prod: {
-			baseUrl: 'https://login.axway.com'
-		}
-	};
-
 	/**
 	 * List of valid grant types to include with server requests.
 	 *
@@ -174,8 +151,6 @@ export default class Authenticator {
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Number} [opts.interactiveLoginTimeout=120000] - The number of milliseconds to wait
 	 * before shutting down the local HTTP server.
-	 * @param {String} [opts.keytarServiceName="amplify-auth"] - The name of the consumer using this
-	 * library when using the "keytar" token store.
 	 * @param {Object} [opts.messages] - A map of categorized messages to display to the end user.
 	 * Supports plain text or HTML strings.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
@@ -188,23 +163,11 @@ export default class Authenticator {
 	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
 	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
-	 * @param {String} [opts.tokenStoreDir] - The directory to save the token file when the
-	 * `default` token store is used.
-	 * @param {String} [opts.tokenStoreType=auto] - The type of store to persist the access token.
-	 * Possible values include: `auto` (which tries to use the `keytar` store, but falls back to the
-	 * default store), `keytar` to use the operating system's secure storage mechanism (or errors if
-	 * keytar is not installed), or `default` to use the built-in store. If `null`, it will not
-	 * persist the access token.
 	 * @access public
 	 */
 	constructor(opts) {
 		// check the environment
-		this.env = opts.env || 'prod';
-		const env = Authenticator.Environments[this.env];
-		if (!env) {
-			throw E.INVALID_VALUE(`Invalid environment: ${opts.env}`);
-		}
-		Object.assign(this, env);
+		this.env = opts.env;
 
 		// process the base URL
 		if (opts.baseUrl) {
@@ -272,14 +235,7 @@ export default class Authenticator {
 		}
 
 		// define the endpoints
-		this.endpoints = {
-			auth:      `${this.baseUrl}/auth/realms/${this.realm}/protocol/openid-connect/auth`,
-			certs:     `${this.baseUrl}/auth/realms/${this.realm}/protocol/openid-connect/certs`,
-			logout:    `${this.baseUrl}/auth/realms/${this.realm}/protocol/openid-connect/logout`,
-			token:     `${this.baseUrl}/auth/realms/${this.realm}/protocol/openid-connect/token`,
-			userinfo:  `${this.baseUrl}/auth/realms/${this.realm}/protocol/openid-connect/userinfo`,
-			wellKnown: `${this.baseUrl}/auth/realms/${this.realm}/.well-known/openid-configuration`
-		};
+		this.endpoints = getEndpoints(this);
 
 		// set any endpoint overrides
 		if (opts.endpoints) {
@@ -321,27 +277,6 @@ export default class Authenticator {
 				throw E.INVALID_PARAMETER('Expected the token store to be a "TokenStore" instance');
 			}
 			this.tokenStore = opts.tokenStore;
-		} else {
-			const tokenStoreType = opts.tokenStoreType === undefined ? 'auto' :  opts.tokenStoreType;
-			switch (tokenStoreType) {
-				case 'auto':
-				case 'keytar':
-					try {
-						this.tokenStore = new KeytarStore(opts);
-						break;
-					} catch (e) {
-						/* istanbul ignore if */
-						if (tokenStoreType === 'keytar') {
-							throw e;
-						}
-
-						// let 'auto' fall through
-					}
-
-				case 'default':
-					// default file store
-					this.tokenStore = new FileStore(opts);
-			}
 		}
 	}
 
@@ -354,18 +289,6 @@ export default class Authenticator {
 	 */
 	get authorizationUrlParams() {
 		return null;
-	}
-
-	/**
-	 * Returns the time in milliseconds that the access token expires. If the token is already
-	 * expired, it will return `null`.
-	 *
-	 * @type {?Number}
-	 * @access public
-	 */
-	get expiresIn() {
-		const { access } = this.expires;
-		return access && access > Date.now() ? access : null;
 	}
 
 	/**
@@ -502,20 +425,7 @@ export default class Authenticator {
 		});
 
 		if (!res.ok) {
-			// authentication failed
-			let msg = await res.text();
-
-			try {
-				const obj = JSON.parse(msg);
-				msg = `${obj.error}: ${obj.error_description}`;
-			} catch (e) {
-				// squelch
-			}
-
-			msg = `Authentication failed: ${msg.trim() || `auth server returned ${res.status}`}`;
-
-			log(`${msg} ${note(`(${res.status})`)}`);
-			throw E.AUTH_FAILED(msg, { status: res.status });
+			throw await this.handleRequestError(res, 'Authentication failed');
 		}
 
 		const tokens = await res.json();
@@ -555,20 +465,30 @@ export default class Authenticator {
 				tokens:        this.tokens
 			};
 			let accounts = await this.tokenStore.get(this.baseUrl);
-			let prev;
 			if (Array.isArray(accounts)) {
 				for (let i = 0, len = accounts.length; i < len; i++) {
 					if (accounts[i].email === email) {
-						prev = accounts.splice(i, 1, account);
+						log(`Overwriting previous account credentials ${note(email)}`);
+						accounts.splice(i, 1);
 						break;
+					} else {
+						const { email, expires, tokens } = accounts[i];
+						if (expires && tokens && tokens.access_token && tokens.refresh_token) {
+							const now = Date.now();
+							if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
+								continue;
+							}
+							log(`Removing expired token: ${email}`);
+						} else {
+							log('Removing invalid token');
+						}
+						accounts.splice(i, 1);
 					}
 				}
 			} else {
 				accounts = [];
 			}
-			if (!prev || !prev.length) {
-				accounts.push(account);
-			}
+			accounts.push(account);
 			await this.tokenStore.set(this.baseUrl, accounts);
 		}
 
@@ -584,6 +504,30 @@ export default class Authenticator {
 	 */
 	get getTokenParams() {
 		return null;
+	}
+
+	/**
+	 * Constructs an error from a failed fetch request, logs it, and returns it.
+	 *
+	 * @param {Response} res - A fetch response object.
+	 * @param {String} label - The error label.
+	 * @access private
+	 */
+	async handleRequestError(res, label) {
+		// authentication failed
+		let msg = await res.text();
+
+		try {
+			const obj = JSON.parse(msg);
+			msg = `${obj.error}: ${obj.error_description}`;
+		} catch (e) {
+			// squelch
+		}
+
+		msg = `${label}: ${msg.trim() || `server returned ${res.status}`}`;
+
+		log(`${msg} ${note(`(${res.status})`)}`);
+		return E.AUTH_FAILED(msg, { status: res.status });
 	}
 
 	/**
@@ -609,14 +553,20 @@ export default class Authenticator {
 
 		if (!this.interactive) {
 			log('Retrieving tokens non-interactively');
-			return { accessToken: await this.getAccessToken(true) };
+			const accessToken = await this.getAccessToken(true);
+			return {
+				accessToken,
+				userInfo: await this.getUserInfo(accessToken)
+			};
 		}
 
 		// we're interactive, so we either are manual, have an auth code, or starting a web server
 
 		if (opts.hasOwnProperty('code')) {
+			const accessToken = await this.getToken(opts.code);
 			return {
-				accessToken: await this.getToken(opts.code)
+				accessToken,
+				userInfo: await this.getUserInfo(accessToken)
 			};
 		}
 
@@ -634,13 +584,21 @@ export default class Authenticator {
 		log(`Starting login request ${highlight(requestId)} clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
 		// start the server and wait for it to start
-		const { cancel, promise } = await server.start({
+		let { cancel, promise } = await server.start({
 			getResponse: (req, result) => this.getResponse(req, result),
 			getToken:    (code, id) => this.getToken(code, id),
 			requestId,
 			serverHost:  this.serverHost,
 			serverPort:  this.serverPort,
 			timeout:     opts.timeout || this.interactiveLoginTimeout
+		});
+
+		// chain the promise to fetch the user info
+		promise = promise.then(async accessToken => {
+			return {
+				accessToken,
+				userInfo: await this.getUserInfo(accessToken)
+			};
 		});
 
 		// if manual, return now with the auth url
@@ -726,17 +684,6 @@ export default class Authenticator {
 	}
 
 	/**
-	 * Discovers available endpoints based on the remote server's OpenID configuration.
-	 *
-	 * @param {String} [url] - An optional URL to discover the available endpoints.
-	 * @returns {Promise<Object>}
-	 * @access public
-	 */
-	serverInfo(url) {
-		return getServerInfo(url || this.endpoints.wellKnown);
-	}
-
-	/**
 	 * The local HTTP server URL.
 	 *
 	 * @type {String}
@@ -749,15 +696,11 @@ export default class Authenticator {
 	/**
 	 * Retrieves the user info associated with the access token.
 	 *
-	 * @param {Boolean} [doLogin=false] - When `true` and non-interactive, it will attempt to log in
-	 * using the refresh token.
 	 * @returns {Promise<Object>}
-	 * @access public
+	 * @access private
 	 */
-	async userInfo(doLogin) {
-		const accessToken = await this.getAccessToken(doLogin);
-
-		log(`Fetching user info: ${this.endpoints.userinfo}`);
+	async getUserInfo(accessToken) {
+		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
 
 		const res = await fetch(this.endpoints.userinfo, {
 			headers: {
@@ -765,6 +708,11 @@ export default class Authenticator {
 				Authorization: `Bearer ${accessToken}`
 			}
 		});
+
+		if (!res.ok) {
+			throw await this.handleRequestError(res, 'Fetch user info failed');
+		}
+
 		return await res.json();
 	}
 }

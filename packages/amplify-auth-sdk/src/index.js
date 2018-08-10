@@ -15,6 +15,8 @@ import FileStore from './stores/file-store';
 import KeytarStore from './stores/keytar-store';
 import TokenStore from './stores/token-store';
 
+import environments from './environments';
+import getEndpoints from './endpoints';
 import * as server from './server';
 
 import { getServerInfo } from './util';
@@ -24,22 +26,27 @@ import { getServerInfo } from './util';
  */
 export default class Auth {
 	/**
-	 * The authenticator instance.
-	 * @type {Authenticator}
+	 * The store to persist the token.
+	 *
+	 * @type {TokenStore}
+	 * @access private
 	 */
-	authenticator = null;
+	tokenStore = null;
 
 	/**
-	 * Initializes the authentication instance.
+	 * Initializes the authentication instance by setting the default settings and creating the
+	 * token store.
 	 *
 	 * @param {Object} opts - Various options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
-	 * @param {String} opts.clientId - The client id to specify when authenticating.
+	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
-	 * @param {String} [opts.keytarServiceName="amplify-auth"] - The name of the consumer using this
-	 * library when using the "keytar" token store.
-	 * @param {String} opts.realm - The name of the realm to authenticate with.
+	 * @param {String} [opts.keytarServiceName="Axway amplify-auth-sdk"] - The name of the consumer
+	 * using this library when using the "keytar" token store.
+	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
+	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
+	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
 	 * @param {String} [opts.tokenStoreDir] - The directory to save the token file when the
 	 * `default` token store is used.
@@ -50,32 +57,67 @@ export default class Auth {
 	 * persist the access token.
 	 * @access public
 	 */
-	constructor(opts) {
+	constructor(opts = {}) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		// create the authenticator
-		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
-			this.authenticator = new OwnerPassword(opts);
-		} else if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
-			this.authenticator = new ClientSecret(opts);
-		} else if (typeof opts.secretFile === 'string' && opts.secretFile) {
-			this.authenticator = new SignedJWT(opts);
+		this.baseUrl    = opts.baseUrl;
+		this.clientId   = opts.clientId;
+		this.env        = opts.env;
+		this.realm      = opts.realm;
+
+		if (opts.tokenStore) {
+			if (!(opts.tokenStore instanceof TokenStore)) {
+				throw E.INVALID_PARAMETER('Expected the token store to be a "TokenStore" instance');
+			}
+			this.tokenStore = opts.tokenStore;
 		} else {
-			this.authenticator = new PKCE(opts);
+			const tokenStoreType = opts.tokenStoreType === undefined ? 'auto' : opts.tokenStoreType;
+			switch (tokenStoreType) {
+				case 'auto':
+				case 'keytar':
+					try {
+						this.tokenStore = new KeytarStore(opts);
+						break;
+					} catch (e) {
+						/* istanbul ignore if */
+						if (tokenStoreType === 'keytar') {
+							throw e;
+						}
+
+						// let 'auto' fall through
+					}
+
+				case 'default':
+					// default file store
+					this.tokenStore = new FileStore(opts);
+			}
 		}
 	}
 
 	/**
-	 * Returns the time in milliseconds that the access token expires. If the token is already
-	 * expired, it will return `null`.
+	 * Ensures the options contains the configurable settings. Validation is handled by the code
+	 * requiring the values.
 	 *
-	 * @type {?Number}
-	 * @access public
+	 * @param {Object} [opts] - Various options.
+	 * @access private
 	 */
-	get expiresIn() {
-		return this.authenticator.expiresIn;
+	applyDefaults(opts = {}) {
+		if (!opts || typeof opts !== 'object') {
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
+		}
+
+		const env = opts.env || this.env || 'prod';
+		if (!environments[env]) {
+			throw E.INVALID_VALUE(`Invalid environment: ${opts.env || this.env}`);
+		}
+
+		opts.baseUrl    = opts.baseUrl || this.baseUrl || environments[env].baseUrl;
+		opts.clientId   = opts.clientId || this.clientId;
+		opts.env        = env;
+		opts.tokenStore = this.tokenStore;
+		opts.realm      = opts.realm || this.realm;
 	}
 
 	/**
@@ -88,7 +130,7 @@ export default class Auth {
 	 * @access public
 	 */
 	getAccessToken(doLogin) {
-		return this.authenticator.getAccessToken(doLogin);
+		return null; // this.authenticator.getAccessToken(doLogin);
 	}
 
 	/**
@@ -97,73 +139,87 @@ export default class Auth {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async listTokens() {
-		const { tokenStore } = this.authenticator;
-		return tokenStore ? await tokenStore.list() : [];
+	list() {
+		return this.tokenStore.list();
 	}
 
 	/**
 	 * Authenticates using the configured authenticator.
 	 *
 	 * @param {Object} [opts] - Various options.
-	 * @returns {Promise<String>}
+	 * @param {String|Array.<String>} [opt.app] - Specify the app to open the `target` with, or an
+	 * array with the app and app arguments.
+	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
+	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
+	 * @param {String} [opts.code] - The authentication code from a successful interactive login.
+	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
+	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
+	 * launching the auth URL in the default browser.
+	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
+	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
+	 * Defaults to the `interactiveLoginTimeout` property.
+	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
+	 * promise. If `false` it's fulfilled immediately when opening the app.
+	 * @returns {Promise<Authenticator>}
 	 * @access public
 	 */
-	login(opts) {
-		return this.authenticator.login(opts);
+	async login(opts) {
+		this.applyDefaults(opts);
+
+		// create the authenticator
+		let authenticator;
+		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
+			authenticator = new OwnerPassword(opts);
+		} else if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
+			authenticator = new ClientSecret(opts);
+		} else if (typeof opts.secretFile === 'string' && opts.secretFile) {
+			authenticator = new SignedJWT(opts);
+		} else {
+			authenticator = new PKCE(opts);
+		}
+
+		return await authenticator.login(opts);
 	}
 
 	/**
-	 * Invalidates the access token.
+	 * Revokes all or specific authenticated accounts.
 	 *
+	 * @param {Array.<String>} [accounts] - A list of accounts (email addresses).
 	 * @returns {Promise}
 	 * @access public
 	 */
-	// logout() {
-	// 	return this.authenticator.logout();
-	// }
+	async revoke(opts, accounts) {
+		this.applyDefaults(opts);
 
-	/**
-	 * Revokes a list of specific account access tokens.
-	 *
-	 * @param {Array.<String>} [accounts] - A list of account email addresses.
-	 * @returns {Promise}
-	 * @access public
-	 */
-	static async revoke(opts, accounts) {
-		//
+		const { baseUrl } = opts;
+		const tokens = await this.tokenStore.list();
+
+		console.log(tokens);
 	}
 
 	/**
-	 * Discovers available endpoints based on the remote server's OpenID configuration.
+	 * Discovers available endpoints based on the authentication server's OpenID configuration.
 	 *
-	 * @param {String} [url] - An optional URL to discover the available endpoints.
+	 * @param {Object} [opts] - Various options.
+	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
+	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
+	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
+	 * @param {String} [opts.url] - An optional URL to discover the available endpoints.
 	 * @returns {Promise<Object>}
 	 * @access public
 	 */
-	serverInfo(url) {
-		return this.authenticator.serverInfo(url);
-	}
+	serverInfo(opts) {
+		this.applyDefaults(opts);
 
-	/**
-	 * Discovers available endpoints based on the remote server's OpenID configuration.
-	 *
-	 * @param {String} url - The URL to discover the available endpoints.
-	 * @returns {Promise<Object>}
-	 * @access public
-	 */
-	static serverInfo(url) {
+		let { url } = opts;
+
+		if (!url) {
+			url = getEndpoints(opts).wellKnown;
+		}
+
 		return getServerInfo(url);
-	}
-
-	/**
-	 * Retrieves the user info associated with the access token.
-	 *
-	 * @returns {Promise<Object>}
-	 * @access public
-	 */
-	userInfo() {
-		return this.authenticator.userInfo();
 	}
 }
 

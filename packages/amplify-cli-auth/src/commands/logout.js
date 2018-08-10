@@ -1,6 +1,7 @@
-import { auth } from '@axway/amplify-cli-utils';
+import { auth, loadConfig } from '@axway/amplify-cli-utils';
 
 export default {
+	aliases: [ 'revoke' ],
 	args: [
 		{
 			name: 'accounts...',
@@ -9,11 +10,26 @@ export default {
 	],
 	desc: 'log out of the AMPLIFY platform',
 	async action({ argv, console }) {
-		try {
-			await auth.logout(argv.accounts);
-			console.log('Logged out successfully');
-		} catch (e) {
-			console.error(`Logout failed: ${e.message}`);
+		const config = loadConfig();
+
+		const params = auth.buildParams({
+			baseUrl:      argv.baseUrl,
+			clientId:     argv.clientId,
+			clientSecret: argv.secret,
+			env:          argv.env,
+			realm:        argv.realm,
+			secretFile:   argv.secretFile
+		}, config);
+
+		const revoked = await auth.revoke(params, argv.accounts);
+
+		if (revoked.length) {
+			console.log('Revoked authenticated accounts:');
+			for (const account of revoked) {
+				console.log(` * ${account}`);
+			}
+		} else {
+			console.log('No accounts to revoke');
 		}
 	}
 };
