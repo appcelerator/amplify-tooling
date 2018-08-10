@@ -76,9 +76,9 @@ export default class ClientSecret extends Authenticator {
 	 * @type {?Object}
 	 * @access private
 	 */
-	get revokeTokenParams() {
-		return {
-			clientSecret: this.clientSecret
-		};
-	}
+	// get revokeTokenParams() {
+	// 	return {
+	// 		clientSecret: this.clientSecret
+	// 	};
+	// }
 }

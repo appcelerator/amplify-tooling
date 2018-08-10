@@ -6,7 +6,7 @@ export default {
 			desc: 'the authorization account to use'
 		}
 	},
-	async action({ argv }) {
+	async action({ argv, console }) {
 		//
 	}
 };

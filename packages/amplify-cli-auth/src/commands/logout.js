@@ -1,5 +1,3 @@
-import { auth, loadConfig } from '@axway/amplify-cli-utils';
-
 export default {
 	aliases: [ 'revoke' ],
 	args: [
@@ -9,24 +7,41 @@ export default {
 		}
 	],
 	desc: 'log out of the AMPLIFY platform',
+	options: {
+		'-a, --all': {
+			desc: 'revoke all credentials'
+		}
+	},
 	async action({ argv, console }) {
-		const config = loadConfig();
+		const { auth } = await import('@axway/amplify-cli-utils');
 
-		const params = auth.buildParams({
-			baseUrl:      argv.baseUrl,
-			clientId:     argv.clientId,
-			clientSecret: argv.secret,
-			env:          argv.env,
-			realm:        argv.realm,
-			secretFile:   argv.secretFile
-		}, config);
+		if (!argv.accounts.length && !argv.all) {
+			throw new Error('Missing list of accounts to revoke or `--all` flag');
+		}
 
-		const revoked = await auth.revoke(params, argv.accounts);
+		const {
+			keytarServiceName,
+			tokenRefreshThreshold,
+			tokenStoreDir,
+			tokenStoreType
+		} = auth.buildParams();
+
+		const client = new auth.Auth({
+			keytarServiceName,
+			tokenRefreshThreshold,
+			tokenStoreDir,
+			tokenStoreType
+		});
+
+		const revoked = await client.revoke({
+			accounts: argv.all ? 'all' : argv.accounts,
+			baseUrl: argv.baseUrl
+		});
 
 		if (revoked.length) {
 			console.log('Revoked authenticated accounts:');
 			for (const account of revoked) {
-				console.log(` * ${account}`);
+				console.log(` * ${account.email}`);
 			}
 		} else {
 			console.log('No accounts to revoke');

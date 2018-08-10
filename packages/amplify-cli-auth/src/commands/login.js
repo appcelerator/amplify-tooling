@@ -1,5 +1,3 @@
-import { auth, loadConfig } from '@axway/amplify-cli-utils';
-
 export default {
 	args: [
 		{
@@ -21,6 +19,8 @@ export default {
 		}
 	},
 	async action({ _, argv, console }) {
+		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');
+
 		const config = loadConfig();
 
 		const params = auth.buildParams({
@@ -34,7 +34,9 @@ export default {
 			username:     _[0]
 		}, config);
 
-		const { accessToken, accounts, userInfo } = await auth.login(params);
+		const client = new auth.Auth(params);
+		const { userInfo } = await client.login(params);
+		const accounts = await client.list();
 
 		console.log(`You are logged in as ${userInfo.preferred_username}.\n`);
 

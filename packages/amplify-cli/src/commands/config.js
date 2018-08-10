@@ -1,5 +1,3 @@
-import { loadConfig, locations } from '@axway/amplify-cli-utils';
-
 const readActions = {
 	get:     'get',
 	ls:      'get',
@@ -28,6 +26,8 @@ export default {
 	},
 	args: [ 'action', 'key', 'value' ],
 	async action({ argv }) {
+		const { loadConfig, locations } = await import('@axway/amplify-cli-utils');
+
 		const cfg = loadConfig(argv);
 		let { action, key, value } = argv;
 		if (!readActions[action] && !writeActions[action]) {

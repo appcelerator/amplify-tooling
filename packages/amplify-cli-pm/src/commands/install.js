@@ -1,8 +1,3 @@
-import npa from 'npm-package-arg';
-
-import { fetchAndInstall } from '@axway/amplify-registry-sdk';
-import { getRegistryURL } from './utils';
-
 export default {
 	aliases: [ 'i' ],
 	desc: 'installs the specified package',
@@ -19,7 +14,17 @@ export default {
 			required: true
 		}
 	],
-	async action({ argv }) {
+	async action({ argv, console }) {
+		const [
+			npa,
+			{ fetchAndInstall },
+			{ getRegistryURL }
+		] = await Promise.all([
+			import('npm-package-arg'),
+			import('@axway/amplify-registry-sdk'),
+			import('../utils')
+		]);
+
 		const info = npa(argv.package);
 		const { name, fetchSpec } = info;
 		const url = getRegistryURL();

@@ -1,9 +1,3 @@
-import fs from 'fs-extra';
-import npa from 'npm-package-arg';
-import semver from 'semver';
-
-import { getInstalledPackages, removePackageFromConfig } from '@axway/amplify-registry-sdk';
-
 export default {
 	desc: 'uninstalls the specified package',
 	args: [
@@ -14,7 +8,19 @@ export default {
 			required: true
 		}
 	],
-	async action({ argv }) {
+	async action({ argv, console }) {
+		const [
+			fs,
+			npa,
+			semver,
+			{ getInstalledPackages, removePackageFromConfig }
+		] = await Promise.all([
+			import('fs-extra'),
+			import('npm-package-arg'),
+			import('semver'),
+			import('@axway/amplify-registry-sdk')
+		]);
+
 		const info = npa(argv.package);
 		const { type, name, fetchSpec } = info;
 		const { packageType } = argv;

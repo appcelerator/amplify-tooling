@@ -176,11 +176,10 @@ export default class Authenticator {
 		if (!this.baseUrl || typeof this.baseUrl !== 'string') {
 			throw E.INVALID_BASE_URL('Invalid base URL: env or baseUrl required');
 		}
-		this.baseUrl = this.baseUrl.replace(/\/+$/, '');
 
 		// validate the required string properties
 		for (const prop of [ 'clientId', 'realm' ]) {
-			if (!opts.hasOwnProperty(prop) || !opts[prop] || typeof opts[prop] !== 'string') {
+			if (opts[prop] === undefined || !opts[prop] || typeof opts[prop] !== 'string') {
 				throw E.MISSING_REQUIRED_PARAMETER(`Expected required parameter "${prop}" to be a non-empty string`);
 			}
 			this[prop] = opts[prop];
@@ -188,7 +187,7 @@ export default class Authenticator {
 
 		// validate optional string options
 		for (const prop of [ 'accessType', 'responseType', 'scope', 'serverHost' ]) {
-			if (opts.hasOwnProperty(prop)) {
+			if (opts[prop] !== undefined) {
 				if (typeof opts[prop] !== 'string') {
 					throw E.INVALID_PARAMETER(`Expected parameter "${prop}" to be a string`);
 				}
@@ -197,7 +196,7 @@ export default class Authenticator {
 		}
 
 		// validate optional numeric options
-		if (opts.hasOwnProperty('interactiveLoginTimeout')) {
+		if (opts.interactiveLoginTimeout !== undefined) {
 			const timeout = parseInt(opts.interactiveLoginTimeout, 10);
 			if (isNaN(timeout)) {
 				throw E.INVALID_PARAMETER('Expected interactive login timeout to be a number of milliseconds');
@@ -210,7 +209,7 @@ export default class Authenticator {
 			this.interactiveLoginTimeout = timeout;
 		}
 
-		if (opts.hasOwnProperty('serverPort')) {
+		if (opts.serverPort !== undefined) {
 			this.serverPort = parseInt(opts.serverPort, 10);
 			if (isNaN(this.serverPort)) {
 				throw E.INVALID_PARAMETER('Expected server port to be a number between 1024 and 65535');
@@ -221,7 +220,7 @@ export default class Authenticator {
 			}
 		}
 
-		if (opts.hasOwnProperty('tokenRefreshThreshold')) {
+		if (opts.tokenRefreshThreshold !== undefined) {
 			const threshold = parseInt(opts.tokenRefreshThreshold, 10);
 			if (isNaN(threshold)) {
 				throw E.INVALID_PARAMETER('Expected token refresh threshold to be a number of seconds');
@@ -246,7 +245,7 @@ export default class Authenticator {
 				if (!url || typeof url !== 'string') {
 					throw E.INVALID_PARAMETER(`Expected "${name}" endpoint URL to be a non-empty string`);
 				}
-				if (!this.endpoints.hasOwnProperty(name)) {
+				if (!this.endpoints[name]) {
 					throw E.INVALID_VALUE(`Invalid endpoint "${name}"`);
 				}
 				this.endpoints[name] = url;
@@ -455,7 +454,7 @@ export default class Authenticator {
 
 		// persist the tokens
 		if (this.tokenStore) {
-			const account = {
+			await this.tokenStore.set({
 				authenticator: this.constructor.name,
 				baseUrl:       this.baseUrl,
 				email,
@@ -463,33 +462,7 @@ export default class Authenticator {
 				expires:       this.expires,
 				realm:         this.realm,
 				tokens:        this.tokens
-			};
-			let accounts = await this.tokenStore.get(this.baseUrl);
-			if (Array.isArray(accounts)) {
-				for (let i = 0, len = accounts.length; i < len; i++) {
-					if (accounts[i].email === email) {
-						log(`Overwriting previous account credentials ${note(email)}`);
-						accounts.splice(i, 1);
-						break;
-					} else {
-						const { email, expires, tokens } = accounts[i];
-						if (expires && tokens && tokens.access_token && tokens.refresh_token) {
-							const now = Date.now();
-							if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
-								continue;
-							}
-							log(`Removing expired token: ${email}`);
-						} else {
-							log('Removing invalid token');
-						}
-						accounts.splice(i, 1);
-					}
-				}
-			} else {
-				accounts = [];
-			}
-			accounts.push(account);
-			await this.tokenStore.set(this.baseUrl, accounts);
+			});
 		}
 
 		return this.tokens.access_token;
@@ -511,6 +484,7 @@ export default class Authenticator {
 	 *
 	 * @param {Response} res - A fetch response object.
 	 * @param {String} label - The error label.
+	 * @returns {Promise<Error>}
 	 * @access private
 	 */
 	async handleRequestError(res, label) {
@@ -562,7 +536,7 @@ export default class Authenticator {
 
 		// we're interactive, so we either are manual, have an auth code, or starting a web server
 
-		if (opts.hasOwnProperty('code')) {
+		if (opts.code !== undefined) {
 			const accessToken = await this.getToken(opts.code);
 			return {
 				accessToken,
@@ -611,7 +585,7 @@ export default class Authenticator {
 		}
 
 		// launch the default web browser
-		if (!opts.hasOwnProperty('wait')) {
+		if (opts.wait === undefined) {
 			opts.wait = false;
 		}
 		log(`Launching default web browser: ${highlight(authorizationUrl)}`);
@@ -620,46 +594,6 @@ export default class Authenticator {
 		// wait for authentication to succeed or fail
 		return promise;
 	}
-
-	/**
-	 * Revokes the access token.
-	 *
-	 * @returns {Promise}
-	 * @access public
-	 */
-	// async logout() {
-	// 	// remove token from store
-	// 	if (this.tokenStore) {
-	// 		await this.tokenStore.delete(this.baseUrl);
-	// 	}
-	//
-	// 	const refreshToken = this.tokens.refresh_token;
-	//
-	// 	this.expires.access = null;
-	// 	this.expires.refresh = null;
-	// 	this.tokens = {};
-	//
-	// 	if (!refreshToken) {
-	// 		log('No refresh token, skipping logout');
-	// 		return;
-	// 	}
-	//
-	// 	const params = Object.assign({
-	// 		clientId: this.clientId,
-	// 		refreshToken
-	// 	}, this.revokeTokenParams);
-	//
-	// 	const res = await fetch(this.endpoints.logout, {
-	// 		body: stringifyQueryString(params),
-	// 		method: 'post'
-	// 	});
-	//
-	// 	if (!res.ok) {
-	// 		const msg = await res.text();
-	// 		log('Invalidated local tokens, but server failed to revoke access token');
-	// 		log(msg);
-	// 	}
-	// }
 
 	/* istanbul ignore next */
 	/**
@@ -696,6 +630,7 @@ export default class Authenticator {
 	/**
 	 * Retrieves the user info associated with the access token.
 	 *
+	 * @param {String} accessToken - A non-expired access token.
 	 * @returns {Promise<Object>}
 	 * @access private
 	 */

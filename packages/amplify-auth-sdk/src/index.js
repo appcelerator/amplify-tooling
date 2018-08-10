@@ -16,10 +16,15 @@ import KeytarStore from './stores/keytar-store';
 import TokenStore from './stores/token-store';
 
 import environments from './environments';
+import fetch from 'node-fetch';
 import getEndpoints from './endpoints';
+import snooplogg from 'snooplogg';
 import * as server from './server';
 
 import { getServerInfo } from './util';
+
+const { log } = snooplogg('amplify-auth');
+const { alert, highlight, magenta, note } = snooplogg.styles;
 
 /**
  * Authenticates the machine and retreives the auth token.
@@ -129,9 +134,11 @@ export default class Auth {
 	 * @returns {Promise<String>}
 	 * @access public
 	 */
-	getAccessToken(doLogin) {
-		return null; // this.authenticator.getAccessToken(doLogin);
-	}
+	// getAccessToken(doLogin) {
+	// 	return null; // this.authenticator.getAccessToken(doLogin);
+	// }
+
+	// TODO: need function that takes an account (email) and returns the token/info!!
 
 	/**
 	 * Returns a list of active access tokens.
@@ -185,17 +192,41 @@ export default class Auth {
 	/**
 	 * Revokes all or specific authenticated accounts.
 	 *
-	 * @param {Array.<String>} [accounts] - A list of accounts (email addresses).
-	 * @returns {Promise}
+	 * @param {Object} params - Required parameters.
+	 * @param {String|Array.<String>} params.accounts - The word `all` or a list of accounts (email
+	 * addresses).
+	 * @param {String} [params.baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise<Array>} Returns a list of revoked credentials.
 	 * @access public
 	 */
-	async revoke(opts, accounts) {
-		this.applyDefaults(opts);
+	async revoke({ accounts, baseUrl }) {
+		const revoked = [];
 
-		const { baseUrl } = opts;
-		const tokens = await this.tokenStore.list();
+		if (baseUrl) {
+			baseUrl = baseUrl.replace(/^.*\/\//, '');
+		}
 
-		console.log(tokens);
+		if (accounts !== 'all' && !Array.isArray(accounts)) {
+			throw E.INVALID_ARGUMENT('Expected accounts to be "all" or a list of accounts');
+		}
+
+		for (const entry of await this.tokenStore.list()) {
+			if ((accounts === 'all' || accounts.includes(entry.email)) && (!baseUrl || entry.baseUrl === baseUrl)) {
+				revoked.push(entry);
+
+				await this.tokenStore.delete(entry.email, entry.baseUrl);
+
+				const url = `${getEndpoints(entry).logout}?id_token_hint=${entry.tokens.id_token}`;
+				const res = await fetch(url);
+				if (res.ok) {
+					log(`Successfully logged out ${highlight(entry.email)} ${magenta(res.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
+				} else {
+					log(`Failed to log out ${highlight(entry.email)} ${alert(res.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
+				}
+			}
+		}
+
+		return revoked;
 	}
 
 	/**

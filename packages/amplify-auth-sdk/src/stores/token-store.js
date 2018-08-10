@@ -28,7 +28,7 @@ export default class TokenStore {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		if (opts.hasOwnProperty('tokenRefreshThreshold')) {
+		if (opts.tokenRefreshThreshold !== undefined) {
 			const threshold = parseInt(opts.tokenRefreshThreshold, 10);
 			if (isNaN(threshold)) {
 				throw E.INVALID_PARAMETER('Expected token refresh threshold to be a number of seconds');
@@ -94,6 +94,33 @@ export default class TokenStore {
 	 */
 	async list() {
 		// noop
+	}
+
+	/**
+	 * Ensures list of tokens is valid and does not contain any expired tokens.
+	 *
+	 * @param {Array.<Object>} entries - An array of tokens.
+	 * @returns {Array.<Object>}
+	 * @access private
+	 */
+	purge(entries) {
+		if (!entries) {
+			return [];
+		}
+
+		for (let i = 0; i < entries.length; i++) {
+			const { email, expires, tokens } = entries[i];
+			if (expires && tokens && tokens.access_token && tokens.refresh_token) {
+				const now = Date.now();
+				if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
+					// not expired
+					continue;
+				}
+			}
+			entries.splice(i--, 1);
+		}
+
+		return entries;
 	}
 
 	/**

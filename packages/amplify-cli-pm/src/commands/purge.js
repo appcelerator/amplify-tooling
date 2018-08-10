@@ -1,6 +1,6 @@
 export default {
 	desc: 'purges all unused packages',
-	async action({ argv }) {
+	async action({ argv, console }) {
 		//
 	}
 };

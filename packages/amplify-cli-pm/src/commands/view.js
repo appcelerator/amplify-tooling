@@ -1,8 +1,3 @@
-import npa from 'npm-package-arg';
-
-import { getRegistryURL } from './utils';
-import { Registry } from '@axway/amplify-registry-sdk';
-
 export default {
 	aliases: [ 'v', 'info', 'show' ],
 	desc: 'displays info for a specific package',
@@ -19,7 +14,17 @@ export default {
 			desc: 'display specific package fields'
 		}
 	],
-	async action({ argv }) {
+	async action({ argv, console }) {
+		const [
+			npa,
+			{ getRegistryURL },
+			{ Registry }
+		] = await Promise.all([
+			import('npm-package-arg'),
+			import('../utils'),
+			import('@axway/amplify-registry-sdk')
+		]);
+
 		const url = getRegistryURL();
 		const registry = new Registry({ url });
 		const info = npa(argv.package);

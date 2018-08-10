@@ -1,8 +1,3 @@
-import columninfy from 'columnify';
-
-import { getRegistryURL } from './utils';
-import { Registry } from '@axway/amplify-registry-sdk';
-
 export default {
 	aliases: [ 's', 'se' ],
 	desc: 'searches registry for packages',
@@ -24,7 +19,17 @@ export default {
 			required: false
 		}
 	],
-	async action({ argv }) {
+	async action({ argv, console }) {
+		const [
+			columnify,
+			{ getRegistryURL },
+			{ Registry }
+		] = await Promise.all([
+			'columnify',
+			'../utils',
+			'@axway/amplify-registry-sdk'
+		]);
+
 		try {
 			const url = getRegistryURL();
 			const registry = new Registry({ url });
@@ -57,7 +62,7 @@ export default {
 			if (!data.length) {
 				console.log('No results');
 			} else {
-				console.log(columninfy(data, columnConfig));
+				console.log(columnify(data, columnConfig));
 			}
 		} catch (e) {
 			if (e.code === 'ECONNREFUSED') {

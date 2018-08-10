@@ -85,7 +85,7 @@ export default class SignedJWT extends Authenticator {
 	get refreshTokenParams() {
 		return {
 			clientAssertion:     this.getSignedJWT(),
-			clientAssertionType: JWTAssertion,
+			clientAssertionType: JWTAssertion
 		};
 	}
 
@@ -95,10 +95,10 @@ export default class SignedJWT extends Authenticator {
 	 * @type {?Object}
 	 * @access private
 	 */
-	get revokeTokenParams() {
-		return {
-			clientAssertion:     this.getSignedJWT(),
-			clientAssertionType: JWTAssertion,
-		};
-	}
+	// get revokeTokenParams() {
+	// 	return {
+	// 		clientAssertion:     this.getSignedJWT(),
+	// 		clientAssertionType: JWTAssertion,
+	// 	};
+	// }
 }
