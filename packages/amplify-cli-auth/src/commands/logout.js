@@ -38,13 +38,16 @@ export default {
 			baseUrl: argv.baseUrl
 		});
 
+		// pretty output
 		if (revoked.length) {
 			console.log('Revoked authenticated accounts:');
 			for (const account of revoked) {
 				console.log(` * ${account.email}`);
 			}
+		} else if (Array.isArray(argv.accounts) && argv.accounts.length === 1) {
+			console.log(`Account "${argv.accounts[0]}" not credentialed.`);
 		} else {
-			console.log('No accounts to revoke');
+			console.log('No credentialed accounts to revoke.');
 		}
 	}
 };

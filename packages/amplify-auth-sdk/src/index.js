@@ -53,8 +53,7 @@ export default class Auth {
 	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
 	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
-	 * @param {String} [opts.tokenStoreDir] - The directory to save the token file when the
-	 * `default` token store is used.
+	 * @param {String} [opts.tokenStoreFile] - The path to the file-based token store.
 	 * @param {String} [opts.tokenStoreType=auto] - The type of store to persist the access token.
 	 * Possible values include: `auto` (which tries to use the `keytar` store, but falls back to the
 	 * default store), `keytar` to use the operating system's secure storage mechanism (or errors if
@@ -129,16 +128,15 @@ export default class Auth {
 	 * Retrieves the access token. If the authenticator is interactive and the authenticator has not
 	 * yet authenticated with the server, an error is thrown.
 	 *
-	 * @param {Boolean} [doLogin=false] - When `true` and non-interactive, it will attempt to log in
-	 * using the refresh token.
-	 * @returns {Promise<String>}
+	 * @param {Object} params - Required parameters.
+	 * @param {Boolean} params.account - The account name to retrieve.
+	 * @param {String} [params.baseUrl] - The base URL.
+	 * @returns {Promise<Object>}
 	 * @access public
 	 */
-	// getAccessToken(doLogin) {
-	// 	return null; // this.authenticator.getAccessToken(doLogin);
-	// }
-
-	// TODO: need function that takes an account (email) and returns the token/info!!
+	getAccount({ account, baseUrl }) {
+		return this.tokenStore.get(account, baseUrl || this.baseUrl);
+	}
 
 	/**
 	 * Returns a list of active access tokens.

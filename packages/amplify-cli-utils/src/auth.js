@@ -1,6 +1,9 @@
 import Auth from '@axway/amplify-auth-sdk';
 import environments from './environments';
 import loadConfig from './config';
+import path from 'path';
+
+import { axwayHome } from './locations';
 
 export { Auth };
 
@@ -28,18 +31,21 @@ export function buildParams(opts = {}, config) {
 	const { clientId, realm } = environments[env];
 	const params = {};
 	const props = {
-		baseUrl:               undefined,
+		baseUrl:                 undefined,
 		clientId,
-		clientSecret:          undefined,
+		clientSecret:            undefined,
 		env,
-		keytarServiceName: 'Axway AMPLIFY CLI',
-		password:              undefined,
+		interactiveLoginTimeout: undefined,
+		keytarServiceName:       'Axway AMPLIFY CLI',
+		password:                undefined,
 		realm,
-		secretFile:            undefined,
-		tokenRefreshThreshold: undefined,
-		tokenStoreDir:         undefined,
-		tokenStoreType:        undefined,
-		username:              undefined
+		secretFile:              undefined,
+		serverHost:              undefined,
+		serverPort:              undefined,
+		tokenRefreshThreshold:   undefined,
+		tokenStoreFile:          path.join(axwayHome, '.tokenstore'),
+		tokenStoreType:          undefined,
+		username:                undefined
 	};
 
 	for (const prop of Object.keys(props)) {

@@ -4,6 +4,7 @@ import list from './commands/list';
 import login from './commands/login';
 import logout from './commands/logout';
 import serverInfo from './commands/server-info';
+import whoami from './commands/whoami';
 
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
@@ -15,7 +16,8 @@ export default new CLI({
 		list,
 		login,
 		logout,
-		'server-info': serverInfo
+		'server-info': serverInfo,
+		whoami
 	},
 	desc: 'The AMPLIFY Auth CLI authenticates with the Axway AMPLIFY platform, manages access tokens, and retreives user information.',
 	help: true,

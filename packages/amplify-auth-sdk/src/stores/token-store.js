@@ -3,6 +3,8 @@
 import E from '../errors';
 import zlib from 'zlib';
 
+const protoRegExp = /^.*\/\//;
+
 /**
  * Base class for token storage backends.
  */
@@ -56,12 +58,25 @@ export default class TokenStore {
 	/**
 	 * Deletes a token from the store.
 	 *
-	 * @param {String} key - The token key to delete.
+	 * @param {String} email - The account name to delete.
+ 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async delete(key) {
-		// noop
+	async delete(email, baseUrl) {
+		const entries = await this.list();
+
+		if (baseUrl) {
+			baseUrl = baseUrl.replace(/^.*\/\//, '');
+		}
+
+		for (let i = 0; i < entries.length; i++) {
+			if (entries[i].email === email && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
+				entries.splice(i--, 1);
+			}
+		}
+
+		return entries;
 	}
 
 	/**
@@ -78,12 +93,25 @@ export default class TokenStore {
 	/**
 	 * Retreives a token from the store.
 	 *
-	 * @param {String} key - The token key to get.
+	 * @param {String} email - The account name to get.
+	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise} Resolves the token or `undefined` if not set.
 	 * @access public
 	 */
-	async get(key) {
-		// noop
+	async get(email, baseUrl) {
+		const entries = await this.list();
+
+		if (baseUrl) {
+			baseUrl = baseUrl.replace(protoRegExp, '');
+		}
+
+		for (let i = 0, len = entries.length; i < len; i++) {
+			if (entries[i].email === email && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
+				return entries[i];
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -124,14 +152,23 @@ export default class TokenStore {
 	}
 
 	/**
-	 * Retreives a token from the store.
+	 * Saves account credentials. If exists, the old one is deleted.
 	 *
-	 * @param {String} key - The token key to get.
 	 * @param {Object} data - The token data.
 	 * @returns {Promise}
-	 * @access public
+	 * @access private
 	 */
-	async set(key, data) {
-		// noop
+	async set(data) {
+		const entries = await this.list();
+
+		for (let i = 0, len = entries.length; i < len; i++) {
+			if (entries[i].baseUrl === data.baseUrl && entries[i].email === data.email) {
+				entries.splice(i, 1);
+				break;
+			}
+		}
+
+		entries.push(data);
+		return entries;
 	}
 }

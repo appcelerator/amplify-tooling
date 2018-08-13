@@ -115,14 +115,6 @@ export default class Authenticator {
 	serverPort = 3000;
 
 	/**
-	 * The age in milliseconds before the access token expires and should be refreshed.
-	 *
-	 * @type {Number}
-	 * @access private
-	 */
-	tokenRefreshThreshold = 0;
-
-	/**
 	 * The tokens returned from the server.
 	 *
 	 * @type {Object}
@@ -160,8 +152,6 @@ export default class Authenticator {
 	 * listen on when interactively authenticating.
 	 * @param {Number} [opts.serverPort=3000] - The local HTTP server port to listen on when
 	 * interactively authenticating.
-	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
-	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
 	 * @access public
 	 */
@@ -220,19 +210,6 @@ export default class Authenticator {
 			}
 		}
 
-		if (opts.tokenRefreshThreshold !== undefined) {
-			const threshold = parseInt(opts.tokenRefreshThreshold, 10);
-			if (isNaN(threshold)) {
-				throw E.INVALID_PARAMETER('Expected token refresh threshold to be a number of seconds');
-			}
-
-			if (threshold < 0) {
-				throw E.INVALID_RANGE('Token refresh threshold must be greater than or equal to zero');
-			}
-
-			this.tokenRefreshThreshold = threshold * 1000;
-		}
-
 		// define the endpoints
 		this.endpoints = getEndpoints(this);
 
@@ -288,41 +265,6 @@ export default class Authenticator {
 	 */
 	get authorizationUrlParams() {
 		return null;
-	}
-
-	/**
-	 * Retrieves the access token. If the authenticator is interactive and the authenticator has not
-	 * yet authenticated with the server, an error is thrown.
-	 *
-	 * @param {Boolean} [doLogin=false] - When `true` and non-interactive, it will attempt to log in
-	 * using the refresh token.
-	 * @returns {Promise<String>}
-	 * @access public
-	 */
-	async getAccessToken(doLogin) {
-		if (!this.tokens.access_token && this.tokenStore) {
-			const accounts = await this.tokenStore.get(this.baseUrl);
-			const data = accounts && accounts[0]; // FIXME
-			if (data && data.tokens && data.expires) {
-				log('Loaded access token from token store');
-				Object.assign(this.tokens, data.tokens);
-				Object.assign(this.expires, data.expires);
-			}
-		}
-
-		if (this.tokens.access_token && this.expires.access > (Date.now() + this.tokenRefreshThreshold)) {
-			return this.tokens.access_token;
-		}
-
-		log(this.tokens.access_token ? 'Access token expired' : 'No access token');
-
-		// if we don't have an access token and we're interactive, then the refresh token is useless
-		// and login is required
-		if (!doLogin || this.interactive) {
-			throw E.LOGIN_REQUIRED('Login required');
-		}
-
-		return await this.getToken();
 	}
 
 	/**
@@ -527,7 +469,7 @@ export default class Authenticator {
 
 		if (!this.interactive) {
 			log('Retrieving tokens non-interactively');
-			const accessToken = await this.getAccessToken(true);
+			const accessToken = await this.getToken();
 			return {
 				accessToken,
 				userInfo: await this.getUserInfo(accessToken)

@@ -1,18 +1,7 @@
-import crypto from 'crypto';
 import E from '../errors';
 import fs from 'fs-extra';
 import path from 'path';
-import snooplogg from 'snooplogg';
 import TokenStore from './token-store';
-
-const { log } = snooplogg('amplify-auth:file-store');
-
-/**
- * Matches the token filename which is a SHA of the key (40 characters).
- *
- * @type {RegExp}
- */
-const tokenFileRegExp = /^[A-Za-z0-9]{40}$/;
 
 /**
  * A file-based token store.
@@ -22,8 +11,7 @@ export default class FileStore extends TokenStore {
 	 * Initializes the file store.
 	 *
 	 * @param {Object} opts - Various options.
-	 * @param {String} opts.tokenStoreDir - The directory to save the token file when the `default`
-	 * token store is used.
+	 * @param {String} opts.tokenStoreFile - The path to the file-based token store.
 	 * @access public
 	 */
 	constructor(opts = {}) {
@@ -33,49 +21,24 @@ export default class FileStore extends TokenStore {
 			throw E.MISSING_REQUIRED_PARAMETER('File token store requires a token store directory');
 		}
 
-		this.tokenStoreDir = path.resolve(opts.tokenStoreDir);
+		this.tokenStoreFile = path.resolve(opts.tokenStoreFile);
 	}
 
 	/**
 	 * Deletes a token from the store.
 	 *
-	 * @param {String} key - The token key to delete.
-	 * @returns {Promise<Boolean>}
+	 * @param {String} email - The account name to delete.
+	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise}
 	 * @access public
 	 */
-	async delete(key) {
-		return deleteFile(this.getTokenFilePath(key));
-	}
-
-	/**
-	 * Retreives a token from the store.
-	 *
-	 * @param {String} key - The token key to get.
-	 * @returns {Promise<Object>} Resolves the token or `undefined` if not set.
-	 * @access public
-	 */
-	async get(key) {
-		const file = this.getTokenFilePath(key);
-		if (fs.existsSync(file)) {
-			try {
-				return this.decode(fs.readFileSync(file, 'utf8'));
-			} catch (e) {
-				log(`Failed to decode ${file}: ${e.message}`);
-				deleteFile(file);
-			}
+	async delete(email, baseUrl) {
+		const entries = await super.delete(email, baseUrl);
+		if (entries.length) {
+			await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
+		} else {
+			await fs.remove(this.tokenStoreFile);
 		}
-	}
-
-	/**
-	 * Generates the path to the token file.
-	 *
-	 * @param {String} key - The token key.
-	 * @returns {String}
-	 * @access private
-	 */
-	getTokenFilePath(key) {
-		const file = crypto.createHash('sha1').update(key).digest('hex');
-		return path.join(this.tokenStoreDir, file);
 	}
 
 	/**
@@ -85,57 +48,21 @@ export default class FileStore extends TokenStore {
 	 * @access public
 	 */
 	async list() {
-		const dir = this.tokenStoreDir;
-		const tokens = [];
-
-		if (fs.existsSync(dir)) {
-			for (const name of fs.readdirSync(dir)) {
-				if (tokenFileRegExp.test(name)) {
-					const file = path.join(dir, name);
-					try {
-						tokens.push(this.decode(fs.readFileSync(file, 'utf8')));
-					} catch (e) {
-						if (e.code === 'ERR_TOKEN_EXPIRED') {
-							log(`Failed to decode ${file}: ${e.message}`);
-							deleteFile(file);
-						}
-					}
-				}
-			}
+		if (fs.existsSync(this.tokenStoreFile)) {
+			return this.purge(this.decode(fs.readFileSync(this.tokenStoreFile, 'utf8')));
 		}
-
-		return tokens.filter(t => t);
+		return [];
 	}
 
 	/**
-	 * Retreives a token from the store.
+	 * Saves account credentials. If exists, the old one is deleted.
 	 *
-	 * @param {String} key - The token key to get.
 	 * @param {Object} data - The token data.
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async set(key, data) {
-		const file = this.getTokenFilePath(key);
-		await fs.mkdirp(this.tokenStoreDir);
-		log(`Writing tokens to ${file}`);
-		fs.writeFileSync(file, this.encode(data), { mode: 384 /* 600 */ });
-	}
-}
-
-/**
- * Removes a file, if it exists.
- *
- * @param {String} file - The path of the file to delete.
- * @returns {Boolean} Returns `true` if the file was removed or `false` if the file does not exist
- * or failed to be removed.
- */
-function deleteFile(file) {
-	try {
-		log(`Deleting token file ${file}`);
-		fs.removeSync(file);
-		return true;
-	} catch (e) {
-		return false;
+	async set(data) {
+		const entries = await super.set(data);
+		await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
 	}
 }
