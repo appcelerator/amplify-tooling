@@ -27,20 +27,38 @@ export default class KeytarStore extends TokenStore {
 	}
 
 	/**
-	 * Deletes a token from the store.
+	 * Removes all tokens.
 	 *
-	 * @param {String} email - The account name to delete.
 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
-	 * @returns {Promise}
+	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async delete(email, baseUrl) {
-		const entries = await super.delete(email, baseUrl);
+	async clear(baseUrl) {
+		const { entries, removed } = await super.clear(baseUrl);
 		if (entries.length) {
 			await this.keytar.setPassword(this.service, this.service, this.encode(entries));
 		} else {
 			await this.keytar.deletePassword(this.service, this.service);
 		}
+		return removed;
+	}
+
+	/**
+	 * Deletes a token from the store.
+	 *
+	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
+	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise<Array>}
+	 * @access public
+	 */
+	async delete(accounts, baseUrl) {
+		const { entries, removed } = await super.delete(accounts, baseUrl);
+		if (entries.length) {
+			await this.keytar.setPassword(this.service, this.service, this.encode(entries));
+		} else {
+			await this.keytar.deletePassword(this.service, this.service);
+		}
+		return removed;
 	}
 
 	/**

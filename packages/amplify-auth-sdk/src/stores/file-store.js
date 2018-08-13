@@ -17,28 +17,46 @@ export default class FileStore extends TokenStore {
 	constructor(opts = {}) {
 		super(opts);
 
-		if (!opts.tokenStoreDir || typeof opts.tokenStoreDir !== 'string') {
-			throw E.MISSING_REQUIRED_PARAMETER('File token store requires a token store directory');
+		if (!opts.tokenStoreFile || typeof opts.tokenStoreFile !== 'string') {
+			throw E.MISSING_REQUIRED_PARAMETER('File token store requires a token store file path');
 		}
 
 		this.tokenStoreFile = path.resolve(opts.tokenStoreFile);
 	}
 
 	/**
-	 * Deletes a token from the store.
+	 * Removes all tokens.
 	 *
-	 * @param {String} email - The account name to delete.
 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
-	 * @returns {Promise}
+	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async delete(email, baseUrl) {
-		const entries = await super.delete(email, baseUrl);
+	async clear(baseUrl) {
+		const { entries, removed } = await super.clear(baseUrl);
 		if (entries.length) {
 			await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
 		} else {
 			await fs.remove(this.tokenStoreFile);
 		}
+		return removed;
+	}
+
+	/**
+	 * Deletes a token from the store.
+	 *
+	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
+	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise<Array>}
+	 * @access public
+	 */
+	async delete(accounts, baseUrl) {
+		const { entries, removed } = await super.delete(accounts, baseUrl);
+		if (entries.length) {
+			await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
+		} else {
+			await fs.remove(this.tokenStoreFile);
+		}
+		return removed;
 	}
 
 	/**

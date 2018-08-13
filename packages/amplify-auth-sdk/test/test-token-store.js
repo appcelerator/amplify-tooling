@@ -33,15 +33,15 @@ describe('Token Store', () => {
 
 	describe('File Token Store', () => {
 		afterEach(function () {
-			if (this.tempDir && fs.existsSync(this.tempDir)) {
-				fs.removeSync(this.tempDir);
+			if (this.tempFile && fs.existsSync(this.tempFile)) {
+				fs.removeSync(this.tempFile);
 			}
-			this.tempDir = null;
+			this.tempFile = null;
 
 			return stopLoginServer.call(this);
 		});
 
-		it('should error if token store directory is invalid', () => {
+		it('should error if token store file path is invalid', () => {
 			expect(() => {
 				new Auth({
 					baseUrl:        'http://127.0.0.1:1337',
@@ -49,34 +49,35 @@ describe('Token Store', () => {
 					realm:          'test_realm',
 					tokenStoreType: 'default'
 				});
-			}).to.throw(TypeError, 'File token store requires a token store directory');
+			}).to.throw(TypeError, 'File token store requires a token store file path');
 		});
 
 		it('should persist the token to a file', async function () {
 			this.server = await createLoginServer();
 
-			const dir = this.tempDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
-
+			const baseUrl = 'http://127.0.0.1:1337';
+			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
-				username:       'foo',
-				password:       'bar',
-				baseUrl:        'http://127.0.0.1:1337',
+				baseUrl,
 				clientId:       'test_client',
 				realm:          'test_realm',
-				tokenStoreDir:  dir,
+				tokenStoreFile,
 				tokenStoreType: 'default'
 			});
 
-			let tokens = await auth.listTokens();
+			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
 
-			expect(fs.existsSync(dir)).to.be.false;
+			expect(fs.existsSync(tokenStoreFile)).to.be.false;
 
-			const { accessToken } = await auth.login();
+			const { accessToken, account } = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
 
-			expect(fs.existsSync(dir)).to.be.true;
+			expect(fs.existsSync(tokenStoreFile)).to.be.true;
 
-			tokens = await auth.listTokens();
+			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
 			expect(tokens[0].authenticator).to.equal('OwnerPassword');
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
@@ -85,9 +86,9 @@ describe('Token Store', () => {
 			expect(tokens[0].expires.refresh).to.be.ok;
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
-			await auth.logout();
+			await auth.revoke({ accounts: [ account ], baseUrl });
 
-			tokens = await auth.listTokens();
+			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
 		});
 
@@ -97,80 +98,35 @@ describe('Token Store', () => {
 				refreshExpiresIn: 1
 			});
 
-			const dir = this.tempDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 
 			const auth = new Auth({
-				username:       'foo',
-				password:       'bar',
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
-				tokenStoreDir:  dir,
+				tokenStoreFile,
 				tokenStoreType: 'default'
 			});
 
-			let tokens = await auth.listTokens();
+			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
 
-			expect(fs.existsSync(dir)).to.be.false;
+			expect(fs.existsSync(tokenStoreFile)).to.be.false;
 
-			await auth.login();
+			await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
 
-			expect(fs.existsSync(dir)).to.be.true;
+			expect(fs.existsSync(tokenStoreFile)).to.be.true;
 
-			tokens = await auth.listTokens();
+			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
 
 			await new Promise(resolve => setTimeout(resolve, 1500));
 
-			tokens = await auth.listTokens();
+			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
-		});
-
-		it('should skip login if valid token exists', async function () {
-			this.server = await createLoginServer();
-
-			const dir = this.tempDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
-
-			const auth1 = new Auth({
-				username:       'foo',
-				password:       'bar',
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreDir:  dir,
-				tokenStoreType: 'default'
-			});
-
-			let tokens = await auth1.listTokens();
-			expect(tokens).to.have.lengthOf(0);
-
-			expect(fs.existsSync(dir)).to.be.false;
-
-			const results1 = await auth1.login();
-
-			expect(fs.existsSync(dir)).to.be.true;
-
-			tokens = await auth1.listTokens();
-			expect(tokens).to.have.lengthOf(1);
-
-			await stopLoginServer.call(this);
-
-			const auth2 = new Auth({
-				username:       'foo',
-				password:       'bar',
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreDir:  dir,
-				tokenStoreType: 'default'
-			});
-
-			const results2 = await auth2.login();
-			expect(results2.accessToken).to.equal(results1.accessToken);
-
-			tokens = await auth2.listTokens();
-			expect(tokens).to.have.lengthOf(1);
 		});
 	});
 
@@ -180,21 +136,23 @@ describe('Token Store', () => {
 		(isCI && process.platform === 'linux' ? it.skip : it)('should securely store the token', async function () {
 			this.server = await createLoginServer();
 
+			const baseUrl = 'http://127.0.0.1:1337';
 			const auth = new Auth({
-				username:       'foo',
-				password:       'bar',
-				baseUrl:        'http://127.0.0.1:1337',
+				baseUrl,
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'keytar'
 			});
 
-			let tokens = await auth.listTokens();
+			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
 
-			const { accessToken } = await auth.login();
+			const { accessToken, account } = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
 
-			tokens = await auth.listTokens();
+			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
 			expect(tokens[0].authenticator).to.equal('OwnerPassword');
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
@@ -203,9 +161,9 @@ describe('Token Store', () => {
 			expect(tokens[0].expires.refresh).to.be.ok;
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
-			await auth.logout();
+			await auth.revoke({ accounts: [ account ], baseUrl });
 
-			tokens = await auth.listTokens();
+			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
 		});
 	});
@@ -240,10 +198,9 @@ describe('Token Store', () => {
 				}
 			}
 
+			const baseUrl = 'http://127.0.0.1:1337';
 			const auth = new Auth({
-				username: 'foo',
-				password: 'bar',
-				baseUrl:  'http://127.0.0.1:1337',
+				baseUrl,
 				clientId: 'test_client',
 				realm:    'test_realm',
 				tokenStore: new Foo(),
@@ -252,12 +209,15 @@ describe('Token Store', () => {
 			expect(setCounter).to.equal(0);
 			expect(delCounter).to.equal(0);
 
-			const { accessToken } = await auth.login();
+			const { account } = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
 
 			expect(setCounter).to.equal(1);
 			expect(delCounter).to.equal(0);
 
-			await auth.logout();
+			await auth.revoke({ accounts: [ account ], baseUrl });
 
 			expect(setCounter).to.equal(1);
 			expect(delCounter).to.equal(1);

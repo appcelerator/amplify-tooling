@@ -45,6 +45,31 @@ export default class TokenStore {
 	}
 
 	/**
+	 * Removes all tokens.
+	 *
+	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise<Array>}
+	 * @access public
+	 */
+	async clear(baseUrl) {
+		const entries = await this.list();
+
+		if (!baseUrl) {
+			return { entries: [], removed: entries };
+		}
+
+		const removed = [];
+		baseUrl = baseUrl.replace(/^.*\/\//, '');
+		for (let i = 0; i < entries.length; i++) {
+			if (entries[i].baseUrl.replace(protoRegExp, '') === baseUrl) {
+				removed.push.apply(removed, entries.splice(i--, 1));
+			}
+		}
+
+		return { entries, removed };
+	}
+
+	/**
 	 * Decodes the supplied string into an object.
 	 *
 	 * @param {String} str - The string to decode into an object.
@@ -58,25 +83,30 @@ export default class TokenStore {
 	/**
 	 * Deletes a token from the store.
 	 *
-	 * @param {String} email - The account name to delete.
+	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
  	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async delete(email, baseUrl) {
+	async delete(accounts, baseUrl) {
 		const entries = await this.list();
+		const removed = [];
 
 		if (baseUrl) {
 			baseUrl = baseUrl.replace(/^.*\/\//, '');
 		}
 
+		if (!Array.isArray(accounts)) {
+			accounts = [ accounts ];
+		}
+
 		for (let i = 0; i < entries.length; i++) {
-			if (entries[i].email === email && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
-				entries.splice(i--, 1);
+			if (accounts.includes(entries[i].email) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
+				removed.push.apply(removed, entries.splice(i--, 1));
 			}
 		}
 
-		return entries;
+		return { entries, removed };
 	}
 
 	/**

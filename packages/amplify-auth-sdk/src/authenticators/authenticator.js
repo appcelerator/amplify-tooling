@@ -323,7 +323,7 @@ export default class Authenticator {
 	 * @param {String} [code] - When present, adds the code to the payload along with a redirect
 	 * URL.
 	 * @param {String} [requestId] - Used to construct the redirect URI when using the `code`.
-	 * @returns {Promise<String>} Resolves the access token.
+	 * @returns {Promise<Object>} Resolves an object containing the access token and account email.
 	 * @access public
 	 */
 	async getToken(code, requestId) {
@@ -371,13 +371,16 @@ export default class Authenticator {
 
 		const tokens = await res.json();
 
-		log('Authentication successful');
+		log(`Authentication successful ${note(`(${res.headers.get('content-type')})`)}`);
 		log(tokens);
 
 		let email;
 
 		try {
 			const info = jws.decode(tokens.id_token || tokens.access_token);
+			if (typeof info.payload === 'string') {
+				info.payload = JSON.parse(info.payload);
+			}
 			log(info);
 			email = info.payload.email.trim();
 			if (!email) {
@@ -385,7 +388,7 @@ export default class Authenticator {
 				throw new Error();
 			}
 		} catch (e) {
-			throw E.AUTH_FAILED('Authentication failed: invalid response from server');
+			throw E.AUTH_FAILED('Authentication failed: invalid server response');
 		}
 
 		const now = Date.now();
@@ -407,7 +410,10 @@ export default class Authenticator {
 			});
 		}
 
-		return this.tokens.access_token;
+		return {
+			accessToken: this.tokens.access_token,
+			account: email
+		};
 	}
 
 	/* istanbul ignore next */
@@ -419,6 +425,30 @@ export default class Authenticator {
 	 */
 	get getTokenParams() {
 		return null;
+	}
+
+	/**
+	 * Retrieves the user info associated with the access token.
+	 *
+	 * @param {String} accessToken - A non-expired access token.
+	 * @returns {Promise<Object>}
+	 * @access private
+	 */
+	async getUserInfo(accessToken) {
+		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
+
+		const res = await fetch(this.endpoints.userinfo, {
+			headers: {
+				Accept: 'application/json',
+				Authorization: `Bearer ${accessToken}`
+			}
+		});
+
+		if (!res.ok) {
+			throw await this.handleRequestError(res, 'Fetch user info failed');
+		}
+
+		return await res.json();
 	}
 
 	/**
@@ -459,7 +489,8 @@ export default class Authenticator {
 	 * Defaults to the `interactiveLoginTimeout` property.
 	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
 	 * promise. If `false` it's fulfilled immediately when opening the app.
-	 * @returns {Promise}
+	 * @returns {Promise<Object>} Resolves an object containing the access token, account email, and
+	 * user info.
 	 * @access public
 	 */
 	async login(opts = {}) {
@@ -469,9 +500,10 @@ export default class Authenticator {
 
 		if (!this.interactive) {
 			log('Retrieving tokens non-interactively');
-			const accessToken = await this.getToken();
+			const { accessToken, account } = await this.getToken();
 			return {
 				accessToken,
+				account,
 				userInfo: await this.getUserInfo(accessToken)
 			};
 		}
@@ -479,9 +511,10 @@ export default class Authenticator {
 		// we're interactive, so we either are manual, have an auth code, or starting a web server
 
 		if (opts.code !== undefined) {
-			const accessToken = await this.getToken(opts.code);
+			const { accessToken, account } = await this.getToken(opts.code);
 			return {
 				accessToken,
+				account,
 				userInfo: await this.getUserInfo(accessToken)
 			};
 		}
@@ -510,9 +543,10 @@ export default class Authenticator {
 		});
 
 		// chain the promise to fetch the user info
-		promise = promise.then(async accessToken => {
+		promise = promise.then(async ({ accessToken, account }) => {
 			return {
 				accessToken,
+				account,
 				userInfo: await this.getUserInfo(accessToken)
 			};
 		});
@@ -567,29 +601,5 @@ export default class Authenticator {
 	 */
 	get serverUrl() {
 		return `http://${this.serverHost}:${this.serverPort}`;
-	}
-
-	/**
-	 * Retrieves the user info associated with the access token.
-	 *
-	 * @param {String} accessToken - A non-expired access token.
-	 * @returns {Promise<Object>}
-	 * @access private
-	 */
-	async getUserInfo(accessToken) {
-		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
-
-		const res = await fetch(this.endpoints.userinfo, {
-			headers: {
-				Accept: 'application/json',
-				Authorization: `Bearer ${accessToken}`
-			}
-		});
-
-		if (!res.ok) {
-			throw await this.handleRequestError(res, 'Fetch user info failed');
-		}
-
-		return await res.json();
 	}
 }

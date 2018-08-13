@@ -166,7 +166,8 @@ export default class Auth {
 	 * Defaults to the `interactiveLoginTimeout` property.
 	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
 	 * promise. If `false` it's fulfilled immediately when opening the app.
-	 * @returns {Promise<Authenticator>}
+	 * @returns {Promise<Object>} Resolves an object containing the access token, account email, and
+	 * user info.
 	 * @access public
 	 */
 	async login(opts) {
@@ -198,22 +199,20 @@ export default class Auth {
 	 * @access public
 	 */
 	async revoke({ accounts, baseUrl }) {
-		const revoked = [];
-
-		if (baseUrl) {
-			baseUrl = baseUrl.replace(/^.*\/\//, '');
-		}
+		let revoked = [];
 
 		if (accounts !== 'all' && !Array.isArray(accounts)) {
 			throw E.INVALID_ARGUMENT('Expected accounts to be "all" or a list of accounts');
 		}
 
-		for (const entry of await this.tokenStore.list()) {
-			if ((accounts === 'all' || accounts.includes(entry.email)) && (!baseUrl || entry.baseUrl === baseUrl)) {
-				revoked.push(entry);
+		if (accounts === 'all') {
+			revoked = await this.tokenStore.clear(baseUrl);
+		} else {
+			revoked = await this.tokenStore.delete(accounts, baseUrl);
+		}
 
-				await this.tokenStore.delete(entry.email, entry.baseUrl);
-
+		if (Array.isArray(revoked)) {
+			for (const entry of revoked) {
 				const url = `${getEndpoints(entry).logout}?id_token_hint=${entry.tokens.id_token}`;
 				const res = await fetch(url);
 				if (res.ok) {
@@ -239,7 +238,7 @@ export default class Auth {
 	 * @returns {Promise<Object>}
 	 * @access public
 	 */
-	serverInfo(opts) {
+	serverInfo(opts = {}) {
 		this.applyDefaults(opts);
 
 		let { url } = opts;

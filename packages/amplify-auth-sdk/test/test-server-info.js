@@ -10,8 +10,6 @@ describe('Server Info', () => {
 		this.server = await createLoginServer();
 
 		const auth = new  Auth({
-			username:       'foo',
-			password:       'bar',
 			baseUrl:        'http://127.0.0.1:1337',
 			clientId:       'test_client',
 			realm:          'test_realm',
