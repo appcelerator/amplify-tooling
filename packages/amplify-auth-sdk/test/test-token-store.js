@@ -32,14 +32,7 @@ describe('Token Store', () => {
 	});
 
 	describe('File Token Store', () => {
-		afterEach(function () {
-			if (this.tempFile && fs.existsSync(this.tempFile)) {
-				fs.removeSync(this.tempFile);
-			}
-			this.tempFile = null;
-
-			return stopLoginServer.call(this);
-		});
+		afterEach(stopLoginServer);
 
 		it('should error if token store file path is invalid', () => {
 			expect(() => {
@@ -47,7 +40,7 @@ describe('Token Store', () => {
 					baseUrl:        'http://127.0.0.1:1337',
 					clientId:       'test_client',
 					realm:          'test_realm',
-					tokenStoreType: 'default'
+					tokenStoreType: 'file'
 				});
 			}).to.throw(TypeError, 'File token store requires a token store file path');
 		});
@@ -62,7 +55,7 @@ describe('Token Store', () => {
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreFile,
-				tokenStoreType: 'default'
+				tokenStoreType: 'file'
 			});
 
 			let tokens = await auth.list();
@@ -86,7 +79,7 @@ describe('Token Store', () => {
 			expect(tokens[0].expires.refresh).to.be.ok;
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
-			await auth.revoke({ accounts: [ account ], baseUrl });
+			await auth.revoke(account, { baseUrl });
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -105,7 +98,7 @@ describe('Token Store', () => {
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreFile,
-				tokenStoreType: 'default'
+				tokenStoreType: 'file'
 			});
 
 			let tokens = await auth.list();
@@ -161,7 +154,7 @@ describe('Token Store', () => {
 			expect(tokens[0].expires.refresh).to.be.ok;
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
-			await auth.revoke({ accounts: [ account ], baseUrl });
+			await auth.revoke(account, { baseUrl });
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -217,7 +210,7 @@ describe('Token Store', () => {
 			expect(setCounter).to.equal(1);
 			expect(delCounter).to.equal(0);
 
-			await auth.revoke({ accounts: [ account ], baseUrl });
+			await auth.revoke(account, { baseUrl });
 
 			expect(setCounter).to.equal(1);
 			expect(delCounter).to.equal(1);

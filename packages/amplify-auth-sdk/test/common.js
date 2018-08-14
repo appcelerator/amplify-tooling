@@ -1,3 +1,4 @@
+import fs from 'fs-extra';
 import http from 'http';
 import jws from 'jws';
 import snooplogg from 'snooplogg';
@@ -155,4 +156,9 @@ export async function stopLoginServer() {
 		await this.server.destroy();
 		this.server = null;
 	}
+
+	if (this.tempFile && fs.existsSync(this.tempFile)) {
+		fs.removeSync(this.tempFile);
+	}
+	this.tempFile = null;
 }

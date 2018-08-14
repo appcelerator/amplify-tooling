@@ -45,13 +45,24 @@ export default class TokenStore {
 	}
 
 	/**
-	 * Removes all tokens.
+	 * Removes all tokens. This method is intended to be overwritten.
 	 *
 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
 	async clear(baseUrl) {
+		return { entries: [], removed: [] };
+	}
+
+	/**
+	 * Removes all tokens.
+	 *
+	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise<Array>}
+	 * @access public
+	 */
+	async _clear(baseUrl) {
 		const entries = await this.list();
 
 		if (!baseUrl) {
@@ -81,7 +92,7 @@ export default class TokenStore {
 	}
 
 	/**
-	 * Deletes a token from the store.
+	 * Deletes a token from the store. This method is intended to be overwritten.
 	 *
 	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
  	 * @param {String} [baseUrl] - The base URL used to filter accounts.
@@ -89,6 +100,18 @@ export default class TokenStore {
 	 * @access public
 	 */
 	async delete(accounts, baseUrl) {
+		return [];
+	}
+
+	/**
+	 * Deletes a token from the store.
+	 *
+	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
+ 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise}
+	 * @access public
+	 */
+	async _delete(accounts, baseUrl) {
 		const entries = await this.list();
 		const removed = [];
 
@@ -145,13 +168,13 @@ export default class TokenStore {
 	}
 
 	/**
-	 * Retreives all tokens from the store.
+	 * Retreives all tokens from the store. This method is intended to be overwritten.
 	 *
 	 * @returns {Promise<Array>} Resolves an array of tokens.
 	 * @access public
 	 */
 	async list() {
-		// noop
+		return [];
 	}
 
 	/**
@@ -182,13 +205,24 @@ export default class TokenStore {
 	}
 
 	/**
-	 * Saves account credentials. If exists, the old one is deleted.
+	 * Saves account credentials. This method is intended to be overwritten.
 	 *
 	 * @param {Object} data - The token data.
 	 * @returns {Promise}
 	 * @access private
 	 */
 	async set(data) {
+		// noop
+	}
+
+	/**
+	 * Saves account credentials. If exists, the old one is deleted.
+	 *
+	 * @param {Object} data - The token data.
+	 * @returns {Promise}
+	 * @access private
+	 */
+	async _set(data) {
 		const entries = await this.list();
 
 		for (let i = 0, len = entries.length; i < len; i++) {

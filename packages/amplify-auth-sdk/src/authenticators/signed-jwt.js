@@ -63,16 +63,14 @@ export default class SignedJWT extends Authenticator {
 	}
 
 	/**
-	 * Parameters to include with authentication requests.
+	 * Parameters to base the authenticator hash on.
 	 *
 	 * @type {Object}
 	 * @access private
 	 */
-	get getTokenParams() {
+	get hashParams() {
 		return {
-			clientAssertion:     this.getSignedJWT(),
-			clientAssertionType: JWTAssertion,
-			grantType:           ClientCredentials
+			secret: fs.readFileSync(this.secretFile, 'utf8')
 		};
 	}
 
@@ -90,15 +88,16 @@ export default class SignedJWT extends Authenticator {
 	}
 
 	/**
-	 * Parameters to include with revoke requests.
+	 * Parameters to include with authentication requests.
 	 *
-	 * @type {?Object}
+	 * @type {Object}
 	 * @access private
 	 */
-	// get revokeTokenParams() {
-	// 	return {
-	// 		clientAssertion:     this.getSignedJWT(),
-	// 		clientAssertionType: JWTAssertion,
-	// 	};
-	// }
+	get tokenParams() {
+		return {
+			clientAssertion:     this.getSignedJWT(),
+			clientAssertionType: JWTAssertion,
+			grantType:           ClientCredentials
+		};
+	}
 }

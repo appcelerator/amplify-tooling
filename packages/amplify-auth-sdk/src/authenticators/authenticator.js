@@ -10,7 +10,7 @@ import TokenStore from '../stores/token-store';
 
 import * as server from '../server';
 
-import { renderHTML, stringifyQueryString } from '../util';
+import { md5, renderHTML, stringifyQueryString } from '../util';
 
 const { log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
@@ -40,17 +40,6 @@ export default class Authenticator {
 	 * @access private
 	 */
 	accessType = 'offline';
-
-	/**
-	 * Expiry timestamps for the access and refresh tokens.
-	 *
-	 * @type {Object}
-	 * @access private
-	 */
-	expires = {
-		access: null,
-		refresh: null
-	};
 
 	/**
 	 * Defines if this authentication method is interactive. If `true`, then it will not attempt to
@@ -115,14 +104,6 @@ export default class Authenticator {
 	serverPort = 3000;
 
 	/**
-	 * The tokens returned from the server.
-	 *
-	 * @type {Object}
-	 * @access private
-	 */
-	tokens = {};
-
-	/**
 	 * The store to persist the token.
 	 *
 	 * @type {TokenStore}
@@ -156,6 +137,10 @@ export default class Authenticator {
 	 * @access public
 	 */
 	constructor(opts) {
+		if (!opts || typeof opts !== 'object') {
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
+		}
+
 		// check the environment
 		this.env = opts.env;
 
@@ -254,6 +239,11 @@ export default class Authenticator {
 			}
 			this.tokenStore = opts.tokenStore;
 		}
+
+		this.hash = md5(Object.assign({
+			baseUrl: this.baseUrl,
+			realm:   this.realm
+		}, this.hashParams));
 	}
 
 	/* istanbul ignore next */
@@ -331,19 +321,47 @@ export default class Authenticator {
 			throw E.MISSING_AUTH_CODE('Expected code for interactive authentication to be a non-empty string');
 		}
 
+		let now = Date.now();
+		let expires;
+		let tokens;
+
+		if (this.tokenStore) {
+			log(`Searching for existing tokens: ${this.hash}`);
+			for (const account of await this.tokenStore.list()) {
+				if (account.hash === this.hash) {
+					log('Found account in token store:');
+					log(account);
+
+					expires = account.expires;
+					tokens = account.tokens;
+
+					if (tokens.access_token && expires.access_token > now) {
+						return {
+							accessToken: tokens.access_token,
+							account: account.email
+						};
+					}
+
+					log('Access token is expired, but the refresh token is still good');
+
+					break;
+				}
+			}
+		}
+
 		const params = {
 			clientId: this.clientId
 		};
 
-		if (this.tokens.refresh_token && this.expires.refresh > Date.now()) {
+		if (tokens && tokens.refresh_token && expires.refresh > now) {
 			Object.assign(params, {
 				grantType:    Authenticator.GrantTypes.RefreshToken,
-				refreshToken: this.tokens.refresh_token
+				refreshToken: tokens.refresh_token
 			}, this.refreshTokenParams);
 		} else {
 			Object.assign(params, {
 				scope: this.scope
-			}, this.getTokenParams);
+			}, this.tokenParams);
 		}
 
 		if (this.interactive) {
@@ -369,7 +387,7 @@ export default class Authenticator {
 			throw await this.handleRequestError(res, 'Authentication failed');
 		}
 
-		const tokens = await res.json();
+		tokens = await res.json();
 
 		log(`Authentication successful ${note(`(${res.headers.get('content-type')})`)}`);
 		log(tokens);
@@ -388,14 +406,11 @@ export default class Authenticator {
 				throw new Error();
 			}
 		} catch (e) {
-			throw E.AUTH_FAILED('Authentication failed: invalid server response');
+			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
 		}
 
-		const now = Date.now();
-		this.expires.access  = (tokens.expires_in * 1000) + now;
-		this.expires.refresh = (tokens.refresh_expires_in * 1000) + now;
-
-		this.tokens = tokens;
+		// refresh `now` and set the expiry timestamp
+		now = Date.now();
 
 		// persist the tokens
 		if (this.tokenStore) {
@@ -404,27 +419,20 @@ export default class Authenticator {
 				baseUrl:       this.baseUrl,
 				email,
 				env:           this.env,
-				expires:       this.expires,
+				expires: {
+					access: (tokens.expires_in * 1000) + now,
+					refresh: (tokens.refresh_expires_in * 1000) + now
+				},
+				hash:          this.hash,
 				realm:         this.realm,
-				tokens:        this.tokens
+				tokens
 			});
 		}
 
 		return {
-			accessToken: this.tokens.access_token,
+			accessToken: tokens.access_token,
 			account: email
 		};
-	}
-
-	/* istanbul ignore next */
-	/**
-	 * This property is meant to be overridden by authenticator implementations.
-	 *
-	 * @type {?Object}
-	 * @access private
-	 */
-	get getTokenParams() {
-		return null;
 	}
 
 	/**
@@ -449,6 +457,17 @@ export default class Authenticator {
 		}
 
 		return await res.json();
+	}
+
+	/* istanbul ignore next */
+	/**
+	 * This property is meant to be overridden by authenticator implementations.
+	 *
+	 * @type {?Object}
+	 * @access private
+	 */
+	get hashParams() {
+		return null;
 	}
 
 	/**
@@ -498,26 +517,22 @@ export default class Authenticator {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		if (!this.interactive) {
-			log('Retrieving tokens non-interactively');
-			const { accessToken, account } = await this.getToken();
-			return {
-				accessToken,
-				account,
-				userInfo: await this.getUserInfo(accessToken)
-			};
-		}
-
-		// we're interactive, so we either are manual, have an auth code, or starting a web server
-
-		if (opts.code !== undefined) {
+		if (!this.interactive || opts.code !== undefined) {
+			if (!this.interactive) {
+				log('Retrieving tokens non-interactively');
+			} else {
+				log('Retrieving tokens using auth code');
+			}
 			const { accessToken, account } = await this.getToken(opts.code);
 			return {
 				accessToken,
 				account,
+				authenticator: this,
 				userInfo: await this.getUserInfo(accessToken)
 			};
 		}
+
+		// we're interactive, so we either are manual or starting a web server
 
 		// generate a request id so that we can match up successful callbacks with *this* login()
 		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();
@@ -547,6 +562,7 @@ export default class Authenticator {
 			return {
 				accessToken,
 				account,
+				authenticator: this,
 				userInfo: await this.getUserInfo(accessToken)
 			};
 		});
@@ -582,17 +598,6 @@ export default class Authenticator {
 		return null;
 	}
 
-	/* istanbul ignore next */
-	/**
-	 * This property is meant to be overridden by authenticator implementations.
-	 *
-	 * @type {?Object}
-	 * @access private
-	 */
-	get revokeTokenParams() {
-		return null;
-	}
-
 	/**
 	 * The local HTTP server URL.
 	 *
@@ -601,5 +606,16 @@ export default class Authenticator {
 	 */
 	get serverUrl() {
 		return `http://${this.serverHost}:${this.serverPort}`;
+	}
+
+	/* istanbul ignore next */
+	/**
+	 * This property is meant to be overridden by authenticator implementations.
+	 *
+	 * @type {?Object}
+	 * @access private
+	 */
+	get tokenParams() {
+		return null;
 	}
 }

@@ -29,68 +29,6 @@ describe('Client Secret', () => {
 		});
 	});
 
-	describe('Access Token', async () => {
-		afterEach(stopLoginServer);
-
-		// it('should error getting an access token if not logged in', async function () {
-		// 	const auth = new Auth({
-		// 		clientSecret:   '###',
-		// 		serviceAccount: false,
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.getAccessToken();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
-
-		// it('should error attempting to automatically login and get token', async function () {
-		// 	const auth = new Auth({
-		// 		clientSecret:   '###',
-		// 		serviceAccount: false,
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.getAccessToken(true);
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
-
-		// it('should automatically login when getting the access token', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		clientSecret:   '###',
-		// 		serviceAccount: true,
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	const results = await auth.getAccessToken(true);
-		// 	expect(results).to.equal(this.server.accessToken);
-		// });
-	});
-
 	describe('Login', () => {
 		afterEach(stopLoginServer);
 
@@ -174,7 +112,7 @@ describe('Client Secret', () => {
 				await auth.login({ app: [ 'echo', 'hi' ], timeout: 100 });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication timed out');
+				expect(e.message).to.equal('Authentication failed: Timed out');
 				expect(e.code).to.equal('ERR_AUTH_TIMEOUT');
 				return;
 			}
@@ -495,7 +433,7 @@ describe('Client Secret', () => {
 		// });
 	});
 
-	describe('Logout', () => {
+	describe('Revoke', () => {
 		afterEach(stopLoginServer);
 
 		// it('should log out', async function () {
@@ -573,6 +511,68 @@ describe('Client Secret', () => {
 		// 	});
 		// 	expect(auth.authenticator.tokens).to.deep.equal({});
 		// 	expect(counter).to.equal(0);
+		// });
+	});
+
+	describe('Access Token', async () => {
+		afterEach(stopLoginServer);
+
+		// it('should error getting an access token if not logged in', async function () {
+		// 	const auth = new Auth({
+		// 		clientSecret:   '###',
+		// 		serviceAccount: false,
+		// 		baseUrl:        'http://127.0.0.1:1337',
+		// 		clientId:       'test_client',
+		// 		realm:          'test_realm',
+		// 		tokenStoreType: null
+		// 	});
+		//
+		// 	try {
+		// 		await auth.getAccessToken();
+		// 	} catch (e) {
+		// 		expect(e).to.be.instanceof(Error);
+		// 		expect(e.message).to.equal('Login required');
+		// 		return;
+		// 	}
+		//
+		// 	throw new Error('Expected error');
+		// });
+
+		// it('should error attempting to automatically login and get token', async function () {
+		// 	const auth = new Auth({
+		// 		clientSecret:   '###',
+		// 		serviceAccount: false,
+		// 		baseUrl:        'http://127.0.0.1:1337',
+		// 		clientId:       'test_client',
+		// 		realm:          'test_realm',
+		// 		tokenStoreType: null
+		// 	});
+		//
+		// 	try {
+		// 		await auth.getAccessToken(true);
+		// 	} catch (e) {
+		// 		expect(e).to.be.instanceof(Error);
+		// 		expect(e.message).to.equal('Login required');
+		// 		return;
+		// 	}
+		//
+		// 	throw new Error('Expected error');
+		// });
+
+		// it('should automatically login when getting the access token', async function () {
+		// 	this.server = await createLoginServer();
+		//
+		// 	const auth = new Auth({
+		// 		clientSecret:   '###',
+		// 		serviceAccount: true,
+		// 		baseUrl:        'http://127.0.0.1:1337',
+		// 		clientId:       'test_client',
+		// 		realm:          'test_realm',
+		// 		tokenStoreType: null
+		// 	});
+		//
+		// 	const results = await auth.getAccessToken(true);
+		// 	expect(results).to.equal(this.server.accessToken);
 		// });
 	});
 

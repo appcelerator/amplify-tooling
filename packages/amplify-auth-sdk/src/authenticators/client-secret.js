@@ -46,12 +46,24 @@ export default class ClientSecret extends Authenticator {
 	}
 
 	/**
+	 * Parameters to base the authenticator hash on.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get hashParams() {
+		return {
+			clientSecret: this.clientSecret
+		};
+	}
+
+	/**
 	 * Parameters to include with authentication requests.
 	 *
 	 * @type {Object}
 	 * @access private
 	 */
-	get getTokenParams() {
+	get tokenParams() {
 		return {
 			clientSecret: this.clientSecret,
 			grantType:    this.interactive ? AuthorizationCode : ClientCredentials
@@ -69,16 +81,4 @@ export default class ClientSecret extends Authenticator {
 			clientSecret: this.clientSecret
 		};
 	}
-
-	/**
-	 * Parameters to include with revoke requests.
-	 *
-	 * @type {?Object}
-	 * @access private
-	 */
-	// get revokeTokenParams() {
-	// 	return {
-	// 		clientSecret: this.clientSecret
-	// 	};
-	// }
 }

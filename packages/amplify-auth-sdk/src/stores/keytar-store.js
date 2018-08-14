@@ -34,7 +34,7 @@ export default class KeytarStore extends TokenStore {
 	 * @access public
 	 */
 	async clear(baseUrl) {
-		const { entries, removed } = await super.clear(baseUrl);
+		const { entries, removed } = await super._clear(baseUrl);
 		if (entries.length) {
 			await this.keytar.setPassword(this.service, this.service, this.encode(entries));
 		} else {
@@ -52,7 +52,7 @@ export default class KeytarStore extends TokenStore {
 	 * @access public
 	 */
 	async delete(accounts, baseUrl) {
-		const { entries, removed } = await super.delete(accounts, baseUrl);
+		const { entries, removed } = await super._delete(accounts, baseUrl);
 		if (entries.length) {
 			await this.keytar.setPassword(this.service, this.service, this.encode(entries));
 		} else {
@@ -64,7 +64,7 @@ export default class KeytarStore extends TokenStore {
 	/**
 	 * Retreives all tokens from the store.
 	 *
-	 * @returns {Promise<Object>} Resolves an array of tokens.
+	 * @returns {Promise<Array>} Resolves an array of tokens.
 	 * @access public
 	 */
 	async list() {
@@ -85,7 +85,7 @@ export default class KeytarStore extends TokenStore {
 	 * @access public
 	 */
 	async set(data) {
-		const entries = await super.set(data);
+		const entries = await super._set(data);
 		await this.keytar.setPassword(this.service, this.service, this.encode(entries));
 	}
 }

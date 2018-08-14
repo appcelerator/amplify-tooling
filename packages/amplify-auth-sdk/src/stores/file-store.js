@@ -32,7 +32,7 @@ export default class FileStore extends TokenStore {
 	 * @access public
 	 */
 	async clear(baseUrl) {
-		const { entries, removed } = await super.clear(baseUrl);
+		const { entries, removed } = await super._clear(baseUrl);
 		if (entries.length) {
 			await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
 		} else {
@@ -50,7 +50,7 @@ export default class FileStore extends TokenStore {
 	 * @access public
 	 */
 	async delete(accounts, baseUrl) {
-		const { entries, removed } = await super.delete(accounts, baseUrl);
+		const { entries, removed } = await super._delete(accounts, baseUrl);
 		if (entries.length) {
 			await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
 		} else {
@@ -80,7 +80,7 @@ export default class FileStore extends TokenStore {
 	 * @access public
 	 */
 	async set(data) {
-		const entries = await super.set(data);
+		const entries = await super._set(data);
 		await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
 	}
 }

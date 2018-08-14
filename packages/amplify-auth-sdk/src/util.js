@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import E from './errors';
 import fetch from 'node-fetch';
 import snooplogg from 'snooplogg';
@@ -25,6 +26,16 @@ export async function getServerInfo(url) {
 	}
 
 	return await res.json();
+}
+
+/**
+ * Returns a base64 encoded md5 hash of an object.
+ *
+ * @param {Object} obj - The object to serialize and hash.
+ * @returns {String}
+ */
+export function md5(obj) {
+	return crypto.createHash('md5').update(JSON.stringify(obj)).digest('base64');
 }
 
 /**

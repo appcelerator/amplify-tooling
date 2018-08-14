@@ -1,5 +1,6 @@
-import Auth, { Authenticator, OwnerPassword } from '../dist/index';
+import Auth, { Authenticator, MemoryStore, OwnerPassword } from '../dist/index';
 import jws from 'jws';
+import tmp from 'tmp';
 
 import { createLoginServer, stopLoginServer } from './common';
 
@@ -36,54 +37,31 @@ describe('Owner Password', () => {
 		});
 	});
 
-	describe('Access Token', () => {
-		afterEach(stopLoginServer);
+	describe('Environment', () => {
+		it('should error if env is invalid', async () => {
+			const auth = new Auth({
+				tokenStoreType: null
+			});
 
-		// it('should error getting an access token if not logged in', async function () {
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.getAccessToken();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
+			try {
+				await auth.login({
+					env: 'foo'
+				});
+			} catch (err) {
+				expect(err).to.be.instanceof(Error);
+				expect(err.message).to.equal('Invalid environment: foo');
+				return;
+			}
 
-		// it('should automatically login when getting the access token', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	const results = await auth.getAccessToken(true);
-		// 	expect(results).to.equal(this.server.accessToken);
-		// });
+			throw new Error('Expected error');
+		});
 	});
 
 	describe('Login', () => {
 		afterEach(stopLoginServer);
 
-		it('should error if login options is not an object', async function () {
+		it('should error if login options is not an object', async () => {
 			const auth = new Auth({
-				username:       'foo',
-				password:       'bar',
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
@@ -101,350 +79,388 @@ describe('Owner Password', () => {
 			throw new Error('Expected error');
 		});
 
-		// it('should error if server is unreachable', async function () {
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.login();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.match(/^request to .+ failed,/i);
-		// 		expect(e.code).to.equal('ECONNREFUSED');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
+		it('should error if server is unreachable', async function () {
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
+			});
 
-		// it('should error if username/password is incorrect', async function () {
-		// 	this.server = await createLoginServer({
-		// 		handler(req, res) {
-		// 			res.writeHead(401, { 'Content-Type': 'text/plain' });
-		// 			res.end('Unauthorized');
-		// 		}
-		// 	});
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.login();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Unauthorized');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
+			try {
+				await auth.login({
+					username: 'foo',
+					password: 'bar'
+				});
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.match(/^request to .+ failed,/i);
+				expect(e.code).to.equal('ECONNREFUSED');
+				return;
+			}
 
-		// it('should error if server returns an invalid user identity', async function () {
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	this.server = await createLoginServer({
-		// 		handler(req, res) {
-		// 			res.writeHead(200, { 'Content-Type': 'application/json' });
-		// 			res.end(JSON.stringify({
-		// 				access_token: jws.sign({
-		// 					header: { alg: 'HS256' },
-		// 					payload: '{"email":""}',
-		// 					secret: 'secret'
-		// 				}),
-		// 				refresh_token:      'bar',
-		// 				expires_in:         600,
-		// 				refresh_expires_in: 600
-		// 			}));
-		// 		}
-		// 	});
-		//
-		// 	try {
-		// 		await auth.login();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Authentication failed: invalid response from server');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
+			throw new Error('Expected error');
+		});
 
-		// it('should authenticate and return the access token', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	let results = await auth.login();
-		// 	const { accessToken } = this.server;
-		// 	expect(results.accessToken).to.equal(accessToken);
-		//
-		// 	// stop the web server to prove subsequent logins don't make requests
-		// 	await stopLoginServer.call(this);
-		//
-		// 	results = await auth.login();
-		// 	expect(results.accessToken).to.equal(accessToken);
-		//
-		// 	expect(auth.authenticator.email).to.equal('foo@bar.com');
-		// });
+		it('should error if username/password is incorrect', async function () {
+			this.server = await createLoginServer({
+				handler(req, res) {
+					res.writeHead(401, { 'Content-Type': 'text/plain' });
+					res.end('Unauthorized');
+				}
+			});
 
-		// it('should refresh the access token', async function () {
-		// 	this.slow(4000);
-		// 	this.timeout(5000);
-		//
-		// 	let counter = 0;
-		//
-		// 	this.server = await createLoginServer({
-		// 		expiresIn: 1,
-		// 		token(post) {
-		// 			switch (++counter) {
-		// 				case 1:
-		// 					expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
-		// 					expect(post.username).to.equal('foo');
-		// 					expect(post.password).to.equal('bar');
-		// 					break;
-		//
-		// 				case 2:
-		// 					expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
-		// 					break;
-		// 			}
-		// 		}
-		// 	});
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	let results = await auth.login();
-		// 	const { accessToken } = this.server;
-		// 	expect(results.accessToken).to.equal(accessToken);
-		//
-		// 	await new Promise(resolve => setTimeout(resolve, 1500));
-		//
-		// 	results = await auth.login();
-		// 	expect(results.accessToken).to.not.equal(accessToken);
-		// 	expect(results.accessToken).to.equal(this.server.accessToken);
-		// });
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
+			});
+
+			try {
+				await auth.login({
+					username: 'foo',
+					password: 'bar'
+				});
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.equal('Authentication failed: Unauthorized');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
+
+		it('should error if server returns an invalid user identity', async function () {
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
+			});
+
+			this.server = await createLoginServer({
+				handler(req, res) {
+					res.writeHead(200, { 'Content-Type': 'application/json' });
+					res.end(JSON.stringify({
+						access_token: jws.sign({
+							header: { alg: 'HS256' },
+							payload: '{"email":""}',
+							secret: 'secret'
+						}),
+						refresh_token:      'bar',
+						expires_in:         600,
+						refresh_expires_in: 600
+					}));
+				}
+			});
+
+			try {
+				await auth.login({
+					username: 'foo',
+					password: 'bar'
+				});
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.equal('Authentication failed: Invalid server response');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
+
+		it('should authenticate and return the access token', async function () {
+			this.server = await createLoginServer();
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
+			});
+
+			let results = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
+			const { accessToken } = this.server;
+			expect(results.accessToken).to.equal(accessToken);
+			expect(results.account).to.equal('foo@bar.com');
+		});
+
+		it('should refresh the access token', async function () {
+			this.slow(4000);
+			this.timeout(5000);
+
+			let counter = 0;
+
+			this.server = await createLoginServer({
+				expiresIn: 1,
+				token(post) {
+					switch (++counter) {
+						case 1:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
+							expect(post.username).to.equal('foo');
+							expect(post.password).to.equal('bar');
+							break;
+
+						case 2:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
+							break;
+					}
+				}
+			});
+
+			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreFile,
+				tokenStoreType: 'file'
+			});
+
+			let results = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
+			const { accessToken } = this.server;
+			expect(results.accessToken).to.equal(accessToken);
+
+			await new Promise(resolve => setTimeout(resolve, 1500));
+
+			results = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
+			expect(results.accessToken).to.not.equal(accessToken);
+			expect(results.accessToken).to.equal(this.server.accessToken);
+		});
+
+		it('should handle bad user info response', async function () {
+			this.server = await createLoginServer({
+				userinfo(post, req, res) {
+					res.writeHead(200, { 'Content-Type': 'text/plain' });
+					res.end('{{{{{{');
+					return true;
+				}
+			});
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
+			});
+
+			try {
+				await auth.login({
+					username: 'foo',
+					password: 'bar'
+				});
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.match(/^invalid json response body at /i);
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
 	});
 
-	describe('Logout', () => {
+	describe('Get Account', () => {
 		afterEach(stopLoginServer);
 
-		// it('should log out', async function () {
-		// 	let counter = 0;
-		//
-		// 	this.server = await createLoginServer({
-		// 		expiresIn: 10,
-		// 		token(post) {
-		// 			switch (++counter) {
-		// 				case 1:
-		// 					expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
-		// 					expect(post.username).to.equal('foo');
-		// 					expect(post.password).to.equal('bar');
-		// 					break;
-		//
-		// 				case 2:
-		// 					expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
-		// 					expect(post.refresh_token).to.equal(this.server.refreshToken);
-		// 					break;
-		// 			}
-		// 		},
-		// 		logout(post) {
-		// 			expect(post.refresh_token).to.equal('bar2');
-		// 		}
-		// 	});
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	await auth.login();
-		//
-		// 	expect(auth.authenticator.email).to.equal('foo@bar.com');
-		// 	expect(auth.authenticator.expires.access).to.not.be.null;
-		// 	expect(auth.authenticator.expires.refresh).to.not.be.null;
-		//
-		// 	await auth.logout();
-		//
-		// 	expect(auth.authenticator.email).to.be.null;
-		// 	expect(auth.authenticator.expires).to.deep.equal({
-		// 		access: null,
-		// 		refresh: null
-		// 	});
-		// 	expect(auth.authenticator.tokens).to.deep.equal({});
-		// });
+		it('should return null if not logged in', async function () {
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
+			});
 
-		// it('should not error logging out if not logged in', async function () {
-		// 	let counter = 0;
-		//
-		// 	this.server = await createLoginServer({
-		// 		logout(post) {
-		// 			counter++;
-		// 			expect(post.refresh_token).to.be.ok;
-		// 		}
-		// 	});
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	await auth.logout();
-		//
-		// 	expect(auth.authenticator.email).to.be.null;
-		// 	expect(auth.authenticator.expires).to.deep.equal({
-		// 		access: null,
-		// 		refresh: null
-		// 	});
-		// 	expect(auth.authenticator.tokens).to.deep.equal({});
-		// 	expect(counter).to.equal(0);
-		// });
+			const account = await auth.getAccount({ account: 'foo@bar.com' });
+			expect(account).to.be.null;
+		});
+
+		it('should get account info once logged in', async function () {
+			this.server = await createLoginServer();
+
+			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreFile,
+				tokenStoreType: 'file'
+			});
+
+			let results = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
+
+			const account = await auth.getAccount({ account: 'foo@bar.com' });
+			expect(account).to.be.ok;
+			expect(account.email).to.equal(results.userInfo.email);
+		});
 	});
 
-	describe('User Info', () => {
+	describe('Revoke', () => {
 		afterEach(stopLoginServer);
 
-		// it('should error if not logged in', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.userInfo();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
+		it('should log out', async function () {
+			let counter = 0;
 
-		// it('should error if logging in interactively', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.userInfo(true);
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
+			this.server = await createLoginServer({
+				expiresIn: 10,
+				token(post) {
+					switch (++counter) {
+						case 1:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
+							expect(post.username).to.equal('foo');
+							expect(post.password).to.equal('bar');
+							break;
 
-		// it('should get user info', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	await auth.login({ code: 'foo' });
-		//
-		// 	let info = await auth.userInfo();
-		// 	expect(info).to.deep.equal({
-		// 		name: 'tester2',
-		// 		email: 'foo@bar.com'
-		// 	});
-		//
-		// 	info = await auth.userInfo();
-		// 	expect(info).to.deep.equal({
-		// 		name: 'tester3',
-		// 		email: 'foo@bar.com'
-		// 	});
-		// });
+						case 2:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
+							expect(post.refresh_token).to.equal(this.server.refreshToken);
+							break;
+					}
+				},
+				logout(post) {
+					expect(post.refresh_token).to.equal('bar2');
+				}
+			});
 
-		// it('should handle bad user info response', async function () {
-		// 	this.server = await createLoginServer({
-		// 		userinfo(post, req, res) {
-		// 			res.writeHead(200, { 'Content-Type': 'text/plain' });
-		// 			res.end('{{{{{{');
-		// 			return true;
-		// 		}
-		// 	});
-		//
-		// 	const auth = new Auth({
-		// 		username:       'foo',
-		// 		password:       'bar',
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	await auth.login({ code: 'foo' });
-		//
-		// 	try {
-		// 		await auth.userInfo();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.match(/^invalid json response body at /i);
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: 'memory'
+			});
+
+			const { account, authenticator } = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
+			expect(account).to.equal('foo@bar.com');
+
+			const revoked = await auth.revoke(account);
+			expect(revoked).to.have.lengthOf(1);
+		});
+
+		it('should log out of all accounts', async function () {
+			let counter = 0;
+
+			this.server = await createLoginServer({
+				expiresIn: 10,
+				token(post) {
+					switch (++counter) {
+						case 1:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
+							expect(post.username).to.equal('foo');
+							expect(post.password).to.equal('bar');
+							break;
+
+						case 2:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
+							expect(post.refresh_token).to.equal(this.server.refreshToken);
+							break;
+					}
+				},
+				logout(post) {
+					expect(post.refresh_token).to.equal('bar2');
+				}
+			});
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: 'memory'
+			});
+
+			const { account, authenticator } = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
+			expect(account).to.equal('foo@bar.com');
+
+			const revoked = await auth.revoke('all');
+			expect(revoked).to.have.lengthOf(1);
+		});
+
+		it('should not error logging out if not logged in', async function () {
+			let deleteCounter = 0;
+			let requestCounter = 0;
+
+			this.server = await createLoginServer({
+				logout(post) {
+					requestCounter++;
+					expect(post.refresh_token).to.be.ok;
+				}
+			});
+
+			class Foo extends MemoryStore {
+				async clear(...args) {
+					deleteCounter++;
+					return await super.clear(...args);
+				}
+
+				async delete(...args) {
+					deleteCounter++;
+					return await super.delete(...args);
+				}
+			}
+
+			const auth = new Auth({
+				baseUrl:    'http://127.0.0.1:1337',
+				clientId:   'test_client',
+				realm:      'test_realm',
+				tokenStore: new Foo()
+			});
+
+			const revoked = await auth.revoke('foo@bar.com');
+			expect(revoked).to.have.lengthOf(0);
+			expect(deleteCounter).to.equal(1);
+			expect(requestCounter).to.equal(0);
+		});
+
+		it('should not error logging out with empty list of accounts', async function () {
+			let deleteCounter = 0;
+			let requestCounter = 0;
+
+			this.server = await createLoginServer({
+				logout(post) {
+					requestCounter++;
+					expect(post.refresh_token).to.be.ok;
+				}
+			});
+
+			class Foo extends MemoryStore {
+				async clear(...args) {
+					deleteCounter++;
+					return await super.clear(...args);
+				}
+
+				async delete(...args) {
+					deleteCounter++;
+					return await super.delete(...args);
+				}
+			}
+
+			const auth = new Auth({
+				baseUrl:    'http://127.0.0.1:1337',
+				clientId:   'test_client',
+				realm:      'test_realm',
+				tokenStore: new Foo()
+			});
+
+			const revoked = await auth.revoke([]);
+			expect(revoked).to.have.lengthOf(0);
+			expect(deleteCounter).to.equal(0);
+			expect(requestCounter).to.equal(0);
+		});
 	});
 });

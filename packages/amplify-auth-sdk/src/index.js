@@ -13,6 +13,7 @@ import SignedJWT from './authenticators/signed-jwt';
 
 import FileStore from './stores/file-store';
 import KeytarStore from './stores/keytar-store';
+import MemoryStore from './stores/memory-store';
 import TokenStore from './stores/token-store';
 
 import environments from './environments';
@@ -56,9 +57,9 @@ export default class Auth {
 	 * @param {String} [opts.tokenStoreFile] - The path to the file-based token store.
 	 * @param {String} [opts.tokenStoreType=auto] - The type of store to persist the access token.
 	 * Possible values include: `auto` (which tries to use the `keytar` store, but falls back to the
-	 * default store), `keytar` to use the operating system's secure storage mechanism (or errors if
-	 * keytar is not installed), or `default` to use the built-in store. If `null`, it will not
-	 * persist the access token.
+	 * `file` store), `keytar` to use the operating system's secure storage mechanism (or errors if
+	 * keytar is not installed), `file` to use a file-based store, or `memory` for an in-memory
+	 * store. If `null`, it will not persist the access token.
 	 * @access public
 	 */
 	constructor(opts = {}) {
@@ -93,9 +94,13 @@ export default class Auth {
 						// let 'auto' fall through
 					}
 
-				case 'default':
-					// default file store
+				case 'file':
 					this.tokenStore = new FileStore(opts);
+					break;
+
+				case 'memory':
+					this.tokenStore = new MemoryStore(opts);
+					break;
 			}
 		}
 	}
@@ -131,11 +136,11 @@ export default class Auth {
 	 * @param {Object} params - Required parameters.
 	 * @param {Boolean} params.account - The account name to retrieve.
 	 * @param {String} [params.baseUrl] - The base URL.
-	 * @returns {Promise<Object>}
+	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
 	getAccount({ account, baseUrl }) {
-		return this.tokenStore.get(account, baseUrl || this.baseUrl);
+		return this.tokenStore ? this.tokenStore.get(account, baseUrl || this.baseUrl) : null;
 	}
 
 	/**
@@ -170,7 +175,7 @@ export default class Auth {
 	 * user info.
 	 * @access public
 	 */
-	async login(opts) {
+	async login(opts = {}) {
 		this.applyDefaults(opts);
 
 		// create the authenticator
@@ -191,22 +196,32 @@ export default class Auth {
 	/**
 	 * Revokes all or specific authenticated accounts.
 	 *
-	 * @param {Object} params - Required parameters.
-	 * @param {String|Array.<String>} params.accounts - The word `all` or a list of accounts (email
+	 * @param {String|Array.<String>} accounts - The word `all` or a list of accounts (email
 	 * addresses).
+	 * @param {Object} params - Required parameters.
 	 * @param {String} [params.baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>} Returns a list of revoked credentials.
 	 * @access public
 	 */
-	async revoke({ accounts, baseUrl }) {
-		let revoked = [];
+	async revoke(accounts, { baseUrl } = {}) {
+		if (!this.tokenStore) {
+			log('No token store, returning empty array');
+			return [];
+		}
 
-		if (accounts !== 'all' && !Array.isArray(accounts)) {
+		if (accounts === 'all' || Array.isArray(accounts)) {
+			// do nothing
+		} else if (accounts) {
+			accounts = [ accounts ];
+		} else {
 			throw E.INVALID_ARGUMENT('Expected accounts to be "all" or a list of accounts');
 		}
 
+		let revoked = [];
 		if (accounts === 'all') {
 			revoked = await this.tokenStore.clear(baseUrl);
+		} else if (!accounts.length) {
+			return revoked;
 		} else {
 			revoked = await this.tokenStore.delete(accounts, baseUrl);
 		}
@@ -238,7 +253,7 @@ export default class Auth {
 	 * @returns {Promise<Object>}
 	 * @access public
 	 */
-	serverInfo(opts = {}) {
+	async serverInfo(opts = {}) {
 		this.applyDefaults(opts);
 
 		let { url } = opts;
@@ -247,7 +262,7 @@ export default class Auth {
 			url = getEndpoints(opts).wellKnown;
 		}
 
-		return getServerInfo(url);
+		return await getServerInfo(url);
 	}
 }
 
@@ -262,7 +277,11 @@ export {
 
 	FileStore,
 	KeytarStore,
+	MemoryStore,
 	TokenStore,
 
+	environments,
+	getEndpoints,
+	getServerInfo,
 	server
 };

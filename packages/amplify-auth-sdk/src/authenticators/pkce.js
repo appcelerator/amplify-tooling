@@ -56,7 +56,7 @@ export default class PKCE extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get getTokenParams() {
+	get tokenParams() {
 		return {
 			codeVerifier: this.codeVerifier,
 			grantType:    Authenticator.GrantTypes.AuthorizationCode

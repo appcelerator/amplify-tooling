@@ -33,12 +33,25 @@ export default class OwnerPassword extends Authenticator {
 	}
 
 	/**
+	 * Parameters to base the authenticator hash on.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get hashParams() {
+		return {
+			username: this.username,
+			password: this.password
+		};
+	}
+
+	/**
 	 * Parameters to include with authentication requests.
 	 *
 	 * @type {?Object}
 	 * @access private
 	 */
-	get getTokenParams() {
+	get tokenParams() {
 		return {
 			grantType: Authenticator.GrantTypes.Password,
 			username:  this.username,

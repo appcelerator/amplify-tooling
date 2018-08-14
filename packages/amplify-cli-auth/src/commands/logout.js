@@ -33,10 +33,8 @@ export default {
 			tokenStoreType
 		});
 
-		const revoked = await client.revoke({
-			accounts: argv.all ? 'all' : argv.accounts,
-			baseUrl: argv.baseUrl
-		});
+		const accounts = argv.all ? 'all' : argv.accounts;
+		const revoked = await client.revoke(accounts, argv);
 
 		// pretty output
 		if (revoked.length) {

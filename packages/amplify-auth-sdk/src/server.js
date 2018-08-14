@@ -117,7 +117,7 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 			if (request) {
 				log(`Request ${highlight(requestId)} timed out`);
 				pending.delete(requestId);
-				request.reject(E.AUTH_TIMEOUT('Authentication timed out'));
+				request.reject(E.AUTH_TIMEOUT('Authentication failed: Timed out'));
 			}
 			stop(false, serverId);
 		}
