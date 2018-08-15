@@ -162,7 +162,7 @@ describe('Owner Password', () => {
 				});
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: Invalid server response');
+				expect(e.message).to.equal('Authentication failed: Account has no email address');
 				return;
 			}
 
@@ -185,7 +185,7 @@ describe('Owner Password', () => {
 			});
 			const { accessToken } = this.server;
 			expect(results.accessToken).to.equal(accessToken);
-			expect(results.account).to.equal('foo@bar.com');
+			expect(results.accountName).to.equal('foo@bar.com');
 		});
 
 		it('should refresh the access token', async function () {
@@ -302,7 +302,7 @@ describe('Owner Password', () => {
 
 			const account = await auth.getAccount({ account: 'foo@bar.com' });
 			expect(account).to.be.ok;
-			expect(account.email).to.equal(results.userInfo.email);
+			expect(account.name).to.equal(results.userInfo.email);
 		});
 	});
 
@@ -340,13 +340,13 @@ describe('Owner Password', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { account, authenticator } = await auth.login({
+			const { accountName, authenticator } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
-			expect(account).to.equal('foo@bar.com');
+			expect(accountName).to.equal('foo@bar.com');
 
-			const revoked = await auth.revoke(account);
+			const revoked = await auth.revoke({ accounts: accountName });
 			expect(revoked).to.have.lengthOf(1);
 		});
 
@@ -381,13 +381,13 @@ describe('Owner Password', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { account, authenticator } = await auth.login({
+			const { accountName, authenticator } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
-			expect(account).to.equal('foo@bar.com');
+			expect(accountName).to.equal('foo@bar.com');
 
-			const revoked = await auth.revoke('all');
+			const revoked = await auth.revoke({ all: true });
 			expect(revoked).to.have.lengthOf(1);
 		});
 
@@ -421,7 +421,7 @@ describe('Owner Password', () => {
 				tokenStore: new Foo()
 			});
 
-			const revoked = await auth.revoke('foo@bar.com');
+			const revoked = await auth.revoke({ accounts: [ 'foo@bar.com' ] });
 			expect(revoked).to.have.lengthOf(0);
 			expect(deleteCounter).to.equal(1);
 			expect(requestCounter).to.equal(0);
@@ -457,7 +457,7 @@ describe('Owner Password', () => {
 				tokenStore: new Foo()
 			});
 
-			const revoked = await auth.revoke([]);
+			const revoked = await auth.revoke({ accounts: [] });
 			expect(revoked).to.have.lengthOf(0);
 			expect(deleteCounter).to.equal(0);
 			expect(requestCounter).to.equal(0);

@@ -313,7 +313,7 @@ export default class Authenticator {
 	 * @param {String} [code] - When present, adds the code to the payload along with a redirect
 	 * URL.
 	 * @param {String} [requestId] - Used to construct the redirect URI when using the `code`.
-	 * @returns {Promise<Object>} Resolves an object containing the access token and account email.
+	 * @returns {Promise<Object>} Resolves an object containing the access token and account name.
 	 * @access public
 	 */
 	async getToken(code, requestId) {
@@ -327,18 +327,18 @@ export default class Authenticator {
 
 		if (this.tokenStore) {
 			log(`Searching for existing tokens: ${this.hash}`);
-			for (const account of await this.tokenStore.list()) {
-				if (account.hash === this.hash) {
+			for (const entry of await this.tokenStore.list()) {
+				if (entry.hash === this.hash) {
 					log('Found account in token store:');
-					log(account);
+					log(entry);
 
-					expires = account.expires;
-					tokens = account.tokens;
+					expires = entry.expires;
+					tokens = entry.tokens;
 
 					if (tokens.access_token && expires.access_token > now) {
 						return {
 							accessToken: tokens.access_token,
-							account: account.email
+							account: entry.account
 						};
 					}
 
@@ -392,7 +392,7 @@ export default class Authenticator {
 		log(`Authentication successful ${note(`(${res.headers.get('content-type')})`)}`);
 		log(tokens);
 
-		let email;
+		let accountName;
 
 		try {
 			const info = jws.decode(tokens.id_token || tokens.access_token);
@@ -400,13 +400,14 @@ export default class Authenticator {
 				info.payload = JSON.parse(info.payload);
 			}
 			log(info);
-			email = info.payload.email.trim();
-			if (!email) {
-				// trigger the catch
-				throw new Error();
-			}
+			accountName = info.payload.email.trim();
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
+		}
+
+		if (!accountName) {
+			// trigger the catch
+			throw E.AUTH_FAILED('Authentication failed: Account has no email address');
 		}
 
 		// refresh `now` and set the expiry timestamp
@@ -417,13 +418,13 @@ export default class Authenticator {
 			await this.tokenStore.set({
 				authenticator: this.constructor.name,
 				baseUrl:       this.baseUrl,
-				email,
 				env:           this.env,
 				expires: {
 					access: (tokens.expires_in * 1000) + now,
 					refresh: (tokens.refresh_expires_in * 1000) + now
 				},
 				hash:          this.hash,
+				name:          accountName,
 				realm:         this.realm,
 				tokens
 			});
@@ -431,7 +432,7 @@ export default class Authenticator {
 
 		return {
 			accessToken: tokens.access_token,
-			account: email
+			accountName
 		};
 	}
 
@@ -508,25 +509,21 @@ export default class Authenticator {
 	 * Defaults to the `interactiveLoginTimeout` property.
 	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
 	 * promise. If `false` it's fulfilled immediately when opening the app.
-	 * @returns {Promise<Object>} Resolves an object containing the access token, account email, and
+	 * @returns {Promise<Object>} Resolves an object containing the access token, account name, and
 	 * user info.
 	 * @access public
 	 */
 	async login(opts = {}) {
-		if (typeof opts !== 'object') {
-			throw E.INVALID_ARGUMENT('Expected options to be an object');
-		}
-
 		if (!this.interactive || opts.code !== undefined) {
 			if (!this.interactive) {
 				log('Retrieving tokens non-interactively');
 			} else {
 				log('Retrieving tokens using auth code');
 			}
-			const { accessToken, account } = await this.getToken(opts.code);
+			const { accessToken, accountName } = await this.getToken(opts.code);
 			return {
 				accessToken,
-				account,
+				accountName,
 				authenticator: this,
 				userInfo: await this.getUserInfo(accessToken)
 			};
@@ -558,10 +555,10 @@ export default class Authenticator {
 		});
 
 		// chain the promise to fetch the user info
-		promise = promise.then(async ({ accessToken, account }) => {
+		promise = promise.then(async ({ accessToken, accountName }) => {
 			return {
 				accessToken,
-				account,
+				accountName,
 				authenticator: this,
 				userInfo: await this.getUserInfo(accessToken)
 			};

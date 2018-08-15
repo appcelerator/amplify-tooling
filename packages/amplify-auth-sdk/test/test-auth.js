@@ -1,11 +1,7 @@
 import Auth from '../dist/index';
-import fetch from 'node-fetch';
-import snooplogg from 'snooplogg';
 
 import { createLoginServer, stopLoginServer } from './common';
 import { serverInfo } from './server-info';
-
-const { log } = snooplogg('test:amplify-auth:auth');
 
 describe('Auth', () => {
 	describe('Constructor', () => {

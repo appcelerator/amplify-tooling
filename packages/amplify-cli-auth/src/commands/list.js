@@ -17,31 +17,31 @@ export default {
 
 		const active = config.get('auth.account');
 		const client = new auth.Auth(params);
-		const tokens = await client.list();
+		const accounts = await client.list();
 
-		for (const token of tokens) {
-			token.active = token.email === active;
+		for (const account of accounts) {
+			account.active = account.name === active;
 		}
 
 		if (argv.json) {
-			console.log(JSON.stringify(tokens, null, '  '));
+			console.log(JSON.stringify(accounts, null, '  '));
 			return;
 		}
 
-		if (!tokens.length) {
+		if (!accounts.length) {
 			console.log('No authenticated accounts.');
 			return;
 		}
 
-		console.log('| Active | Account | Expires | Auth Type | Environment |');
-		console.log('| ------ | ------- | ------- | --------- | ----------- |');
+		console.log('| Active | Account Name | Expires | Auth Type | Environment |');
+		console.log('| ------ | ------------ | ------- | --------- | ----------- |');
 
 		const now = Date.now();
 		const pretty = require('pretty-ms');
 		const urlRE = /^.*\/\//;
 
-		for (const token of tokens) {
-			console.log(`| ${token.active ? ':check:' : ' '} | ${token.email} | ${pretty(token.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} | ${token.authenticator} | ${token.baseUrl.replace(urlRE, '')} |`);
+		for (const account of accounts) {
+			console.log(`| ${account.active ? ':check:' : ' '} | ${account.name} | ${pretty(account.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} | ${account.authenticator} | ${account.baseUrl.replace(urlRE, '')} |`);
 		}
 	}
 };

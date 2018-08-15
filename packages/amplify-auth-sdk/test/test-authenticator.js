@@ -217,5 +217,25 @@ describe('Auth', () => {
 				});
 			}).to.throw(TypeError, 'Expected messages to be an object');
 		});
+
+		it('should error if tokenStore is not a TokenStore', () => {
+			expect(() => {
+				new Authenticator({
+					baseUrl:    'http://127.0.0.1:1337',
+					clientId:   'test_client',
+					realm:      'test_realm',
+					tokenStore: 'foo'
+				});
+			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
+
+			expect(() => {
+				new Authenticator({
+					baseUrl:    'http://127.0.0.1:1337',
+					clientId:   'test_client',
+					realm:      'test_realm',
+					tokenStore: {}
+				});
+			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
+		});
 	});
 });

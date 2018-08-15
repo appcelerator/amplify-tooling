@@ -1,7 +1,11 @@
 import E from '../errors';
 import fs from 'fs-extra';
 import path from 'path';
+import snooplogg from 'snooplogg';
 import TokenStore from './token-store';
+
+const { log } = snooplogg('amplify-auth:file-store');
+const { highlight } = snooplogg.styles;
 
 /**
  * A file-based token store.
@@ -36,6 +40,7 @@ export default class FileStore extends TokenStore {
 		if (entries.length) {
 			await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
 		} else {
+			log(`Deleting empty token file: ${highlight(this.tokenStoreFile)}`);
 			await fs.remove(this.tokenStoreFile);
 		}
 		return removed;
@@ -54,6 +59,7 @@ export default class FileStore extends TokenStore {
 		if (entries.length) {
 			await fs.outputFile(this.tokenStoreFile, this.encode(entries), { mode: 384 /* 600 */ });
 		} else {
+			log(`Deleting empty token file: ${highlight(this.tokenStoreFile)}`);
 			await fs.remove(this.tokenStoreFile);
 		}
 		return removed;

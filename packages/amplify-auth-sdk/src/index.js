@@ -67,10 +67,11 @@ export default class Auth {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		this.baseUrl    = opts.baseUrl;
-		this.clientId   = opts.clientId;
-		this.env        = opts.env;
-		this.realm      = opts.realm;
+		this.baseUrl  = opts.baseUrl;
+		this.clientId = opts.clientId;
+		this.env      = opts.env;
+		this.messages = opts.messages;
+		this.realm    = opts.realm;
 
 		if (opts.tokenStore) {
 			if (!(opts.tokenStore instanceof TokenStore)) {
@@ -125,8 +126,32 @@ export default class Auth {
 		opts.baseUrl    = opts.baseUrl || this.baseUrl || environments[env].baseUrl;
 		opts.clientId   = opts.clientId || this.clientId;
 		opts.env        = env;
+		opts.messages   = opts.messages || this.messages;
 		opts.tokenStore = this.tokenStore;
 		opts.realm      = opts.realm || this.realm;
+	}
+
+	/**
+	 * Creates an authetnicator based on the supplied options.
+	 *
+	 * @param {Object} [opts] - Various options.
+	 * @returns {Authenticator}
+	 * @access public
+	 */
+	createAuthenticator(opts) {
+		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
+			return new OwnerPassword(opts);
+		}
+
+		if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
+			return new ClientSecret(opts);
+		}
+
+		if (typeof opts.secretFile === 'string' && opts.secretFile) {
+			return new SignedJWT(opts);
+		}
+
+		return new PKCE(opts);
 	}
 
 	/**
@@ -134,13 +159,21 @@ export default class Auth {
 	 * yet authenticated with the server, an error is thrown.
 	 *
 	 * @param {Object} params - Required parameters.
-	 * @param {Boolean} params.account - The account name to retrieve.
+	 * @param {String} params.accountName - The account name to retrieve.
 	 * @param {String} [params.baseUrl] - The base URL.
+	 * @param {String} [params.hash] - The authenticator hash.
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
-	getAccount({ account, baseUrl }) {
-		return this.tokenStore ? this.tokenStore.get(account, baseUrl || this.baseUrl) : null;
+	async getAccount(params = {}) {
+		if (!this.tokenStore) {
+			log('Cannot get account, no token store');
+			return null;
+		}
+
+		this.applyDefaults(params);
+		params.hash = this.createAuthenticator(params).hash;
+		return await this.tokenStore.get(params);
 	}
 
 	/**
@@ -171,57 +204,42 @@ export default class Auth {
 	 * Defaults to the `interactiveLoginTimeout` property.
 	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
 	 * promise. If `false` it's fulfilled immediately when opening the app.
-	 * @returns {Promise<Object>} Resolves an object containing the access token, account email, and
+	 * @returns {Promise<Object>} Resolves an object containing the access token, account name, and
 	 * user info.
 	 * @access public
 	 */
 	async login(opts = {}) {
 		this.applyDefaults(opts);
-
-		// create the authenticator
-		let authenticator;
-		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
-			authenticator = new OwnerPassword(opts);
-		} else if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
-			authenticator = new ClientSecret(opts);
-		} else if (typeof opts.secretFile === 'string' && opts.secretFile) {
-			authenticator = new SignedJWT(opts);
-		} else {
-			authenticator = new PKCE(opts);
-		}
-
-		return await authenticator.login(opts);
+		return await this.createAuthenticator(opts).login(opts);
 	}
 
 	/**
 	 * Revokes all or specific authenticated accounts.
 	 *
-	 * @param {String|Array.<String>} accounts - The word `all` or a list of accounts (email
-	 * addresses).
 	 * @param {Object} params - Required parameters.
+	 * @param {Array.<String>|String} params.accounts - A list of accounts names.
+	 * @param {Boolean} params.all - When `true`, revokes all accounts.
 	 * @param {String} [params.baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>} Returns a list of revoked credentials.
 	 * @access public
 	 */
-	async revoke(accounts, { baseUrl } = {}) {
+	async revoke({ accounts, all, baseUrl } = {}) {
 		if (!this.tokenStore) {
 			log('No token store, returning empty array');
 			return [];
 		}
 
-		if (accounts === 'all' || Array.isArray(accounts)) {
-			// do nothing
-		} else if (accounts) {
-			accounts = [ accounts ];
-		} else {
+		if (!all && typeof accounts !== 'string' && !Array.isArray(accounts)) {
 			throw E.INVALID_ARGUMENT('Expected accounts to be "all" or a list of accounts');
 		}
 
-		let revoked = [];
-		if (accounts === 'all') {
+		if (!all && !accounts.length) {
+			return [];
+		}
+
+		let revoked;
+		if (all) {
 			revoked = await this.tokenStore.clear(baseUrl);
-		} else if (!accounts.length) {
-			return revoked;
 		} else {
 			revoked = await this.tokenStore.delete(accounts, baseUrl);
 		}
@@ -231,9 +249,9 @@ export default class Auth {
 				const url = `${getEndpoints(entry).logout}?id_token_hint=${entry.tokens.id_token}`;
 				const res = await fetch(url);
 				if (res.ok) {
-					log(`Successfully logged out ${highlight(entry.email)} ${magenta(res.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
+					log(`Successfully logged out ${highlight(entry.name)} ${magenta(res.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
 				} else {
-					log(`Failed to log out ${highlight(entry.email)} ${alert(res.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
+					log(`Failed to log out ${highlight(entry.name)} ${alert(res.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
 				}
 			}
 		}

@@ -8,9 +8,8 @@ export default {
 	],
 	desc: 'log out of the AMPLIFY platform',
 	options: {
-		'-a, --all': {
-			desc: 'revoke all credentials'
-		}
+		'-a, --all': 'revoke all credentials; supersedes list of accounts',
+		'--json': 'outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
 		const { auth } = await import('@axway/amplify-cli-utils');
@@ -33,17 +32,21 @@ export default {
 			tokenStoreType
 		});
 
-		const accounts = argv.all ? 'all' : argv.accounts;
-		const revoked = await client.revoke(accounts, argv);
+		const revoked = await client.revoke(argv);
+
+		if (argv.json) {
+			console.log(JSON.stringify(revoked, null, '  '));
+			return;
+		}
 
 		// pretty output
 		if (revoked.length) {
 			console.log('Revoked authenticated accounts:');
 			for (const account of revoked) {
-				console.log(` * ${account.email}`);
+				console.log(` * ${account.name}`);
 			}
 		} else if (Array.isArray(argv.accounts) && argv.accounts.length === 1) {
-			console.log(`Account "${argv.accounts[0]}" not credentialed.`);
+			console.log(`No account "${argv.accounts[0]}" to revoke.`);
 		} else {
 			console.log('No credentialed accounts to revoke.');
 		}

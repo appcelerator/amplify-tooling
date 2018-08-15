@@ -1,8 +1,17 @@
 /* eslint-disable no-unused-vars */
 
 import E from '../errors';
+import snooplogg from 'snooplogg';
 import zlib from 'zlib';
 
+const { pluralize } = snooplogg;
+const { log } = snooplogg('amplify-auth:token-store');
+const { highlight } = snooplogg.styles;
+
+/**
+ * A regex to match a URL protocol.
+ * @type {RegExp}
+ */
 const protoRegExp = /^.*\/\//;
 
 /**
@@ -44,6 +53,7 @@ export default class TokenStore {
 		}
 	}
 
+	/* istanbul ignore next */
 	/**
 	 * Removes all tokens. This method is intended to be overwritten.
 	 *
@@ -91,6 +101,7 @@ export default class TokenStore {
 		return JSON.parse(zlib.unzipSync(Buffer.from(str, 'base64')));
 	}
 
+	/* istanbul ignore next */
 	/**
 	 * Deletes a token from the store. This method is intended to be overwritten.
 	 *
@@ -124,7 +135,7 @@ export default class TokenStore {
 		}
 
 		for (let i = 0; i < entries.length; i++) {
-			if (accounts.includes(entries[i].email) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
+			if (accounts.includes(entries[i].name) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
 				removed.push.apply(removed, entries.splice(i--, 1));
 			}
 		}
@@ -146,20 +157,29 @@ export default class TokenStore {
 	/**
 	 * Retreives a token from the store.
 	 *
-	 * @param {String} email - The account name to get.
+	 * @param {Object} params - Various parameters.
+	 * @param {String} params.accountName - The account name to get.
 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise} Resolves the token or `undefined` if not set.
 	 * @access public
 	 */
-	async get(email, baseUrl) {
+	async get({ accountName, baseUrl, hash } = {}) {
 		const entries = await this.list();
 
 		if (baseUrl) {
 			baseUrl = baseUrl.replace(protoRegExp, '');
 		}
 
-		for (let i = 0, len = entries.length; i < len; i++) {
-			if (entries[i].email === email && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
+		if (!accountName && !hash) {
+			throw E.MISSING_REQUIRED_PARAMETER('Must specify either the account name or authenticator hash');
+		}
+
+		const len = entries.length;
+		log(`Scanning ${highlight(len)} ${pluralize('token', len)} for accountName=${highlight(accountName)} hash=${highlight(hash)} baseUrl=${highlight(baseUrl)}`);
+
+		for (let i = 0; i < len; i++) {
+			if (((accountName && entries[i].name === accountName) || (hash && entries[i].hash === hash)) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
+				log(`Found account tokens: ${highlight(entries[i].name)}`);
 				return entries[i];
 			}
 		}
@@ -189,8 +209,13 @@ export default class TokenStore {
 			return [];
 		}
 
+		let count = 0;
+
+		// loop over each entry and remove any expired tokens
+		// NOTE: this code intentionally checkes `entries.length` each loop instead of caching the
+		// length since splice() shrinks the array length
 		for (let i = 0; i < entries.length; i++) {
-			const { email, expires, tokens } = entries[i];
+			const { expires, tokens } = entries[i];
 			if (expires && tokens && tokens.access_token && tokens.refresh_token) {
 				const now = Date.now();
 				if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
@@ -198,12 +223,16 @@ export default class TokenStore {
 					continue;
 				}
 			}
+			count++;
 			entries.splice(i--, 1);
 		}
+
+		log(`Purged ${highlight(count)} ${pluralize('entry', count)}`);
 
 		return entries;
 	}
 
+	/* istanbul ignore next */
 	/**
 	 * Saves account credentials. This method is intended to be overwritten.
 	 *
@@ -226,7 +255,7 @@ export default class TokenStore {
 		const entries = await this.list();
 
 		for (let i = 0, len = entries.length; i < len; i++) {
-			if (entries[i].baseUrl === data.baseUrl && entries[i].email === data.email) {
+			if (entries[i].baseUrl === data.baseUrl && entries[i].name === data.name) {
 				entries.splice(i, 1);
 				break;
 			}

@@ -1,14 +1,37 @@
 /* eslint-disable max-len */
 
 import Auth, { Authenticator } from '../dist/index';
+import fetch from 'node-fetch';
+import snooplogg from 'snooplogg';
 
 import { createLoginServer, stopLoginServer } from './common';
+
+const { log } = snooplogg('test:amplify-auth:pkce');
 
 const isCI = process.env.CI || process.env.JENKINS;
 
 describe('PKCE', () => {
 	describe('Login', () => {
 		afterEach(stopLoginServer);
+
+		it('should error options is not an object', async function () {
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
+			});
+
+			try {
+				await auth.login('foo');
+			} catch (e) {
+				expect(e).to.be.instanceof(TypeError);
+				expect(e.message).to.equal('Expected options to be an object');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
 
 		it('should retrieve a URL for an interactive manual flow', async function () {
 			const auth = new Auth({
@@ -183,10 +206,9 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			const { accessToken, account } = await auth.login();
+			const { accessToken, accountName } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-
-			expect(account).to.equal('foo@bar.com');
+			expect(accountName).to.equal('foo@bar.com');
 		});
 
 		(isCI ? it.skip : it)('should refresh the access token', async function () {
@@ -259,10 +281,8 @@ describe('PKCE', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { account } = await auth.login({ code: 'foo' });
-			console.log(account);
-
-			const revoked = await auth.revoke('foo@bar.com');
+			const { accountName } = await auth.login({ code: 'foo' });
+			const revoked = await auth.revoke({ accounts: accountName });
 			expect(revoked).to.have.lengthOf(1);
 		});
 
@@ -283,9 +303,167 @@ describe('PKCE', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const revoked = await auth.revoke('foo@bar.com');
+			const revoked = await auth.revoke({ accounts: 'foo@bar.com' });
 			expect(revoked).to.have.lengthOf(0);
 			expect(counter).to.equal(0);
+		});
+	});
+
+	describe('Messages', () => {
+		afterEach(stopLoginServer);
+
+		it('should override a default message with a text string', async function () {
+			this.server = await createLoginServer();
+
+			const text = 'It worked!';
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
+				messages: {
+					interactiveSuccess: text
+				}
+			});
+
+			let { promise, url } = await auth.login({ manual: true });
+
+			promise.catch(() => {});
+
+			log(`Manually fetching ${url}`);
+			let res = await fetch(url, {
+				redirect: 'manual'
+			});
+			expect(res.status).to.equal(301);
+
+			url = res.headers.get('location');
+			log(`Fetching ${url}`);
+
+			res = await fetch(url, {
+				headers: {
+					Accept: 'text/plain'
+				}
+			});
+
+			expect(res.status).to.equal(200);
+			expect(await res.text()).to.equal(text);
+		});
+
+		it('should override a default message with a object and html', async function () {
+			this.server = await createLoginServer();
+
+			const html = '<html><body>It worked!!</body></html>';
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null
+			});
+
+			const { promise, url } = await auth.login({
+				manual: true,
+				messages: {
+					interactiveSuccess: {
+						html,
+						text: 'It worked!!'
+					}
+				}
+			});
+
+			promise.catch(() => {});
+
+			let res = await fetch(url, {
+				redirect: 'manual'
+			});
+			expect(res.status).to.equal(301);
+
+			res = await fetch(res.headers.get('location'));
+			expect(res.status).to.equal(200);
+			expect(await res.text()).to.equal(html);
+		});
+
+		it('should respond to interactive login as json', async function () {
+			this.server = await createLoginServer();
+
+			const text = 'It worked!';
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
+				messages: {
+					interactiveSuccess: text
+				}
+			});
+
+			let { promise, url } = await auth.login({ manual: true });
+
+			promise.catch(() => {});
+
+			log(`Manually fetching ${url}`);
+			let res = await fetch(url, {
+				redirect: 'manual'
+			});
+			expect(res.status).to.equal(301);
+
+			url = res.headers.get('location');
+			log(`Fetching ${url}`);
+
+			res = await fetch(url, {
+				headers: {
+					Accept: 'application/json'
+				}
+			});
+
+			expect(res.status).to.equal(200);
+			expect(await res.json()).to.deep.equal({
+				message: 'It worked!',
+				success: true
+			});
+		});
+
+		it('should respond to failed interactive login as json', async function () {
+			this.server = await createLoginServer();
+
+			const text = 'It worked!';
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: null,
+				messages: {
+					interactiveSuccess: text
+				}
+			});
+
+			let { promise, url } = await auth.login({ manual: true });
+
+			promise.catch(() => {});
+
+			log(`Manually fetching ${url}`);
+			let res = await fetch(url, {
+				redirect: 'manual'
+			});
+			expect(res.status).to.equal(301);
+
+			url = res.headers.get('location').split('?')[0];
+			log(`Fetching ${url}`);
+
+			res = await fetch(url, {
+				headers: {
+					Accept: 'application/json'
+				}
+			});
+
+			expect(res.status).to.equal(400);
+			expect(await res.json()).to.deep.equal({
+				message: 'Invalid auth code',
+				success: false
+			});
 		});
 	});
 

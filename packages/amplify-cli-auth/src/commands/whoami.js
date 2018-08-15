@@ -1,7 +1,7 @@
 export default {
 	args: [
 		{
-			name: 'account',
+			name: 'account-name',
 			desc: 'the account to show'
 		}
 	],
@@ -18,12 +18,12 @@ export default {
 
 		const client = new auth.Auth(params);
 
-		if (argv.account) {
-			const account = await client.getAccount({ account: argv.account });
+		if (argv.accountName) {
+			const account = await client.getAccount({ accountName: argv.accountName });
 			if (account) {
 				console.log(JSON.stringify(account, null, '  '));
 			} else {
-				console.log(`Account "${argv.account}" not authenticated.`);
+				console.log(`Account "${argv.accountName}" not authenticated.`);
 			}
 
 		} else {
