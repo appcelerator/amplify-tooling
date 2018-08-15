@@ -44,18 +44,18 @@ describe('config', () => {
 	});
 
 	it('should allow a custom userConfig to be passed in', done => {
-		const userConfig = path.join(fixturesDir, 'my-own-config.json');
-		const cfg = loadConfig({ userConfig });
+		const userConfigFile = path.join(fixturesDir, 'my-own-config.json');
+		const cfg = loadConfig({ userConfigFile });
 		expect(cfg.toString(0)).to.equal('{"ownConfig":true}');
 		done();
 	});
 
 	it('should write userConfig if it does not exist', done => {
-		const userConfig = path.join(fixturesDir, 'no-exist-config.json');
-		expect(fs.existsSync(userConfig)).to.equal(false);
-		const cfg = loadConfig({ userConfig });
+		const userConfigFile = path.join(fixturesDir, 'no-exist-config.json');
+		expect(fs.existsSync(userConfigFile)).to.equal(false);
+		const cfg = loadConfig({ userConfigFile });
 		expect(cfg.toString(0)).to.equal('{}');
-		fs.unlinkSync(userConfig);
+		fs.unlinkSync(userConfigFile);
 		done();
 	});
 });
