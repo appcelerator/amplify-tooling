@@ -27,7 +27,7 @@ export default class SignedJWT extends Authenticator {
 
 		super(opts);
 
-		this.secretFile = opts.secretFile;
+		Object.defineProperty(this, 'secretFile', { value: opts.secretFile });
 	}
 
 	/**
@@ -69,9 +69,15 @@ export default class SignedJWT extends Authenticator {
 	 * @access private
 	 */
 	get hashParams() {
-		return {
-			secret: fs.readFileSync(this.secretFile, 'utf8')
-		};
+		let secret = null;
+
+		try {
+			secret = fs.readFileSync(this.secretFile, 'utf8');
+		} catch (e) {
+			// squelch
+		}
+
+		return { secret };
 	}
 
 	/**

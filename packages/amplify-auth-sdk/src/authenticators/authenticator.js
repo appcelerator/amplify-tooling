@@ -240,6 +240,8 @@ export default class Authenticator {
 			this.tokenStore = opts.tokenStore;
 		}
 
+		// generate the hash that attempts to uniquely identify this authentication methods and its
+		// parameters
 		this.hash = md5(Object.assign({
 			baseUrl: this.baseUrl,
 			realm:   this.realm
@@ -326,7 +328,7 @@ export default class Authenticator {
 		let tokens;
 
 		if (this.tokenStore) {
-			log(`Searching for existing tokens: ${this.hash}`);
+			log(`Searching for existing tokens: ${highlight(this.hash)}`);
 			for (const entry of await this.tokenStore.list()) {
 				if (entry.hash === this.hash) {
 					log('Found account in token store:');
@@ -335,10 +337,10 @@ export default class Authenticator {
 					expires = entry.expires;
 					tokens = entry.tokens;
 
-					if (tokens.access_token && expires.access_token > now) {
+					if (tokens.access_token && expires.access > now) {
 						return {
 							accessToken: tokens.access_token,
-							account: entry.account
+							accountName: entry.name
 						};
 					}
 

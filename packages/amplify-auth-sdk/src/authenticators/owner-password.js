@@ -28,8 +28,8 @@ export default class OwnerPassword extends Authenticator {
 
 		super(opts);
 
-		this.username = opts.username;
-		this.password = opts.password;
+		Object.defineProperty(this, 'username', { value: opts.username });
+		Object.defineProperty(this, 'password', { value: opts.password });
 	}
 
 	/**

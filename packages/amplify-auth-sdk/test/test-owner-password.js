@@ -37,26 +37,6 @@ describe('Owner Password', () => {
 		});
 	});
 
-	describe('Environment', () => {
-		it('should error if env is invalid', async () => {
-			const auth = new Auth({
-				tokenStoreType: null
-			});
-
-			try {
-				await auth.login({
-					env: 'foo'
-				});
-			} catch (err) {
-				expect(err).to.be.instanceof(Error);
-				expect(err.message).to.equal('Invalid environment: foo');
-				return;
-			}
-
-			throw new Error('Expected error');
-		});
-	});
-
 	describe('Login', () => {
 		afterEach(stopLoginServer);
 
@@ -340,7 +320,7 @@ describe('Owner Password', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accountName, authenticator } = await auth.login({
+			const { accountName } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
@@ -381,7 +361,7 @@ describe('Owner Password', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accountName, authenticator } = await auth.login({
+			const { accountName } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});

@@ -9,7 +9,7 @@ export default class KeytarStore extends TokenStore {
 	 * Loads the `keytar` library.
 	 *
 	 * @param {Object} [opts] - Various options.
-	 * @param {String} [opts.keytarServiceName="Axway amplify-auth-sdk"] - The name of the consumer
+	 * @param {String} [opts.keytarServiceName="Axway AMPLIFY Auth"] - The name of the consumer
 	 * using this library when using the "keytar" token store.
 	 * @access public
 	 */
@@ -23,7 +23,7 @@ export default class KeytarStore extends TokenStore {
 			throw E.KEYTAR_NOT_FOUND('"keytar" package not found, is it installed?');
 		}
 
-		this.service = opts.keytarServiceName || 'Axway amplify-auth-sdk';
+		this.service = opts.keytarServiceName || 'Axway AMPLIFY Auth';
 	}
 
 	/**

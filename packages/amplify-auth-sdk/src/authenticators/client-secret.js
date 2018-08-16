@@ -30,7 +30,7 @@ export default class ClientSecret extends Authenticator {
 
 		this.interactive = !opts.serviceAccount;
 
-		this.clientSecret = opts.clientSecret;
+		Object.defineProperty(this, 'clientSecret', { value: opts.clientSecret });
 	}
 
 	/**

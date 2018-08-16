@@ -248,6 +248,59 @@ describe('PKCE', () => {
 			results = await auth.login();
 			expect(results.accessToken).to.equal(this.server.accessToken);
 		});
+
+		it('should not login if already logged in', async function () {
+			let counter = 0;
+
+			this.server = await createLoginServer({
+				token() {
+					counter++;
+				}
+			});
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: 'memory'
+			});
+
+			const results1 = await auth.login({ code: 'foo' });
+			expect(results1.accessToken).to.equal(this.server.accessToken);
+			expect(results1.accountName).to.equal('foo@bar.com');
+			expect(counter).to.equal(1);
+
+			const results2 = await auth.login({ code: 'foo' });
+			expect(results2.accessToken).to.equal(results1.accessToken);
+			expect(results2.accountName).to.equal(results1.accountName);
+			expect(counter).to.equal(1);
+		});
+
+		it('should fail to get user info', async function () {
+			this.server = await createLoginServer();
+
+			const auth = new Auth({
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: 'memory'
+			});
+
+			await auth.login({ code: 'foo' });
+
+			await stopLoginServer.call(this);
+
+			try {
+				await auth.login({ code: 'foo' });
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.match(/^request to .+ failed,/i);
+				expect(e.code).to.equal('ECONNREFUSED');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
 	});
 
 	describe('Revoke', () => {
@@ -465,147 +518,5 @@ describe('PKCE', () => {
 				success: false
 			});
 		});
-	});
-
-	describe('Access Token', async () => {
-		afterEach(stopLoginServer);
-
-		// it('should error getting an access token if not logged in', async function () {
-		// 	const auth = new Auth({
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.getAccessToken();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
-
-		// it('should error attempting to automatically login and get token', async function () {
-		// 	const auth = new Auth({
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.getAccessToken(true);
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
-	});
-
-	describe('User Info', () => {
-		afterEach(stopLoginServer);
-
-		// it('should error if not logged in', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.userInfo();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
-
-		// it('should error if logging in interactively', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	try {
-		// 		await auth.userInfo(true);
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.equal('Login required');
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
-
-		// it('should get user info', async function () {
-		// 	this.server = await createLoginServer();
-		//
-		// 	const auth = new Auth({
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	await auth.login({ code: 'foo' });
-		//
-		// 	let info = await auth.userInfo();
-		// 	expect(info).to.deep.equal({
-		// 		name: 'tester2',
-		// 		email: 'foo@bar.com'
-		// 	});
-		//
-		// 	info = await auth.userInfo();
-		// 	expect(info).to.deep.equal({
-		// 		name: 'tester3',
-		// 		email: 'foo@bar.com'
-		// 	});
-		// });
-
-		// it('should handle bad user info response', async function () {
-		// 	this.server = await createLoginServer({
-		// 		userinfo(post, req, res) {
-		// 			res.writeHead(200, { 'Content-Type': 'text/plain' });
-		// 			res.end('{{{{{{');
-		// 			return true;
-		// 		}
-		// 	});
-		//
-		// 	const auth = new Auth({
-		// 		baseUrl:        'http://127.0.0.1:1337',
-		// 		clientId:       'test_client',
-		// 		realm:          'test_realm',
-		// 		tokenStoreType: null
-		// 	});
-		//
-		// 	await auth.login({ code: 'foo' });
-		//
-		// 	try {
-		// 		await auth.userInfo();
-		// 	} catch (e) {
-		// 		expect(e).to.be.instanceof(Error);
-		// 		expect(e.message).to.match(/^invalid json response body at /i);
-		// 		return;
-		// 	}
-		//
-		// 	throw new Error('Expected error');
-		// });
 	});
 });

@@ -46,11 +46,16 @@ export default class Auth {
 	 * @param {Object} opts - Various options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
 	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
+	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
-	 * @param {String} [opts.keytarServiceName="Axway amplify-auth-sdk"] - The name of the consumer
+	 * @param {String} [opts.keytarServiceName="Axway AMPLIFY Auth"] - The name of the consumer
 	 * using this library when using the "keytar" token store.
+	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
+	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
+	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
+	 * requested by a service instead of a user.
 	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
 	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
@@ -60,6 +65,7 @@ export default class Auth {
 	 * `file` store), `keytar` to use the operating system's secure storage mechanism (or errors if
 	 * keytar is not installed), `file` to use a file-based store, or `memory` for an in-memory
 	 * store. If `null`, it will not persist the access token.
+	 * @param {String} [opts.username] - The username used to authenticate. Requires a `password`.
 	 * @access public
 	 */
 	constructor(opts = {}) {
@@ -67,11 +73,18 @@ export default class Auth {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		this.baseUrl  = opts.baseUrl;
-		this.clientId = opts.clientId;
-		this.env      = opts.env;
-		this.messages = opts.messages;
-		this.realm    = opts.realm;
+		Object.defineProperties(this, {
+			baseUrl:        { value: opts.baseUrl },
+			clientId:       { value: opts.clientId },
+			clientSecret:   { value: opts.clientSecret },
+			env:            { value: opts.env },
+			messages:       { value: opts.messages },
+			password:       { value: opts.password },
+			realm:          { value: opts.realm },
+			secretFile:     { value: opts.secretFile },
+			serviceAccount: { value: opts.serviceAccount },
+			username:       { value: opts.username }
+		});
 
 		if (opts.tokenStore) {
 			if (!(opts.tokenStore instanceof TokenStore)) {
@@ -123,22 +136,33 @@ export default class Auth {
 			throw E.INVALID_VALUE(`Invalid environment: ${opts.env || this.env}`);
 		}
 
-		opts.baseUrl    = opts.baseUrl || this.baseUrl || environments[env].baseUrl;
-		opts.clientId   = opts.clientId || this.clientId;
-		opts.env        = env;
-		opts.messages   = opts.messages || this.messages;
-		opts.tokenStore = this.tokenStore;
-		opts.realm      = opts.realm || this.realm;
+		opts.baseUrl        = opts.baseUrl || this.baseUrl || environments[env].baseUrl;
+		opts.clientId       = opts.clientId || this.clientId;
+		opts.clientSecret   = opts.clientSecret || this.clientSecret;
+		opts.env            = env;
+		opts.messages       = opts.messages || this.messages;
+		opts.password       = opts.password || this.password;
+		opts.realm          = opts.realm || this.realm;
+		opts.secretFile     = opts.secretFile || this.secretFile;
+		opts.serviceAccount = opts.serviceAccount || this.serviceAccount;
+		opts.tokenStore     = this.tokenStore;
+		opts.username       = opts.username || this.username;
 	}
 
 	/**
 	 * Creates an authetnicator based on the supplied options.
 	 *
 	 * @param {Object} [opts] - Various options.
+	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
+	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
+	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
+	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
+	 * requested by a service instead of a user.
+	 * @param {String} [opts.username] - The username used to authenticate. Requires a `password`.
 	 * @returns {Authenticator}
 	 * @access public
 	 */
-	createAuthenticator(opts) {
+	createAuthenticator(opts = {}) {
 		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
 			return new OwnerPassword(opts);
 		}
@@ -158,32 +182,36 @@ export default class Auth {
 	 * Retrieves the access token. If the authenticator is interactive and the authenticator has not
 	 * yet authenticated with the server, an error is thrown.
 	 *
-	 * @param {Object} params - Required parameters.
-	 * @param {String} params.accountName - The account name to retrieve.
-	 * @param {String} [params.baseUrl] - The base URL.
-	 * @param {String} [params.hash] - The authenticator hash.
+	 * @param {Object} opts - Required options.
+	 * @param {String} opts.accountName - The account name to retrieve.
+	 * @param {String} [opts.baseUrl] - The base URL to filter by.
+	 * @param {String} [opts.hash] - The authenticator hash. This is required only if an
+	 * `accountName` has not been specified or is unknown. This is intended for internal use.
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
-	async getAccount(params = {}) {
+	async getAccount(opts = {}) {
 		if (!this.tokenStore) {
 			log('Cannot get account, no token store');
 			return null;
 		}
 
-		this.applyDefaults(params);
-		params.hash = this.createAuthenticator(params).hash;
-		return await this.tokenStore.get(params);
+		this.applyDefaults(opts);
+		opts.hash = this.createAuthenticator(opts).hash;
+		return await this.tokenStore.get(opts);
 	}
 
 	/**
-	 * Returns a list of active access tokens.
+	 * Returns a list of all valid access tokens.
 	 *
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	list() {
-		return this.tokenStore.list();
+	async list() {
+		if (this.tokenStore) {
+			return await this.tokenStore.list();
+		}
+		return [];
 	}
 
 	/**
@@ -216,10 +244,10 @@ export default class Auth {
 	/**
 	 * Revokes all or specific authenticated accounts.
 	 *
-	 * @param {Object} params - Required parameters.
-	 * @param {Array.<String>|String} params.accounts - A list of accounts names.
-	 * @param {Boolean} params.all - When `true`, revokes all accounts.
-	 * @param {String} [params.baseUrl] - The base URL used to filter accounts.
+	 * @param {Object} opts - Required options.
+	 * @param {Array.<String>|String} opts.accounts - A list of accounts names.
+	 * @param {Boolean} opts.all - When `true`, revokes all accounts.
+	 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>} Returns a list of revoked credentials.
 	 * @access public
 	 */
@@ -300,6 +328,5 @@ export {
 
 	environments,
 	getEndpoints,
-	getServerInfo,
 	server
 };
