@@ -206,30 +206,19 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			const { accessToken, accountName } = await auth.login();
+			const { accessToken, account } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(accountName).to.equal('foo@bar.com');
+			expect(account.name).to.equal('foo@bar.com');
 		});
 
 		(isCI ? it.skip : it)('should refresh the access token', async function () {
 			this.slow(4000);
 			this.timeout(5000);
 
-			let counter = 0;
-
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token: post => {
-					switch (++counter) {
-						case 1:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
-							break;
-
-						case 2:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
-							expect(post.refresh_token).to.equal(this.server.refreshToken);
-							break;
-					}
+				token(post) {
+					expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
 				}
 			});
 
@@ -245,35 +234,8 @@ describe('PKCE', () => {
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			results = await auth.login();
+			results = await auth.login({ code: 'foo' });
 			expect(results.accessToken).to.equal(this.server.accessToken);
-		});
-
-		it('should not login if already logged in', async function () {
-			let counter = 0;
-
-			this.server = await createLoginServer({
-				token() {
-					counter++;
-				}
-			});
-
-			const auth = new Auth({
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreType: 'memory'
-			});
-
-			const results1 = await auth.login({ code: 'foo' });
-			expect(results1.accessToken).to.equal(this.server.accessToken);
-			expect(results1.accountName).to.equal('foo@bar.com');
-			expect(counter).to.equal(1);
-
-			const results2 = await auth.login({ code: 'foo' });
-			expect(results2.accessToken).to.equal(results1.accessToken);
-			expect(results2.accountName).to.equal(results1.accountName);
-			expect(counter).to.equal(1);
 		});
 
 		it('should fail to get user info', async function () {
@@ -334,8 +296,8 @@ describe('PKCE', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accountName } = await auth.login({ code: 'foo' });
-			const revoked = await auth.revoke({ accounts: accountName });
+			const { account } = await auth.login({ code: 'foo' });
+			const revoked = await auth.revoke({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
 		});
 

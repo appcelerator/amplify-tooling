@@ -187,6 +187,8 @@ export default class Auth {
 	 * @param {String} [opts.baseUrl] - The base URL to filter by.
 	 * @param {String} [opts.hash] - The authenticator hash. This is required only if an
 	 * `accountName` has not been specified or is unknown. This is intended for internal use.
+	 * @param {Boolean} [opts.refresh=true] - When `true`, automatically refreshes the account's
+	 * expired access token.
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
@@ -198,7 +200,14 @@ export default class Auth {
 
 		this.applyDefaults(opts);
 		opts.hash = this.createAuthenticator(opts).hash;
-		return await this.tokenStore.get(opts);
+
+		let account = await this.tokenStore.get(opts);
+
+		if (account && account.tokens.access_token && account.expires.access > Date.now() && opts.refresh !== false) {
+			account = (await this.login(opts)).account;
+		}
+
+		return account;
 	}
 
 	/**

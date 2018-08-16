@@ -165,7 +165,7 @@ describe('Owner Password', () => {
 			});
 			const { accessToken } = this.server;
 			expect(results.accessToken).to.equal(accessToken);
-			expect(results.accountName).to.equal('foo@bar.com');
+			expect(results.account.name).to.equal('foo@bar.com');
 		});
 
 		it('should refresh the access token', async function () {
@@ -320,13 +320,13 @@ describe('Owner Password', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accountName } = await auth.login({
+			const { account } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
-			expect(accountName).to.equal('foo@bar.com');
+			expect(account.name).to.equal('foo@bar.com');
 
-			const revoked = await auth.revoke({ accounts: accountName });
+			const revoked = await auth.revoke({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
 		});
 
@@ -361,11 +361,11 @@ describe('Owner Password', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accountName } = await auth.login({
+			const { account } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
-			expect(accountName).to.equal('foo@bar.com');
+			expect(account.name).to.equal('foo@bar.com');
 
 			const revoked = await auth.revoke({ all: true });
 			expect(revoked).to.have.lengthOf(1);

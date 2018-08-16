@@ -151,9 +151,9 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			const { accessToken, accountName } = await auth.login({ code: 'foo' });
+			const { accessToken, account } = await auth.login({ code: 'foo' });
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(accountName).to.equal('foo@bar.com');
+			expect(account.name).to.equal('foo@bar.com');
 		});
 
 		it('should error if server is unreachable', async function () {
@@ -223,31 +223,20 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accessToken, accountName } = await auth.login();
+			const { accessToken, account } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(accountName).to.equal('foo@bar.com');
+			expect(account.name).to.equal('foo@bar.com');
 		});
 
 		(isCI ? it.skip : it)('should refresh the access token', async function () {
 			this.slow(4000);
 			this.timeout(5000);
 
-			let counter = 0;
-
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token: post => {
-					switch (++counter) {
-						case 1:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
-							expect(post.client_secret).to.equal('###');
-							break;
-
-						case 2:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
-							expect(post.refresh_token).to.equal(this.server.refreshToken);
-							break;
-					}
+				token(post) {
+					expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
+					expect(post.client_secret).to.equal('###');
 				}
 			});
 
@@ -265,7 +254,7 @@ describe('Client Secret', () => {
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			results = await auth.login();
+			results = await auth.login({ code: 'foo' });
 			expect(results.accessToken).to.equal(this.server.accessToken);
 		});
 	});
@@ -377,9 +366,9 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accessToken, accountName } = await auth.login();
+			const { accessToken, account } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(accountName).to.equal('foo@bar.com');
+			expect(account.name).to.equal('foo@bar.com');
 		});
 
 		it('should refresh the access token', async function () {
@@ -458,10 +447,10 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accountName } = await auth.login({ code: 'foo' });
-			expect(accountName).to.equal('foo@bar.com');
+			const { account } = await auth.login({ code: 'foo' });
+			expect(account.name).to.equal('foo@bar.com');
 
-			const revoked = await auth.revoke({ accounts: accountName });
+			const revoked = await auth.revoke({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
 		});
 

@@ -180,9 +180,9 @@ describe('Signed JWT', () => {
 				tokenStoreType: 'memory'
 			});
 
-			let { accessToken, accountName, authenticator } = await auth.login();
+			let { accessToken, account, authenticator } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(accountName).to.equal('foo@bar.com');
+			expect(account.name).to.equal('foo@bar.com');
 			expect(authenticator.signedJWT).to.equal(authenticator.getSignedJWT());
 		});
 
@@ -260,8 +260,8 @@ describe('Signed JWT', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const { accountName } = await auth.login();
-			const revoked = await auth.revoke({ accounts: accountName });
+			const { account } = await auth.login();
+			const revoked = await auth.revoke({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
 		});
 

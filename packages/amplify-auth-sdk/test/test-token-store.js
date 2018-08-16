@@ -31,6 +31,24 @@ describe('Token Store', () => {
 		});
 	});
 
+	describe('Null Token Store', () => {
+		it('should return null when getting an account', async () => {
+			const auth = new Auth({
+				tokenStoreType: null
+			});
+			expect(await auth.getAccount()).to.be.null;
+		});
+
+		it('should return empty array when listing accounts', async () => {
+			const auth = new Auth({
+				tokenStoreType: null
+			});
+			const accounts = await auth.list();
+			expect(accounts).to.be.an('Array');
+			expect(accounts).to.have.lengthOf(0);
+		});
+	});
+
 	describe('Memory Store', () => {
 		afterEach(stopLoginServer);
 
@@ -48,7 +66,7 @@ describe('Token Store', () => {
 			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
 
-			const { accessToken, accountName } = await auth.login({
+			const { accessToken, account } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
@@ -62,7 +80,7 @@ describe('Token Store', () => {
 			expect(tokens[0].name).to.equal('foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
-			await auth.revoke({ accounts: accountName, baseUrl });
+			await auth.revoke({ accounts: account.name, baseUrl });
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -199,7 +217,7 @@ describe('Token Store', () => {
 
 			expect(fs.existsSync(tokenStoreFile)).to.be.false;
 
-			const { accessToken, accountName } = await auth.login({
+			const { accessToken, account } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
@@ -215,7 +233,7 @@ describe('Token Store', () => {
 			expect(tokens[0].name).to.equal('foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
-			await auth.revoke({ accounts: accountName, baseUrl });
+			await auth.revoke({ accounts: account.name, baseUrl });
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -318,7 +336,7 @@ describe('Token Store', () => {
 			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
 
-			const { accessToken, accountName } = await auth.login({
+			const { accessToken, account } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
@@ -332,7 +350,7 @@ describe('Token Store', () => {
 			expect(tokens[0].name).to.equal('foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
-			await auth.revoke({ accounts: accountName, baseUrl });
+			await auth.revoke({ accounts: account.name, baseUrl });
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -414,7 +432,7 @@ describe('Token Store', () => {
 			expect(setCounter).to.equal(0);
 			expect(delCounter).to.equal(0);
 
-			const { accountName } = await auth.login({
+			const { account } = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});
@@ -422,7 +440,7 @@ describe('Token Store', () => {
 			expect(setCounter).to.equal(1);
 			expect(delCounter).to.equal(0);
 
-			await auth.revoke({ accounts: accountName, baseUrl });
+			await auth.revoke({ accounts: account.name, baseUrl });
 
 			expect(setCounter).to.equal(1);
 			expect(delCounter).to.equal(1);

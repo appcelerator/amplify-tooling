@@ -68,20 +68,22 @@ import Auth from '@axway/amplify-auth-sdk';
 	});
 
 	// this will launch the default browser and wait for the user to complete the process
-	const { accessToken, accountName, userInfo } = await auth.login();
+	const { accessToken, account, userInfo } = await auth.login();
 
-	console.log(`Authenticated successfully ${accountName}!`);
+	console.log(`Authenticated successfully ${account.name}!`);
 	console.log(userInfo);
 })().catch(console.error);
 ```
 
 You can also manually authenticate manually without a browser.
 
+> Note: Manual authentication will spin up a local HTTP server for the redirects. Manual mode is
+> intended for headless environments.
+
 ```js
 import Auth from '@axway/amplify-auth-sdk';
 import fetch from 'node-fetch';
-import querystring from 'querystring';
-import url from 'url';
+import { parse, URLSearchParams } from 'url';
 
 (async function main() {
 	const auth = new Auth({
@@ -91,10 +93,10 @@ import url from 'url';
 
 	const { url } = await auth.login({ manual: true });
 	const res = await fetch(url, { redirect: 'manual' });
-	const { code } = querystring.parse(url.parse(res.headers.get('location')).query);
-	const { accessToken, accountName, userInfo } = await auth.login({ code });
+	const code = new URLSearchParams(parse(res.headers.get('location')).query).get('code');
+	const { accessToken, account, userInfo } = await auth.login({ code });
 
-	console.log(`Authenticated successfully ${accountName}!`);
+	console.log(`Authenticated successfully ${account.name}!`);
 	console.log(userInfo);
 })().catch(console.error);
 ```
@@ -112,9 +114,9 @@ import Auth from '@axway/amplify-auth-sdk';
 		password: 'password1'
 	});
 
-	const { accessToken, accountName, userInfo } = await auth.login();
+	const { accessToken, account, userInfo } = await auth.login();
 
-	console.log(`Authenticated successfully ${accountName}!`);
+	console.log(`Authenticated successfully ${account.name}!`);
 	console.log(userInfo);
 })().catch(console.error);
 ```
@@ -132,9 +134,9 @@ import Auth from '@axway/amplify-auth-sdk';
 	});
 
 	// this will launch the default browser and wait for the user to complete the process
-	const { accessToken, accountName, userInfo } = await auth.login();
+	const { accessToken, account, userInfo } = await auth.login();
 
-	console.log(`Authenticated successfully ${accountName}!`);
+	console.log(`Authenticated successfully ${account.name}!`);
 	console.log(userInfo);
 })().catch(console.error);
 ```
@@ -151,9 +153,9 @@ import Auth from '@axway/amplify-auth-sdk';
 		secretFile: '/path/to/rsa-private-key.pem'
 	});
 
-	const { accessToken, accountName, userInfo } = await auth.login();
+	const { accessToken, account, userInfo } = await auth.login();
 
-	console.log(`Authenticated successfully ${accountName}!`);
+	console.log(`Authenticated successfully ${account.name}!`);
 	console.log(userInfo);
 })().catch(console.error);
 ```
@@ -278,6 +280,11 @@ browser to the local http server and continue the authentication process.
 All other authentication methods are non-interactive and pass along the parameters specified in the
 `Auth()` constructor to complete the authentication process.
 
+If the account is already in the token store with valid access and refresh tokens, then it is
+returned instead of going through the authentication process unless the `code` option is specified.
+If the `code` is passed in, it is assumed that effort was made to retrieve the code and thus the
+intention was to get fresh tokens.
+
 ##### `options`: (Object) [optional]
 
  * General:
@@ -343,7 +350,7 @@ If `manual`, the resolved object contains:
 If *NOT* `manual`, the resolved object contains:
 
  * `accessToken`: (String) The access token.
- * `accountName`: (String) The account name. Generally this is the user's email address.
+ * `account`: (Object) The account info as described in the `getAccount()` return value description.
  * `authenticator`: (Authenticator) A reference to the authenticator that performed the login.
  * `userInfo`: (Object) An object containing various information returned by the server about the
    user.
@@ -351,9 +358,9 @@ If *NOT* `manual`, the resolved object contains:
 ##### Example
 
 ```js
-const { accessToken, accountName, userInfo } = await auth.login();
+const { accessToken, account, userInfo } = await auth.login();
 console.log(`Access token = ${accessToken}`);
-console.log(`Account name = ${accountName}`);
+console.log(`Account name = ${account.name}`);
 console.log('User info =', userInfo);
 ```
 

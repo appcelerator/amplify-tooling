@@ -12,7 +12,7 @@ import * as server from '../server';
 
 import { md5, renderHTML, stringifyQueryString } from '../util';
 
-const { log } = snooplogg('amplify-auth:authenticator');
+const { error, log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -327,7 +327,9 @@ export default class Authenticator {
 		let expires;
 		let tokens;
 
-		if (this.tokenStore) {
+		// if you have a code, then you probably don't want to have gone through all the hassle of
+		// getting the code to only return the existing access token from the store
+		if (!code && this.tokenStore) {
 			log(`Searching for existing tokens: ${highlight(this.hash)}`);
 			for (const entry of await this.tokenStore.list()) {
 				if (entry.hash === this.hash) {
@@ -340,7 +342,7 @@ export default class Authenticator {
 					if (tokens.access_token && expires.access > now) {
 						return {
 							accessToken: tokens.access_token,
-							accountName: entry.name
+							account: entry
 						};
 					}
 
@@ -368,7 +370,7 @@ export default class Authenticator {
 
 		if (this.interactive) {
 			params.code = code;
-			params.redirectUri = `${this.serverUrl}/callback/${requestId}`;
+			params.redirectUri = `${this.serverUrl}/callback${requestId ? `/${requestId}` : ''}`;
 		}
 
 		const url = this.endpoints.token;
@@ -394,7 +396,7 @@ export default class Authenticator {
 		log(`Authentication successful ${note(`(${res.headers.get('content-type')})`)}`);
 		log(tokens);
 
-		let accountName;
+		let name;
 
 		try {
 			const info = jws.decode(tokens.id_token || tokens.access_token);
@@ -402,12 +404,12 @@ export default class Authenticator {
 				info.payload = JSON.parse(info.payload);
 			}
 			log(info);
-			accountName = info.payload.email.trim();
+			name = info.payload.email.trim();
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
 		}
 
-		if (!accountName) {
+		if (!name) {
 			// trigger the catch
 			throw E.AUTH_FAILED('Authentication failed: Account has no email address');
 		}
@@ -415,26 +417,28 @@ export default class Authenticator {
 		// refresh `now` and set the expiry timestamp
 		now = Date.now();
 
+		const account = {
+			authenticator: this.constructor.name,
+			baseUrl:       this.baseUrl,
+			env:           this.env,
+			expires: {
+				access: (tokens.expires_in * 1000) + now,
+				refresh: (tokens.refresh_expires_in * 1000) + now
+			},
+			hash:          this.hash,
+			name,
+			realm:         this.realm,
+			tokens
+		};
+
 		// persist the tokens
 		if (this.tokenStore) {
-			await this.tokenStore.set({
-				authenticator: this.constructor.name,
-				baseUrl:       this.baseUrl,
-				env:           this.env,
-				expires: {
-					access: (tokens.expires_in * 1000) + now,
-					refresh: (tokens.refresh_expires_in * 1000) + now
-				},
-				hash:          this.hash,
-				name:          accountName,
-				realm:         this.realm,
-				tokens
-			});
+			await this.tokenStore.set(account);
 		}
 
 		return {
 			accessToken: tokens.access_token,
-			accountName
+			account
 		};
 	}
 
@@ -494,7 +498,7 @@ export default class Authenticator {
 
 		msg = `${label}: ${msg.trim() || `server returned ${res.status}`}`;
 
-		log(`${msg} ${note(`(${res.status})`)}`);
+		error(`${msg} ${note(`(${res.status})`)}`);
 		return E.AUTH_FAILED(msg, { status: res.status });
 	}
 
@@ -522,10 +526,10 @@ export default class Authenticator {
 			} else {
 				log('Retrieving tokens using auth code');
 			}
-			const { accessToken, accountName } = await this.getToken(opts.code);
+			const { accessToken, account } = await this.getToken(opts.code);
 			return {
 				accessToken,
-				accountName,
+				account,
 				authenticator: this,
 				userInfo: await this.getUserInfo(accessToken)
 			};
@@ -544,7 +548,7 @@ export default class Authenticator {
 		}, this.authorizationUrlParams);
 		const authorizationUrl = `${this.endpoints.auth}?${stringifyQueryString(queryParams)}`;
 
-		log(`Starting login request ${highlight(requestId)} clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
+		log(`Starting ${opts.manual ? 'manual ' : ''}login request ${highlight(requestId)} clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
 		// start the server and wait for it to start
 		let { cancel, promise } = await server.start({
@@ -557,10 +561,10 @@ export default class Authenticator {
 		});
 
 		// chain the promise to fetch the user info
-		promise = promise.then(async ({ accessToken, accountName }) => {
+		promise = promise.then(async ({ accessToken, account }) => {
 			return {
 				accessToken,
-				accountName,
+				account,
 				authenticator: this,
 				userInfo: await this.getUserInfo(accessToken)
 			};
