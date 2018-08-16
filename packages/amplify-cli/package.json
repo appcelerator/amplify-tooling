@@ -27,7 +27,8 @@
     "@axway/amplify-cli-pm": "^0.1.0",
     "@axway/amplify-cli-utils": "^0.1.0",
     "cli-kit": "^0.3.0",
-    "source-map-support": "^0.5.8"
+    "source-map-support": "^0.5.8",
+    "v8-compile-cache": "^2.0.2"
   },
   "devDependencies": {
     "appcd-gulp": "^1.1.5",
