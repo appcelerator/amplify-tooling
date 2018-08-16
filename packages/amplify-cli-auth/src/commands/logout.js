@@ -6,7 +6,7 @@ export default {
 			desc: 'one or more specific accounts to revoke credentials'
 		}
 	],
-	desc: 'log out of the AMPLIFY platform',
+	desc: 'log out all or specific accounts from the AMPLIFY platform',
 	options: {
 		'-a, --all': 'revoke all credentials; supersedes list of accounts',
 		'--json': 'outputs accounts as JSON'

@@ -436,6 +436,15 @@ export default class Authenticator {
 			await this.tokenStore.set(account);
 		}
 
+		if (!Object.getOwnPropertyDescriptor(account, 'expired')) {
+			Object.defineProperty(account, 'expired', {
+				configurable: true,
+				get() {
+					return this.expires.access < Date.now();
+				}
+			});
+		}
+
 		return {
 			accessToken: tokens.access_token,
 			account

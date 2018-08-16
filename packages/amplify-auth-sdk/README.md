@@ -231,6 +231,9 @@ Returns a `Promise` that resolves an `Object` containing:
  * `authenticator`: (String) The authentication method.
  * `baseUrl`: (String) The base URL.
  * `env`: (String) The environment name. Note that a user may override the environment's base URL.
+ * `expired`: (Boolean) This is a computed property that determimes if the access token is expired.
+   Auth SDK consumers should check this after retreiving the account to see if they need to
+   re-authenticate by calling `login()`.
  * `expires`: (Object) An object containing a timestamp (in milliseconds) for which the `access` and
    `refresh` tokens expire.
  * `hash`: (String) A base64 encoded md5 hash of the authenticator parameters.
@@ -246,7 +249,11 @@ resolve `null`.
 ```js
 const account = await auth.getAccount({ accountName: 'foo@bar.com' });
 if (account) {
-	console.log(`Found ${account.name}`);
+	if (account.expired) {
+		console.log(`Found ${account.name}, but the access token is expired and you must call login() again`);
+	} else {
+		console.log(`Found ${account.name}`);
+	}
 } else {
 	console.log('Not found');
 }
@@ -292,6 +299,8 @@ intention was to get fresh tokens.
      `"offline"`.
    * `app`: (String|Array) [optional] Specify the app to open the `target` with, or an array with
      the app and app arguments. Defaults to the system default web browser.
+   * `authenticator`: (Authenticator) [optional] An authenticator instance to use. If not specified,
+     one will be auto-selected based on the options.
    * `clientId`: (String) **[required]** The client id to specify when authenticating.
    * `code`: (String) [optional] The authentication code from a successful interactive login.
    * `endpoints`: (Object) [optional] A map of endpoint names to endpoint URLs. Possible endpoints

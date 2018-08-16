@@ -33,9 +33,8 @@ export default {
 
 		const client = new auth.Auth(params);
 
-		params.refresh = false;
 		const account = await client.getAccount(params);
-		if (account) {
+		if (account && !account.expired) {
 			if (argv.json) {
 				console.log(JSON.stringify(account, null, '  '));
 			} else {

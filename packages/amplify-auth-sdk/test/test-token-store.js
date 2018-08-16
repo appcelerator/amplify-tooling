@@ -1,4 +1,4 @@
-import Auth, { TokenStore } from '../dist/index';
+import Auth, { MemoryStore, TokenStore } from '../dist/index';
 import fs from 'fs-extra';
 import tmp from 'tmp';
 
@@ -182,6 +182,24 @@ describe('Token Store', () => {
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
+		});
+
+		it('should error trying to get a account without a name or hash', async () => {
+			const store = new MemoryStore();
+			try {
+				await store.get();
+			} catch (e) {
+				expect(e).to.be.instanceof(Error);
+				expect(e.message).to.equal('Must specify either the account name or authenticator hash');
+				return;
+			}
+			throw new Error('Expected error');
+		});
+
+		it('should return null if account is not found', async () => {
+			const store = new MemoryStore();
+			const account = await store.get({ accountName: 'foo' });
+			expect(account).to.be.null;
 		});
 	});
 

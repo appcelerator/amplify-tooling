@@ -166,6 +166,7 @@ describe('Owner Password', () => {
 			const { accessToken } = this.server;
 			expect(results.accessToken).to.equal(accessToken);
 			expect(results.account.name).to.equal('foo@bar.com');
+			expect(results.account.expired).to.be.false;
 		});
 
 		it('should refresh the access token', async function () {
@@ -206,8 +207,11 @@ describe('Owner Password', () => {
 			});
 			const { accessToken } = this.server;
 			expect(results.accessToken).to.equal(accessToken);
+			expect(results.account.expired).to.be.false;
 
 			await new Promise(resolve => setTimeout(resolve, 1500));
+
+			expect(results.account.expired).to.be.true;
 
 			results = await auth.login({
 				username: 'foo',
@@ -215,6 +219,7 @@ describe('Owner Password', () => {
 			});
 			expect(results.accessToken).to.not.equal(accessToken);
 			expect(results.accessToken).to.equal(this.server.accessToken);
+			expect(results.account.expired).to.be.false;
 		});
 
 		it('should handle bad user info response', async function () {
@@ -283,6 +288,7 @@ describe('Owner Password', () => {
 			const account = await auth.getAccount({ account: 'foo@bar.com' });
 			expect(account).to.be.ok;
 			expect(account.name).to.equal(results.userInfo.email);
+			expect(account.expired).to.be.false;
 		});
 	});
 
@@ -325,9 +331,11 @@ describe('Owner Password', () => {
 				password: 'bar'
 			});
 			expect(account.name).to.equal('foo@bar.com');
+			expect(account.expired).to.be.false;
 
 			const revoked = await auth.revoke({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
+			expect(revoked[0].expired).to.be.true;
 		});
 
 		it('should log out of all accounts', async function () {
@@ -366,9 +374,11 @@ describe('Owner Password', () => {
 				password: 'bar'
 			});
 			expect(account.name).to.equal('foo@bar.com');
+			expect(account.expired).to.be.false;
 
 			const revoked = await auth.revoke({ all: true });
 			expect(revoked).to.have.lengthOf(1);
+			expect(revoked[0].expired).to.be.true;
 		});
 
 		it('should not error logging out if not logged in', async function () {

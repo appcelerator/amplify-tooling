@@ -1,4 +1,5 @@
 export default {
+	aliases: [ 'ls' ],
 	desc: 'lists all authenticated accounts',
 	options: {
 		'--json': 'outputs accounts as JSON'

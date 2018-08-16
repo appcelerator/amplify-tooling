@@ -76,6 +76,9 @@ export default class TokenStore {
 		const entries = await this.list();
 
 		if (!baseUrl) {
+			for (const entry of entries) {
+				Object.defineProperty(entry, 'expired', { value: true });
+			}
 			return { entries: [], removed: entries };
 		}
 
@@ -83,7 +86,9 @@ export default class TokenStore {
 		baseUrl = baseUrl.replace(/^.*\/\//, '');
 		for (let i = 0; i < entries.length; i++) {
 			if (entries[i].baseUrl.replace(protoRegExp, '') === baseUrl) {
-				removed.push.apply(removed, entries.splice(i--, 1));
+				const entry = entries.splice(i--, 1)[0];
+				Object.defineProperty(entry, 'expired', { value: true });
+				removed.push(entry);
 			}
 		}
 
@@ -136,7 +141,9 @@ export default class TokenStore {
 
 		for (let i = 0; i < entries.length; i++) {
 			if (accounts.includes(entries[i].name) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
-				removed.push.apply(removed, entries.splice(i--, 1));
+				const entry = entries.splice(i--, 1)[0];
+				Object.defineProperty(entry, 'expired', { value: true });
+				removed.push(entry);
 			}
 		}
 
@@ -216,12 +223,18 @@ export default class TokenStore {
 		// length since splice() shrinks the array length
 		for (let i = 0; i < entries.length; i++) {
 			const { expires, tokens } = entries[i];
-			if (expires && tokens && tokens.access_token && tokens.refresh_token) {
-				const now = Date.now();
-				if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
-					// not expired
-					continue;
+			const now = Date.now();
+			if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
+				// not expired
+				if (!Object.getOwnPropertyDescriptor(entries[i], 'expired')) {
+					Object.defineProperty(entries[i], 'expired', {
+						configurable: true,
+						get() {
+							return this.expires.access < Date.now();
+						}
+					});
 				}
+				continue;
 			}
 			count++;
 			entries.splice(i--, 1);

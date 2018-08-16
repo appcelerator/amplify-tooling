@@ -187,8 +187,6 @@ export default class Auth {
 	 * @param {String} [opts.baseUrl] - The base URL to filter by.
 	 * @param {String} [opts.hash] - The authenticator hash. This is required only if an
 	 * `accountName` has not been specified or is unknown. This is intended for internal use.
-	 * @param {Boolean} [opts.refresh=true] - When `true`, automatically refreshes the account's
-	 * expired access token.
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
@@ -199,15 +197,10 @@ export default class Auth {
 		}
 
 		this.applyDefaults(opts);
-		opts.hash = this.createAuthenticator(opts).hash;
 
-		let account = await this.tokenStore.get(opts);
-
-		if (account && account.tokens.access_token && account.expires.access > Date.now() && opts.refresh !== false) {
-			account = (await this.login(opts)).account;
-		}
-
-		return account;
+		const authenticator = this.createAuthenticator(opts);
+		opts.hash = authenticator.hash;
+		return await this.tokenStore.get(opts);
 	}
 
 	/**
@@ -229,6 +222,8 @@ export default class Auth {
 	 * @param {Object} [opts] - Various options.
 	 * @param {String|Array.<String>} [opt.app] - Specify the app to open the `target` with, or an
 	 * array with the app and app arguments.
+	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
+	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
 	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
 	 * @param {String} [opts.code] - The authentication code from a successful interactive login.
@@ -247,7 +242,15 @@ export default class Auth {
 	 */
 	async login(opts = {}) {
 		this.applyDefaults(opts);
-		return await this.createAuthenticator(opts).login(opts);
+
+		let { authenticator } = opts;
+		if (!authenticator) {
+			authenticator = this.createAuthenticator(opts);
+		} else if (!(opts.authenticator instanceof Authenticator)) {
+			throw E.INVALID_ARUGMENT('Expected authenticator to be an Authenticator instance.');
+		}
+
+		return await authenticator.login(opts);
 	}
 
 	/**
