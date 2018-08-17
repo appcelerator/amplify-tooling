@@ -220,9 +220,9 @@ Retrieves the access token based on the supplied account name.
 ##### `options`: (Object)
 
  * `accountName`: (String) The account name to retrieve.
+ * `authenticator`: (Authenticator) [optional] An authenticator instance to use. If not specified,
+   one will be auto-selected based on the options.
  * `baseUrl`: (String) [optional] The base URL to filter by.
- * `hash`: (String) [optional] The authenticator hash. This is required only if an `accountName`
-   has not been specified or is unknown. This is intended for internal use.
 
 ##### Return Value
 
@@ -416,18 +416,21 @@ This method can be directly invoked, but the recommended usage is to call `login
 However, if you have some advanced scenario, this method may come in handy. Note that this method
 only applies the supplied options and not the default options of the `Auth` instance.
 
-* PKCE:
-  * This is the default authentication method and has no options.
-* Username/Password:
-  * `username`: (String) The username to login as.
-  * `password`: (String) The password use.
-* Client Secret Credentials:
-  * `clientSecret`: (String) The client-specific secret key to login with.
-  * `serviceAccount`: (Boolean) [optional] When `true`, indicates the consumer is a service and not
-	a user and that authentication should be _non-interactive_.
-* JSON Web Token:
-  * `secretFile`: (String) The path to the file containing the secret key to login
-	with. This is RSA private key, usually stored in a `.pem` file.
+ * General:
+   * `authenticator`: (Authenticator) [optional] An authenticator instance to use. If not specified,
+     one will be auto-selected based on the options.
+ * PKCE:
+   * This is the default authentication method and has no options.
+ * Username/Password:
+   * `username`: (String) The username to login as.
+   * `password`: (String) The password use.
+ * Client Secret Credentials:
+   * `clientSecret`: (String) The client-specific secret key to login with.
+   * `serviceAccount`: (Boolean) [optional] When `true`, indicates the consumer is a service and not
+     a user and that authentication should be _non-interactive_.
+ * JSON Web Token:
+   * `secretFile`: (String) The path to the file containing the secret key to login
+     with. This is RSA private key, usually stored in a `.pem` file.
 
 ##### Return Value
 

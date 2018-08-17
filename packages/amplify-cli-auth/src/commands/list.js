@@ -34,15 +34,15 @@ export default {
 			return;
 		}
 
-		console.log('| Active | Account Name | Expires | Auth Type | Environment |');
-		console.log('| ------ | ------------ | ------- | --------- | ----------- |');
+		console.log('| Active | Account Name | Expires | Environment |');
+		console.log('| ------ | ------------ | ------- | ----------- |');
 
 		const now = Date.now();
 		const pretty = require('pretty-ms');
 		const urlRE = /^.*\/\//;
 
 		for (const account of accounts) {
-			console.log(`| ${account.active ? ':check:' : ' '} | ${account.name} | ${pretty(account.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} | ${account.authenticator} | ${account.baseUrl.replace(urlRE, '')} |`);
+			console.log(`| ${account.active ? ':check:' : ' '} | ${account.name} | ${pretty(account.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} | ${account.baseUrl.replace(urlRE, '')} |`);
 		}
 	}
 };

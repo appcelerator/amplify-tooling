@@ -153,6 +153,8 @@ export default class Auth {
 	 * Creates an authetnicator based on the supplied options.
 	 *
 	 * @param {Object} [opts] - Various options.
+	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
+	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
@@ -163,6 +165,13 @@ export default class Auth {
 	 * @access public
 	 */
 	createAuthenticator(opts = {}) {
+		if (opts.authenticator) {
+			if (!(opts.authenticator instanceof Authenticator)) {
+				throw E.INVALID_ARUGMENT('Expected authenticator to be an Authenticator instance.');
+			}
+			return opts.authenticator;
+		}
+
 		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
 			return new OwnerPassword(opts);
 		}
@@ -184,9 +193,9 @@ export default class Auth {
 	 *
 	 * @param {Object} opts - Required options.
 	 * @param {String} opts.accountName - The account name to retrieve.
+	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
+	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.baseUrl] - The base URL to filter by.
-	 * @param {String} [opts.hash] - The authenticator hash. This is required only if an
-	 * `accountName` has not been specified or is unknown. This is intended for internal use.
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
@@ -242,14 +251,7 @@ export default class Auth {
 	 */
 	async login(opts = {}) {
 		this.applyDefaults(opts);
-
-		let { authenticator } = opts;
-		if (!authenticator) {
-			authenticator = this.createAuthenticator(opts);
-		} else if (!(opts.authenticator instanceof Authenticator)) {
-			throw E.INVALID_ARUGMENT('Expected authenticator to be an Authenticator instance.');
-		}
-
+		const authenticator = this.createAuthenticator(opts);
 		return await authenticator.login(opts);
 	}
 
