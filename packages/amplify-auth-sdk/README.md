@@ -35,21 +35,32 @@ authentication method. Each account is uniquely identified by its account name a
 
 ### Persistence
 
-Access tokens can be persisted in a token store. By default, the Auth SDK will attempt to write the
-token store to an operating specific secure storage mechanism. Should the secure storage library
-be unavailable, it will fall back to a file-based token store.
+Access tokens are persisted in a token store. The type of token store is specified at the time the
+`Auth` instance is created. Possible types are:
 
-Secure token storage requires [`keytar`](https://www.npmjs.com/package/keytar), however keytar is a
-native Node.js C++ addon and thus requires a C++ compiler to be installed on the user's machine.
-Since many Windows users doe not have a compiler, it is recommended that keytar be an optional
-dependency.
+ * `"auto"` (default) - Attempts to create the best token store.
+ * `"secure"` - A secure file-based store.
+ * `"file"` - An unsecure file-based store.
+ * `"memory"` - An in-memory store.
+ * `null` - No store will be created and tokens will not be persisted.
+
+By default, the Auth SDK will use the `"auto"` token store which attempts to create a `"secure"`
+token store, but falls back to a file-based store followed by an in-memory store should that fail.
+
+Both `"secure"` and `"file"` token stores require a `tokenStoreDir` value. The directory will be
+created if it does not exist.
+
+The secure store requires the [`keytar`](https://www.npmjs.com/package/keytar) dependency. `keytar`
+is a native Node.js C++ addon and thus requires a C++ compiler to be installed on the user's machine
+at the time this Auth SDK is installed. Since users may not have a compiler available, it is
+recommended that `keytar` be an optional dependency.
 
 > Note: When using keytar and a user changes their Node.js version to a different major version, the
 > module API version for which keytar was compiled for will no longer be compatible and the Auth SDK
 > fail to operate.
 
-The Auth SDK also supports a "memory" token store, should you wish to persist the tokens for the
-life of the process. This was originally intended for unit tests.
+The `"memory"` token store will persist the tokens for the life of the process and are lost when the
+process exits. This was originally intended for unit tests.
 
 ## Examples
 
@@ -183,21 +194,20 @@ used when a method is invoked and a property has not be specified.
    * `clientId`: (String) **[required]** The client id to specify when authenticating.
    * `env`: (String) [optional] The environment name. Must be `"dev"`, `"preprod"`, or `"prod"`. The
      environment is a shorthand way of specifying a Axway default base URL. Defaults to `"prod"`.
-   * `keytarServiceName`: (String) [optional] The name of the consumer using this library when using
-     the `"keytar"` token store. Defaults to `"Axway AMPLIFY Auth"`.
+   * `secureServiceName`: (String) [optional] The name of the consumer using this library when using
+     the `"secure"` token store. Defaults to `"Axway AMPLIFY Auth"`.
    * `messages`: (Object) [optional] A map of categorized messages to display to the end user.
      Supports plain text or HTML strings.
    * `realm`: (String) **[required]** The name of the realm to authenticate with.
    * `tokenRefreshThreshold`: (Number) [optional] The number of seconds before the access token
      expires and should be refreshed. Defaults to `0`.
    * `tokenStore`: (TokenStore) [optional] A token store instance for persisting the tokens.
-   * `tokenStoreDir`: (String) [optional] The directory to save the token file when the `default`
-     token store is used.
-   * `tokenStoreType`: (String) [optional] The type of store to persist the access token. Possible
-     values include: `auto` (which tries to use the `keytar` store, but falls back to the
-     `file` store), [`keytar`](https://www.npmjs.com/package/keytar) to use the operating system's
-     secure storage mechanism (or errors if keytar is not installed), `file` to use a file-based
-     store, or `memory` for an in-memory store. If `null`, it will not persist the access token.
+   * `tokenStoreDir`: (String) [optional] The directory where the token store is saved. Required
+     when the `tokenStoreType` is `secure` or `file`.
+   * `tokenStoreType`: (String) [optional] The type of store to persist the access token.
+     Possible values include: `"auto"`, `"secure"`, `"file"`, or `"memory"`. If value is `auto`, it
+     will attempt to use `secure`, then `file`, then `memory`. If set to `null`, then it will not
+     persist the access token.
  * PKCE:
    * This is the default authentication method and has no options.
  * Username/Password:
@@ -468,8 +478,8 @@ generally for testing or defining new authentication and token store classes.
 
  * `TokenStore`: The base class for all token stores.
    * `FileStore`: The default file-based token store.
-   * `KeytarStore`: A secure token store that uses [`keytar`](https://www.npmjs.com/package/keytar).
    * `MemoryStore`: An in-memory token store.
+   * `SecureStore`: A secure token store that uses [`keytar`](https://www.npmjs.com/package/keytar).
 
 ### Misc Internal APIs
 

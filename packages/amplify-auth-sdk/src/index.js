@@ -12,8 +12,8 @@ import PKCE from './authenticators/pkce';
 import SignedJWT from './authenticators/signed-jwt';
 
 import FileStore from './stores/file-store';
-import KeytarStore from './stores/keytar-store';
 import MemoryStore from './stores/memory-store';
+import SecureStore from './stores/secure-store';
 import TokenStore from './stores/token-store';
 
 import environments from './environments';
@@ -49,8 +49,8 @@ export default class Auth {
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
-	 * @param {String} [opts.keytarServiceName="Axway AMPLIFY Auth"] - The name of the consumer
-	 * using this library when using the "keytar" token store.
+	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
+	 * using this library when using the "secure" token store.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
@@ -59,12 +59,12 @@ export default class Auth {
 	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
 	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
-	 * @param {String} [opts.tokenStoreFile] - The path to the file-based token store.
+	 * @param {String} [opts.tokenStoreDir] - The directory where the token store is saved. Required
+	 * when the `tokenStoreType` is `secure` or `file`.
 	 * @param {String} [opts.tokenStoreType=auto] - The type of store to persist the access token.
-	 * Possible values include: `auto` (which tries to use the `keytar` store, but falls back to the
-	 * `file` store), `keytar` to use the operating system's secure storage mechanism (or errors if
-	 * keytar is not installed), `file` to use a file-based store, or `memory` for an in-memory
-	 * store. If `null`, it will not persist the access token.
+	 * Possible values include: `auto`, `secure`, `file`, or `memory`. If value is `auto`, it will
+	 * attempt to use `secure`, then `file`, then `memory`. If set to `null`, then it will not
+	 * persist the access token.
 	 * @param {String} [opts.username] - The username used to authenticate. Requires a `password`.
 	 * @access public
 	 */
@@ -95,22 +95,31 @@ export default class Auth {
 			const tokenStoreType = opts.tokenStoreType === undefined ? 'auto' : opts.tokenStoreType;
 			switch (tokenStoreType) {
 				case 'auto':
-				case 'keytar':
+				case 'secure':
 					try {
-						this.tokenStore = new KeytarStore(opts);
+						this.tokenStore = new SecureStore(opts);
 						break;
 					} catch (e) {
 						/* istanbul ignore if */
-						if (tokenStoreType === 'keytar') {
+						if (tokenStoreType === 'auto') {
+							// let 'auto' fall through
+						} else {
 							throw e;
 						}
-
-						// let 'auto' fall through
 					}
 
 				case 'file':
-					this.tokenStore = new FileStore(opts);
-					break;
+					try {
+						this.tokenStore = new FileStore(opts);
+						break;
+					} catch (e) {
+						/* istanbul ignore if */
+						if (tokenStoreType === 'auto' && e.code === 'ERR_MISSING_REQUIRED_PARAMETER') {
+							// let 'auto' fall through
+						} else {
+							throw e;
+						}
+					}
 
 				case 'memory':
 					this.tokenStore = new MemoryStore(opts);
@@ -336,8 +345,8 @@ export {
 	SignedJWT,
 
 	FileStore,
-	KeytarStore,
 	MemoryStore,
+	SecureStore,
 	TokenStore,
 
 	environments,

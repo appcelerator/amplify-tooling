@@ -214,21 +214,22 @@ describe('Token Store', () => {
 					realm:          'test_realm',
 					tokenStoreType: 'file'
 				});
-			}).to.throw(TypeError, 'File token store requires a token store file path');
+			}).to.throw(TypeError, 'Token store requires a token store path');
 		});
 
 		it('should persist the token to a file', async function () {
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
-			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl,
 				clientId:       'test_client',
 				realm:          'test_realm',
-				tokenStoreFile,
+				tokenStoreDir,
 				tokenStoreType: 'file'
 			});
+			const { tokenStoreFile } = auth.tokenStore;
 
 			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -261,14 +262,15 @@ describe('Token Store', () => {
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
-			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl,
 				clientId:       'test_client',
 				realm:          'test_realm',
-				tokenStoreFile,
+				tokenStoreDir,
 				tokenStoreType: 'file'
 			});
+			const { tokenStoreFile } = auth.tokenStore;
 
 			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -305,15 +307,15 @@ describe('Token Store', () => {
 				refreshExpiresIn: 1
 			});
 
-			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
-
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
-				tokenStoreFile,
+				tokenStoreDir,
 				tokenStoreType: 'file'
 			});
+			const { tokenStoreFile } = auth.tokenStore;
 
 			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -337,18 +339,29 @@ describe('Token Store', () => {
 		});
 	});
 
-	describe('Keytar Token Store', () => {
+	describe('Secure Token Store', () => {
+		const secureServiceName = 'Axway AMPLIFY Auth Test';
+
 		afterEach(stopLoginServer);
+
+		afterEach(async () => {
+			if (!isCI || process.platform !== 'linux') {
+				await require('keytar').deletePassword(secureServiceName, secureServiceName);
+			}
+		});
 
 		(isCI && process.platform === 'linux' ? it.skip : it)('should securely store the token', async function () {
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl,
 				clientId:       'test_client',
+				secureServiceName,
 				realm:          'test_realm',
-				tokenStoreType: 'keytar'
+				tokenStoreDir,
+				tokenStoreType: 'secure'
 			});
 
 			let tokens = await auth.list();
@@ -378,11 +391,14 @@ describe('Token Store', () => {
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl,
 				clientId:       'test_client',
+				secureServiceName,
 				realm:          'test_realm',
-				tokenStoreType: 'keytar'
+				tokenStoreDir,
+				tokenStoreType: 'secure'
 			});
 
 			let tokens = await auth.list();

@@ -192,12 +192,12 @@ describe('Owner Password', () => {
 				}
 			});
 
-			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
-				tokenStoreFile,
+				tokenStoreDir,
 				tokenStoreType: 'file'
 			});
 
@@ -271,12 +271,12 @@ describe('Owner Password', () => {
 		it('should get account info once logged in', async function () {
 			this.server = await createLoginServer();
 
-			const tokenStoreFile = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
-				tokenStoreFile,
+				tokenStoreDir,
 				tokenStoreType: 'file'
 			});
 

@@ -36,14 +36,13 @@ export function buildParams(opts = {}, config) {
 		clientSecret:            undefined,
 		env,
 		interactiveLoginTimeout: undefined,
-		keytarServiceName:       'Axway AMPLIFY CLI',
 		password:                undefined,
 		realm,
 		secretFile:              undefined,
 		serverHost:              undefined,
 		serverPort:              undefined,
 		tokenRefreshThreshold:   undefined,
-		tokenStoreFile:          path.join(axwayHome, '.tokenstore'),
+		tokenStoreDir:           axwayHome,
 		tokenStoreType:          undefined,
 		username:                undefined
 	};

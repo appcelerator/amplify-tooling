@@ -2,7 +2,6 @@
 
 import E from '../errors';
 import snooplogg from 'snooplogg';
-import zlib from 'zlib';
 
 const { pluralize } = snooplogg;
 const { log } = snooplogg('amplify-auth:token-store');
@@ -95,17 +94,6 @@ export default class TokenStore {
 		return { entries, removed };
 	}
 
-	/**
-	 * Decodes the supplied string into an object.
-	 *
-	 * @param {String} str - The string to decode into an object.
-	 * @returns {Object}
-	 * @access private
-	 */
-	decode(str) {
-		return JSON.parse(zlib.unzipSync(Buffer.from(str, 'base64')));
-	}
-
 	/* istanbul ignore next */
 	/**
 	 * Deletes a token from the store. This method is intended to be overwritten.
@@ -148,17 +136,6 @@ export default class TokenStore {
 		}
 
 		return { entries, removed };
-	}
-
-	/**
-	 * Encodes an object into a string.
-	 *
-	 * @param {Object} data - The object to encode into a string.
-	 * @returns {String}
-	 * @access private
-	 */
-	encode(data) {
-		return zlib.deflateSync(JSON.stringify(data)).toString('base64');
 	}
 
 	/**
