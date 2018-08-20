@@ -16,7 +16,7 @@ export default {
 			realm:    argv.realm
 		}, config);
 
-		const active = config.get('auth.account');
+		const active = config.get('auth.defaultAccount');
 		const client = new auth.Auth(params);
 		const accounts = await client.list();
 

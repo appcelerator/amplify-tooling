@@ -48,10 +48,10 @@ export default {
 		let active = false;
 
 		if (accounts.length === 1) {
-			config.set('auth.account', userInfo.preferred_username);
+			config.set('auth.defaultAccount', userInfo.preferred_username);
 			await config.save(config.userConfigFile);
 			active = true;
-		} else if (config.get('auth.account') === userInfo.preferred_username) {
+		} else if (config.get('auth.defaultAccount') === userInfo.preferred_username) {
 			active = true;
 		}
 
