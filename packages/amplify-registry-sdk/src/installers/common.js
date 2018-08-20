@@ -1,6 +1,7 @@
 
-import { existsSync, ensureDirSync, readdirSync, readJSONSync, statSync } from 'fs-extra';
+import { existsSync, ensureDir, readdirSync, readJSONSync, statSync } from 'fs-extra';
 import { extract } from 'tar';
+import { isDir, isFile } from 'appcd-fs';
 import { join } from 'path';
 import { loadConfig, locations } from '@axway/amplify-cli-utils';
 import { run, which } from 'appcd-subprocess';
@@ -8,8 +9,14 @@ import { run, which } from 'appcd-subprocess';
 export const cacheDir = join(locations.axwayHome, 'cache');
 export const packagesDir = join(locations.axwayHome, 'packages');
 
+/**
+ * TODO
+ *
+ * @param {Object} params - Various options.
+ * @param {String} params.directory - The directory to run npm in.
+ * @param {String} [params.npm] - The path to the npm. Defaults to resolving npm in the system path.
+ */
 export async function npmInstall({ directory, npm }) {
-
 	if (!existsSync(join(directory, 'package.json'))) {
 		const error = new Error('Directory does not contain a package.json');
 		error.code = 'ENOPKGJSON';
@@ -39,23 +46,27 @@ export async function npmInstall({ directory, npm }) {
 	}
 }
 
-export async function extractTar({ file, dest, opts }) {
-	try {
-		opts = Object.assign({ strip: 1 }, opts, { file, cwd: dest });
-		ensureDirSync(dest);
-		return await extract(opts);
-	} catch (err) {
-		throw err;
-	}
+/**
+ * TODO
+ *
+ * @param {Object} params - Various options.
+ * @param {String} params.dest - The directory to extract the archive.
+ * @param {String} params.file - The tarball to extract.
+ * @param {Object} [params.opts] - Various extract options.
+ */
+export async function extractTar({ dest, file, opts }) {
+	opts = Object.assign({ strip: 1 }, opts, { file, cwd: dest });
+	await ensureDir(dest);
+	await extract(opts);
 }
 
 /**
  * Add a package to the amplify cli config
+ *
  * @param {String} name - Name of the package.
  * @param {String} path - Path to the package.
  */
 export async function addPackageToConfig(name, path, cfg = loadConfig(), location = locations.configFile) {
-
 	if (!name || typeof name !== 'string') {
 		throw new TypeError('Expected name to be a valid string');
 	}
@@ -74,11 +85,11 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
 
 /**
  * Remove a package from the amplify cli config, optionally replacing it with another version.
+ *
  * @param {String} name - Name of the package to remove/replace.
  * @param {String} [replacementPath] - Path to replace the existing version with.
  */
 export async function removePackageFromConfig(name, replacementPath, cfg = loadConfig(), location = locations.configFile) {
-
 	if (!name || typeof name !== 'string') {
 		throw new TypeError('Expected name to be a valid string');
 	}
@@ -98,46 +109,58 @@ export async function removePackageFromConfig(name, replacementPath, cfg = loadC
 	} else {
 		cfg.delete(`extensions.${name}`);
 	}
+
 	await cfg.save(location);
 }
 
-export function getInstalledPackages(cfg = loadConfig(), pkgDir = packagesDir) {
+/**
+ * Detects installed packages.
+ *
+ * @param {Config} cfg - The config object.
+ * @param {String} pkgsDir - THe directory where packages are stored.
+ * @returns {Array.<Object>}
+ */
+export function getInstalledPackages(cfg = loadConfig(), pkgsDir = packagesDir) {
 	const packages = [];
 	const activePkgs = cfg.get('extensions', {});
-	for (const name of readdirSync(pkgDir)) {
-		const nameDir = join(pkgDir, name);
 
-		if (!statSync(nameDir).isDirectory()) {
+	if (!isDir(pkgsDir)) {
+		return packages;
+	}
+
+	for (const name of readdirSync(pkgsDir)) {
+		const pkgDir = join(pkgsDir, name);
+		if (!isDir(pkgDir)) {
 			continue;
-		}
-
-		const activeData = getPackageInfo(activePkgs[name]);
-		let activeVersion;
-
-		if (activeData) {
-			activeVersion = activeData.version;
 		}
 
 		const packageData = {
 			name,
-			versions: [],
-			versionInfo: {},
-			activeVersion,
-			activePath: join(pkgDir, name, activeVersion)
+			version: undefined,
+			versions: {}
 		};
 
-		for (const version of readdirSync(nameDir)) {
-			const versionDir = join(nameDir, version);
-
-			if (!statSync(versionDir).isDirectory()) {
-				continue;
-			}
-
-			packageData.versions.push(version);
-			packageData.versionInfo[version] = { version, installPath: versionDir };
+		const active = getPackageInfo(activePkgs[name]);
+		if (active) {
+			packageData.version = active.version;
 		}
-		packages.push(packageData);
+
+		for (const version of readdirSync(pkgDir)) {
+			const versionDir = join(pkgDir, version);
+			const pkgJsonFile = join(versionDir, 'package.json');
+
+			if (isFile(pkgJsonFile)) {
+				packageData.versions[version] = {
+					path: versionDir
+				};
+			}
+		}
+
+		if (packageData.version || Object.keys(packageData.versions).length) {
+			packages.push(packageData);
+		}
 	}
+
 	return packages;
 }
 

@@ -1,17 +1,5 @@
 export default {
 	aliases: [ 's', 'se' ],
-	desc: 'searches registry for packages',
-	options: {
-		'--auth <account>': {
-			desc: 'the authorization account to use'
-		},
-		'--repository <repository>': {
-			desc: 'repository to search'
-		},
-		'--type <type>': {
-			desc: 'type of component to search'
-		}
-	},
 	args: [
 		{
 			name: 'search',
@@ -19,57 +7,58 @@ export default {
 			required: false
 		}
 	],
+	desc: 'searches registry for packages',
+	options: {
+		'--auth <account>': 'the authorization account to use',
+		'--json': 'outputs accounts as JSON',
+		'--repository <repository>': 'repository to search',
+		'--type <type>': 'type of component to search'
+	},
 	async action({ argv, console }) {
 		const [
-			columnify,
 			{ getRegistryURL },
 			{ Registry }
 		] = await Promise.all([
-			'columnify',
-			'../utils',
-			'@axway/amplify-registry-sdk'
+			import('../utils'),
+			import('@axway/amplify-registry-sdk')
 		]);
 
-		try {
-			const url = getRegistryURL();
-			const registry = new Registry({ url });
-			const { repository, search, type } = argv;
-			const body = await registry.search({ text: search, repository, type });
+		const url = getRegistryURL();
+		const registry = new Registry({ url });
+		const { repository, search, type } = argv;
+		let results;
 
-			const columnConfig = {
-				columnSplitter: ' | ',
-				showHeaders: true,
-				config: {
-					name: {
-						minWidth: 25
-					},
-					version: {
-						minWidth: 8
-					},
-					description: {
-						maxWidth: 80 - (25 + 8)
-					}
-				}
-			};
-			const data = body.map(d => {
+		try {
+			results = (await registry.search({ text: search, repository, type })).map(d => {
 				return {
-					name: d.name,
-					version: d.latest_version,
-					type: d.type,
+					name:        d.name,
+					version:     d.latest_version,
+					type:        d.type,
 					description: d.description
 				};
 			});
-			if (!data.length) {
-				console.log('No results');
-			} else {
-				console.log(columnify(data, columnConfig));
-			}
 		} catch (e) {
 			if (e.code === 'ECONNREFUSED') {
 				console.log('Unable to connect to registry server');
 				process.exit(3);
 			}
-			console.log(e);
+			throw e;
+		}
+
+		if (argv.json) {
+			console.log(JSON.stringify(results, null, '  '));
+			return;
+		}
+
+		if (!results.length) {
+			console.log('No results');
+			return;
+		}
+
+		console.log('| Name | Version | Type | Description |');
+		console.log('| ---- | ------- | ---- | ----------- |');
+		for (const result of results) {
+			console.log(`| ${result.name} | ${result.version} | ${result.type} | ${result.description} |`);
 		}
 	}
 };
