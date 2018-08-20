@@ -1,10 +1,15 @@
-import columninfy from 'columnify';
-import { getInstalledPackages } from '@axway/amplify-registry-sdk';
-
 export default {
 	aliases: [ 'ls' ],
 	desc: 'lists all installed packages',
-	async action({ argv }) {
+	async action({ argv, console }) {
+		const [
+			columninfy,
+			{ getInstalledPackages }
+		] = await Promise.all([
+			import('columnify'),
+			import('@axway/amplify-registry-sdk')
+		]);
+
 		const installed = getInstalledPackages();
 		if (!installed.length) {
 			console.log('No packages installed');

@@ -3,35 +3,52 @@ if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
-import CLI from 'cli-kit';
+import CLI, { chalk } from 'cli-kit';
 import config from './commands/config';
 
+import { dirname, resolve } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
-const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
+const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
 
-const cfg =  loadConfig();
+const cfg = loadConfig();
 
 const extensions = [
 	...Object.values(cfg.get('extensions', {})),
-	require.resolve('@axway/amplify-cli-auth'),
-	require.resolve('@axway/amplify-cli-pm')
+	dirname(require.resolve('@axway/amplify-cli-auth')),
+	dirname(require.resolve('@axway/amplify-cli-pm'))
 ];
 
+let banner;
+if (!process.env.hasOwnProperty('APPC_NPM_VERSION')) {
+	banner = `${chalk.cyan('AMPLIFY CLI')}, version ${version}\n`
+		+ 'Copyright (c) 2018, Axway, Inc. All Rights Reserved.';
+}
+
 new CLI({
+	banner,
 	commands: {
 		config
 	},
+	desc: 'The AMPLIFY CLI is a unified command line interface for the Axway AMPLIFY platform.',
 	extensions,
 	help: true,
 	helpExitCode: 2,
 	name: 'amplify',
-	version: pkgJson.version
+	version
 }).exec()
 	.catch(err => {
-		console.error(err.message);
-		process.exit(err.exitCode || 1);
-	});
+		const exitCode = err.exitCode || 1;
 
+		if (err.json) {
+			console.log(JSON.stringify({
+				code: exitCode,
+				result: err.toString()
+			}, null, 2));
+		} else {
+			console.error(err.message || err);
+		}
+
+		process.exit(exitCode);
+	});

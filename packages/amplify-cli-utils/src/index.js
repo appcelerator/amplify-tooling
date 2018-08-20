@@ -4,10 +4,13 @@ if (!Error.prepareStackTrace) {
 }
 
 import loadConfig from './config';
-import * as locations from './locations';
 import request from './request';
 
+import * as auth from './auth';
+import * as locations from './locations';
+
 export {
+	auth,
 	loadConfig,
 	locations,
 	request

@@ -1,8 +1,3 @@
-import npa from 'npm-package-arg';
-import semver from 'semver';
-
-import { addPackageToConfig, getInstalledPackages } from '@axway/amplify-registry-sdk';
-
 /**
  * Examples:
  * 	amplify pm use appcd
@@ -21,7 +16,17 @@ export default {
 			required: true
 		}
 	],
-	async action({ argv }) {
+	async action({ argv, console }) {
+		const [
+			npa,
+			semver,
+			{ addPackageToConfig, getInstalledPackages }
+		] = await Promise.all([
+			import('npm-package-arg'),
+			import('semver'),
+			import('@axway/amplify-registry-sdk')
+		]);
+
 		const info = npa(argv.package);
 		const { type, name, fetchSpec } = info;
 		const installed = getInstalledPackages().filter(pkg => pkg.name === name)[0];

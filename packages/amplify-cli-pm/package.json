@@ -14,7 +14,7 @@
   "bin": {
     "amplify-cli-pm": "./bin/amplify-cli-pm"
   },
-  "main": "./dist/cli",
+  "main": "./dist/main",
   "preferGlobal": true,
   "scripts": {
     "build": "gulp build",
@@ -30,10 +30,10 @@
     "columnify": "^1.5.4",
     "npm-package-arg": "^6.1.0",
     "semver": "^5.5.0",
-    "source-map-support": "^0.5.6"
+    "source-map-support": "^0.5.8"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.1.4",
+    "appcd-gulp": "^1.1.5",
     "gulp": "^3.9.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
@@ -43,6 +43,7 @@
     "node": ">=8.0.0"
   },
   "cli-kit": {
+    "main": "./dist/cli",
     "name": "pm"
   }
 }
