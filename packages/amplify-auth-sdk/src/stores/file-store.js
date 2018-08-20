@@ -49,25 +49,6 @@ export default class FileStore extends TokenStore {
 	}
 
 	/**
-	 * Gets the decipher key or generates a new one if it doesn't exist.
-	 *
-	 * @returns {Buffer}
-	 * @access private
-	 */
-	async getKey() {
-		if (!this._key) {
-			Object.defineProperty(this, '_key', {
-				value: crypto
-					.createHash('sha256')
-					.update(fs.readFileSync(__filename))
-					.digest('hex')
-					.slice(0, 16)
-			});
-		}
-		return this._key;
-	}
-
-	/**
 	 * Removes all tokens.
 	 *
 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
@@ -90,7 +71,7 @@ export default class FileStore extends TokenStore {
 	 * Decodes the supplied string into an object.
 	 *
 	 * @param {String} str - The string to decode into an object.
-	 * @returns {Object}
+	 * @returns {Array}
 	 * @access private
 	 */
 	async decode(str) {
@@ -110,7 +91,7 @@ export default class FileStore extends TokenStore {
 		const { entries, removed } = await super._delete(accounts, baseUrl);
 		if (entries.length) {
 			const data = await this.encode(entries);
-			await fs.outputFile(this.tokenStoreFile, data, { mode: 384 /* 600 */ });
+			await fs.outputFile(this.tokenStoreFile, data, { mode: 0o600 });
 		} else {
 			log(`Deleting empty token file: ${highlight(this.tokenStoreFile)}`);
 			await fs.remove(this.tokenStoreFile);
@@ -128,6 +109,21 @@ export default class FileStore extends TokenStore {
 	async encode(data) {
 		const cipher = crypto.createCipheriv(algorithm, await this.getKey(), iv);
 		return cipher.update(JSON.stringify(data), 'utf8', 'hex') + cipher.final('hex');
+	}
+
+	/**
+	 * Gets the decipher key or generates a new one if it doesn't exist.
+	 *
+	 * @returns {Buffer}
+	 * @access private
+	 */
+	async getKey() {
+		if (!this._key) {
+			Object.defineProperty(this, '_key', {
+				value: 'd4be0906bc9fae40'
+			});
+		}
+		return this._key;
 	}
 
 	/**
