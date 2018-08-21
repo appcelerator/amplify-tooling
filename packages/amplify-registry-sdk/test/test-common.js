@@ -1,24 +1,24 @@
 import { addPackageToConfig, extractTar, getInstalledPackages, npmInstall, removePackageFromConfig } from '../dist/installers/common';
 import { join } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
-import { removeSync } from 'fs-extra';
+import { removeSync, writeJSONSync } from 'fs-extra';
 import { EventEmitter } from 'events';
 // We need to require this in order to mock it
 const child_process = require('child_process');
 const tar = require('tar');
 
 const fixturesDir = join(__dirname, 'fixtures');
-const userConfig = join(fixturesDir, 'my-config.json');
+const userConfigFile = join(fixturesDir, 'my-config.json');
 
 describe('common utils', () => {
 
 	describe('addPackageToConfig()', () => {
 		beforeEach(function () {
-			this.config = loadConfig({ userConfig });
+			this.config = loadConfig({ userConfigFile });
 		});
 
 		afterEach(function () {
-			removeSync(userConfig);
+			removeSync(userConfigFile);
 			this.config = null;
 		});
 
@@ -36,7 +36,7 @@ describe('common utils', () => {
 
 		it('should add a package to the config', async function () {
 			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo');
-			await addPackageToConfig('foo', pluginDir, this.config, userConfig);
+			await addPackageToConfig('foo', pluginDir, this.config, userConfigFile);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir
 			});
@@ -45,11 +45,11 @@ describe('common utils', () => {
 
 	describe('removePackageFromConfig()', () => {
 		beforeEach(function () {
-			this.config = loadConfig({ userConfig });
+			this.config = loadConfig({ userConfigFile });
 		});
 
 		afterEach(function () {
-			removeSync(userConfig);
+			removeSync(userConfigFile);
 			this.config = null;
 		});
 
@@ -67,16 +67,16 @@ describe('common utils', () => {
 
 		it('should remove a package from the config', async function () {
 			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo');
-			await addPackageToConfig('foo', pluginDir, this.config, userConfig);
+			await addPackageToConfig('foo', pluginDir, this.config, userConfigFile);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir
 			});
-			await addPackageToConfig('bar', pluginDir, this.config, userConfig);
+			await addPackageToConfig('bar', pluginDir, this.config, userConfigFile);
 			expect(this.config.get('extensions')).to.deep.equal({
 				bar: pluginDir,
 				foo: pluginDir
 			});
-			await removePackageFromConfig('foo', null, this.config, userConfig);
+			await removePackageFromConfig('foo', null, this.config, userConfigFile);
 			expect(this.config.get('extensions')).to.deep.equal({
 				bar: pluginDir
 			});
@@ -85,11 +85,11 @@ describe('common utils', () => {
 		it('should allow setting a replacement path', async function () {
 			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo', '1.0.0');
 			const pluginDir2 =  join(fixturesDir, 'common', 'packages', 'bar', '1.0.0');
-			await addPackageToConfig('foo', pluginDir, this.config, userConfig);
+			await addPackageToConfig('foo', pluginDir, this.config, userConfigFile);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir
 			});
-			await removePackageFromConfig('foo', pluginDir2, this.config, userConfig);
+			await removePackageFromConfig('foo', pluginDir2, this.config, userConfigFile);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir2
 			});
@@ -98,45 +98,39 @@ describe('common utils', () => {
 
 	describe('getInstalledPackages()', () => {
 		beforeEach(function () {
-			this.config = loadConfig({ userConfig });
+			this.config = loadConfig({ userConfigFile });
 		});
 
 		afterEach(function () {
-			removeSync(userConfig);
+			removeSync(userConfigFile);
 			this.config = null;
 		});
 
 		it('should list all packages', async function () {
 			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo', '1.0.0');
 			const pluginDir2 =  join(fixturesDir, 'common', 'packages', 'bar', '1.0.0');
-			await addPackageToConfig('foo', pluginDir, this.config, userConfig);
-			await removePackageFromConfig('bar', pluginDir2, this.config, userConfig);
+			await addPackageToConfig('foo', pluginDir, this.config, userConfigFile);
+			await removePackageFromConfig('bar', pluginDir2, this.config, userConfigFile);
 			const packages = getInstalledPackages(this.config, join(fixturesDir, 'common', 'packages'));
 			expect(packages).to.deep.equal([
 				{
-					activePath: pluginDir2,
-					activeVersion: '1.0.0',
 					name: 'bar',
-					versions: [ '1.0.0' ],
-					versionInfo: {
+					version: '1.0.0',
+					versions: {
 						'1.0.0': {
-							version: '1.0.0',
-							installPath: pluginDir2
+							path: pluginDir2
 						}
 					}
 				},
 				{
-					activePath: pluginDir,
-					activeVersion: '1.0.0',
 					name: 'foo',
-					versions: [ '1.0.0' ],
-					versionInfo: {
+					version: '1.0.0',
+					versions: {
 						'1.0.0': {
-							version: '1.0.0',
-							installPath: pluginDir
+							path: pluginDir
 						}
 					}
-				},
+				}
 			]);
 		});
 	});
@@ -190,11 +184,11 @@ describe('common utils', () => {
 	describe('extract()', function () {
 
 		beforeEach(function () {
-			this.sandbox.stub(tar, 'extract').resolves('/a/directory/');
+			this.sandbox.stub(tar, 'extract').resolves();
 		});
 
 		it('should extract contents', () => {
-			return expect(extractTar({ file: 'test.tgz', dest: join(fixturesDir, 'common', 'extract-dir') })).to.eventually.equal('/a/directory/');
+			return expect(extractTar({ file: 'test.tgz', dest: join(fixturesDir, 'common', 'extract-dir') })).to.be.fulfilled;
 		});
 	});
 });
