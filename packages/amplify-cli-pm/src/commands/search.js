@@ -10,7 +10,6 @@ export default {
 	desc: 'searches registry for packages',
 	options: {
 		'--auth <account>': 'the authorization account to use',
-		'--json': 'outputs accounts as JSON',
 		'--repository <repository>': 'repository to search',
 		'--type <type>': 'type of component to search'
 	},
@@ -32,14 +31,14 @@ export default {
 			results = (await registry.search({ text: search, repository, type })).map(d => {
 				return {
 					name:        d.name,
-					version:     d.latest_version,
+					version:     d.version,
 					type:        d.type,
 					description: d.description
 				};
 			});
 		} catch (e) {
 			if (e.code === 'ECONNREFUSED') {
-				console.log('Unable to connect to registry server');
+				console.error('Unable to connect to registry server');
 				process.exit(3);
 			}
 			throw e;

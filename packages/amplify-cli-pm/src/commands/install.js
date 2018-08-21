@@ -27,35 +27,51 @@ export default {
 		const url = getRegistryURL();
 
 		try {
-			console.log(`Fetching ${name}`);
+			if (!argv.json) {
+				console.log(`Fetching ${name}...`);
+			}
+
 			const info = await fetchAndInstall({ name, fetchSpec, url });
-			console.log(`Installed ${name}@${info.version}`);
+
+			if (argv.json) {
+				console.log(JSON.stringify({
+					success: true,
+					name,
+					version: info.version
+				}, null, '  '));
+			} else {
+				console.log(`Installed ${name}@${info.version}`);
+			}
 		} catch (e) {
+			let msg = e;
+			let code = 1;
+
 			switch (e.code) {
 				case 'ECONNREFUSED':
-					console.error('Unable to connect to registry server');
-					process.exit(3);
+					msg = 'Unable to connect to registry server';
+					code = 3;
+					break;
 				case 'EINVALIDIR':
-					console.error('You are in an invalid directory to install this component type');
-					console.error(e.message);
+					msg = `You are in an invalid directory to install this component type\n${e.message}`;
 					break;
 				case 'ENONPM':
-					console.error(e.message);
+					msg = e.message;
 					break;
 				case 'ENPMINSTALLERROR':
 					// TODO: Need to break this error down into some sort of actionable items
-					console.error('An error occurred when running "npm install"');
-					console.error(e);
+					msg = `An error occurred when running "npm install"\n${e.stack}`;
 					break;
 				case 'NO_DATA':
-					console.error('No results found');
-					break;
-				default:
-					console.error(e);
+					msg = 'No results found';
 					break;
 			}
 
-			process.exit(1);
+			if (argv.json) {
+				console.error(JSON.stringify({ success: false, message: msg }, null, '  '));
+			} else {
+				console.error(msg.message);
+			}
+			process.exit(code);
 		}
 	}
 };
