@@ -1,7 +1,7 @@
 import { addPackageToConfig, extractTar, getInstalledPackages, npmInstall, removePackageFromConfig } from '../dist/installers/common';
 import { join } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
-import { removeSync, writeJSONSync } from 'fs-extra';
+import { removeSync } from 'fs-extra';
 import { EventEmitter } from 'events';
 // We need to require this in order to mock it
 const child_process = require('child_process');
@@ -39,6 +39,14 @@ describe('common utils', () => {
 			await addPackageToConfig('foo', pluginDir, this.config, userConfigFile);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir
+			});
+		});
+
+		it('should add a scoped package to the config', async function () {
+			const pluginDir =  join(fixturesDir, 'common', 'packages', '@bob', 'bobs-cli');
+			await addPackageToConfig('@bob/bobs-cli', pluginDir, this.config, userConfigFile);
+			expect(this.config.get('extensions')).to.deep.equal({
+				'@bob/bobs-cli': pluginDir
 			});
 		});
 	});
@@ -107,12 +115,23 @@ describe('common utils', () => {
 		});
 
 		it('should list all packages', async function () {
-			const pluginDir =  join(fixturesDir, 'common', 'packages', 'foo', '1.0.0');
-			const pluginDir2 =  join(fixturesDir, 'common', 'packages', 'bar', '1.0.0');
+			const pluginDir = join(fixturesDir, 'common', 'packages', 'foo', '1.0.0');
+			const pluginDir2 = join(fixturesDir, 'common', 'packages', 'bar', '1.0.0');
+			const pluginDir3 = join(fixturesDir, 'common', 'packages', '@bob', 'bobs-cli', '1.0.0');
 			await addPackageToConfig('foo', pluginDir, this.config, userConfigFile);
-			await removePackageFromConfig('bar', pluginDir2, this.config, userConfigFile);
+			await addPackageToConfig('bar', pluginDir2, this.config, userConfigFile);
+			await addPackageToConfig('@bob/bobs-cli', pluginDir3, this.config, userConfigFile);
 			const packages = getInstalledPackages(this.config, join(fixturesDir, 'common', 'packages'));
 			expect(packages).to.deep.equal([
+				{
+					name: '@bob/bobs-cli',
+					version: '1.0.0',
+					versions: {
+						'1.0.0': {
+							path: pluginDir3
+						}
+					}
+				},
 				{
 					name: 'bar',
 					version: '1.0.0',
