@@ -9,6 +9,7 @@ import { run, which } from 'appcd-subprocess';
 export const cacheDir = join(locations.axwayHome, 'cache');
 export const packagesDir = join(locations.axwayHome, 'packages');
 
+const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
 /**
  * TODO
  *
@@ -78,7 +79,6 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
 	if (!isDir(path)) {
 		throw new Error('Expected package path to exist');
 	}
-
 	cfg.set(`extensions.${name}`, path);
 	await cfg.save(location);
 }
@@ -136,37 +136,24 @@ export function getInstalledPackages(cfg = loadConfig(), pkgsDir = packagesDir) 
 			continue;
 		}
 
-		const packageData = {
-			name,
-			description: undefined,
-			version: undefined,
-			versions: {}
-		};
+		if (scopedPackageRegex.test(name)) {
+			for (const pkgName of fs.readdirSync(pkgDir)) {
+				const dir = join(pkgDir, pkgName);
 
-		const active = getPackageInfo(activePkgs[name]);
-		if (active) {
-			packageData.version = active.version;
-		}
+				if (!isDir(dir)) {
+					continue;
+				}
 
-		for (const version of fs.readdirSync(pkgDir)) {
-			const versionDir = join(pkgDir, version);
-			const pkgJsonFile = join(versionDir, 'package.json');
-
-			if (isFile(pkgJsonFile)) {
-				try {
-					const pkgJson = fs.readJsonSync(pkgJsonFile);
-					packageData.description = pkgJson.description;
-					packageData.versions[version] = {
-						path: versionDir
-					};
-				} catch (e) {
-					// squelch
+				const packageData = getPackageData(`${name}/${pkgName}`, activePkgs, dir);
+				if (packageData.version || Object.keys(packageData.versions).length) {
+					packages.push(packageData);
 				}
 			}
-		}
-
-		if (packageData.version || Object.keys(packageData.versions).length) {
-			packages.push(packageData);
+		} else {
+			const packageData = getPackageData(name, activePkgs, pkgDir);
+			if (packageData.version || Object.keys(packageData.versions).length) {
+				packages.push(packageData);
+			}
 		}
 	}
 
@@ -185,4 +172,44 @@ function getPackageInfo(pluginPath) {
 		// TODO: Do we need our format to allow for non-node packages to give us info?
 		return undefined;
 	}
+}
+
+function getPackageData(name, activePkgs, pkgDir) {
+	const packageData = {
+		name,
+		description: undefined,
+		version: undefined,
+		versions: {}
+	};
+
+	let active = getPackageInfo(activePkgs[name]);
+
+	// If the name is for a scoped package and we have no data
+	// look it up also by the name without a scope
+	if (!active && scopedPackageRegex.test(name)) {
+		name = name.replace(scopedPackageRegex, '');
+		active = getPackageInfo(activePkgs[name]);
+	}
+
+	if (active) {
+		packageData.version = active.version;
+	}
+
+	for (const version of fs.readdirSync(pkgDir)) {
+		const versionDir = join(pkgDir, version);
+		const pkgJsonFile = join(versionDir, 'package.json');
+
+		if (isFile(pkgJsonFile)) {
+			try {
+				const pkgJson = fs.readJsonSync(pkgJsonFile);
+				packageData.description = pkgJson.description;
+				packageData.versions[version] = {
+					path: versionDir
+				};
+			} catch (e) {
+				// squelch
+			}
+		}
+	}
+	return packageData;
 }
