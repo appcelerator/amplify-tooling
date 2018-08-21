@@ -1,5 +1,5 @@
 
-import { existsSync, ensureDir, readdirSync, readJSONSync, statSync } from 'fs-extra';
+import { existsSync, ensureDir, readdirSync, readJSONSync } from 'fs-extra';
 import { extract } from 'tar';
 import { isDir, isFile } from 'appcd-fs';
 import { join } from 'path';
