@@ -1,0 +1,5 @@
+{
+	"name": "@bob/bobs-cli",
+	"description": "bobs cli that is published as a scoped plugin as he rocks",
+	"version": "1.0.0"
+}
