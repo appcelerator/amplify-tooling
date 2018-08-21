@@ -32,7 +32,7 @@ export default {
 			results = (await registry.search({ text: search, repository, type })).map(d => {
 				return {
 					name:        d.name,
-					version:     d.latest_version,
+					version:     d.version,
 					type:        d.type,
 					description: d.description
 				};
