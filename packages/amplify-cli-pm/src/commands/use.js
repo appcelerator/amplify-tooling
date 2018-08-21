@@ -7,7 +7,6 @@
  */
 
 export default {
-	desc: 'activates a specific package version',
 	args: [
 		{
 			name: 'package',
@@ -16,6 +15,10 @@ export default {
 			required: true
 		}
 	],
+	desc: 'activates a specific package version',
+	options: {
+		'--json': 'outputs accounts as JSON'
+	},
 	async action({ argv, console }) {
 		const [
 			npa,
@@ -27,38 +30,67 @@ export default {
 			import('@axway/amplify-registry-sdk')
 		]);
 
-		const info = npa(argv.package);
-		const { type, name, fetchSpec } = info;
-		const installed = getInstalledPackages().filter(pkg => pkg.name === name)[0];
+		let { type, name, fetchSpec } = npa(argv.package);
+		let installed;
+		for (const pkg of getInstalledPackages()) {
+			if (pkg.name === name) {
+				installed = pkg;
+				break;
+			}
+		}
 
-		if (!installed) {
-			console.log(`${name} is not installed, please run amplify pm install ${name} first`);
+		try {
+			if (!installed) {
+				throw new Error(`${name} is not installed, please run amplify pm install ${name} first`);
+			}
+
+			if (fetchSpec === 'latest') {
+				fetchSpec = '*';
+			}
+
+			let version;
+			if (fetchSpec === '*' || type === 'range') {
+				version = semver.maxSatisfying(Object.keys(installed.versions), fetchSpec);
+			} else if (type === 'version') {
+				version = fetchSpec;
+			}
+			if (!version) {
+				throw new Error(`No version installed that satisfies ${fetchSpec}`);
+			}
+
+			const info = installed.versions[version];
+			if (!info) {
+				// TODO: Bikeshed the semantic differences between use and install, whether use should install
+				// a package if it is not available and whether install should set a package as in use after install
+				throw new Error(`${name}@${version} is not installed\nPlease run "amplify pm install ${name}@${version}" to install it`);
+			}
+
+			const active = installed.version === version;
+			let msg;
+			if (active) {
+				msg = `${name}@${version} is already the active version`;
+			} else {
+				msg = `Set ${name}@${version} as action version`;
+				addPackageToConfig(name, info.path);
+			}
+
+			if (argv.json) {
+				console.log(JSON.stringify({
+					success: true,
+					name,
+					version,
+					path: info.path
+				}, null, '  '));
+			} else {
+				console.log(msg);
+			}
+		} catch (err) {
+			if (argv.json) {
+				console.log(JSON.stringify({ success: false, message: err.message }, null, '  '));
+			} else {
+				console.log(err.message);
+			}
 			process.exit(1);
 		}
-
-		let version;
-		if (type === 'range') {
-			version = semver.maxSatisfying(installed.versions, semver.validRange(version));
-		} else if (fetchSpec === 'latest') {
-			version = semver.maxSatisfying(installed.versions, '*');
-		} else if (type === 'version') {
-			version = fetchSpec;
-		}
-
-		if (!version) {
-			console.log('Unsupported');
-			process.exit(1);
-		}
-
-		if (version && !installed.versions.includes(version)) {
-			// TODO: Bikeshed the semantic differences between use and install, whether use should install
-			// a package if it is not available and whether install should set a package as in use after install
-			console.log(`${version} is not installed, please run "amplify pm install ${name}@${version}" first`);
-			process.exit(1);
-		}
-
-		const versionInfo = installed.versionInfo[version];
-		addPackageToConfig(name, versionInfo.installPath);
-		console.log(`Set ${name} to use version ${version}`);
 	}
 };

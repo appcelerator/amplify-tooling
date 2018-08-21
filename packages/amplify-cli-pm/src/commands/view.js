@@ -1,6 +1,5 @@
 export default {
 	aliases: [ 'v', 'info', 'show' ],
-	desc: 'displays info for a specific package',
 	args: [
 		{
 			name: 'package',
@@ -14,6 +13,17 @@ export default {
 			desc: 'display specific package fields'
 		}
 	],
+	desc: 'displays info for a specific package',
+	options: {
+		'--json': 'outputs accounts as JSON',
+		'--type <name>': {
+			desc: 'the package type',
+			values: {
+				connector: 'an API builder connector',
+				npm: 'an npm package'
+			}
+		}
+	},
 	async action({ argv, console }) {
 		const [
 			npa,
@@ -25,25 +35,33 @@ export default {
 			import('@axway/amplify-registry-sdk')
 		]);
 
-		const url = getRegistryURL();
-		const registry = new Registry({ url });
-		const info = npa(argv.package);
-		const { name, fetchSpec } = info;
-		const { packageType } = argv;
-		let version;
-		if (fetchSpec !== 'latest') {
-			version = fetchSpec;
-		}
+		const { name, fetchSpec } = npa(argv.package);
+		const registry = new Registry({
+			url: getRegistryURL()
+		});
 
 		try {
-			const result = await registry.metadata({ name, type: packageType, version });
-			if (!result) {
+			const result = await registry.metadata({
+				name,
+				type: argv.type,
+				version: fetchSpec !== 'latest' && fetchSpec
+			});
+
+			if (argv.json) {
+				console.log(JSON.stringify(result, null, '  '));
+			} else if (result) {
+				// TODO: render results a little nicer... possibly use a template?
+				console.log(result);
+			} else {
 				console.log(`No result found for ${name}`);
-				return;
 			}
-			console.log(result);
 		} catch (e) {
-			console.log(e);
+			if (argv.json) {
+				console.log({ success: false, message: e.message });
+			} else {
+				console.log(e);
+			}
+			process.exit(1);
 		}
 	}
 };

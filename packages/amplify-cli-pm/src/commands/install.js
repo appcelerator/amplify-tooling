@@ -1,11 +1,5 @@
 export default {
 	aliases: [ 'i' ],
-	desc: 'installs the specified package',
-	options: {
-		'--auth <account>': {
-			desc: 'the authorization account to use'
-		}
-	},
 	args: [
 		{
 			name: 'package',
@@ -14,6 +8,10 @@ export default {
 			required: true
 		}
 	],
+	desc: 'installs the specified package',
+	options: {
+		'--auth <account>': 'the authorization account to use'
+	},
 	async action({ argv, console }) {
 		const [
 			npa,
@@ -25,9 +23,9 @@ export default {
 			import('../utils')
 		]);
 
-		const info = npa(argv.package);
-		const { name, fetchSpec } = info;
+		const { name, fetchSpec } = npa(argv.package);
 		const url = getRegistryURL();
+
 		try {
 			console.log(`Fetching ${name}`);
 			const info = await fetchAndInstall({ name, fetchSpec, url });
@@ -56,6 +54,7 @@ export default {
 					console.error(e);
 					break;
 			}
+
 			process.exit(1);
 		}
 	}
