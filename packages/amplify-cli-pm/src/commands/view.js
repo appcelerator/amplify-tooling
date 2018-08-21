@@ -15,12 +15,11 @@ export default {
 	],
 	desc: 'displays info for a specific package',
 	options: {
-		'--json': 'outputs accounts as JSON',
 		'--type <name>': {
 			desc: 'the package type',
 			values: {
-				connector: 'an API builder connector',
-				npm: 'an npm package'
+				'amplify-cli-plugin': 'an AMPFLIY CLI plugin package',
+				'apib-data-connector': 'an API builder connector'
 			}
 		}
 	},
@@ -55,11 +54,11 @@ export default {
 			} else {
 				console.log(`No result found for ${name}`);
 			}
-		} catch (e) {
+		} catch (err) {
 			if (argv.json) {
-				console.log({ success: false, message: e.message });
+				console.error({ success: false, message: err.message });
 			} else {
-				console.log(e);
+				console.error(err);
 			}
 			process.exit(1);
 		}

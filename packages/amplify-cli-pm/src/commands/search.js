@@ -10,7 +10,6 @@ export default {
 	desc: 'searches registry for packages',
 	options: {
 		'--auth <account>': 'the authorization account to use',
-		'--json': 'outputs accounts as JSON',
 		'--repository <repository>': 'repository to search',
 		'--type <type>': 'type of component to search'
 	},
@@ -39,7 +38,7 @@ export default {
 			});
 		} catch (e) {
 			if (e.code === 'ECONNREFUSED') {
-				console.log('Unable to connect to registry server');
+				console.error('Unable to connect to registry server');
 				process.exit(3);
 			}
 			throw e;

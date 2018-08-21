@@ -1,5 +1,5 @@
+import fs from 'fs-extra';
 
-import { existsSync, ensureDir, readdirSync, readJSONSync } from 'fs-extra';
 import { extract } from 'tar';
 import { isDir, isFile } from 'appcd-fs';
 import { join } from 'path';
@@ -18,7 +18,7 @@ const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
  * @param {String} [params.npm] - The path to the npm. Defaults to resolving npm in the system path.
  */
 export async function npmInstall({ directory, npm }) {
-	if (!existsSync(join(directory, 'package.json'))) {
+	if (!isFile(join(directory, 'package.json'))) {
 		const error = new Error('Directory does not contain a package.json');
 		error.code = 'ENOPKGJSON';
 		throw error;
@@ -57,7 +57,7 @@ export async function npmInstall({ directory, npm }) {
  */
 export async function extractTar({ dest, file, opts }) {
 	opts = Object.assign({ strip: 1 }, opts, { file, cwd: dest });
-	await ensureDir(dest);
+	await fs.ensureDir(dest);
 	await extract(opts);
 }
 
@@ -76,7 +76,7 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
 		throw new TypeError('Expected path to be a valid string');
 	}
 
-	if (!existsSync(path)) {
+	if (!isDir(path)) {
 		throw new Error('Expected package path to exist');
 	}
 	cfg.set(`extensions.${name}`, path);
@@ -99,10 +99,12 @@ export async function removePackageFromConfig(name, replacementPath, cfg = loadC
 			throw new TypeError('Expected replacementPath to be a valid string');
 		}
 
-		if (!existsSync(replacementPath)) {
+		if (!isDir(replacementPath)) {
 			throw new Error('Expected replacementPath to exist');
 		}
 	}
+
+	// TODO: we should only register a package as an extension if the package IS an extension!
 
 	if (replacementPath) {
 		cfg.set(`extensions.${name}`, replacementPath);
@@ -128,19 +130,20 @@ export function getInstalledPackages(cfg = loadConfig(), pkgsDir = packagesDir) 
 		return packages;
 	}
 
-	for (const name of readdirSync(pkgsDir)) {
+	for (const name of fs.readdirSync(pkgsDir)) {
 		const pkgDir = join(pkgsDir, name);
 		if (!isDir(pkgDir)) {
 			continue;
 		}
 
 		if (scopedPackageRegex.test(name)) {
-			for (const pkgName of readdirSync(pkgDir)) {
+			for (const pkgName of fs.readdirSync(pkgDir)) {
 				const dir = join(pkgDir, pkgName);
 
 				if (!isDir(dir)) {
 					continue;
 				}
+
 				const packageData = getPackageData(`${name}/${pkgName}`, activePkgs, dir);
 				if (packageData.version || Object.keys(packageData.versions).length) {
 					packages.push(packageData);
@@ -159,7 +162,7 @@ export function getInstalledPackages(cfg = loadConfig(), pkgsDir = packagesDir) 
 
 function getPackageInfo(pluginPath) {
 	try {
-		const pkgJson = readJSONSync(join(pluginPath, 'package.json'));
+		const pkgJson = fs.readJSONSync(join(pluginPath, 'package.json'));
 		return {
 			name: pkgJson.name,
 			description: pkgJson.description,
@@ -174,6 +177,7 @@ function getPackageInfo(pluginPath) {
 function getPackageData(name, activePkgs, pkgDir) {
 	const packageData = {
 		name,
+		description: undefined,
 		version: undefined,
 		versions: {}
 	};
@@ -191,14 +195,20 @@ function getPackageData(name, activePkgs, pkgDir) {
 		packageData.version = active.version;
 	}
 
-	for (const version of readdirSync(pkgDir)) {
+	for (const version of fs.readdirSync(pkgDir)) {
 		const versionDir = join(pkgDir, version);
 		const pkgJsonFile = join(versionDir, 'package.json');
 
 		if (isFile(pkgJsonFile)) {
-			packageData.versions[version] = {
-				path: versionDir
-			};
+			try {
+				const pkgJson = fs.readJsonSync(pkgJsonFile);
+				packageData.description = pkgJson.description;
+				packageData.versions[version] = {
+					path: versionDir
+				};
+			} catch (e) {
+				// squelch
+			}
 		}
 	}
 	return packageData;

@@ -66,6 +66,17 @@ export default class Registry {
 		log(`Fetching package info: ${highlight(url)}`);
 
 		const { body } = await request({ url });
-		return JSON.parse(body).result;
+		const { result } = JSON.parse(body);
+
+		if (result.versions) {
+			for (const [ ver, info ] of Object.entries(result.versions)) {
+				result.versions[info.version] = info;
+				result.time[info.version] = result.time[ver];
+				delete result.versions[ver];
+				delete result.time[ver];
+			}
+		}
+
+		return result;
 	}
 }

@@ -1,9 +1,6 @@
 export default {
 	aliases: [ 'ls' ],
 	desc: 'lists all installed packages',
-	options: {
-		'--json': 'outputs accounts as JSON'
-	},
 	async action({ argv, console }) {
 		const { getInstalledPackages } = await import('@axway/amplify-registry-sdk');
 		const installed = getInstalledPackages();
@@ -18,10 +15,10 @@ export default {
 			return;
 		}
 
-		console.log('| Name | Active Version | Installed Versions |');
-		console.log('| ---- | -------------- | ------------------ |');
+		console.log('| Name | Active Version | Installed Versions | Description |');
+		console.log('| ---- | -------------- | ------------------ | ----------- |');
 		for (const pkg of installed) {
-			console.log(`| ${pkg.name} | ${pkg.version || 'No active version'} | ${Object.keys(pkg.versions).join(', ') || 'No versions found'} |`);
+			console.log(`| ${pkg.name} | ${pkg.version || 'No active version'} | ${Object.keys(pkg.versions).join(', ') || 'No versions found'} | ${pkg.description} |`);
 		}
 	}
 };

@@ -16,9 +16,6 @@ export default {
 		}
 	],
 	desc: 'activates a specific package version',
-	options: {
-		'--json': 'outputs accounts as JSON'
-	},
 	async action({ argv, console }) {
 		const [
 			npa,
@@ -30,16 +27,16 @@ export default {
 			import('@axway/amplify-registry-sdk')
 		]);
 
-		let { type, name, fetchSpec } = npa(argv.package);
-		let installed;
-		for (const pkg of getInstalledPackages()) {
-			if (pkg.name === name) {
-				installed = pkg;
-				break;
-			}
-		}
-
 		try {
+			let { type, name, fetchSpec } = npa(argv.package);
+			let installed;
+			for (const pkg of getInstalledPackages()) {
+				if (pkg.name === name) {
+					installed = pkg;
+					break;
+				}
+			}
+
 			if (!installed) {
 				throw new Error(`${name} is not installed, please run amplify pm install ${name} first`);
 			}
@@ -86,9 +83,9 @@ export default {
 			}
 		} catch (err) {
 			if (argv.json) {
-				console.log(JSON.stringify({ success: false, message: err.message }, null, '  '));
+				console.error(JSON.stringify({ success: false, message: err.message }, null, '  '));
 			} else {
-				console.log(err.message);
+				console.error(err);
 			}
 			process.exit(1);
 		}

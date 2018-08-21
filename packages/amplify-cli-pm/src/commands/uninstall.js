@@ -1,5 +1,5 @@
 export default {
-	desc: 'uninstalls the specified package',
+	aliases: [ 'un', 'unlink', 'r', 'rm', 'remove' ],
 	args: [
 		{
 			name: 'package',
@@ -8,6 +8,7 @@ export default {
 			required: true
 		}
 	],
+	desc: 'uninstalls the specified package',
 	async action({ argv, console }) {
 		const [
 			fs,
@@ -21,42 +22,72 @@ export default {
 			import('@axway/amplify-registry-sdk')
 		]);
 
-		const info = npa(argv.package);
-		const { type, name, fetchSpec } = info;
-		const { packageType } = argv;
-
-		const installed = getInstalledPackages().filter(pkg => pkg.name === name)[0];
-		const versions = [];
-
-		if (type === 'range') {
-			for (const version of installed.versions) {
-				if (semver.satisfies(version, fetchSpec)) {
-					versions.push(installed.versionInfo[version]);
+		try {
+			const { type, name, fetchSpec } = npa(argv.package);
+			let installed;
+			for (const pkg of getInstalledPackages()) {
+				if (pkg.name === name) {
+					installed = pkg;
+					break;
 				}
 			}
-		} else if (type === 'version') {
-			versions.push(installed.versionInfo[fetchSpec]);
-		}
-		const replacement = {};
-		if (versions.length && installed.versions.length > versions.length) {
-			const removed = versions.map(v => v.version);
-			const toSelectFrom = installed.versions.filter(v => !removed.includes(v));
-			const newVersion = semver.maxSatisfying(toSelectFrom, semver.validRange('*'));
-			replacement.path = installed.versionInfo[newVersion].installPath;
-			replacement.version = newVersion;
-		}
-		await removePackageFromConfig(name, replacement.path);
-		if (versions.length) {
-			for (const { version, installPath } of versions) {
-				fs.removeSync(installPath);
-				console.log(`Removed ${name}@${version}`);
+
+			if (!installed) {
+				throw new Error(`"${name}" is not installed`);
 			}
-			if (replacement.path) {
+
+			const installedVersions = Object.keys(installed.versions);
+			const replacement = {};
+			const versions = [];
+
+			if (type === 'range') {
+				for (const ver of installedVersions) {
+					if (semver.satisfies(ver, fetchSpec)) {
+						versions.push({ version: ver, ...installed.versions[ver] });
+					}
+				}
+			} else if (type === 'version') {
+				const info = installed.versions[fetchSpec];
+				if (info) {
+					versions.push({ version: fetchSpec, ...info });
+				}
+			}
+
+			if (!versions.length) {
+				throw new Error(`"${name}${fetchSpec === 'latest' ? '' : `@${fetchSpec}`}" is not installed`);
+			}
+
+			// check if we're NOT uninstalling all versions, and if so, suggest a replacement
+			if (installedVersions.length > versions.length) {
+				const removed = versions.map(v => v.version);
+				const toSelectFrom = installedVersions.filter(v => !removed.includes(v));
+				const newVersion = semver.maxSatisfying(toSelectFrom, semver.validRange('*'));
+				replacement.path = installed.versions[newVersion].path;
+				replacement.version = newVersion;
+			}
+
+			// unregister extension
+			await removePackageFromConfig(name, replacement.path);
+
+			for (const { version, path } of versions) {
+				fs.removeSync(path);
+				if (!argv.json) {
+					console.log(`Removed ${name}@${version}`);
+				}
+			}
+
+			if (argv.json) {
+				console.log(JSON.stringify(versions, null, '  '));
+			} else if (replacement.path) {
 				console.log(`Set ${name}@${replacement.version} as the active version`);
 			}
-		} else {
-			fs.removeSync(installed.installPath);
-			console.log(`Removed all ${name} versions`);
+		} catch (err) {
+			if (argv.json) {
+				console.error(JSON.stringify({ success: false, message: err.message }, null, '  '));
+			} else {
+				console.error(err.message);
+			}
+			process.exit(1);
 		}
 	}
 };
