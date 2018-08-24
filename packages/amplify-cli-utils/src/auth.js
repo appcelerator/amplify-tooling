@@ -1,7 +1,6 @@
 import Auth from '@axway/amplify-auth-sdk';
 import environments from './environments';
 import loadConfig from './config';
-import path from 'path';
 
 import { axwayHome } from './locations';
 
