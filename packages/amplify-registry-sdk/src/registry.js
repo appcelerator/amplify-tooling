@@ -1,6 +1,6 @@
 import snooplogg from 'snooplogg';
 
-import { request } from '@axway/amplify-cli-utils';
+import { requestJSON } from '@axway/amplify-request';
 
 const { log } = snooplogg('amplify-registry-sdk:registry');
 const { highlight } = snooplogg.styles;
@@ -44,8 +44,8 @@ export default class Registry {
 			url = `${url}${sep}type=${encodeURIComponent(type)}`;
 		}
 
-		const { body } = await request({ url });
-		return JSON.parse(body).result;
+		const { body } = await requestJSON({ url });
+		return body.result;
 	}
 
 	/**
@@ -65,9 +65,8 @@ export default class Registry {
 		const url = `${this.url}/api/packages/v1/${encodeURIComponent(name)}${version ? `/${version}` : ''}`;
 		log(`Fetching package info: ${highlight(url)}`);
 
-		const { body } = await request({ url });
-		const { result } = JSON.parse(body);
-
+		const { body } = await requestJSON({ url });
+		const result = body.result;
 		if (result.versions) {
 			for (const [ ver, info ] of Object.entries(result.versions)) {
 				result.versions[info.version] = info;
@@ -76,7 +75,6 @@ export default class Registry {
 				delete result.time[ver];
 			}
 		}
-
 		return result;
 	}
 }
