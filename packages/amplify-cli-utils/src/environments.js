@@ -1,20 +1,35 @@
 /**
- * Environment specific auth settings.
+ * Environment specific settings.
  *
  * @type {Object}
  */
 const environments = {
 	dev: {
-		clientId: 'cli-test-public',
-		realm: 'Axway'
+		auth: {
+			clientId: 'cli-test-public',
+			realm: 'Axway'
+		},
+		registry: {
+			url: 'http://localhost:8082'
+		}
 	},
 	preprod: {
-		clientId: 'cli-test-public',
-		realm: 'AppcID'
+		auth: {
+			clientId: 'cli-test-public',
+			realm: 'AppcID'
+		},
+		registry: {
+			url: 'https://registry.axwaytest.net'
+		}
 	},
 	prod: {
-		clientId: 'cli',
-		realm: 'Axway'
+		auth: {
+			clientId: 'cli',
+			realm: 'Axway'
+		},
+		registry: {
+			url: 'https://registry.platform.axway.com'
+		}
 	}
 };
 
