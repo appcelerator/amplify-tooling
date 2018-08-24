@@ -1,19 +1,11 @@
 export default {
-	args: [
-		{
-			name: 'username',
-			desc: 'username to authenticate with'
-		},
-		{
-			name: 'password',
-			desc: 'password to authenticate with'
-		}
-	],
 	desc: 'log in to the Axway AMPLIFY platform',
 	options: {
-		'--json':               'outputs accounts as JSON',
-		'--secret <key>':       'a secret key used to authenticate',
-		'--secret-file <path>': 'path to the PEM key used to authenticate'
+		'--json':                    'outputs accounts as JSON',
+		'-c, --client-secret <key>': 'a secret key used to authenticate',
+		'-s, --secret-file <path>':  'path to the PEM key used to authenticate',
+		'-u, --username <user>':     'username to authenticate with',
+		'-p, --password <pass>':     'password to authenticate with'
 	},
 	async action({ _, argv, console }) {
 		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');

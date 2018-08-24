@@ -15,15 +15,14 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
-			{ getRegistryURL },
+			{ getRegistryParams },
 			{ Registry }
 		] = await Promise.all([
 			import('../utils'),
 			import('@axway/amplify-registry-sdk')
 		]);
 
-		const url = getRegistryURL();
-		const registry = new Registry({ url });
+		const registry = new Registry(getRegistryParams(argv.env));
 		const { repository, search, type } = argv;
 		let results;
 
