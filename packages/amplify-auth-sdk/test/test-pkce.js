@@ -128,9 +128,6 @@ describe('PKCE', () => {
 							expect(post.refresh_token).to.equal(this.server.refreshToken);
 							break;
 					}
-				},
-				logout(post) {
-					expect(post.refresh_token).to.equal('bar2');
 				}
 			});
 
@@ -157,7 +154,7 @@ describe('PKCE', () => {
 				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.match(/^request to .+ failed,/i);
+				expect(e.message).to.match(/connect ECONNREFUSED 127.0.0.1:133/i);
 				expect(e.code).to.equal('ECONNREFUSED');
 				return;
 			}
@@ -256,7 +253,7 @@ describe('PKCE', () => {
 				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.match(/^request to .+ failed,/i);
+				expect(e.message).to.match(/connect ECONNREFUSED 127.0.0.1:133/i);
 				expect(e.code).to.equal('ECONNREFUSED');
 				return;
 			}
@@ -283,9 +280,6 @@ describe('PKCE', () => {
 							expect(post.refresh_token).to.equal(this.server.refreshToken);
 							break;
 					}
-				},
-				logout(post) {
-					expect(post.refresh_token).to.equal('bar2');
 				}
 			});
 
@@ -307,7 +301,6 @@ describe('PKCE', () => {
 			this.server = await createLoginServer({
 				logout(post) {
 					counter++;
-					expect(post.refresh_token).to.be.ok;
 				}
 			});
 

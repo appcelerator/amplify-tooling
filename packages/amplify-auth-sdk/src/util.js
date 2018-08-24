@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import E from './errors';
-import fetch from 'node-fetch';
 import snooplogg from 'snooplogg';
 
+import { requestJSON } from '@axway/amplify-request';
 import { URLSearchParams } from 'url';
 
 const { log } = snooplogg('amplify-auth:util');
@@ -19,13 +19,16 @@ export async function getServerInfo(url) {
 	}
 
 	log(`Fetching server info: ${url}...`);
-	const res = await fetch(url);
-
-	if (!res.ok) {
-		throw new Error(`Failed to get server info (status ${res.status})`);
+	try {
+		const { body } = await requestJSON({ url });
+		return body;
+	} catch (err) {
+		if (err.code === 'INVALID_JSON') {
+			throw err;
+		}
+		throw new Error(`Failed to get server info (status ${err.statusCode})`);
 	}
 
-	return await res.json();
 }
 
 /**

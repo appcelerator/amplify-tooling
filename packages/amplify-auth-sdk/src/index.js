@@ -17,11 +17,11 @@ import SecureStore from './stores/secure-store';
 import TokenStore from './stores/token-store';
 
 import environments from './environments';
-import fetch from 'node-fetch';
 import getEndpoints from './endpoints';
 import snooplogg from 'snooplogg';
 import * as server from './server';
 
+import { requestJSON } from '@axway/amplify-request';
 import { getServerInfo } from './util';
 
 const { log } = snooplogg('amplify-auth');
@@ -298,11 +298,11 @@ export default class Auth {
 		if (Array.isArray(revoked)) {
 			for (const entry of revoked) {
 				const url = `${getEndpoints(entry).logout}?id_token_hint=${entry.tokens.id_token}`;
-				const res = await fetch(url);
-				if (res.ok) {
-					log(`Successfully logged out ${highlight(entry.name)} ${magenta(res.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
-				} else {
-					log(`Failed to log out ${highlight(entry.name)} ${alert(res.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
+				try {
+					const { status } = await requestJSON({ url });
+					log(`Successfully logged out ${highlight(entry.name)} ${magenta(status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
+				} catch (err) {
+					log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
 				}
 			}
 		}
