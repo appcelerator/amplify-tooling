@@ -2,8 +2,8 @@ import Registry from '../registry';
 import extractPackage from './extracters';
 import fetchPackage from './fetchers';
 
-export async function fetchAndInstall({ name, repository, type, fetchSpec, url }) {
-	const registry = new Registry({ url });
+export async function fetchAndInstall({ name, repository, type, fetchSpec, env, url }) {
+	const registry = new Registry({ env, url });
 	const pkgInfo = await registry.metadata({ name, repository, type, version: fetchSpec });
 	if (!pkgInfo) {
 		const err = new Error('No data returned');
