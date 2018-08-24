@@ -1,0 +1,39 @@
+{
+  "name": "@axway/amplify-request",
+  "version": "0.1.0",
+  "description": "Common utils for AMPLIFY CLI packages",
+  "author": "Axway, Inc. <npmjs@appcelerator.com>",
+  "maintainers": [
+    "Ewan Harris <eharri@axway.com>"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "axway",
+    "amplify"
+  ],
+  "preferGlobal": true,
+  "scripts": {
+    "build": "gulp build",
+    "coverage": "gulp coverage",
+    "docs": "gulp docs",
+    "prepare": "gulp build",
+    "test": "gulp test"
+  },
+  "dependencies": {
+    "@axway/amplify-cli-utils": "^0.1.0",
+    "appcd-fs": "^1.1.2",
+    "request-promise-native": "^1.0.5",
+    "source-map-support": "^0.5.9"
+  },
+  "devDependencies": {
+    "appcd-gulp": "^1.1.5",
+    "gulp": "^3.9.1"
+  },
+  "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
+  "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
+  "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-request",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "./dist/index"
+}
