@@ -20,11 +20,8 @@ const extensions = [
 	dirname(require.resolve('@axway/amplify-cli-pm'))
 ];
 
-let banner;
-if (!process.env.hasOwnProperty('APPC_NPM_VERSION')) {
-	banner = `${chalk.cyan('AMPLIFY CLI')}, version ${version}\n`
+const banner = `${chalk.cyan('AMPLIFY CLI')}, version ${version}\n`
 		+ 'Copyright (c) 2018, Axway, Inc. All Rights Reserved.';
-}
 
 new CLI({
 	banner,
