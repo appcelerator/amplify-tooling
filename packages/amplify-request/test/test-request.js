@@ -4,9 +4,23 @@ import https from 'https';
 import path from 'path';
 import request, { requestJSON } from '../dist';
 
-const sslDir = path.join(__dirname, 'fixtures', 'request', 'ssl');
+const sslDir = path.join(__dirname, 'fixtures', 'ssl');
 
-describe.only('request', () => {
+class MockConfig {
+	constructor(keyValues) {
+		for (const [ key, value ] of Object.entries(keyValues)) {
+			this[key] = value;
+		}
+	}
+	get(key) {
+		if (this[key] !== undefined) {
+			return this[key];
+		}
+		return undefined;
+	}
+}
+
+describe('request', () => {
 	beforeEach(function () {
 		this.server = null;
 		this.server2 = null;
@@ -81,7 +95,7 @@ describe.only('request', () => {
 			});
 	});
 
-	it.skip('should make https request without strict ssl', function (done) {
+	it('should make https request without strict ssl', function (done) {
 		this.server = https.createServer({
 			key: fs.readFileSync(path.join(sslDir, 'server.key.pem')),
 			cert: fs.readFileSync(path.join(sslDir, 'server.chain.pem'))
@@ -91,14 +105,14 @@ describe.only('request', () => {
 		});
 
 		this.server.listen(1337, '127.0.0.1', () => {
-			requestJSON({
+			request({
 				strictSSL: false,
 				url: 'https://127.0.0.1:1337'
-			}).then(({ response, body }) => {
+			}).then((response) => {
 				try {
 					expect(response.statusCode).to.equal(200);
 					expect(parseInt(response.headers['content-length'])).to.equal(4);
-					expect(body).to.equal('foo!');
+					expect(response.body).to.equal('foo!');
 					done();
 				} catch (e) {
 					done(e);
@@ -107,18 +121,20 @@ describe.only('request', () => {
 		});
 	});
 
-	it.skip('should fail making https fetch with strict ssl', function (done) {
+	it('should fail making https request with network.strictSSL set to true', function (done) {
 		this.server = https.createServer({
 			key: fs.readFileSync(path.join(sslDir, 'server.key.pem')),
 			cert: fs.readFileSync(path.join(sslDir, 'server.chain.pem'))
 		}, (req, res) => {
 			res.end('foo!');
 		});
-		process.env.AMPLIFY_NETWORK_STRICT_SSL = true;
+		const userConfig = new MockConfig({
+			'network.strictSSL': true
+		});
 		this.server.listen(1337, '127.0.0.1', () => {
 			requestJSON({
-				strictSSL: false,
-				url: 'https://127.0.0.1:1337'
+				url: 'https://127.0.0.1:1337',
+				userConfig
 			}).then(() => {
 				done(new Error('Expected error'));
 			}).catch(err => {
@@ -137,19 +153,20 @@ describe.only('request', () => {
 		});
 	});
 
-	// TODO: move to config
-	it.skip('should support AMPLIFY_NETWORK_STRICT_SSL environment variable', function (done) {
+	it('should support network.strictSSL config setting', function (done) {
 		this.server = https.createServer({
 			key: fs.readFileSync(path.join(sslDir, 'server.key.pem')),
 			cert: fs.readFileSync(path.join(sslDir, 'server.chain.pem'))
 		}, (req, res) => {
 			res.end('foo!');
 		});
-		process.env.AMPLIFY_NETWORK_STRICT_SSL = true;
+		const userConfig = new MockConfig({
+			'network.strictSSL': true
+		});
 		this.server.listen(1337, '127.0.0.1', () => {
-			requestJSON({
-				strictSSL: false,
-				url: 'https://127.0.0.1:1337'
+			request({
+				url: 'https://127.0.0.1:1337',
+				userConfig
 			}).then(() => {
 				done(new Error('Expected error'));
 			}).catch(err => {
@@ -168,16 +185,22 @@ describe.only('request', () => {
 		});
 	});
 
-	// TODO: move to config
-	it.skip('should support AMPLIFY_NETWORK_CA_FILE environment variable', function (done) {
+	it('should support network.caFile/certFile/keyFile config setting', function (done) {
 		this.timeout(5000);
 		this.slow(4000);
 
-		process.env.AMPLIFY_NETWORK_CA_FILE = path.join(sslDir, 'ca.crt.pem');
+		const userConfig = new MockConfig({
+			'network.caFile': path.join(sslDir, 'ca.crt.pem'),
+			'network.certFile': path.join(sslDir, 'client.crt.pem'),
+			'network.keyFile': path.join(sslDir, 'client.key.pem'),
+			'network.strictSSL': false
+		});
 
 		this.server = https.createServer({
-			certFile: path.join(__dirname, 'ssl', 'client.crt.pem'),
-			keyFile: path.join(__dirname, 'ssl', 'client.key.pem')
+			ca: fs.readFileSync(path.join(sslDir, 'ca.crt.pem')),
+			cert: fs.readFileSync(path.join(sslDir, 'server.crt.pem')),
+			key: fs.readFileSync(path.join(sslDir, 'server.key.pem')),
+			requestCert: true
 		}, (req, res) => {
 			if (!req.client.authorized) {
 				res.writeHead(401, { 'Content-Type': 'text/plain' });
@@ -197,14 +220,14 @@ describe.only('request', () => {
 		});
 
 		this.server.listen(1337, '127.0.0.1', () => {
-			requestJSON({
+			request({
 				url: 'https://127.0.0.1:1337',
-				strictSSL: false
-			}).then(({ response, body }) => {
+				userConfig
+			}).then(response => {
 				try {
 					expect(response.statusCode).to.equal(200);
 					expect(parseInt(response.headers['content-length'])).to.equal(4);
-					expect(body).to.equal('foo!');
+					expect(response.body).to.equal('foo!');
 					done();
 				} catch (e) {
 					done(e);
@@ -215,12 +238,12 @@ describe.only('request', () => {
 		});
 	});
 
-	// TODO: move to config/HTTP_PROXY
-	it.skip('should support AMPLIFY_NETWORK_PROXY with HTTP proxy', function (done) {
+	it('should support network.httpProxy config setting', function (done) {
 		this.timeout(5000);
 		this.slow(4000);
-		process.env.AMPLIFY_NETWORK_PROXY = 'http://127.0.0.1:1337';
-
+		const userConfig = new MockConfig({
+			'network.httpProxy': 'http://127.0.0.1:1337'
+		});
 		this.server = http.createServer((req, res) => {
 			if (req.headers.host === '127.0.0.1:1338') {
 				res.writeHead(200, { 'Content-Length': 4 });
@@ -232,13 +255,14 @@ describe.only('request', () => {
 		});
 
 		this.server.listen(1337, '127.0.0.1', () => {
-			requestJSON({
-				url: 'http://127.0.0.1:1338'
-			}).then(({ response, body }) => {
+			request({
+				url: 'http://127.0.0.1:1338',
+				userConfig
+			}).then((response) => {
 				try {
 					expect(response.statusCode).to.equal(200);
 					expect(parseInt(response.headers['content-length'])).to.equal(4);
-					expect(body).to.equal('foo!');
+					expect(response.body).to.equal('foo!');
 					done();
 				} catch (e) {
 					done(e);
@@ -249,12 +273,13 @@ describe.only('request', () => {
 		});
 	});
 
-	// TODO: move to config/HTTPS_PROXY
-	it.skip('should support AMPLIFY_NETWORK_PROXY with HTTPS proxy', function (done) {
+	it('should support network.httpsProxy config setting', function (done) {
 		this.timeout(5000);
 		this.slow(4000);
 
-		process.env.AMPLIFY_NETWORK_PROXY = 'https://127.0.0.1:1337';
+		const userConfig = new MockConfig({
+			'network.httpsProxy': 'https://127.0.0.1:1338'
+		});
 
 		this.server = https.createServer({
 			ca: fs.readFileSync(path.join(sslDir, 'ca.crt.pem')),
@@ -280,15 +305,16 @@ describe.only('request', () => {
 				new Promise(resolve => this.server2.listen(1338, '127.0.0.1', resolve))
 			])
 			.then(() => {
-				requestJSON({
+				request({
 					url: 'https://127.0.0.1:1337',
-					strictSSL: false,
-					tunnel: false
-				}).then(({ response, body }) => {
+					userConfig,
+					tunnel: false,
+					strictSSL: false
+				}).then((response) => {
 					try {
 						expect(response.statusCode).to.equal(200);
 						expect(parseInt(response.headers['content-length'])).to.equal(4);
-						expect(body).to.equal('foo!');
+						expect(response.body).to.equal('foo!');
 						done();
 					} catch (e) {
 						done(e);

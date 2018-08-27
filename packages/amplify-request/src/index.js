@@ -15,7 +15,7 @@ export default async function request(params) {
 	if (!params || typeof params !== 'object') {
 		throw new TypeError('Expected params to be an object');
 	}
-	const conf =  Object.assign({ method: 'GET', resolveWithFullResponse: true  }, params, getNetworkSettings());
+	const conf =  Object.assign({ method: 'GET', resolveWithFullResponse: true  }, params, getNetworkSettings(params.url, params.userConfig));
 	let response;
 	try {
 		response = await requestPromise(conf);
@@ -34,7 +34,7 @@ export function requestStream(params, callback) {
 	}
 
 	return new Promise((resolve, reject) => {
-		const conf =  Object.assign({ method: 'GET' }, params, getNetworkSettings());
+		const conf =  Object.assign({ method: 'GET' }, params, getNetworkSettings(params.url, params.userConfig));
 		const req = _request(conf, callback);
 		return resolve(req);
 	});
@@ -44,7 +44,7 @@ export async function requestJSON(params) {
 	if (!params || typeof params !== 'object') {
 		throw new TypeError('Expected params to be an object');
 	}
-	const conf =  Object.assign({ method: 'GET', resolveWithFullResponse: true }, params, getNetworkSettings());
+	const conf =  Object.assign({ method: 'GET', resolveWithFullResponse: true }, params, getNetworkSettings(params.url, params.userConfig));
 	let response;
 	try {
 		response = await requestPromise(conf);
@@ -64,23 +64,23 @@ export async function requestJSON(params) {
 	}
 }
 
-export function getNetworkSettings(userConfig = loadConfig()) {
+export function getNetworkSettings(url, userConfig = loadConfig()) {
 	const conf = {};
 
-	if (userConfig.get('network.strictSSL') !== undefined && userConfig.get('network.strictSSL') !== 'false') {
+	if (userConfig.get('network.strictSSL') === true) {
 		conf.strictSSL = true;
+	} else if (userConfig.get('network.strictSSL') === false) {
+		conf.strictSSL = false;
 	}
 
 	// ca file
-	const caFile = conf.caFile && typeof conf.caFile === 'string' && path.resolve(conf.caFile);
+	const caFile = userConfig.get('network.caFile') && userConfig.get('network.caFile') && path.resolve(userConfig.get('network.caFile'));
 	if (isFile(caFile)) {
 		conf.ca = fs.readFileSync(caFile);
-		delete conf.caFile;
 	}
 
 	// cert file
-
-	const certFile = userConfig.get('network.caFile') && typeof userConfig.get('network.caFile') === 'string' && path.resolve(userConfig.get('network.caFile'));
+	const certFile = userConfig.get('network.certFile') && typeof userConfig.get('network.certFile') === 'string' && path.resolve(userConfig.get('network.certFile'));
 	if (isFile(certFile)) {
 		conf.cert = fs.readFileSync(certFile);
 	}
@@ -92,8 +92,8 @@ export function getNetworkSettings(userConfig = loadConfig()) {
 	}
 
 	// configure proxy
-	const proxyType = conf.url && conf.url.indexOf('https') === 0 ? 'httpsProxy' : 'httpProxy';
-	if (userConfig.get(`network.${proxyType}Proxy`)) {
+	const proxyType = url && url.indexOf('https') === 0 ? 'httpsProxy' : 'httpProxy';
+	if (userConfig.get(`network.${proxyType}`)) {
 		conf.proxy = userConfig.get(`network.${proxyType}`);
 	}
 	return conf;
