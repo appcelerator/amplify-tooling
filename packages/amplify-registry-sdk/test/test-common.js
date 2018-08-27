@@ -3,6 +3,7 @@ import { join } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
 import { removeSync } from 'fs-extra';
 import { EventEmitter } from 'events';
+
 // We need to require this in order to mock it
 const child_process = require('child_process');
 const tar = require('tar');
@@ -11,7 +12,6 @@ const fixturesDir = join(__dirname, 'fixtures');
 const userConfigFile = join(fixturesDir, 'my-config.json');
 
 describe('common utils', () => {
-
 	describe('addPackageToConfig()', () => {
 		beforeEach(function () {
 			this.config = loadConfig({ userConfigFile });
@@ -126,6 +126,7 @@ describe('common utils', () => {
 				{
 					description: 'bobs cli that is published as a scoped plugin as he rocks',
 					name: '@bob/bobs-cli',
+					description: 'bobs cli that is published as a scoped plugin as he rocks',
 					version: '1.0.0',
 					versions: {
 						'1.0.0': {
@@ -136,6 +137,7 @@ describe('common utils', () => {
 				{
 					description: 'a second plugin',
 					name: 'bar',
+					description: 'a second plugin',
 					version: '1.0.0',
 					versions: {
 						'1.0.0': {
@@ -158,7 +160,6 @@ describe('common utils', () => {
 	});
 
 	describe('npminstall()', function () {
-
 		beforeEach(function () {
 			this.fakeChild = new EventEmitter();
 			this.fakeChild.stdout = new EventEmitter();
@@ -204,7 +205,6 @@ describe('common utils', () => {
 	});
 
 	describe('extract()', function () {
-
 		beforeEach(function () {
 			this.sandbox.stub(tar, 'extract').resolves();
 		});

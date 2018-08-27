@@ -26,7 +26,7 @@ export default {
 	async action({ argv, console }) {
 		const [
 			npa,
-			{ getRegistryURL },
+			{ getRegistryParams },
 			{ Registry }
 		] = await Promise.all([
 			import('npm-package-arg'),
@@ -35,9 +35,7 @@ export default {
 		]);
 
 		const { name, fetchSpec } = npa(argv.package);
-		const registry = new Registry({
-			url: getRegistryURL()
-		});
+		const registry = new Registry(getRegistryParams(argv.env));
 
 		try {
 			const result = await registry.metadata({

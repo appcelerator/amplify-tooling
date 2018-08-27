@@ -16,16 +16,24 @@ describe('Registry', function () {
 		}
 	});
 
-	it('should default to a url', done => {
+	it('should default to a url', () => {
 		const r = new Registry();
-		expect(r.url).to.equal('http://localhost:8082');
-		done();
+		expect(r.url).to.equal('https://registry.platform.axway.com');
 	});
 
-	it('should allow an override url to be passed in', done => {
+	it('should allow an override url to be passed in', () => {
 		const r = new Registry({ url: 'http://localhost:8080' });
 		expect(r.url).to.equal('http://localhost:8080');
-		done();
+	});
+
+	it('should use a specific env', () => {
+		const r = new Registry({ env: 'preprod' });
+		expect(r.url).to.equal('https://registry.axwaytest.net');
+	});
+
+	it('should allow an override environment-derived url', () => {
+		const r = new Registry({ env: 'preprod', url: 'http://localhost:8080' });
+		expect(r.url).to.equal('http://localhost:8080');
 	});
 
 	it('metadata() should require name', () => {

@@ -16,7 +16,7 @@ export default {
 		const [
 			npa,
 			{ fetchAndInstall },
-			{ getRegistryURL }
+			{ getRegistryParams }
 		] = await Promise.all([
 			import('npm-package-arg'),
 			import('@axway/amplify-registry-sdk'),
@@ -24,14 +24,16 @@ export default {
 		]);
 
 		const { name, fetchSpec } = npa(argv.package);
-		const url = getRegistryURL();
 
 		try {
 			if (!argv.json) {
 				console.log(`Fetching ${name}...`);
 			}
 
-			const info = await fetchAndInstall({ name, fetchSpec, url });
+			const info = await fetchAndInstall(Object.assign({
+				fetchSpec,
+				name
+			}, getRegistryParams(argv.env)));
 
 			if (argv.json) {
 				console.log(JSON.stringify({

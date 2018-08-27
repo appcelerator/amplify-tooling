@@ -3,6 +3,7 @@ if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
+import environments from './environments';
 import loadConfig from './config';
 
 import * as auth from './auth';
@@ -10,6 +11,7 @@ import * as locations from './locations';
 
 export {
 	auth,
+	environments,
 	loadConfig,
 	locations
 };

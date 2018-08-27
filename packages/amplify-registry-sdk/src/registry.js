@@ -1,22 +1,24 @@
 import snooplogg from 'snooplogg';
 
-import { requestJSON } from '@axway/amplify-request';
+import { environments, requestJSON } from '@axway/amplify-cli-utils';
 
 const { log } = snooplogg('amplify-registry-sdk:registry');
 const { highlight } = snooplogg.styles;
 
 /**
- * Class for simplifying communication with registry server for the packages APIs
+ * Class for simplifying communication with registry server for the packages APIs.
  */
 export default class Registry {
-
 	/**
-	 * Create a registry instance
-	 * @param {Object} [opts] - Various options
-	 * @param {String} [opts.url=http://localhost:8082] - URL for the registry server
+	 * Create a registry instance.
+	 *
+	 * @param {Object} [opts] - Various options.
+	 * @param {String} [opts.env=prod] - The environment name to use for default values.
+	 * @param {String} [opts.url] - URL for the registry server.
+	 * @access public
 	 */
-	constructor({ url } = {}) {
-		this.url = url || 'http://localhost:8082';
+	constructor({ env, url } = {}) {
+		this.url = url || (env && environments[env] || environments.prod).registry.url;
 	}
 
 	/**

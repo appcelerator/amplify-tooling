@@ -5,7 +5,10 @@ import { loadConfig } from '@axway/amplify-cli-utils';
  *
  * @returns {String}
  */
-export function getRegistryURL() {
+export function getRegistryParams(env) {
 	const config = loadConfig();
-	return config.get('registry.url');
+	return {
+		env: env || config.get('env') || 'prod',
+		url: config.get('registry.url')
+	};
 }

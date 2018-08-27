@@ -14,8 +14,6 @@ If you wish to build the packages again then you can run `npx gulp build` to bui
 
 To link the AMPLIFY CLI binary for use cd into `packages/amplify-cli` and run `yarn link`.
 
-:bulb:
-
 If you're doing more than just simple development on AMPLIFY CLI, you may wish to run `npx gulp watch` in the top level, this will start the gulp process in watch mode, and rebuild a package automatically when any changes occur in the source files.
 
 ## Testing

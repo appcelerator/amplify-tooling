@@ -1,6 +1,5 @@
 import environments from './environments';
 import loadConfig from './config';
-import path from 'path';
 
 import { axwayHome } from './locations';
 
@@ -25,7 +24,7 @@ export function buildParams(opts = {}, config) {
 		throw new Error(`Invalid environment "${env}", expected ${Object.keys(environments).reduce((p, s, i, a) => `${p}"${s}"${i + 1 < a.length ? `, ${i + 2 === a.length ? 'or ' : ''}` : ''}`, '')}`);
 	}
 
-	const { clientId, realm } = environments[env];
+	const { clientId, realm } = environments[env].auth;
 	const params = {};
 	const props = {
 		baseUrl:                 undefined,
