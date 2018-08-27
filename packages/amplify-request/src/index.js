@@ -17,7 +17,7 @@ import { loadConfig } from '@axway/amplify-cli-utils';
  * is set to true. Any request options can be passed in and will be set
  * @param {Object} options - Various options.
  * @param {String} options.url - URL to make request to.
- * @param {Config} [options.userConfig] - User config object to load 
+ * @param {Config} [options.userConfig] - User config object to load
  */
 export default async function request(options) {
 	if (!options || typeof options !== 'object') {
@@ -39,12 +39,12 @@ export default async function request(options) {
 /**
  * Wrapper around request that that sets any proxy related data for
  * you. Applies the callback if specified and resolves with the request object.
- * @param {Object} params 
- * @param {Function} callback 
+ * @param {Object} params
+ * @param {Function} callback
  */
 export function requestStream(params, callback) {
 	if (!params || typeof params !== 'object') {
-		return Promise.reject(new TypeError('Expected params to be an object'));
+		return Promise.reject(new TypeError('Expected options to be an object'));
 	}
 
 	if (callback && typeof callback !== 'function') {
@@ -62,15 +62,15 @@ export function requestStream(params, callback) {
 * Wrapper around request-promise-native that sets any proxy related data for
 * you. By default the method is 'GET' and the request option 'resolveWithFullResponse'
 * is set to true. Any request options can be passed in and will be set.
-* Performs validation on the reponse body and throws an error if the 
+* Performs validation on the reponse body and throws an error if the
 * response is invalid JSON
 * @param {Object} options - Various options.
 * @param {String} options.url - URL to make request to.
-* @param {Config} [options.userConfig] - User config object to load 
+* @param {Config} [options.userConfig] - User config object to load
 */
 export async function requestJSON(params) {
 	if (!params || typeof params !== 'object') {
-		throw new TypeError('Expected params to be an object');
+		throw new TypeError('Expected options to be an object');
 	}
 	const conf =  Object.assign({ method: 'GET', resolveWithFullResponse: true }, params, getNetworkSettings(params.url, params.userConfig));
 	let response;

@@ -47,7 +47,7 @@ describe('request', () => {
 			})
 			.catch(err => {
 				expect(err).to.be.an.instanceof(TypeError);
-				expect(err.message).to.equal('Expected params to be an object');
+				expect(err.message).to.equal('Expected options to be an object');
 				done();
 			})
 			.catch(done);
@@ -365,7 +365,7 @@ describe('requestJSON', () => {
 			})
 			.catch(err => {
 				expect(err).to.be.an.instanceof(TypeError);
-				expect(err.message).to.equal('Expected params to be an object');
+				expect(err.message).to.equal('Expected options to be an object');
 				done();
 			})
 			.catch(done);
@@ -462,7 +462,7 @@ describe('requestStream', () => {
 			})
 			.catch(err => {
 				expect(err).to.be.an.instanceof(TypeError);
-				expect(err.message).to.equal('Expected params to be an object');
+				expect(err.message).to.equal('Expected options to be an object');
 				done();
 			})
 			.catch(done);
