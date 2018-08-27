@@ -71,7 +71,7 @@ export default {
 			if (argv.json) {
 				console.error(JSON.stringify({ success: false, message: msg }, null, '  '));
 			} else {
-				console.error(msg.message);
+				console.error(msg);
 			}
 			process.exit(code);
 		}
