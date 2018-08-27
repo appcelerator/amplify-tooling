@@ -1,9 +1,9 @@
 import Auth, { server } from '../dist/index';
-import fetch from 'node-fetch';
 
 import { parse, URLSearchParams } from 'url';
+import request from '@axway/amplify-request';
 
-describe('Server', () => {
+describe.only('Server', () => {
 	afterEach(async () => {
 		await server.stop(true);
 	});
@@ -18,8 +18,9 @@ describe('Server', () => {
 		const { cancel } = await auth.login({ manual: true });
 
 		try {
-			const res = await fetch('http://127.0.0.1:3000/callback');
-			expect(res.status).to.equal(400);
+			await request({ url: 'http://127.0.0.1:3000/callback' });
+		} catch (error) {
+			expect(error.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -35,8 +36,9 @@ describe('Server', () => {
 		const { cancel } = await auth.login({ manual: true });
 
 		try {
-			const res = await fetch('http://127.0.0.1:3000/callback?code=123');
-			expect(res.status).to.equal(400);
+			await request({ url: 'http://127.0.0.1:3000/callback?code=123' });
+		} catch (error) {
+			expect(error.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -52,8 +54,9 @@ describe('Server', () => {
 		const { cancel } = await auth.login({ manual: true });
 
 		try {
-			const res = await fetch('http://127.0.0.1:3000/callback/foo?code=123');
-			expect(res.status).to.equal(400);
+			await request({ url: 'http://127.0.0.1:3000/callback/foo?code=123' });
+		} catch (error) {
+			expect(error.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -74,8 +77,9 @@ describe('Server', () => {
 		promise.catch(() => {});
 
 		try {
-			const res = await fetch(`http://127.0.0.1:3000/callback/${id}?code=123`);
-			expect(res.status).to.equal(400);
+			await request({ url: `http://127.0.0.1:3000/callback/${id}?code=123` });
+		} catch (error) {
+			expect(error.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -91,8 +95,9 @@ describe('Server', () => {
 		const { cancel } = await auth.login({ manual: true });
 
 		try {
-			const res = await fetch('http://127.0.0.1:3000');
-			expect(res.status).to.equal(404);
+			await request({ url: 'http://127.0.0.1:3000' });
+		} catch (error) {
+			expect(error.statusCode).to.equal(404);
 		} finally {
 			await cancel();
 		}

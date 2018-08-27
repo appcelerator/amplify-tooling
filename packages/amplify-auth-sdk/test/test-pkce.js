@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 
 import Auth, { Authenticator } from '../dist/index';
-import fetch from 'node-fetch';
 import snooplogg from 'snooplogg';
 
 import { createLoginServer, stopLoginServer } from './common';
+import request from '@axway/amplify-request';
 
 const { log } = snooplogg('test:amplify-auth:pkce');
 
@@ -340,22 +340,25 @@ describe('PKCE', () => {
 			promise.catch(() => {});
 
 			log(`Manually fetching ${url}`);
-			let res = await fetch(url, {
-				redirect: 'manual'
+			let res = await request({
+				followRedirect: false,
+				simple: false,
+				url
 			});
-			expect(res.status).to.equal(301);
+			expect(res.statusCode).to.equal(301);
 
-			url = res.headers.get('location');
+			url = res.headers['location'];
 			log(`Fetching ${url}`);
 
-			res = await fetch(url, {
+			res = await request({
 				headers: {
 					Accept: 'text/plain'
-				}
+				},
+				url
 			});
 
-			expect(res.status).to.equal(200);
-			expect(await res.text()).to.equal(text);
+			expect(res.statusCode).to.equal(200);
+			expect(res.body).to.equal(text);
 		});
 
 		it('should override a default message with a object and html', async function () {
@@ -382,14 +385,16 @@ describe('PKCE', () => {
 
 			promise.catch(() => {});
 
-			let res = await fetch(url, {
-				redirect: 'manual'
+			let res = await request({
+				followRedirect: false,
+				simple: false,
+				url
 			});
-			expect(res.status).to.equal(301);
+			expect(res.statusCode).to.equal(301);
 
-			res = await fetch(res.headers.get('location'));
-			expect(res.status).to.equal(200);
-			expect(await res.text()).to.equal(html);
+			res = await request({ url: res.headers['location'] });
+			expect(res.statusCode).to.equal(200);
+			expect(res.body).to.equal(html);
 		});
 
 		it('should respond to interactive login as json', async function () {
@@ -412,22 +417,25 @@ describe('PKCE', () => {
 			promise.catch(() => {});
 
 			log(`Manually fetching ${url}`);
-			let res = await fetch(url, {
-				redirect: 'manual'
+			let res = await request({
+				followRedirect: false,
+				simple: false,
+				url
 			});
-			expect(res.status).to.equal(301);
+			expect(res.statusCode).to.equal(301);
 
-			url = res.headers.get('location');
+			url = res.headers['location'];
 			log(`Fetching ${url}`);
 
-			res = await fetch(url, {
+			res = await request({
 				headers: {
 					Accept: 'application/json'
-				}
+				},
+				url
 			});
 
-			expect(res.status).to.equal(200);
-			expect(await res.json()).to.deep.equal({
+			expect(res.statusCode).to.equal(200);
+			expect(JSON.parse(res.body)).to.deep.equal({
 				message: 'It worked!',
 				success: true
 			});
@@ -453,22 +461,26 @@ describe('PKCE', () => {
 			promise.catch(() => {});
 
 			log(`Manually fetching ${url}`);
-			let res = await fetch(url, {
-				redirect: 'manual'
+			let res = await request({
+				followRedirect: false,
+				simple: false,
+				url
 			});
-			expect(res.status).to.equal(301);
+			expect(res.statusCode).to.equal(301);
 
-			url = res.headers.get('location').split('?')[0];
+			url = res.headers['location'].split('?')[0];
 			log(`Fetching ${url}`);
 
-			res = await fetch(url, {
+			res = await request({
 				headers: {
 					Accept: 'application/json'
-				}
+				},
+				simple: false,
+				url
 			});
 
-			expect(res.status).to.equal(400);
-			expect(await res.json()).to.deep.equal({
+			expect(res.statusCode).to.equal(400);
+			expect(JSON.parse(res.body)).to.deep.equal({
 				message: 'Invalid auth code',
 				success: false
 			});
