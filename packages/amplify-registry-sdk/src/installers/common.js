@@ -34,13 +34,8 @@ export async function npmInstall({ directory, npm }) {
 		}
 	}
 
-	// TEMPORARY HACK
-	if (process.platform === 'win32') {
-		npm = 'npm';
-	}
-
 	try {
-		const { err, stdout, stderr } = await run(npm, [ 'install', '--production' ], { cwd: directory, shell: true, windowsHide: true });
+		const { err, stdout, stderr } = await run(npm, [ 'install', '--production' ], { cwd: directory, windowsHide: true });
 		if (err) {
 			throw err;
 		}
