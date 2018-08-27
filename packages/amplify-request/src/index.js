@@ -11,7 +11,6 @@ import requestPromise from 'request-promise-native';
 import { isFile } from 'appcd-fs';
 import { loadConfig } from '@axway/amplify-cli-utils';
 
-
 export default async function request(params) {
 	if (!params || typeof params !== 'object') {
 		throw new TypeError('Expected params to be an object');

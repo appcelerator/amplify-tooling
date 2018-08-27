@@ -1,6 +1,7 @@
 import snooplogg from 'snooplogg';
 
-import { environments, requestJSON } from '@axway/amplify-cli-utils';
+import { environments } from '@axway/amplify-cli-utils';
+import { requestJSON } from '@axway/amplify-request';
 
 const { log } = snooplogg('amplify-registry-sdk:registry');
 const { highlight } = snooplogg.styles;

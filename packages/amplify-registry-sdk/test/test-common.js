@@ -124,7 +124,6 @@ describe('common utils', () => {
 			const packages = getInstalledPackages(this.config, join(fixturesDir, 'common', 'packages'));
 			expect(packages).to.deep.equal([
 				{
-					description: 'bobs cli that is published as a scoped plugin as he rocks',
 					name: '@bob/bobs-cli',
 					description: 'bobs cli that is published as a scoped plugin as he rocks',
 					version: '1.0.0',
@@ -135,7 +134,6 @@ describe('common utils', () => {
 					}
 				},
 				{
-					description: 'a second plugin',
 					name: 'bar',
 					description: 'a second plugin',
 					version: '1.0.0',
