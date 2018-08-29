@@ -18,6 +18,8 @@ import { loadConfig } from '@axway/amplify-cli-utils';
  * @param {Object} options - Various options.
  * @param {String} options.url - URL to make request to.
  * @param {Config} [options.config] - User config object to query.
+ * @param {Boolean} [options.validateJSON] - Validate that the response is valid
+ * JSON, and set response.body to that parsed object if it is, throwing if not.
  * @returns {Promise<Object>} Resolves with a Request response object.
  */
 export default async function request(options) {
@@ -25,13 +27,26 @@ export default async function request(options) {
 		throw new TypeError('Expected options to be an object');
 	}
 	const conf =  buildRequestParams(options);
+	let response;
 	try {
-		return await requestPromise(conf);
+		response = await requestPromise(conf);
+		if (!options.validateJSON) {
+			return response;
+		}
 	} catch (err) {
 		if (err.name === 'RequestError') {
 			throw err.error;
 		}
 		throw err;
+	}
+
+	try {
+		response.body = JSON.parse(response.body);
+		return response;
+	} catch (err) {
+		const error = new Error(`Invalid JSON response at ${options.url} ${err.message}`);
+		error.code = 'INVALID_JSON';
+		throw error;
 	}
 }
 
@@ -45,7 +60,7 @@ export default async function request(options) {
  * Function is called with the standard err, response and body from Request.
  * @returns {Promise<Object>} Resolves with a Request request object.
  */
-export async function requestStream(options, callback) {
+export function requestFile(options, callback) {
 	if (!options || typeof options !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	}
@@ -54,46 +69,8 @@ export async function requestStream(options, callback) {
 		throw new TypeError('Expected callback to be a function');
 	}
 
-	return new Promise((resolve) => {
-		const conf =  buildRequestParams(options);
-		const req = _request(conf, callback);
-		return resolve(req);
-	});
-}
-
-/**
-* Wrapper around request-promise-native that sets any proxy related data for
-* you. By default the method is 'GET' and the request option 'resolveWithFullResponse'
-* is set to true. Any request options can be passed in and will be set.
-* Performs validation on the reponse body and throws an error if the
-* response is invalid JSON.
-* @param {Object} options - Various options.
-* @param {String} options.url - URL to make request to.
-* @param {Config} [options.config] - User config object to query.
-* @returns {Promse}
-*/
-export async function requestJSON(options) {
-	if (!options || typeof options !== 'object') {
-		throw new TypeError('Expected options to be an object');
-	}
 	const conf =  buildRequestParams(options);
-	let response;
-	try {
-		response = await requestPromise(conf);
-	} catch (err) {
-		if (err.name === 'RequestError') {
-			throw err.error;
-		}
-		throw err;
-	}
-	try {
-		response.body = JSON.parse(response.body);
-		return response;
-	} catch (err) {
-		const error = new Error(`Invalid JSON response at ${options.url} ${err.message}`);
-		error.code = 'INVALID_JSON';
-		throw error;
-	}
+	return _request(conf, callback);
 }
 
 /**
@@ -106,7 +83,7 @@ export async function requestJSON(options) {
  * @param {Config} [options.config] - User config object to to query.
  * @returns {Object} An object that can be passed to Request to make a request.
  */
-export function buildRequestParams(options) {
+function buildRequestParams(options) {
 	let config = options.config;
 	delete options.config;
 	if (!config) {
@@ -142,8 +119,3 @@ export function buildRequestParams(options) {
 	}
 	return conf;
 }
-
-export const libs = {
-	request: _request,
-	requestPromise
-};

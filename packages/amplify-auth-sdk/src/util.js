@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import E from './errors';
 import snooplogg from 'snooplogg';
 
-import { requestJSON } from '@axway/amplify-request';
+import request from '@axway/amplify-request';
 import { URLSearchParams } from 'url';
 
 const { log } = snooplogg('amplify-auth:util');
@@ -20,9 +20,10 @@ export async function getServerInfo(url) {
 
 	log(`Fetching server info: ${url}...`);
 	try {
-		const { body } = await requestJSON({ url });
+		const { body } = await request({ url, validateJSON: true });
 		return body;
 	} catch (err) {
+		console.log(err);
 		if (err.code === 'INVALID_JSON') {
 			throw err;
 		}

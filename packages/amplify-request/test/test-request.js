@@ -2,7 +2,7 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import path from 'path';
-import request, { requestJSON, requestStream } from '../dist';
+import request, { requestFile } from '../dist';
 
 const sslDir = path.join(__dirname, 'fixtures', 'ssl');
 
@@ -20,7 +20,7 @@ class MockConfig {
 	}
 }
 
-describe('request', () => {
+describe.only('request', () => {
 	beforeEach(function () {
 		this.server = null;
 		this.server2 = null;
@@ -105,6 +105,24 @@ describe('request', () => {
 				expect(response.message).to.equal('connect ECONNREFUSED 127.0.0.1:1336');
 				done();
 			});
+	});
+
+	it('should throw if the response is invalid JSON and validateJSON is true', function (done) {
+		this.server = http.createServer((req, res) => {
+			res.writeHead(200, { 'Content-Type': 'text/plain' });
+			res.end('{{{{{{{{{');
+		});
+
+		this.server.listen(1337, '127.0.0.1', () => {
+			request({ url: 'http://127.0.0.1:1337', validateJSON: true })
+				.then(() => {
+					done(new Error('Expected a failure'));
+				}).catch((response) => {
+					expect(response.code).to.equal('INVALID_JSON');
+					expect(response.message).to.equal('Invalid JSON response at http://127.0.0.1:1337 Unexpected token { in JSON at position 1');
+					done();
+				});
+		});
 	});
 
 	it('should make https request without strict ssl', function (done) {
@@ -338,7 +356,7 @@ describe('request', () => {
 	});
 });
 
-describe('requestJSON', () => {
+describe('requestFile', () => {
 	beforeEach(function () {
 		this.server = null;
 		this.server2 = null;
@@ -359,104 +377,7 @@ describe('requestJSON', () => {
 	});
 
 	it('should error if params is not an object', done => {
-		requestJSON('foo')
-			.then(() => {
-				done(new Error('Expected error'));
-			})
-			.catch(err => {
-				expect(err).to.be.an.instanceof(TypeError);
-				expect(err.message).to.equal('Expected options to be an object');
-				done();
-			})
-			.catch(done);
-	});
-
-	it('should allow fetching JSON', function (done) {
-		this.server = http.createServer((req, res) => {
-			res.writeHead(200, { 'Content-Type': 'text/plain' });
-			res.end('{ "foo": true }');
-		});
-
-		this.server.listen(1337, '127.0.0.1', () => {
-			requestJSON({ url: 'http://127.0.0.1:1337' })
-				.then((response) => {
-					expect(response.statusCode).to.equal(200);
-					expect(response.body).to.deep.equal({ foo: true });
-					done();
-				}).catch(done);
-		});
-	});
-
-	it('should throw on non-2xx reponses', function (done) {
-		this.server = http.createServer((req, res) => {
-			res.writeHead(404, { 'Content-Type': 'text/plain' });
-			res.end('Not Found');
-		});
-
-		this.server.listen(1337, '127.0.0.1', () => {
-			requestJSON({ url: 'http://127.0.0.1:1337' })
-				.then(() => {
-					done(new Error('Expected a failure'));
-				}).catch((response) => {
-					expect(response.statusCode).to.equal(404);
-					expect(response.error).to.equal('Not Found');
-					done();
-				});
-		});
-	});
-
-	it('should throw if the response is invalid JSON', function (done) {
-		this.server = http.createServer((req, res) => {
-			res.writeHead(200, { 'Content-Type': 'text/plain' });
-			res.end('{{{{{{{{{');
-		});
-
-		this.server.listen(1337, '127.0.0.1', () => {
-			requestJSON({ url: 'http://127.0.0.1:1337' })
-				.then(() => {
-					done(new Error('Expected a failure'));
-				}).catch((response) => {
-					expect(response.code).to.equal('INVALID_JSON');
-					expect(response.message).to.equal('Invalid JSON response at http://127.0.0.1:1337 Unexpected token { in JSON at position 1');
-					done();
-				});
-		});
-	});
-
-	it('should throw when getting ECONNREFUSED', function (done) {
-		requestJSON({ url: 'http://127.0.0.1:1336' })
-			.then(() => {
-				done(new Error('Expected a failure'));
-			}).catch((response) => {
-				expect(response.code).to.equal('ECONNREFUSED');
-				expect(response.message).to.equal('connect ECONNREFUSED 127.0.0.1:1336');
-				done();
-			});
-	});
-});
-
-describe('requestStream', () => {
-	beforeEach(function () {
-		this.server = null;
-		this.server2 = null;
-	});
-
-	afterEach(function (done) {
-		if (this.server) {
-			this.server.close(() => {
-				if (this.server2) {
-					this.server2.close(() => done());
-				} else {
-					done();
-				}
-			});
-		} else {
-			done();
-		}
-	});
-
-	it('should error if params is not an object', done => {
-		requestStream('foo')
+		requestFile('foo')
 			.then(() => {
 				done(new Error('Expected error'));
 			})
@@ -469,7 +390,7 @@ describe('requestStream', () => {
 	});
 
 	it('should error if callback is not a function', done => {
-		requestStream({}, 'foo')
+		requestFile({}, 'foo')
 			.then(() => {
 				done(new Error('Expected error'));
 			})
@@ -486,7 +407,7 @@ describe('requestStream', () => {
 			res.end('foo!');
 		});
 		this.server.listen(1337, '127.0.0.1', () => {
-			requestStream({
+			requestFile({
 				url: 'http://127.0.0.1:1337'
 			}, (err, response, body) => {
 				try {

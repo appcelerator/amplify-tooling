@@ -11,7 +11,7 @@ import TokenStore from '../stores/token-store';
 import * as server from '../server';
 
 import { md5, renderHTML, stringifyQueryString } from '../util';
-import { requestJSON } from '@axway/amplify-request';
+import request from '@axway/amplify-request';
 
 const { error, log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
@@ -382,13 +382,14 @@ export default class Authenticator {
 		log(`Post body: ${highlight(body)}`);
 
 		try {
-			response = await requestJSON({
+			response = await request({
 				body,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded'
 				},
 				method: 'POST',
-				url
+				url,
+				validateJSON: true
 			});
 		} catch (err) {
 			if (err.code === 'ECONNREFUSED') {
@@ -467,12 +468,13 @@ export default class Authenticator {
 	async getUserInfo(accessToken) {
 		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
 
-		const response = await requestJSON({
+		const response = await request({
 			headers: {
 				Accept: 'application/json',
 				Authorization: `Bearer ${accessToken}`
 			},
-			url: this.endpoints.userinfo
+			url: this.endpoints.userinfo,
+			validateJSON: true
 		});
 
 		if (response.statusCode >= 400) {
