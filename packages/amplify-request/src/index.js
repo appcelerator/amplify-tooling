@@ -26,7 +26,7 @@ export default async function request(options) {
 	if (!options || typeof options !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	}
-	const conf =  buildRequestParams(options);
+	const conf = buildRequestParams(options);
 	let response;
 	try {
 		response = await requestPromise(conf);
@@ -69,7 +69,7 @@ export function requestFile(options, callback) {
 		throw new TypeError('Expected callback to be a function');
 	}
 
-	const conf =  buildRequestParams(options);
+	const conf = buildRequestParams(options);
 	return _request(conf, callback);
 }
 
