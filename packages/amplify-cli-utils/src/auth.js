@@ -1,10 +1,7 @@
-import Auth from '@axway/amplify-auth-sdk';
 import environments from './environments';
 import loadConfig from './config';
 
 import { axwayHome } from './locations';
-
-export { Auth };
 
 /**
  * Constructs a parameters object to pass into an Auth instance.

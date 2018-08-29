@@ -1,7 +1,7 @@
 import accepts from 'accepts';
 import crypto from 'crypto';
 import E from '../errors';
-import fetch from 'node-fetch';
+
 import getEndpoints from '../endpoints';
 import jws from 'jws';
 import opn from 'opn';
@@ -11,6 +11,7 @@ import TokenStore from '../stores/token-store';
 import * as server from '../server';
 
 import { md5, renderHTML, stringifyQueryString } from '../util';
+import request from '@axway/amplify-request';
 
 const { error, log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
@@ -326,6 +327,7 @@ export default class Authenticator {
 		let now = Date.now();
 		let expires;
 		let tokens;
+		let response;
 
 		// if you have a code, then you probably don't want to have gone through all the hassle of
 		// getting the code to only return the existing access token from the store
@@ -379,21 +381,26 @@ export default class Authenticator {
 		log(`Fetching token: ${highlight(url)}`);
 		log(`Post body: ${highlight(body)}`);
 
-		const res = await fetch(url, {
-			body,
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			},
-			method: 'POST'
-		});
-
-		if (!res.ok) {
-			throw await this.handleRequestError(res, 'Authentication failed');
+		try {
+			response = await request({
+				body,
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				method: 'POST',
+				url,
+				validateJSON: true
+			});
+		} catch (err) {
+			if (err.code === 'ECONNREFUSED') {
+				throw err;
+			}
+			throw this.handleRequestError(err, 'Authentication failed');
 		}
 
-		tokens = await res.json();
+		tokens = response.body;
 
-		log(`Authentication successful ${note(`(${res.headers.get('content-type')})`)}`);
+		log(`Authentication successful ${note(`(${response.headers['content-type']})`)}`);
 		log(tokens);
 
 		let name;
@@ -461,18 +468,20 @@ export default class Authenticator {
 	async getUserInfo(accessToken) {
 		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
 
-		const res = await fetch(this.endpoints.userinfo, {
+		const response = await request({
 			headers: {
 				Accept: 'application/json',
 				Authorization: `Bearer ${accessToken}`
-			}
+			},
+			url: this.endpoints.userinfo,
+			validateJSON: true
 		});
 
-		if (!res.ok) {
-			throw await this.handleRequestError(res, 'Fetch user info failed');
+		if (response.statusCode >= 400) {
+			throw await this.handleRequestError(response, 'Fetch user info failed');
 		}
 
-		return await res.json();
+		return response.body;
 	}
 
 	/* istanbul ignore next */
@@ -494,10 +503,9 @@ export default class Authenticator {
 	 * @returns {Promise<Error>}
 	 * @access private
 	 */
-	async handleRequestError(res, label) {
+	handleRequestError(res, label) {
 		// authentication failed
-		let msg = await res.text();
-
+		let msg = res.error;
 		try {
 			const obj = JSON.parse(msg);
 			msg = `${obj.error}: ${obj.error_description}`;
@@ -505,7 +513,7 @@ export default class Authenticator {
 			// squelch
 		}
 
-		msg = `${label}: ${msg.trim() || `server returned ${res.status}`}`;
+		msg = `${label}: ${msg.trim() || `server returned ${res.statusCode}`}`;
 
 		error(`${msg} ${note(`(${res.status})`)}`);
 		return E.AUTH_FAILED(msg, { status: res.status });

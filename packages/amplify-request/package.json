@@ -1,7 +1,7 @@
 {
-  "name": "@axway/amplify-registry-sdk",
-  "version": "0.1.1",
-  "description": "SDK for AMPLIFY Package Registry",
+  "name": "@axway/amplify-request",
+  "version": "0.1.0",
+  "description": "Common request library for AMPLIFY CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Ewan Harris <eharri@axway.com>"
@@ -11,7 +11,6 @@
     "axway",
     "amplify"
   ],
-  "preferGlobal": true,
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -20,17 +19,10 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@awam/gittar": "^0.1.2",
     "@axway/amplify-cli-utils": "^0.1.0",
-    "@axway/amplify-request": "^0.1.0",
     "appcd-fs": "^1.1.2",
-    "appcd-subprocess": "^1.1.1",
-    "fs-extra": "^7.0.0",
-    "pacote": "^9.1.0",
-    "snooplogg": "^1.12.1",
-    "source-map-support": "^0.5.9",
-    "tar": "^4.4.6",
-    "tmp": "^0.0.33"
+    "request-promise-native": "^1.0.5",
+    "source-map-support": "^0.5.9"
   },
   "devDependencies": {
     "appcd-gulp": "^1.1.5",
@@ -38,10 +30,7 @@
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/appcelerator/amplify-tooling.git"
-  },
+  "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-request",
   "engines": {
     "node": ">=8.0.0"
   },

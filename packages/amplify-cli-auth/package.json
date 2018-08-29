@@ -24,6 +24,7 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "@axway/amplify-auth-sdk": "^0.1.0",
     "@axway/amplify-cli-utils": "^0.1.0",
     "cli-kit": "next",
     "pretty-ms": "^3.2.0",
