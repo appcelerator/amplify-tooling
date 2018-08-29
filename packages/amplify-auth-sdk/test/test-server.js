@@ -3,7 +3,7 @@ import Auth, { server } from '../dist/index';
 import { parse, URLSearchParams } from 'url';
 import request from '@axway/amplify-request';
 
-describe.only('Server', () => {
+describe('Server', () => {
 	afterEach(async () => {
 		await server.stop(true);
 	});

@@ -140,13 +140,13 @@ describe('request', () => {
 		}, (req, res) => {
 			res.end('foo!');
 		});
-		const userConfig = new MockConfig({
+		const config = new MockConfig({
 			'network.strictSSL': true
 		});
 		this.server.listen(1337, '127.0.0.1', () => {
 			request({
 				url: 'https://127.0.0.1:1337',
-				userConfig
+				config
 			}).then(() => {
 				done(new Error('Expected error'));
 			}).catch(err => {
@@ -172,13 +172,13 @@ describe('request', () => {
 		}, (req, res) => {
 			res.end('foo!');
 		});
-		const userConfig = new MockConfig({
+		const config = new MockConfig({
 			'network.strictSSL': true
 		});
 		this.server.listen(1337, '127.0.0.1', () => {
 			request({
 				url: 'https://127.0.0.1:1337',
-				userConfig
+				config
 			}).then(() => {
 				done(new Error('Expected error'));
 			}).catch(err => {
@@ -201,7 +201,7 @@ describe('request', () => {
 		this.timeout(5000);
 		this.slow(4000);
 
-		const userConfig = new MockConfig({
+		const config = new MockConfig({
 			'network.caFile': path.join(sslDir, 'ca.crt.pem'),
 			'network.certFile': path.join(sslDir, 'client.crt.pem'),
 			'network.keyFile': path.join(sslDir, 'client.key.pem'),
@@ -234,7 +234,7 @@ describe('request', () => {
 		this.server.listen(1337, '127.0.0.1', () => {
 			request({
 				url: 'https://127.0.0.1:1337',
-				userConfig
+				config
 			}).then(response => {
 				try {
 					expect(response.statusCode).to.equal(200);
@@ -253,7 +253,7 @@ describe('request', () => {
 	it('should support network.httpProxy config setting', function (done) {
 		this.timeout(5000);
 		this.slow(4000);
-		const userConfig = new MockConfig({
+		const config = new MockConfig({
 			'network.httpProxy': 'http://127.0.0.1:1337'
 		});
 		this.server = http.createServer((req, res) => {
@@ -269,7 +269,7 @@ describe('request', () => {
 		this.server.listen(1337, '127.0.0.1', () => {
 			request({
 				url: 'http://127.0.0.1:1338',
-				userConfig
+				config
 			}).then((response) => {
 				try {
 					expect(response.statusCode).to.equal(200);
@@ -289,7 +289,7 @@ describe('request', () => {
 		this.timeout(5000);
 		this.slow(4000);
 
-		const userConfig = new MockConfig({
+		const config = new MockConfig({
 			'network.httpsProxy': 'https://127.0.0.1:1338'
 		});
 
@@ -319,7 +319,7 @@ describe('request', () => {
 			.then(() => {
 				request({
 					url: 'https://127.0.0.1:1337',
-					userConfig,
+					config,
 					tunnel: false,
 					strictSSL: false
 				}).then((response) => {
@@ -417,7 +417,7 @@ describe('requestJSON', () => {
 					done(new Error('Expected a failure'));
 				}).catch((response) => {
 					expect(response.code).to.equal('INVALID_JSON');
-					expect(response.message).to.equal('invalid json response at http://127.0.0.1:1337 Unexpected token { in JSON at position 1');
+					expect(response.message).to.equal('Invalid JSON response at http://127.0.0.1:1337 Unexpected token { in JSON at position 1');
 					done();
 				});
 		});

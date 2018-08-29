@@ -112,7 +112,7 @@ describe('Auth', () => {
 				await auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' });
 			} catch (err) {
 				expect(err).to.be.instanceof(Error);
-				expect(err.message).to.match(/^invalid json response at/);
+				expect(err.message).to.match(/^Invalid JSON response at/);
 				return;
 			}
 

@@ -1,10 +1,10 @@
-# AMPLIFY CLI Utils
+# AMPLIFY Request
 
-A common utils library for AMPLIFY CLI and related packages.
+Common request library for AMPLIFY CLI package
 
 ## Installation
 
-	npm i -g @axway/amplify-cli-utils
+	npm install @axway/amplify-request
 
 ## Legal
 

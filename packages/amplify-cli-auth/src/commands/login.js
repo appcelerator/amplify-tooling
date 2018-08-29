@@ -8,6 +8,7 @@ export default {
 		'-p, --password <pass>':     'password to authenticate with'
 	},
 	async action({ _, argv, console }) {
+		const { Auth } = await import('@axway/amplify-auth-sdk');
 		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');
 
 		const config = loadConfig();
@@ -23,7 +24,7 @@ export default {
 			username:     _[0]
 		}, config);
 
-		const client = new auth.Auth(params);
+		const client = new Auth(params);
 
 		const account = await client.getAccount(params);
 		if (account && !account.expired) {

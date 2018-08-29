@@ -245,7 +245,7 @@ describe('Owner Password', () => {
 				});
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.match(/^invalid json response at /i);
+				expect(e.message).to.match(/^Invalid JSON response at /i);
 				return;
 			}
 
