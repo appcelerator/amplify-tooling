@@ -51,6 +51,11 @@ export default {
 				if (info) {
 					versions.push({ version: fetchSpec, ...info });
 				}
+			} else if (type === 'tag' && fetchSpec === 'latest') {
+				const version = semver.maxSatisfying(installedVersions, semver.validRange('*'));
+				if (version) {
+					versions.push({ version, ...installed.versions[version] });
+				}
 			}
 
 			if (!versions.length) {
