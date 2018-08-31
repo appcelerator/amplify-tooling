@@ -5,11 +5,7 @@ import fetchPackage from './fetchers';
 export async function fetchAndInstall({ name, repository, type, fetchSpec, env, url }) {
 	const registry = new Registry({ env, url });
 	const pkgInfo = await registry.metadata({ name, repository, type, version: fetchSpec });
-	if (!pkgInfo) {
-		const err = new Error('No data returned');
-		err.code = 'NO_DATA';
-		throw err;
-	}
+
 	const actions = await getActions(pkgInfo.type);
 
 	if (actions.pre) {

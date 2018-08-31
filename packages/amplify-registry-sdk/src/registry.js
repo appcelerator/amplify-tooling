@@ -64,11 +64,20 @@ export default class Registry {
 		if (!name || typeof name !== 'string') {
 			throw new TypeError('Expected name to be a valid string');
 		}
-
 		const url = `${this.url}/api/packages/v1/${encodeURIComponent(name)}${version ? `/${version}` : ''}`;
 		log(`Fetching package info: ${highlight(url)}`);
+		let body;
+		try {
+			const data = await request({ url, validateJSON: true });
+			body = data.body;
+		} catch (err) {
+			if (err.statusCode === 404) {
+				const err = new Error(`No version data for ${name}@${version}`);
+				err.code = 'ENOVERSIONDATA';
+				throw err;
+			}
+		}
 
-		const { body } = await request({ url, validateJSON: true });
 		const result = body.result;
 		if (result.versions) {
 			for (const [ ver, info ] of Object.entries(result.versions)) {
