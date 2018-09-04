@@ -21,6 +21,7 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^0.1.1",
     "appcd-fs": "^1.1.2",
+    "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "source-map-support": "^0.5.9"
   },
