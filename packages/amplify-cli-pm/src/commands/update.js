@@ -21,24 +21,15 @@ export default {
 		]);
 		const registryParams = getRegistryParams(argv.env);
 		const registry = new Registry(registryParams);
-		const installed = getInstalledPackages();
-		const toUpdate = [];
-		if (argv.package) {
-			for (const pkg of installed) {
-				if (pkg.name === argv.package) {
-					toUpdate.push(pkg);
-				}
-			}
-		} else {
-			toUpdate.push(...installed);
-		}
+		const installed = getInstalledPackages()
+			.filter(pkg => !argv.package || argv.package === pkg.name);
 
-		if (!toUpdate.length) {
+		if (!installed.length) {
 			console.log(argv.package ? `${argv.package} is not installed` : 'There are no packages to update');
 			return;
 		}
 
-		for (const pkg of toUpdate) {
+		for (const pkg of installed) {
 			try {
 				const meta = await registry.metadata({ name: pkg.name });
 				if (pkg.version === meta.version) {
