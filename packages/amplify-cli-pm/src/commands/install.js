@@ -12,29 +12,51 @@ export default {
 	options: {
 		'--auth <account>': 'the authorization account to use'
 	},
-	async action({ argv, console }) {
+	async action({ argv }) {
 		const [
 			{ default: npa },
-			{ fetchAndInstall },
+			{ default: ora },
+			{ PackageInstaller },
 			{ getRegistryParams, handleInstallError }
 		] = await Promise.all([
 			import('npm-package-arg'),
+			import('ora'),
 			import('@axway/amplify-registry-sdk'),
 			import('../utils')
 		]);
 
 		const { name, fetchSpec } = npa(argv.package);
-
+		let spinner;
 		try {
 			if (!argv.json) {
-				console.log(`Fetching ${name}...`);
+				spinner = ora(`looking up ${name}`).start();
 			}
 
-			const info = await fetchAndInstall(Object.assign({
+			const installProcess = new PackageInstaller(Object.assign({
 				fetchSpec,
 				name
 			}, getRegistryParams(argv.env)));
 
+			installProcess
+				.on('preActions', () => {
+					spinner.text = 'running pre-actions';
+				})
+				.on('download', () => {
+					spinner.text = 'downloading package';
+				})
+				.on('extract', () => {
+					spinner.text = 'extracting package';
+				})
+				.on('postActions', () => {
+					spinner.text = 'running post-actions';
+				})
+				.on('log', (message) => {
+					const currText = spinner.text;
+					spinner.info(message);
+					spinner = ora(currText).start();
+				});
+
+			const info = await installProcess.start();
 			if (argv.json) {
 				console.log(JSON.stringify({
 					success: true,
@@ -42,7 +64,7 @@ export default {
 					version: info.version
 				}, null, '  '));
 			} else {
-				console.log(`Installed ${name}@${info.version}`);
+				spinner.succeed(`Installed ${name}@${info.version}`);
 			}
 		} catch (error) {
 			const { exitCode, message } = handleInstallError(error);

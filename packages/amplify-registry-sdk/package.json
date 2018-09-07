@@ -20,7 +20,6 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@awam/gittar": "^0.1.2",
     "@axway/amplify-cli-utils": "^0.1.1",
     "@axway/amplify-request": "^0.1.2",
     "appcd-fs": "^1.1.3",
@@ -30,6 +29,7 @@
     "snooplogg": "^1.12.1",
     "source-map-support": "^0.5.9",
     "tar": "^4.4.6",
+    "targit": "^0.1.1",
     "tmp": "^0.0.33"
   },
   "devDependencies": {
