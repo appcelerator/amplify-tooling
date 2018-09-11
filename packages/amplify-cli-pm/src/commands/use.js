@@ -68,7 +68,7 @@ export default {
 				msg = `${name}@${version} is already the active version`;
 			} else {
 				msg = `Set ${name}@${version} as action version`;
-				addPackageToConfig(name, info.path);
+				await addPackageToConfig(name, info.path);
 			}
 
 			if (argv.json) {

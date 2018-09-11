@@ -63,8 +63,8 @@ export default {
 					// TODO: Need to break this error down into some sort of actionable items
 					msg = `An error occurred when running "npm install"\n${e.stack}`;
 					break;
-				case 'NO_DATA':
-					msg = 'No results found';
+				case 'ENOVERSIONDATA':
+					msg = e.message;
 					break;
 			}
 
