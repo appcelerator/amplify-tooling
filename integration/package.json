@@ -1,0 +1,13 @@
+{
+	"name": "amplify-cli-integration",
+	"description": "Integration testing for the AMPLIFY CLI",
+	"scripts": {
+		"test": "mocha tests/"
+	},
+	"dependencies": {
+		"appcd-subprocess": "^1.1.1",
+		"chai": "^4.1.2",
+		"fs-extra": "^7.0.0",
+		"mocha": "^5.2.0"
+	}
+}

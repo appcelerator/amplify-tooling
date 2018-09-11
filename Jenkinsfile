@@ -38,7 +38,7 @@ timestamps {
 
         // TODO: Anything other than test? Test also runs lint so pointless having a separate lint step
 
-        stage('Test') {
+        stage('Unit Test') {
             try {
               sh 'yarn run gulp coverage'
             } finally {
@@ -46,6 +46,22 @@ timestamps {
               junit 'packages/*/junit.xml'
               step([$class: 'CoberturaPublisher', autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage/cobertura-coverage.xml', failUnhealthy: false, failUnstable: false, maxNumberOfBuilds: 0, onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false])
             }
+        }
+
+        stage('Integration Test') {
+            def amplifyBinary = "${WORKSPACE}/packages/amplify-cli/bin/amplify"
+            echo amplifyBinary
+            dir('integration') {
+              sh 'yarn'
+              try {
+                withEnv(["AMPLIFY_BIN=${amplifyBinary}"]) {
+                  sh 'yarn test'
+                }
+              } finally {
+
+              }
+            }
+        
         }
 
       } // ansiColor
