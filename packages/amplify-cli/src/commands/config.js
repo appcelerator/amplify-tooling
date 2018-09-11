@@ -57,7 +57,7 @@ export default {
 			}
 		}
 
-		if (action === 'get') {
+		if (readActions[action]) {
 			const filter = key && key.split(/\.|\//).join('.') || undefined;
 			const value = cfg.get(filter);
 			if (value === undefined) {
