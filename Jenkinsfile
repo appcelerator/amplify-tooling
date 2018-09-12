@@ -5,6 +5,7 @@ timestamps {
   def isMaster = false
   def packageVersion
   def nodeVersion = '8.11.4'
+  def yarnVersion = 'latest' // We want latest by default, but can lockdown if we wish to
 
   node('osx || linux') {
     stage('Checkout') {
@@ -27,10 +28,8 @@ timestamps {
       ansiColor('xterm') {
         stage('Install') {
           timeout(15) {
-            // Install yarn if not installed
-            if (sh(returnStatus: true, script: 'where yarn') != 0) {
-              sh 'npm install -g yarn'
-            }
+            // Ensure we have yarn
+            ensureYarn(yarnVersion)
             sh 'yarn'
             fingerprint 'package.json'
           } // timeout
