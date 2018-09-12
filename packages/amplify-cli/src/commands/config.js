@@ -25,7 +25,7 @@ export default {
 		'--json': 'outputs the config as JSON'
 	},
 	args: [ 'action', 'key', 'value' ],
-	async action({ argv }) {
+	async action({ argv, help }) {
 		const { loadConfig, locations } = await import('@axway/amplify-cli-utils');
 
 		const cfg = loadConfig(argv);
@@ -43,7 +43,11 @@ export default {
 
 		if (writeActions[action]) {
 			if (!key) {
-				printAndExit(null, `Error: Missing the configuration key to ${action}`, argv.json, 1);
+				return printAndExit({
+					value: `Error: Missing the configuration key to ${action}`,
+					json: argv.json,
+					exitCode: 1
+				});
 			}
 
 			try {
@@ -53,7 +57,11 @@ export default {
 			}
 
 			if ((action === 'set' || action === 'push' || action === 'unshift') && data.value === undefined) {
-				printAndExit(null, `Error: Missing the configuration value to ${action}`, argv.json, 1);
+				return printAndExit({
+					value: `Error: Missing the configuration value to ${action}`,
+					json: argv.json,
+					exitCode: 1
+				});
 			}
 		}
 
@@ -61,9 +69,14 @@ export default {
 			const filter = key && key.split(/\.|\//).join('.') || undefined;
 			const value = cfg.get(filter);
 			if (value === undefined) {
-				printAndExit(key, `Not Found: ${key}`, argv.json, 6);
+				return printAndExit({
+					key,
+					value: `Not Found: ${key}`,
+					json: argv.json,
+					exitCode: 6
+				});
 			} else {
-				printAndExit(key, value, argv.json);
+				return printAndExit({ help, key, value, json: argv.json });
 			}
 		}
 
@@ -81,9 +94,17 @@ export default {
 
 				case 'delete':
 					if (!cfg.has(key)) {
-						printAndExit(null, `Not Found: ${key}`, argv.json, 6);
+						return printAndExit({
+							value: `Not Found: ${key}`,
+							json: argv.json,
+							exitCode: 6
+						});
 					} else if (!cfg.delete(key)) {
-						printAndExit(null, `Error: Unable to delete key "${key}"`, argv.json, 1);
+						return printAndExit({
+							value: `Error: Unable to delete key "${key}"`,
+							json: argv.json,
+							exitCode: 1
+						});
 					}
 					break;
 
@@ -97,7 +118,11 @@ export default {
 
 				case 'pop':
 					if (!cfg.has(key)) {
-						printAndExit(null, `Not Found: ${key}`, argv.json, 6, '404');
+						return printAndExit({
+							value: `Not Found: ${key}`,
+							json: argv.json,
+							exitCode: 6
+						});
 					} else {
 						value = cfg.pop(key);
 						result = value || (argv.json ? null : '<empty>');
@@ -106,7 +131,11 @@ export default {
 
 				case 'shift':
 					if (!cfg.has(key)) {
-						printAndExit(null, `Not Found: ${key}`, argv.json, 6, '404');
+						return printAndExit({
+							value: `Not Found: ${key}`,
+							json: argv.json,
+							exitCode: 6
+						});
 					} else {
 						value = cfg.shift(key);
 						result = value || (argv.json ? null : '<empty>');
@@ -124,9 +153,13 @@ export default {
 
 			await cfg.save(locations.configFile);
 
-			printAndExit(null, result, argv.json);
+			printAndExit({ value: result, json: argv.json });
 		} catch (err) {
-			printAndExit(null, argv.json ? err.message : err.toString(), argv.json, 1);
+			printAndExit({
+				value: argv.json ? err.message : err.toString(),
+				json: argv.json,
+				exitCode: 1
+			});
 		}
 	}
 };
@@ -134,14 +167,16 @@ export default {
 /**
  * Prints the result.
  *
- * @param {String?} key - The prefix used for the filter to prepend the keys when listing the config
- * settings.
- * @param {*} value - The resulting value.
- * @param {Boolean} [json=false] - When `true`, displays the output as json.
- * @param {Number} [exitCode=0] - The exit code to return after printing the value.
- * @param {Number} [code=0] - The code to return in a json response
+ * @param {Object} opts - Various options.
+ * @param {Number} [opts.exitCode=0] - The exit code to return after printing the value.
+ * @param {Function} [opts.help] - A function to call to render the help to a string when there are
+ * no config settings found.
+ * @param {Boolean} [opts.json=false] - When `true`, displays the output as json.
+ * @param {String} [opts.key=null] - The prefix used for the filter to prepend the keys when
+ * listing the config settings.
+ * @param {*} opts.value - The resulting value.
  */
-function printAndExit(key, value, json, exitCode = 0) {
+async function printAndExit({ exitCode = 0, help, json, key = null, value }) {
 	if (json) {
 		console.log(JSON.stringify({
 			code: exitCode,
@@ -165,8 +200,12 @@ function printAndExit(key, value, json, exitCode = 0) {
 			}
 		}(value, key ? key.split('.') : []));
 
-		for (const row of rows) {
-			console.log(row[0].padEnd(width) + ' = ' + row[1]);
+		if (rows.length) {
+			for (const row of rows) {
+				console.log(row[0].padEnd(width) + ' = ' + row[1]);
+			}
+		} else if (help) {
+			console.log(await help());
 		}
 	} else {
 		console.log(value);
