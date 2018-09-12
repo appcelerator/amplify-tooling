@@ -2,9 +2,7 @@ export default {
 	args: [
 		{
 			name: 'package',
-			hint: 'package',
 			desc: 'name of the package to purge old versions for',
-			required: false
 		}
 	],
 	desc: 'purges all unused packages',
@@ -19,8 +17,7 @@ export default {
 			import('listr')
 		]);
 
-		const packages = getInstalledPackages()
-			.filter(pkg => !argv.package || argv.package === pkg.name);
+		const packages = getInstalledPackages({ packageName: argv.package });
 
 		if (!Object.keys(packages).length) {
 			console.log(argv.package ? `${argv.package} is not installed` : 'There are no packages to purge');
@@ -42,11 +39,12 @@ export default {
 			}
 		}
 
-		if (!removals._tasks.length) {
+		if (!packagesRemoved) {
 			console.log('All packages installed are currently active');
 			return;
 		}
+
 		await removals.run();
-		console.log(`Removed ${packagesRemoved} package(s)`);
+		console.log(`Removed ${packagesRemoved} package${packagesRemoved !== 1 ? 's' : ''}`);
 	}
 };
