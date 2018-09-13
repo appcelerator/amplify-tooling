@@ -20,13 +20,21 @@ export default {
 		const packages = getInstalledPackages({ packageName: argv.package });
 
 		if (!Object.keys(packages).length) {
-			console.log(argv.package ? `${argv.package} is not installed` : 'There are no packages to purge');
+			const message = argv.package ? `${argv.package} is not installed` : 'There are no packages to purge';
+			if (argv.json) {
+				console.log(JSON.stringify({ success: true, message }, null, '  '));
+			} else {
+				console.log(message);
+			}
 			return;
 		}
 
 		let packagesRemoved = 0;
-		const removals = new Listr({ concurrent: 10 });
+		const listrRenderer = argv.json ? 'silent' : 'default';
+		const removals = new Listr({ concurrent: 10, renderer: listrRenderer });
+		const removedPackages = {};
 		for (const { name, version, versions } of packages) {
+			removedPackages[name] = [];
 			for (const [ ver, versionData ] of Object.entries(versions)) {
 				if (ver === version) {
 					continue;
@@ -36,15 +44,34 @@ export default {
 					task: () => remove(versionData.path)
 				});
 				packagesRemoved++;
+				removedPackages[name].push(ver);
 			}
 		}
 
 		if (!packagesRemoved) {
-			console.log('All packages installed are currently active');
+			const message = 'All packages installed are currently active';
+			if (argv.json) {
+				console.log(JSON.stringify({ success: true, message }, null, '  '));
+			} else {
+				console.log(message);
+			}
 			return;
 		}
 
-		await removals.run();
-		console.log(`Removed ${packagesRemoved} package${packagesRemoved !== 1 ? 's' : ''}`);
+		try {
+			await removals.run();
+			if (argv.json) {
+				console.log(JSON.stringify({ success: true, message: removedPackages }, null, '  '));
+			} else {
+				console.log(`Removed ${packagesRemoved} package${packagesRemoved !== 1 ? 's' : ''}`);
+			}
+		} catch (error) {
+			if (argv.json) {
+				console.log(JSON.stringify({ success: false, message: error.stack }, null, '  '));
+			} else {
+				console.log(error.stack);
+			}
+			process.exitCode = 1;
+		}
 	}
 };
