@@ -24,15 +24,11 @@ export default {
 	options: {
 		'--json': 'outputs the config as JSON'
 	},
-	args: [ 'action', 'key', 'value' ],
+	args: [ '<action>', 'key', 'value' ],
 	async action({ argv }) {
 		const { loadConfig, locations } = await import('@axway/amplify-cli-utils');
 
 		let { action, key, value } = argv;
-
-		if (!action) {
-			throw new Error('Action required.');
-		}
 
 		if (!readActions[action] && !writeActions[action]) {
 			throw new Error(`Unknown action: ${action}`);
