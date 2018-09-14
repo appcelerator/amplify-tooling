@@ -24,17 +24,17 @@ export default {
 	options: {
 		'--json': 'outputs the config as JSON'
 	},
-	args: [ 'action', 'key', 'value' ],
-	async action({ argv, help }) {
+	args: [ '<action>', 'key', 'value' ],
+	async action({ argv }) {
 		const { loadConfig, locations } = await import('@axway/amplify-cli-utils');
 
-		const cfg = loadConfig(argv);
 		let { action, key, value } = argv;
+
 		if (!readActions[action] && !writeActions[action]) {
-			key = action;
-			action = 'get';
+			throw new Error(`Unknown action: ${action}`);
 		}
 
+		const cfg = loadConfig(argv);
 		const data = {
 			action,
 			key,
@@ -76,7 +76,7 @@ export default {
 					exitCode: 6
 				});
 			} else {
-				return printAndExit({ help, key, value, json: argv.json });
+				return printAndExit({ key, value, json: argv.json });
 			}
 		}
 
@@ -169,14 +169,12 @@ export default {
  *
  * @param {Object} opts - Various options.
  * @param {Number} [opts.exitCode=0] - The exit code to return after printing the value.
- * @param {Function} [opts.help] - A function to call to render the help to a string when there are
- * no config settings found.
  * @param {Boolean} [opts.json=false] - When `true`, displays the output as json.
  * @param {String} [opts.key=null] - The prefix used for the filter to prepend the keys when
  * listing the config settings.
  * @param {*} opts.value - The resulting value.
  */
-async function printAndExit({ exitCode = 0, help, json, key = null, value }) {
+async function printAndExit({ exitCode = 0, json, key = null, value }) {
 	if (json) {
 		console.log(JSON.stringify({
 			code: exitCode,
@@ -204,8 +202,8 @@ async function printAndExit({ exitCode = 0, help, json, key = null, value }) {
 			for (const row of rows) {
 				console.log(row[0].padEnd(width) + ' = ' + row[1]);
 			}
-		} else if (help) {
-			console.log(await help());
+		} else {
+			console.log('No config settings found');
 		}
 	} else {
 		console.log(value);
