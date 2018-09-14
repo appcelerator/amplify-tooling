@@ -3,7 +3,6 @@ export default {
 	args: [
 		{
 			name: 'package',
-			hint: 'package',
 			desc: 'the package name to update'
 		}
 	],
@@ -27,11 +26,23 @@ export default {
 			.filter(pkg => !argv.package || argv.package === pkg.name);
 
 		if (!installed.length) {
-			console.log(argv.package ? `${argv.package} is not installed` : 'There are no packages to update');
+			const message = argv.package ? `${argv.package} is not installed` : 'There are no packages to update';
+			if (argv.json) {
+				console.log(JSON.stringify({ success: true, message }, null, '  '));
+			} else {
+				console.log(message);
+			}
 			return;
 		}
-		const tasks = new Listr({ concurrent: 10 });
 
+		const listrRenderer = argv.json ? 'silent' : 'default';
+		const tasks = new Listr({ concurrent: 10, renderer: listrRenderer });
+		const updates = {
+			alreadyActive: [],
+			selected: [],
+			installed: [],
+			failures: []
+		};
 		for (const pkg of installed) {
 			tasks.add({
 				title: `Checking ${pkg.name}`,
@@ -41,6 +52,7 @@ export default {
 
 						if (pkg.version === meta.version) {
 							task.title = `${pkg.name} is already set to use the latest version ${meta.version}`;
+							updates.alreadyActive.push(`${pkg.name}@${meta.version}`);
 							return;
 						}
 
@@ -48,9 +60,11 @@ export default {
 							const versionData = pkg.versions[meta.version];
 							task.title = `${pkg.name}@${meta.version} is installed, setting it as active`;
 							await addPackageToConfig(pkg.name, versionData.path);
+							updates.selected.push(`${pkg.name}@${meta.version}`);
 						} else {
 							task.title = `Downloading and installing ${pkg.name}@${meta.version}`;
 							await fetchAndInstall({ name: pkg.name, fetchSpec: meta.version, ...registryParams });
+							updates.installed.push(`${pkg.name}@${meta.version}`);
 						}
 
 						task.title = `${pkg.name}@${meta.version} is now the active version!`;
@@ -59,10 +73,14 @@ export default {
 						const { message, exitCode } = handleInstallError(error);
 						process.exitCode = exitCode;
 						task.title = message;
+						updates.failures.push(message);
 					}
 				}
 			});
 		}
 		await tasks.run();
+		if (argv.json) {
+			console.log(JSON.stringify({ success: true, message: updates }, null, '  '));
+		}
 	}
 };
