@@ -10,7 +10,9 @@ const path         = require('path');
 const plumber      = require('gulp-plumber');
 const spawn        = require('child_process').spawn;
 const spawnSync    = require('child_process').spawnSync;
+const tmp          = require('tmp');
 
+const { join } = require('path');
 const { red }      = require('chalk');
 
 gulp.task('node-info', () => {
@@ -41,6 +43,50 @@ gulp.task('build', () => runLernaBuild());
  */
 gulp.task('test', [ 'node-info', 'build' ], cb => runTests(false, cb));
 gulp.task('coverage', [ 'node-info', 'build' ], cb => runTests(true, cb));
+
+gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
+	const args = [];
+	const mocha = require.resolve('mocha');
+
+	if (!process.argv.includes('--use-global')) {
+		process.env.AMPLIFY_BIN = join(__dirname, 'packages', 'amplify-cli', 'bin', 'amplify');
+	}
+	let axwayHomeDir;
+	if (process.argv.includes('--axway-home')) {
+		const argIndex = process.argv.indexOf('--axway-home-parent') + 1;
+		const homeArg = process.argv[argIndex];
+		if (!homeArg) {
+			log('A directory must be specified with the "--axway-home-parent" flag');
+			process.exit(1);
+		}
+		if (!fs.existsSync(homeArg)) {
+			log(`The supplied argument for "--axway-home-parent" "${homeArg}" does not exist.`);
+			process.exit(1);
+		}
+		axwayHomeDir = homeArg;
+	} else {
+		axwayHomeDir = tmp.dirSync().name;
+	}
+	
+	process.env.HOME = axwayHomeDir;
+	process.env.USERPROFILE = axwayHomeDir;
+
+	if (!mocha) {
+		log('Unable to find mocha!');
+		process.exit(1);
+	}
+	args.push(path.join(mocha, '..', 'bin', 'mocha'));
+	args.push('integration-tests/test-*.js');
+	log('Running: ' + process.execPath + ' ' + args.join(' '));
+
+	if (spawnSync(process.execPath, args, { stdio: 'inherit' }).status) {
+		const err = new Error('At least one test failed :(');
+		err.showStack = false;
+		cb(err);
+	} else {
+		cb(null);
+	}
+});
 
 function runTests(cover, cb) {
 	const istanbul = require('istanbul');
