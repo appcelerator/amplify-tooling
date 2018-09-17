@@ -69,6 +69,7 @@ gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
 	}
 	
 	process.env.HOME = axwayHomeDir;
+	process.env.USERPROFILE = axwayHomeDir;
 
 	if (!mocha) {
 		log('Unable to find mocha!');
@@ -78,7 +79,7 @@ gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
 	args.push('integration-tests/test-*.js');
 	log('Running: ' + process.execPath + ' ' + args.join(' '));
 
-	if (spawnSync(process.execPath, args, { stdio: 'inherit', HOME: axwayHomeDir }).status) {
+	if (spawnSync(process.execPath, args, { stdio: 'inherit' }).status) {
 		const err = new Error('At least one test failed :(');
 		err.showStack = false;
 		cb(err);

@@ -109,7 +109,9 @@ describe('amplify config integration tests', () => {
 		expect(invalidShiftCmd.stdout.result).to.deep.equal([ 'foo' ]);
 	});
 
-	it('config can pop values from arrays', async () => {
+	it('config can pop values from arrays', async function () {
+		this.timeout(5000);
+
 		writeConfig({ 
 			foo: [ 'avalue', 'poppedval' ]
 		});
@@ -128,7 +130,9 @@ describe('amplify config integration tests', () => {
 		expect(invalidPopCmd.stdout.result).to.equal('Not Found: bar');
 	});
 
-	it('config can shift values from arrays', async () => {
+	it('config can shift values from arrays', async function () {
+		this.timeout(5000);
+
 		writeConfig({ 
 			foo: [ 'shiftedval', 'bar' ]
 		});
@@ -147,7 +151,8 @@ describe('amplify config integration tests', () => {
 		expect(invalidShiftCmd.stdout.result).to.equal('Not Found: bar');
 	});
 
-	it('config can unshift values to an array', async () => {
+	it('config can unshift values to an array', async function () {
+		this.timeout(5000);
 		writeConfig({
 			foo: [ 'bar' ]
 		});

@@ -2,6 +2,7 @@ const { existsSync, readdirSync, moveSync, readJSONSync, writeJSONSync } = requi
 const { homedir } = require('os');
 const { join } = require('path');
 const { run } = require('appcd-subprocess');
+const isWindows = process.platform === 'win32';
 
 const axwayHome = join(homedir(), '.axway');
 const configFile = join(axwayHome, 'amplify-cli.json');
@@ -45,6 +46,12 @@ function readConfig() {
 async function runCommand(args, opts = {}) {
 	Object.assign(opts, { ignoreExitCode: true });
 	const amplifyCmd = getAmplifyCommand();
+	// On Windows we need to spawn the local bin file using node to execute it
+	// this is handled by the npm wrapper when we use the global install
+	if (isWindows && amplifyCmd !== 'amplify.cmd') {
+		args.unshift(amplifyCmd);
+		return await run(process.execPath, args, opts);
+	}
 	return await run(amplifyCmd, args, opts);
 }
 
@@ -52,7 +59,14 @@ function getAmplifyCommand () {
 	if (amplifyCmd) {
 		return amplifyCmd;
 	}
-	amplifyCmd = process.env.AMPLIFY_BIN || 'amplify';
+	if (process.env.AMPLIFY_BIN){
+		amplifyCmd = process.env.AMPLIFY_BIN;
+	} else if(isWindows) {
+		amplifyCmd = 'amplify.cmd';
+	} else {
+		amplifyCmd = 'amplify';
+	}
+
 	return amplifyCmd;
 }
 
