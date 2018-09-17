@@ -48,19 +48,11 @@ timestamps {
         }
 
         stage('Integration Test') {
-            def amplifyBinary = "${WORKSPACE}/packages/amplify-cli/bin/amplify"
-            echo amplifyBinary
-            dir('integration') {
-              sh 'yarn'
               try {
-                withEnv(["AMPLIFY_BIN=${amplifyBinary}"]) {
-                  sh 'yarn test'
-                }
+                  sh 'yarn run gulp integration'
               } finally {
 
               }
-            }
-        
         }
 
       } // ansiColor

@@ -5,8 +5,11 @@ const { run } = require('appcd-subprocess');
 
 const axwayHome = join(homedir(), '.axway');
 const configFile = join(axwayHome, 'amplify-cli.json');
+let amplifyCmd;
 
 function preCheck() {
+	console.log(`Home: ${axwayHome}`);
+	console.log(`Using ${getAmplifyCommand()} as the amplify binary`);
 	if (existsSync(axwayHome)) {
 		const contents = readdirSync(axwayHome);
 		if (contents.length > 1) {
@@ -28,7 +31,7 @@ function restoreConfigFile(backupFile) {
 }
 
 function cleanConfig() {
-	writeConfig({});
+	existsSync(configFile) && writeConfig({});
 }
 
 function writeConfig(value) {
@@ -41,8 +44,16 @@ function readConfig() {
 
 async function runCommand(args, opts = {}) {
 	Object.assign(opts, { ignoreExitCode: true });
-	const amplifyCmd = process.env.AMPLIFY_BIN ? process.env.AMPLIFY_BIN : 'amplify';
+	const amplifyCmd = getAmplifyCommand();
 	return await run(amplifyCmd, args, opts);
+}
+
+function getAmplifyCommand () {
+	if (amplifyCmd) {
+		return amplifyCmd;
+	}
+	amplifyCmd = process.env.AMPLIFY_BIN || 'amplify';
+	return amplifyCmd;
 }
 
 async function runJSONCommand(args, opts) {

@@ -1,5 +1,5 @@
 const { expect } = require('chai'); 
-const { cleanConfig, preCheck, readConfig, restoreConfigFile, runJSONCommand, writeConfig } = require('../utils');
+const { cleanConfig, preCheck, readConfig, restoreConfigFile, runJSONCommand, writeConfig } = require('./utils');
 let backupFile;
 
 describe('amplify config integration tests', () => {
