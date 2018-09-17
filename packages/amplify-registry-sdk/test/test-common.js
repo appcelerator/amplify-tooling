@@ -121,7 +121,7 @@ describe('common utils', () => {
 			await addPackageToConfig('foo', pluginDir, this.config, userConfigFile);
 			await addPackageToConfig('bar', pluginDir2, this.config, userConfigFile);
 			await addPackageToConfig('@bob/bobs-cli', pluginDir3, this.config, userConfigFile);
-			const packages = getInstalledPackages(this.config, join(fixturesDir, 'common', 'packages'));
+			const packages = getInstalledPackages({}, this.config, join(fixturesDir, 'common', 'packages'));
 			expect(packages).to.deep.equal([
 				{
 					name: '@bob/bobs-cli',
@@ -150,6 +150,28 @@ describe('common utils', () => {
 					versions: {
 						'1.0.0': {
 							path: pluginDir
+						}
+					}
+				}
+			]);
+		});
+
+		it('should allow specifying a single package to filter', async function () {
+			const pluginDir = join(fixturesDir, 'common', 'packages', 'foo', '1.0.0');
+			const pluginDir2 = join(fixturesDir, 'common', 'packages', 'bar', '1.0.0');
+			const pluginDir3 = join(fixturesDir, 'common', 'packages', '@bob', 'bobs-cli', '1.0.0');
+			await addPackageToConfig('foo', pluginDir, this.config, userConfigFile);
+			await addPackageToConfig('bar', pluginDir2, this.config, userConfigFile);
+			await addPackageToConfig('@bob/bobs-cli', pluginDir3, this.config, userConfigFile);
+			const packages = getInstalledPackages({ packageName: 'bar' }, this.config, join(fixturesDir, 'common', 'packages'));
+			expect(packages).to.deep.equal([
+				{
+					name: 'bar',
+					description: 'a second plugin',
+					version: '1.0.0',
+					versions: {
+						'1.0.0': {
+							path: pluginDir2
 						}
 					}
 				}

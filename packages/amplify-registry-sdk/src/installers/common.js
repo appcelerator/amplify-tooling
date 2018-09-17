@@ -118,11 +118,13 @@ export async function removePackageFromConfig(name, replacementPath, cfg = loadC
 /**
  * Detects installed packages.
  *
- * @param {Config} cfg - The config object.
- * @param {String} pkgsDir - THe directory where packages are stored.
+ * @param {Object} [options] - Various options.
+ * @param {String} [options.packageName] - Name of the package to only return data for.
+ * @param {Config} [cfg] - The config object.
+ * @param {String} [pkgsDir] - THe directory where packages are stored.
  * @returns {Array.<Object>}
  */
-export function getInstalledPackages(cfg = loadConfig(), pkgsDir = packagesDir) {
+export function getInstalledPackages({ packageName } = {}, cfg = loadConfig(), pkgsDir = packagesDir) {
 	const packages = [];
 	const activePkgs = cfg.get('extensions', {});
 
@@ -156,7 +158,9 @@ export function getInstalledPackages(cfg = loadConfig(), pkgsDir = packagesDir) 
 			}
 		}
 	}
-
+	if (packageName) {
+		return packages.filter(pkg => packageName === pkg.name);
+	}
 	return packages;
 }
 
