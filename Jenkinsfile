@@ -1,5 +1,5 @@
 #! groovy
-library 'pipeline-library'
+library 'pipeline-library@fix_windows_exitcode'
 
 timestamps {
   def isMaster = false
@@ -22,6 +22,7 @@ timestamps {
       isMaster = env.BRANCH_NAME.equals('master')
       packageVersion = jsonParse(readFile('package.json'))['version']
       currentBuild.displayName = "#${packageVersion}-${currentBuild.number}"
+      stash allowEmpty: true, name: 'sources', useDefaultExcludes: false
     }
 
     nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
@@ -46,16 +47,47 @@ timestamps {
               step([$class: 'CoberturaPublisher', autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage/cobertura-coverage.xml', failUnhealthy: false, failUnstable: false, maxNumberOfBuilds: 0, onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false])
             }
         }
-
-        stage('Integration Test') {
-              try {
-                  sh 'yarn run gulp integration'
-              } finally {
-
-              }
-        }
-
       } // ansiColor
     } // nodejs
   } // node
+
+  stage('Integration tests') {
+    parallel(
+      'Linux integration tests': integrationTests('linux', nodeVersion, yarnVersion),
+      'OSX integration tests': integrationTests('osx', nodeVersion, yarnVersion),
+      'Windows Integration tests': integrationTests('windows', nodeVersion, yarnVersion),
+      failFast: false
+	)
+  }
+
 } // timestamps
+
+def integrationTests(os, nodeVersion, yarnVersion) {
+  return {
+    node(os) {
+      nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+        stage('Test') {
+          timeout(15) {
+            unstash 'sources'
+            // Install yarn if not installed
+            ensureYarn(yarnVersion)
+            if('windows'.equals(os)) {
+              bat 'yarn'
+            } else {
+              sh 'yarn'
+            }
+            try {
+              if('windows'.equals(os)) {
+                bat 'yarn run gulp integration'
+              } else {
+                sh 'yarn run gulp integration'
+              }
+            } finally {
+              // record results even if tests/coverage 'fails'
+            }
+          } // timeout
+        } // test
+      } // nodejs
+    }  // node
+  }
+}
