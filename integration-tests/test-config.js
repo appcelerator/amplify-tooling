@@ -19,10 +19,9 @@ describe('amplify config integration tests', () => {
 	});
 
 	it('config should exist', async () => {
-		const { code, stdout } = await runJSONCommand([ 'config' ]);
-		expect(code).to.equal(0);
-		expect(stdout.code).to.equal(0);
-		expect(stdout.result).to.deep.equal({});
+		const { code, stdout } = await runJSONCommand([ 'config', '--help' ]);
+		expect(code).to.equal(2);
+		expect(stdout.desc).to.equal('Get and set config options');
 	});
 
 	it('config can set values', async () => {

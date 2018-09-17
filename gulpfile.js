@@ -77,13 +77,12 @@ gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
 	args.push(path.join(mocha, '..', 'bin', 'mocha'));
 	args.push('integration-tests/test-*.js');
 	log('Running: ' + process.execPath + ' ' + args.join(' '));
-	try {
-		if (spawnSync(process.execPath, args, { stdio: 'inherit', HOME: axwayHomeDir }).status) {
-			const err = new Error('At least one test failed :(');
-			err.showStack = false;
-			cb(err);
-		}
-	} finally {
+
+	if (spawnSync(process.execPath, args, { stdio: 'inherit', HOME: axwayHomeDir }).status) {
+		const err = new Error('At least one test failed :(');
+		err.showStack = false;
+		cb(err);
+	} else {
 		cb(null);
 	}
 });
