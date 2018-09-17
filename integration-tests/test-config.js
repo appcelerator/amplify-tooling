@@ -2,29 +2,30 @@ const { expect } = require('chai');
 const { cleanConfig, preCheck, readConfig, restoreConfigFile, runJSONCommand, writeConfig } = require('./utils');
 let backupFile;
 
-describe('amplify config integration tests', () => {
+describe('amplify config integration tests', function () {
+	this.timeout(5000);
 
-	before(() => {
+	before(function () {
 		backupFile = preCheck();
 	});
 
-	beforeEach(() => {
+	beforeEach(function () {
 		cleanConfig();
 	});
 
-	after(() => {
+	after(function () {
 		if (backupFile) {
 			restoreConfigFile(backupFile);
 		}
 	});
 
-	it('config should exist', async () => {
+	it('config should exist', async function () {
 		const { code, stdout } = await runJSONCommand([ 'config', '--help' ]);
 		expect(code).to.equal(2);
 		expect(stdout.desc).to.equal('Get and set config options');
 	});
 
-	it('config can set values', async () => {
+	it('config can set values', async function () {
 		const { code, stdout } = await runJSONCommand(['config', 'set', 'foo', 'bar' ]);
 		expect(code).to.equal(0);
 		expect(stdout.code).to.equal(0);
@@ -34,8 +35,8 @@ describe('amplify config integration tests', () => {
 		expect(config).to.deep.equal({ foo: 'bar' });
 	});
 
-	[ 'get', 'ls', 'list'].forEach(getCommand => {
-		it(`config can list a specific value with ${getCommand}`, async () => {
+	[ 'get', 'ls', 'list'].forEach( function (getCommand) {
+		it(`config can list a specific value with ${getCommand}`, async function () {
 			writeConfig({ 
 				foo: 'bar'
 			});
@@ -45,7 +46,7 @@ describe('amplify config integration tests', () => {
 			expect(getCmd.stdout.result).to.equal('bar');
 		});
 
-		it(`config can list entire config with ${getCommand}`, async () => {
+		it(`config can list entire config with ${getCommand}`, async function () {
 			writeConfig({ 
 				foo: 'bar',
 				bar: 'foo'
@@ -58,7 +59,7 @@ describe('amplify config integration tests', () => {
 		});
 	})
 
-	it('config can list entire config', async () => {
+	it('config can list entire config', async function () {
 		writeConfig({ 
 			foo: 'bar',
 			bar: 'foo'
@@ -70,9 +71,9 @@ describe('amplify config integration tests', () => {
 		expect(getCmd.stdout.result).to.deep.equal({ bar: 'foo', foo: 'bar' });
 	});
 
-	[ 'delete', 'rm', 'remove', 'unset' ].forEach(removalCommand => {
+	[ 'delete', 'rm', 'remove', 'unset' ].forEach(function(removalCommand) {
 
-		it(`config can delete values with ${removalCommand}`, async () => {
+		it(`config can delete values with ${removalCommand}`, async function () {
 			writeConfig({ 
 				foo: 'bar'
 			});
@@ -90,7 +91,7 @@ describe('amplify config integration tests', () => {
 
 	});
 
-	it('config can push to arrays', async () => {
+	it('config can push to arrays', async function () {
 		writeConfig({ 
 			foo: [ 'avalue' ]
 		});
@@ -110,8 +111,6 @@ describe('amplify config integration tests', () => {
 	});
 
 	it('config can pop values from arrays', async function () {
-		this.timeout(5000);
-
 		writeConfig({ 
 			foo: [ 'avalue', 'poppedval' ]
 		});
@@ -131,8 +130,6 @@ describe('amplify config integration tests', () => {
 	});
 
 	it('config can shift values from arrays', async function () {
-		this.timeout(5000);
-
 		writeConfig({ 
 			foo: [ 'shiftedval', 'bar' ]
 		});
@@ -152,7 +149,6 @@ describe('amplify config integration tests', () => {
 	});
 
 	it('config can unshift values to an array', async function () {
-		this.timeout(5000);
 		writeConfig({
 			foo: [ 'bar' ]
 		});
