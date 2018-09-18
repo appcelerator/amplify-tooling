@@ -1,5 +1,5 @@
 #! groovy
-library 'pipeline-library@fix_windows_exitcode'
+library 'pipeline-library'
 
 timestamps {
   def isMaster = false
