@@ -1,4 +1,3 @@
-
 export default {
 	aliases: [ 'i' ],
 	args: [
