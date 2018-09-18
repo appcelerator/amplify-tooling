@@ -14,9 +14,9 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
-			npa,
+			{ default: npa },
 			{ fetchAndInstall },
-			{ getRegistryParams }
+			{ getRegistryParams, handleInstallError }
 		] = await Promise.all([
 			import('npm-package-arg'),
 			import('@axway/amplify-registry-sdk'),
@@ -44,36 +44,15 @@ export default {
 			} else {
 				console.log(`Installed ${name}@${info.version}`);
 			}
-		} catch (e) {
-			let msg = e;
-			let code = 1;
-
-			switch (e.code) {
-				case 'ECONNREFUSED':
-					msg = 'Unable to connect to registry server';
-					code = 3;
-					break;
-				case 'EINVALIDIR':
-					msg = `You are in an invalid directory to install this component type\n${e.message}`;
-					break;
-				case 'ENONPM':
-					msg = e.message;
-					break;
-				case 'ENPMINSTALLERROR':
-					// TODO: Need to break this error down into some sort of actionable items
-					msg = `An error occurred when running "npm install"\n${e.stack}`;
-					break;
-				case 'ENOVERSIONDATA':
-					msg = e.message;
-					break;
-			}
+		} catch (error) {
+			const { exitCode, message } = handleInstallError(error);
 
 			if (argv.json) {
-				console.error(JSON.stringify({ success: false, message: msg }, null, '  '));
+				console.error(JSON.stringify({ success: false, message }, null, '  '));
 			} else {
-				console.error(msg);
+				console.error(message);
 			}
-			process.exit(code);
+			process.exitCode = exitCode;
 		}
 	}
 };

@@ -25,7 +25,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
-			npa,
+			{ default: npa },
 			{ getRegistryParams },
 			{ Registry }
 		] = await Promise.all([

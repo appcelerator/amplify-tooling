@@ -12,3 +12,39 @@ export function getRegistryParams(env) {
 		url: config.get('registry.url')
 	};
 }
+
+/**
+ * Convert an error thrown by the `fetchAndInstall` function into something
+ * human readable/actionable.
+ * @param {Error} exitCode - Error thrown by the install process.
+ * @returns {Object} Object with a message and code property, representing
+ * the message to be logged and the process exitCode.
+ */
+export function handleInstallError(error) {
+	let message = error;
+	let exitCode = 1;
+
+	switch (error.code) {
+		case 'ECONNREFUSED':
+			message = 'Unable to connect to registry server';
+			exitCode = 3;
+			break;
+		case 'EINVALIDIR':
+			message = `You are in an invalid directory to install this component type\n${error.message}`;
+			break;
+		case 'ENONPM':
+			message = error.message;
+			break;
+		case 'ENPMINSTALLERROR':
+			// TODO: Need to break this error down into some sort of actionable items
+			message = `An error occurred when running "npm install"\n${error.stack}`;
+			break;
+		case 'NO_DATA':
+			message = 'No results found';
+			break;
+	}
+	return {
+		message,
+		exitCode
+	};
+}

@@ -1,10 +1,85 @@
 export default {
 	aliases: [ 'up' ],
+	args: [
+		{
+			name: 'package',
+			desc: 'the package name to update'
+		}
+	],
 	desc: 'download updates for installed packages',
 	options: {
 		'--auth <account>': 'the authorization account to use'
 	},
-	async action({ argv, console }) {
-		//
+	async action({ argv }) {
+		const [
+			{ default: Listr },
+			{ addPackageToConfig, fetchAndInstall, getInstalledPackages, Registry },
+			{ getRegistryParams, handleInstallError }
+		] = await Promise.all([
+			import('listr'),
+			import('@axway/amplify-registry-sdk'),
+			import('../utils')
+		]);
+		const registryParams = getRegistryParams(argv.env);
+		const registry = new Registry(registryParams);
+		const installed = getInstalledPackages({ packageName: argv.package });
+
+		if (!installed.length) {
+			const message = argv.package ? `${argv.package} is not installed` : 'There are no packages to update';
+			if (argv.json) {
+				console.log(JSON.stringify({ success: true, message }, null, '  '));
+			} else {
+				console.log(message);
+			}
+			return;
+		}
+
+		const listrRenderer = argv.json ? 'silent' : 'default';
+		const tasks = new Listr({ concurrent: 10, renderer: listrRenderer });
+		const updates = {
+			alreadyActive: [],
+			selected: [],
+			installed: [],
+			failures: []
+		};
+		for (const pkg of installed) {
+			tasks.add({
+				title: `Checking ${pkg.name}`,
+				task: async (ctx, task) => {
+					try {
+						const meta = await registry.metadata({ name: pkg.name });
+
+						if (pkg.version === meta.version) {
+							task.title = `${pkg.name} is already set to use the latest version ${meta.version}`;
+							updates.alreadyActive.push(`${pkg.name}@${meta.version}`);
+							return;
+						}
+
+						if (Object.keys(pkg.versions).includes(meta.version)) {
+							const versionData = pkg.versions[meta.version];
+							task.title = `${pkg.name}@${meta.version} is installed, setting it as active`;
+							await addPackageToConfig(pkg.name, versionData.path);
+							updates.selected.push(`${pkg.name}@${meta.version}`);
+						} else {
+							task.title = `Downloading and installing ${pkg.name}@${meta.version}`;
+							await fetchAndInstall({ name: pkg.name, fetchSpec: meta.version, ...registryParams });
+							updates.installed.push(`${pkg.name}@${meta.version}`);
+						}
+
+						task.title = `${pkg.name}@${meta.version} is now the active version!`;
+						return;
+					} catch (error) {
+						const { message, exitCode } = handleInstallError(error);
+						process.exitCode = exitCode;
+						task.title = message;
+						updates.failures.push(message);
+					}
+				}
+			});
+		}
+		await tasks.run();
+		if (argv.json) {
+			console.log(JSON.stringify({ success: true, message: updates }, null, '  '));
+		}
 	}
 };
