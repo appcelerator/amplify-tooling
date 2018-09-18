@@ -18,7 +18,7 @@ export default {
 	desc: 'activates a specific package version',
 	async action({ argv, console }) {
 		const [
-			npa,
+			{ default: npa },
 			semver,
 			{ addPackageToConfig, getInstalledPackages }
 		] = await Promise.all([

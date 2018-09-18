@@ -15,7 +15,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
-			npa,
+			{ default: npa },
 			{ fetchAndInstall },
 			{ getRegistryParams, handleInstallError }
 		] = await Promise.all([

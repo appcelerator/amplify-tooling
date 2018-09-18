@@ -12,7 +12,7 @@ export default {
 	},
 	async action({ argv }) {
 		const [
-			Listr,
+			{ default: Listr },
 			{ addPackageToConfig, fetchAndInstall, getInstalledPackages, Registry },
 			{ getRegistryParams, handleInstallError }
 		] = await Promise.all([
@@ -22,8 +22,7 @@ export default {
 		]);
 		const registryParams = getRegistryParams(argv.env);
 		const registry = new Registry(registryParams);
-		const installed = getInstalledPackages()
-			.filter(pkg => !argv.package || argv.package === pkg.name);
+		const installed = getInstalledPackages({ packageName: argv.package });
 
 		if (!installed.length) {
 			const message = argv.package ? `${argv.package} is not installed` : 'There are no packages to update';

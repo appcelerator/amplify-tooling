@@ -10,7 +10,7 @@ export default {
 		const [
 			{ getInstalledPackages },
 			{ remove },
-			Listr
+			{ default: Listr }
 		] = await Promise.all([
 			import('@axway/amplify-registry-sdk'),
 			import('fs-extra'),

@@ -12,7 +12,7 @@ export default {
 	async action({ argv, console }) {
 		const [
 			fs,
-			npa,
+			{ default: npa },
 			semver,
 			{ getInstalledPackages, removePackageFromConfig }
 		] = await Promise.all([
