@@ -8041,9 +8041,9 @@ targit-parser@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/targit-parser/-/targit-parser-0.1.0.tgz#1255b8ce0f8eaa32d11193f8b16c2d984a03c4a4"
 
-targit@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/targit/-/targit-0.1.1.tgz#aaa09f912c67a334d556c41c5b9e7fa4bcbaad65"
+targit@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/targit/-/targit-0.1.4.tgz#ff8d3ad30cb5d5674be015777b37a241df6b876a"
   dependencies:
     "@axway/amplify-request" "^0.1.2"
     decompress "^4.2.0"

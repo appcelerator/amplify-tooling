@@ -26,6 +26,7 @@ export default {
 		]);
 
 		const { name, fetchSpec } = npa(argv.package);
+		const messages = [];
 		let spinner;
 		try {
 			if (!argv.json) {
@@ -39,21 +40,33 @@ export default {
 
 			installProcess
 				.on('preActions', () => {
-					spinner.text = 'running pre-actions';
+					if (!argv.json) {
+						spinner.text = 'running pre-actions';
+					}
 				})
 				.on('download', () => {
-					spinner.text = 'downloading package';
+					if (!argv.json) {
+						spinner.text = 'downloading package';
+					}
 				})
 				.on('extract', () => {
-					spinner.text = 'extracting package';
+					if (!argv.json) {
+						spinner.text = 'extracting package';
+					}
 				})
 				.on('postActions', () => {
-					spinner.text = 'running post-actions';
+					if (!argv.json) {
+						spinner.text = 'running post-actions';
+					}
 				})
 				.on('log', (message) => {
-					const currText = spinner.text;
-					spinner.info(message);
-					spinner = ora(currText).start();
+					if (!argv.json) {
+						const currText = spinner.text;
+						spinner.info(message);
+						spinner = ora(currText).start();
+					} else {
+						messages.push(message);
+					}
 				});
 
 			const info = await installProcess.start();
@@ -61,7 +74,8 @@ export default {
 				console.log(JSON.stringify({
 					success: true,
 					name,
-					version: info.version
+					version: info.version,
+					messages
 				}, null, '  '));
 			} else {
 				spinner.succeed(`Installed ${name}@${info.version}`);
