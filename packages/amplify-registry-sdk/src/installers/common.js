@@ -35,7 +35,7 @@ export async function npmInstall({ directory, npm }) {
 	}
 
 	try {
-		const { err, stdout, stderr } = await run(npm, [ 'install', '--production' ], { cwd: directory, windowsHide: true, NO_UPDATE_NOTIFIER: 1 });
+		const { err, stdout, stderr } = await run(npm, [ 'install', '--production' ], { cwd: directory, windowsHide: true, env: { NO_UPDATE_NOTIFIER: 1 } });
 		if (err) {
 			throw err;
 		}
