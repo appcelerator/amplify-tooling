@@ -216,5 +216,8 @@ function runLernaBuild(scope) {
 	}
 
 	log(`Running ${execPath} ${args.join(' ')}`);
-	spawnSync(execPath, args, { stdio: 'inherit' });
+	const { status } = spawnSync(execPath, args, { stdio: 'inherit' });
+	if (status) {
+		throw new Error(`lerna build failed ${scope ? `for ${scope}` : ''}`);
+	}
 }
