@@ -15,7 +15,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
-			{ getRegistryParams },
+			{ buildUserAgentString, getRegistryParams },
 			{ Registry }
 		] = await Promise.all([
 			import('../utils'),
@@ -25,9 +25,11 @@ export default {
 		const registry = new Registry(getRegistryParams(argv.env));
 		const { repository, search, type } = argv;
 		let results;
-
+		const headers = {
+			'User-Agent': buildUserAgentString()
+		};
 		try {
-			results = (await registry.search({ text: search, repository, type })).map(d => {
+			results = (await registry.search({ headers, text: search, repository, type })).map(d => {
 				return {
 					name:        d.name,
 					version:     d.version,

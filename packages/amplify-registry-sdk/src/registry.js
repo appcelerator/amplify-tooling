@@ -28,11 +28,11 @@ export default class Registry {
 	 * @param {String} [opts.text] - Search text to apply.
 	 * @param {String} [opts.repository] - Repository to restrict search to.
 	 * @param {String} [opts.type] - Type of package to restrict search to.
+	 * @param {String} [opts.headers] - Custom headers to be passed along with the request.
 	 * @returns {Object} - The result of the search
 	 */
-	async search({ text, repository, type } = {}) {
+	async search({ text, repository, type, headers } = {}) {
 		let url = `${this.url}/api/packages/v1/-/search`;
-
 		if (text) {
 			url = `${url}?text=${encodeURIComponent(text)}`;
 		}
@@ -47,7 +47,7 @@ export default class Registry {
 			url = `${url}${sep}type=${encodeURIComponent(type)}`;
 		}
 
-		const { body } = await request({ url, validateJSON: true });
+		const { body } = await request({ url, headers, validateJSON: true });
 		return body.result;
 	}
 
@@ -57,10 +57,11 @@ export default class Registry {
 	 * @param {Object} opts - Various options.
 	 * @param {String} opts.name - Name of the package.
 	 * @param {String} [opts.version] - Version to fetch metadata for.
+	 * @param {String} [opts.headers] - Custom headers to be passed along with the request.
 	 * @returns {Object} - Metadata for the package, if a version is supplied then only the metadata
 	 * for that version is returned otherwise the entire document for the package is returned.
 	 */
-	async metadata({ name, version } = {}) {
+	async metadata({ name, version, headers } = {}) {
 		if (!name || typeof name !== 'string') {
 			throw new TypeError('Expected name to be a valid string');
 		}
@@ -68,7 +69,7 @@ export default class Registry {
 		log(`Fetching package info: ${highlight(url)}`);
 		let body;
 		try {
-			const data = await request({ url, validateJSON: true });
+			const data = await request({ headers, url, validateJSON: true });
 			body = data.body;
 		} catch (err) {
 			if (err.statusCode === 404) {
