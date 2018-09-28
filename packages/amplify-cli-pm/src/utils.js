@@ -21,7 +21,7 @@ export function getRegistryParams(env) {
  * the message to be logged and the process exitCode.
  */
 export function handleInstallError(error) {
-	let message = error;
+	let { message, stack } = error;
 	let exitCode = 1;
 
 	switch (error.code) {
@@ -41,6 +41,9 @@ export function handleInstallError(error) {
 			break;
 		case 'NO_DATA':
 			message = 'No results found';
+			break;
+		default :
+			message = `${message}\n${stack}`;
 			break;
 	}
 	return {

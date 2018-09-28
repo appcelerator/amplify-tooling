@@ -1,4 +1,4 @@
-import { moveSync, readJSONSync } from 'fs-extra';
+import { moveSync, readJSONSync, readdirSync } from 'fs-extra';
 import tmp from 'tmp';
 
 import { extractTar, packagesDir } from './common';

@@ -3,16 +3,16 @@ import path from 'path';
 
 import { npmInstall } from '../../common';
 
-export async function post({ pkgInfo, location }) {
+export async function post({ pkgInfo, location, emit }) {
 	await Promise.all([
 		npmInstall({ directory: location }),
-		copyConfig({ pkgInfo, location })
+		copyConfig({ pkgInfo, location, emit })
 	])
 		.then()
 		.catch();
 }
 
-async function copyConfig({ pkgInfo, location }) {
+async function copyConfig({ pkgInfo, location, emit }) {
 	const confDir = path.join(process.cwd(), 'conf');
 	const name = pkgInfo.name;
 	const confFiles = fs.readdirSync(confDir).filter(filename => filename.includes(name));
@@ -22,7 +22,7 @@ async function copyConfig({ pkgInfo, location }) {
 	}
 	const filename = path.join(confDir, `${name}.default.js`);
 	fs.copyFile(exampleConf, filename);
-	console.log(`Copied across default config for ${pkgInfo.name} to ${path.relative(process.cwd(), filename)}. You must update the config before you can use it!`);
+	emit.emit('log', `Copied across default config for ${pkgInfo.name} to ${path.relative(process.cwd(), filename)}. You must update the config before you can use it!`);
 }
 
 export async function pre() {
