@@ -1,4 +1,4 @@
-import gittar from '@awam/gittar';
+import { download } from 'targit';
 import pacote from 'pacote';
 
 import { cacheDir } from './common';
@@ -38,7 +38,7 @@ export default async function fetchPackage(pkgInfo) {
 			}
 			break;
 		case 'git':
-			downloadLocation = await gittar.fetch(pkgInfo.dist.download_url);
+			downloadLocation = await download(pkgInfo.dist.download_url, { cacheDir: join(cacheDir, 'git') });
 			break;
 		default:
 			throw new Error('Unsupported package type');

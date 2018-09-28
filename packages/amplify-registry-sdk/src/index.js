@@ -5,7 +5,7 @@ if (!Error.prepareStackTrace) {
 
 import Registry from './registry';
 
-import { fetchAndInstall } from './installers';
+import { PackageInstaller } from './installers';
 
 import {
 	addPackageToConfig,
@@ -15,7 +15,7 @@ import {
 
 export {
 	addPackageToConfig,
-	fetchAndInstall,
+	PackageInstaller,
 	getInstalledPackages,
 	Registry,
 	removePackageFromConfig

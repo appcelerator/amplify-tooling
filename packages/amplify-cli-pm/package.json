@@ -30,6 +30,7 @@
     "columnify": "^1.5.4",
     "listr": "^0.14.2",
     "npm-package-arg": "^6.1.0",
+    "ora": "^3.0.0",
     "semver": "^5.5.1",
     "source-map-support": "^0.5.9"
   },
