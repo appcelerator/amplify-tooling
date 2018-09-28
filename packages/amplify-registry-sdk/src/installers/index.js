@@ -11,6 +11,7 @@ export async function fetchAndInstall({ name, repository, type, fetchSpec, env, 
 	if (actions.pre) {
 		await actions.pre();
 	}
+
 	const zipLocation = await fetchPackage(pkgInfo);
 	const extractLocation = await extractPackage({ zipLocation, type: pkgInfo.type });
 
