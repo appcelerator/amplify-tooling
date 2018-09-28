@@ -9,6 +9,9 @@ export function getRegistryParams(env) {
 	const config = loadConfig();
 	return {
 		env: env || config.get('env') || 'prod',
+		headers: {
+			'User-Agent': `AMPLIFY CLI/v${process.env.AMPLIFY_CLI}`
+		},
 		url: config.get('registry.url')
 	};
 }

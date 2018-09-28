@@ -29,7 +29,6 @@ export default {
 			if (!argv.json) {
 				console.log(`Fetching ${name}...`);
 			}
-
 			const info = await fetchAndInstall(Object.assign({
 				fetchSpec,
 				name
