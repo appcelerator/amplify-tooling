@@ -1,5 +1,5 @@
 import { loadConfig } from '@axway/amplify-cli-utils';
-
+let userAgent;
 /**
  * Returns the registry URL from the config.
  *
@@ -10,7 +10,7 @@ export function getRegistryParams(env) {
 	return {
 		env: env || config.get('env') || 'prod',
 		headers: {
-			'User-Agent': `AMPLIFY-CLI/${process.env.AMPLIFY_CLI}`
+			'User-Agent': buildUserAgentString()
 		},
 		url: config.get('registry.url')
 	};
@@ -53,4 +53,16 @@ export function handleInstallError(error) {
 		message,
 		exitCode
 	};
+}
+
+export function buildUserAgentString() {
+	if (userAgent) {
+		return userAgent;
+	}
+	if (process.env.AMPLIFY_CLI) {
+		return userAgent = `AMPLIFY-CLI/${process.env.AMPLIFY_CLI} AMPLIFY-CLI-PM/${require('../package.json').version}`;
+	} else {
+		return userAgent = `AMPLIFY-CLI-PM/${require('../package.json').version}`;
+
+	}
 }

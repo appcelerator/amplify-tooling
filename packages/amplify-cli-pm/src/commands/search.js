@@ -15,7 +15,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
-			{ getRegistryParams },
+			{ buildUserAgentString, getRegistryParams },
 			{ Registry }
 		] = await Promise.all([
 			import('../utils'),
@@ -26,7 +26,7 @@ export default {
 		const { repository, search, type } = argv;
 		let results;
 		const headers = {
-			'User-Agent': `AMPLIFY-CLI/${process.env.AMPLIFY_CLI}`
+			'User-Agent': buildUserAgentString()
 		};
 		try {
 			results = (await registry.search({ headers, text: search, repository, type })).map(d => {
