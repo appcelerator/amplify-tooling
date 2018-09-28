@@ -24,8 +24,8 @@
     "fs-extra": "^7.0.0",
     "jws": "^3.1.5",
     "keytar": "^4.2.1",
-    "opn": "^5.3.0",
-    "snooplogg": "^1.12.1",
+    "opn": "^5.4.0",
+    "snooplogg": "^1.13.2",
     "source-map-support": "^0.5.9"
   },
   "devDependencies": {

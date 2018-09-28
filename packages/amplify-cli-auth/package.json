@@ -27,7 +27,7 @@
     "@axway/amplify-auth-sdk": "^0.1.2",
     "@axway/amplify-cli-utils": "^0.1.1",
     "cli-kit": "next",
-    "pretty-ms": "^3.2.0",
+    "pretty-ms": "^4.0.0",
     "source-map-support": "^0.5.9"
   },
   "devDependencies": {

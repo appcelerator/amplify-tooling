@@ -8,6 +8,8 @@ export default {
 		'-p, --password <pass>':     'password to authenticate with'
 	},
 	async action({ _, argv, console }) {
+		console.log(argv);
+		/*
 		const { Auth } = await import('@axway/amplify-auth-sdk');
 		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');
 
@@ -70,5 +72,6 @@ export default {
 			console.log(`amplify config set account ${userInfo.preferred_username}`);
 			console.log('```');
 		}
+		*/
 	}
 };
