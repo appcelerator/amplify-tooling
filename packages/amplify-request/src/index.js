@@ -92,15 +92,17 @@ function buildRequestParams(options) {
 
 	const conf = Object.assign(
 		{ method: 'GET', resolveWithFullResponse: true },
-		buildProxyParams(),
+		buildProxyParams(config),
 		options
 	);
 
 	return conf;
 }
 
-export function buildProxyParams() {
-	const config = loadConfig();
+export function buildProxyParams(config) {
+	if (!config) {
+		config = loadConfig();
+	}
 	const proxyConf = {};
 	proxyConf.strictSSL = config.get('network.strictSSL') !== false;
 	const props = {

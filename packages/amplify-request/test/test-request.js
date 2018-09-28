@@ -20,7 +20,7 @@ class MockConfig {
 	}
 }
 
-describe.only('request', () => {
+describe('request', () => {
 	beforeEach(function () {
 		this.server = null;
 		this.server2 = null;
@@ -377,29 +377,25 @@ describe('requestFile', () => {
 	});
 
 	it('should error if params is not an object', done => {
-		requestFile('foo')
-			.then(() => {
-				done(new Error('Expected error'));
-			})
-			.catch(err => {
-				expect(err).to.be.an.instanceof(TypeError);
-				expect(err.message).to.equal('Expected options to be an object');
-				done();
-			})
-			.catch(done);
+		try {
+			requestFile('foo');
+			done(new Error('Expected error'));
+		} catch (error) {
+			expect(error).to.be.an.instanceof(TypeError);
+			expect(error.message).to.equal('Expected options to be an object');
+			done();
+		}
 	});
 
 	it('should error if callback is not a function', done => {
-		requestFile({}, 'foo')
-			.then(() => {
-				done(new Error('Expected error'));
-			})
-			.catch(err => {
-				expect(err).to.be.an.instanceof(TypeError);
-				expect(err.message).to.equal('Expected callback to be a function');
-				done();
-			})
-			.catch(done);
+		try {
+			requestFile({}, 'foo');
+			done(new Error('Expected error'));
+		} catch (error) {
+			expect(error).to.be.an.instanceof(TypeError);
+			expect(error.message).to.equal('Expected callback to be a function');
+			done();
+		}
 	});
 
 	it('should make a request', function (done) {
