@@ -4,6 +4,7 @@ import pacote from 'pacote';
 import { cacheDir } from './common';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { buildProxyParams } from '@axway/amplify-request';
 
 const npmCacheDir =  join(cacheDir, 'npm');
 
@@ -21,6 +22,8 @@ export default async function fetchPackage(pkgInfo) {
 			if (!version) {
 				version = 'latest';
 			}
+
+			Object.assign(opts, buildProxyParams());
 
 			const pkg = await pacote.manifest(`${name}@${version}`, opts);
 

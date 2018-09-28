@@ -90,32 +90,38 @@ function buildRequestParams(options) {
 		config = loadConfig();
 	}
 
-	const conf = Object.assign({ method: 'GET', resolveWithFullResponse: true }, options);
+	const conf = Object.assign(
+		{ method: 'GET', resolveWithFullResponse: true },
+		buildProxyParams(),
+		options
+	);
 
-	if (conf.strictSSL !== false) {
-		conf.strictSSL = config.get('network.strictSSL') !== false;
-	}
-
-	if (!conf.ca || !conf.cert || !conf.key) {
-		const props = {
-			ca: 'network.caFile',
-			cert: 'network.certFile',
-			key: 'network.keyFile'
-		};
-		for (const [ prop, name ] of Object.entries(props)) {
-			let file = config.get(name);
-			if (file && typeof file === 'string' && (file = path.resolve(file)) && isFile(file)) {
-				conf[prop] = fs.readFileSync(file);
-			}
-		}
-	}
-
-	if (!conf.proxy) {
-		const proxyType = conf.url && conf.url.indexOf('https') === 0 ? 'httpsProxy' : 'httpProxy';
-		const proxy = config.get(`network.${proxyType}`);
-		if (proxy) {
-			conf.proxy = proxy;
-		}
-	}
 	return conf;
+}
+
+export function buildProxyParams() {
+	const config = loadConfig();
+	const proxyConf = {};
+	proxyConf.strictSSL = config.get('network.strictSSL') !== false;
+	const props = {
+		ca: 'network.caFile',
+		cert: 'network.certFile',
+		key: 'network.keyFile'
+	};
+	for (const [ prop, name ] of Object.entries(props)) {
+		let file = config.get(name);
+		if (file && typeof file === 'string' && (file = path.resolve(file)) && isFile(file)) {
+			proxyConf[prop] = fs.readFileSync(file);
+		}
+	}
+	let proxy = config.get('network.httpsProxy');
+	if (proxy) {
+		proxyConf.proxy = proxy;
+	} else {
+		proxy = config.get('network.httpProxy');
+		if (proxy) {
+			proxyConf.proxy = proxy;
+		}
+	}
+	return proxyConf;
 }
