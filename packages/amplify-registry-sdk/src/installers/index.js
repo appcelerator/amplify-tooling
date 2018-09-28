@@ -11,7 +11,7 @@ export class PackageInstaller extends EventEmitter {
 	}
 
 	async start () {
-		const pkgInfo = await this.registry.metadata({ 
+		const pkgInfo = await this.registry.metadata({
 			headers: this.headers,
 			name: this.name,
 			repository: this.repository,

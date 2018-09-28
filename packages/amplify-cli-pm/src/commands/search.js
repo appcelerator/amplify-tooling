@@ -26,7 +26,7 @@ export default {
 		const { repository, search, type } = argv;
 		let results;
 		const headers = {
-			'User-Agent': `AMPLIFY CLI/v${process.env.AMPLIFY_CLI}`
+			'User-Agent': `AMPLIFY-CLI/${process.env.AMPLIFY_CLI}`
 		};
 		try {
 			results = (await registry.search({ headers, text: search, repository, type })).map(d => {

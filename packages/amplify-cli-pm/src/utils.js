@@ -10,7 +10,7 @@ export function getRegistryParams(env) {
 	return {
 		env: env || config.get('env') || 'prod',
 		headers: {
-			'User-Agent': `AMPLIFY CLI/v${process.env.AMPLIFY_CLI}`
+			'User-Agent': `AMPLIFY-CLI/${process.env.AMPLIFY_CLI}`
 		},
 		url: config.get('registry.url')
 	};
