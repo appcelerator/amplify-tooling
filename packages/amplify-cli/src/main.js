@@ -23,6 +23,8 @@ const extensions = [
 const banner = `${chalk.cyan('AMPLIFY CLI')}, version ${version}\n`
 		+ 'Copyright (c) 2018, Axway, Inc. All Rights Reserved.';
 
+process.env.AMPLIFY_CLI = version;
+
 new CLI({
 	banner,
 	commands: {
