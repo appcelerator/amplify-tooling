@@ -38,6 +38,9 @@ export function handleInstallError(error) {
 		case 'ENONPM':
 			message = error.message;
 			break;
+		case 'ENOVERSIONDATA':
+			message = error.message;
+			break;
 		case 'ENPMINSTALLERROR':
 			// TODO: Need to break this error down into some sort of actionable items
 			message = `An error occurred when running "npm install"\n${error.stack}`;

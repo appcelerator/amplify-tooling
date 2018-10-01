@@ -13,13 +13,34 @@ export default {
 	async action({ argv }) {
 		const [
 			{ default: Listr },
-			{ addPackageToConfig, fetchAndInstall, getInstalledPackages, Registry },
+			{ addPackageToConfig, getInstalledPackages, PackageInstaller, Registry },
 			{ getRegistryParams, handleInstallError }
 		] = await Promise.all([
 			import('listr'),
 			import('@axway/amplify-registry-sdk'),
 			import('../utils')
 		]);
+
+		async function installNewPackage(installData, task) {
+			const installProcess = new PackageInstaller(installData);
+
+			installProcess
+				.on('preActions', () => {
+					task.title = 'running pre-actions';
+				})
+				.on('download', () => {
+					task.title = 'downloading package';
+				})
+				.on('extract', () => {
+					task.title = 'extracting package';
+				})
+				.on('postActions', () => {
+					task.title = 'running post-actions';
+				});
+
+			return await installProcess.start();
+		}
+
 		const registryParams = getRegistryParams(argv.env);
 		const registry = new Registry(registryParams);
 		const installed = getInstalledPackages({ packageName: argv.package });
@@ -35,7 +56,7 @@ export default {
 		}
 
 		const listrRenderer = argv.json ? 'silent' : 'default';
-		const tasks = new Listr({ concurrent: 10, renderer: listrRenderer });
+		const tasks = new Listr({ concurrent: 10, exitOnError: false, renderer: listrRenderer });
 		const updates = {
 			alreadyActive: [],
 			selected: [],
@@ -62,7 +83,7 @@ export default {
 							updates.selected.push(`${pkg.name}@${meta.version}`);
 						} else {
 							task.title = `Downloading and installing ${pkg.name}@${meta.version}`;
-							await fetchAndInstall({ name: pkg.name, fetchSpec: meta.version, ...registryParams });
+							await installNewPackage({ name: pkg.name, fetchSpec: meta.version, ...registryParams }, task);
 							updates.installed.push(`${pkg.name}@${meta.version}`);
 						}
 
@@ -72,14 +93,21 @@ export default {
 						const { message, exitCode } = handleInstallError(error);
 						process.exitCode = exitCode;
 						task.title = message;
-						updates.failures.push(message);
+						updates.failures.push({ name: pkg.name, message });
+						throw error;
 					}
 				}
 			});
 		}
-		await tasks.run();
-		if (argv.json) {
-			console.log(JSON.stringify({ success: true, message: updates }, null, '  '));
+		try {
+			await tasks.run();
+			if (argv.json) {
+				console.log(JSON.stringify({ success: true, message: updates }, null, '  '));
+			}
+		} catch (error) {
+			if (argv.json) {
+				console.log(JSON.stringify({ success: false, message: updates }, null, '  '));
+			}
 		}
 	}
 };
