@@ -15,9 +15,11 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
+			{ default: columnify },
 			{ buildUserAgentString, getRegistryParams },
 			{ Registry }
 		] = await Promise.all([
+			import('columnify'),
 			import('../utils'),
 			import('@axway/amplify-registry-sdk')
 		]);
@@ -55,10 +57,24 @@ export default {
 			return;
 		}
 
-		console.log('| Name | Version | Type | Description |');
-		console.log('| ---- | ------- | ---- | ----------- |');
-		for (const result of results) {
-			console.log(`| ${result.name} | ${result.version} | ${result.type} | ${result.description} |`);
-		}
+		const columnConfig = {
+			columnSplitter: ' | ',
+			showHeaders: true,
+			config: {
+				name: {
+					minWidth: 25
+				},
+				version: {
+					minWidth: 8
+				},
+				type: {
+					minWidth: 8
+				},
+				description: {
+					maxWidth: 80 - (25 + 8)
+				}
+			}
+		};
+		console.log(columnify(results, columnConfig));
 	}
 };
