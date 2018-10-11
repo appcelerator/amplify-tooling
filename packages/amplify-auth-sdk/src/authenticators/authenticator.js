@@ -31,7 +31,7 @@ export default class Authenticator {
 		ClientCredentials: 'client_credentials',
 		Password:          'password',
 		RefreshToken:      'refresh_token',
-		JWTAssertion:      'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+		JWTBearer:         'urn:ietf:params:oauth:grant-type:jwt-bearer'
 	};
 
 	/**

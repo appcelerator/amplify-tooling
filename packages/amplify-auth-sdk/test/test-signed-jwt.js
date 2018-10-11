@@ -158,7 +158,7 @@ describe('Signed JWT', () => {
 				token(post) {
 					switch (++counter) {
 						case 1:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.JWTBearer);
 							break;
 
 						case 2:
@@ -194,7 +194,7 @@ describe('Signed JWT', () => {
 				token(post) {
 					switch (++counter) {
 						case 1:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.JWTBearer);
 							break;
 
 						case 2:
@@ -235,7 +235,7 @@ describe('Signed JWT', () => {
 				token(post) {
 					switch (++counter) {
 						case 1:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.JWTBearer);
 							break;
 
 						case 2:

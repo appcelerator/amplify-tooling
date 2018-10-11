@@ -5,7 +5,7 @@ import snooplogg from 'snooplogg';
 import request from '@axway/amplify-request';
 import { URLSearchParams } from 'url';
 
-const { log } = snooplogg('amplify-auth:util');
+const { error, log } = snooplogg('amplify-auth:util');
 
 /**
  * Discovers available endpoints based on the remote server's OpenID configuration.
@@ -23,7 +23,7 @@ export async function getServerInfo(url) {
 		const { body } = await request({ url, validateJSON: true });
 		return body;
 	} catch (err) {
-		console.log(err);
+		error(err);
 		if (err.code === 'INVALID_JSON') {
 			throw err;
 		}

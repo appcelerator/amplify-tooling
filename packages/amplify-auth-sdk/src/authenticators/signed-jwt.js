@@ -3,7 +3,9 @@ import E from '../errors';
 import fs from 'fs';
 import jws from 'jws';
 
-const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;
+const { JWTBearer } = Authenticator.GrantTypes;
+
+const JWTAssertion = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 
 /**
  * Authentication scheme using a JSON Web Token (JWT).
@@ -103,7 +105,7 @@ export default class SignedJWT extends Authenticator {
 		return {
 			clientAssertion:     this.getSignedJWT(),
 			clientAssertionType: JWTAssertion,
-			grantType:           ClientCredentials
+			grantType:           JWTBearer
 		};
 	}
 }
