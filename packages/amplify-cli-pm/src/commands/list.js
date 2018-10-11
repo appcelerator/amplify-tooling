@@ -2,7 +2,13 @@ export default {
 	aliases: [ 'ls' ],
 	desc: 'lists all installed packages',
 	async action({ argv, console }) {
-		const { getInstalledPackages } = await import('@axway/amplify-registry-sdk');
+		const [
+			{ default: columnify },
+			{ getInstalledPackages }
+		] = await Promise.all([
+			import('columnify'),
+			import('@axway/amplify-registry-sdk')
+		]);
 		const installed = getInstalledPackages();
 
 		if (argv.json) {
@@ -15,10 +21,27 @@ export default {
 			return;
 		}
 
-		console.log('| Name | Active Version | Installed Versions | Description |');
-		console.log('| ---- | -------------- | ------------------ | ----------- |');
-		for (const pkg of installed) {
-			console.log(`| ${pkg.name} | ${pkg.version || 'No active version'} | ${Object.keys(pkg.versions).join(', ') || 'No versions found'} | ${pkg.description} |`);
-		}
+		const columnConfig = {
+			columnSplitter: ' | ',
+			showHeaders: true,
+			config: {
+				name: {
+					minWidth: 25
+				},
+				versions: {
+					minWidth: 8
+				}
+			}
+		};
+
+		const data = installed.map(d => {
+			return {
+				name: d.name,
+				'installed versions': Object.keys(d.versions),
+				'active version': d.version || 'Unknown'
+			};
+		});
+		console.log(columnify(data, columnConfig));
+
 	}
 };

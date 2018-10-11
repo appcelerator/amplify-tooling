@@ -26,7 +26,7 @@ export default {
 	async action({ argv, console }) {
 		const [
 			{ default: npa },
-			{ getRegistryParams },
+			{ getRegistryParams, handleInstallError },
 			{ Registry }
 		] = await Promise.all([
 			import('npm-package-arg'),
@@ -52,13 +52,14 @@ export default {
 			} else {
 				console.log(`No result found for ${name}`);
 			}
-		} catch (err) {
+		} catch (error) {
+			const { message, exitCode } = handleInstallError(error);
 			if (argv.json) {
-				console.error({ success: false, message: err.message });
+				console.error({ success: false, message });
 			} else {
-				console.error(err);
+				console.error(message);
 			}
-			process.exit(1);
+			process.exitCode = exitCode;
 		}
 	}
 };

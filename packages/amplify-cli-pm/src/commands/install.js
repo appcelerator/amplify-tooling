@@ -82,13 +82,12 @@ export default {
 			}
 		} catch (error) {
 			const { exitCode, message } = handleInstallError(error);
-
+			process.exitCode = exitCode;
 			if (argv.json) {
 				console.error(JSON.stringify({ success: false, message }, null, '  '));
 			} else {
-				console.error(message);
+				spinner.fail(message);
 			}
-			process.exitCode = exitCode;
 		}
 	}
 };
