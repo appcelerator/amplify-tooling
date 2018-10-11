@@ -55,12 +55,16 @@ is a native Node.js C++ addon and thus requires a C++ compiler to be installed o
 at the time this Auth SDK is installed. Since users may not have a compiler available, it is
 recommended that `keytar` be an optional dependency.
 
-> Note: When using keytar and a user changes their Node.js version to a different major version, the
+> :bulb: When using keytar and a user changes their Node.js version to a different major version, the
 > module API version for which keytar was compiled for will no longer be compatible and the Auth SDK
 > fail to operate.
 
 The `"memory"` token store will persist the tokens for the life of the process and are lost when the
 process exits. This was originally intended for unit tests.
+
+> :warning: Tokens that do not have an email address in the payload cannot be persisted. The email
+> address is used as the account name and a unique identifier when attempting to get the token in
+> the store. It is up to the consumer to [securely] persist the tokens.
 
 ## Examples
 
