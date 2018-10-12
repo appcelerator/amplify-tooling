@@ -426,6 +426,7 @@ describe('Client Secret', () => {
 
 			const results = await auth.login();
 			expect(results.accessToken).to.equal(this.server.accessToken);
+			expect(results.name).to.be.undefined;
 			expect(await auth.list()).to.have.lengthOf(0);
 		});
 	});

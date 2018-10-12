@@ -111,7 +111,7 @@ describe('Owner Password', () => {
 			throw new Error('Expected error');
 		});
 
-		it('should error if server returns an invalid user identity', async function () {
+		it('should authenticate an account without an email address in the identity payload', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
@@ -125,7 +125,7 @@ describe('Owner Password', () => {
 					res.end(JSON.stringify({
 						access_token: jws.sign({
 							header: { alg: 'HS256' },
-							payload: '{"email":""}',
+							payload: '{}',
 							secret: 'secret'
 						}),
 						refresh_token:      'bar',
@@ -135,18 +135,12 @@ describe('Owner Password', () => {
 				}
 			});
 
-			try {
-				await auth.login({
-					username: 'foo',
-					password: 'bar'
-				});
-			} catch (e) {
-				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: Account has no email address');
-				return;
-			}
-
-			throw new Error('Expected error');
+			const results = await auth.login({
+				username: 'foo',
+				password: 'bar'
+			});
+			expect(results.name).to.be.undefined;
+			expect(await auth.list()).to.have.lengthOf(0);
 		});
 
 		it('should authenticate and return the access token', async function () {
