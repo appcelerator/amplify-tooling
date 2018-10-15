@@ -37,6 +37,8 @@ export function handleInstallError(error) {
 	let exitCode = 1;
 
 	switch (error.code) {
+		case 'ENOTFOUND':
+		case 'ECONNRESET':
 		case 'ECONNREFUSED':
 			message = 'Unable to connect to registry server';
 			exitCode = 3;
