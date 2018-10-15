@@ -411,6 +411,24 @@ describe('Client Secret', () => {
 			results = await auth.login();
 			expect(results.accessToken).to.equal(this.server.accessToken);
 		});
+
+		it('should login in non-interactively and not persist the token if no email address', async function () {
+			this.server = await createLoginServer({ payload: {} });
+
+			const auth = new Auth({
+				clientSecret:   '###',
+				serviceAccount: true,
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: 'memory'
+			});
+
+			const results = await auth.login();
+			expect(results.accessToken).to.equal(this.server.accessToken);
+			expect(results.name).to.be.undefined;
+			expect(await auth.list()).to.have.lengthOf(0);
+		});
 	});
 
 	describe('Revoke', () => {

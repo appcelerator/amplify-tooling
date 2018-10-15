@@ -13,7 +13,7 @@ import * as server from '../server';
 import { md5, renderHTML, stringifyQueryString } from '../util';
 import request from '@axway/amplify-request';
 
-const { error, log } = snooplogg('amplify-auth:authenticator');
+const { error, log, warn } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -411,14 +411,9 @@ export default class Authenticator {
 				info.payload = JSON.parse(info.payload);
 			}
 			log(info);
-			name = info.payload.email.trim();
+			name = (info.payload.email || '').trim();
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
-		}
-
-		if (!name) {
-			// trigger the catch
-			throw E.AUTH_FAILED('Authentication failed: Account has no email address');
 		}
 
 		// refresh `now` and set the expiry timestamp
@@ -440,7 +435,11 @@ export default class Authenticator {
 
 		// persist the tokens
 		if (this.tokenStore) {
-			await this.tokenStore.set(account);
+			if (name) {
+				await this.tokenStore.set(account);
+			} else {
+				warn('Account has no email address, skipping adding token to store');
+			}
 		}
 
 		if (!Object.getOwnPropertyDescriptor(account, 'expired')) {

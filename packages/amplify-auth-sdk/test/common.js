@@ -51,13 +51,13 @@ export async function createLoginServer(opts = {}) {
 
 					server.accessToken = jws.sign({
 						header: { alg: 'HS256' },
-						payload: { email: 'foo@bar.com' },
+						payload: opts.payload || { email: 'foo@bar.com' },
 						secret: `access${counter}`
 					});
 
 					server.refreshToken = jws.sign({
 						header: { alg: 'HS256' },
-						payload: { email: 'foo@bar.com' },
+						payload: opts.payload || { email: 'foo@bar.com' },
 						secret: `refresh${counter}`
 					});
 
