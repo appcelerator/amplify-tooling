@@ -1,11 +1,15 @@
-const { existsSync, readdirSync, moveSync, readJSONSync, writeJSONSync } = require('fs-extra');
+const merge = require('lodash.merge');
+const snooplogg = require('snooplogg').default;
+const { ensureDirSync, existsSync, readdirSync, moveSync, readJSONSync, writeJSONSync } = require('fs-extra');
 const { homedir } = require('os');
 const { join } = require('path');
 const { run } = require('appcd-subprocess');
-const isWindows = process.platform === 'win32';
 
 const axwayHome = join(homedir(), '.axway');
 const configFile = join(axwayHome, 'amplify-cli.json');
+const isWindows = process.platform === 'win32';
+const { log } = snooplogg('amplify-integration:utils');
+
 let amplifyCmd;
 
 function preCheck() {
@@ -22,6 +26,8 @@ function preCheck() {
 			console.log(`Moved ${configFile} to ${backupFile}`);
 			return backupFile;
 		}
+	} else {
+		ensureDirSync(axwayHome);
 	}
 }
 
@@ -43,6 +49,11 @@ function readConfig() {
 	return readJSONSync(configFile);
 }
 
+function addToConfig(value) {
+	const config = readConfig();
+	writeConfig(merge(value, config));
+}
+
 async function runCommand(args, opts = {}) {
 	Object.assign(opts, { ignoreExitCode: true });
 	const amplifyCmd = getAmplifyCommand();
@@ -52,7 +63,10 @@ async function runCommand(args, opts = {}) {
 		args.unshift(amplifyCmd);
 		return await run(process.execPath, args, opts);
 	}
-	return await run(amplifyCmd, args, opts);
+	log(`Running ${amplifyCmd} with ${args.join(' ')}`)
+	const response = await run(amplifyCmd, args, opts);
+	log('Response was %j', response);
+	return response;
 }
 
 function getAmplifyCommand () {
@@ -75,11 +89,13 @@ async function runJSONCommand(args, opts) {
 		args.push('--json');
 	}
 	const resp = await runCommand(args, opts);
-	resp.stdout = JSON.parse(resp.stdout);
+	resp.stdout = JSON.parse(resp.stdout || '{}');
+	resp.stderr = JSON.parse(resp.stderr || '{}');
 	return resp;
 }
 
 module.exports = {
+	addToConfig,
 	cleanConfig,
 	preCheck,
 	readConfig,

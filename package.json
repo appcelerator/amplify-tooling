@@ -14,8 +14,10 @@
     "gulp-plumber": "^1.2.0",
     "istanbul": "^0.4.5",
     "lerna": "^3.4.3",
+    "lodash.merge": "^4.6.1",
     "mocha": "^5.2.0",
-    "pretty-log": "^0.1.0"
+    "pretty-log": "^0.1.0",
+    "snooplogg": "^1.13.2"
   },
   "workspaces": {
     "packages": [
