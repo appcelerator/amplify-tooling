@@ -44,15 +44,16 @@ gulp.task('build', () => runLernaBuild());
 gulp.task('test', [ 'node-info', 'build' ], cb => runTests(false, cb));
 gulp.task('coverage', [ 'node-info', 'build' ], cb => runTests(true, cb));
 
-gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
+gulp.task('integration', [ 'node-info' ], (cb) => {
 	const args = [];
 	const mocha = require.resolve('mocha');
 
 	if (!process.argv.includes('--use-global')) {
+		runLernaBuild();
 		process.env.AMPLIFY_BIN = join(__dirname, 'packages', 'amplify-cli', 'bin', 'amplify');
 	}
 	let axwayHomeDir;
-	if (process.argv.includes('--axway-home')) {
+	if (process.argv.includes('--axway-home-parent')) {
 		const argIndex = process.argv.indexOf('--axway-home-parent') + 1;
 		const homeArg = process.argv[argIndex];
 		if (!homeArg) {
@@ -70,13 +71,16 @@ gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
 	
 	process.env.HOME = axwayHomeDir;
 	process.env.USERPROFILE = axwayHomeDir;
+	if (!process.argv.includes('--no-debug-log')) {
+		process.env.SNOOPLOGG = 'amplify-integration:*';
+	}
 
 	if (!mocha) {
 		log('Unable to find mocha!');
 		process.exit(1);
 	}
 	args.push(path.join(mocha, '..', 'bin', 'mocha'));
-	args.push('integration-tests/test-*.js');
+	args.push('integration-tests/**/test-*.js');
 	log('Running: ' + process.execPath + ' ' + args.join(' '));
 
 	if (spawnSync(process.execPath, args, { stdio: 'inherit' }).status) {
