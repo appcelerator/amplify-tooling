@@ -1,6 +1,6 @@
 const merge = require('lodash.merge');
 const snooplogg = require('snooplogg').default;
-const { ensureDirSync, existsSync, readdirSync, moveSync, readJSONSync, writeJSONSync } = require('fs-extra');
+const { ensureDirSync, existsSync, readdirSync, moveSync, readJSONSync, removeSync, writeJSONSync } = require('fs-extra');
 const { homedir } = require('os');
 const { join } = require('path');
 const { run } = require('appcd-subprocess');
@@ -94,9 +94,17 @@ async function runJSONCommand(args, opts) {
 	return resp;
 }
 
+function cleanup () {
+	if (!process.env.CLEANUP) {
+		return;
+	}
+	removeSync(axwayHome);
+}
+
 module.exports = {
 	addToConfig,
 	cleanConfig,
+	cleanup,
 	preCheck,
 	readConfig,
 	runJSONCommand,

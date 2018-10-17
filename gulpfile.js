@@ -71,6 +71,7 @@ gulp.task('integration', [ 'node-info' ], (cb) => {
 	
 	process.env.HOME = axwayHomeDir;
 	process.env.USERPROFILE = axwayHomeDir;
+	process.env.CLEANUP = true;
 	if (!process.argv.includes('--no-debug-log')) {
 		process.env.SNOOPLOGG = 'amplify-integration:*';
 	}

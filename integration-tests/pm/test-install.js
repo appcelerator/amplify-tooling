@@ -2,8 +2,8 @@ const { expect } = require('chai');
 const {
 	addToConfig,
 	cleanConfig,
+	cleanup,
 	preCheck,
-	readConfig,
 	restoreConfigFile,
 	runJSONCommand,
 	writeConfig 
@@ -28,6 +28,7 @@ describe('pm install', function() {
 		if (backupFile) {
 			restoreConfigFile(backupFile);
 		}
+		cleanup();
 	});
 
 	it('pm install should exist', async function () {
