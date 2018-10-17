@@ -1,0 +1,21 @@
+{
+	"name": "amplify-integration-test",
+	"version": "1.0.0",
+	"description": "Test package please ignore",
+	"main": "./bin/amplify-integration-test",
+	"bin": {
+		"amplify-integration-test": "./bin/amplify-integration-test"
+	},
+	"keywords": [
+		"amplify-test-package"
+	],
+	"author": "",
+	"license": "Apache-2.0",
+	"amplify": {
+		"type": "amplify-cli-plugin"
+	},
+	"dependencies": {
+		"cli-kit": "^0.3.0",
+		"yargs": "^12.0.2"
+	}
+}

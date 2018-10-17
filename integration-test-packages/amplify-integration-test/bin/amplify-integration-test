@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+const fs = require('fs');
+const pkg = require('../package.json');
+const yargs = require('yargs')
+	.usage('Usage: test-cli <command> [options]')
+	.version(pkg.version)
+	.command({
+		command: 'foobar <dir>',
+		desc: 'foobars',
+		handler: (argv) => {
+			argv.foobar = true;
+		},
+		builder: (cmd) => cmd.positional('dir', { desc: 'The directory to foo' })
+	})
+	.demandCommand(1, 'Please specify a command.')
+	.strict()
+	.help('h')
+	.alias('h', 'help')
+	.argv;
+
+if (yargs.foobar) {
+	if(fs.existsSync(yargs.dir)){
+		console.log('foobar\'d the dir!');
+	} else {
+		console.error('could not foobar the dir');
+		process.exit(1);
+	}
+}
