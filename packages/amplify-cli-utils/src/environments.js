@@ -3,7 +3,7 @@
  *
  * @type {Object}
  */
-const environments = {
+export const environments = {
 	dev: {
 		auth: {
 			clientId: 'cli-test-public',

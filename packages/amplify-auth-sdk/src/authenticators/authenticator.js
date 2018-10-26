@@ -243,9 +243,9 @@ export default class Authenticator {
 
 		// generate the hash that attempts to uniquely identify this authentication methods and its
 		// parameters
-		this.hash = md5(Object.assign({
-			baseUrl: this.baseUrl,
-			realm:   this.realm
+		this.hash = this.clientId.replace(/\s/g, '_').replace(/_+/g, '_') + '_' + md5(Object.assign({
+			baseUrl:  this.baseUrl,
+			realm:    this.realm
 		}, this.hashParams));
 	}
 
@@ -403,7 +403,7 @@ export default class Authenticator {
 		log(`Authentication successful ${note(`(${response.headers['content-type']})`)}`);
 		log(tokens);
 
-		let name;
+		let name = this.hash;
 
 		try {
 			const info = jws.decode(tokens.id_token || tokens.access_token);
@@ -422,6 +422,7 @@ export default class Authenticator {
 		const account = {
 			authenticator: this.constructor.name,
 			baseUrl:       this.baseUrl,
+			clientId:      this.clientId,
 			env:           this.env,
 			expires: {
 				access: (tokens.expires_in * 1000) + now,

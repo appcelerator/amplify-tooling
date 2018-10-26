@@ -1,7 +1,36 @@
-import environments from './environments';
-import loadConfig from './config';
+/**
+ * Attempts to get the access token based on the supplied credentials.
+ *
+ * @param {Object} authOpts - The account id or authentication options to override the config
+ * values.
+ * @param {String} [accountName] - The account name to find.
+ * @returns {Promise}
+ */
+export async function getAccount(authOpts, accountName) {
+	const Auth = require('@axway/amplify-auth-sdk').default;
+	const loadConfig = require('./config').default;
+	const config = loadConfig();
+	const params = buildParams(authOpts, config);
+	const client = new Auth(params);
+	const account = await client.getAccount(accountName || params);
 
-import { axwayHome } from './locations';
+	return {
+		account,
+		client,
+		config
+	};
+}
+
+export default getAccount;
+
+/**
+ * Loads the amplify-auth-sdk package.
+ *
+ * @returns {Object}
+ */
+export function getAuth() {
+	return require('@axway/amplify-auth-sdk').default;
+}
 
 /**
  * Constructs a parameters object to pass into an Auth instance.
@@ -14,6 +43,10 @@ export function buildParams(opts = {}, config) {
 	if (opts && typeof opts !== 'object') {
 		throw new Error('Expected options to be an object');
 	}
+
+	const loadConfig = require('./config').default;
+	const { axwayHome } = require('./locations');
+	const { environments } = require('./environments');
 
 	if (!config) {
 		config = loadConfig();
@@ -38,6 +71,7 @@ export function buildParams(opts = {}, config) {
 		serverHost:              undefined,
 		serverPort:              undefined,
 		tokenRefreshThreshold:   undefined,
+		tokenStore:              undefined,
 		tokenStoreDir:           axwayHome,
 		tokenStoreType:          undefined,
 		username:                undefined

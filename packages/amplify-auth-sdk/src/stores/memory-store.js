@@ -20,7 +20,7 @@ export default class MemoryStore extends TokenStore {
 	 */
 	async clear(baseUrl) {
 		const { entries, removed } = await super._clear(baseUrl);
-		this.store = entries.length ? entries : [];
+		this.store = entries;
 		return removed;
 	}
 
@@ -34,7 +34,7 @@ export default class MemoryStore extends TokenStore {
 	 */
 	async delete(accounts, baseUrl) {
 		const { entries, removed } = await super._delete(accounts, baseUrl);
-		this.store = entries.length ? entries : [];
+		this.store = entries;
 		return removed;
 	}
 
@@ -56,7 +56,6 @@ export default class MemoryStore extends TokenStore {
 	 * @access public
 	 */
 	async set(data) {
-		const entries = await super._set(data);
-		this.store = entries.length ? entries : [];
+		this.store = await super._set(data);
 	}
 }
