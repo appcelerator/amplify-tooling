@@ -8,12 +8,8 @@ export default {
 		'-p, --password <pass>':     'password to authenticate with'
 	},
 	async action({ _, argv, console }) {
-		const { Auth } = await import('@axway/amplify-auth-sdk');
-		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');
-
-		const config = loadConfig();
-
-		const params = auth.buildParams({
+		const { auth } = await import('@axway/amplify-cli-utils');
+		const { account, client, config } = await auth.getAccount({
 			baseUrl:      argv.baseUrl,
 			clientId:     argv.clientId,
 			clientSecret: argv.secret,
@@ -22,11 +18,8 @@ export default {
 			realm:        argv.realm,
 			secretFile:   argv.secretFile,
 			username:     _[0]
-		}, config);
+		});
 
-		const client = new Auth(params);
-
-		const account = await client.getAccount(params);
 		if (account && !account.expired) {
 			if (argv.json) {
 				console.log(JSON.stringify(account, null, '  '));
@@ -36,7 +29,7 @@ export default {
 			return;
 		}
 
-		const { accessToken, userInfo } = await client.login(params);
+		const { accessToken, userInfo } = await client.login();
 		const accounts = await client.list();
 		let active = false;
 

@@ -4,7 +4,7 @@
   "description": "SDK for AMPLIFY Package Registry",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
-    "Ewan Harris <eharri@axway.com>"
+    "Ewan Harris <eharris@axway.com>"
   ],
   "license": "Apache-2.0",
   "keywords": [

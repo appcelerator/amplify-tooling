@@ -200,7 +200,7 @@ export default class Auth {
 	 * Retrieves the access token. If the authenticator is interactive and the authenticator has not
 	 * yet authenticated with the server, an error is thrown.
 	 *
-	 * @param {Object} opts - Required options.
+	 * @param {Object|String} opts - Required options or a string containing the hash.
 	 * @param {String} opts.accountName - The account name to retrieve.
 	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
 	 * specified, one will be auto-selected based on the options.
@@ -208,16 +208,21 @@ export default class Auth {
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
-	async getAccount(opts = {}) {
+	async getAccount(opts) {
 		if (!this.tokenStore) {
 			log('Cannot get account, no token store');
 			return null;
 		}
 
-		this.applyDefaults(opts);
+		if (typeof opts === 'string') {
+			opts = { hash: opts };
+		} else {
+			this.applyDefaults(opts);
 
-		const authenticator = this.createAuthenticator(opts);
-		opts.hash = authenticator.hash;
+			const authenticator = this.createAuthenticator(opts);
+			opts.hash = authenticator.hash;
+		}
+
 		return await this.tokenStore.get(opts);
 	}
 

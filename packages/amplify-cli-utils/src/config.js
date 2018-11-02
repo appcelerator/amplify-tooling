@@ -1,8 +1,3 @@
-import { existsSync, outputJSONSync } from 'fs-extra';
-import Config from 'appcd-config';
-
-import { configFile as amplifyConfigFile } from './locations';
-
 /**
  * Load a users config, if no userConfig is given then the default AMPLIFY CLI config will be loaded.
  *
@@ -13,6 +8,10 @@ import { configFile as amplifyConfigFile } from './locations';
  * @returns {Config} An appcd-config instance
  */
 export default function loadConfig({ configFile, userConfigFile } = {}) {
+	const { existsSync, outputJSONSync } = require('fs-extra');
+	const Config = require('appcd-config').default;
+	const amplifyConfigFile = require('./locations').configFile;
+
 	if (!userConfigFile) {
 		userConfigFile = amplifyConfigFile;
 	}

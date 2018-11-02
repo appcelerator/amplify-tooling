@@ -4,7 +4,8 @@
   "description": "Package manager for Axway products.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
-    "Chris Barber <cbarber@axway.com>"
+    "Chris Barber <cbarber@axway.com>",
+	"Ewan Harris <eharris@axway.com>"
   ],
   "license": "Apache-2.0",
   "keywords": [
@@ -31,7 +32,7 @@
     "listr": "^0.14.2",
     "npm-package-arg": "^6.1.0",
     "ora": "^3.0.0",
-    "semver": "^5.5.1",
+    "semver": "^5.6.0",
     "source-map-support": "^0.5.9"
   },
   "devDependencies": {
