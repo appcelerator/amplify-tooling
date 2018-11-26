@@ -14,10 +14,10 @@ export default {
 			clientId:     argv.clientId,
 			clientSecret: argv.secret,
 			env:          argv.env,
-			password:     _[1],
+			password:     argv.password,
 			realm:        argv.realm,
 			secretFile:   argv.secretFile,
-			username:     _[0]
+			username:     argv.username
 		});
 
 		if (account && !account.expired) {
