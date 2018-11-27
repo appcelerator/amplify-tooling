@@ -13,7 +13,7 @@ import * as server from '../server';
 import { md5, renderHTML, stringifyQueryString } from '../util';
 import request from '@axway/amplify-request';
 
-const { error, log, warn } = snooplogg('amplify-auth:authenticator');
+const { error, log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -303,6 +303,9 @@ export default class Authenticator {
 
 		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
 		const { email, given_name, user_guid, family_name } = await req('user', this.endpoints.userinfo);
+		if (!account.user || typeof account.user !== 'object') {
+			account.user = {};
+		}
 		account.user.email     = email;
 		account.user.firstName = given_name;
 		account.user.guid      = user_guid;
@@ -526,11 +529,7 @@ export default class Authenticator {
 
 		// persist the tokens
 		if (this.tokenStore) {
-			if (name) {
-				await this.tokenStore.set(account);
-			} else {
-				warn('Account has no email address, skipping adding token to store');
-			}
+			await this.tokenStore.set(account);
 		}
 
 		if (!Object.getOwnPropertyDescriptor(account, 'expired')) {
@@ -568,8 +567,8 @@ export default class Authenticator {
 	 * @access private
 	 */
 	handleRequestError(res, label) {
-		// authentication failed
-		let msg = res.error;
+		let msg = res.error || res.message;
+
 		try {
 			const obj = JSON.parse(msg);
 			if (obj.error) {
@@ -581,7 +580,7 @@ export default class Authenticator {
 			// squelch
 		}
 
-		msg = `${label}: ${msg.trim() || `server returned ${res.statusCode}`}`;
+		msg = `${label}: ${String(msg).trim() || `server returned ${res.statusCode}`}`;
 
 		error(`${msg} ${note(`(${res.status})`)}`);
 		return E.AUTH_FAILED(msg, { status: res.status });

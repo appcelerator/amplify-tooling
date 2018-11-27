@@ -58,6 +58,7 @@ describe('Token Store', () => {
 			const baseUrl = 'http://127.0.0.1:1337';
 			const auth = new Auth({
 				baseUrl,
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -77,7 +78,7 @@ describe('Token Store', () => {
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
 			expect(tokens[0].expires.access).to.be.ok;
 			expect(tokens[0].expires.refresh).to.be.ok;
-			expect(tokens[0].name).to.equal('foo@bar.com');
+			expect(tokens[0].name).to.equal('test_client:foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
 			await auth.revoke({ accounts: account.name, baseUrl });
@@ -92,6 +93,7 @@ describe('Token Store', () => {
 			const baseUrl = 'http://127.0.0.1:1337';
 			const auth = new Auth({
 				baseUrl,
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -111,7 +113,7 @@ describe('Token Store', () => {
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
 			expect(tokens[0].expires.access).to.be.ok;
 			expect(tokens[0].expires.refresh).to.be.ok;
-			expect(tokens[0].name).to.equal('foo@bar.com');
+			expect(tokens[0].name).to.equal('test_client:foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
 			await auth.revoke({ all: true });
@@ -126,6 +128,7 @@ describe('Token Store', () => {
 			const baseUrl = 'http://127.0.0.1:1337';
 			const auth = new Auth({
 				baseUrl,
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -145,7 +148,7 @@ describe('Token Store', () => {
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
 			expect(tokens[0].expires.access).to.be.ok;
 			expect(tokens[0].expires.refresh).to.be.ok;
-			expect(tokens[0].name).to.equal('foo@bar.com');
+			expect(tokens[0].name).to.equal('test_client:foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
 			await auth.revoke({ all: true, baseUrl });
@@ -162,6 +165,7 @@ describe('Token Store', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -210,6 +214,7 @@ describe('Token Store', () => {
 			expect(() => {
 				new Auth({
 					baseUrl:        'http://127.0.0.1:1337',
+					platformUrl:    'http://127.0.0.1:1337',
 					clientId:       'test_client',
 					realm:          'test_realm',
 					tokenStoreType: 'file'
@@ -224,6 +229,7 @@ describe('Token Store', () => {
 			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl,
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreDir,
@@ -249,7 +255,7 @@ describe('Token Store', () => {
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
 			expect(tokens[0].expires.access).to.be.ok;
 			expect(tokens[0].expires.refresh).to.be.ok;
-			expect(tokens[0].name).to.equal('foo@bar.com');
+			expect(tokens[0].name).to.equal('test_client:foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
 			await auth.revoke({ accounts: account.name, baseUrl });
@@ -265,6 +271,7 @@ describe('Token Store', () => {
 			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl,
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreDir,
@@ -290,7 +297,7 @@ describe('Token Store', () => {
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
 			expect(tokens[0].expires.access).to.be.ok;
 			expect(tokens[0].expires.refresh).to.be.ok;
-			expect(tokens[0].name).to.equal('foo@bar.com');
+			expect(tokens[0].name).to.equal('test_client:foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
 			await auth.revoke({ all: true });
@@ -310,6 +317,7 @@ describe('Token Store', () => {
 			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreDir,
@@ -357,6 +365,7 @@ describe('Token Store', () => {
 			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl,
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				secureServiceName,
 				realm:          'test_realm',
@@ -378,7 +387,7 @@ describe('Token Store', () => {
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
 			expect(tokens[0].expires.access).to.be.ok;
 			expect(tokens[0].expires.refresh).to.be.ok;
-			expect(tokens[0].name).to.equal('foo@bar.com');
+			expect(tokens[0].name).to.equal('test_client:foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
 			await auth.revoke({ accounts: account.name, baseUrl });
@@ -394,6 +403,7 @@ describe('Token Store', () => {
 			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl,
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				secureServiceName,
 				realm:          'test_realm',
@@ -415,7 +425,7 @@ describe('Token Store', () => {
 			expect(tokens[0].baseUrl).to.equal('http://127.0.0.1:1337');
 			expect(tokens[0].expires.access).to.be.ok;
 			expect(tokens[0].expires.refresh).to.be.ok;
-			expect(tokens[0].name).to.equal('foo@bar.com');
+			expect(tokens[0].name).to.equal('test_client:foo@bar.com');
 			expect(tokens[0].tokens.access_token).to.equal(accessToken);
 
 			await auth.revoke({ all: true });
@@ -431,10 +441,11 @@ describe('Token Store', () => {
 		it('should error if custom token store does not extend TokenStore', () => {
 			expect(() => {
 				new Auth({
-					baseUrl:    'http://127.0.0.1:1337',
-					clientId:   'test_client',
-					realm:      'test_realm',
-					tokenStore: '123'
+					baseUrl:     'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
+					clientId:    'test_client',
+					realm:       'test_realm',
+					tokenStore:  '123'
 				});
 			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
 		});
@@ -458,9 +469,10 @@ describe('Token Store', () => {
 			const baseUrl = 'http://127.0.0.1:1337';
 			const auth = new Auth({
 				baseUrl,
-				clientId: 'test_client',
-				realm:    'test_realm',
-				tokenStore: new Foo(),
+				platformUrl: 'http://127.0.0.1:1337',
+				clientId:    'test_client',
+				realm:       'test_realm',
+				tokenStore:  new Foo(),
 			});
 
 			expect(setCounter).to.equal(0);

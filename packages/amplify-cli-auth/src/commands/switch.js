@@ -55,8 +55,9 @@ export default {
 
 		if (account.org && org && account.org.org_id !== org.org_id) {
 			// need to switch org
-			org = account.org = await client.switchOrg({
+			org = await client.switchOrg({
 				accessToken: account.tokens.access_token,
+				account,
 				orgId:       org.org_id
 			});
 		} else {

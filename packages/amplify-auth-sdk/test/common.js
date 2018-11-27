@@ -104,6 +104,67 @@ export async function createLoginServer(opts = {}) {
 					res.end(JSON.stringify(serverInfo));
 					break;
 
+				case '/api/v1/auth/findSession':
+					if (typeof opts.findSession === 'function') {
+						if (opts.findSession(post, req, res)) {
+							break;
+						}
+					}
+
+					res.writeHead(200, { 'Content-Type': 'application/json' });
+					res.end(JSON.stringify({
+						result: {
+							org: {
+								org_id: 123,
+								name: 'foo org'
+							},
+							orgs: [
+								{
+									org_id: 123,
+									name: 'foo org'
+								},
+								{
+									org_id: 456,
+									name: 'bar org'
+								}
+							],
+							user: {
+								axway_id: 'abc123',
+								email: 'foo@bar.com',
+								firstname: 'foo',
+								guid: 'def456',
+								lastname: 'bar',
+								organization: 'foo org'
+							}
+						}
+					}));
+					break;
+
+				case '/api/v1/auth/switchLoggedInOrg':
+					if (typeof opts.switchLoggedInOrg === 'function') {
+						if (opts.switchLoggedInOrg(post, req, res)) {
+							break;
+						}
+					}
+
+					res.writeHead(200, { 'Content-Type': 'application/json' });
+					if (post.org_id === 456) {
+						res.end(JSON.stringify({
+							result: {
+								org_name: 'bar org',
+								org_id: 456
+							}
+						}));
+					} else {
+						res.end(JSON.stringify({
+							result: {
+								org_name: 'foo org',
+								org_id: 123
+							}
+						}));
+					}
+					break;
+
 				default:
 					res.writeHead(404, { 'Content-Type': 'text/plain' });
 					res.end('Not Found');

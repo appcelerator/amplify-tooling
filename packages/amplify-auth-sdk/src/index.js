@@ -135,6 +135,7 @@ export default class Auth {
 	 * requiring the values.
 	 *
 	 * @param {Object} [opts] - Various options.
+	 * @returns {Object}
 	 * @access private
 	 */
 	applyDefaults(opts = {}) {
@@ -159,6 +160,8 @@ export default class Auth {
 		opts.serviceAccount = opts.serviceAccount || this.serviceAccount;
 		opts.tokenStore     = this.tokenStore;
 		opts.username       = opts.username || this.username;
+
+		return opts;
 	}
 
 	/**
@@ -212,7 +215,7 @@ export default class Auth {
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
-	async getAccount(opts) {
+	async getAccount(opts = {}) {
 		if (!this.tokenStore) {
 			log('Cannot get account, no token store');
 			return null;
@@ -221,7 +224,7 @@ export default class Auth {
 		let authenticator;
 
 		if (typeof opts === 'string') {
-			opts = { hash: opts };
+			opts = this.applyDefaults({ hash: opts });
 		} else {
 			this.applyDefaults(opts);
 			authenticator = this.createAuthenticator(opts);
@@ -231,7 +234,7 @@ export default class Auth {
 		const account = await this.tokenStore.get(opts);
 		if (account && !account.expired) {
 			if (!authenticator) {
-				authenticator = this.createAuthenticator();
+				authenticator = this.createAuthenticator(opts);
 			}
 			return await authenticator.getInfo(account);
 		}
@@ -356,6 +359,7 @@ export default class Auth {
 	 *
 	 * @param {Object} opts - Various options.
 	 * @param {String} opts.accessToken - The access token.
+	 * @param {Object} [opts.account] - The account object.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
 	 * @param {String} opts.orgId - The org id.
 	 * @param {String} [opts.platformUrl] - The Axway Platform URL.
@@ -396,10 +400,17 @@ export default class Auth {
 				throw E.REQUEST_FAILED(`Request was not successful (${status})`);
 			}
 
-			return {
+			const org = {
 				name:   body.result.org_name,
 				org_id: body.result.org_id
 			};
+
+			if (opts.account && typeof opts.account === 'object' && this.tokenStore) {
+				opts.account.org = org;
+				await this.tokenStore.set(opts.account);
+			}
+
+			return org;
 		}
 
 		let msg = error;

@@ -25,12 +25,14 @@ describe('Authenticator', () => {
 		it('should error if platformUrl is invalid', () => {
 			expect(() => {
 				new Authenticator({
+					baseUrl: 'http://127.0.0.1:1337',
 					platformUrl: null
 				});
 			}).to.throw(TypeError, 'Missing or invalid platform URL');
 
 			expect(() => {
 				new Authenticator({
+					baseUrl: 'http://127.0.0.1:1337',
 					platformUrl: 123
 				});
 			}).to.throw(TypeError, 'Missing or invalid platform URL');

@@ -37,6 +37,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -52,6 +53,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -80,6 +82,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -103,6 +106,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -146,6 +150,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -153,7 +158,7 @@ describe('Client Secret', () => {
 
 			const { accessToken, account } = await auth.login({ code: 'foo' });
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(account.name).to.equal('foo@bar.com');
+			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
 		it('should error if server is unreachable', async function () {
@@ -161,6 +166,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -195,6 +201,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -218,6 +225,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -225,7 +233,7 @@ describe('Client Secret', () => {
 
 			const { accessToken, account } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(account.name).to.equal('foo@bar.com');
+			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
 		(isCI ? it.skip : it)('should refresh the access token', async function () {
@@ -244,6 +252,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -267,6 +276,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -288,6 +298,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -322,6 +333,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -345,6 +357,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -361,6 +374,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -368,7 +382,7 @@ describe('Client Secret', () => {
 
 			const { accessToken, account } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(account.name).to.equal('foo@bar.com');
+			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
 		it('should refresh the access token', async function () {
@@ -398,6 +412,7 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: true,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -410,24 +425,6 @@ describe('Client Secret', () => {
 
 			results = await auth.login();
 			expect(results.accessToken).to.equal(this.server.accessToken);
-		});
-
-		it('should login in non-interactively and not persist the token if no email address', async function () {
-			this.server = await createLoginServer({ payload: {} });
-
-			const auth = new Auth({
-				clientSecret:   '###',
-				serviceAccount: true,
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreType: 'memory'
-			});
-
-			const results = await auth.login();
-			expect(results.accessToken).to.equal(this.server.accessToken);
-			expect(results.name).to.be.undefined;
-			expect(await auth.list()).to.have.lengthOf(0);
 		});
 	});
 
@@ -457,13 +454,14 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
 			const { account } = await auth.login({ code: 'foo' });
-			expect(account.name).to.equal('foo@bar.com');
+			expect(account.name).to.equal('test_client:foo@bar.com');
 
 			const revoked = await auth.revoke({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
@@ -482,12 +480,13 @@ describe('Client Secret', () => {
 				clientSecret:   '###',
 				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
-			const revoked = await auth.revoke({ accounts: [ 'foo@bar.com' ] });
+			const revoked = await auth.revoke({ accounts: [ 'test_client:foo@bar.com' ] });
 			expect(revoked).to.have.lengthOf(0);
 			expect(counter).to.equal(0);
 		});

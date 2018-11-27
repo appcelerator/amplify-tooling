@@ -14,10 +14,11 @@ export async function getAccount(authOpts, accountName) {
 
 	const Auth = require('@axway/amplify-auth-sdk').default;
 	const loadConfig = require('./config').default;
+
 	const config = loadConfig();
 	const params = buildParams(authOpts, config);
 	const client = new Auth(params);
-	const account = await client.getAccount(accountName || params);
+	const account = await client.getAccount(accountName);
 
 	return {
 		account,
@@ -46,9 +47,11 @@ export function getAuth() {
 export async function list(authOpts) {
 	const Auth = require('@axway/amplify-auth-sdk').default;
 	const loadConfig = require('./config').default;
+
 	const config = loadConfig();
 	const params = buildParams(authOpts, config);
 	const client = new Auth(params);
+
 	return await client.list();
 }
 

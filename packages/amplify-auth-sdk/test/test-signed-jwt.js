@@ -35,6 +35,7 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile,
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -55,6 +56,7 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -75,6 +77,7 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -103,6 +106,7 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -123,6 +127,7 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -172,6 +177,7 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -179,7 +185,7 @@ describe('Signed JWT', () => {
 
 			let { accessToken, account, authenticator } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(account.name).to.equal('foo@bar.com');
+			expect(account.name).to.equal('test_client:foo@bar.com');
 			expect(authenticator.signedJWT).to.equal(authenticator.getSignedJWT());
 		});
 
@@ -207,6 +213,7 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -249,6 +256,7 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -271,12 +279,13 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
-			const revoked = await auth.revoke({ accounts: 'foo@bar.com' });
+			const revoked = await auth.revoke({ accounts: 'test_client:foo@bar.com' });
 			expect(revoked).to.have.lengthOf(0);
 			expect(counter).to.equal(0);
 		});
