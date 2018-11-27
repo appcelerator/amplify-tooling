@@ -127,6 +127,7 @@ export default class Authenticator {
 	 * before shutting down the local HTTP server.
 	 * @param {Object} [opts.messages] - A map of categorized messages to display to the end user.
 	 * Supports plain text or HTML strings.
+	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
 	 * @param {String} [opts.responseType=code] - The response type to send with requests.
 	 * @param {String} [opts.scope=openid] - The name of the scope to send with requests.
@@ -150,7 +151,15 @@ export default class Authenticator {
 			this.baseUrl = opts.baseUrl;
 		}
 		if (!this.baseUrl || typeof this.baseUrl !== 'string') {
-			throw E.INVALID_BASE_URL('Invalid base URL: env or baseUrl required');
+			throw E.MISSING_REQUIRED_PARAMETER('Invalid base URL: env or baseUrl required');
+		}
+
+		// process the platform URL
+		if (opts.platformUrl) {
+			this.platformUrl = opts.platformUrl;
+		}
+		if (!this.platformUrl || typeof this.platformUrl !== 'string') {
+			throw E.MISSING_REQUIRED_PARAMETER('Missing or invalid platform URL');
 		}
 
 		// validate the required string properties
@@ -243,7 +252,7 @@ export default class Authenticator {
 
 		// generate the hash that attempts to uniquely identify this authentication methods and its
 		// parameters
-		this.hash = this.clientId.replace(/\s/g, '_').replace(/_+/g, '_') + '_' + md5(Object.assign({
+		this.hash = this.clientId.replace(/\s/g, '_').replace(/_+/g, '_') + ':' + md5(Object.assign({
 			baseUrl:  this.baseUrl,
 			realm:    this.realm
 		}, this.hashParams));
@@ -258,6 +267,73 @@ export default class Authenticator {
 	 */
 	get authorizationUrlParams() {
 		return null;
+	}
+
+	/**
+	 * Populates the latest user and session info into an account object.
+	 *
+	 * @param {Object} account - An object containing the account info.
+	 * @returns {Object} The original account object.
+	 * @access public
+	 */
+	async getInfo(account) {
+		const accessToken = account.tokens.access_token;
+		const req = async (type, url) => {
+			let response;
+
+			try {
+				response = await request({
+					headers: {
+						Accept: 'application/json',
+						Authorization: `Bearer ${accessToken}`
+					},
+					url,
+					validateJSON: true
+				});
+			} catch (e) {
+				throw this.handleRequestError(e, `Fetch ${type} info failed`);
+			}
+
+			if (response.statusCode >= 200 && response.statusCode < 300 && response.body) {
+				return response.body;
+			}
+
+			throw this.handleRequestError(response, `Fetch ${type} info failed`);
+		};
+
+		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
+		const { email, given_name, user_guid, family_name } = await req('user', this.endpoints.userinfo);
+		account.user.email     = email;
+		account.user.firstName = given_name;
+		account.user.guid      = user_guid;
+		account.user.lastName  = family_name;
+
+		log(`Fetching session info: ${highlight(this.endpoints.findSession)} ${note(accessToken)}`);
+		const { result } = await req('session', this.endpoints.findSession);
+		const { org, orgs, user } = result;
+		account.org = {
+			org_id: org.org_id,
+			name:   org.name
+		};
+
+		log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+		account.orgs = orgs.map(({ org_id, name }) => ({ org_id, name }));
+
+		log('Available orgs:');
+		for (const org of account.orgs) {
+			log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+		}
+
+		Object.assign(account.user, {
+			axwayId:      user.axway_id,
+			email:        user.email,
+			firstname:    user.firstname,
+			guid:         user.guid,
+			lastname:     user.lastname,
+			organization: user.organization,
+		});
+
+		return account;
 	}
 
 	/**
@@ -317,7 +393,7 @@ export default class Authenticator {
 	 * URL.
 	 * @param {String} [requestId] - Used to construct the redirect URI when using the `code`.
 	 * @returns {Promise<Object>} Resolves an object containing the access token and account name.
-	 * @access public
+	 * @access private
 	 */
 	async getToken(code, requestId) {
 		if (this.interactive && (!code || typeof code !== 'string')) {
@@ -403,6 +479,7 @@ export default class Authenticator {
 		log(`Authentication successful ${note(`(${response.headers['content-type']})`)}`);
 		log(tokens);
 
+		let email = null;
 		let name = this.hash;
 
 		try {
@@ -411,7 +488,10 @@ export default class Authenticator {
 				info.payload = JSON.parse(info.payload);
 			}
 			log(info);
-			name = (info.payload.email || '').trim();
+			email = (info.payload.email || '').trim();
+			if (email) {
+				name = `${this.clientId}:${email}`;
+			}
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
 		}
@@ -419,7 +499,7 @@ export default class Authenticator {
 		// refresh `now` and set the expiry timestamp
 		now = Date.now();
 
-		const account = {
+		const account = await this.getInfo({
 			authenticator: this.constructor.name,
 			baseUrl:       this.baseUrl,
 			clientId:      this.clientId,
@@ -431,8 +511,18 @@ export default class Authenticator {
 			hash:          this.hash,
 			name,
 			realm:         this.realm,
-			tokens
-		};
+			tokens,
+			org: null,
+			orgs: [],
+			user: {
+				axwayId:      null,
+				email,
+				firstName:    null,
+				guid:         null,
+				lastName:     null,
+				organization: null
+			}
+		});
 
 		// persist the tokens
 		if (this.tokenStore) {
@@ -456,32 +546,6 @@ export default class Authenticator {
 			accessToken: tokens.access_token,
 			account
 		};
-	}
-
-	/**
-	 * Retrieves the user info associated with the access token.
-	 *
-	 * @param {String} accessToken - A non-expired access token.
-	 * @returns {Promise<Object>}
-	 * @access private
-	 */
-	async getUserInfo(accessToken) {
-		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
-
-		const response = await request({
-			headers: {
-				Accept: 'application/json',
-				Authorization: `Bearer ${accessToken}`
-			},
-			url: this.endpoints.userinfo,
-			validateJSON: true
-		});
-
-		if (response.statusCode >= 400) {
-			throw await this.handleRequestError(response, 'Fetch user info failed');
-		}
-
-		return response.body;
 	}
 
 	/* istanbul ignore next */
@@ -508,7 +572,11 @@ export default class Authenticator {
 		let msg = res.error;
 		try {
 			const obj = JSON.parse(msg);
-			msg = `${obj.error}: ${obj.error_description}`;
+			if (obj.error) {
+				msg = `${obj.error}: ${obj.error_description}`;
+			} else if (obj.description) {
+				msg = `${obj.description}`;
+			}
 		} catch (e) {
 			// squelch
 		}
@@ -547,8 +615,7 @@ export default class Authenticator {
 			return {
 				accessToken,
 				account,
-				authenticator: this,
-				userInfo: await this.getUserInfo(accessToken)
+				authenticator: this
 			};
 		}
 
@@ -582,8 +649,7 @@ export default class Authenticator {
 			return {
 				accessToken,
 				account,
-				authenticator: this,
-				userInfo: await this.getUserInfo(accessToken)
+				authenticator: this
 			};
 		});
 

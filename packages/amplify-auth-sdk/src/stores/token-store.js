@@ -201,7 +201,7 @@ export default class TokenStore {
 		for (let i = 0; i < entries.length; i++) {
 			const { expires, tokens } = entries[i];
 			const now = Date.now();
-			if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
+			if (expires && ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now))) {
 				// not expired
 				if (!Object.getOwnPropertyDescriptor(entries[i], 'expired')) {
 					Object.defineProperty(entries[i], 'expired', {

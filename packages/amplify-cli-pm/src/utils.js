@@ -1,9 +1,17 @@
 import { loadConfig } from '@axway/amplify-cli-utils';
+
+/**
+ * Cached user agent.
+ * @type {String}
+ */
 let userAgent;
+
 /**
  * Returns the registry URL from the config.
  *
- * @returns {String}
+ * @param {String} env - The environment name to use. Possible values are "prod", "preprod", or
+ * "dev".
+ * @returns {Object}
  */
 export function getRegistryParams(env) {
 	const config = loadConfig();
@@ -19,7 +27,8 @@ export function getRegistryParams(env) {
 /**
  * Convert an error thrown by the `fetchAndInstall` function into something
  * human readable/actionable.
- * @param {Error} exitCode - Error thrown by the install process.
+ *
+ * @param {Error} error - Error thrown by the install process.
  * @returns {Object} Object with a message and code property, representing
  * the message to be logged and the process exitCode.
  */
@@ -58,14 +67,19 @@ export function handleInstallError(error) {
 	};
 }
 
+/**
+ * Creates the user agent if it's not already cached.
+ *
+ * @returns {String}
+ */
 export function buildUserAgentString() {
 	if (userAgent) {
 		return userAgent;
 	}
+
 	if (process.env.AMPLIFY_CLI) {
 		return userAgent = `AMPLIFY-CLI/${process.env.AMPLIFY_CLI} AMPLIFY-CLI-PM/${require('../package.json').version}`;
-	} else {
-		return userAgent = `AMPLIFY-CLI-PM/${require('../package.json').version}`;
-
 	}
+
+	return userAgent = `AMPLIFY-CLI-PM/${require('../package.json').version}`;
 }

@@ -1,6 +1,6 @@
 import { Authenticator } from '../dist/index';
 
-describe('Auth', () => {
+describe('Authenticator', () => {
 	describe('Constructor', () => {
 		it('should error if options is invalid', () => {
 			expect(() => {
@@ -22,16 +22,32 @@ describe('Auth', () => {
 			}).to.throw(Error, 'Invalid base URL: env or baseUrl required');
 		});
 
+		it('should error if platformUrl is invalid', () => {
+			expect(() => {
+				new Authenticator({
+					platformUrl: null
+				});
+			}).to.throw(TypeError, 'Missing or invalid platform URL');
+
+			expect(() => {
+				new Authenticator({
+					platformUrl: 123
+				});
+			}).to.throw(TypeError, 'Missing or invalid platform URL');
+		});
+
 		it('should error if client id is invalid', () => {
 			expect(() => {
 				new Authenticator({
-					baseUrl: 'http://127.0.0.1:1337'
+					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337'
 				});
 			}).to.throw(TypeError, 'Expected required parameter "clientId" to be a non-empty string');
 
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: ''
 				});
 			}).to.throw(TypeError, 'Expected required parameter "clientId" to be a non-empty string');
@@ -41,6 +57,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					accessType: 123
@@ -52,6 +69,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					responseType: 123
@@ -63,6 +81,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					scope: 123
@@ -74,6 +93,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					serverHost: 123
@@ -84,6 +104,7 @@ describe('Auth', () => {
 		it('should set the server host', () => {
 			const auth = new Authenticator({
 				baseUrl: 'http://127.0.0.1:1337',
+				platformUrl: 'http://127.0.0.1:1337',
 				clientId: 'test_client',
 				realm: 'test_realm',
 				serverHost: 'foo'
@@ -96,6 +117,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					interactiveLoginTimeout: 'foo'
@@ -105,6 +127,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					interactiveLoginTimeout: -123
@@ -115,6 +138,7 @@ describe('Auth', () => {
 		it('should set the interactive login timeout', () => {
 			const auth = new Authenticator({
 				baseUrl: 'http://127.0.0.1:1337',
+				platformUrl: 'http://127.0.0.1:1337',
 				clientId: 'test_client',
 				realm: 'test_realm',
 				interactiveLoginTimeout: 1234
@@ -127,6 +151,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					serverPort: 'foo'
@@ -136,6 +161,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					serverPort: 123
@@ -146,6 +172,7 @@ describe('Auth', () => {
 		it('should set the server port', () => {
 			const auth = new Authenticator({
 				baseUrl: 'http://127.0.0.1:1337',
+				platformUrl: 'http://127.0.0.1:1337',
 				clientId: 'test_client',
 				realm: 'test_realm',
 				serverPort: 1234
@@ -158,6 +185,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
 					clientId: 'test_client',
 					realm: 'test_realm',
 					endpoints: 'foo'
@@ -169,6 +197,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl:        'http://127.0.0.1:1337',
+					platformUrl:    'http://127.0.0.1:1337',
 					clientId:       'test_client',
 					realm:          'test_realm',
 					tokenStoreType: null,
@@ -183,6 +212,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl:        'http://127.0.0.1:1337',
+					platformUrl:    'http://127.0.0.1:1337',
 					clientId:       'test_client',
 					realm:          'test_realm',
 					tokenStoreType: null,
@@ -196,6 +226,7 @@ describe('Auth', () => {
 		it('should override a specific endpoint', () => {
 			const auth = new Authenticator({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				endpoints: {
@@ -210,6 +241,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl:        'http://127.0.0.1:1337',
+					platformUrl:    'http://127.0.0.1:1337',
 					clientId:       'test_client',
 					realm:          'test_realm',
 					tokenStoreType: null,
@@ -222,18 +254,20 @@ describe('Auth', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl:    'http://127.0.0.1:1337',
-					clientId:   'test_client',
-					realm:      'test_realm',
-					tokenStore: 'foo'
+					platformUrl: 'http://127.0.0.1:1337',
+					clientId:    'test_client',
+					realm:       'test_realm',
+					tokenStore:  'foo'
 				});
 			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
 
 			expect(() => {
 				new Authenticator({
-					baseUrl:    'http://127.0.0.1:1337',
-					clientId:   'test_client',
-					realm:      'test_realm',
-					tokenStore: {}
+					baseUrl:     'http://127.0.0.1:1337',
+					platformUrl: 'http://127.0.0.1:1337',
+					clientId:    'test_client',
+					realm:       'test_realm',
+					tokenStore:  {}
 				});
 			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
 		});

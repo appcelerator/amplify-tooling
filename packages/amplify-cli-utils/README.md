@@ -64,6 +64,17 @@ import { auth } from '@axway/amplify-cli-utils';
 }());
 ```
 
+### Get all credentialed accounts
+
+```js
+import { auth } from '@axway/amplify-cli-utils';
+
+(async () => {
+	const accounts = await auth.list();
+	console.log(accounts);
+}());
+```
+
 ## Config Helper
 
 ```js

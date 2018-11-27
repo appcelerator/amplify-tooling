@@ -1,12 +1,17 @@
 /**
  * Attempts to get the access token based on the supplied credentials.
  *
- * @param {Object} authOpts - The account id or authentication options to override the config
+ * @param {Object} [authOpts] - The account id or authentication options to override the config
  * values.
  * @param {String} [accountName] - The account name to find.
  * @returns {Promise}
  */
 export async function getAccount(authOpts, accountName) {
+	if (typeof authOpts === 'string') {
+		accountName = authOpts;
+		authOpts = {};
+	}
+
 	const Auth = require('@axway/amplify-auth-sdk').default;
 	const loadConfig = require('./config').default;
 	const config = loadConfig();
@@ -30,6 +35,21 @@ export default getAccount;
  */
 export function getAuth() {
 	return require('@axway/amplify-auth-sdk').default;
+}
+
+/**
+ * Returns a list of all valid access tokens.
+ *
+ * @param {Object} [authOpts] - Various authentication options.
+ * @returns {Promise<Array>}
+ */
+export async function list(authOpts) {
+	const Auth = require('@axway/amplify-auth-sdk').default;
+	const loadConfig = require('./config').default;
+	const config = loadConfig();
+	const params = buildParams(authOpts, config);
+	const client = new Auth(params);
+	return await client.list();
 }
 
 /**
@@ -66,6 +86,7 @@ export function buildParams(opts = {}, config) {
 		env,
 		interactiveLoginTimeout: undefined,
 		password:                undefined,
+		platformUrl:             undefined,
 		realm,
 		secretFile:              undefined,
 		serverHost:              undefined,

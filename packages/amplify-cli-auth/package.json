@@ -25,12 +25,13 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^0.1.2",
-    "cli-kit": "next",
+    "cli-kit": "^0.4.0",
+    "inquirer": "^6.2.0",
     "pretty-ms": "^4.0.0",
     "source-map-support": "^0.5.9"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.2.0",
+    "appcd-gulp": "^1.2.1",
     "gulp": "^3.9.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",

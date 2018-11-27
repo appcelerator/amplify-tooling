@@ -52,6 +52,7 @@ export default class Auth {
 	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
 	 * using this library when using the "secure" token store.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
+	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
 	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
@@ -80,6 +81,7 @@ export default class Auth {
 			env:            { value: opts.env },
 			messages:       { value: opts.messages },
 			password:       { value: opts.password },
+			platformUrl:    { value: opts.platformUrl },
 			realm:          { value: opts.realm },
 			secretFile:     { value: opts.secretFile },
 			serviceAccount: { value: opts.serviceAccount },
@@ -151,6 +153,7 @@ export default class Auth {
 		opts.env            = env;
 		opts.messages       = opts.messages || this.messages;
 		opts.password       = opts.password || this.password;
+		opts.platformUrl    = opts.platformUrl || this.platformUrl || environments[env].platformUrl;
 		opts.realm          = opts.realm || this.realm;
 		opts.secretFile     = opts.secretFile || this.secretFile;
 		opts.serviceAccount = opts.serviceAccount || this.serviceAccount;
@@ -205,6 +208,7 @@ export default class Auth {
 	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
 	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.baseUrl] - The base URL to filter by.
+	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
@@ -214,16 +218,23 @@ export default class Auth {
 			return null;
 		}
 
+		let authenticator;
+
 		if (typeof opts === 'string') {
 			opts = { hash: opts };
 		} else {
 			this.applyDefaults(opts);
-
-			const authenticator = this.createAuthenticator(opts);
+			authenticator = this.createAuthenticator(opts);
 			opts.hash = authenticator.hash;
 		}
 
-		return await this.tokenStore.get(opts);
+		const account = await this.tokenStore.get(opts);
+		if (account && !account.expired) {
+			if (!authenticator) {
+				authenticator = this.createAuthenticator();
+			}
+			return await authenticator.getInfo(account);
+		}
 	}
 
 	/**
@@ -254,6 +265,7 @@ export default class Auth {
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
 	 * launching the auth URL in the default browser.
+	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * Defaults to the `interactiveLoginTimeout` property.
@@ -337,6 +349,70 @@ export default class Auth {
 		}
 
 		return await getServerInfo(url);
+	}
+
+	/**
+	 * Switches the current organization.
+	 *
+	 * @param {Object} opts - Various options.
+	 * @param {String} opts.accessToken - The access token.
+	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
+	 * @param {String} opts.orgId - The org id.
+	 * @param {String} [opts.platformUrl] - The Axway Platform URL.
+	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
+	 * @returns {Promise<Object>} Resolves the selected organization info.
+	 * @access public
+	 */
+	async switchOrg(opts) {
+		if (!opts || typeof opts !== 'object') {
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
+		}
+
+		this.applyDefaults(opts);
+
+		const { accessToken, orgId } = opts;
+		log(`Switching org to ${orgId}`);
+
+		const args = {
+			formData: { org_id: orgId },
+			headers: {
+				Accept: 'application/json',
+				Authorization: `Bearer ${accessToken}`
+			},
+			method: 'POST',
+			url: `${getEndpoints(opts).switchLoggedInOrg}`,
+			validateJSON: true
+		};
+		log(args);
+
+		const { body, error, status, statusCode } = await request(args);
+
+		if (statusCode >= 200 && statusCode < 300) {
+			if (!body) {
+				throw E.REQUEST_FAILED(`Response has no body (${status})`);
+			}
+
+			if (!body.success) {
+				throw E.REQUEST_FAILED(`Request was not successful (${status})`);
+			}
+
+			return {
+				name:   body.result.org_name,
+				org_id: body.result.org_id
+			};
+		}
+
+		let msg = error;
+		try {
+			const obj = JSON.parse(msg);
+			msg = `${obj.error}: ${obj.error_description}`;
+		} catch (e) {
+			// squelch
+		}
+
+		msg = `Failed to switch org: ${msg.trim() || `server returned ${statusCode}`}`;
+		error(`${msg} ${note(`(${status})`)}`);
+		throw E.ORG_SWITCH_FAILED(msg, { status });
 	}
 }
 
