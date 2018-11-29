@@ -4,7 +4,7 @@ export default {
 		'--force':                   're-authenticate even if the account is already authenticated',
 		'--json':                    'outputs accounts as JSON',
 		'--no-launch-browser':       'display the authentication URL instead of opening it in the default web browser',
-		'--org <id|name>':              'the organization to use',
+		'--org <id|name>':           'the organization to use',
 		'-c, --client-secret <key>': 'a secret key used to authenticate',
 		'-s, --secret-file <path>':  'path to the PEM key used to authenticate',
 		'-u, --username <user>':     'username to authenticate with',
