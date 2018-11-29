@@ -5,7 +5,8 @@ import snooplogg from 'snooplogg';
 import request from '@axway/amplify-request';
 import { URLSearchParams } from 'url';
 
-const { log } = snooplogg('amplify-auth:util');
+const { error, log } = snooplogg('amplify-auth:util');
+const { note } = snooplogg.styles;
 
 /**
  * Discovers available endpoints based on the remote server's OpenID configuration.
@@ -29,6 +30,33 @@ export async function getServerInfo(url) {
 		throw new Error(`Failed to get server info (status ${err.statusCode})`);
 	}
 
+}
+
+/**
+ * Constructs an error from a failed fetch request, logs it, and returns it.
+ *
+ * @param {Response} res - A fetch response object.
+ * @param {String} label - The error label.
+ * @returns {Promise<Error>}
+ */
+export function handleRequestError(res, label) {
+	let msg = res.error || res.message;
+
+	try {
+		const obj = JSON.parse(msg);
+		if (obj.error) {
+			msg = `${obj.error}: ${obj.error_description}`;
+		} else if (obj.description) {
+			msg = `${obj.description}`;
+		}
+	} catch (e) {
+		// squelch
+	}
+
+	msg = `${label}: ${res.statusCode} - ${String(msg).trim() || res.status}`;
+
+	error(msg);
+	return E.REQUEST_FAILED(msg, { status: res.status, statusCode: res.statusCode });
 }
 
 /**

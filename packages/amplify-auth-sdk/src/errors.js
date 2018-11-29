@@ -15,6 +15,7 @@ createError('MISSING_AUTH_CODE',          TypeError,  'An authorization code was
 createError('MISSING_REQUIRED_PARAMETER', TypeError,  'A required parameter was not specified or not a valid type');
 createError('ORG_SWITCH_FAILED',          Error,      'Failed to switch the current org for some reason');
 createError('REQUEST_FAILED',             Error,      'An HTTP request has errored or returned an invalid response');
+createError('SEND_AUTH_CODE_FAILED',      Error,      'The submit device authorization code request has errored or returned an invalid response');
 createError('TOKEN_EXPIRED',              Error,      'The access token is expired');
 
 /**

@@ -10,7 +10,7 @@ import TokenStore from '../stores/token-store';
 
 import * as server from '../server';
 
-import { md5, renderHTML, stringifyQueryString } from '../util';
+import { handleRequestError, md5, renderHTML, stringifyQueryString } from '../util';
 import request from '@axway/amplify-request';
 
 const { error, log } = snooplogg('amplify-auth:authenticator');
@@ -291,14 +291,14 @@ export default class Authenticator {
 					validateJSON: true
 				});
 			} catch (e) {
-				throw this.handleRequestError(e, `Fetch ${type} info failed`);
+				throw handleRequestError(e, `Fetch ${type} info failed`);
 			}
 
 			if (response.statusCode >= 200 && response.statusCode < 300 && response.body) {
 				return response.body;
 			}
 
-			throw this.handleRequestError(response, `Fetch ${type} info failed`);
+			throw handleRequestError(response, `Fetch ${type} info failed`);
 		};
 
 		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
@@ -313,6 +313,7 @@ export default class Authenticator {
 
 		log(`Fetching session info: ${highlight(this.endpoints.findSession)} ${note(accessToken)}`);
 		const { result } = await req('session', this.endpoints.findSession);
+		log(result);
 		const { org, orgs, user } = result;
 		account.org = {
 			org_id: org.org_id,
@@ -332,8 +333,9 @@ export default class Authenticator {
 			email:        user.email,
 			firstname:    user.firstname,
 			guid:         user.guid,
+			is2FAEnabled: !user.disable_2fa,
 			lastname:     user.lastname,
-			organization: user.organization,
+			organization: user.organization
 		});
 
 		return account;
@@ -474,7 +476,7 @@ export default class Authenticator {
 			if (err.code === 'ECONNREFUSED') {
 				throw err;
 			}
-			throw this.handleRequestError(err, 'Authentication failed');
+			throw handleRequestError(err, 'Authentication failed');
 		}
 
 		tokens = response.body;
@@ -556,34 +558,6 @@ export default class Authenticator {
 	 */
 	get hashParams() {
 		return null;
-	}
-
-	/**
-	 * Constructs an error from a failed fetch request, logs it, and returns it.
-	 *
-	 * @param {Response} res - A fetch response object.
-	 * @param {String} label - The error label.
-	 * @returns {Promise<Error>}
-	 * @access private
-	 */
-	handleRequestError(res, label) {
-		let msg = res.error || res.message;
-
-		try {
-			const obj = JSON.parse(msg);
-			if (obj.error) {
-				msg = `${obj.error}: ${obj.error_description}`;
-			} else if (obj.description) {
-				msg = `${obj.description}`;
-			}
-		} catch (e) {
-			// squelch
-		}
-
-		msg = `${label}: ${String(msg).trim() || `server returned ${res.statusCode}`}`;
-
-		error(`${msg} ${note(`(${res.status})`)}`);
-		return E.AUTH_FAILED(msg, { status: res.status });
 	}
 
 	/**

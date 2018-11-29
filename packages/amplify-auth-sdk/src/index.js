@@ -22,7 +22,7 @@ import snooplogg from 'snooplogg';
 import * as server from './server';
 
 import request from '@axway/amplify-request';
-import { getServerInfo } from './util';
+import { getServerInfo, handleRequestError } from './util';
 
 const { log } = snooplogg('amplify-auth');
 const { alert, highlight, magenta, note } = snooplogg.styles;
@@ -377,7 +377,7 @@ export default class Auth {
 		const { accessToken, orgId } = opts;
 		log(`Switching org to ${orgId}`);
 
-		const { body, error, status, statusCode } = await request({
+		const response = await request({
 			formData: { org_id: orgId },
 			headers: {
 				Accept: 'application/json',
@@ -387,6 +387,7 @@ export default class Auth {
 			url: `${getEndpoints(opts).switchLoggedInOrg}`,
 			validateJSON: true
 		});
+		const { body, status, statusCode } = response;
 
 		if (statusCode >= 200 && statusCode < 300) {
 			if (!body) {
@@ -414,17 +415,44 @@ export default class Auth {
 			return org;
 		}
 
-		let msg = error;
-		try {
-			const obj = JSON.parse(msg);
-			msg = `${obj.error}: ${obj.error_description}`;
-		} catch (e) {
-			// squelch
+		throw handleRequestError(response, 'Failed to switch org');
+	}
+
+	/**
+	 * Sends the device auth code to the platform.
+	 *
+	 * @param {Object} opts - Various options.
+	 * @param {String} opts.accessToken - The access token.
+	 * @param {String} opts.code - The device authorization code.
+	 * @access public
+	 */
+	async sendAuthCode(opts) {
+		if (!opts || typeof opts !== 'object') {
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		msg = `Failed to switch org: ${msg.trim() || `server returned ${statusCode}`}`;
-		error(`${msg} ${note(`(${status})`)}`);
-		throw E.ORG_SWITCH_FAILED(msg, { status });
+		this.applyDefaults(opts);
+
+		const { accessToken, code } = opts;
+		const response = await request({
+			formData: {
+				code,
+				from: 'cli'
+			},
+			headers: {
+				Accept: 'application/json',
+				Authorization: `Bearer ${accessToken}`
+			},
+			method: 'POST',
+			url: `${getEndpoints(opts).deviceauth}`
+		});
+		const { body, status, statusCode } = response;
+
+		if (statusCode >= 400 || (body && !body.success) || (body && body.expired)) {
+			throw handleRequestError(response, 'Failed to send device auth code');
+		}
+
+		log(`Auth code sent successfully (status ${statusCode})`);
 	}
 }
 
