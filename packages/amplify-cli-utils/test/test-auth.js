@@ -91,6 +91,7 @@ describe('auth', () => {
 
 		const token = {
 			baseUrl: 'http://localhost:1337/',
+			env: 'preprod',
 			hash: 'test:509283ae0179a444c6e32408220800db',
 			name: 'bar',
 			expires: {
@@ -122,6 +123,7 @@ describe('auth', () => {
 
 		const token = {
 			baseUrl: 'http://localhost:1337/',
+			env: 'preprod',
 			hash: 'test:509283ae0179a444c6e32408220800db',
 			name: 'bar',
 			expires: {
