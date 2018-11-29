@@ -35,15 +35,22 @@ export default {
 			return;
 		}
 
-		console.log('| Active | Account Name | Expires | Environment |');
-		console.log('| ------ | ------------ | ------- | ----------- |');
+		console.log('| Active | Account Name | Organization | Expires | Environment |');
+		console.log('| ------ | ------------ | ------------ | ------- | ----------- |');
 
 		const now = Date.now();
 		const pretty = require('pretty-ms');
 		const urlRE = /^.*\/\//;
 
 		for (const account of accounts) {
-			console.log(`| ${account.active ? ':check:' : ' '} | ${account.name} | ${pretty(account.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} | ${account.baseUrl.replace(urlRE, '')} |`);
+			const { active, baseUrl, expires, name, org } = account;
+			console.log(
+				`| ${active ? ':check:' : ' '} ` +
+				`| ${name} ` +
+				`| ${org && org.name ? `${org.name} (${org.org_id})` : ' '} ` +
+				`| ${pretty(expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} ` +
+				`| ${baseUrl.replace(urlRE, '')} |`
+			);
 		}
 	}
 };
