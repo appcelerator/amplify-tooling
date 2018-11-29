@@ -4,6 +4,7 @@ export default {
 		'--force':                   're-authenticate even if the account is already authenticated',
 		'--json':                    'outputs accounts as JSON',
 		'--no-launch-browser':       'display the authentication URL instead of opening it in the default web browser',
+		'--org':                     'the organization to use',
 		'-c, --client-secret <key>': 'a secret key used to authenticate',
 		'-s, --secret-file <path>':  'path to the PEM key used to authenticate',
 		'-u, --username <user>':     'username to authenticate with',
@@ -23,7 +24,10 @@ export default {
 				questions.push({
 					type: 'input',
 					name: 'username',
-					message: 'Username:'
+					message: 'Username:',
+					validate(s) {
+						return s ? true : 'Please enter your username';
+					}
 				});
 			}
 
@@ -31,8 +35,16 @@ export default {
 				questions.push({
 					type: 'password',
 					name: 'password',
-					message: 'Password:'
+					message: 'Password:',
+					validate(s) {
+						return s ? true : 'Please enter your password';
+					}
 				});
+			}
+
+			if (questions.length && argv.json) {
+				console.error(JSON.stringify({ error: '--username and --password are required when --json is set' }, null, '  '));
+				process.exit(1);
 			}
 
 			Object.assign(argv, await inquirer.prompt(questions));
@@ -51,6 +63,7 @@ export default {
 		});
 		const manual = !argv.launchBrowser;
 		const current = config.get('auth.defaultAccount');
+		let account;
 
 		// exit early if we are already authenticated
 		if (!argv.force && acct && !acct.expired) {
@@ -61,22 +74,24 @@ export default {
 				console.log('Account already authenticated.');
 			}
 			return;
-		}
+		} else {
+			// perform the login
+			let { account: acct, cancel, promise, url } = await client.login({ manual });
 
-		// perform the login
-		let { account, cancel, promise, url } = await client.login({ manual });
+			// show the url and wait for the user to open it
+			if (manual) {
+				promise.catch(err => {
+					console.error(err.toString());
+					process.exit(1);
+				});
 
-		// show the url and wait for the user to open it
-		if (manual) {
-			promise.catch(err => {
-				console.error(err.toString());
-				process.exit(1);
-			});
+				process.on('SIGINT', () => cancel());
 
-			process.on('SIGINT', () => cancel());
-
-			console.log(`Please open following link in your browser:\n\n  ${url}\n`);
-			account = (await promise).account;
+				console.log(`Please open following link in your browser:\n\n  ${url}\n`);
+				account = (await promise).account;
+			} else {
+				account = acct;
+			}
 		}
 
 		// determine if the account is active
@@ -93,35 +108,59 @@ export default {
 
 		// deterimine the organization
 		let org = null;
-		if (account.orgs.length > 1) {
-			const { selected } = await inquirer.prompt({
-				type: 'list',
-				name: 'selected',
-				message: 'Please choose an organization:',
-				choices: account.orgs.map(org => ({
-					name: `${org.name} (${org.org_id})`,
-					value: org
-				}))
-			});
-			org = selected;
-		} else if (account.orgs.length === 1) {
-			// the list of orgs takes precendence over the org
-			org = account.orgs[0];
-		}
+		if (account.orgs.length) {
+			if (argv.org) {
+				for (const o of account.orgs) {
+					if (o.org_id === argv.org || o.name === argv.org) {
+						org = o;
+						break;
+					}
+				}
+				if (!org) {
+					const error = `Unable to find organization: ${argv.orgId}`;
+					if (argv.json) {
+						console.log(JSON.stringify({ error }, null, '  '));
+					} else {
+						console.error(`${error}\n${account.name} organizations:\n${account.org.map(a => `  ${a.name}`).join('\n')}`);
+					}
+					process.exit(1);
+				}
+			} else if (account.orgs.length === 1) {
+				// the list of orgs takes precendence over the org
+				org = account.orgs[0];
+			} else if (argv.json) {
+				console.log(JSON.stringify({ error: 'Must specify --org when --json is set and the selected account has multiple organizations' }, null, '  '));
+				process.exit(1);
+			} else if (account.orgs.length > 1) {
+				const { selected } = await inquirer.prompt({
+					type: 'list',
+					name: 'selected',
+					message: 'Please choose an organization:',
+					choices: account.orgs.map(org => ({
+						name: `${org.name} (${org.org_id})`,
+						value: org
+					}))
+				});
+				org = selected;
+				console.log();
+			}
 
-		if (account.org && org && account.org.org_id !== org.org_id) {
-			// need to switch org
-			org = await client.switchOrg({
-				accessToken: account.tokens.access_token,
-				account,
-				orgId:       org.org_id
-			});
-		} else {
-			org = account.org;
-		}
+			if (account.org && account.org.org_id !== org.org_id) {
+				// need to switch org
+				org = await client.switchOrg({
+					accessToken: account.tokens.access_token,
+					account,
+					orgId:       org.org_id
+				});
+			}
 
-		config.set('auth.defaultOrg', org.org_id);
-		await config.save(config.userConfigFile);
+			if (org) {
+				config.set(`auth.defaultOrg.${account.hash}`, org.org_id);
+				await config.save(config.userConfigFile);
+			}
+		} else if (!argv.json) {
+			console.warn('Account has no organizations!\n');
+		}
 
 		if (argv.json) {
 			console.log(JSON.stringify(account, null, '  '));

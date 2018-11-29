@@ -377,7 +377,7 @@ export default class Auth {
 		const { accessToken, orgId } = opts;
 		log(`Switching org to ${orgId}`);
 
-		const args = {
+		const { body, error, status, statusCode } = await request({
 			formData: { org_id: orgId },
 			headers: {
 				Accept: 'application/json',
@@ -386,18 +386,19 @@ export default class Auth {
 			method: 'POST',
 			url: `${getEndpoints(opts).switchLoggedInOrg}`,
 			validateJSON: true
-		};
-		log(args);
-
-		const { body, error, status, statusCode } = await request(args);
+		});
 
 		if (statusCode >= 200 && statusCode < 300) {
 			if (!body) {
-				throw E.REQUEST_FAILED(`Response has no body (${status})`);
+				throw E.REQUEST_FAILED(`Switch org failed: Response has no body (${status})`);
 			}
 
 			if (!body.success) {
-				throw E.REQUEST_FAILED(`Request was not successful (${status})`);
+				throw E.REQUEST_FAILED(`Switch org failed: Request was not successful (${status})`);
+			}
+
+			if (!body.result) {
+				throw E.REQUEST_FAILED(`Switch org failed: Response did not contain a result (${status})`);
 			}
 
 			const org = {
