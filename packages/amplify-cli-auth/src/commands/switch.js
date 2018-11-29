@@ -3,7 +3,7 @@ export default {
 	options: {
 		'--account <name>': 'the account to switch to',
 		'--json':           'outputs accounts as JSON',
-		'--org <name>':     'the organization to switch to'
+		'--org <id|name>':  'the organization to switch to'
 	},
 	async action({ argv, console }) {
 		const [ { auth }, inquirer ] = await Promise.all([
