@@ -4,7 +4,6 @@ export default errors;
 createError('AUTH_FAILED',                Error,      'Authorization failed');
 createError('AUTH_TIMEOUT',               Error,      'A successful login did not happen within the allowed time');
 createError('INVALID_ARGUMENT',           TypeError,  'A function argument is undefined or the incorrect data type');
-createError('INVALID_BASE_URL',           Error,      'Invalid base URL');
 createError('INVALID_FILE',               Error,      'The file does not exist or access is denied');
 createError('INVALID_PARAMETER',          TypeError,  'A parameter was not a valid value or type');
 createError('INVALID_RANGE',              RangeError, 'The value is not within the acceptable min/max range');
@@ -14,6 +13,8 @@ createError('LOGIN_REQUIRED',             Error,      'Login is required');
 createError('KEYTAR_NOT_FOUND',           Error,      'The token store could not find keytar');
 createError('MISSING_AUTH_CODE',          TypeError,  'An authorization code was expected');
 createError('MISSING_REQUIRED_PARAMETER', TypeError,  'A required parameter was not specified or not a valid type');
+createError('ORG_SWITCH_FAILED',          Error,      'Failed to switch the current org for some reason');
+createError('REQUEST_FAILED',             Error,      'An HTTP request has errored or returned an invalid response');
 createError('TOKEN_EXPIRED',              Error,      'The access token is expired');
 
 /**

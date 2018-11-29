@@ -151,7 +151,7 @@ export default class TokenStore {
 		const entries = await this.list();
 
 		if (baseUrl) {
-			baseUrl = baseUrl.replace(protoRegExp, '');
+			baseUrl = baseUrl.replace(protoRegExp, '').replace(/\/$/, '');
 		}
 
 		if (!accountName && !hash) {
@@ -162,7 +162,7 @@ export default class TokenStore {
 		log(`Scanning ${highlight(len)} ${pluralize('token', len)} for accountName=${highlight(accountName)} hash=${highlight(hash)} baseUrl=${highlight(baseUrl)}`);
 
 		for (let i = 0; i < len; i++) {
-			if (((accountName && entries[i].name === accountName) || (hash && entries[i].hash === hash)) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
+			if (((accountName && entries[i].name === accountName) || (hash && entries[i].hash === hash)) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '').replace(/\/$/, '') === baseUrl)) {
 				log(`Found account tokens: ${highlight(entries[i].name)}`);
 				return entries[i];
 			}
@@ -201,7 +201,7 @@ export default class TokenStore {
 		for (let i = 0; i < entries.length; i++) {
 			const { expires, tokens } = entries[i];
 			const now = Date.now();
-			if ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now)) {
+			if (expires && ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now))) {
 				// not expired
 				if (!Object.getOwnPropertyDescriptor(entries[i], 'expired')) {
 					Object.defineProperty(entries[i], 'expired', {

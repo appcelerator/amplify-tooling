@@ -23,7 +23,6 @@ export async function getServerInfo(url) {
 		const { body } = await request({ url, validateJSON: true });
 		return body;
 	} catch (err) {
-		console.log(err);
 		if (err.code === 'INVALID_JSON') {
 			throw err;
 		}

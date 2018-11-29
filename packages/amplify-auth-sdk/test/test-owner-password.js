@@ -43,6 +43,7 @@ describe('Owner Password', () => {
 		it('should error if login options is not an object', async () => {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -62,6 +63,7 @@ describe('Owner Password', () => {
 		it('should error if server is unreachable', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -92,6 +94,7 @@ describe('Owner Password', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -111,43 +114,12 @@ describe('Owner Password', () => {
 			throw new Error('Expected error');
 		});
 
-		it('should authenticate an account without an email address in the identity payload', async function () {
-			const auth = new Auth({
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreType: null
-			});
-
-			this.server = await createLoginServer({
-				handler(req, res) {
-					res.writeHead(200, { 'Content-Type': 'application/json' });
-					res.end(JSON.stringify({
-						access_token: jws.sign({
-							header: { alg: 'HS256' },
-							payload: '{}',
-							secret: 'secret'
-						}),
-						refresh_token:      'bar',
-						expires_in:         600,
-						refresh_expires_in: 600
-					}));
-				}
-			});
-
-			const results = await auth.login({
-				username: 'foo',
-				password: 'bar'
-			});
-			expect(results.name).to.be.undefined;
-			expect(await auth.list()).to.have.lengthOf(0);
-		});
-
 		it('should authenticate and return the access token', async function () {
 			this.server = await createLoginServer();
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -159,7 +131,7 @@ describe('Owner Password', () => {
 			});
 			const { accessToken } = this.server;
 			expect(results.accessToken).to.equal(accessToken);
-			expect(results.account.name).to.equal('foo@bar.com');
+			expect(results.account.name).to.equal('test_client:foo@bar.com');
 			expect(results.account.expired).to.be.false;
 		});
 
@@ -189,6 +161,7 @@ describe('Owner Password', () => {
 			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreDir,
@@ -227,6 +200,7 @@ describe('Owner Password', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -239,7 +213,7 @@ describe('Owner Password', () => {
 				});
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.match(/^Invalid JSON response at /i);
+				expect(e.message).to.match(/^Fetch user info failed: Invalid JSON response at /i);
 				return;
 			}
 
@@ -253,12 +227,13 @@ describe('Owner Password', () => {
 		it('should return null if not logged in', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			const account = await auth.getAccount({ account: 'foo@bar.com' });
+			const account = await auth.getAccount({ accountName: 'test_client:foo@bar.com' });
 			expect(account).to.be.null;
 		});
 
@@ -268,6 +243,7 @@ describe('Owner Password', () => {
 			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreDir,
@@ -279,9 +255,9 @@ describe('Owner Password', () => {
 				password: 'bar'
 			});
 
-			const account = await auth.getAccount({ account: 'foo@bar.com' });
+			const account = await auth.getAccount({ accountName: 'test_client:foo@bar.com' });
 			expect(account).to.be.ok;
-			expect(account.name).to.equal(results.userInfo.email);
+			expect(account.name).to.equal(`test_client:${results.account.user.email}`);
 			expect(account.expired).to.be.false;
 		});
 	});
@@ -312,6 +288,7 @@ describe('Owner Password', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -321,7 +298,7 @@ describe('Owner Password', () => {
 				username: 'foo',
 				password: 'bar'
 			});
-			expect(account.name).to.equal('foo@bar.com');
+			expect(account.name).to.equal('test_client:foo@bar.com');
 			expect(account.expired).to.be.false;
 
 			const revoked = await auth.revoke({ accounts: account.name });
@@ -352,6 +329,7 @@ describe('Owner Password', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -361,7 +339,7 @@ describe('Owner Password', () => {
 				username: 'foo',
 				password: 'bar'
 			});
-			expect(account.name).to.equal('foo@bar.com');
+			expect(account.name).to.equal('test_client:foo@bar.com');
 			expect(account.expired).to.be.false;
 
 			const revoked = await auth.revoke({ all: true });
@@ -392,13 +370,14 @@ describe('Owner Password', () => {
 			}
 
 			const auth = new Auth({
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm',
-				tokenStore: new Foo()
+				baseUrl:     'http://127.0.0.1:1337',
+				platformUrl: 'http://127.0.0.1:1337',
+				clientId:    'test_client',
+				realm:       'test_realm',
+				tokenStore:  new Foo()
 			});
 
-			const revoked = await auth.revoke({ accounts: [ 'foo@bar.com' ] });
+			const revoked = await auth.revoke({ accounts: [ 'test_client:foo@bar.com' ] });
 			expect(revoked).to.have.lengthOf(0);
 			expect(deleteCounter).to.equal(1);
 			expect(requestCounter).to.equal(0);
@@ -427,10 +406,11 @@ describe('Owner Password', () => {
 			}
 
 			const auth = new Auth({
-				baseUrl:    'http://127.0.0.1:1337',
-				clientId:   'test_client',
-				realm:      'test_realm',
-				tokenStore: new Foo()
+				baseUrl:     'http://127.0.0.1:1337',
+				platformUrl: 'http://127.0.0.1:1337',
+				clientId:    'test_client',
+				realm:       'test_realm',
+				tokenStore:  new Foo()
 			});
 
 			const revoked = await auth.revoke({ accounts: [] });

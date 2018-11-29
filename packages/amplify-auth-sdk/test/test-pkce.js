@@ -17,6 +17,7 @@ describe('PKCE', () => {
 		it('should error options is not an object', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -36,6 +37,7 @@ describe('PKCE', () => {
 		it('should retrieve a URL for an interactive manual flow', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -49,6 +51,7 @@ describe('PKCE', () => {
 		it('should error if getting token without a code', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -75,6 +78,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -96,6 +100,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -133,6 +138,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -145,6 +151,7 @@ describe('PKCE', () => {
 		it('should error if server is unreachable', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -177,6 +184,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -198,6 +206,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -205,7 +214,7 @@ describe('PKCE', () => {
 
 			const { accessToken, account } = await auth.login();
 			expect(accessToken).to.equal(this.server.accessToken);
-			expect(account.name).to.equal('foo@bar.com');
+			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
 		(isCI ? it.skip : it)('should refresh the access token', async function () {
@@ -221,6 +230,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -240,6 +250,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -285,6 +296,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -306,12 +318,13 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
-			const revoked = await auth.revoke({ accounts: 'foo@bar.com' });
+			const revoked = await auth.revoke({ accounts: 'test_client:foo@bar.com' });
 			expect(revoked).to.have.lengthOf(0);
 			expect(counter).to.equal(0);
 		});
@@ -327,6 +340,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null,
@@ -368,6 +382,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -404,6 +419,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null,
@@ -448,6 +464,7 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
+				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null,
