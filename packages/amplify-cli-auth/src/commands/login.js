@@ -117,11 +117,11 @@ export default {
 					}
 				}
 				if (!org) {
-					const error = `Unable to find organization: ${argv.orgId}`;
+					const error = `Unable to find organization: ${argv.org}`;
 					if (argv.json) {
 						console.log(JSON.stringify({ error }, null, '  '));
 					} else {
-						console.error(`${error}\n${account.name} organizations:\n${account.org.map(a => `  ${a.name}`).join('\n')}`);
+						console.error(`${error}\n${account.name} organizations:\n${account.orgs.map(a => `  ${a.name}`).join('\n')}`);
 					}
 					process.exit(1);
 				}
