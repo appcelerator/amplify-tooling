@@ -12,6 +12,7 @@ describe('auth', () => {
 			const url = parse(req.url);
 			switch (url.pathname) {
 				case '/auth/realms/AppcID/protocol/openid-connect/userinfo':
+				case '/auth/realms/Axway/protocol/openid-connect/userinfo':
 				case '/auth/realms/baz/protocol/openid-connect/userinfo':
 					res.writeHead(200, { 'Content-Type': 'application/json' });
 					res.end(JSON.stringify({
