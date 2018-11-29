@@ -1,9 +1,9 @@
 export default {
 	desc: 'select default account and organization',
 	options: {
-		'--account': 'the account to switch to',
-		'--json':    'outputs accounts as JSON',
-		'--org':     'the organization to switch to'
+		'--account <name>': 'the account to switch to',
+		'--json':           'outputs accounts as JSON',
+		'--org <name>':     'the organization to switch to'
 	},
 	async action({ argv, console }) {
 		const [ { auth }, inquirer ] = await Promise.all([
