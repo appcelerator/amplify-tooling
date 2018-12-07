@@ -105,6 +105,15 @@ export default class Authenticator {
 	serverPort = 3000;
 
 	/**
+	 * Indicates this client should error if the call `findSession` to get the orgs fails. Service
+	 * accounts will set this to `false`, so if `findSession` fails, the error is squelched.
+	 *
+	 * @type {Boolean}
+	 * @access private
+	 */
+	shouldFetchOrgs = true;
+
+	/**
 	 * The store to persist the token.
 	 *
 	 * @type {TokenStore}
@@ -311,32 +320,38 @@ export default class Authenticator {
 		account.user.guid      = user_guid;
 		account.user.lastName  = family_name;
 
-		log(`Fetching session info: ${highlight(this.endpoints.findSession)} ${note(accessToken)}`);
-		const { result } = await req('session', this.endpoints.findSession);
-		log(result);
-		const { org, orgs, user } = result;
-		account.org = {
-			org_id: org.org_id,
-			name:   org.name
-		};
+		try {
+			log(`Fetching session info: ${highlight(this.endpoints.findSession)} ${note(accessToken)}`);
+			const { result } = await req('session', this.endpoints.findSession);
+			log(result);
+			const { org, orgs, user } = result;
+			account.org = {
+				org_id: org.org_id,
+				name:   org.name
+			};
 
-		log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
-		account.orgs = orgs.map(({ org_id, name }) => ({ org_id, name }));
+			log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+			account.orgs = orgs.map(({ org_id, name }) => ({ org_id, name }));
 
-		log('Available orgs:');
-		for (const org of account.orgs) {
-			log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+			log('Available orgs:');
+			for (const org of account.orgs) {
+				log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+			}
+
+			Object.assign(account.user, {
+				axwayId:      user.axway_id,
+				email:        user.email,
+				firstname:    user.firstname,
+				guid:         user.guid,
+				is2FAEnabled: !user.disable_2fa,
+				lastname:     user.lastname,
+				organization: user.organization
+			});
+		} catch (e) {
+			if (this.shouldFetchOrgs) {
+				throw e;
+			}
 		}
-
-		Object.assign(account.user, {
-			axwayId:      user.axway_id,
-			email:        user.email,
-			firstname:    user.firstname,
-			guid:         user.guid,
-			is2FAEnabled: !user.disable_2fa,
-			lastname:     user.lastname,
-			organization: user.organization
-		});
 
 		return account;
 	}

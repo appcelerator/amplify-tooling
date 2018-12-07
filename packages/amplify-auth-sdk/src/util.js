@@ -45,7 +45,7 @@ export function handleRequestError(res, label) {
 	try {
 		const obj = JSON.parse(msg);
 		if (obj.error) {
-			msg = `${obj.error}: ${obj.error_description}`;
+			msg = obj.error + (obj.error_description ? `: ${obj.error_description}` : '');
 		} else if (obj.description) {
 			msg = `${obj.description}`;
 		}
@@ -53,7 +53,7 @@ export function handleRequestError(res, label) {
 		// squelch
 	}
 
-	msg = `${label}: ${res.statusCode} - ${String(msg).trim() || res.status}`;
+	msg = `${label}: ${res.statusCode ? `${res.statusCode} - ` : ''}${String(msg).trim() || res.status}`;
 
 	error(msg);
 	return E.REQUEST_FAILED(msg, { status: res.status, statusCode: res.statusCode });
