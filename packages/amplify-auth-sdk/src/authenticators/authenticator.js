@@ -13,7 +13,7 @@ import * as server from '../server';
 import { handleRequestError, md5, renderHTML, stringifyQueryString } from '../util';
 import request from '@axway/amplify-request';
 
-const { error, log } = snooplogg('amplify-auth:authenticator');
+const { log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -300,14 +300,14 @@ export default class Authenticator {
 					validateJSON: true
 				});
 			} catch (e) {
-				throw handleRequestError(e, `Fetch ${type} info failed`);
+				throw handleRequestError({ label: `Fetch ${type} info failed`, response: e });
 			}
 
 			if (response.statusCode >= 200 && response.statusCode < 300 && response.body) {
 				return response.body;
 			}
 
-			throw handleRequestError(response, `Fetch ${type} info failed`);
+			throw handleRequestError({ label: `Fetch ${type} info failed`, response });
 		};
 
 		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
@@ -491,7 +491,7 @@ export default class Authenticator {
 			if (err.code === 'ECONNREFUSED') {
 				throw err;
 			}
-			throw handleRequestError(err, 'Authentication failed');
+			throw handleRequestError({ label: 'Authentication failed', response: err });
 		}
 
 		tokens = response.body;
@@ -500,6 +500,7 @@ export default class Authenticator {
 		log(tokens);
 
 		let email = null;
+		let org = null;
 		let name = this.hash;
 
 		try {
@@ -511,6 +512,10 @@ export default class Authenticator {
 			email = (info.payload.email || '').trim();
 			if (email) {
 				name = `${this.clientId}:${email}`;
+			}
+			const { orgId } = info.payload;
+			if (orgId) {
+				org = { name: orgId, org_id: orgId };
 			}
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
@@ -532,8 +537,8 @@ export default class Authenticator {
 			name,
 			realm:         this.realm,
 			tokens,
-			org: null,
-			orgs: [],
+			org,
+			orgs:          org ? [ org ] : [],
 			user: {
 				axwayId:      null,
 				email,

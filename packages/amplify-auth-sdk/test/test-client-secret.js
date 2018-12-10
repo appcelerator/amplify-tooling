@@ -92,7 +92,7 @@ describe('Client Secret', () => {
 				await auth.login({ code: 'foo' });
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: 401 - Unauthorized');
+				expect(e.message).to.equal('Authentication failed: 401 Unauthorized');
 				return;
 			}
 

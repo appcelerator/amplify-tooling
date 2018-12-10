@@ -76,7 +76,7 @@ export async function getOrg({ account, client, config, console, json, org }) {
 
 				await client.sendAuthCode({
 					accessToken: account.tokens.access_token,
-					code
+					code: code.trim()
 				});
 			}
 		}
@@ -85,8 +85,6 @@ export async function getOrg({ account, client, config, console, json, org }) {
 			config.set(`auth.defaultOrg.${account.hash}`, result.org_id);
 			await config.save(config.userConfigFile);
 		}
-	} else if (!json) {
-		console.warn('Account has no organizations!\n');
 	}
 
 	return result;

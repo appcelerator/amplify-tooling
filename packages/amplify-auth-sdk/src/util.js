@@ -1,12 +1,12 @@
 import crypto from 'crypto';
 import E from './errors';
+import request from '@axway/amplify-request';
 import snooplogg from 'snooplogg';
 
-import request from '@axway/amplify-request';
+import { STATUS_CODES } from 'http';
 import { URLSearchParams } from 'url';
 
 const { error, log } = snooplogg('amplify-auth:util');
-const { note } = snooplogg.styles;
 
 /**
  * Discovers available endpoints based on the remote server's OpenID configuration.
@@ -39,24 +39,35 @@ export async function getServerInfo(url) {
  * @param {String} label - The error label.
  * @returns {Promise<Error>}
  */
-export function handleRequestError(res, label) {
-	let msg = res.error || res.message;
+export function handleRequestError({ label, response }) {
+	const meta = {};
+	let err = response instanceof Error ? response : response.error;
+	let { message, statusCode } = response;
+	let details = meta.status = statusCode ? STATUS_CODES[String(statusCode)] : 'Unknown error';
 
-	try {
-		const obj = JSON.parse(msg);
-		if (obj.error) {
-			msg = obj.error + (obj.error_description ? `: ${obj.error_description}` : '');
-		} else if (obj.description) {
-			msg = `${obj.description}`;
-		}
-	} catch (e) {
-		// squelch
+	meta.statusCode = statusCode;
+	if (err) {
+		meta.error = err;
 	}
 
-	msg = `${label}: ${res.statusCode ? `${res.statusCode} - ` : ''}${String(msg).trim() || res.status}`;
+	if (err instanceof Error) {
+		details = err.message;
+	} else {
+		try {
+			const obj = JSON.parse(err || message);
+			if (obj.error) {
+				details = `${obj.error}${obj.error_description ? `: ${obj.error_description}` : ''}`;
+			} else if (obj.description) {
+				details = obj.description;
+			}
+		} catch (e) {
+			// squelch
+		}
+	}
 
+	const msg = `${label}: ${statusCode ? `${statusCode} ` : ''}${details || 'Unknown error'}`;
 	error(msg);
-	return E.REQUEST_FAILED(msg, { status: res.status, statusCode: res.statusCode });
+	return E.REQUEST_FAILED(msg, meta);
 }
 
 /**

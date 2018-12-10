@@ -107,7 +107,7 @@ describe('Owner Password', () => {
 				});
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: 401 - Unauthorized');
+				expect(e.message).to.equal('Authentication failed: 401 Unauthorized');
 				return;
 			}
 

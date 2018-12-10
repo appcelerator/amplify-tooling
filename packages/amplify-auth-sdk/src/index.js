@@ -402,6 +402,9 @@ export default class Auth {
 				throw E.REQUEST_FAILED(`Switch org failed: Response did not contain a result (${status})`);
 			}
 
+			log('Switch org successful:');
+			log(body.result);
+
 			const org = {
 				name:   body.result.org_name,
 				org_id: body.result.org_id
@@ -415,7 +418,7 @@ export default class Auth {
 			return org;
 		}
 
-		throw handleRequestError(response, 'Failed to switch org');
+		throw handleRequestError({ label: 'Failed to switch org', response });
 	}
 
 	/**
@@ -444,12 +447,13 @@ export default class Auth {
 				Authorization: `Bearer ${accessToken}`
 			},
 			method: 'POST',
-			url: `${getEndpoints(opts).deviceauth}`
+			url: `${getEndpoints(opts).deviceauth}`,
+			validateJSON: true
 		});
-		const { body, status, statusCode } = response;
+		const { body, statusCode } = response;
 
-		if (statusCode >= 400 || (body && !body.success) || (body && body.expired)) {
-			throw handleRequestError(response, 'Failed to send device auth code');
+		if (statusCode >= 400 || !body || !body.success || !body.result || body.result.expired === true) {
+			throw handleRequestError({ label: 'Failed to send device auth code', response });
 		}
 
 		log(`Auth code sent successfully (status ${statusCode})`);
