@@ -6,9 +6,10 @@ export default {
 		'--org <id|name>':  'the organization to switch to'
 	},
 	async action({ argv, console }) {
-		const [ { auth }, inquirer ] = await Promise.all([
+		const [ { auth }, inquirer, { getOrg } ] = await Promise.all([
 			import('@axway/amplify-cli-utils'),
-			import('inquirer')
+			import('inquirer'),
+			import('../org-util')
 		]);
 		const accounts = await auth.list();
 		let hash = null;
@@ -62,60 +63,7 @@ export default {
 		account.active = true;
 
 		// deterimine the organization
-		let org = null;
-		if (account.orgs.length) {
-			if (argv.org) {
-				for (const o of account.orgs) {
-					if (o.org_id === argv.org || o.name === argv.org) {
-						org = o;
-						break;
-					}
-				}
-				if (!org) {
-					const error = `Unable to find organization: ${argv.orgId}`;
-					if (argv.json) {
-						console.log(JSON.stringify({ error }, null, '  '));
-					} else {
-						console.error(`${error}\n${account.name} organizations:\n${account.org.map(a => `  ${a.name}`).join('\n')}`);
-					}
-					process.exit(1);
-				}
-			} else if (account.orgs.length === 1) {
-				// the list of orgs takes precendence over the org
-				org = account.orgs[0];
-			} else if (argv.json) {
-				console.log(JSON.stringify({ error: 'Must specify --org when --json is set and the selected account has multiple organizations' }, null, '  '));
-				process.exit(1);
-			} else if (account.orgs.length > 1) {
-				const { selected } = await inquirer.prompt({
-					type: 'list',
-					name: 'selected',
-					message: 'Please choose an organization:',
-					choices: account.orgs.map(org => ({
-						name: `${org.name} (${org.org_id})`,
-						value: org
-					}))
-				});
-				org = selected;
-				console.log();
-			}
-
-			if (account.org && account.org.org_id !== org.org_id) {
-				// need to switch org
-				org = await client.switchOrg({
-					accessToken: account.tokens.access_token,
-					account,
-					orgId:       org.org_id
-				});
-			}
-
-			if (org) {
-				config.set(`auth.defaultOrg.${account.hash}`, org.org_id);
-				await config.save(config.userConfigFile);
-			}
-		} else if (!argv.json) {
-			console.warn('Account has no organizations!\n');
-		}
+		const org = await getOrg({ account, client, config, console, org: argv.org, json: argv.json });
 
 		if (argv.json) {
 			console.log(JSON.stringify(account, null, '  '));

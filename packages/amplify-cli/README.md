@@ -143,7 +143,7 @@ $ amplify config set extensions.mycli /path/to/package
 Run your CLI!
 
 ```
-$ amplify mycli foo --turbo
+$ amplify mycli profit --turbo
 It works and it's super fast!
 ```
 

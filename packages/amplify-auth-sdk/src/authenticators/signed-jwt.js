@@ -27,6 +27,8 @@ export default class SignedJWT extends Authenticator {
 
 		super(opts);
 
+		this.shouldFetchOrgs = false;
+
 		Object.defineProperty(this, 'secretFile', { value: opts.secretFile });
 	}
 

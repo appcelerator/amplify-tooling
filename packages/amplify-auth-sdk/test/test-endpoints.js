@@ -74,6 +74,7 @@ describe('Endpoints', () => {
 		expect(endpoints).to.deep.equal({
 			auth:              'http://localhost/auth/realms/test_realm/protocol/openid-connect/auth',
 			certs:             'http://localhost/auth/realms/test_realm/protocol/openid-connect/certs',
+			deviceauth:        'http://localhost/api/v1/auth/deviceauth',
 			findSession:       'http://localhost/api/v1/auth/findSession',
 			logout:            'http://localhost/auth/realms/test_realm/protocol/openid-connect/logout',
 			switchLoggedInOrg: 'http://localhost/api/v1/auth/switchLoggedInOrg',
@@ -92,6 +93,7 @@ describe('Endpoints', () => {
 		expect(endpoints).to.deep.equal({
 			auth:              'http://localhost/auth/realms/test_realm/protocol/openid-connect/auth',
 			certs:             'http://localhost/auth/realms/test_realm/protocol/openid-connect/certs',
+			deviceauth:        undefined,
 			findSession:       undefined,
 			logout:            'http://localhost/auth/realms/test_realm/protocol/openid-connect/logout',
 			switchLoggedInOrg: undefined,

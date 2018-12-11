@@ -10,10 +10,10 @@ import TokenStore from '../stores/token-store';
 
 import * as server from '../server';
 
-import { md5, renderHTML, stringifyQueryString } from '../util';
+import { handleRequestError, md5, renderHTML, stringifyQueryString } from '../util';
 import request from '@axway/amplify-request';
 
-const { error, log } = snooplogg('amplify-auth:authenticator');
+const { log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -103,6 +103,15 @@ export default class Authenticator {
 	 * @access private
 	 */
 	serverPort = 3000;
+
+	/**
+	 * Indicates this client should error if the call `findSession` to get the orgs fails. Service
+	 * accounts will set this to `false`, so if `findSession` fails, the error is squelched.
+	 *
+	 * @type {Boolean}
+	 * @access private
+	 */
+	shouldFetchOrgs = true;
 
 	/**
 	 * The store to persist the token.
@@ -291,14 +300,14 @@ export default class Authenticator {
 					validateJSON: true
 				});
 			} catch (e) {
-				throw this.handleRequestError(e, `Fetch ${type} info failed`);
+				throw handleRequestError({ label: `Fetch ${type} info failed`, response: e });
 			}
 
 			if (response.statusCode >= 200 && response.statusCode < 300 && response.body) {
 				return response.body;
 			}
 
-			throw this.handleRequestError(response, `Fetch ${type} info failed`);
+			throw handleRequestError({ label: `Fetch ${type} info failed`, response });
 		};
 
 		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
@@ -311,30 +320,38 @@ export default class Authenticator {
 		account.user.guid      = user_guid;
 		account.user.lastName  = family_name;
 
-		log(`Fetching session info: ${highlight(this.endpoints.findSession)} ${note(accessToken)}`);
-		const { result } = await req('session', this.endpoints.findSession);
-		const { org, orgs, user } = result;
-		account.org = {
-			org_id: org.org_id,
-			name:   org.name
-		};
+		try {
+			log(`Fetching session info: ${highlight(this.endpoints.findSession)} ${note(accessToken)}`);
+			const { result } = await req('session', this.endpoints.findSession);
+			log(result);
+			const { org, orgs, user } = result;
+			account.org = {
+				org_id: org.org_id,
+				name:   org.name
+			};
 
-		log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
-		account.orgs = orgs.map(({ org_id, name }) => ({ org_id, name }));
+			log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+			account.orgs = orgs.map(({ org_id, name }) => ({ org_id, name }));
 
-		log('Available orgs:');
-		for (const org of account.orgs) {
-			log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+			log('Available orgs:');
+			for (const org of account.orgs) {
+				log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+			}
+
+			Object.assign(account.user, {
+				axwayId:      user.axway_id,
+				email:        user.email,
+				firstname:    user.firstname,
+				guid:         user.guid,
+				is2FAEnabled: !user.disable_2fa,
+				lastname:     user.lastname,
+				organization: user.organization
+			});
+		} catch (e) {
+			if (this.shouldFetchOrgs) {
+				throw e;
+			}
 		}
-
-		Object.assign(account.user, {
-			axwayId:      user.axway_id,
-			email:        user.email,
-			firstname:    user.firstname,
-			guid:         user.guid,
-			lastname:     user.lastname,
-			organization: user.organization,
-		});
 
 		return account;
 	}
@@ -474,7 +491,7 @@ export default class Authenticator {
 			if (err.code === 'ECONNREFUSED') {
 				throw err;
 			}
-			throw this.handleRequestError(err, 'Authentication failed');
+			throw handleRequestError({ label: 'Authentication failed', response: err });
 		}
 
 		tokens = response.body;
@@ -483,6 +500,7 @@ export default class Authenticator {
 		log(tokens);
 
 		let email = null;
+		let org = null;
 		let name = this.hash;
 
 		try {
@@ -494,6 +512,10 @@ export default class Authenticator {
 			email = (info.payload.email || '').trim();
 			if (email) {
 				name = `${this.clientId}:${email}`;
+			}
+			const { orgId } = info.payload;
+			if (orgId) {
+				org = { name: orgId, org_id: orgId };
 			}
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
@@ -515,8 +537,8 @@ export default class Authenticator {
 			name,
 			realm:         this.realm,
 			tokens,
-			org: null,
-			orgs: [],
+			org,
+			orgs:          org ? [ org ] : [],
 			user: {
 				axwayId:      null,
 				email,
@@ -556,34 +578,6 @@ export default class Authenticator {
 	 */
 	get hashParams() {
 		return null;
-	}
-
-	/**
-	 * Constructs an error from a failed fetch request, logs it, and returns it.
-	 *
-	 * @param {Response} res - A fetch response object.
-	 * @param {String} label - The error label.
-	 * @returns {Promise<Error>}
-	 * @access private
-	 */
-	handleRequestError(res, label) {
-		let msg = res.error || res.message;
-
-		try {
-			const obj = JSON.parse(msg);
-			if (obj.error) {
-				msg = `${obj.error}: ${obj.error_description}`;
-			} else if (obj.description) {
-				msg = `${obj.description}`;
-			}
-		} catch (e) {
-			// squelch
-		}
-
-		msg = `${label}: ${String(msg).trim() || `server returned ${res.statusCode}`}`;
-
-		error(`${msg} ${note(`(${res.status})`)}`);
-		return E.AUTH_FAILED(msg, { status: res.status });
 	}
 
 	/**

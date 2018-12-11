@@ -28,6 +28,7 @@ export default function getEndpoints({ baseUrl, platformUrl, realm } = {}) {
 	return {
 		auth:              `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/auth`,
 		certs:             `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/certs`,
+		deviceauth:        platformUrl ? `${platformUrl.replace(/\/$/, '')}/api/v1/auth/deviceauth` : undefined,
 		findSession:       platformUrl ? `${platformUrl.replace(/\/$/, '')}/api/v1/auth/findSession` : undefined,
 		logout:            `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/logout`,
 		switchLoggedInOrg: platformUrl ? `${platformUrl.replace(/\/$/, '')}/api/v1/auth/switchLoggedInOrg` : undefined,
