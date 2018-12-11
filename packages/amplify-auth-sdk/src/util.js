@@ -41,31 +41,28 @@ export async function getServerInfo(url) {
  */
 export function handleRequestError({ label, response }) {
 	const meta = {};
-	let err = response instanceof Error ? response : response.error;
+	let err = response.error;
 	let { message, statusCode } = response;
-	let details = meta.status = statusCode ? STATUS_CODES[String(statusCode)] : 'Unknown error';
+	let status = meta.status = statusCode ? STATUS_CODES[String(statusCode)] : 'Unknown error';
+	let details;
 
 	meta.statusCode = statusCode;
-	if (err) {
-		meta.error = err;
+	if (response instanceof Error) {
+		meta.error = response;
 	}
 
-	if (err instanceof Error) {
-		details = err.message;
-	} else {
-		try {
-			const obj = JSON.parse(err || message);
-			if (obj.error) {
-				details = `${obj.error}${obj.error_description ? `: ${obj.error_description}` : ''}`;
-			} else if (obj.description) {
-				details = obj.description;
-			}
-		} catch (e) {
-			// squelch
+	try {
+		const obj = JSON.parse(err || message);
+		if (obj.error) {
+			details = `${obj.error}${obj.error_description ? `: ${obj.error_description}` : ''}`;
+		} else if (obj.description) {
+			details = obj.description;
 		}
+	} catch (e) {
+		// squelch
 	}
 
-	const msg = `${label}: ${statusCode ? `${statusCode} ` : ''}${details || 'Unknown error'}`;
+	const msg = `${label}: ${statusCode ? `${statusCode} ` : ''}${details || err || message || status}`;
 	error(msg);
 	return E.REQUEST_FAILED(msg, meta);
 }
