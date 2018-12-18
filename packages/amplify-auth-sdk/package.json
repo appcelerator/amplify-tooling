@@ -25,7 +25,8 @@
     "jws": "^3.1.5",
     "opn": "^5.4.0",
     "snooplogg": "^1.13.2",
-    "source-map-support": "^0.5.9"
+    "source-map-support": "^0.5.9",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "appcd-gulp": "^1.2.1",
