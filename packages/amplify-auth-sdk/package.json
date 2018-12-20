@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-auth-sdk",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Axway AMPLIFY authentication SDK for Node.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [

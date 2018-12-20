@@ -206,7 +206,8 @@ export default class Auth {
 	 * Retrieves the access token. If the authenticator is interactive and the authenticator has not
 	 * yet authenticated with the server, an error is thrown.
 	 *
-	 * @param {Object|String} opts - Required options or a string containing the hash.
+	 * @param {Object|String} opts - Required options or a string containing the hash or account
+	 * name.
 	 * @param {String} opts.accountName - The account name to retrieve.
 	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
 	 * specified, one will be auto-selected based on the options.
@@ -224,7 +225,7 @@ export default class Auth {
 		let authenticator;
 
 		if (typeof opts === 'string') {
-			opts = this.applyDefaults({ hash: opts });
+			opts = this.applyDefaults({ accountName: opts, hash: opts });
 		} else {
 			this.applyDefaults(opts);
 			authenticator = this.createAuthenticator(opts);
