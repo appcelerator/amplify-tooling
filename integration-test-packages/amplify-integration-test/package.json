@@ -1,6 +1,6 @@
 {
 	"name": "amplify-integration-test",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Test package please ignore",
 	"main": "./bin/amplify-integration-test",
 	"bin": {
