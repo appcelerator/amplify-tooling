@@ -14,7 +14,7 @@ export default {
 		const accounts = await auth.list();
 		let hash = null;
 
-		if (!accounts.length) {
+		const errorNoCredentials = () => {
 			const error = 'No credentials found, please login';
 			if (argv.json) {
 				console.log(JSON.stringify({ error }, null, '  '));
@@ -22,6 +22,10 @@ export default {
 				console.error(`${error}:\n\n  amplify auth login`);
 			}
 			process.exit(1);
+		};
+
+		if (!accounts.length) {
+			errorNoCredentials();
 		} else if (argv.account) {
 			for (const account of accounts) {
 				if (account.name === argv.account) {
@@ -57,6 +61,10 @@ export default {
 		}
 
 		const { account, client, config } = await auth.getAccount(hash);
+
+		if (!account) {
+			errorNoCredentials();
+		}
 
 		config.set('auth.defaultAccount', account.name);
 		await config.save(config.userConfigFile);
