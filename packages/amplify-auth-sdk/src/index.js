@@ -235,10 +235,16 @@ export default class Auth {
 		}
 
 		const account = await this.tokenStore.get(opts);
+
 		if (account) {
-			if (!authenticator) {
-				authenticator = this.createAuthenticator(opts);
+			// copy over the correct auth params
+			for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env' ]) {
+				if (account[prop] && opts[prop] !== account[prop]) {
+					log(`Overriding "${prop}" auth param with account's: ${opts[prop]} -> ${account[prop]}`);
+					opts[prop] = account[prop];
+				}
 			}
+			authenticator = this.createAuthenticator(opts);
 
 			if (account.expired) {
 				// refresh the access token if the refresh token is valid
