@@ -11,59 +11,40 @@ export default {
 			import('inquirer'),
 			import('../org-util')
 		]);
-		const accounts = await auth.list();
-		let hash = null;
 
-		const errorNoCredentials = () => {
-			const error = 'No credentials found, please login';
-			if (argv.json) {
-				console.log(JSON.stringify({ error }, null, '  '));
-			} else {
-				console.error(`${error}:\n\n  amplify auth login`);
-			}
-			process.exit(1);
-		};
-
-		if (!accounts.length) {
-			errorNoCredentials();
-		} else if (argv.account) {
-			for (const account of accounts) {
-				if (account.name === argv.account) {
-					hash = account.hash;
-					break;
-				}
-			}
-			if (!hash) {
-				const error = `Unable to find account: ${argv.account}`;
-				if (argv.json) {
-					console.log(JSON.stringify({ error }, null, '  '));
-				} else {
-					console.error(`${error}\nAuthenticated accounts:\n${accounts.map(a => `  ${a.name}`).join('\n')}`);
-				}
-				process.exit(1);
-			}
-		} else if (accounts.length === 1) {
-			hash = accounts[0].hash;
-		} else if (argv.json) {
+		if (!argv.account && argv.json) {
 			console.log(JSON.stringify({ error: 'Must specify --account when --json is set and there are multiple authenticated accounts' }, null, '  '));
 			process.exit(1);
-		} else if (accounts.length > 1) {
-			const { selected } = await inquirer.prompt({
-				type: 'list',
-				name: 'selected',
-				message: 'Please choose an account:',
-				choices: accounts.map(acct => ({
-					name: acct.name,
-					value: acct
-				}))
-			});
-			hash = selected.hash;
 		}
 
-		const { account, client, config } = await auth.getAccount(hash);
+		let account, accounts, client, config;
 
-		if (!account) {
-			errorNoCredentials();
+		try {
+			({ account, accounts, client, config } = await auth.getAccount(argv.account));
+
+			if (!account) {
+				account = (await inquirer.prompt({
+					type: 'list',
+					name: 'selected',
+					message: 'Please choose an account:',
+					choices: accounts.map(acct => ({
+						name: acct.name,
+						value: acct
+					}))
+				})).selected;
+			}
+		} catch (err) {
+			if (argv.json) {
+				console.log(JSON.stringify({ error: err.message, code: err.code, accounts: err.accounts }, null, '  '));
+			} else if (err.code === 'ERR_NO_ACCOUNTS') {
+				console.error(`${err.message}:\n\n  amplify auth login`);
+			} else {
+				console.error(`${err.message}\n`);
+				if (err.code === 'ERR_ACCOUNT_NOT_FOUND' && err.accounts) {
+					console.error(`Authenticated accounts:\n${err.accounts.map(a => `  ${a.name}`).join('\n')}`);
+				}
+			}
+			process.exit(1);
 		}
 
 		config.set('auth.defaultAccount', account.name);

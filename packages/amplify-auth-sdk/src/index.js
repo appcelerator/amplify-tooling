@@ -106,7 +106,7 @@ export default class Auth {
 						if (tokenStoreType === 'auto') {
 							// let 'auto' fall through
 						} else if (e.code === 'ERR_KEYTAR_NOT_FOUND') {
-							throw E.SECURE_STORE_UNAVAILABLE('Secure token store is unavailable. You probably need to run "npm rebuild" for this program.');
+							throw E.SECURE_STORE_UNAVAILABLE('Secure token store is not available.\nPlease reinstall or rebuild this application.');
 						} else {
 							throw e;
 						}

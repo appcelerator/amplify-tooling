@@ -25,10 +25,10 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^0.2.2",
-    "cli-kit": "^0.4.0",
-    "inquirer": "^6.2.0",
+    "cli-kit": "^0.6.0",
+    "inquirer": "^6.2.1",
     "pretty-ms": "^4.0.0",
-    "source-map-support": "^0.5.9"
+    "source-map-support": "^0.5.10"
   },
   "devDependencies": {
     "appcd-gulp": "^1.2.1",

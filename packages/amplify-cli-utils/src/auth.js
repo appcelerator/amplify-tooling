@@ -9,19 +9,57 @@
 export async function getAccount(authOpts, accountName) {
 	if (typeof authOpts === 'string') {
 		accountName = authOpts;
-		authOpts = {};
+		authOpts = undefined;
 	}
 
-	const Auth = require('@axway/amplify-auth-sdk').default;
-	const loadConfig = require('./config').default;
+	const { client, config } = initAuth(authOpts);
+	let account;
+	let accounts;
 
-	const config = loadConfig();
-	const params = buildParams(authOpts, config);
-	const client = new Auth(params);
-	const account = await client.getAccount(accountName);
+	if (authOpts) {
+		// if we have authOpts, then we're authenticating, so let the client use the authenticator hash
+		account = await client.getAccount();
+	} else {
+		// no auth options, so we are safe to verify accounts and the default account
+		accounts = await client.list();
+		if (!accounts.length) {
+			const e = new Error('No credentials found, please login');
+			e.code = 'ERR_NO_ACCOUNTS';
+			throw e;
+		}
+
+		if (!accountName) {
+			if (accounts.length === 1) {
+				// if we only have 1 authenticated account, then just pick that
+				accountName = accounts[0].hash;
+			} else {
+				const defaultAccount = config.get('auth.defaultAccount');
+				accountName = undefined;
+
+				// we have more than 1 credentialed account, so check if any of them are the default
+				for (const acct of accounts) {
+					if (acct.name === defaultAccount) {
+						accountName = defaultAccount;
+						break;
+					}
+				}
+			}
+		}
+
+		if (accountName) {
+			account = await client.getAccount(accountName);
+			if (!account) {
+				const e = new Error(`Unable to find account: ${accountName}`);
+				e.code = 'ERR_ACCOUNT_NOT_FOUND';
+				e.accounts = accounts;
+				throw e;
+			}
+		}
+	}
 
 	return {
 		account,
+		accounts,
 		client,
 		config
 	};
@@ -45,13 +83,7 @@ export function getAuth() {
  * @returns {Promise<Array>}
  */
 export async function list(authOpts) {
-	const Auth = require('@axway/amplify-auth-sdk').default;
-	const loadConfig = require('./config').default;
-
-	const config = loadConfig();
-	const params = buildParams(authOpts, config);
-	const client = new Auth(params);
-
+	const { client } = initAuth(authOpts);
 	return await client.list();
 }
 
@@ -106,4 +138,21 @@ export function buildParams(opts = {}, config) {
 	}
 
 	return params;
+}
+
+/**
+ * Boilerplate config loadinga and auth initialization.
+ *
+ * @param {Object} [authOpts] - Various authentication options.
+ * @returns {Object}
+ */
+function initAuth(authOpts) {
+	const Auth = getAuth();
+	const loadConfig = require('./config').default;
+
+	const config = loadConfig();
+	const params = buildParams(authOpts, config);
+	const client = new Auth(params);
+
+	return { client, config };
 }

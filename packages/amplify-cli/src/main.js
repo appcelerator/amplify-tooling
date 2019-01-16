@@ -4,7 +4,6 @@ if (!Error.prepareStackTrace) {
 }
 
 import CLI, { chalk } from 'cli-kit';
-import config from './commands/config';
 
 import { dirname, resolve } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
@@ -27,9 +26,7 @@ process.env.AMPLIFY_CLI = version;
 
 new CLI({
 	banner,
-	commands: {
-		config
-	},
+	commands: `${__dirname}/commands`,
 	desc: 'The AMPLIFY CLI is a unified command line interface for the Axway AMPLIFY platform.',
 	extensions,
 	help: true,

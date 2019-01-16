@@ -1,5 +1,6 @@
 export default {
 	hidden: true,
+	name: 'server-info',
 	async action({ argv, console }) {
 		const { Auth } = await import('@axway/amplify-auth-sdk');
 		const { auth } = await import('@axway/amplify-cli-utils');
