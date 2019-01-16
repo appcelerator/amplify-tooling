@@ -125,7 +125,7 @@ describe('auth', () => {
 		const token = {
 			baseUrl: 'http://localhost:1337/',
 			env: 'preprod',
-			hash: 'test:94f2970d1de1f3abcfbf41c78f108b4c',
+			hash: 'test:509283ae0179a444c6e32408220800db',
 			name: 'bar',
 			expires: {
 				access: Date.now() + 1e6
@@ -140,10 +140,12 @@ describe('auth', () => {
 
 		const { account } = await getAccount({
 			clientId: 'test',
+			env: 'preprod',
 			baseUrl: 'http://localhost:1337/',
 			platformUrl: 'http://localhost:1337/',
+			realm: 'baz',
 			tokenStore
-		}, 'test:94f2970d1de1f3abcfbf41c78f108b4c');
+		}, 'test:509283ae0179a444c6e32408220800db');
 
 		expect(account).to.deep.equal(token);
 	});
