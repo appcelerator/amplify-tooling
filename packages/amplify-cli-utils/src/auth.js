@@ -1,3 +1,7 @@
+import snooplogg from 'snooplogg';
+
+const logger = snooplogg('amplify-cli-utils:auth');
+
 /**
  * Attempts to get the access token based on the supplied credentials.
  *
@@ -12,15 +16,19 @@ export async function getAccount(authOpts, accountName) {
 		authOpts = undefined;
 	}
 
+	const { log } = logger('getAccount');
+
 	const { client, config } = initAuth(authOpts);
 	let account;
 	let accounts;
 
 	if (authOpts) {
 		// if we have authOpts, then we're authenticating, so let the client use the authenticator hash
+		log('Auth opts set, getting account based on hash');
 		account = await client.getAccount();
 	} else {
 		// no auth options, so we are safe to verify accounts and the default account
+		log('No auth opts, getting all credentials');
 		accounts = await client.list();
 		if (!accounts.length) {
 			const e = new Error('No credentials found, please login');
