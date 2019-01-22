@@ -6,7 +6,7 @@ This monorepo contains the AMPLIFY CLI, authentication CLI, and package manager 
 
 You'll need to install [Yarn](https://yarnpkg.com/en/docs/install) and [Node.js](https://nodejs.org/en/).
 
-Firstly install all dependecies by running `yarn`, this will also build the packages. 
+Firstly install all dependencies by running `yarn`, this will also build the packages. 
 
 :bulb: These instructions use [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b), but you can use [yarn run](https://yarnpkg.com/en/docs/cli/run#toc-yarn-run-script) if you prefer
 
