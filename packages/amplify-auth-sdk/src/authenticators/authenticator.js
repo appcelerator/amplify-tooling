@@ -416,10 +416,6 @@ export default class Authenticator {
 	 * @access private
 	 */
 	async getToken(code, requestId) {
-		if (this.interactive && (!code || typeof code !== 'string')) {
-			throw E.MISSING_AUTH_CODE('Expected code for interactive authentication to be a non-empty string');
-		}
-
 		let now = Date.now();
 		let expires;
 		let tokens;
@@ -464,11 +460,15 @@ export default class Authenticator {
 			Object.assign(params, {
 				scope: this.scope
 			}, this.tokenParams);
-		}
 
-		if (this.interactive) {
-			params.code = code;
-			params.redirectUri = `${this.serverUrl}/callback${requestId ? `/${requestId}` : ''}`;
+			if (this.interactive) {
+				if (!code || typeof code !== 'string') {
+					throw E.MISSING_AUTH_CODE('Expected code for interactive authentication to be a non-empty string');
+				}
+
+				params.code = code;
+				params.redirectUri = `${this.serverUrl}/callback${requestId ? `/${requestId}` : ''}`;
+			}
 		}
 
 		const url = this.endpoints.token;
