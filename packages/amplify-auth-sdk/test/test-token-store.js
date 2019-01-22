@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+
 import Auth, { MemoryStore, TokenStore } from '../dist/index';
 import fs from 'fs-extra';
 import tmp from 'tmp';

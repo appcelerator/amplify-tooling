@@ -471,7 +471,7 @@ describe('Client Secret', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				logout(post) {
+				logout() {
 					counter++;
 				}
 			});

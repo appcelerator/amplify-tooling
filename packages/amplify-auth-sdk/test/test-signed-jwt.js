@@ -271,7 +271,7 @@ describe('Signed JWT', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				logout(post) {
+				logout() {
 					counter++;
 				}
 			});
