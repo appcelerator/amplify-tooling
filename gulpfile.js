@@ -12,7 +12,7 @@ const spawn        = require('child_process').spawn;
 const spawnSync    = require('child_process').spawnSync;
 const tmp          = require('tmp');
 
-const { join } = require('path');
+const { join }     = require('path');
 const { red }      = require('chalk');
 
 gulp.task('node-info', () => {
@@ -65,9 +65,10 @@ gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
 		}
 		axwayHomeDir = homeArg;
 	} else {
-		axwayHomeDir = tmp.dirSync().name;
+		tmp.setGracefulCleanup();
+		axwayHomeDir = tmp.dirSync({ unsafeCleanup: true }).name;
 	}
-	
+
 	process.env.HOME = axwayHomeDir;
 	process.env.USERPROFILE = axwayHomeDir;
 
