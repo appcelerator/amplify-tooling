@@ -10,7 +10,7 @@ Firstly install all dependencies by running `yarn`, this will also build the pac
 
 :bulb: These instructions use [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b), but you can use [yarn run](https://yarnpkg.com/en/docs/cli/run#toc-yarn-run-script) if you prefer
 
-If you wish to build the packages again then you can run `npx gulp build` to build the packages, you can also build an indivudal package you can cd into the package folder and run the same command.
+If you wish to build the packages again then you can run `npx gulp build` to build the packages, you can also build an individual package you can cd into the package folder and run the same command.
 
 To link the AMPLIFY CLI binary for use cd into `packages/amplify-cli` and run `yarn link`.
 
