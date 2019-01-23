@@ -139,8 +139,11 @@ describe('auth', () => {
 		await tokenStore.set(token);
 
 		const { account } = await getAccount({
+			clientId: 'test',
+			env: 'preprod',
 			baseUrl: 'http://localhost:1337/',
 			platformUrl: 'http://localhost:1337/',
+			realm: 'baz',
 			tokenStore
 		}, 'test:509283ae0179a444c6e32408220800db');
 

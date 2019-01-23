@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-expressions */
+
 import Auth, { Authenticator, MemoryStore, OwnerPassword } from '../dist/index';
-import jws from 'jws';
 import tmp from 'tmp';
 
 import { createLoginServer, stopLoginServer } from './common';
@@ -352,7 +353,7 @@ describe('Owner Password', () => {
 			let requestCounter = 0;
 
 			this.server = await createLoginServer({
-				logout(post) {
+				logout() {
 					requestCounter++;
 				}
 			});
@@ -388,7 +389,7 @@ describe('Owner Password', () => {
 			let requestCounter = 0;
 
 			this.server = await createLoginServer({
-				logout(post) {
+				logout() {
 					requestCounter++;
 				}
 			});

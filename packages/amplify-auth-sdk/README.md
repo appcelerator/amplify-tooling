@@ -211,7 +211,7 @@ used when a method is invoked and a property has not be specified.
    * `tokenStoreType`: (String) [optional] The type of store to persist the access token.
      Possible values include: `"auto"`, `"secure"`, `"file"`, or `"memory"`. If value is `auto`, it
      will attempt to use `secure`, then `file`, then `memory`. If set to `null`, then it will not
-     persist the access token.
+     persist the access token. Defaults `"secure"`.
  * PKCE:
    * This is the default authentication method and has no options.
  * Username/Password:

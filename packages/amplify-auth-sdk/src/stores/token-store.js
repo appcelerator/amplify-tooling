@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 
 import E from '../errors';
+import pluralize from 'pluralize';
 import snooplogg from 'snooplogg';
 
-const { pluralize } = snooplogg;
 const { log } = snooplogg('amplify-auth:token-store');
 const { highlight } = snooplogg.styles;
 

@@ -62,7 +62,7 @@ export default class Auth {
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
 	 * @param {String} [opts.tokenStoreDir] - The directory where the token store is saved. Required
 	 * when the `tokenStoreType` is `secure` or `file`.
-	 * @param {String} [opts.tokenStoreType=auto] - The type of store to persist the access token.
+	 * @param {String} [opts.tokenStoreType=secure] - The type of store to persist the access token.
 	 * Possible values include: `auto`, `secure`, `file`, or `memory`. If value is `auto`, it will
 	 * attempt to use `secure`, then `file`, then `memory`. If set to `null`, then it will not
 	 * persist the access token.
@@ -94,7 +94,7 @@ export default class Auth {
 			}
 			this.tokenStore = opts.tokenStore;
 		} else {
-			const tokenStoreType = opts.tokenStoreType === undefined ? 'auto' : opts.tokenStoreType;
+			const tokenStoreType = opts.tokenStoreType === undefined ? 'secure' : opts.tokenStoreType;
 			switch (tokenStoreType) {
 				case 'auto':
 				case 'secure':
@@ -105,6 +105,8 @@ export default class Auth {
 						/* istanbul ignore if */
 						if (tokenStoreType === 'auto') {
 							// let 'auto' fall through
+						} else if (e.code === 'ERR_KEYTAR_NOT_FOUND') {
+							throw E.SECURE_STORE_UNAVAILABLE('Secure token store is not available.\nPlease reinstall or rebuild this application.');
 						} else {
 							throw e;
 						}

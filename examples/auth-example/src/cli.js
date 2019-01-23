@@ -9,10 +9,9 @@ export default new CLI({
 	commands: `${__dirname}/commands`,
 	help: true,
 	helpExitCode: 2,
-	name: 'amplify-cli-pm',
+	name: 'auth-example',
 	options: {
-		'--env <env>': 'the environment to use',
-		'--json': 'outputs accounts as JSON'
+		'--env <env>': 'the environment to use'
 	},
 	version
 });

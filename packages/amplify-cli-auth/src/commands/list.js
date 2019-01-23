@@ -45,11 +45,11 @@ export default {
 		for (const account of accounts) {
 			const { active, baseUrl, expires, name, org } = account;
 			console.log(
-				`| ${active ? ':check:' : ' '} ` +
-				`| ${name} ` +
-				`| ${org && org.name ? `${org.name} (${org.org_id})` : ' '} ` +
-				`| ${pretty(expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} ` +
-				`| ${baseUrl.replace(urlRE, '')} |`
+				`| ${active ? ':check:' : ' '} `
+				+ `| ${name} `
+				+ `| ${org && org.name ? `${org.name} (${org.org_id})` : ' '} `
+				+ `| ${pretty(expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} `
+				+ `| ${baseUrl.replace(urlRE, '')} |`
 			);
 		}
 	}

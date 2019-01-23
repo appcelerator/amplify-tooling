@@ -1,0 +1,38 @@
+{
+	"name": "auth-exmaple",
+	"version": "0.0.0",
+	"description": "",
+	"author": "",
+	"maintainers": [],
+	"license": "",
+	"keywords": [],
+	"bin": {
+		"auth-exmaple": "./bin/auth-exmaple"
+	},
+	"main": "./dist/main",
+	"scripts": {
+		"build": "gulp build",
+		"coverage": "gulp coverage",
+		"docs": "gulp docs",
+		"prepare": "gulp build",
+		"test": "gulp test"
+	},
+	"dependencies": {
+		"@axway/amplify-cli-utils": "^0.2.2",
+		"cli-kit": "^0.6.0"
+	},
+	"devDependencies": {
+		"appcd-gulp": "^1.2.1",
+		"gulp": "^3.9.1"
+	},
+	"homepage": "",
+	"bugs": "",
+	"repository": "",
+	"engines": {
+		"node": ">=8.10.0"
+	},
+	"cli-kit": {
+		"main": "./dist/cli",
+		"name": "auth-example"
+	}
+}

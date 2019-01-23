@@ -29,6 +29,7 @@ describe('Auth', () => {
 
 		it('should set the token refresh threshold', () => {
 			const auth = new Auth({
+				tokenStoreType: 'auto',
 				tokenRefreshThreshold: 10
 			});
 
@@ -74,7 +75,9 @@ describe('Auth', () => {
 		it('should fetch server info', async function () {
 			this.server = await createLoginServer();
 
-			const auth = new Auth();
+			const auth = new Auth({
+				tokenStoreType: null
+			});
 			const info = await auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' });
 			expect(info).to.deep.equal(serverInfo);
 		});
@@ -88,7 +91,9 @@ describe('Auth', () => {
 			});
 
 			try {
-				const auth = new Auth();
+				const auth = new Auth({
+					tokenStoreType: null
+				});
 				await auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' });
 			} catch (err) {
 				expect(err).to.be.instanceof(Error);
@@ -108,7 +113,9 @@ describe('Auth', () => {
 			});
 
 			try {
-				const auth = new Auth();
+				const auth = new Auth({
+					tokenStoreType: null
+				});
 				await auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' });
 			} catch (err) {
 				expect(err).to.be.instanceof(Error);
@@ -121,7 +128,9 @@ describe('Auth', () => {
 
 		it('should throw error applying defaults if env is invalid', async () => {
 			try {
-				const auth = new Auth();
+				const auth = new Auth({
+					tokenStoreType: null
+				});
 				await auth.serverInfo({ env: 'foo' });
 			} catch (err) {
 				expect(err).to.be.instanceof(Error);

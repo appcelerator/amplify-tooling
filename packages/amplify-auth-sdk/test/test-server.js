@@ -12,7 +12,8 @@ describe('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
-			realm: 'test_realm'
+			realm: 'test_realm',
+			tokenStoreType: null
 		});
 
 		const { cancel } = await auth.login({ manual: true });
@@ -30,7 +31,8 @@ describe('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
-			realm: 'test_realm'
+			realm: 'test_realm',
+			tokenStoreType: null
 		});
 
 		const { cancel } = await auth.login({ manual: true });
@@ -48,7 +50,8 @@ describe('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
-			realm: 'test_realm'
+			realm: 'test_realm',
+			tokenStoreType: null
 		});
 
 		const { cancel } = await auth.login({ manual: true });
@@ -66,7 +69,8 @@ describe('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
-			realm: 'test_realm'
+			realm: 'test_realm',
+			tokenStoreType: null
 		});
 
 		const { cancel, promise, url } = await auth.login({ manual: true });
@@ -89,7 +93,8 @@ describe('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
-			realm: 'test_realm'
+			realm: 'test_realm',
+			tokenStoreType: null
 		});
 
 		const { cancel } = await auth.login({ manual: true });
@@ -107,7 +112,8 @@ describe('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
-			realm: 'test_realm'
+			realm: 'test_realm',
+			tokenStoreType: null
 		});
 
 		const { promise } = await auth.login({ manual: true });

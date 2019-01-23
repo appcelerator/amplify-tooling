@@ -41,7 +41,7 @@ export default {
 				'active version': d.version || 'Unknown'
 			};
 		});
-		console.log(columnify(data, columnConfig));
 
+		console.log(columnify(data, columnConfig));
 	}
 };
