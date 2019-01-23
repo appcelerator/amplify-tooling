@@ -75,7 +75,11 @@ async function runJSONCommand(args, opts) {
 		args.push('--json');
 	}
 	const resp = await runCommand(args, opts);
+	console.log('-- BEFORE --');
+	console.log(resp.stdout);
 	resp.stdout = JSON.parse(resp.stdout);
+	console.log('-- AFTER --');
+	console.log(resp.stdout);
 	return resp;
 }
 
