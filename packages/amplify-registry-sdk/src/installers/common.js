@@ -10,6 +10,7 @@ export const cacheDir = join(locations.axwayHome, 'cache');
 export const packagesDir = join(locations.axwayHome, 'packages');
 
 const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
+
 /**
  * TODO
  *
@@ -35,14 +36,11 @@ export async function npmInstall({ directory, npm }) {
 	}
 
 	try {
-		const { err, stdout, stderr } = await run(npm, [ 'install', '--production' ], {
+		await run(npm, [ 'install', '--production' ], {
 			cwd: directory,
 			windowsHide: true,
 			env: Object.assign(process.env, { NO_UPDATE_NOTIFIER: 1 })
 		});
-		if (err) {
-			throw err;
-		}
 	} catch (err) {
 		// Add an error code but move the original code value here into an exitCode prop
 		err.exitCode = err.code;
@@ -70,6 +68,8 @@ export async function extractTar({ dest, file, opts }) {
  *
  * @param {String} name - Name of the package.
  * @param {String} path - Path to the package.
+ * @param {Object} [cfg] - The config object.
+ * @param {String} [location] - The path to the config file.
  */
 export async function addPackageToConfig(name, path, cfg = loadConfig(), location = locations.configFile) {
 	if (!name || typeof name !== 'string') {
@@ -83,6 +83,7 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
 	if (!isDir(path)) {
 		throw new Error('Expected package path to exist');
 	}
+
 	cfg.set(`extensions.${name}`, path);
 	await cfg.save(location);
 }
@@ -92,6 +93,8 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
  *
  * @param {String} name - Name of the package to remove/replace.
  * @param {String} [replacementPath] - Path to replace the existing version with.
+ * @param {Object} [cfg] - The config object.
+ * @param {String} [location] - The path to the config file.
  */
 export async function removePackageFromConfig(name, replacementPath, cfg = loadConfig(), location = locations.configFile) {
 	if (!name || typeof name !== 'string') {

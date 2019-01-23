@@ -15,15 +15,17 @@ const tmp          = require('tmp');
 const { join }     = require('path');
 const { red }      = require('chalk');
 
-gulp.task('node-info', () => {
+const { parallel, series } = gulp;
+
+const nodeInfo = exports['node-info'] = async function nodeInfo() {
 	log(`Node.js ${process.version} (${process.platform})`);
 	log(process.env);
-});
+};
 
 /*
  * lint tasks
  */
-gulp.task('lint', () => {
+exports.lint = function lint() {
 	return gulp
 		.src([
 			path.join(__dirname, 'packages/*/gulpfile.js')
@@ -31,20 +33,102 @@ gulp.task('lint', () => {
 		.pipe(debug({ title: 'Linting project:' }))
 		.pipe(plumber())
 		.pipe(chug({ tasks: [ 'lint' ] }));
-});
+};
 
 /*
  * build tasks
  */
-gulp.task('build', () => runLernaBuild());
+const build = exports.build = async function build() {
+	return runLernaBuild();
+};
 
 /*
  * test tasks
  */
-gulp.task('test', [ 'node-info', 'build' ], cb => runTests(false, cb));
-gulp.task('coverage', [ 'node-info', 'build' ], cb => runTests(true, cb));
+exports.test = series(parallel(nodeInfo, build), function test() {
+	return runTests();
+});
+exports.coverage = series(parallel(nodeInfo, build), function test() {
+	return runTests(true);
+});
 
-gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
+async function runTests(cover, cb) {
+	const istanbul = require('istanbul');
+	let task = cover ? 'coverage-only' : 'test-only';
+	let coverageDir;
+	let collector;
+
+	if (cover) {
+		coverageDir = path.join(__dirname, 'coverage');
+		collector = new istanbul.Collector();
+	}
+
+	process.env.SNOOPLOGG = '*';
+
+	const gulp = path.join(path.dirname(require.resolve('gulp')), 'bin', 'gulp.js');
+	const gulpfiles = globule.find([ 'packages/*/gulpfile.js' ]);
+	const failedProjects = [];
+
+	await gulpfiles
+		.reduce((promise, gulpfile) => {
+			return promise
+				.then(() => new Promise((resolve, reject) => {
+					gulpfile = path.resolve(gulpfile);
+					const dir = path.dirname(gulpfile);
+
+					log(`Spawning: ${process.execPath} ${gulp} coverage # CWD=${dir}`);
+					const child = spawn(process.execPath, [ gulp, task, '--colors' ], { cwd: dir, stdio: [ 'inherit', 'pipe', 'inherit' ] });
+
+					let out = '';
+					child.stdout.on('data', data => {
+						out += data.toString();
+						process.stdout.write(data);
+					});
+
+					child.on('close', code => {
+						if (!code) {
+							log(`Exit code: ${code}`);
+							if (cover) {
+								for (const coverageFile of globule.find(dir + '/coverage/coverage*.json')) {
+									collector.add(JSON.parse(fs.readFileSync(path.resolve(coverageFile), 'utf8')));
+								}
+							}
+						} else if (out.indexOf(`Task '${task}' is not in your gulpfile`) === -1) {
+							log(`Exit code: ${code}`);
+							failedProjects.push(path.basename(dir));
+						} else {
+							log(`Exit code: ${code}, no '${task}' task, continuing`);
+						}
+
+						resolve();
+					});
+				}));
+		}, Promise.resolve());
+
+	if (cover) {
+		fs.removeSync(coverageDir);
+		fs.mkdirsSync(coverageDir);
+		console.log();
+
+		for (const type of [ 'lcov', 'json', 'text', 'text-summary', 'cobertura' ]) {
+			istanbul.Report
+				.create(type, { dir: coverageDir })
+				.writeReport(collector, true);
+		}
+	}
+
+	if (failedProjects.length) {
+		if (failedProjects.length === 1) {
+			log(red('1 failured project:'));
+		} else {
+			log(red(`${failedProjects.length} failured projects:`));
+		}
+		failedProjects.forEach(p => log(red(p)));
+		process.exit(1);
+	}
+}
+
+exports.integration = series(parallel(nodeInfo, build), async function integration() {
 	const args = [];
 	const mocha = require.resolve('mocha');
 
@@ -83,102 +167,22 @@ gulp.task('integration', [ 'node-info', 'build' ], (cb) => {
 	if (spawnSync(process.execPath, args, { stdio: 'inherit' }).status) {
 		const err = new Error('At least one test failed :(');
 		err.showStack = false;
-		cb(err);
-	} else {
-		cb(null);
+		throw err;
 	}
 });
-
-function runTests(cover, cb) {
-	const istanbul = require('istanbul');
-	let task = cover ? 'coverage-only' : 'test-only';
-	let coverageDir;
-	let collector;
-
-	if (cover) {
-		coverageDir = path.join(__dirname, 'coverage');
-		collector = new istanbul.Collector();
-	}
-
-	process.env.SNOOPLOGG = '*';
-
-	const gulp = path.join(path.dirname(require.resolve('gulp')), 'bin', 'gulp.js');
-	const gulpfiles = globule.find([ 'packages/*/gulpfile.js' ]);
-	const failedProjects = [];
-
-	gulpfiles
-		.reduce((promise, gulpfile) => {
-			return promise
-				.then(() => new Promise((resolve, reject) => {
-					gulpfile = path.resolve(gulpfile);
-					const dir = path.dirname(gulpfile);
-
-					log(`Spawning: ${process.execPath} ${gulp} coverage # CWD=${dir}`);
-					const child = spawn(process.execPath, [ gulp, task, '--colors' ], { cwd: dir, stdio: [ 'inherit', 'pipe', 'inherit' ] });
-
-					let out = '';
-					child.stdout.on('data', data => {
-						out += data.toString();
-						process.stdout.write(data);
-					});
-
-					child.on('close', code => {
-						if (!code) {
-							log(`Exit code: ${code}`);
-							if (cover) {
-								for (const coverageFile of globule.find(dir + '/coverage/coverage*.json')) {
-									collector.add(JSON.parse(fs.readFileSync(path.resolve(coverageFile), 'utf8')));
-								}
-							}
-						} else if (out.indexOf(`Task '${task}' is not in your gulpfile`) === -1) {
-							log(`Exit code: ${code}`);
-							failedProjects.push(path.basename(dir));
-						} else {
-							log(`Exit code: ${code}, no '${task}' task, continuing`);
-						}
-
-						resolve();
-					});
-				}));
-		}, Promise.resolve())
-		.then(() => {
-			if (cover) {
-				fs.removeSync(coverageDir);
-				fs.mkdirsSync(coverageDir);
-				console.log();
-
-				for (const type of [ 'lcov', 'json', 'text', 'text-summary', 'cobertura' ]) {
-					istanbul.Report
-						.create(type, { dir: coverageDir })
-						.writeReport(collector, true);
-				}
-			}
-
-			if (!failedProjects.length) {
-				return cb();
-			}
-
-			if (failedProjects.length === 1) {
-				log(red('1 failured project:'));
-			} else {
-				log(red(`${failedProjects.length} failured projects:`));
-			}
-			failedProjects.forEach(p => log(red(p)));
-			process.exit(1);
-		})
-		.catch(cb);
-}
 
 /*
  * watch task
  */
-gulp.task('watch', [ 'build' ], cb => {
-	const watchers = [
-		gulp.watch(`${__dirname}/packages/*/src/**/*.js`, evt => {
-			evt.path = evt.path.replace(/\\/g, '/');
-			const m = evt.path.match(new RegExp('^(' +  __dirname.replace(/\\/g, '/') + '/(packages/([^\/]+)))'));
+exports.watch = series(build, async function watch() {
+	const srcWatcher = gulp
+		.watch(`${__dirname}/packages/*/src/**/*.js`)
+		.on('all', (type, path) => {
+			// FIXME: There's almost certainly a better way of doing this than replacing \\ with /
+			path = path.replace(/\\/g, '/');
+			const m = path.match(new RegExp(`^(${__dirname.replace(/\\/g, '/')}/(packages/([^\/]+)))`));
 			if (m) {
-				log(`Detected change: ${evt.path}`);
+				log(`Detected change: ${cyan(path)}`);
 				const pkgJson = path.join(m[1], 'package.json');
 
 				try {
@@ -187,23 +191,22 @@ gulp.task('watch', [ 'build' ], cb => {
 					log(`Failed to read/parse ${pkgJson}: ${e.toString()}`);
 				}
 			}
-		})
-	];
+		});
 
 	let stopping = false;
 
-	process.on('SIGINT', () => {
-		if (!stopping) {
-			stopping = true;
-			for (const w of watchers) {
-				w._watcher.close();
+	return new Promise(resolve => {
+		process.on('SIGINT', () => {
+			if (!stopping) {
+				stopping = true;
+				srcWatcher.close();
+				resolve();
 			}
-			cb();
-		}
+		});
 	});
 });
 
-function runLernaBuild(scope) {
+async function runLernaBuild(scope) {
 	let { execPath } = process;
 	const args = [ './node_modules/.bin/lerna', 'run', 'build', '--parallel' ];
 
