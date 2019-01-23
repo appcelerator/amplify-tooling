@@ -4,7 +4,8 @@
   "description": "Authenticate machines with the Axway AMPLIFY platform",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
-    "Chris Barber <cbarber@axway.com>"
+    "Chris Barber <cbarber@axway.com>",
+    "Ewan Harris <eharris@axway.com>"
   ],
   "license": "Apache-2.0",
   "keywords": [
@@ -31,14 +32,13 @@
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.2.1",
-    "gulp": "^3.9.1"
+    "appcd-gulp": "^2.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-auth",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=8.10.0"
   },
   "cli-kit": {
     "main": "./dist/cli",

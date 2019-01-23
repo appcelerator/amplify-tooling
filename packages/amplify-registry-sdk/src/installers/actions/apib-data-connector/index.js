@@ -7,9 +7,7 @@ export async function post({ pkgInfo, location, emit }) {
 	await Promise.all([
 		npmInstall({ directory: location }),
 		copyConfig({ pkgInfo, location, emit })
-	])
-		.then()
-		.catch();
+	]);
 }
 
 async function copyConfig({ pkgInfo, location, emit }) {

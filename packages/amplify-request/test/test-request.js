@@ -40,92 +40,90 @@ describe('request', () => {
 		}
 	});
 
-	it('should error if params is not an object', done => {
-		request('foo')
-			.then(() => {
-				done(new Error('Expected error'));
-			})
-			.catch(err => {
-				expect(err).to.be.an.instanceof(TypeError);
-				expect(err.message).to.equal('Expected options to be an object');
-				done();
-			})
-			.catch(done);
+	it('should error if params is not an object', async () => {
+		try {
+			await request('foo');
+		} catch (err) {
+			expect(err).to.be.an.instanceof(TypeError);
+			expect(err.message).to.equal('Expected options to be an object');
+			return;
+		}
+
+		throw new Error('Expected error');
 	});
 
-	it('should make http request', function (done) {
-		this.server = http.createServer((req, res) => {
-			res.end('foo!');
-		});
+	it('should make http request', async function () {
+		this.server = http.createServer((req, res) => res.end('foo!'));
 
-		this.server.listen(1337, '127.0.0.1', () => {
-			request({ url: 'http://127.0.0.1:1337' })
-				.then((response) => {
-					expect(response.statusCode).to.equal(200);
-					expect(response.body).to.equal('foo!');
-					done();
-				}).catch(done);
-		});
+		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
+
+		const response = await request({ url: 'http://127.0.0.1:1337' });
+		expect(response.statusCode).to.equal(200);
+		expect(response.body).to.equal('foo!');
 	});
 
-	it('should reject with the error', done => {
-		request({ url: 'http://127.0.0.1:1337' })
-			.then(({ response, body }) => {
-				done(new Error('Expected an error'));
-			}).catch(err => {
-				expect(err.code).to.equal('ECONNREFUSED');
-				done();
-			});
+	it('should reject with the error', async () => {
+		try {
+			await request({ url: 'http://127.0.0.1:1337' });
+		} catch (err) {
+			expect(err.code).to.equal('ECONNREFUSED');
+			return;
+		}
+
+		throw new Error('Expected an error');
 	});
 
-	it('should throw on non-2xx reponses', function (done) {
+	it('should throw on non-2xx reponses', async function () {
 		this.server = http.createServer((req, res) => {
 			res.writeHead(404, { 'Content-Type': 'text/plain' });
 			res.end('Not Found');
 		});
 
-		this.server.listen(1337, '127.0.0.1', () => {
-			request({ url: 'http://127.0.0.1:1337' })
-				.then(() => {
-					done(new Error('Expected a failure'));
-				}).catch((response) => {
-					expect(response.statusCode).to.equal(404);
-					expect(response.error).to.equal('Not Found');
-					done();
-				});
-		});
+		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
+
+		try {
+			await request({ url: 'http://127.0.0.1:1337' });
+		} catch (err) {
+			expect(err.statusCode).to.equal(404);
+			expect(err.error).to.equal('Not Found');
+			return;
+		}
+
+		throw new Error('Expected a failure');
 	});
 
-	it('should throw when getting ECONNREFUSED', function (done) {
-		request({ url: 'http://127.0.0.1:1336' })
-			.then(() => {
-				done(new Error('Expected a failure'));
-			}).catch((response) => {
-				expect(response.code).to.equal('ECONNREFUSED');
-				expect(response.message).to.equal('connect ECONNREFUSED 127.0.0.1:1336');
-				done();
-			});
+	it('should throw when getting ECONNREFUSED', async function () {
+		try {
+			await request({ url: 'http://127.0.0.1:1336' });
+		} catch (err) {
+			expect(err.code).to.equal('ECONNREFUSED');
+			expect(err.message).to.equal('connect ECONNREFUSED 127.0.0.1:1336');
+			return;
+		}
+
+		throw new Error('Expected a failure');
 	});
 
-	it('should throw if the response is invalid JSON and validateJSON is true', function (done) {
+	it('should throw if the response is invalid JSON and validateJSON is true', async function () {
 		this.server = http.createServer((req, res) => {
 			res.writeHead(200, { 'Content-Type': 'text/plain' });
 			res.end('{{{{{{{{{');
 		});
 
-		this.server.listen(1337, '127.0.0.1', () => {
-			request({ url: 'http://127.0.0.1:1337', validateJSON: true })
-				.then(() => {
-					done(new Error('Expected a failure'));
-				}).catch((response) => {
-					expect(response.code).to.equal('INVALID_JSON');
-					expect(response.message).to.equal('Invalid JSON response at http://127.0.0.1:1337 Unexpected token { in JSON at position 1');
-					done();
-				});
-		});
+		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
+
+		try {
+			await request({ url: 'http://127.0.0.1:1337', validateJSON: true });
+		} catch (err) {
+			expect(err.code).to.equal('INVALID_JSON');
+			expect(err.message).to.equal('Invalid JSON response at http://127.0.0.1:1337 Unexpected token { in JSON at position 1');
+			return;
+		}
+
+		throw new Error('Expected a failure');
 	});
 
-	it('should make https request without strict ssl', function (done) {
+	it('should make https request without strict ssl', async function () {
 		this.server = https.createServer({
 			key: fs.readFileSync(path.join(sslDir, 'server.key.pem')),
 			cert: fs.readFileSync(path.join(sslDir, 'server.chain.pem'))
@@ -134,97 +132,65 @@ describe('request', () => {
 			res.end('foo!');
 		});
 
-		this.server.listen(1337, '127.0.0.1', () => {
-			request({
-				strictSSL: false,
-				url: 'https://127.0.0.1:1337'
-			}).then((response) => {
-				try {
-					expect(response.statusCode).to.equal(200);
-					expect(parseInt(response.headers['content-length'])).to.equal(4);
-					expect(response.body).to.equal('foo!');
-					done();
-				} catch (e) {
-					done(e);
-				}
-			});
+		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
+
+		const response = await request({
+			strictSSL: false,
+			url: 'https://127.0.0.1:1337'
 		});
+
+		expect(response.statusCode).to.equal(200);
+		expect(parseInt(response.headers['content-length'])).to.equal(4);
+		expect(response.body).to.equal('foo!');
 	});
 
-	it('should fail making https request with network.strictSSL set to true', function (done) {
+	it('should fail making https request with network.strictSSL set to true', async function () {
 		this.server = https.createServer({
 			key: fs.readFileSync(path.join(sslDir, 'server.key.pem')),
 			cert: fs.readFileSync(path.join(sslDir, 'server.chain.pem'))
 		}, (req, res) => {
 			res.end('foo!');
 		});
-		const config = new MockConfig({
-			'network.strictSSL': true
-		});
-		this.server.listen(1337, '127.0.0.1', () => {
-			request({
+
+		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
+
+		try {
+			await request({
 				url: 'https://127.0.0.1:1337',
-				config
-			}).then(() => {
-				done(new Error('Expected error'));
-			}).catch(err => {
-				try {
-					if (err) {
-						expect(err.message).to.match(/self signed/);
-						done();
-					} else {
-						done(new Error('Expected fetch to fail'));
-					}
-				} catch (e) {
-					console.log('!!!!', e);
-					done(e);
-				}
+				config: new MockConfig({ 'network.strictSSL': true })
 			});
-		});
+		} catch (err) {
+			expect(err.message).to.match(/self signed/);
+			return;
+		}
 	});
 
-	it('should support network.strictSSL config setting', function (done) {
+	it('should support network.strictSSL config setting', async function () {
 		this.server = https.createServer({
 			key: fs.readFileSync(path.join(sslDir, 'server.key.pem')),
 			cert: fs.readFileSync(path.join(sslDir, 'server.chain.pem'))
 		}, (req, res) => {
 			res.end('foo!');
 		});
-		const config = new MockConfig({
-			'network.strictSSL': true
-		});
-		this.server.listen(1337, '127.0.0.1', () => {
-			request({
+
+		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
+
+		try {
+			await request({
 				url: 'https://127.0.0.1:1337',
-				config
-			}).then(() => {
-				done(new Error('Expected error'));
-			}).catch(err => {
-				try {
-					if (err) {
-						expect(err.message).to.match(/self signed/);
-						done();
-					} else {
-						done(new Error('Expected fetch to fail'));
-					}
-				} catch (e) {
-					console.log('!!!!', e);
-					done(e);
-				}
+				config: new MockConfig({ 'network.strictSSL': true })
 			});
-		});
+		} catch (err) {
+			expect(err.message).to.match(/self signed/);
+			return;
+		}
+
+		throw new Error('Expected error');
 	});
 
-	it('should support network.caFile/certFile/keyFile config setting', function (done) {
+	it('should support network.caFile/certFile/keyFile config setting', async function () {
 		this.timeout(5000);
 		this.slow(4000);
-
-		const config = new MockConfig({
-			'network.caFile': path.join(sslDir, 'ca.crt.pem'),
-			'network.certFile': path.join(sslDir, 'client.crt.pem'),
-			'network.keyFile': path.join(sslDir, 'client.key.pem'),
-			'network.strictSSL': false
-		});
 
 		this.server = https.createServer({
 			ca: fs.readFileSync(path.join(sslDir, 'ca.crt.pem')),
@@ -249,31 +215,27 @@ describe('request', () => {
 			res.end('foo!');
 		});
 
-		this.server.listen(1337, '127.0.0.1', () => {
-			request({
-				url: 'https://127.0.0.1:1337',
-				config
-			}).then(response => {
-				try {
-					expect(response.statusCode).to.equal(200);
-					expect(parseInt(response.headers['content-length'])).to.equal(4);
-					expect(response.body).to.equal('foo!');
-					done();
-				} catch (e) {
-					done(e);
-				}
-			}).catch(err => {
-				done(err);
-			});
+		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
+
+		const response = await request({
+			url: 'https://127.0.0.1:1337',
+			config: new MockConfig({
+				'network.caFile': path.join(sslDir, 'ca.crt.pem'),
+				'network.certFile': path.join(sslDir, 'client.crt.pem'),
+				'network.keyFile': path.join(sslDir, 'client.key.pem'),
+				'network.strictSSL': false
+			})
 		});
+
+		expect(response.statusCode).to.equal(200);
+		expect(parseInt(response.headers['content-length'])).to.equal(4);
+		expect(response.body).to.equal('foo!');
 	});
 
-	it('should support network.httpProxy config setting', function (done) {
+	it('should support network.httpProxy config setting', async function () {
 		this.timeout(5000);
 		this.slow(4000);
-		const config = new MockConfig({
-			'network.httpProxy': 'http://127.0.0.1:1337'
-		});
+
 		this.server = http.createServer((req, res) => {
 			if (req.headers.host === '127.0.0.1:1338') {
 				res.writeHead(200, { 'Content-Length': 4 });
@@ -284,32 +246,21 @@ describe('request', () => {
 			}
 		});
 
-		this.server.listen(1337, '127.0.0.1', () => {
-			request({
-				url: 'http://127.0.0.1:1338',
-				config
-			}).then((response) => {
-				try {
-					expect(response.statusCode).to.equal(200);
-					expect(parseInt(response.headers['content-length'])).to.equal(4);
-					expect(response.body).to.equal('foo!');
-					done();
-				} catch (e) {
-					done(e);
-				}
-			}).catch(err => {
-				done(err);
-			});
+		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
+
+		const response = await request({
+			url: 'http://127.0.0.1:1338',
+			config: new MockConfig({ 'network.httpProxy': 'http://127.0.0.1:1337' })
 		});
+
+		expect(response.statusCode).to.equal(200);
+		expect(parseInt(response.headers['content-length'])).to.equal(4);
+		expect(response.body).to.equal('foo!');
 	});
 
-	it('should support network.httpsProxy config setting', function (done) {
+	it('should support network.httpsProxy config setting', async function () {
 		this.timeout(5000);
 		this.slow(4000);
-
-		const config = new MockConfig({
-			'network.httpsProxy': 'https://127.0.0.1:1338'
-		});
 
 		this.server = https.createServer({
 			ca: fs.readFileSync(path.join(sslDir, 'ca.crt.pem')),
@@ -329,30 +280,23 @@ describe('request', () => {
 			res.end('foo!');
 		});
 
-		Promise
-			.all([
-				new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve)),
-				new Promise(resolve => this.server2.listen(1338, '127.0.0.1', resolve))
-			])
-			.then(() => {
-				request({
-					url: 'https://127.0.0.1:1337',
-					config,
-					tunnel: false,
-					strictSSL: false
-				}).then((response) => {
-					try {
-						expect(response.statusCode).to.equal(200);
-						expect(parseInt(response.headers['content-length'])).to.equal(4);
-						expect(response.body).to.equal('foo!');
-						done();
-					} catch (e) {
-						done(e);
-					}
-				}).catch(err => {
-					done(err);
-				});
-			});
+		await Promise.all([
+			new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve)),
+			new Promise(resolve => this.server2.listen(1338, '127.0.0.1', resolve))
+		]);
+
+		const response = await request({
+			url: 'https://127.0.0.1:1337',
+			config: new MockConfig({
+				'network.httpsProxy': 'https://127.0.0.1:1338'
+			}),
+			tunnel: false,
+			strictSSL: false
+		});
+
+		expect(response.statusCode).to.equal(200);
+		expect(parseInt(response.headers['content-length'])).to.equal(4);
+		expect(response.body).to.equal('foo!');
 	});
 });
 

@@ -4,7 +4,8 @@
   "description": "Common request library for AMPLIFY CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
-    "Ewan Harris <eharris@axway.com>"
+    "Ewan Harris <eharris@axway.com>",
+    "Chris Barber <cbarber@axway.com>"
   ],
   "license": "Apache-2.0",
   "keywords": [
@@ -20,14 +21,13 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^0.2.2",
-    "appcd-fs": "^1.1.4",
+    "appcd-fs": "^1.1.5",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
-    "source-map-support": "^0.5.9"
+    "source-map-support": "^0.5.10"
   },
   "devDependencies": {
-    "appcd-gulp": "^1.2.1",
-    "gulp": "^3.9.1"
+    "appcd-gulp": "^2.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

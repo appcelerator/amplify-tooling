@@ -1,3 +1,5 @@
+/* eslint-disable security/detect-child-process */
+
 import { addPackageToConfig, extractTar, getInstalledPackages, npmInstall, removePackageFromConfig } from '../dist/installers/common';
 import { join } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
