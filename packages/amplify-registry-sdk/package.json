@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-registry-sdk",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "SDK for AMPLIFY Package Registry",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -21,8 +21,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^0.3.0",
-    "@axway/amplify-request": "^0.3.0",
+    "@axway/amplify-cli-utils": "^0.3.1",
+    "@axway/amplify-request": "^0.3.1",
     "appcd-fs": "^1.1.5",
     "appcd-subprocess": "^1.2.0",
     "fs-extra": "^7.0.1",
