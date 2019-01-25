@@ -4,7 +4,7 @@ import FileStore from './file-store';
 import path from 'path';
 import snooplogg from 'snooplogg';
 
-const { log, warn } = snooplogg('amplify-auth:secure-store');
+const { log } = snooplogg('amplify-auth:secure-store');
 
 /**
  * A operating-specific secure token store.
@@ -52,9 +52,8 @@ export default class SecureStore extends FileStore {
 		try {
 			return await super.decode(str);
 		} catch (e) {
-			warn(e);
 			await this.keytar.deletePassword(this.serviceName, this.serviceName);
-			return [];
+			throw e;
 		}
 	}
 

@@ -2483,10 +2483,10 @@ cli-cursor@^2.0.0, cli-cursor@^2.1.0:
   dependencies:
     restore-cursor "^2.0.0"
 
-cli-kit@^0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.6.1.tgz#c1f74902f49fee9ac0e82712504d7d4ff2c01b16"
-  integrity sha512-NastzskLmKCSpz1dcEbzDRdVclvMaw/G55E97tM70zTjZh394Sy3JlCbAdG/6WUdcxnpvjdlP5EmzknlG1mjDg==
+cli-kit@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.6.2.tgz#35423829c2b3cc3eb86eb68b618a86240c5b2857"
+  integrity sha512-xKmrRhyuN+3+sGLJlrSrJvIPyChYDQ9ujV/tHrWtX6yxh7KrzBqGExpLBDY+AfT82BsVQKu7GgvwwdzrpN/lSw==
   dependencies:
     fast-levenshtein "^2.0.6"
     fs-extra "^7.0.1"

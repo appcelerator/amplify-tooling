@@ -5,7 +5,7 @@ import path from 'path';
 import snooplogg from 'snooplogg';
 import TokenStore from './token-store';
 
-const { log } = snooplogg('amplify-auth:file-store');
+const { log, warn } = snooplogg('amplify-auth:file-store');
 const { highlight } = snooplogg.styles;
 
 /**
@@ -134,8 +134,14 @@ export default class FileStore extends TokenStore {
 	 */
 	async list() {
 		if (fs.existsSync(this.tokenStoreFile)) {
-			const entries = await this.decode(fs.readFileSync(this.tokenStoreFile, 'utf8'));
-			return this.purge(entries);
+			try {
+				const entries = await this.decode(fs.readFileSync(this.tokenStoreFile, 'utf8'));
+				return this.purge(entries);
+			} catch (e) {
+				// the decode failed (or there was a keytar problem), so just log a warning and
+				// return an empty result
+				warn(e);
+			}
 		}
 		return [];
 	}
