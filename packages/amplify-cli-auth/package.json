@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^0.3.0",
-    "cli-kit": "^0.6.1",
+    "cli-kit": "^0.6.2",
     "inquirer": "^6.2.1",
     "pretty-ms": "^4.0.0",
     "source-map-support": "^0.5.10"
