@@ -7,7 +7,7 @@ export const environments = {
 	dev: {
 		auth: {
 			clientId: 'cli-test-public',
-			realm: 'Axway'
+			realm: 'Broker'
 		},
 		registry: {
 			url: 'http://localhost:8082'
@@ -15,8 +15,17 @@ export const environments = {
 	},
 	preprod: {
 		auth: {
-			clientId: 'cli-test-public',
-			realm: 'AppcID'
+			clientId: 'amplify-cli',
+			realm: 'Broker'
+		},
+		registry: {
+			url: 'https://registry.axwaytest.net'
+		}
+	},
+	staging: {
+		auth: {
+			clientId: 'amplify-cli',
+			realm: 'Broker'
 		},
 		registry: {
 			url: 'https://registry.axwaytest.net'
@@ -24,8 +33,8 @@ export const environments = {
 	},
 	prod: {
 		auth: {
-			clientId: 'cli',
-			realm: 'Axway'
+			clientId: 'amplify-cli',
+			realm: 'Broker'
 		},
 		registry: {
 			url: 'https://registry.platform.axway.com'
