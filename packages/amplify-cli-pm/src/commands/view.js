@@ -23,7 +23,7 @@ export default {
 			}
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const [
 			{ default: npa },
 			{ getRegistryParams, handleInstallError },
@@ -38,13 +38,23 @@ export default {
 		const registry = new Registry(getRegistryParams(argv.env));
 
 		try {
-			const result = await registry.metadata({
+			let result = await registry.metadata({
 				name,
 				type: argv.type,
 				version: fetchSpec !== 'latest' && fetchSpec
 			});
 
+			if (argv.filter) {
+				for (const key of argv.filter.split('.')) {
+					if (typeof result !== 'object') {
+						break;
+					}
+					result = result.hasOwnProperty(key) ? result[key] : undefined;
+				}
+			}
+
 			if (argv.json) {
+				cli.banner = false;
 				console.log(JSON.stringify(result, null, '  '));
 			} else if (result) {
 				// TODO: render results a little nicer... possibly use a template?
