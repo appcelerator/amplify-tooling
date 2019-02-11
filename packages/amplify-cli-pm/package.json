@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli-pm",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Package manager for Axway products",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
