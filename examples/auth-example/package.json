@@ -18,12 +18,12 @@
 		"test": "gulp test"
 	},
 	"dependencies": {
-		"@axway/amplify-cli-utils": "^0.2.2",
-		"cli-kit": "^0.6.0"
+		"@axway/amplify-cli-utils": "^0.4.0",
+		"cli-kit": "^0.6.2"
 	},
 	"devDependencies": {
-		"appcd-gulp": "^1.2.1",
-		"gulp": "^3.9.1"
+		"appcd-gulp": "^2.0.0",
+		"gulp": "^4.0.0"
 	},
 	"homepage": "",
 	"bugs": "",
