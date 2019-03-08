@@ -112,13 +112,20 @@ require('../dist/main');
 
 #### Step 3
 
-Edit your `package.json` and add a new `"cli-kit"` top-level property:
+Edit your `package.json` and set the following `"keywords"`, `"amplify"`, and `"cli-kit"` top-level property:
 
 ```json
-"cli-kit": {
-  "description": "This description is optional and overrides the top-level description",
-  "main": "./path/to/cli"
-}
+{
+  "keywords": [
+    "amplify-package"
+  ],
+  "amplify": {
+    "type": "amplify-cli-plugin"
+  },
+  "cli-kit": {
+    "description": "This description is optional and overrides the top-level description",
+    "main": "./path/to/cli"
+  }
 ```
 
 > :warning: the `"main"` must point to the script exporting the CLI definition (`cli.js`), not the
