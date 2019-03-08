@@ -126,6 +126,7 @@ Edit your `package.json` and set the following `"keywords"`, `"amplify"`, and `"
     "description": "This description is optional and overrides the top-level description",
     "main": "./path/to/cli"
   }
+}
 ```
 
 > :warning: the `"main"` must point to the script exporting the CLI definition (`cli.js`), not the
