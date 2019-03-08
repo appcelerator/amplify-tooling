@@ -5,7 +5,9 @@
 	"author": "",
 	"maintainers": [],
 	"license": "",
-	"keywords": [],
+	"keywords": [
+		"amplify-package"
+	],
 	"bin": {
 		"auth-exmaple": "./bin/auth-exmaple"
 	},
@@ -30,6 +32,9 @@
 	"repository": "",
 	"engines": {
 		"node": ">=8.10.0"
+	},
+	"amplify": {
+		"type": "amplify-cli-plugin"
 	},
 	"cli-kit": {
 		"main": "./dist/cli",
