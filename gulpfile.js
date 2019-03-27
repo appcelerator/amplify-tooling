@@ -161,6 +161,7 @@ exports.integration = series(parallel(nodeInfo, build), async function integrati
 		}
 		axwayHomeDir = homeArg;
 	} else {
+		process.env.CLEANUP = true
 		tmp.setGracefulCleanup();
 		axwayHomeDir = tmp.dirSync({ unsafeCleanup: true }).name;
 	}
