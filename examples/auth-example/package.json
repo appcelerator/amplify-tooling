@@ -21,10 +21,10 @@
 	},
 	"dependencies": {
 		"@axway/amplify-cli-utils": "^0.4.0",
-		"cli-kit": "^0.6.2"
+		"cli-kit": "^0.7.5"
 	},
 	"devDependencies": {
-		"appcd-gulp": "^2.0.0",
+		"appcd-gulp": "^2.1.0",
 		"gulp": "^4.0.0"
 	},
 	"homepage": "",

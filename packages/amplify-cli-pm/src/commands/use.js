@@ -38,7 +38,7 @@ export default {
 			}
 
 			if (!installed) {
-				throw new Error(`${name} is not installed, please run amplify pm install ${name} first`);
+				throw new Error(`${name} is not installed, please run "amplify pm install ${name}" first`);
 			}
 
 			if (fetchSpec === 'latest') {

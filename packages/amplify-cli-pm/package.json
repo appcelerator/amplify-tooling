@@ -25,18 +25,18 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^0.4.0",
+    "@axway/amplify-config": "^0.1.0",
     "@axway/amplify-registry-sdk": "^0.4.0",
-    "cli-kit": "^0.6.2",
+    "cli-kit": "^0.7.5",
     "columnify": "^1.5.4",
     "listr": "^0.14.3",
     "npm-package-arg": "^6.1.0",
-    "ora": "^3.0.0",
-    "semver": "^5.6.0",
-    "source-map-support": "^0.5.10"
+    "ora": "^3.2.0",
+    "semver": "^6.0.0",
+    "source-map-support": "^0.5.11"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.0.0"
+    "appcd-gulp": "^2.1.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

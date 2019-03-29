@@ -26,7 +26,7 @@ export default {
 	},
 	args: [ '<action>', 'key', 'value' ],
 	async action({ argv }) {
-		const { loadConfig, locations } = await import('@axway/amplify-cli-utils');
+		const { loadConfig, configFile } = await import('@axway/amplify-config');
 
 		let { action, key, value } = argv;
 
@@ -151,7 +151,7 @@ export default {
 					break;
 			}
 
-			await cfg.save(locations.configFile);
+			await cfg.save(configFile);
 
 			printAndExit({ value: result, json: argv.json });
 		} catch (err) {

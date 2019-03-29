@@ -4,7 +4,7 @@ if (!Error.prepareStackTrace) {
 }
 
 import environments from './environments';
-import loadConfig from './config';
+import loadConfig from '@axway/amplify-config';
 
 import * as auth from './auth';
 import * as locations from './locations';
