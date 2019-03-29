@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-config",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Configuration helper for the AMPLIFY CLI.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
