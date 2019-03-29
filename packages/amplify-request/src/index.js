@@ -9,7 +9,7 @@ import _request from 'request';
 import requestPromise from 'request-promise-native';
 
 import { isFile } from 'appcd-fs';
-import { loadConfig } from '@axway/amplify-cli-utils';
+import loadConfig from '@axway/amplify-config';
 
 /**
  * Wrapper around request-promise-native that sets any proxy related data for

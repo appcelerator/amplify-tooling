@@ -1,9 +1,10 @@
 import fs from 'fs-extra';
+import loadConfig from '@axway/amplify-config';
 
 import { extract } from 'tar';
 import { isDir, isFile } from 'appcd-fs';
 import { join } from 'path';
-import { loadConfig, locations } from '@axway/amplify-cli-utils';
+import { locations } from '@axway/amplify-cli-utils';
 import { run, which } from 'appcd-subprocess';
 
 export const cacheDir = join(locations.axwayHome, 'cache');

@@ -20,7 +20,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^0.4.0",
+    "@axway/amplify-config": "^0.1.0",
     "appcd-fs": "^1.1.6",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",

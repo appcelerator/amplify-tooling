@@ -20,6 +20,9 @@
     "mocha": "^6.0.2",
     "pretty-log": "^0.1.0"
   },
+  "scripts": {
+    "build": "lerna exec gulp build"
+  },
   "workspaces": {
     "packages": [
       "packages/*"

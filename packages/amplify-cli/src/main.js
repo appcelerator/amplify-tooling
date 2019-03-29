@@ -4,9 +4,9 @@ if (!Error.prepareStackTrace) {
 }
 
 import CLI, { chalk } from 'cli-kit';
+import loadConfig from '@axway/amplify-config';
 
 import { dirname, resolve } from 'path';
-import { loadConfig } from '@axway/amplify-cli-utils';
 import { readFileSync } from 'fs';
 
 const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));

@@ -1,5 +1,6 @@
+import loadConfig from '@axway/amplify-config';
+
 import { addPackageToConfig, npmInstall, removePackageFromConfig } from '../../common';
-import { loadConfig } from '@axway/amplify-cli-utils';
 import { removeSync } from 'fs-extra';
 
 export async function post({ pkgInfo, location }) {

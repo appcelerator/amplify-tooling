@@ -75,24 +75,6 @@ import { auth } from '@axway/amplify-cli-utils';
 }());
 ```
 
-## Config Helper
-
-```js
-import { loadConfig } from '@axway/amplify-cli-utils';
-
-// load just the amplify-cli.json config file
-let config = loadConfig();
-console.log(config);
-
-// load a default config file, then merge the amplify-cli-json config on top
-config = loadConfig({ configFile: '/path/to/default/config.js' });
-console.log(config);
-
-// load a specific config file instead of the default amplify-cli.json file
-config = loadConfig({ userConfigFile: '/path/to/default/my-config.js' });
-console.log(config);
-```
-
 ## Legal
 
 This project is open source under the [Apache Public License v2][1] and is developed by

@@ -107,7 +107,7 @@ export function buildParams(opts = {}, config) {
 		throw new Error('Expected options to be an object');
 	}
 
-	const loadConfig = require('./config').default;
+	const loadConfig = require('@axway/amplify-config').default;
 	const { axwayHome } = require('./locations');
 	const { environments } = require('./environments');
 
@@ -156,7 +156,7 @@ export function buildParams(opts = {}, config) {
  */
 function initAuth(authOpts) {
 	const Auth = getAuth();
-	const loadConfig = require('./config').default;
+	const loadConfig = require('@axway/amplify-config').default;
 
 	const config = loadConfig();
 	const params = buildParams(authOpts, config);

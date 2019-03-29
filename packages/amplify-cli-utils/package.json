@@ -22,14 +22,15 @@
   },
   "dependencies": {
     "@axway/amplify-auth-sdk": "^0.4.0",
-    "appcd-config": "^1.2.0",
-    "appcd-fs": "^1.1.5",
+    "@axway/amplify-config": "^0.1.0",
+    "appcd-config": "^1.2.1",
+    "appcd-fs": "^1.1.6",
     "fs-extra": "^7.0.1",
     "snooplogg": "^2.0.1",
-    "source-map-support": "^0.5.10"
+    "source-map-support": "^0.5.11"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.0.0"
+    "appcd-gulp": "^2.1.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

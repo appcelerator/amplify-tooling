@@ -4,7 +4,7 @@ import E from '../errors';
 
 import getEndpoints from '../endpoints';
 import jws from 'jws';
-import opn from 'opn';
+import open from 'open';
 import snooplogg from 'snooplogg';
 import TokenStore from '../stores/token-store';
 
@@ -660,7 +660,7 @@ export default class Authenticator {
 			opts.wait = false;
 		}
 		log(`Launching default web browser: ${highlight(authorizationUrl)}`);
-		opn(authorizationUrl, opts);
+		open(authorizationUrl, opts);
 
 		// wait for authentication to succeed or fail
 		return promise;

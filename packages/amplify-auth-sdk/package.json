@@ -23,7 +23,7 @@
     "accepts": "^1.3.5",
     "fs-extra": "^7.0.1",
     "jws": "^3.2.2",
-    "opn": "^6.0.0",
+    "open": "^6.0.0",
     "pluralize": "^7.0.0",
     "snooplogg": "^2.0.1",
     "source-map-support": "^0.5.11",

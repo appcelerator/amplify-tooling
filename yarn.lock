@@ -1412,7 +1412,7 @@ anymatch@^2.0.0:
     micromatch "^3.1.4"
     normalize-path "^2.1.1"
 
-appcd-config@^1.1.2, appcd-config@^1.2.0:
+appcd-config@^1.1.2, appcd-config@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/appcd-config/-/appcd-config-1.2.1.tgz#181a7cae9fdbf2a9eaefb2ae653e901d41b45847"
   integrity sha512-fwIMHI9Bh2XAoNtNetsiNDysaiCti2XCuERJ9+u/dBSZ0PJnNLqXZxb8ScVfV63WVdAPwN/tA0mTdL1rt7z6jg==
@@ -1441,14 +1441,14 @@ appcd-dispatcher@^1.4.0:
     source-map-support "^0.5.11"
     uuid "^3.3.2"
 
-appcd-fs@^1.1.3, appcd-fs@^1.1.5, appcd-fs@^1.1.6:
+appcd-fs@^1.1.3, appcd-fs@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/appcd-fs/-/appcd-fs-1.1.6.tgz#54a9a40d18fd375ac8849ccbf532768611fad5ff"
   integrity sha512-GCRY+evjRXiO2CNmVZmxi/xb8oPzbBgbjpcXRaOfhx6zF6TJwLYFPmKs2vvAShjOsXz3FHbcN/wH9dT5s26Nog==
   dependencies:
     source-map-support "^0.5.11"
 
-appcd-gulp@^2.0.0:
+appcd-gulp@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/appcd-gulp/-/appcd-gulp-2.1.0.tgz#1a5635faf1097037a771737072fc55fc09dc12cd"
   integrity sha512-kLkxcsOMc+5B2MenuxI3XnPRJB7H86qJdKKDoLslPRpmqrKo4uKHwOkDNcmQTAaLKOd92H5PfIC6GrODVoerlw==
@@ -1548,7 +1548,7 @@ appcd-response@^1.1.6:
     source-map-support "^0.5.11"
     sprintf-js "^1.1.2"
 
-appcd-subprocess@^1.2.0:
+appcd-subprocess@^1.2.0, appcd-subprocess@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/appcd-subprocess/-/appcd-subprocess-1.3.0.tgz#f1a66b2050fae2e5525a313cfdd15f93cfce29e9"
   integrity sha512-6qB6VlSdA0sKmocWWdD70lSvK1iXC33b2W5J2HS4DQMkoNkwn5ORQLcUi8LG7DhPprbBmbjed3E6nQRnr29JtQ==
@@ -1625,6 +1625,11 @@ argparse@^1.0.7:
   integrity sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==
   dependencies:
     sprintf-js "~1.0.2"
+
+argv-split@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/argv-split/-/argv-split-2.0.1.tgz#be264117790dbd5ccd63ec3f449a1804814ac4c5"
+  integrity sha1-viZBF3kNvVzNY+w/RJoYBIFKxMU=
 
 arr-diff@^1.0.1:
   version "1.1.0"
@@ -2541,20 +2546,21 @@ cli-cursor@^2.0.0, cli-cursor@^2.1.0:
   dependencies:
     restore-cursor "^2.0.0"
 
-cli-kit@^0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.6.2.tgz#35423829c2b3cc3eb86eb68b618a86240c5b2857"
-  integrity sha512-xKmrRhyuN+3+sGLJlrSrJvIPyChYDQ9ujV/tHrWtX6yxh7KrzBqGExpLBDY+AfT82BsVQKu7GgvwwdzrpN/lSw==
+cli-kit@^0.7.5:
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.7.5.tgz#2c13b2090bc7c5a1c301fd853ad810e8927ce1da"
+  integrity sha512-rjNWMnqGCBV54THS74K4JkJ8Zt+qZ6htUh7g4e+tWNa8z5jxq7GVu+tFcxVICi41vtIEiRS3r7fJAQyU8yHRLQ==
   dependencies:
+    argv-split "^2.0.1"
     fast-levenshtein "^2.0.6"
     fs-extra "^7.0.1"
     hook-emitter "^3.1.2"
     lodash.camelcase "^4.3.0"
-    pkg-dir "^3.0.0"
+    pkg-dir "^4.0.0"
     pluralize "^7.0.0"
-    semver "^5.6.0"
+    semver "^6.0.0"
     snooplogg "^2.0.1"
-    source-map-support "^0.5.10"
+    source-map-support "^0.5.11"
     which "^1.3.1"
 
 cli-spinners@^2.0.0:
@@ -6008,7 +6014,7 @@ jwa@^1.4.1:
     ecdsa-sig-formatter "1.0.11"
     safe-buffer "^5.0.1"
 
-jws@^3.2.1:
+jws@^3.2.2:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/jws/-/jws-3.2.2.tgz#001099f3639468c9414000e99995fa52fb478304"
   integrity sha512-YHlZCB6lMTllWDtSPHz/ZXTsi8S00usEV6v1tjq8tOUZzw7DpSDWVXjXDre6ed1w/pd495ODpHZYSdkRTsa0HA==
@@ -6016,7 +6022,7 @@ jws@^3.2.1:
     jwa "^1.4.1"
     safe-buffer "^5.0.1"
 
-keytar@^4.4.0:
+keytar@^4.4.1:
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/keytar/-/keytar-4.4.1.tgz#156af8a9b016bf118ee9948b02418c81d760a5ba"
   integrity sha512-6xEe7ybXSR5EZC+z0GI2yqLYZjV1tyPQY2xSZ8rGsBxrrLEh8VR/Lfqv59uGX+I+W+OZxH0jCXN1dU1++ify4g==
@@ -7485,10 +7491,10 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-opn@^5.4.0:
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/opn/-/opn-5.5.0.tgz#fc7164fab56d235904c51c3b27da6758ca3b9bfc"
-  integrity sha512-PqHpggC9bLV0VeWcdKhkpxY+3JTzetLSqTCWL/z/tFIbI6G8JCjondXklT1JinczLz2Xib62sSp0T/gKT4KksA==
+open@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/open/-/open-6.0.0.tgz#cae5e2c1a3a1bfaee0d0acc8c4b7609374750346"
+  integrity sha512-/yb5mVZBz7mHLySMiSj2DcLtMBbFPJk5JBKEkHVZFxZAPzeg3L026O0T+lbdz1B2nyDnkClRSwRQJdeVUIF7zw==
   dependencies:
     is-wsl "^1.1.0"
 
@@ -7512,7 +7518,7 @@ optionator@^0.8.1, optionator@^0.8.2:
     type-check "~0.3.2"
     wordwrap "~1.0.0"
 
-ora@^3.0.0:
+ora@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/ora/-/ora-3.2.0.tgz#67e98a7e11f7f0ac95deaaaf11bb04de3d09e481"
   integrity sha512-XHMZA5WieCbtg+tu0uPF8CjvwQdNzKCX6BVh3N6GFsEXH40mTk5dsw/ya1lBTUGJslcEFJFQ8cBhOgkkZXQtMA==
@@ -7675,7 +7681,7 @@ package-hash@^3.0.0:
     lodash.flattendeep "^4.4.0"
     release-zalgo "^1.0.0"
 
-pacote@^9.4.1, pacote@^9.5.0:
+pacote@^9.5.0:
   version "9.5.0"
   resolved "https://registry.yarnpkg.com/pacote/-/pacote-9.5.0.tgz#85f3013a3f6dd51c108b0ccabd3de8102ddfaeda"
   integrity sha512-aUplXozRbzhaJO48FaaeClmN+2Mwt741MC6M3bevIGZwdCaP7frXzbUOfOWa91FPHoLITzG0hYaKY363lxO3bg==
@@ -7997,6 +8003,13 @@ pkg-dir@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/pkg-dir/-/pkg-dir-3.0.0.tgz#2749020f239ed990881b1f71210d51eb6523bea3"
   integrity sha512-/E57AYkoeQ25qkxMj5PBOVgF8Kiu/h7cYS30Z5+R7WaiCCBfLq58ZI/dSeaEKb9WVJV5n/03QwrN3IeWIFllvw==
+  dependencies:
+    find-up "^3.0.0"
+
+pkg-dir@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/pkg-dir/-/pkg-dir-4.0.0.tgz#1c505f82509ec0165a1fa530892585852e85ce9e"
+  integrity sha512-1S63UXE5ujsNUTFEgI001K06PkKqNceY07OBdRw24KYs3xvtoG3bkkunIG1p3glRKUjrZYc43opq2Y70R+/Rbw==
   dependencies:
     find-up "^3.0.0"
 
@@ -8581,7 +8594,7 @@ request-promise-core@1.1.2:
   dependencies:
     lodash "^4.17.11"
 
-request-promise-native@^1.0.5:
+request-promise-native@^1.0.5, request-promise-native@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/request-promise-native/-/request-promise-native-1.0.7.tgz#a49868a624bdea5069f1251d0a836e0d89aa2c59"
   integrity sha512-rIMnbBdgNViL37nZ1b3L/VfPOpSi0TqVDQPAvO6U14lMzOLrt5nilxCQqtDKhZeDiW0/hkCXGoQjhgJd/tCh6w==
@@ -8998,7 +9011,7 @@ source-map-resolve@^0.5.0, source-map-resolve@^0.5.2:
     source-map-url "^0.4.0"
     urix "^0.1.0"
 
-source-map-support@^0.5.10, source-map-support@^0.5.11, source-map-support@^0.5.9, source-map-support@~0.5.10:
+source-map-support@^0.5.11, source-map-support@^0.5.9, source-map-support@~0.5.10:
   version "0.5.11"
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.11.tgz#efac2ce0800355d026326a0ca23e162aeac9a4e2"
   integrity sha512-//sajEx/fGL3iw6fltKMdPvy8kL3kJ2O3iuYlRoT3k9Kb4BjOoZ+BZzaNHeuaruSt+Kf3Zk9tnfAQg9/AJqUVQ==

@@ -1,4 +1,4 @@
-import { loadConfig } from '@axway/amplify-cli-utils';
+import loadConfig from '@axway/amplify-config';
 
 /**
  * Cached user agent.
