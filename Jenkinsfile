@@ -72,19 +72,11 @@ def integrationTests(os, nodeVersion, yarnVersion) {
               unstash 'sources'
               // Install yarn if not installed
               ensureYarn(yarnVersion)
-              if('windows'.equals(os)) {
-                bat 'yarn'
-              } else {
-                sh 'yarn'
-              }
+              command 'yarn'
               try {
-                if('windows'.equals(os)) {
-                  bat 'yarn run gulp integration'
-                } else {
-                  sh 'yarn run gulp integration'
-                }
+                command 'yarn run gulp integration'
               } finally {
-                // record results even if tests/coverage 'fails'
+                // record results even if tests/coverage 'fails', this needs setting up for integration tests
               }
             } // timeout
           } // test
