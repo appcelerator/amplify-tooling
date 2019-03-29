@@ -65,29 +65,33 @@ timestamps {
 def integrationTests(os, nodeVersion, yarnVersion) {
   return {
     node(os) {
-      nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-        stage('Test') {
-          timeout(15) {
-            unstash 'sources'
-            // Install yarn if not installed
-            ensureYarn(yarnVersion)
-            if('windows'.equals(os)) {
-              bat 'yarn'
-            } else {
-              sh 'yarn'
-            }
-            try {
+      try {
+         nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+          stage('Test') {
+            timeout(15) {
+              unstash 'sources'
+              // Install yarn if not installed
+              ensureYarn(yarnVersion)
               if('windows'.equals(os)) {
-                bat 'yarn run gulp integration'
+                bat 'yarn'
               } else {
-                sh 'yarn run gulp integration'
+                sh 'yarn'
               }
-            } finally {
-              // record results even if tests/coverage 'fails'
-            }
-          } // timeout
-        } // test
-      } // nodejs
+              try {
+                if('windows'.equals(os)) {
+                  bat 'yarn run gulp integration'
+                } else {
+                  sh 'yarn run gulp integration'
+                }
+              } finally {
+                // record results even if tests/coverage 'fails'
+              }
+            } // timeout
+          } // test
+        } // nodejs
+      } finally {
+        deleteDir() // always wipe to avoid errors when unstashing in the future
+      }
     }  // node
   }
 }
