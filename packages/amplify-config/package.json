@@ -1,6 +1,9 @@
 {
   "name": "@axway/amplify-config",
   "version": "1.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Configuration helper for the AMPLIFY CLI.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -34,5 +37,6 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "main": "./dist/index"
+  "main": "./dist/index",
+  "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }
