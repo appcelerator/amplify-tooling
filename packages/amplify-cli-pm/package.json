@@ -47,5 +47,6 @@
   "cli-kit": {
     "main": "./dist/cli",
     "name": "pm"
-  }
+  },
+  "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }
