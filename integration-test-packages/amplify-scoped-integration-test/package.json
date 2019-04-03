@@ -1,0 +1,27 @@
+{
+	"name": "@awam/amplify-integration-test",
+	"version": "1.0.0",
+	"description": "Test package please ignore",
+	"main": "./src/main.js",
+	"bin": {
+		"amplify-integration-test": "./bin/amplify-integration-test"
+	},
+	"keywords": [
+		"amplify-test-package"
+	],
+	"author": "",
+	"license": "Apache-2.0",
+	"amplify": {
+		"type": "amplify-cli-plugin"
+	},
+	"dependencies": {
+		"cli-kit": "^0.3.0"
+	},
+	"cli-kit": {
+		"main": "./src/cli.js",
+		"name": "test-cli"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

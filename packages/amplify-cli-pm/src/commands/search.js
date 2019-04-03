@@ -16,7 +16,7 @@ export default {
 	async action({ argv, console }) {
 		const [
 			{ default: columnify },
-			{ buildUserAgentString, getRegistryParams },
+			{ buildUserAgentString, getRegistryParams, handleInstallError },
 			{ Registry }
 		] = await Promise.all([
 			import('columnify'),
@@ -39,12 +39,15 @@ export default {
 					description: d.description
 				};
 			});
-		} catch (e) {
-			if (e.code === 'ECONNREFUSED') {
-				console.error('Unable to connect to registry server');
-				process.exit(3);
+		} catch (error) {
+			const { exitCode, message } = handleInstallError(error);
+			process.exitCode = exitCode;
+			if (argv.json) {
+				console.error(JSON.stringify({ success: false, message }, null, '  '));
+			} else {
+				console.error(message);
 			}
-			throw e;
+			return;
 		}
 
 		if (argv.json) {
