@@ -38,6 +38,11 @@ If an extension is a npm package, the AMPLIFY CLI will automatically invoke it u
 executable. Specifying the extension as `node /path/to/script.js` will treat the extension as a
 native executable.
 
+*Detached mode* is an another packaging option where your extension is directly made available as a 
+standalone executable (meaning without the underlying AMPLIFY CLI). To achieve this, you could 
+for example rely on [Nexe](https://github.com/nexe/nexe) to package your extension as a binary 
+directly aiming your operating system.
+
 ### Creating an Extension CLI
 
 #### Step 1
