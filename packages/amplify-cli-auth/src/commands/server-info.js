@@ -2,7 +2,6 @@ export default {
 	hidden: true,
 	name: 'server-info',
 	async action({ argv, console }) {
-		const { Auth } = await import('@axway/amplify-auth-sdk');
 		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');
 		const config = loadConfig();
 
@@ -13,7 +12,7 @@ export default {
 			realm:    argv.realm
 		}, config);
 
-		const client = new Auth(params);
+		const client = auth.createAuth(params);
 		const info = await client.serverInfo(params);
 		console.log(JSON.stringify(info, null, '  '));
 	}

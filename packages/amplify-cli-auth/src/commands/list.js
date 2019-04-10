@@ -5,7 +5,6 @@ export default {
 		'--json': 'outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
-		const { Auth } = await import('@axway/amplify-auth-sdk');
 		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');
 
 		const config = loadConfig();
@@ -17,9 +16,9 @@ export default {
 			realm:    argv.realm
 		}, config);
 
-		const active = config.get('auth.defaultAccount');
-		const client = new Auth(params);
+		const client = auth.createAuth(params);
 		const accounts = await client.list();
+		const active = config.get('auth.defaultAccount');
 
 		for (const account of accounts) {
 			account.active = account.name === active;

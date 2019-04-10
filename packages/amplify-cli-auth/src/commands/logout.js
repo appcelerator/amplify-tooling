@@ -26,7 +26,7 @@ export default {
 			tokenStoreType
 		} = auth.buildParams();
 
-		const client = new Auth({
+		const client = auth.createAuth({
 			keytarServiceName,
 			tokenRefreshThreshold,
 			tokenStoreDir,

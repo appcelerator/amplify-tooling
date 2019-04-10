@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli-pm",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Package manager for Axway products",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -26,14 +26,14 @@
   },
   "dependencies": {
     "@axway/amplify-config": "^1.0.0",
-    "@axway/amplify-registry-sdk": "^1.0.0",
-    "cli-kit": "^0.7.5",
+    "@axway/amplify-registry-sdk": "^1.1.0",
+    "cli-kit": "^0.8.2",
     "columnify": "^1.5.4",
     "listr": "^0.14.3",
     "npm-package-arg": "^6.1.0",
-    "ora": "^3.2.0",
+    "ora": "^3.4.0",
     "semver": "^6.0.0",
-    "source-map-support": "^0.5.11"
+    "source-map-support": "^0.5.12"
   },
   "devDependencies": {
     "appcd-gulp": "^2.1.0"

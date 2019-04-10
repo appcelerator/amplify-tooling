@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-request",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Common request library for AMPLIFY CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -24,7 +24,7 @@
     "appcd-fs": "^1.1.6",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "source-map-support": "^0.5.11"
+    "source-map-support": "^0.5.12"
   },
   "devDependencies": {
     "appcd-gulp": "^2.1.0"

@@ -8,7 +8,6 @@ export default {
 	desc: 'dumps info for the specified account',
 	hidden: true,
 	async action({ argv, console }) {
-		const { Auth } = await import('@axway/amplify-auth-sdk');
 		const { auth } = await import('@axway/amplify-cli-utils');
 
 		const params = auth.buildParams({
@@ -17,7 +16,7 @@ export default {
 			realm:    argv.realm
 		});
 
-		const client = new Auth(params);
+		const client = auth.createAuth(params);
 
 		if (argv.accountName) {
 			const account = await client.getAccount({ accountName: argv.accountName });

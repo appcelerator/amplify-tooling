@@ -2,9 +2,16 @@
 
 The AMPLIFY CLI is the unified CLI for the Axway AMPLIFY platform.
 
+## Prerequisites
+
+The AMPLIFY CLI requires [Node.js][1] 8.10.0 or newer.
+
 ## Installation
 
-	npm i -g @axway/amplify-cli
+	npm i -g --unsafe-perm @axway/amplify-cli
+
+> Note: we recommend the `--unsafe-perm` flag to avoid file permission issues when `npm` installs
+> the `keytar` package.
 
 ## Quick Start
 
@@ -12,9 +19,13 @@ Show all available commands:
 
 	amplify
 
+List available packages:
+
+	amplify pm search [keyword]
+
 Install a package:
 
-	amplify pm install appcd
+	amplify pm install [package-name]
 
 Log into the Axway platform:
 
@@ -195,9 +206,10 @@ Below are the supported `"cli-kit"` properties in the `package.json`.
 
 ## Legal
 
-This project is open source under the [Apache Public License v2][1] and is developed by
-[Axway, Inc](http://www.axway.com/) and the community. Please read the [`LICENSE`][1] file included
+This project is open source under the [Apache Public License v2][3] and is developed by
+[Axway, Inc](http://www.axway.com/) and the community. Please read the [`LICENSE`][3] file included
 in this distribution for more information.
 
-[1]: https://github.com/appcelerator/amplify-tooling/blob/master/packages/amplify-cli/LICENSE
+[1]: https://nodejs.org/
 [2]: https://github.com/cb1kenobi/cli-kit
+[3]: https://github.com/appcelerator/amplify-tooling/blob/master/packages/amplify-cli/LICENSE
