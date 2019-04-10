@@ -3,6 +3,25 @@ import snooplogg from 'snooplogg';
 const logger = snooplogg('amplify-cli-utils:auth');
 
 /**
+ * Creates a new `Auth` instance. If `Auth` throws a secure store error, it change the error
+ * message to indicate the command to reinstall the AMPLIFY CLI.
+ *
+ * @param {Object} params - Various auth parameters.
+ * @returns {Auth}
+ */
+export function createAuth(params) {
+	try {
+		const Auth = require('@axway/amplify-auth-sdk').default;
+		return new Auth(params);
+	} catch (err) {
+		if (err.code === 'ERR_SECURE_STORE_UNAVAILABLE') {
+			err.message = 'Secure token store is not available.\nPlease reinstall the AMPLIFY CLI by running:\n    npm i -g --unsafe-perm @axway/amplify-cli';
+		}
+		throw err;
+	}
+}
+
+/**
  * Attempts to get the access token based on the supplied credentials.
  *
  * @param {Object} [authOpts] - The account id or authentication options to override the config
@@ -76,15 +95,6 @@ export async function getAccount(authOpts, accountName) {
 export default getAccount;
 
 /**
- * Loads the amplify-auth-sdk package.
- *
- * @returns {Object}
- */
-export function getAuth() {
-	return require('@axway/amplify-auth-sdk').default;
-}
-
-/**
  * Returns a list of all valid access tokens.
  *
  * @param {Object} [authOpts] - Various authentication options.
@@ -155,12 +165,11 @@ export function buildParams(opts = {}, config) {
  * @returns {Object}
  */
 function initAuth(authOpts) {
-	const Auth = getAuth();
 	const loadConfig = require('@axway/amplify-config').default;
 
 	const config = loadConfig();
 	const params = buildParams(authOpts, config);
-	const client = new Auth(params);
+	const client = createAuth(params);
 
 	return { client, config };
 }
