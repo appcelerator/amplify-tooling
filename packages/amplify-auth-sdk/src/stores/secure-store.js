@@ -61,7 +61,7 @@ export default class SecureStore extends FileStore {
 			fs.removeSync(keytarPath);
 
 			const env = Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env);
-			const result = spawnSync('npm', args, { env });
+			const result = spawnSync('npm', args, { env, shell: true });
 			log(`npm install exited (code ${result.status})`);
 
 			if (result.error) {
