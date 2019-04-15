@@ -1,7 +1,12 @@
 import Auth from '../dist/index';
+import tmp from 'tmp';
 
 import { createLoginServer, stopLoginServer } from './common';
 import { serverInfo } from './server-info';
+
+tmp.setGracefulCleanup();
+
+const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
 
 describe('Auth', () => {
 	describe('Constructor', () => {
@@ -13,15 +18,20 @@ describe('Auth', () => {
 			}).to.throw(TypeError, 'Expected options to be an object');
 		});
 
-		it('should error if token refresh threshold is invalid', () => {
+		it('should error if token refresh threshold is invalid', function () {
+			this.timeout(10000);
+			this.slow(8000);
+
 			expect(() => {
 				new Auth({
+					homeDir,
 					tokenRefreshThreshold: 'foo'
 				});
 			}).to.throw(TypeError, 'Expected token refresh threshold to be a number of seconds');
 
 			expect(() => {
 				new Auth({
+					homeDir,
 					tokenRefreshThreshold: -123
 				});
 			}).to.throw(RangeError, 'Token refresh threshold must be greater than or equal to zero');

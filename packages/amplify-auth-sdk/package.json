@@ -31,11 +31,10 @@
   },
   "devDependencies": {
     "appcd-gulp": "^2.1.0",
+    "keytar": "^4.4.1",
     "tmp": "^0.1.0"
   },
-  "optionalDependencies": {
-    "keytar": "^4.4.1"
-  },
+  "optionalDependencies": {},
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-auth-sdk",
