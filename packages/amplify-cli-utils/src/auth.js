@@ -15,7 +15,8 @@ export function createAuth(params) {
 		return new Auth(params);
 	} catch (err) {
 		if (err.code === 'ERR_SECURE_STORE_UNAVAILABLE') {
-			err.message = 'Secure token store is not available.\nPlease reinstall the AMPLIFY CLI by running:\n    npm i -g --unsafe-perm @axway/amplify-cli';
+			const isWin = process.platform = 'win32';
+			err.message = `Secure token store is not available.\nPlease reinstall the AMPLIFY CLI by running:\n    ${isWin ? '' : 'sudo '}npm i -g ${isWin ? '' : '--unsafe-perm '}@axway/amplify-cli`;
 		}
 		throw err;
 	}

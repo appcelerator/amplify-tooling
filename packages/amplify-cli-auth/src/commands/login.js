@@ -21,7 +21,7 @@ export default {
 		if (argv.hasOwnProperty('username')) {
 			const questions = [];
 
-			if (!argv.username) {
+			if (!argv.username || typeof argv.username !== 'string') {
 				questions.push({
 					type: 'input',
 					name: 'username',
@@ -32,7 +32,7 @@ export default {
 				});
 			}
 
-			if (!argv.password) {
+			if (!argv.password || typeof argv.password !== 'string') {
 				questions.push({
 					type: 'password',
 					name: 'password',
