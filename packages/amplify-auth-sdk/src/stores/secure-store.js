@@ -5,6 +5,7 @@ import E from '../errors';
 import FileStore from './file-store';
 import fs from 'fs-extra';
 import path from 'path';
+import semver from 'semver';
 import snooplogg from 'snooplogg';
 
 import { spawnSync } from 'child_process';
@@ -42,22 +43,26 @@ export default class SecureStore extends FileStore {
 			throw E.INVALID_PARAMETER('Secure store requires the home directory to be specified');
 		}
 
+		const supportedVersion = fs.readJsonSync(path.resolve(__dirname, '..', '..', 'package.json')).keytar;
 		const prefix = path.join(homeDir, 'lib', 'keytar', `${process.platform}_${process.arch}_${process.versions.modules}`);
 		const keytarPath = path.join(prefix, 'node_modules', 'keytar');
-		log(`Attempting to load keytar: ${highlight(keytarPath)}`);
-
+		const pkgJsonFile = path.join(keytarPath, 'package.json');
 		let keytar;
 
 		try {
-			keytar = require(keytarPath);
-		} catch (e) {
-			if (e.code !== 'MODULE_NOT_FOUND') {
-				log(e);
-				throw e;
+			const installedVersion = fs.readJsonSync(pkgJsonFile).version;
+			if (!semver.satisfies(installedVersion, supportedVersion)) {
+				log(`Installed keytar out-of-date: ${highlight(installedVersion)}, required ${highlight(supportedVersion)}`);
+				throw new Error();
 			}
 
-			const args = [ 'install', 'keytar@4.4.1', '--no-save', '--production', '--prefix', prefix ];
-			log(`keytar not found, running: ${highlight(`npm ${args.join(' ')}`)}`);
+			log(`Loading keytar: ${highlight(keytarPath)}`);
+			keytar = require(keytarPath);
+		} catch (e) {
+			const args = [ 'install', `keytar@${supportedVersion}`, '--no-save', '--production', '--prefix', prefix ];
+			if (e.message) {
+				log(`keytar not found, running: ${highlight(`npm ${args.join(' ')}`)}`);
+			}
 			fs.removeSync(keytarPath);
 
 			const env = Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env);

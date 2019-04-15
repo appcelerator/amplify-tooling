@@ -25,6 +25,7 @@
     "jws": "^3.2.2",
     "open": "^6.1.0",
     "pluralize": "^7.0.0",
+    "semver": "^6.0.0",
     "snooplogg": "^2.0.1",
     "source-map-support": "^0.5.12",
     "uuid": "^3.3.2"
@@ -41,5 +42,6 @@
   "engines": {
     "node": ">=8.0.0"
   },
+  "keytar": "4.4.1",
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }
