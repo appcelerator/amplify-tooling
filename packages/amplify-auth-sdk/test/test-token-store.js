@@ -383,8 +383,8 @@ describe('Token Store', () => {
 		});
 
 		(isCI && process.platform === 'linux' ? it.skip : it)('should securely store the token', async function () {
-			this.timeout(10000);
-			this.slow(8000);
+			this.timeout(60000);
+			this.slow(10000);
 
 			this.server = await createLoginServer();
 
@@ -425,8 +425,8 @@ describe('Token Store', () => {
 		});
 
 		(isCI && process.platform === 'linux' ? it.skip : it)('should clear all tokens and delete secure store', async function () {
-			this.timeout(10000);
-			this.slow(8000);
+			this.timeout(60000);
+			this.slow(10000);
 
 			this.server = await createLoginServer();
 
