@@ -7,7 +7,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
 
-import { spawnSync } from 'child_process';
+import { sync as spawnSync } from 'cross-spawn';
 
 const { log } = snooplogg('amplify-auth:secure-store');
 const { highlight } = snooplogg.styles;
