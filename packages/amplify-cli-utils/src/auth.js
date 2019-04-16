@@ -1,4 +1,3 @@
-import path from 'path';
 import snooplogg from 'snooplogg';
 
 const logger = snooplogg('amplify-cli-utils:auth');
