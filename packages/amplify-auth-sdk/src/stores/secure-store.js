@@ -55,12 +55,15 @@ export default class SecureStore extends FileStore {
 			// just in case there was a pre-existing botched install
 			fs.removeSync(keytarPath);
 
+			const env = Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env);
+
+			log(`node ${highlight(process.version)} modules ${highlight(process.versions.modules)} npm ${highlight(spawnSync('npm', [ '-v' ], { env, windowsHide: true }).stdout.toString().trim())}`);
+
 			// failed because version not installed or Node version change
 			const args = [ 'install', `keytar@${keytarVersion}`, '--no-save', '--production', '--prefix', prefix ];
 			log(`keytar not found, running: ${highlight(`npm ${args.join(' ')}`)}`);
 
 			// run npm install
-			const env = Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env);
 			const result = spawnSync('npm', args, { env, windowsHide: true });
 			log(`npm install exited (code ${result.status})`);
 

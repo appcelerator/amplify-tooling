@@ -2561,10 +2561,10 @@ cli-cursor@^2.0.0, cli-cursor@^2.1.0:
   dependencies:
     restore-cursor "^2.0.0"
 
-cli-kit@^0.10.1:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.10.1.tgz#2ea849c3a340c4d448855393a7bb73779a08de28"
-  integrity sha512-t0+jGocDmv2G8XpqYHUtdDykR3mjewq48MOAGUtPdsIUyciShI0ikS/h9eFkp7U1S/zgz8NCKUnDtJvodr8GaQ==
+cli-kit@^0.10.2:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-0.10.2.tgz#49eef28c4f1d882fdb70976e3692dcc0e9e91236"
+  integrity sha512-965KvPNFXCun4OKqeBFtXjcOjV5RkG5n3+UH+tD2T1AUXW6cdUwjKRyWNgOJ840Zy8H+MvcGlly+2gR6lOkSkw==
   dependencies:
     argv-split "^2.0.1"
     fast-levenshtein "^2.0.6"
