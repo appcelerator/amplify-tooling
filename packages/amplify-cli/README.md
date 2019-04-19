@@ -15,7 +15,7 @@ The AMPLIFY CLI requires [Node.js][1] 8.10.0 or newer.
 Due to file permissions, when installing the AMPLIFY CLI globally, you may need to prefix the
 command above with `sudo`:
 
-	sudo npm install --global --unsafe-perm @axway/amplify-cli
+	sudo npm install --global @axway/amplify-cli
 
 ## Quick Start
 
