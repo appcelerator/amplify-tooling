@@ -12,7 +12,6 @@ export default {
 		'--json': 'outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
-		const { Auth } = await import('@axway/amplify-auth-sdk');
 		const { auth } = await import('@axway/amplify-cli-utils');
 
 		if (!argv.accounts.length && !argv.all) {
@@ -20,6 +19,7 @@ export default {
 		}
 
 		const {
+			homeDir,
 			keytarServiceName,
 			tokenRefreshThreshold,
 			tokenStoreDir,
@@ -27,6 +27,7 @@ export default {
 		} = auth.buildParams();
 
 		const client = auth.createAuth({
+			homeDir,
 			keytarServiceName,
 			tokenRefreshThreshold,
 			tokenStoreDir,

@@ -8,10 +8,14 @@ The AMPLIFY CLI requires [Node.js][1] 8.10.0 or newer.
 
 ## Installation
 
-	npm i -g --unsafe-perm @axway/amplify-cli
+	npm install --global @axway/amplify-cli
 
-> Note: we recommend the `--unsafe-perm` flag to avoid file permission issues when `npm` installs
-> the `keytar` package.
+### macOS and Linux Users
+
+Due to file permissions, when installing the AMPLIFY CLI globally, you may need to prefix the
+command above with `sudo`:
+
+	sudo npm install --global --unsafe-perm @axway/amplify-cli
 
 ## Quick Start
 

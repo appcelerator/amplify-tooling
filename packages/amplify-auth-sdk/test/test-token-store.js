@@ -10,6 +10,8 @@ const isCI = process.env.CI || process.env.JENKINS;
 
 tmp.setGracefulCleanup();
 
+const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+
 describe('Token Store', () => {
 	describe('Constructor', () => {
 		it('should error if options is not an object', () => {
@@ -360,7 +362,30 @@ describe('Token Store', () => {
 			}
 		});
 
+		it('should error if home directory is invalid', () => {
+			try {
+				new Auth({
+					baseUrl:        'http://127.0.0.1:1337',
+					platformUrl:    'http://127.0.0.1:1337',
+					clientId:       'test_client',
+					secureServiceName,
+					realm:          'test_realm',
+					tokenStoreDir:  tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' }),
+					tokenStoreType: 'secure'
+				});
+			} catch (e) {
+				expect(e).to.be.instanceof(TypeError);
+				expect(e.message).to.equal('Secure store requires the home directory to be specified');
+				return;
+			}
+
+			throw new Error('Expected error');
+		});
+
 		(isCI && process.platform === 'linux' ? it.skip : it)('should securely store the token', async function () {
+			this.timeout(60000);
+			this.slow(10000);
+
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
@@ -369,6 +394,7 @@ describe('Token Store', () => {
 				baseUrl,
 				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
+				homeDir,
 				secureServiceName,
 				realm:          'test_realm',
 				tokenStoreDir,
@@ -399,6 +425,9 @@ describe('Token Store', () => {
 		});
 
 		(isCI && process.platform === 'linux' ? it.skip : it)('should clear all tokens and delete secure store', async function () {
+			this.timeout(60000);
+			this.slow(10000);
+
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
@@ -407,6 +436,7 @@ describe('Token Store', () => {
 				baseUrl,
 				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
+				homeDir,
 				secureServiceName,
 				realm:          'test_realm',
 				tokenStoreDir,

@@ -13,6 +13,7 @@ createError('LOGIN_REQUIRED',             Error,      'Login is required');
 createError('KEYTAR_NOT_FOUND',           Error,      'The token store could not find keytar');
 createError('MISSING_AUTH_CODE',          TypeError,  'An authorization code was expected');
 createError('MISSING_REQUIRED_PARAMETER', TypeError,  'A required parameter was not specified or not a valid type');
+createError('NPM_ERROR',                  Error,      'Failed to run npm perhaps due to executable not found, permission issue, insufficient disk space, or package not found');
 createError('ORG_SWITCH_FAILED',          Error,      'Failed to switch the current org for some reason');
 createError('REQUEST_FAILED',             Error,      'An HTTP request has errored or returned an invalid response');
 createError('SECURE_STORE_UNAVAILABLE',   Error,      'The secure store is not available, probably because "keytar" is not built or compatible with the current Node.js version');

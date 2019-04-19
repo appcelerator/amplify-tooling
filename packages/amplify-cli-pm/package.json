@@ -27,7 +27,7 @@
   "dependencies": {
     "@axway/amplify-config": "^1.0.0",
     "@axway/amplify-registry-sdk": "^1.1.0",
-    "cli-kit": "^0.8.2",
+    "cli-kit": "^0.10.2",
     "columnify": "^1.5.4",
     "listr": "^0.14.3",
     "npm-package-arg": "^6.1.0",

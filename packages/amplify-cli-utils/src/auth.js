@@ -14,8 +14,11 @@ export function createAuth(params) {
 		const Auth = require('@axway/amplify-auth-sdk').default;
 		return new Auth(params);
 	} catch (err) {
+		// this secure store error was removed in amplify-auth-sdk@1.1.0, but remains here for
+		// backwards compatiblity and will be removed in amplify-cli-utils@3.0.0
 		if (err.code === 'ERR_SECURE_STORE_UNAVAILABLE') {
-			err.message = 'Secure token store is not available.\nPlease reinstall the AMPLIFY CLI by running:\n    npm i -g --unsafe-perm @axway/amplify-cli';
+			const isWin = process.platform === 'win32';
+			err.message = `Secure token store is not available.\nPlease reinstall the AMPLIFY CLI by running:\n    ${isWin ? '' : 'sudo '}npm install --global ${isWin ? '' : '--unsafe-perm '}@axway/amplify-cli`;
 		}
 		throw err;
 	}
@@ -138,6 +141,7 @@ export function buildParams(opts = {}, config) {
 		clientSecret:            undefined,
 		env,
 		interactiveLoginTimeout: undefined,
+		homeDir:                 axwayHome,
 		password:                undefined,
 		platformUrl:             undefined,
 		realm,

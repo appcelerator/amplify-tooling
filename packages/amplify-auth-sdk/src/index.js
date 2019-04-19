@@ -49,12 +49,15 @@ export default class Auth {
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
-	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
-	 * using this library when using the "secure" token store.
+	 * @param {String} [opts.homeDir] - The path to the home directory containing the `lib`
+	 * directory where `keytar` is located. This option is required when `tokenStoreType` is set to
+	 * `secure`, which is the default.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
 	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
+	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
+	 * using this library when using the "secure" token store.
 	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
 	 * requested by a service instead of a user.
 	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
