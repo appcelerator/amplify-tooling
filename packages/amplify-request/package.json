@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-request",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Common request library for AMPLIFY CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
