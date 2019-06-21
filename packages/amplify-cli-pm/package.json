@@ -27,16 +27,16 @@
   "dependencies": {
     "@axway/amplify-config": "^1.1.0",
     "@axway/amplify-registry-sdk": "^1.2.0",
-    "cli-kit": "^0.10.2",
+    "cli-kit": "^0.11.1",
     "columnify": "^1.5.4",
     "listr": "^0.14.3",
     "npm-package-arg": "^6.1.0",
     "ora": "^3.4.0",
-    "semver": "^6.0.0",
+    "semver": "^6.1.1",
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.1.0"
+    "appcd-gulp": "^2.1.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
