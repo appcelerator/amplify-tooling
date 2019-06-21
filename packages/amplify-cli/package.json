@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "A unified CLI for the Axway AMPLIFY platform.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -24,8 +24,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-auth": "^1.2.0",
-    "@axway/amplify-cli-pm": "^1.2.0",
+    "@axway/amplify-cli-auth": "^1.3.0",
+    "@axway/amplify-cli-pm": "^1.3.0",
     "cli-kit": "^0.11.1",
     "source-map-support": "^0.5.12",
     "v8-compile-cache": "^2.0.3"
