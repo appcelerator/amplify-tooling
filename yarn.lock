@@ -1587,19 +1587,6 @@ appcd-dispatcher@^1.4.0, appcd-dispatcher@^1.4.1:
     source-map-support "^0.5.11"
     uuid "^3.3.2"
 
-appcd-dispatcher@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/appcd-dispatcher/-/appcd-dispatcher-2.0.0.tgz#22cfa169b93e478abbb46dc41799afb90a432b1f"
-  integrity sha512-DsrzV72Kpvp1Akuu5Z+lL8CJJlfkFqtCpC8PjjN9I0z6x9AcauePXffNkwHCuLGqnZWwkIFIdKg5LBxMI++LLg==
-  dependencies:
-    appcd-logger "^2.0.2"
-    appcd-response "^2.0.0"
-    gawk "^4.6.3"
-    path-to-regexp "^3.0.0"
-    pluralize "^8.0.0"
-    source-map-support "^0.5.12"
-    uuid "^3.3.2"
-
 appcd-fs@^1.1.3, appcd-fs@^1.1.6, appcd-fs@^1.1.7:
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/appcd-fs/-/appcd-fs-1.1.7.tgz#aa16f601a410891f02559d7dcf9a9a83cf31350b"
@@ -1676,22 +1663,6 @@ appcd-nodejs@^1.2.1:
     tar-stream "^2.1.0"
     yauzl "^2.10.0"
 
-appcd-nodejs@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/appcd-nodejs/-/appcd-nodejs-2.0.0.tgz#44f154d175971ea0e2df9c57da2807be64a97516"
-  integrity sha512-wSLfzQd+FAigbX7viJzQEdGqMJh1B+rjDbsgtQ5TlwS7j2Zf/o8sd5Hd9TxrbxQ89hOffmeBcuZBJg/m5mDgGA==
-  dependencies:
-    appcd-fs "^1.1.7"
-    appcd-logger "^2.0.2"
-    appcd-request "^2.0.0"
-    appcd-util "^1.1.7"
-    fs-extra "^8.0.1"
-    pluralize "^8.0.0"
-    progress "^2.0.3"
-    source-map-support "^0.5.12"
-    tar-stream "^2.1.0"
-    yauzl "^2.10.0"
-
 appcd-path@^1.1.5, appcd-path@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/appcd-path/-/appcd-path-1.1.6.tgz#f17bcc3a037770443f83c1508075b7248b71cdff"
@@ -1711,18 +1682,6 @@ appcd-request@^1.2.2:
     request "^2.88.0"
     source-map-support "^0.5.12"
 
-appcd-request@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/appcd-request/-/appcd-request-2.0.0.tgz#88ae21fa9007b64326f5848fcce5454802c52be4"
-  integrity sha512-Pha7ChjPq4CA0/segsFYAPCuIakzrQiOF7Fpv9Ke9i0CPgxAQdDEVBFljMcv3x0tF0mJx9iDyLLVqNPZrCTxOQ==
-  dependencies:
-    appcd-dispatcher "^2.0.0"
-    appcd-fs "^1.1.7"
-    appcd-logger "^2.0.2"
-    humanize "^0.0.9"
-    request "^2.88.0"
-    source-map-support "^0.5.12"
-
 appcd-response@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/appcd-response/-/appcd-response-1.1.6.tgz#0f41069364e110429de92941f6918e73b9dbfcd2"
@@ -1733,17 +1692,6 @@ appcd-response@^1.1.6:
     appcd-winreg "^1.1.5"
     source-map-support "^0.5.11"
     sprintf-js "^1.1.2"
-
-appcd-response@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/appcd-response/-/appcd-response-2.0.0.tgz#7e5fc636cb27c802617c0f956d723b4140f468a5"
-  integrity sha512-2/Lj8G1cRQDdUzrj7RIF8ozR9wxPRwnJsjkvHhiCxmL+bcNweBD0BtLdeUkLrudZZqyfpvRu5H9/cGtk5kgDFA==
-  dependencies:
-    appcd-fs "^1.1.7"
-    appcd-path "^1.1.6"
-    source-map-support "^0.5.12"
-    sprintf-js "^1.1.2"
-    winreglib "^1.0.2"
 
 appcd-subprocess@^1.3.0:
   version "1.3.2"
@@ -1759,22 +1707,6 @@ appcd-subprocess@^1.3.0:
     gawk "^4.6.2"
     ps-tree "^1.2.0"
     source-map-support "^0.5.11"
-    which "^1.3.1"
-
-appcd-subprocess@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/appcd-subprocess/-/appcd-subprocess-2.0.1.tgz#a42ae6feb78b4684847792d22b8c64fcf175c4e8"
-  integrity sha512-CR4NQgMcgag2JnENz3vSK1MLB5u7PVDdLdZn1ifWLbo7uRxG+/leIqnz3qAZK3Uit8A6mnhX4tFavktaDJkdng==
-  dependencies:
-    appcd-dispatcher "^2.0.0"
-    appcd-logger "^2.0.2"
-    appcd-nodejs "^2.0.0"
-    appcd-path "^1.1.6"
-    appcd-response "^2.0.0"
-    appcd-util "^1.1.7"
-    gawk "^4.6.3"
-    ps-tree "^1.2.0"
-    source-map-support "^0.5.12"
     which "^1.3.1"
 
 appcd-util@^1.1.6, appcd-util@^1.1.7:
@@ -7112,11 +7044,6 @@ napi-build-utils@^1.0.1:
   resolved "https://registry.yarnpkg.com/napi-build-utils/-/napi-build-utils-1.0.1.tgz#1381a0f92c39d66bf19852e7873432fc2123e508"
   integrity sha512-boQj1WFgQH3v4clhu3mTNfP+vOBxorDlE8EKiMjUlLG3C4qAESnn9AxIOkFgTR2c9LtzNjPrjS60cT27ZKBhaA==
 
-napi-macros@^1.8.2:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/napi-macros/-/napi-macros-1.8.2.tgz#299265c1d8aa401351ad0675107d751228c03eda"
-  integrity sha512-Tr0DNY4RzTaBG2W2m3l7ZtFuJChTH6VZhXVhkGGjF/4cZTt+i8GcM9ozD+30Lmr4mDoZ5Xx34t2o4GJqYWDGcg==
-
 natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
@@ -7195,11 +7122,6 @@ node-fetch@^2.3.0, node-fetch@^2.5.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
   integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
-
-node-gyp-build@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.1.0.tgz#3bc3dd7dd4aafecaf64a2e3729e785bc3cdea565"
-  integrity sha512-rGLv++nK20BG8gc0MzzcYe1Nl3p3mtwJ74Q2QD0HTEDKZ6NvOFSelY6s2QBPWIHRR8h7hpad0LiwajfClBJfNg==
 
 node-gyp@^4.0.0:
   version "4.0.0"
@@ -10201,15 +10123,6 @@ winreg@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/winreg/-/winreg-1.2.4.tgz#ba065629b7a925130e15779108cf540990e98d1b"
   integrity sha1-ugZWKbepJRMOFXeRCM9UCZDpjRs=
-
-winreglib@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/winreglib/-/winreglib-1.0.2.tgz#09d915a940eb8321a29dab56977ae4f8627bc44d"
-  integrity sha512-SwwJJllsf62CHK8Gt0RC5osNJjg/jepmrVB61+D17a+3C6MjDjjiaA4pLsTMN9bCLpw8Ydyp3JXk8CVPJGR4iw==
-  dependencies:
-    napi-macros "^1.8.2"
-    node-gyp-build "^4.1.0"
-    snooplogg "^2.0.1"
 
 wordwrap@^1.0.0, wordwrap@~1.0.0:
   version "1.0.0"
