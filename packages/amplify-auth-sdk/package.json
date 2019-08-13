@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "appcd-gulp": "^2.1.1",
-    "keytar": "4.10.0",
+    "keytar": "4.13.0",
     "tmp": "^0.1.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
@@ -41,6 +41,6 @@
   "engines": {
     "node": ">=8.0.0"
   },
-  "keytar": "4.10.0",
+  "keytar": "4.13.0",
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }
