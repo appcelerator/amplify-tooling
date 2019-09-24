@@ -55,7 +55,7 @@ export default {
 		const { account: acct, client, config } = await auth.getAccount({
 			baseUrl:      argv.baseUrl,
 			clientId:     argv.clientId,
-			clientSecret: argv.secret,
+			clientSecret: argv.clientSecret,
 			env:          argv.env,
 			password:     argv.password,
 			realm:        argv.realm,

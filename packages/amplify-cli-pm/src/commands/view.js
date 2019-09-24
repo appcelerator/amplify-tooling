@@ -49,7 +49,7 @@ export default {
 					if (typeof result !== 'object') {
 						break;
 					}
-					result = result.hasOwnProperty(key) ? result[key] : undefined;
+					result = Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
 				}
 			}
 

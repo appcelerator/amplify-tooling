@@ -350,6 +350,8 @@ export default class Authenticator {
 		} catch (e) {
 			if (this.shouldFetchOrgs) {
 				throw e;
+			} else {
+				log('The above error can be ignored since this authentication method does not require orgs to be successfully fetched');
 			}
 		}
 
