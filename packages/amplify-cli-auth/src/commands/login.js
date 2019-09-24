@@ -18,7 +18,7 @@ export default {
 		]);
 
 		// prompt for the username and password
-		if (argv.hasOwnProperty('username')) {
+		if (Object.prototype.hasOwnProperty.call(argv, 'username')) {
 			const questions = [];
 
 			if (!argv.username || typeof argv.username !== 'string') {
