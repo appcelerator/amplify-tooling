@@ -145,7 +145,9 @@ export default class SecureStore extends FileStore {
 			try {
 				key = await this.keytar.getPassword(this.serviceName, this.serviceName);
 			} catch (err) {
-				if (process.platform === 'linux' && /Cannot autolaunch D-Bus without X11/i.test(err.message)) {
+				if (process.platform === 'linux') {
+					// this is likely due to d-bus daemon not running (i.e. "Connection refused") or
+					// running in a non-desktop (headless) environment (i.e. "Cannot autolaunch D-Bus without X11")
 					warn(err.message);
 					throw new Error([
 						'Unable to get the secure token store key.',
