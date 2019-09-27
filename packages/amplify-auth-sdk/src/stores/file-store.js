@@ -78,10 +78,11 @@ export default class FileStore extends TokenStore {
 		const decipher = crypto.createDecipheriv(algorithm, await this.getKey(), iv);
 		try {
 			return JSON.parse(decipher.update(str, 'hex', 'utf8') + decipher.final('utf8'));
-		} finally {
+		} catch (e) {
 			// it's possible that there was a tokenstore on disk that was encrypted with an old key
 			// that no longer exists and the new key can't decode it, so just nuke the tokenstore
 			await fs.remove(this.tokenStoreFile);
+			throw e;
 		}
 	}
 
