@@ -148,10 +148,13 @@ export default class SecureStore extends FileStore {
 				if (process.platform === 'linux' && /Cannot autolaunch D-Bus without X11/i.test(err.message)) {
 					warn(err.message);
 					throw new Error([
-						'AMPLIFY Auth is currently set to use a secure token store, however this a requires a desktop environment.',
+						'Unable to get the secure token store key.',
+						'',
+						'On Linux, the secure token store requires a desktop environment.',
 						'SSH sessions and headless environments are not supported.',
 						'',
-						'To disable the secure token store and use a insecure token store run:',
+						'To use the insecure token store, run the following:',
+						'',
 						'  amplify config set auth.tokenStoreType file'
 					].join('\n'));
 				}
