@@ -10,7 +10,7 @@ import tmp from 'tmp';
 
 import { sync as spawnSync } from 'cross-spawn';
 
-const { log } = snooplogg('amplify-auth:secure-store');
+const { log, warn } = snooplogg('amplify-auth:secure-store');
 const { highlight } = snooplogg.styles;
 
 /**
@@ -140,7 +140,24 @@ export default class SecureStore extends FileStore {
 	 */
 	async getKey() {
 		if (!this._key) {
-			let key = await this.keytar.getPassword(this.serviceName, this.serviceName);
+			let key;
+
+			try {
+				key = await this.keytar.getPassword(this.serviceName, this.serviceName);
+			} catch (err) {
+				if (process.platform === 'linux' && /Cannot autolaunch D-Bus without X11/i.test(err.message)) {
+					warn(err.message);
+					throw new Error([
+						'AMPLIFY Auth is currently set to use a secure token store, however this a requires a desktop environment.',
+						'SSH sessions and headless environments are not supported.',
+						'',
+						'To disable the secure token store and use a insecure token store run:',
+						'  amplify config set auth.tokenStoreType file'
+					].join('\n'));
+				}
+				throw err;
+			}
+
 			if (!key) {
 				log('Generating new key...');
 				key = crypto.randomBytes(16).toString('hex');
