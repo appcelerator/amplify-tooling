@@ -475,7 +475,7 @@ export default class Authenticator {
 		const body = stringifyQueryString(params);
 
 		log(`Fetching token: ${highlight(url)}`);
-		log(`Post body: ${highlight(body)}`);
+		log(`Post body: ${highlight(stringifyQueryString({ ...params, password: '********' }))}`);
 
 		try {
 			response = await request({
