@@ -6,10 +6,11 @@ import FileStore from './file-store';
 import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
+import tmp from 'tmp';
 
 import { sync as spawnSync } from 'cross-spawn';
 
-const { log } = snooplogg('amplify-auth:secure-store');
+const { log, warn } = snooplogg('amplify-auth:secure-store');
 const { highlight } = snooplogg.styles;
 
 /**
@@ -47,6 +48,9 @@ export default class SecureStore extends FileStore {
 		const keytarPath = path.join(prefix, 'node_modules', 'keytar');
 		let keytar;
 
+		const cacheDir = tmp.tmpNameSync({ prefix: 'amplify-auth-sdk-npm-cache' });
+		fs.mkdirpSync(cacheDir);
+
 		try {
 			// the first step is to try to load the exact version
 			log(`Loading keytar: ${highlight(keytarPath)}`);
@@ -55,13 +59,16 @@ export default class SecureStore extends FileStore {
 			// just in case there was a pre-existing botched install
 			fs.removeSync(keytarPath);
 
-			const env = Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env);
+			const env = Object.assign({
+				NO_UPDATE_NOTIFIER: 1,
+				npm_config_cache: cacheDir
+			}, process.env);
 
 			log(`node ${highlight(process.version)} modules ${highlight(process.versions.modules)} npm ${highlight(spawnSync('npm', [ '-v' ], { env, windowsHide: true }).stdout.toString().trim())}`);
 
 			// failed because version not installed or Node version change
-			const args = [ 'install', `keytar@${keytarVersion}`, '--no-save', '--production', '--prefix', prefix ];
-			log(`keytar not found, running: ${highlight(`npm ${args.join(' ')}`)}`);
+			const args = [ 'install', `keytar@${keytarVersion}`, '--no-audit', '--no-save', '--production', '--prefix', prefix ];
+			log(`keytar not found, running: ${highlight(`npm_config_cache=${cacheDir} npm ${args.join(' ')}`)}`);
 
 			// run npm install
 			const result = spawnSync('npm', args, { env, windowsHide: true });
@@ -69,13 +76,21 @@ export default class SecureStore extends FileStore {
 
 			if (result.error) {
 				// spawn error
-				throw E.NPM_ERROR(`npm Error: ${result.error.code === 'ENOENT' ? 'npm executable not found' : result.error.message} (code ${result.status})`);
+				throw E.NPM_ERROR(`${result.error.code === 'ENOENT' ? 'npm executable not found' : result.error.message} (code ${result.status})`);
 			}
 
 			if (result.status) {
 				const output = result.stderr.toString().trim();
 				output && log(output);
-				throw E.NPM_ERROR(`npm Error: ${output ? String(output.split(/\r\n|\n/)[0]).replace(/^\s*error:\s*/i, '') : 'unknown error'} (code ${result.status})`);
+				if (process.platform === 'linux' && output.includes('libsecret')) {
+					throw E.NPM_ERROR([
+						'AMPLIFY Auth requires "libsecret" which must be manually installed.',
+						'  Debian/Ubuntu: sudo apt-get install libsecret-1-dev',
+						'  Red Hat-based: sudo yum install libsecret-devel',
+						'  Arch Linux:    sudo pacman -S libsecret'
+					].join('\n'));
+				}
+				throw E.NPM_ERROR(`${output ? String(output.split(/\r\n|\n/)[0]).replace(/^\s*error:\s*/i, '') : 'unknown error'} (code ${result.status})`);
 			}
 
 			const output = result.stdout.toString().trim();
@@ -86,6 +101,11 @@ export default class SecureStore extends FileStore {
 			} catch (e2) {
 				log(e2);
 				throw E.NPM_ERROR(`Failed to install keytar. Please check that your version of Node.js (${process.version}) is supported.`);
+			}
+		} finally {
+			if (fs.existsSync(cacheDir)) {
+				log(`Cleaning up temp npm cache dir: ${highlight(cacheDir)}`);
+				fs.removeSync(cacheDir);
 			}
 		}
 
@@ -120,7 +140,29 @@ export default class SecureStore extends FileStore {
 	 */
 	async getKey() {
 		if (!this._key) {
-			let key = await this.keytar.getPassword(this.serviceName, this.serviceName);
+			let key;
+
+			try {
+				key = await this.keytar.getPassword(this.serviceName, this.serviceName);
+			} catch (err) {
+				if (process.platform === 'linux') {
+					// this is likely due to d-bus daemon not running (i.e. "Connection refused") or
+					// running in a non-desktop (headless) environment (i.e. "Cannot autolaunch D-Bus without X11")
+					warn(err.message);
+					throw new Error([
+						'Unable to get the secure token store key.',
+						'',
+						'On Linux, the secure token store requires a desktop environment.',
+						'SSH sessions and headless environments are not supported.',
+						'',
+						'To use the insecure token store, run the following:',
+						'',
+						'  amplify config set auth.tokenStoreType file'
+					].join('\n'));
+				}
+				throw err;
+			}
+
 			if (!key) {
 				log('Generating new key...');
 				key = crypto.randomBytes(16).toString('hex');

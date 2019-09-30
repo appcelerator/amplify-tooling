@@ -129,7 +129,7 @@ export function buildParams(opts = {}, config) {
 	}
 
 	const env = opts.env || config.get('env') || 'prod';
-	if (!environments.hasOwnProperty(env)) {
+	if (!Object.prototype.hasOwnProperty.call(environments, env)) {
 		throw new Error(`Invalid environment "${env}", expected ${Object.keys(environments).reduce((p, s, i, a) => `${p}"${s}"${i + 1 < a.length ? `, ${i + 2 === a.length ? 'or ' : ''}` : ''}`, '')}`);
 	}
 

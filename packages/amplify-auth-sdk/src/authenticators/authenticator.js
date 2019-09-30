@@ -287,7 +287,7 @@ export default class Authenticator {
 	 */
 	async getInfo(account) {
 		const accessToken = account.tokens.access_token;
-		const req = async (type, url) => {
+		const req = async (type, url, optional) => {
 			let response;
 
 			try {
@@ -300,14 +300,14 @@ export default class Authenticator {
 					validateJSON: true
 				});
 			} catch (e) {
-				throw handleRequestError({ label: `Fetch ${type} info failed`, response: e });
+				throw handleRequestError({ label: `Fetch ${type} info failed`, response: e, optional });
 			}
 
 			if (response.statusCode >= 200 && response.statusCode < 300 && response.body) {
 				return response.body;
 			}
 
-			throw handleRequestError({ label: `Fetch ${type} info failed`, response });
+			throw handleRequestError({ label: `Fetch ${type} info failed`, response, optional });
 		};
 
 		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
@@ -322,7 +322,7 @@ export default class Authenticator {
 
 		try {
 			log(`Fetching session info: ${highlight(this.endpoints.findSession)} ${note(accessToken)}`);
-			const { result } = await req('session', this.endpoints.findSession);
+			const { result } = await req('session', this.endpoints.findSession, !this.shouldFetchOrgs);
 			log(result);
 			const { org, orgs, user } = result;
 			account.org = {
@@ -475,7 +475,7 @@ export default class Authenticator {
 		const body = stringifyQueryString(params);
 
 		log(`Fetching token: ${highlight(url)}`);
-		log(`Post body: ${highlight(body)}`);
+		log(`Post body: ${highlight(stringifyQueryString({ ...params, password: '********' }))}`);
 
 		try {
 			response = await request({

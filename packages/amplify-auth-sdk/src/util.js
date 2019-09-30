@@ -35,11 +35,13 @@ export async function getServerInfo(url) {
 /**
  * Constructs an error from a failed fetch request, logs it, and returns it.
  *
- * @param {Response} res - A fetch response object.
- * @param {String} label - The error label.
+ * @param {Object} params - Various parameters.
+ * @param {String} params.label - The error label.
+ * @param {Response} params.response - A fetch response object.
+ * @param {Boolean} [params.optional] - When `true`, a failed request is logged, but not as an error.
  * @returns {Promise<Error>}
  */
-export function handleRequestError({ label, response }) {
+export function handleRequestError({ label, response, optional }) {
 	const meta = {};
 	let err = response.error;
 	let { message, statusCode } = response;
@@ -63,7 +65,11 @@ export function handleRequestError({ label, response }) {
 	}
 
 	const msg = `${label}: ${statusCode ? `${statusCode} ` : ''}${details || err || message || status}`;
-	error(msg);
+	if (optional) {
+		log(msg);
+	} else {
+		error(msg);
+	}
 	return E.REQUEST_FAILED(msg, meta);
 }
 

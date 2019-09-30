@@ -18,7 +18,7 @@ export default {
 		]);
 
 		// prompt for the username and password
-		if (argv.hasOwnProperty('username')) {
+		if (Object.prototype.hasOwnProperty.call(argv, 'username')) {
 			const questions = [];
 
 			if (!argv.username || typeof argv.username !== 'string') {
@@ -55,7 +55,7 @@ export default {
 		const { account: acct, client, config } = await auth.getAccount({
 			baseUrl:      argv.baseUrl,
 			clientId:     argv.clientId,
-			clientSecret: argv.secret,
+			clientSecret: argv.clientSecret,
 			env:          argv.env,
 			password:     argv.password,
 			realm:        argv.realm,

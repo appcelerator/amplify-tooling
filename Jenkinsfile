@@ -4,7 +4,7 @@ library 'pipeline-library'
 timestamps {
   def isMaster = false
   def packageVersion
-  def nodeVersion = '8.11.4'
+  def nodeVersion = '10.16.3'
   def yarnVersion = 'latest' // We want latest by default, but can lockdown if we wish to
 
   node('osx || linux') {
