@@ -59,6 +59,7 @@ export default class FileStore extends TokenStore {
 		const { entries, removed } = await super._clear(baseUrl);
 		if (entries.length) {
 			const data = await this.encode(entries);
+			log(`Writing ${highlight(this.tokenStoreFile)}`);
 			await fs.outputFile(this.tokenStoreFile, data, { mode: 384 /* 600 */ });
 		} else {
 			log(`Deleting empty token file: ${highlight(this.tokenStoreFile)}`);
@@ -75,12 +76,20 @@ export default class FileStore extends TokenStore {
 	 * @access private
 	 */
 	async decode(str) {
-		const decipher = crypto.createDecipheriv(algorithm, await this.getKey(), iv);
+		let decipher;
+		try {
+			decipher = crypto.createDecipheriv(algorithm, await this.getKey(), iv);
+		} catch (e) {
+			e.amplifyCode = 'ERR_BAD_KEY';
+			throw e;
+		}
+
 		try {
 			return JSON.parse(decipher.update(str, 'hex', 'utf8') + decipher.final('utf8'));
 		} catch (e) {
 			// it's possible that there was a tokenstore on disk that was encrypted with an old key
 			// that no longer exists and the new key can't decode it, so just nuke the tokenstore
+			log(`Removing ${highlight(this.tokenStoreFile)}`);
 			await fs.remove(this.tokenStoreFile);
 			throw e;
 		}
@@ -98,6 +107,7 @@ export default class FileStore extends TokenStore {
 		const { entries, removed } = await super._delete(accounts, baseUrl);
 		if (entries.length) {
 			const data = await this.encode(entries);
+			log(`Writing ${highlight(this.tokenStoreFile)}`);
 			await fs.outputFile(this.tokenStoreFile, data, { mode: 0o600 });
 		} else {
 			log(`Deleting empty token file: ${highlight(this.tokenStoreFile)}`);
@@ -114,7 +124,13 @@ export default class FileStore extends TokenStore {
 	 * @access private
 	 */
 	async encode(data) {
-		const cipher = crypto.createCipheriv(algorithm, await this.getKey(), iv);
+		let cipher;
+		try {
+			cipher = crypto.createCipheriv(algorithm, await this.getKey(), iv);
+		} catch (e) {
+			e.amplifyCode = 'ERR_BAD_KEY';
+			throw e;
+		}
 		return cipher.update(JSON.stringify(data), 'utf8', 'hex') + cipher.final('hex');
 	}
 
@@ -142,6 +158,7 @@ export default class FileStore extends TokenStore {
 	async list() {
 		if (fs.existsSync(this.tokenStoreFile)) {
 			try {
+				log(`Reading ${highlight(this.tokenStoreFile)}`);
 				const entries = await this.decode(fs.readFileSync(this.tokenStoreFile, 'utf8'));
 				return this.purge(entries);
 			} catch (e) {
@@ -163,6 +180,7 @@ export default class FileStore extends TokenStore {
 	async set(obj) {
 		const entries = await super._set(obj);
 		const data = await this.encode(entries);
+		log(`Writing ${highlight(this.tokenStoreFile)}`);
 		await fs.outputFile(this.tokenStoreFile, data, { mode: 384 /* 600 */ });
 	}
 }
