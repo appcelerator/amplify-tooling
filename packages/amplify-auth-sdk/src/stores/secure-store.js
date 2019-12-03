@@ -127,7 +127,7 @@ export default class SecureStore extends FileStore {
 		try {
 			return await super.decode(str);
 		} catch (e) {
-			if (!e.amplifyCode === 'ERR_BAD_KEY') {
+			if (e.amplifyCode === 'ERR_BAD_KEY') {
 				await this.keytar.deletePassword(this.serviceName, this.serviceName);
 			}
 			throw e;
