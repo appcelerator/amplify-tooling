@@ -19,7 +19,7 @@ export default {
 		const client = auth.createAuth(params);
 
 		if (argv.accountName) {
-			const account = await client.getAccount({ accountName: argv.accountName });
+			const account = await client.getAccount(argv.accountName);
 			if (account) {
 				console.log(JSON.stringify(account, null, '  '));
 			} else {
