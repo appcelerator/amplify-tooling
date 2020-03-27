@@ -8,7 +8,6 @@ An SDK for interacting with the AMPLIFY Registry.
 	npm i -g @axway/amplify-registry-sdk
 ```
 
-
 ## Legal
 
 This project is open source under the [Apache Public License v2][1] and is developed by
