@@ -65,7 +65,9 @@ describe('Server', () => {
 		}
 	});
 
-	it('should error if auth code is bad', async () => {
+	it('should error if auth code is bad', async function () {
+		this.timeout(5000);
+
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',

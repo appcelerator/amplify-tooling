@@ -149,6 +149,8 @@ describe('PKCE', () => {
 		});
 
 		it('should error if server is unreachable', async function () {
+			this.timeout(5000);
+
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
 				platformUrl:    'http://127.0.0.1:1337',
@@ -202,6 +204,7 @@ describe('PKCE', () => {
 		});
 
 		(isCI ? it.skip : it)('should do interactive login', async function () {
+			this.timeout(5000);
 			this.server = await createLoginServer();
 
 			const auth = new Auth({

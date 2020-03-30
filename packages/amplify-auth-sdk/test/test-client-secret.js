@@ -162,6 +162,8 @@ describe('Client Secret', () => {
 		});
 
 		it('should error if server is unreachable', async function () {
+			this.timeout(5000);
+
 			const auth = new Auth({
 				clientSecret:   '###',
 				serviceAccount: false,
@@ -219,6 +221,8 @@ describe('Client Secret', () => {
 		});
 
 		(isCI ? it.skip : it)('should do interactive login', async function () {
+			this.timeout(5000);
+
 			this.server = await createLoginServer();
 
 			const auth = new Auth({
@@ -294,6 +298,8 @@ describe('Client Secret', () => {
 		});
 
 		it('should error if server is unreachable', async function () {
+			this.timeout(5000);
+
 			const auth = new Auth({
 				clientSecret:   '###',
 				serviceAccount: true,
