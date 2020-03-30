@@ -19,7 +19,7 @@ describe('Auth', () => {
 		});
 
 		it('should error if token refresh threshold is invalid', function () {
-			this.timeout(60000);
+			this.timeout(120000);
 			this.slow(10000);
 
 			expect(() => {

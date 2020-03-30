@@ -62,7 +62,9 @@ describe('request', () => {
 		expect(response.body).to.equal('foo!');
 	});
 
-	it('should reject with the error', async () => {
+	it('should reject with the error', async function () {
+		this.timeout(5000);
+
 		try {
 			await request({ url: 'http://127.0.0.1:1337' });
 		} catch (err) {
@@ -93,6 +95,8 @@ describe('request', () => {
 	});
 
 	it('should throw when getting ECONNREFUSED', async function () {
+		this.timeout(5000);
+
 		try {
 			await request({ url: 'http://127.0.0.1:1336' });
 		} catch (err) {

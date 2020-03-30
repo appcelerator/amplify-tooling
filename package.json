@@ -21,7 +21,8 @@
     "pretty-log": "^0.1.0"
   },
   "scripts": {
-    "build": "lerna exec gulp build"
+    "build": "lerna exec gulp build",
+    "test": "yarn run gulp coverage && yarn run gulp integration"
   },
   "workspaces": {
     "packages": [
