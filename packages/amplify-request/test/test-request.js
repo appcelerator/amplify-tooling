@@ -66,7 +66,7 @@ describe('request', () => {
 		this.timeout(5000);
 
 		try {
-			const r = await request({ url: 'http://127.0.0.1:1337' });
+			await request({ url: 'http://127.0.0.1:1337' });
 		} catch (err) {
 			expect(err.code).to.equal('ECONNREFUSED');
 			return;
