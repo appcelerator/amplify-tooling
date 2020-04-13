@@ -74,6 +74,8 @@ describe('Signed JWT', () => {
 		});
 
 		it('should error if server is unreachable', async function () {
+			this.timeout(5000);
+
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
