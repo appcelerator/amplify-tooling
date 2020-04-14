@@ -12,9 +12,48 @@ information, and switching the user's current organization.
 The Platform SDK relies on the [AMPLIFY Auth SDK][2] for authenticating and managing access tokens. For
 organization related information, it talks directly to the Axway platform.
 
+```js
+account: {
+	user: {
+		email:        '',
+		firstName:    '',
+		guid:         '',
+		lastName:     '',
+		axwayId:      '',
+		is2FAEnabled: true,
+		organization: ''
+	},
+	org: {
+		guid: '',
+		id: '',
+		name: ''
+	},
+	orgs: [
+		{ /* org */ },
+		{ /* org */ }
+	]
+}
+```
+
 ## API
 
-TODO
+```js
+import APS from '@axway/amplify-platform-sdk';
+
+const client = new APS({ config });
+```
+
+### Auth/Accounts
+
+```js
+client.auth.?
+```
+
+### Orgs
+
+```js
+client.orgs.?
+```
 
 ## Legal
 

@@ -43,7 +43,7 @@ export default class Auth {
 	 * Initializes the authentication instance by setting the default settings and creating the
 	 * token store.
 	 *
-	 * @param {Object} opts - Various options.
+	 * @param {Object} [opts] - Various options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
 	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.

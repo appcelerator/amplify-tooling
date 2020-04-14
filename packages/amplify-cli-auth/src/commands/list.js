@@ -5,7 +5,13 @@ export default {
 		'--json': 'outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
-		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');
+		const [
+			{ APS },
+			{ auth, loadConfig }
+		] = await Promise.all([
+			import('@axway/amplify-platform-sdk'),
+			import('@axway/amplify-cli-utils')
+		]);
 
 		const config = loadConfig();
 
@@ -16,12 +22,12 @@ export default {
 			realm:    argv.realm
 		}, config);
 
-		const client = auth.createAuth(params);
-		const accounts = await client.list();
-		const active = config.get('auth.defaultAccount');
+		const client = new APS(params);
+		const accounts = await client.accounts.list();
+		const defaultAccount = config.get('auth.defaultAccount');
 
 		for (const account of accounts) {
-			account.active = account.name === active;
+			account.active = account.name === defaultAccount;
 		}
 
 		if (argv.json) {
