@@ -9,6 +9,8 @@ import loadConfig from '@axway/amplify-config';
 import * as auth from './auth';
 import * as locations from './locations';
 
+export { buildParams } from './auth';
+
 export {
 	auth,
 	environments,

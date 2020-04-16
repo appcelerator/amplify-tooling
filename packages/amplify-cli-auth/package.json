@@ -26,19 +26,20 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^2.3.0",
-    "cli-kit": "^0.12.0",
-    "inquirer": "^7.0.0",
-    "pretty-ms": "^5.0.0",
-    "source-map-support": "^0.5.13"
+    "@axway/amplify-sdk": "^1.0.0",
+    "cli-kit": "^0.16.2",
+    "inquirer": "^7.1.0",
+    "pretty-ms": "^6.0.1",
+    "source-map-support": "^0.5.16"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.2.0"
+    "appcd-gulp": "^2.4.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-auth",
   "engines": {
-    "node": ">=8.10.0"
+    "node": ">=10.13.0"
   },
   "cli-kit": {
     "main": "./dist/cli",

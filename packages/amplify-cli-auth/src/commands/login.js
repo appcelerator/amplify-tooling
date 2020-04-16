@@ -4,15 +4,21 @@ export default {
 		'--force':                   're-authenticate even if the account is already authenticated',
 		'--json':                    'outputs accounts as JSON',
 		'--no-launch-browser':       'display the authentication URL instead of opening it in the default web browser',
-		'--org <id|name>':           'the organization to use',
-		'-c, --client-secret <key>': 'a secret key used to authenticate',
-		'-s, --secret-file <path>':  'path to the PEM key used to authenticate',
-		'-u, --username <user>':     'username to authenticate with',
-		'-p, --password <pass>':     'password to authenticate with'
+		'--org [id|name]':           'the organization to use',
+		'-c, --client-secret [key]': 'a secret key used to authenticate',
+		'-s, --secret-file [path]':  'path to the PEM key used to authenticate',
+		'-u, --username [user]':     'username to authenticate with',
+		'-p, --password [pass]':     'password to authenticate with'
 	},
 	async action({ argv, console }) {
-		const [ { auth }, inquirer, { getOrg } ] = await Promise.all([
+		const [
+			{ auth },
+			{ APS },
+			inquirer,
+			{ getOrg }
+		] = await Promise.all([
 			import('@axway/amplify-cli-utils'),
+			import('@axway/amplify-platform-sdk'),
 			import('inquirer'),
 			import('../org-util')
 		]);
@@ -111,7 +117,7 @@ export default {
 		const org = await getOrg({ account, client, config, console, org: argv.org, json: argv.json });
 
 		if (argv.json) {
-			console.log(JSON.stringify(account, null, '  '));
+			console.log(JSON.stringify(account, null, 2));
 			return;
 		}
 

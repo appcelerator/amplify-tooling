@@ -27,22 +27,22 @@
   "dependencies": {
     "@axway/amplify-config": "^1.3.0",
     "@axway/amplify-registry-sdk": "^1.4.0",
-    "cli-kit": "^0.12.0",
+    "cli-kit": "^0.16.2",
     "columnify": "^1.5.4",
     "listr": "^0.14.3",
-    "npm-package-arg": "^6.1.1",
-    "ora": "3.4.0",
-    "semver": "^6.3.0",
-    "source-map-support": "^0.5.13"
+    "npm-package-arg": "^8.0.1",
+    "ora": "4.0.3",
+    "semver": "^7.3.2",
+    "source-map-support": "^0.5.16"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.2.0"
+    "appcd-gulp": "^2.4.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-pm",
   "engines": {
-    "node": ">=8.10.0"
+    "node": ">=10.13.0"
   },
   "cli-kit": {
     "main": "./dist/cli",

@@ -3,41 +3,31 @@ export default {
 	args: [
 		{
 			name: 'accounts...',
-			desc: 'one or more specific accounts to revoke credentials'
+			desc: 'One or more specific accounts to revoke credentials'
 		}
 	],
-	desc: 'log out all or specific accounts from the AMPLIFY platform',
+	desc: 'Log out all or specific accounts from the AMPLIFY platform',
 	options: {
 		'-a, --all': 'revoke all credentials; supersedes list of accounts',
-		'--json': 'outputs accounts as JSON'
+		'--json': 'Outputs revoked accounts as JSON'
 	},
 	async action({ argv, console }) {
-		const { auth } = await import('@axway/amplify-cli-utils');
+		const [
+			{ APS },
+			{ buildParams }
+		] = await Promise.all([
+			import('@axway/amplify-platform-sdk'),
+			import('@axway/amplify-cli-utils')
+		]);
 
 		if (!argv.accounts.length && !argv.all) {
 			throw new Error('Missing list of accounts to revoke or `--all` flag');
 		}
 
-		const {
-			homeDir,
-			keytarServiceName,
-			tokenRefreshThreshold,
-			tokenStoreDir,
-			tokenStoreType
-		} = auth.buildParams();
-
-		const client = auth.createAuth({
-			homeDir,
-			keytarServiceName,
-			tokenRefreshThreshold,
-			tokenStoreDir,
-			tokenStoreType
-		});
-
-		const revoked = await client.revoke(argv);
+		const revoked = await new APS(buildParams()).auth.logout(argv);
 
 		if (argv.json) {
-			console.log(JSON.stringify(revoked, null, '  '));
+			console.log(JSON.stringify(revoked, null, 2));
 			return;
 		}
 

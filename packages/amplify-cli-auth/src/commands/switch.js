@@ -1,19 +1,25 @@
 export default {
-	desc: 'select default account and organization',
+	desc: 'Select default account and organization',
 	options: {
-		'--account <name>': 'the account to switch to',
-		'--json':           'outputs accounts as JSON',
-		'--org <id|name>':  'the organization to switch to'
+		'--account <name>': 'The account to switch to',
+		'--json':           'Outputs accounts as JSON',
+		'--org <id|name>':  'The organization to switch to'
 	},
 	async action({ argv, console }) {
-		const [ { auth }, inquirer, { getOrg } ] = await Promise.all([
+		const [
+			{ auth },
+			{ APS },
+			inquirer,
+			{ getOrg }
+		] = await Promise.all([
 			import('@axway/amplify-cli-utils'),
+			import('@axway/amplify-platform-sdk'),
 			import('inquirer'),
 			import('../org-util')
 		]);
 
 		if (!argv.account && argv.json) {
-			console.log(JSON.stringify({ error: 'Must specify --account when --json is set and there are multiple authenticated accounts' }, null, '  '));
+			console.log(JSON.stringify({ error: 'Must specify --account when --json is set and there are multiple authenticated accounts' }, null, 2));
 			process.exit(1);
 		}
 

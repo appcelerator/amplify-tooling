@@ -1,21 +1,23 @@
 export default {
 	aliases: [ 'ls' ],
-	desc: 'lists all authenticated accounts',
+	desc: 'Lists all authenticated accounts',
 	options: {
 		'--json': 'outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
 		const [
-			{ APS },
-			{ auth, loadConfig }
+			{ buildParams },
+			{ loadConfig },
+			{ APS }
 		] = await Promise.all([
-			import('@axway/amplify-platform-sdk'),
-			import('@axway/amplify-cli-utils')
+			import('@axway/amplify-cli-utils'),
+			import('@axway/amplify-config'),
+			import('@axway/amplify-platform-sdk')
 		]);
 
 		const config = loadConfig();
 
-		const params = auth.buildParams({
+		const params = buildParams({
 			baseUrl:  argv.baseUrl,
 			clientId: argv.clientId,
 			env:      argv.env,
