@@ -4,13 +4,7 @@
  * @type {Object}
  */
 export const environments = {
-	dev: {
-		platformUrl: 'https://platform.axwaytest.net'
-	},
 	preprod: {
-		platformUrl: 'https://platform.axwaytest.net'
-	},
-	staging: {
 		platformUrl: 'https://platform.axwaytest.net'
 	},
 	prod: {
@@ -18,4 +12,31 @@ export const environments = {
 	}
 };
 
-export default environments;
+const mapping = {
+	dev: 'preprod',
+	development: 'preprod',
+	preproduction: 'preprod',
+	'pre-production': 'preprod',
+	production: 'prod',
+	staging: 'preprod',
+	test: 'preprod'
+};
+
+export function resolve(env) {
+	let environment = 'prod';
+	if (env) {
+		if (typeof env !== 'string') {
+			throw new TypeError('Expected environment to be a string');
+		}
+		environment = env.toLowerCase();
+		environment = mapping[environment] || environment;
+		if (!environments[environment]) {
+			throw new Error(`Invalid environment "${env}"`);
+		}
+	}
+
+	return {
+		name: environment,
+		...environments[environment]
+	};
+}

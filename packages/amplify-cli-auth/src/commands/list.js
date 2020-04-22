@@ -8,11 +8,11 @@ export default {
 		const [
 			{ buildParams },
 			{ loadConfig },
-			{ APS }
+			{ AmplifySDK }
 		] = await Promise.all([
 			import('@axway/amplify-cli-utils'),
 			import('@axway/amplify-config'),
-			import('@axway/amplify-platform-sdk')
+			import('@axway/amplify-sdk')
 		]);
 
 		const config = loadConfig();
@@ -24,7 +24,7 @@ export default {
 			realm:    argv.realm
 		}, config);
 
-		const client = new APS(params);
+		const client = new AmplifySDK(params);
 		const accounts = await client.accounts.list();
 		const defaultAccount = config.get('auth.defaultAccount');
 

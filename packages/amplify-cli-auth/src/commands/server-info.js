@@ -3,10 +3,10 @@ export default {
 	name: 'server-info',
 	async action({ argv, console }) {
 		const [
-			{ APS },
+			{ AmplifySDK },
 			{ buildParams }
 		] = await Promise.all([
-			import('@axway/amplify-platform-sdk'),
+			import('@axway/amplify-sdk'),
 			import('@axway/amplify-cli-utils')
 		]);
 
@@ -17,7 +17,7 @@ export default {
 			realm:    argv.realm
 		});
 
-		const info = await new APS(params).auth.serverInfo();
+		const info = await new AmplifySDK(params).auth.serverInfo();
 		console.log(JSON.stringify(info, null, '  '));
 	}
 };

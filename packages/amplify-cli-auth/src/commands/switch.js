@@ -13,7 +13,7 @@ export default {
 			{ getOrg }
 		] = await Promise.all([
 			import('@axway/amplify-cli-utils'),
-			import('@axway/amplify-platform-sdk'),
+			import('@axway/amplify-sdk'),
 			import('inquirer'),
 			import('../org-util')
 		]);

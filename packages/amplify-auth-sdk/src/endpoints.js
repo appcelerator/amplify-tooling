@@ -26,14 +26,11 @@ export default function getEndpoints({ baseUrl, platformUrl, realm } = {}) {
 	baseUrl = baseUrl.replace(/\/$/, '');
 
 	return {
-		auth:              `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/auth`,
-		certs:             `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/certs`,
-		deviceauth:        platformUrl ? `${platformUrl.replace(/\/$/, '')}/api/v1/auth/deviceauth` : undefined,
-		findSession:       platformUrl ? `${platformUrl.replace(/\/$/, '')}/api/v1/auth/findSession` : undefined,
-		logout:            `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/logout`,
-		switchLoggedInOrg: platformUrl ? `${platformUrl.replace(/\/$/, '')}/api/v1/auth/switchLoggedInOrg` : undefined,
-		token:             `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`,
-		userinfo:          `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/userinfo`,
-		wellKnown:         `${baseUrl}/auth/realms/${realm}/.well-known/openid-configuration`
+		auth:      `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/auth`,
+		certs:     `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/certs`,
+		logout:    `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/logout`,
+		token:     `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`,
+		userinfo:  `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/userinfo`,
+		wellKnown: `${baseUrl}/auth/realms/${realm}/.well-known/openid-configuration`
 	};
 }

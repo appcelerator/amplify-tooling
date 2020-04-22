@@ -13,10 +13,10 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
-			{ APS },
+			{ AmplifySDK },
 			{ buildParams }
 		] = await Promise.all([
-			import('@axway/amplify-platform-sdk'),
+			import('@axway/amplify-sdk'),
 			import('@axway/amplify-cli-utils')
 		]);
 
@@ -24,7 +24,7 @@ export default {
 			throw new Error('Missing list of accounts to revoke or `--all` flag');
 		}
 
-		const revoked = await new APS(buildParams()).auth.logout(argv);
+		const revoked = await new AmplifySDK(buildParams()).auth.logout(argv);
 
 		if (argv.json) {
 			console.log(JSON.stringify(revoked, null, 2));

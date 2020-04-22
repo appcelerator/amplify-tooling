@@ -66,6 +66,7 @@ await sdk.auth.serverInfo();
 await sdk.org.getEnvironments();
 
 await sdk.ti.getApp();
+sdk.ti.getAppVerifyURL();
 await sdk.ti.buildVerify();
 await sdk.ti.buildUpdate();
 await sdk.ti.getDownloads();

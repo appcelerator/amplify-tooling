@@ -9,10 +9,10 @@ export default {
 	hidden: true,
 	async action({ argv, console }) {
 		const [
-			{ APS },
+			{ AmplifySDK },
 			{ buildParams }
 		] = await Promise.all([
-			import('@axway/amplify-platform-sdk'),
+			import('@axway/amplify-sdk'),
 			import('@axway/amplify-cli-utils')
 		]);
 
@@ -22,7 +22,7 @@ export default {
 			realm:    argv.realm
 		});
 
-		const accounts = await new APS(params).accounts.list();
+		const accounts = await new AmplifySDK(params).accounts.list();
 
 		if (argv.accountName) {
 			const account = accounts.find(a => a.name === argv.accountName);

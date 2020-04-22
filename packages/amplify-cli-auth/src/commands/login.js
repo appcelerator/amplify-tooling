@@ -13,12 +13,12 @@ export default {
 	async action({ argv, console }) {
 		const [
 			{ auth },
-			{ APS },
+			{ AmplifySDK },
 			inquirer,
 			{ getOrg }
 		] = await Promise.all([
 			import('@axway/amplify-cli-utils'),
-			import('@axway/amplify-platform-sdk'),
+			import('@axway/amplify-sdk'),
 			import('inquirer'),
 			import('../org-util')
 		]);
