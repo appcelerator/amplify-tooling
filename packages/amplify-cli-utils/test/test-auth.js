@@ -2,14 +2,13 @@ import http from 'http';
 
 import { getAccount } from '../dist/auth';
 import { MemoryStore } from '@axway/amplify-auth-sdk';
-import { parse } from 'url';
 
 describe('auth', () => {
 	before(async function () {
 		this.timeout(5000);
 
 		this.server = http.createServer((req, res) => {
-			const url = parse(req.url);
+			const url = new URL(req.url);
 			switch (url.pathname) {
 				case '/auth/realms/AppcID/protocol/openid-connect/userinfo':
 				case '/auth/realms/Axway/protocol/openid-connect/userinfo':

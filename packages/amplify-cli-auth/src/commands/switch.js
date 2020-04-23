@@ -8,7 +8,7 @@ export default {
 	async action({ argv, console }) {
 		const [
 			{ auth },
-			{ APS },
+			{ AmplifySDK },
 			inquirer,
 			{ getOrg }
 		] = await Promise.all([

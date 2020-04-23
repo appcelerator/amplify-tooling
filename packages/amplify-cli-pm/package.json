@@ -31,9 +31,9 @@
     "columnify": "^1.5.4",
     "listr": "^0.14.3",
     "npm-package-arg": "^8.0.1",
-    "ora": "4.0.3",
+    "ora": "4.0.4",
     "semver": "^7.3.2",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.18"
   },
   "devDependencies": {
     "appcd-gulp": "^2.4.0"

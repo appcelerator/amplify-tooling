@@ -1,6 +1,4 @@
 import Auth, { server } from '../dist/index';
-
-import { parse, URLSearchParams } from 'url';
 import request from '@axway/amplify-request';
 
 describe('Server', () => {
@@ -76,7 +74,7 @@ describe('Server', () => {
 		});
 
 		const { cancel, promise, url } = await auth.login({ manual: true });
-		const redirect_uri = new URLSearchParams(parse(url).query).get('redirect_uri');
+		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
 		const id = redirect_uri.match(/\/callback\/([A-Z0-9]+)/)[1];
 
 		// squeltch unhandled rejections

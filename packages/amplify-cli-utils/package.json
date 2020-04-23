@@ -26,7 +26,7 @@
     "appcd-fs": "^1.1.10",
     "fs-extra": "^9.0.0",
     "snooplogg": "^2.3.3",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.18"
   },
   "devDependencies": {
     "appcd-gulp": "^2.4.0"

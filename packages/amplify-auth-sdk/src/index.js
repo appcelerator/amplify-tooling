@@ -319,7 +319,7 @@ export default class Auth {
 	 * @param {Array.<String>|String} opts.accounts - A list of accounts names.
 	 * @param {Boolean} opts.all - When `true`, revokes all accounts.
 	 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
-	 * @returns {Promise<Array>} Returns a list of revoked credentials.
+	 * @returns {Promise<Array>} Resolves a list of revoked credentials.
 	 * @access public
 	 */
 	async logout({ accounts, all, baseUrl } = {}) {

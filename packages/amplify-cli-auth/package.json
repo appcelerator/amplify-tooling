@@ -30,7 +30,7 @@
     "cli-kit": "^0.16.2",
     "inquirer": "^7.1.0",
     "pretty-ms": "^6.0.1",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.18"
   },
   "devDependencies": {
     "appcd-gulp": "^2.4.0"

@@ -3,7 +3,7 @@ import http from 'http';
 import jws from 'jws';
 import snooplogg from 'snooplogg';
 
-import { parse, URLSearchParams } from 'url';
+import { parse } from 'url';
 import { server } from '../dist/index';
 import { serverInfo } from './server-info';
 
