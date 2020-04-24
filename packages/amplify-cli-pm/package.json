@@ -28,12 +28,13 @@
     "@axway/amplify-config": "^1.3.0",
     "@axway/amplify-registry-sdk": "^1.4.0",
     "cli-kit": "^0.16.2",
+    "cli-table3": "^0.6.0",
     "columnify": "^1.5.4",
     "listr": "^0.14.3",
     "npm-package-arg": "^8.0.1",
     "ora": "4.0.4",
     "semver": "^7.3.2",
-    "source-map-support": "^0.5.18"
+    "source-map-support": "^0.5.19"
   },
   "devDependencies": {
     "appcd-gulp": "^2.4.0"

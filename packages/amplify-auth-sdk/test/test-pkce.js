@@ -17,27 +17,18 @@ describe('PKCE', () => {
 		it('should error options is not an object', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			try {
-				await auth.login('foo');
-			} catch (e) {
-				expect(e).to.be.instanceof(TypeError);
-				expect(e.message).to.equal('Expected options to be an object');
-				return;
-			}
-
-			throw new Error('Expected error');
+			await expect(auth.login('foo'))
+				.to.eventually.be.rejectedWith(TypeError, 'Expected options to be an object');
 		});
 
 		it('should retrieve a URL for an interactive manual flow', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -51,21 +42,13 @@ describe('PKCE', () => {
 		it('should error if getting token without a code', async function () {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			try {
-				await auth.login({ code: '' });
-			} catch (e) {
-				expect(e).to.be.instanceof(TypeError);
-				expect(e.message).to.equal('Expected code for interactive authentication to be a non-empty string');
-				return;
-			}
-
-			throw new Error('Expected error');
+			await expect(auth.login({ code: '' }))
+				.to.eventually.be.rejectedWith(TypeError, 'Expected code for interactive authentication to be a non-empty string');
 		});
 
 		it('should error if code is incorrect', async function () {
@@ -78,21 +61,13 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			try {
-				await auth.login({ code: 'foo' });
-			} catch (e) {
-				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: 401 Unauthorized');
-				return;
-			}
-
-			throw new Error('Expected error');
+			await expect(auth.login({ code: 'foo' }))
+				.to.eventually.be.rejectedWith(Error, 'Authentication failed: Response code 401 (Unauthorized)');
 		});
 
 		it('should timeout during interactive login', async function () {
@@ -100,22 +75,13 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			try {
-				await auth.login({ app: [ 'echo', 'hi' ], timeout: 100 });
-			} catch (e) {
-				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: Timed out');
-				expect(e.code).to.equal('ERR_AUTH_TIMEOUT');
-				return;
-			}
-
-			throw new Error('Expected error');
+			await expect(auth.login({ app: [ 'echo', 'hi' ], timeout: 100 }))
+				.to.eventually.be.rejectedWith(Error, 'Authentication failed: Timed out');
 		});
 
 		it('should authenticate using code', async function () {
@@ -138,14 +104,13 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			const { accessToken } = await auth.login({ code: 'foo' });
-			expect(accessToken).to.equal(this.server.accessToken);
+			const account = await auth.login({ code: 'foo' });
+			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 
 		it('should error if server is unreachable', async function () {
@@ -153,22 +118,13 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			try {
-				await auth.login({ code: 'foo' });
-			} catch (e) {
-				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.match(/connect ECONNREFUSED 127.0.0.1:133/i);
-				expect(e.code).to.equal('ECONNREFUSED');
-				return;
-			}
-
-			throw new Error('Expected error');
+			await expect(auth.login({ code: 'foo' }))
+				.to.eventually.be.rejectedWith(Error, /connect ECONNREFUSED 127.0.0.1:133/i);
 		});
 
 		it('should error if server returns invalid user identity', async function () {
@@ -186,21 +142,13 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			try {
-				await auth.login({ code: 'foo' });
-			} catch (e) {
-				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: Invalid server response');
-				return;
-			}
-
-			throw new Error('Expected error');
+			await expect(auth.login({ code: 'foo' }))
+				.to.eventually.be.rejectedWith(Error, 'Authentication failed: Invalid server response');
 		});
 
 		(isCI ? it.skip : it)('should do interactive login', async function () {
@@ -209,14 +157,13 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
 			});
 
-			const { accessToken, account } = await auth.login();
-			expect(accessToken).to.equal(this.server.accessToken);
+			const account = await auth.login();
+			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
@@ -233,19 +180,18 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
 			let results = await auth.login({ code: 'foo' });
-			expect(results.accessToken).to.equal(this.server.accessToken);
+			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
 			results = await auth.login({ code: 'foo' });
-			expect(results.accessToken).to.equal(this.server.accessToken);
+			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 
 		it('should fail to get user info', async function () {
@@ -253,7 +199,6 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -263,20 +208,12 @@ describe('PKCE', () => {
 
 			await stopLoginServer.call(this);
 
-			try {
-				await auth.login({ code: 'foo' });
-			} catch (e) {
-				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.match(/connect ECONNREFUSED 127.0.0.1:133/i);
-				expect(e.code).to.equal('ECONNREFUSED');
-				return;
-			}
-
-			throw new Error('Expected error');
+			await expect(auth.login({ code: 'foo' }))
+				.to.eventually.be.rejectedWith(Error, /connect ECONNREFUSED 127.0.0.1:133/i);
 		});
 	});
 
-	describe('Revoke', () => {
+	describe('Logout', () => {
 		afterEach(stopLoginServer);
 
 		it('should log out', async function () {
@@ -299,14 +236,13 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
-			const { account } = await auth.login({ code: 'foo' });
-			const revoked = await auth.revoke({ accounts: account.name });
+			const account = await auth.login({ code: 'foo' });
+			const revoked = await auth.logout({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
 		});
 
@@ -321,13 +257,12 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
-			const revoked = await auth.revoke({ accounts: 'test_client:foo@bar.com' });
+			const revoked = await auth.logout({ accounts: 'test_client:foo@bar.com' });
 			expect(revoked).to.have.lengthOf(0);
 			expect(counter).to.equal(0);
 		});
@@ -343,7 +278,6 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null,
@@ -385,7 +319,6 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -422,7 +355,6 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null,
@@ -467,7 +399,6 @@ describe('PKCE', () => {
 
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null,

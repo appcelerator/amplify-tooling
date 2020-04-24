@@ -1,5 +1,5 @@
 /**
- * Environment specific default settings.
+ * Environment specific settings.
  *
  * @type {Object}
  */

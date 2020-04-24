@@ -23,8 +23,6 @@ import snooplogg from 'snooplogg';
 import * as environments from './environments';
 import * as server from './server';
 
-import { getServerInfo } from './util';
-
 const { log } = snooplogg('amplify-auth');
 const { alert, highlight, magenta, note } = snooplogg.styles;
 
@@ -54,7 +52,6 @@ export default class Auth {
 	 * directory where `keytar` is located. This option is required when `tokenStoreType` is set to
 	 * `secure`, which is the default.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
-	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
 	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
@@ -85,7 +82,6 @@ export default class Auth {
 			env:            { value: opts.env },
 			messages:       { value: opts.messages },
 			password:       { value: opts.password },
-			platformUrl:    { value: opts.platformUrl },
 			realm:          { value: opts.realm },
 			secretFile:     { value: opts.secretFile },
 			serviceAccount: { value: opts.serviceAccount },
@@ -160,7 +156,6 @@ export default class Auth {
 		opts.env            = env;
 		opts.messages       = opts.messages || this.messages;
 		opts.password       = opts.password || this.password;
-		opts.platformUrl    = opts.platformUrl || this.platformUrl || env.platformUrl;
 		opts.realm          = opts.realm || this.realm;
 		opts.secretFile     = opts.secretFile || this.secretFile;
 		opts.serviceAccount = opts.serviceAccount || this.serviceAccount;
@@ -218,7 +213,6 @@ export default class Auth {
 	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
 	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.baseUrl] - The base URL to filter by.
-	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
@@ -295,7 +289,6 @@ export default class Auth {
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
 	 * launching the auth URL in the default browser.
-	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * Defaults to the `interactiveLoginTimeout` property.
@@ -308,8 +301,7 @@ export default class Auth {
 	async login(opts = {}) {
 		this.applyDefaults(opts);
 		const authenticator = this.createAuthenticator(opts);
-		const { account } = await authenticator.login(opts);
-		return account;
+		return await authenticator.login(opts);
 	}
 
 	/**
@@ -345,9 +337,9 @@ export default class Auth {
 
 		if (Array.isArray(revoked)) {
 			for (const entry of revoked) {
-				const url = `${getEndpoints(entry).logout}?id_token_hint=${entry.tokens.id_token}`;
+				const url = `${getEndpoints(entry.auth).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
 				try {
-					const { status } = await got(url, { responseType: 'json' });
+					const { status } = await got(url, { responseType: 'json', retry: 0 });
 					log(`Successfully logged out ${highlight(entry.name)} ${magenta(status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
 				} catch (err) {
 					log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
@@ -379,7 +371,19 @@ export default class Auth {
 			url = getEndpoints(opts).wellKnown;
 		}
 
-		return await getServerInfo(url);
+		if (!url || typeof url !== 'string') {
+			throw E.INVALID_ARGUMENT('Expected URL to be a non-empty string');
+		}
+
+		try {
+			log(`Fetching server info: ${url}...`);
+			return (await got(url, { responseType: 'json', retry: 0 })).body;
+		} catch (err) {
+			if (err.name !== 'ParseError') {
+				err.message = `Failed to get server info (status ${err.response.statusCode})`;
+			}
+			throw err;
+		}
 	}
 
 	/**

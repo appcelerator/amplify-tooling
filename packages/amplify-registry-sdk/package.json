@@ -29,7 +29,7 @@
     "fs-extra": "^9.0.0",
     "pacote": "^11.1.4",
     "snooplogg": "^2.3.3",
-    "source-map-support": "^0.5.18",
+    "source-map-support": "^0.5.19",
     "tar": "^6.0.1",
     "targit": "^0.1.4",
     "tmp": "^0.1.0"

@@ -166,9 +166,11 @@ export function getInstalledPackages({ packageName } = {}, cfg = loadConfig(), p
 			}
 		}
 	}
+
 	if (packageName) {
 		return packages.filter(pkg => packageName === pkg.name);
 	}
+
 	return packages;
 }
 
@@ -203,10 +205,6 @@ function getPackageData(name, activePkgs, pkgDir) {
 		active = getPackageInfo(activePkgs[name]);
 	}
 
-	if (active) {
-		packageData.version = active.version;
-	}
-
 	for (const version of fs.readdirSync(pkgDir)) {
 		const versionDir = join(pkgDir, version);
 		const pkgJsonFile = join(versionDir, 'package.json');
@@ -223,5 +221,16 @@ function getPackageData(name, activePkgs, pkgDir) {
 			}
 		}
 	}
+
+	if (active) {
+		packageData.version = active.version;
+
+		if (!packageData.versions[active.version]) {
+			packageData.versions[active.version] = {
+				path: activePkgs[name]
+			};
+		}
+	}
+
 	return packageData;
 }

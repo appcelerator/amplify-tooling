@@ -1,33 +1,10 @@
 import crypto from 'crypto';
 import E from './errors';
-import got from 'got';
 import snooplogg from 'snooplogg';
 
 import { STATUS_CODES } from 'http';
 
 const { error, log } = snooplogg('amplify-auth:util');
-
-/**
- * Discovers available endpoints based on the remote server's OpenID configuration.
- *
- * @param {String} [url] - An optional URL to discover the available endpoints.
- * @returns {Promise<Object>}
- */
-export async function getServerInfo(url) {
-	if (!url || typeof url !== 'string') {
-		throw E.INVALID_ARGUMENT('Expected URL to be a non-empty string');
-	}
-
-	log(`Fetching server info: ${url}...`);
-	try {
-		return (await got(url, { responseType: 'json' })).body;
-	} catch (err) {
-		if (err.code === 'INVALID_JSON') {
-			throw err;
-		}
-		throw new Error(`Failed to get server info (status ${err.statusCode})`);
-	}
-}
 
 /**
  * Constructs an error from a failed fetch request, logs it, and returns it.
@@ -137,17 +114,16 @@ export function renderHTML({ cls, message, title }) {
 }
 
 /**
- * Copies all params into a new object and converts camelcase property names to underscore case,
- * then returns the stringified query string.
+ * Copies all params into a new object and converts camelcase property names to underscore case.
  *
  * @param {Object} params - The query string parameters to stringify.
- * @returns {String}
+ * @returns {Object}
  */
-export function stringifyQueryString(params) {
-	const queryParams = new URLSearchParams();
+export function prepareForm(params) {
+	const form = new URLSearchParams();
 	for (const prop of Object.keys(params).sort()) {
 		const name = prop.replace(/[A-Z]/g, (m, i) => `${i ? '_' : ''}${m.toLowerCase()}`);
-		queryParams.append(name, params[prop]);
+		form.append(name, params[prop]);
 	}
-	return queryParams.toString();
+	return form;
 }

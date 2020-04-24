@@ -455,7 +455,8 @@ export class AmplifySDK {
 		const response = await got[method](url, {
 			headers,
 			json,
-			responseType: 'json'
+			responseType: 'json',
+			retry: 0
 		});
 
 		const cookies = response.headers['set-cookie'];

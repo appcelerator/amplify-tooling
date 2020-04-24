@@ -11,7 +11,7 @@ import TokenStore from '../stores/token-store';
 
 import * as server from '../server';
 
-import { handleRequestError, md5, renderHTML, stringifyQueryString } from '../util';
+import { handleRequestError, md5, prepareForm, renderHTML } from '../util';
 
 const { log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
@@ -276,7 +276,8 @@ export default class Authenticator {
 					Accept: 'application/json',
 					Authorization: `Bearer ${accessToken}`
 				},
-				responseType: 'json'
+				responseType: 'json',
+				retry: 0
 			});
 			const { email, family_name, given_name, org_guid, org_name, user_guid } = body;
 
@@ -374,15 +375,12 @@ export default class Authenticator {
 					log('Found account in token store:');
 					log(entry);
 
-					expires = entry.expires;
-					tokens = entry.tokens;
-
+					({ expires, tokens } = entry.auth);
 					if (tokens.access_token && expires.access > now) {
 						return entry;
 					}
 
 					log('Access token is expired, but the refresh token is still good');
-
 					break;
 				}
 			}
@@ -413,17 +411,13 @@ export default class Authenticator {
 		}
 
 		const url = this.endpoints.token;
-		const body = stringifyQueryString(params);
 
 		log(`Fetching token: ${highlight(url)}`);
-		log(`Post body: ${highlight(stringifyQueryString({ ...params, password: '********' }))}`);
+		log('Post form:', { ...params, password: '********' });
 
 		try {
 			response = await got.post(url, {
-				body,
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
+				form: prepareForm(params),
 				responseType: 'json'
 			});
 		} catch (err) {
@@ -476,17 +470,17 @@ export default class Authenticator {
 				realm:         this.realm,
 				tokens
 			},
-			hash:             this.hash,
+			hash:              this.hash,
 			name,
 			org,
-			orgs:             org ? [ org ] : [],
+			orgs:              org ? [ org ] : [],
 			user: {
-				axwayId:      null,
+				axwayId:       null,
 				email,
-				firstName:    null,
-				guid:         null,
-				lastName:     null,
-				organization: null
+				firstName:     null,
+				guid:          null,
+				lastName:      null,
+				organization:  null
 			}
 		});
 
@@ -542,11 +536,7 @@ export default class Authenticator {
 			} else {
 				log('Retrieving tokens using auth code');
 			}
-			const account = await this.getToken(opts.code);
-			return {
-				account,
-				authenticator: this
-			};
+			return await this.getToken(opts.code);
 		}
 
 		// we're interactive, so we either are manual or starting a web server
@@ -560,7 +550,7 @@ export default class Authenticator {
 			responseType: this.responseType,
 			redirectUri:  `${this.serverUrl}/callback/${requestId}`
 		}, this.authorizationUrlParams);
-		const authorizationUrl = `${this.endpoints.auth}?${stringifyQueryString(queryParams)}`;
+		const authorizationUrl = `${this.endpoints.auth}?${prepareForm(queryParams).toString()}`;
 
 		log(`Starting ${opts.manual ? 'manual ' : ''}login request ${highlight(requestId)} clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
@@ -573,14 +563,6 @@ export default class Authenticator {
 			serverHost:  this.serverHost,
 			serverPort:  this.serverPort,
 			timeout:     opts.timeout || this.interactiveLoginTimeout
-		});
-
-		// chain the promise to fetch the user info
-		promise = promise.then(async account => {
-			return {
-				account,
-				authenticator: this
-			};
 		});
 
 		// if manual, return now with the auth url

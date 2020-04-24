@@ -3,7 +3,6 @@ import http from 'http';
 import jws from 'jws';
 import snooplogg from 'snooplogg';
 
-import { parse } from 'url';
 import { server } from '../dist/index';
 import { serverInfo } from './server-info';
 
@@ -14,7 +13,8 @@ export async function createLoginServer(opts = {}) {
 
 	const handler = opts.handler || (async (req, res) => {
 		try {
-			const url = parse(req.url);
+			const url = new URL(req.url, 'http://127.0.0.1:1337');
+
 			let post = {};
 			if (req.method === 'POST') {
 				post = await new Promise((resolve, reject) => {
@@ -33,7 +33,7 @@ export async function createLoginServer(opts = {}) {
 						opts.auth(post, req, res);
 					}
 
-					const redirect_uri = new URLSearchParams(url.query).get('redirect_uri');
+					const redirect_uri = url.searchParams.get('redirect_uri');
 					if (!redirect_uri) {
 						throw new Error('No redirect uri!');
 					}
@@ -104,72 +104,12 @@ export async function createLoginServer(opts = {}) {
 					res.end(JSON.stringify(serverInfo));
 					break;
 
-				case '/api/v1/auth/findSession':
-					if (typeof opts.findSession === 'function') {
-						if (opts.findSession(post, req, res)) {
-							break;
-						}
-					}
-
-					res.writeHead(200, { 'Content-Type': 'application/json' });
-					res.end(JSON.stringify({
-						result: {
-							org: {
-								org_id: 123,
-								name: 'foo org'
-							},
-							orgs: [
-								{
-									org_id: 123,
-									name: 'foo org'
-								},
-								{
-									org_id: 456,
-									name: 'bar org'
-								}
-							],
-							user: {
-								axway_id: 'abc123',
-								email: 'foo@bar.com',
-								firstname: 'foo',
-								guid: 'def456',
-								lastname: 'bar',
-								organization: 'foo org'
-							}
-						}
-					}));
-					break;
-
-				case '/api/v1/auth/switchLoggedInOrg':
-					if (typeof opts.switchLoggedInOrg === 'function') {
-						if (opts.switchLoggedInOrg(post, req, res)) {
-							break;
-						}
-					}
-
-					res.writeHead(200, { 'Content-Type': 'application/json' });
-					if (post.org_id === 456) {
-						res.end(JSON.stringify({
-							result: {
-								org_name: 'bar org',
-								org_id: 456
-							}
-						}));
-					} else {
-						res.end(JSON.stringify({
-							result: {
-								org_name: 'foo org',
-								org_id: 123
-							}
-						}));
-					}
-					break;
-
 				default:
 					res.writeHead(404, { 'Content-Type': 'text/plain' });
 					res.end('Not Found');
 			}
 		} catch (e) {
+			console.log(e);
 			res.writeHead(400, { 'Content-Type': 'text/plain' });
 			res.end(e.toString());
 		}
@@ -203,6 +143,8 @@ export async function createLoginServer(opts = {}) {
 			.on('error', reject)
 			.listen(1337, '127.0.0.1');
 	});
+
+	log('Started test server: http://127.0.0.1:1337');
 
 	return server;
 }

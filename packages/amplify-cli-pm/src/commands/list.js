@@ -3,12 +3,15 @@ export default {
 	desc: 'lists all installed packages',
 	async action({ argv, console }) {
 		const [
-			{ default: columnify },
-			{ getInstalledPackages }
+			{ getInstalledPackages },
+			{ default: Table },
+			{ snooplogg }
 		] = await Promise.all([
-			import('columnify'),
-			import('@axway/amplify-registry-sdk')
+			import('@axway/amplify-registry-sdk'),
+			import('cli-table3'),
+			import('appcd-logger')
 		]);
+
 		const installed = getInstalledPackages();
 
 		if (argv.json) {
@@ -21,27 +24,32 @@ export default {
 			return;
 		}
 
-		const columnConfig = {
-			columnSplitter: ' | ',
-			showHeaders: true,
-			config: {
-				name: {
-					minWidth: 25
-				},
-				versions: {
-					minWidth: 8
-				}
-			}
-		};
+		const { green } = snooplogg.styles;
 
-		const data = installed.map(d => {
-			return {
-				name: d.name,
-				'installed versions': Object.keys(d.versions),
-				'active version': d.version || 'Unknown'
-			};
+		const table = new Table({
+			chars: {
+				bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
+				left: '', 'left-mid': '',
+				mid: '', 'mid-mid': '', middle: '  ',
+				right: '', 'right-mid': '',
+				top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
+			},
+			head: [ 'Name', 'Installed Versions', 'Active Version' ],
+			style: {
+				head: [ 'bold' ],
+				'padding-left': 0,
+				'padding-right': 0
+			}
 		});
 
-		console.log(columnify(data, columnConfig));
+		for (const pkg of installed) {
+			table.push([
+				green(pkg.name),
+				Object.keys(pkg.versions).join(', '),
+				pkg.version || 'Unknown'
+			]);
+		}
+
+		console.log(table.toString());
 	}
 };

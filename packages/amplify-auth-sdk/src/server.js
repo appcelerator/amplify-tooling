@@ -66,7 +66,7 @@ export async function start({ getResponse, getToken, redirect, requestId, server
 							request.resolve(account);
 
 							const { contentType, message } = getResponse(req, 'interactiveSuccess');
-							const statusCode = redirect ? 302 : 200;
+							const statusCode = !process.env.APPCD_TEST && redirect ? 302 : 200;
 							const headers = {
 								'Content-Type': contentType
 							};

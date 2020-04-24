@@ -35,7 +35,6 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile,
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -56,7 +55,6 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -79,7 +77,6 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -108,7 +105,6 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -118,7 +114,7 @@ describe('Signed JWT', () => {
 				await auth.login();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: 401 Unauthorized');
+				expect(e.message).to.equal('Authentication failed: Response code 401 (Unauthorized)');
 				return;
 			}
 
@@ -129,7 +125,6 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: null
@@ -179,16 +174,14 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
-			let { accessToken, account, authenticator } = await auth.login();
-			expect(accessToken).to.equal(this.server.accessToken);
+			const account = await auth.login();
 			expect(account.name).to.equal('test_client:foo@bar.com');
-			expect(authenticator.signedJWT).to.equal(authenticator.getSignedJWT());
+			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 
 		it('should refresh the access token', async function () {
@@ -215,7 +208,6 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
@@ -223,17 +215,17 @@ describe('Signed JWT', () => {
 
 			let results = await auth.login();
 			const { accessToken } = this.server;
-			expect(results.accessToken).to.equal(accessToken);
+			expect(results.auth.tokens.access_token).to.equal(accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1500));
 
 			results = await auth.login();
-			expect(results.accessToken).to.not.equal(accessToken);
-			expect(results.accessToken).to.equal(this.server.accessToken);
+			expect(results.auth.tokens.access_token).to.not.equal(accessToken);
+			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 	});
 
-	describe('Revoke', () => {
+	describe('Logout', () => {
 		afterEach(stopLoginServer);
 
 		it('should log out', async function () {
@@ -258,14 +250,13 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
-			const { account } = await auth.login();
-			const revoked = await auth.revoke({ accounts: account.name });
+			const account = await auth.login();
+			const revoked = await auth.logout({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
 		});
 
@@ -281,13 +272,12 @@ describe('Signed JWT', () => {
 			const auth = new Auth({
 				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
 				baseUrl:        'http://127.0.0.1:1337',
-				platformUrl:    'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				realm:          'test_realm',
 				tokenStoreType: 'memory'
 			});
 
-			const revoked = await auth.revoke({ accounts: 'test_client:foo@bar.com' });
+			const revoked = await auth.logout({ accounts: 'test_client:foo@bar.com' });
 			expect(revoked).to.have.lengthOf(0);
 			expect(counter).to.equal(0);
 		});

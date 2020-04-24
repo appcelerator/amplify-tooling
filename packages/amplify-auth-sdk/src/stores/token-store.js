@@ -76,7 +76,7 @@ export default class TokenStore {
 
 		if (!baseUrl) {
 			for (const entry of entries) {
-				Object.defineProperty(entry, 'expired', { value: true });
+				Object.defineProperty(entry.auth, 'expired', { value: true });
 			}
 			return { entries: [], removed: entries };
 		}
@@ -84,9 +84,9 @@ export default class TokenStore {
 		const removed = [];
 		baseUrl = baseUrl.replace(/^.*\/\//, '');
 		for (let i = 0; i < entries.length; i++) {
-			if (entries[i].baseUrl.replace(protoRegExp, '') === baseUrl) {
+			if (entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl) {
 				const entry = entries.splice(i--, 1)[0];
-				Object.defineProperty(entry, 'expired', { value: true });
+				Object.defineProperty(entry.auth, 'expired', { value: true });
 				removed.push(entry);
 			}
 		}
@@ -128,9 +128,9 @@ export default class TokenStore {
 		}
 
 		for (let i = 0; i < entries.length; i++) {
-			if (accounts.includes(entries[i].name) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '') === baseUrl)) {
+			if (accounts.includes(entries[i].name) && (!baseUrl || entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl)) {
 				const entry = entries.splice(i--, 1)[0];
-				Object.defineProperty(entry, 'expired', { value: true });
+				Object.defineProperty(entry.auth, 'expired', { value: true });
 				removed.push(entry);
 			}
 		}
@@ -162,7 +162,7 @@ export default class TokenStore {
 		log(`Scanning ${highlight(len)} ${pluralize('token', len)} for accountName=${highlight(accountName)} hash=${highlight(hash)} baseUrl=${highlight(baseUrl)}`);
 
 		for (let i = 0; i < len; i++) {
-			if (((accountName && entries[i].name === accountName) || (hash && entries[i].hash === hash)) && (!baseUrl || entries[i].baseUrl.replace(protoRegExp, '').replace(/\/$/, '') === baseUrl)) {
+			if (((accountName && entries[i].name === accountName) || (hash && entries[i].hash === hash)) && (!baseUrl || entries[i].auth.baseUrl.replace(protoRegExp, '').replace(/\/$/, '') === baseUrl)) {
 				log(`Found account tokens: ${highlight(entries[i].name)}`);
 				return entries[i];
 			}
@@ -199,12 +199,12 @@ export default class TokenStore {
 		// NOTE: this code intentionally checkes `entries.length` each loop instead of caching the
 		// length since splice() shrinks the array length
 		for (let i = 0; i < entries.length; i++) {
-			const { expires, tokens } = entries[i];
+			const { expires } = entries[i].auth;
 			const now = Date.now();
 			if (expires && ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now))) {
 				// not expired
-				if (!Object.getOwnPropertyDescriptor(entries[i], 'expired')) {
-					Object.defineProperty(entries[i], 'expired', {
+				if (!Object.getOwnPropertyDescriptor(entries[i].auth, 'expired')) {
+					Object.defineProperty(entries[i].auth, 'expired', {
 						configurable: true,
 						get() {
 							return this.expires.access < Date.now();
@@ -245,7 +245,7 @@ export default class TokenStore {
 		const entries = await this.list();
 
 		for (let i = 0, len = entries.length; i < len; i++) {
-			if (entries[i].baseUrl === data.baseUrl && entries[i].name === data.name) {
+			if (entries[i].auth.baseUrl === data.baseUrl && entries[i].name === data.name) {
 				entries.splice(i, 1);
 				break;
 			}

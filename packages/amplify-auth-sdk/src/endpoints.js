@@ -9,13 +9,9 @@ import E from './errors';
  * @param {String} params.realm - The authentication realm.
  * @returns {Object}
  */
-export default function getEndpoints({ baseUrl, platformUrl, realm } = {}) {
+export default function getEndpoints({ baseUrl, realm } = {}) {
 	if (!baseUrl || typeof baseUrl !== 'string') {
 		throw E.INVALID_ARGUMENT('Expected baseUrl to be a non-empty string');
-	}
-
-	if (platformUrl && typeof platformUrl !== 'string') {
-		throw E.INVALID_ARGUMENT('Expected platformUrl to be a non-empty string');
 	}
 
 	if (!realm || typeof realm !== 'string') {
