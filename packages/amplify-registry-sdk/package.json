@@ -23,16 +23,16 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^2.3.0",
     "@axway/amplify-config": "^1.3.0",
-    "@axway/amplify-request": "^1.2.0",
     "appcd-fs": "^1.1.10",
     "appcd-subprocess": "^3.0.2",
     "fs-extra": "^9.0.0",
+    "got": "^11.0.2",
     "pacote": "^11.1.4",
     "snooplogg": "^2.3.3",
     "source-map-support": "^0.5.19",
     "tar": "^6.0.1",
     "targit": "^0.1.4",
-    "tmp": "^0.1.0"
+    "tmp": "^0.2.0"
   },
   "devDependencies": {
     "appcd-gulp": "^2.4.0"

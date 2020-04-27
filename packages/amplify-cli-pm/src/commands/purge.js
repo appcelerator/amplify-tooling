@@ -2,11 +2,11 @@ export default {
 	args: [
 		{
 			name: 'package',
-			desc: 'name of the package to purge old versions for',
+			desc: 'Name of the package to purge old versions for'
 		}
 	],
-	desc: 'purges all unused packages',
-	async action({ argv }) {
+	desc: 'Purges all unused packages',
+	async action({ argv, console }) {
 		const [
 			{ getInstalledPackages },
 			{ remove },

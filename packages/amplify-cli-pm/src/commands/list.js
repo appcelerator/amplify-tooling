@@ -1,15 +1,15 @@
 export default {
 	aliases: [ 'ls' ],
-	desc: 'lists all installed packages',
+	desc: 'Lists all installed packages',
 	async action({ argv, console }) {
 		const [
-			{ getInstalledPackages },
+			{ getInstalledPackages, packagesDir },
 			{ default: Table },
-			{ snooplogg }
+			snooplogg
 		] = await Promise.all([
 			import('@axway/amplify-registry-sdk'),
 			import('cli-table3'),
-			import('appcd-logger')
+			import('snooplogg')
 		]);
 
 		const installed = getInstalledPackages();
@@ -19,12 +19,13 @@ export default {
 			return;
 		}
 
+		const { cyan, gray, green } = snooplogg.styles;
+		console.log(`Packages directory: ${cyan(packagesDir)}\n`);
+
 		if (!installed.length) {
 			console.log('No packages installed');
 			return;
 		}
-
-		const { green } = snooplogg.styles;
 
 		const table = new Table({
 			chars: {
@@ -42,14 +43,32 @@ export default {
 			}
 		});
 
+		const unmanaged = {};
+
 		for (const pkg of installed) {
+			const { managed } = pkg.versions[pkg.version];
 			table.push([
-				green(pkg.name),
-				Object.keys(pkg.versions).join(', '),
-				pkg.version || 'Unknown'
+				managed || Object.keys(pkg.versions).some(ver => pkg.versions[ver].managed) ? green(pkg.name) : `${cyan(pkg.name)} ${gray('(unmanaged)')}`,
+				Object.keys(pkg.versions)
+					.map(ver => {
+						if (pkg.versions[ver].managed) {
+							return ver;
+						}
+						unmanaged[`${pkg.name}${ver}`] = 1;
+						return cyan(ver);
+					})
+					.join(', '),
+				!pkg.version ? 'Unknown' : managed ? pkg.version : cyan(pkg.version)
 			]);
+			if (!managed) {
+				unmanaged[`${pkg.name}${pkg.version}`] = 1;
+			}
 		}
 
 		console.log(table.toString());
+
+		if (Object.keys(unmanaged).length) {
+			console.log('\nNote: Unmanaged packages were not installed by the AMPLIFY CLI and cannot be updated, uninstalled, or purged.');
+		}
 	}
 };

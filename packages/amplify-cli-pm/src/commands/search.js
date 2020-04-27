@@ -3,25 +3,26 @@ export default {
 	args: [
 		{
 			name: 'search',
-			desc: 'the package name or keywords',
+			desc: 'The package name or keywords',
 			required: false
 		}
 	],
-	desc: 'searches registry for packages',
+	desc: 'Searches registry for packages',
 	options: {
-		'--auth <account>': 'the authorization account to use',
-		'--repository <repository>': 'repository to search',
-		'--type <type>': 'type of component to search'
+		'--repository [repository]': 'The repository to search',
+		'--type [type]': 'Type of package to search'
 	},
 	async action({ argv, console }) {
 		const [
-			{ default: columnify },
+			{ default: Table },
 			{ buildUserAgentString, getRegistryParams },
-			{ Registry }
+			{ Registry },
+			{ snooplogg }
 		] = await Promise.all([
-			import('columnify'),
+			import('cli-table3'),
 			import('../utils'),
-			import('@axway/amplify-registry-sdk')
+			import('@axway/amplify-registry-sdk'),
+			import('appcd-logger')
 		]);
 
 		const registry = new Registry(getRegistryParams(argv.env));
@@ -57,24 +58,33 @@ export default {
 			return;
 		}
 
-		const columnConfig = {
-			columnSplitter: ' | ',
-			showHeaders: true,
-			config: {
-				name: {
-					minWidth: 25
-				},
-				version: {
-					minWidth: 8
-				},
-				type: {
-					minWidth: 8
-				},
-				description: {
-					maxWidth: 80 - (25 + 8)
-				}
+		const { green } = snooplogg.styles;
+
+		const table = new Table({
+			chars: {
+				bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
+				left: '', 'left-mid': '',
+				mid: '', 'mid-mid': '', middle: '  ',
+				right: '', 'right-mid': '',
+				top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
+			},
+			head: [ 'Name', 'Versions', 'Type', 'Description' ],
+			style: {
+				head: [ 'bold' ],
+				'padding-left': 0,
+				'padding-right': 0
 			}
-		};
-		console.log(columnify(results, columnConfig));
+		});
+
+		for (const pkg of results) {
+			table.push([
+				green(pkg.name),
+				pkg.version,
+				pkg.type,
+				pkg.description
+			]);
+		}
+
+		console.log(table.toString());
 	}
 };

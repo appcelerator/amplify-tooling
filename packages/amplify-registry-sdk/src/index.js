@@ -10,6 +10,7 @@ import { fetchAndInstall, PackageInstaller } from './installers';
 import {
 	addPackageToConfig,
 	getInstalledPackages,
+	packagesDir,
 	removePackageFromConfig
 } from './installers/common';
 
@@ -18,6 +19,7 @@ export {
 	PackageInstaller,
 	fetchAndInstall,
 	getInstalledPackages,
+	packagesDir,
 	Registry,
 	removePackageFromConfig
 };

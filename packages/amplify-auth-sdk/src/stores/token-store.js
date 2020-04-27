@@ -168,6 +168,8 @@ export default class TokenStore {
 			}
 		}
 
+		log('Token not found');
+
 		return null;
 	}
 

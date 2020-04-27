@@ -4,22 +4,22 @@ export default {
 		{
 			name: 'package',
 			hint: 'package[@version]',
-			desc: 'the package name and version to install',
+			desc: 'The package name and version to view',
 			required: true
 		},
 		{
 			name: 'filter',
 			hint: 'field[.subfield]',
-			desc: 'display specific package fields'
+			desc: 'Display specific package fields'
 		}
 	],
-	desc: 'displays info for a specific package',
+	desc: 'Displays info for a specific package',
 	options: {
-		'--type <name>': {
-			desc: 'the package type',
+		'--type [name]': {
+			desc: 'The package type',
 			values: {
-				'amplify-cli-plugin': 'an AMPFLIY CLI plugin package',
-				'apib-data-connector': 'an API builder connector'
+				'amplify-cli-plugin': 'An AMPFLIY CLI plugin package',
+				'apib-data-connector': 'An API builder connector'
 			}
 		}
 	},

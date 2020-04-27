@@ -4,33 +4,32 @@ export default {
 		{
 			name: 'package',
 			hint: 'package[@version]',
-			desc: 'the package name and version to uninstall',
+			desc: 'The package name and version to uninstall',
 			required: true
 		}
 	],
-	desc: 'uninstalls the specified package',
+	desc: 'Uninstalls the specified package',
 	async action({ argv, console }) {
 		const [
 			fs,
-			{ default: npa },
 			semver,
-			{ getInstalledPackages, removePackageFromConfig }
+			{ default: npa },
+			{ default: snooplogg },
+			{ getInstalledPackages, packagesDir, removePackageFromConfig }
 		] = await Promise.all([
 			import('fs-extra'),
-			import('npm-package-arg'),
 			import('semver'),
+			import('npm-package-arg'),
+			import('snooplogg'),
 			import('@axway/amplify-registry-sdk')
 		]);
 
+		const { cyan } = snooplogg.styles;
+		const { log } = snooplogg('amplify-cli-pm:uninstall');
+
 		try {
 			const { type, name, fetchSpec } = npa(argv.package);
-			let installed;
-			for (const pkg of getInstalledPackages()) {
-				if (pkg.name === name) {
-					installed = pkg;
-					break;
-				}
-			}
+			const installed = getInstalledPackages().find(pkg => pkg.name === name);
 
 			if (!installed) {
 				throw new Error(`"${name}" is not installed`);
@@ -72,12 +71,16 @@ export default {
 			}
 
 			// unregister extension
+			console.log(`Unregistering ${cyan(name)}`);
 			await removePackageFromConfig(name, replacement.path);
 
-			for (const { version, path } of versions) {
-				fs.removeSync(path);
-				if (!argv.json) {
-					console.log(`Removed ${name}@${version}`);
+			for (const { managed, path, version } of versions) {
+				if (managed && path.startsWith(packagesDir)) {
+					log(`Deleting ${cyan(path)}`);
+					fs.removeSync(path);
+					if (!argv.json) {
+						console.log(`Removed ${name}@${version}`);
+					}
 				}
 			}
 
@@ -88,7 +91,7 @@ export default {
 			}
 		} catch (err) {
 			if (argv.json) {
-				console.error(JSON.stringify({ success: false, message: err.message }, null, '  '));
+				console.error(JSON.stringify({ success: false, error: err.message }, null, '  '));
 			} else {
 				console.error(err.message);
 			}

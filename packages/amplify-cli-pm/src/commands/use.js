@@ -11,11 +11,11 @@ export default {
 		{
 			name: 'package',
 			hint: 'package[@version]',
-			desc: 'the package version or latest to activate',
+			desc: 'The package version or latest to activate',
 			required: true
 		}
 	],
-	desc: 'activates a specific package version',
+	desc: 'Activates a specific package version',
 	async action({ argv, console }) {
 		const [
 			{ default: npa },
@@ -30,6 +30,7 @@ export default {
 		try {
 			let { type, name, fetchSpec } = npa(argv.package);
 			let installed;
+
 			for (const pkg of getInstalledPackages()) {
 				if (pkg.name === name) {
 					installed = pkg;

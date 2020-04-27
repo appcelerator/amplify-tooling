@@ -184,7 +184,6 @@ function getPackageInfo(pluginPath) {
 		};
 	} catch (e) {
 		// TODO: Do we need our format to allow for non-node packages to give us info?
-		return undefined;
 	}
 }
 
@@ -214,7 +213,8 @@ function getPackageData(name, activePkgs, pkgDir) {
 				const pkgJson = fs.readJsonSync(pkgJsonFile);
 				packageData.description = pkgJson.description;
 				packageData.versions[version] = {
-					path: versionDir
+					path: versionDir,
+					managed: true
 				};
 			} catch (e) {
 				// squelch
@@ -227,7 +227,8 @@ function getPackageData(name, activePkgs, pkgDir) {
 
 		if (!packageData.versions[active.version]) {
 			packageData.versions[active.version] = {
-				path: activePkgs[name]
+				path: activePkgs[name],
+				managed: false
 			};
 		}
 	}

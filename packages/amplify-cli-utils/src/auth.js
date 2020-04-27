@@ -32,7 +32,7 @@ export function createAuth(params) {
  * @param {String} [accountName] - The account name to find.
  * @returns {Promise}
  */
-export async function getAccount(authOpts, accountName) {
+export async function find(authOpts, accountName) {
 	if (typeof authOpts === 'string') {
 		accountName = authOpts;
 		authOpts = undefined;
@@ -47,7 +47,7 @@ export async function getAccount(authOpts, accountName) {
 	if (authOpts) {
 		// if we have authOpts, then we're authenticating, so let the client use the authenticator hash
 		log('Auth opts set, getting account based on hash');
-		account = await client.getAccount();
+		account = await client.find();
 	} else {
 		// no auth options, so we are safe to verify accounts and the default account
 		log('No auth opts, getting all credentials');
@@ -95,7 +95,12 @@ export async function getAccount(authOpts, accountName) {
 	};
 }
 
-export default getAccount;
+export default find;
+
+export async function getAccount(...args) {
+	logger.warn('auth.getAccount() is deprecated, use auth.find() instead');
+	return await find(...args);
+}
 
 /**
  * Returns a list of all valid access tokens.

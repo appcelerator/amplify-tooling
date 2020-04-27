@@ -28,12 +28,12 @@
     "pluralize": "^8.0.0",
     "snooplogg": "^2.3.3",
     "source-map-support": "^0.5.19",
-    "tmp": "^0.1.0",
+    "tmp": "^0.2.0",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
     "appcd-gulp": "^2.4.0",
-    "keytar": "5.5.0"
+    "keytar": "5.6.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
@@ -41,6 +41,6 @@
   "engines": {
     "node": ">=10.13.0"
   },
-  "keytar": "5.5.0",
+  "keytar": "5.6.0",
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }

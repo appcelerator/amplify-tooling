@@ -3,14 +3,11 @@ export default {
 	args: [
 		{
 			name: 'package',
-			desc: 'the package name to update'
+			desc: 'The package name to update'
 		}
 	],
-	desc: 'download updates for installed packages',
-	options: {
-		'--auth <account>': 'the authorization account to use'
-	},
-	async action({ argv }) {
+	desc: 'Download updates for installed packages',
+	async action({ argv, console }) {
 		const [
 			{ default: Listr },
 			{ addPackageToConfig, getInstalledPackages, PackageInstaller, Registry },

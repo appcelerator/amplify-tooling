@@ -4,12 +4,12 @@ import pacote from 'pacote';
 import { cacheDir } from './common';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { buildProxyParams } from '@axway/amplify-request';
 
-const npmCacheDir =  join(cacheDir, 'npm');
+const npmCacheDir = join(cacheDir, 'npm');
 
 export default async function fetchPackage(pkgInfo) {
 	let downloadLocation;
+
 	switch (pkgInfo.dist.download_type) {
 		case 'npm':
 			let { name, version } = pkgInfo;
@@ -23,8 +23,6 @@ export default async function fetchPackage(pkgInfo) {
 				version = 'latest';
 			}
 
-			Object.assign(opts, buildProxyParams());
-
 			const pkg = await pacote.manifest(`${name}@${version}`, opts);
 
 			if (version === 'latest') {
@@ -37,11 +35,14 @@ export default async function fetchPackage(pkgInfo) {
 				await pacote.tarball.toFile(`${name}@${version}`, downloadLocation, opts);
 			}
 			break;
+
 		case 'git':
 			downloadLocation = await download(pkgInfo.dist.download_url, { cacheDir: join(cacheDir, 'git') });
 			break;
+
 		default:
 			throw new Error('Unsupported package type');
 	}
+
 	return downloadLocation;
 }

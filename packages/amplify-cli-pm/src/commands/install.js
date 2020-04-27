@@ -4,15 +4,12 @@ export default {
 		{
 			name: 'package',
 			hint: 'package[@version]',
-			desc: 'the package name and version to install',
+			desc: 'The package name and version to install',
 			required: true
 		}
 	],
-	desc: 'installs the specified package',
-	options: {
-		'--auth <account>': 'the authorization account to use'
-	},
-	async action({ argv }) {
+	desc: 'Installs the specified package',
+	async action({ argv, console, terminal }) {
 		const [
 			{ default: npa },
 			{ default: ora },
@@ -28,9 +25,13 @@ export default {
 		const { name, fetchSpec } = npa(argv.package);
 		const messages = [];
 		let spinner;
+
 		try {
 			if (!argv.json) {
-				spinner = ora(`looking up ${name}`).start();
+				spinner = ora({
+					text: `looking up ${name}`,
+					stream: terminal.stderr
+				}).start();
 			}
 
 			const installProcess = new PackageInstaller(Object.assign({

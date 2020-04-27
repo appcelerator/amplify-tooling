@@ -1,6 +1,6 @@
 import http from 'http';
 
-import { getAccount } from '../dist/auth';
+import { find } from '../dist/auth';
 import { MemoryStore } from '@axway/amplify-auth-sdk';
 
 describe('auth', () => {
@@ -8,7 +8,7 @@ describe('auth', () => {
 		this.timeout(5000);
 
 		this.server = http.createServer((req, res) => {
-			const url = new URL(req.url);
+			const url = new URL(req.url, 'http://127.0.0.1:1337');
 			switch (url.pathname) {
 				case '/auth/realms/AppcID/protocol/openid-connect/userinfo':
 				case '/auth/realms/Axway/protocol/openid-connect/userinfo':
@@ -17,36 +17,6 @@ describe('auth', () => {
 					res.end(JSON.stringify({
 						name: 'bar',
 						email: 'foo@bar.com'
-					}));
-					break;
-
-				case '/api/v1/auth/findSession':
-					res.writeHead(200, { 'Content-Type': 'application/json' });
-					res.end(JSON.stringify({
-						result: {
-							org: {
-								org_id: 123,
-								name: 'foo org'
-							},
-							orgs: [
-								{
-									org_id: 123,
-									name: 'foo org'
-								},
-								{
-									org_id: 456,
-									name: 'bar org'
-								}
-							],
-							user: {
-								axway_id: 'abc123',
-								email: 'foo@bar.com',
-								firstname: 'foo',
-								guid: 'def456',
-								lastname: 'bar',
-								organization: 'foo org'
-							}
-						}
 					}));
 					break;
 
@@ -90,24 +60,25 @@ describe('auth', () => {
 		this.slow(9000);
 
 		const token = {
-			baseUrl: 'http://localhost:1337/',
-			env: 'preprod',
-			hash: 'test:509283ae0179a444c6e32408220800db',
-			name: 'bar',
-			expires: {
-				access: Date.now() + 1e6
+			auth: {
+				baseUrl: 'http://127.0.0.1:1337/',
+				env: 'preprod',
+				expires: {
+					access: Date.now() + 1e6
+				},
+				tokens: {
+					access_token: 'foo'
+				}
 			},
-			tokens: {
-				access_token: 'foo'
-			}
+			hash: 'test:acbba128ef48ea3cb8c122225f095eb1',
+			name: 'bar'
 		};
 
 		const tokenStore = new MemoryStore();
 		await tokenStore.set(token);
 
-		const { account } = await getAccount({
-			baseUrl: 'http://localhost:1337/',
-			platformUrl: 'http://localhost:1337/',
+		const { account } = await find({
+			baseUrl: 'http://127.0.0.1:1337/',
 			clientId: 'test',
 			clientSecret: 'shhhh',
 			realm: 'baz',
@@ -122,42 +93,43 @@ describe('auth', () => {
 		this.slow(9000);
 
 		const token = {
-			baseUrl: 'http://localhost:1337/',
-			env: 'preprod',
-			hash: 'test:509283ae0179a444c6e32408220800db',
-			name: 'bar',
-			expires: {
-				access: Date.now() + 1e6
+			auth: {
+				baseUrl: 'http://127.0.0.1:1337/',
+				env: 'preprod',
+				expires: {
+					access: Date.now() + 1e6
+				},
+				tokens: {
+					access_token: 'foo'
+				}
 			},
-			tokens: {
-				access_token: 'foo'
-			}
+			hash: 'test:acbba128ef48ea3cb8c122225f095eb1',
+			name: 'bar'
 		};
 
 		const tokenStore = new MemoryStore();
 		await tokenStore.set(token);
 
-		const { account } = await getAccount({
+		const { account } = await find({
 			clientId: 'test',
 			env: 'preprod',
-			baseUrl: 'http://localhost:1337/',
-			platformUrl: 'http://localhost:1337/',
+			baseUrl: 'http://127.0.0.1:1337/',
 			realm: 'baz',
 			tokenStore
-		}, 'test:509283ae0179a444c6e32408220800db');
+		}, 'test:acbba128ef48ea3cb8c122225f095eb1');
 
 		expect(account).to.deep.equal(token);
 	});
 
 	it('should not find an access token by auth params', async () => {
 		const tokenStore = new MemoryStore();
-		const { account } = await getAccount({ tokenStore });
+		const { account } = await find({ tokenStore });
 		expect(account).to.equal(undefined);
 	});
 
 	it('should not find an access token by id', async () => {
 		const tokenStore = new MemoryStore();
-		const { account } = await getAccount({ tokenStore }, 'foo');
+		const { account } = await find({ tokenStore }, 'foo');
 		expect(account).to.equal(undefined);
 	});
 });

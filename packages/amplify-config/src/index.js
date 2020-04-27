@@ -3,8 +3,11 @@ if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
+import Config from 'config-kit';
 import os from 'os';
 import path from 'path';
+
+import { expandPath } from 'appcd-path';
 
 export const configFile = path.join(os.homedir(), '.axway', 'amplify-cli.json');
 
@@ -28,9 +31,6 @@ export function loadConfig(opts = {}) {
 		throw new TypeError('Expected config file to be a string');
 	}
 
-	const { default: Config } = require('config-kit');
-	const { expandPath } = require('appcd-path');
-
 	const cfg = new Config({
 		data: opts.config,
 		file: expandPath(opts.configFile || configFile)
@@ -40,3 +40,5 @@ export function loadConfig(opts = {}) {
 }
 
 export default loadConfig;
+
+export { Config };
