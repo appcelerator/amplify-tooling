@@ -19,7 +19,7 @@ export default new CLI({
 			hidden: true
 		},
 		'--env [name]': {
-			desc: 'the environment to use'
+			desc: 'The environment to use'
 		},
 		'--realm [realm]': {
 			hidden: true

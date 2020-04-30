@@ -1,7 +1,7 @@
-import { download } from 'targit';
 import pacote from 'pacote';
 
 import { cacheDir } from './common';
+import { download } from 'targit';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
@@ -32,7 +32,7 @@ export default async function fetchPackage(pkgInfo) {
 			downloadLocation = join(npmCacheDir, name, version, 'package.tgz');
 
 			if (!existsSync(downloadLocation)) {
-				await pacote.tarball.toFile(`${name}@${version}`, downloadLocation, opts);
+				await pacote.tarball.file(`${name}@${version}`, downloadLocation, opts);
 			}
 			break;
 

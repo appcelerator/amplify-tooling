@@ -6,72 +6,82 @@ export default {
 		}
 	],
 	desc: 'Purges all unused packages',
+	options: {
+		'--json': 'Outputs results as JSON'
+	},
 	async action({ argv, console }) {
 		const [
 			{ getInstalledPackages },
 			{ remove },
-			{ default: Listr }
+			{ default: Listr },
+			semver,
+			{ default: snooplogg },
+			{ handleError }
 		] = await Promise.all([
 			import('@axway/amplify-registry-sdk'),
 			import('fs-extra'),
-			import('listr')
+			import('listr'),
+			import('semver'),
+			import('snooplogg'),
+			import('../utils')
 		]);
 
-		const packages = getInstalledPackages({ packageName: argv.package });
-
-		if (!Object.keys(packages).length) {
-			const message = argv.package ? `${argv.package} is not installed` : 'There are no packages to purge';
-			if (argv.json) {
-				console.log(JSON.stringify({ success: true, message }, null, '  '));
-			} else {
-				console.log(message);
-			}
-			return;
-		}
-
-		let packagesRemoved = 0;
-		const listrRenderer = argv.json ? 'silent' : 'default';
-		const removals = new Listr({ concurrent: 10, renderer: listrRenderer });
-		const removedPackages = {};
-		for (const { name, version, versions } of packages) {
-			removedPackages[name] = [];
-			for (const [ ver, versionData ] of Object.entries(versions)) {
-				if (ver === version) {
-					continue;
-				}
-				removals.add({
-					title: `Purging ${name}@${ver}`,
-					task: () => remove(versionData.path)
-				});
-				packagesRemoved++;
-				removedPackages[name].push(ver);
-			}
-		}
-
-		if (!packagesRemoved) {
-			const message = 'All packages installed are currently active';
-			if (argv.json) {
-				console.log(JSON.stringify({ success: true, message }, null, '  '));
-			} else {
-				console.log(message);
-			}
-			return;
-		}
-
 		try {
+			const { highlight } = snooplogg.styles;
+			const packages = getInstalledPackages({ packageName: argv.package });
+
+			if (!Object.keys(packages).length) {
+				const message = argv.package ? `Package "${argv.package}" is not installed` : 'There are no packages to purge';
+				if (argv.json) {
+					console.log(JSON.stringify({ message }, null, 2));
+				} else {
+					console.log(message);
+				}
+				return;
+			}
+
+			const removals = new Listr({
+				concurrent: 10,
+				renderer: argv.json ? 'silent' : 'default'
+			});
+			let packagesRemoved = 0;
+			const removedPackages = {};
+
+			for (const { name, version, versions } of packages) {
+				for (const [ ver, versionData ] of Object.entries(versions)) {
+					if (versionData.managed && semver.neq(ver, version)) {
+						removals.add({
+							title: `Purging ${highlight(`${name}@${ver}`)}`,
+							task: () => remove(versionData.path)
+						});
+						packagesRemoved++;
+						if (!removedPackages[name]) {
+							removedPackages[name] = [];
+						}
+						removedPackages[name].push(ver);
+					}
+				}
+			}
+
+			if (!packagesRemoved) {
+				const message = 'All packages installed are currently active.';
+				if (argv.json) {
+					console.log(JSON.stringify({ message }, null, 2));
+				} else {
+					console.log(`${message}\n`);
+				}
+				return;
+			}
+
 			await removals.run();
+
 			if (argv.json) {
-				console.log(JSON.stringify({ success: true, message: removedPackages }, null, '  '));
+				console.log(JSON.stringify(removedPackages, null, 2));
 			} else {
-				console.log(`Removed ${packagesRemoved} package${packagesRemoved !== 1 ? 's' : ''}`);
+				console.log(`\nRemoved ${packagesRemoved} package${packagesRemoved !== 1 ? 's' : ''}`);
 			}
-		} catch (error) {
-			if (argv.json) {
-				console.log(JSON.stringify({ success: false, message: error.stack }, null, '  '));
-			} else {
-				console.log(error.stack);
-			}
-			process.exitCode = 1;
+		} catch (err) {
+			handleError({ console, err, json: argv.json });
 		}
 	}
 };

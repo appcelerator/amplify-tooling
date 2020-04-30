@@ -16,30 +16,34 @@ export default {
 		}
 	],
 	desc: 'Activates a specific package version',
+	options: {
+		'--json': 'Outputs results as JSON'
+	},
 	async action({ argv, console }) {
 		const [
+			{ addPackageToConfig, getInstalledPackages },
 			{ default: npa },
 			semver,
-			{ addPackageToConfig, getInstalledPackages }
+			{ default: snooplogg },
+			{ handleError }
 		] = await Promise.all([
+			import('@axway/amplify-registry-sdk'),
 			import('npm-package-arg'),
 			import('semver'),
-			import('@axway/amplify-registry-sdk')
+			import('snooplogg'),
+			import('../utils')
 		]);
 
+		const { highlight } = snooplogg.styles;
+		let { type, name, fetchSpec } = npa(argv.package);
+		const installed = getInstalledPackages().find(pkg => pkg.name === name);
+
 		try {
-			let { type, name, fetchSpec } = npa(argv.package);
-			let installed;
-
-			for (const pkg of getInstalledPackages()) {
-				if (pkg.name === name) {
-					installed = pkg;
-					break;
-				}
-			}
-
 			if (!installed) {
-				throw new Error(`${name} is not installed, please run "amplify pm install ${name}" first`);
+				const err = new Error(`${name} is not installed`);
+				err.code = 'ENOTFOUND';
+				err.detail = `Please run ${highlight(`"amplify pm install ${name}"`)} to install it`;
+				throw err;
 			}
 
 			if (fetchSpec === 'latest') {
@@ -60,35 +64,31 @@ export default {
 			if (!info) {
 				// TODO: Bikeshed the semantic differences between use and install, whether use should install
 				// a package if it is not available and whether install should set a package as in use after install
-				throw new Error(`${name}@${version} is not installed\nPlease run "amplify pm install ${name}@${version}" to install it`);
+				const err = new Error(`${name}@${version} is not installed`);
+				err.code = 'ENOTFOUND';
+				err.detail = `Please run ${highlight(`"amplify pm install ${name}@${version}"`)} to install it`;
+				throw err;
 			}
 
-			const active = installed.version === version;
 			let msg;
-			if (active) {
-				msg = `${name}@${version} is already the active version`;
+			if (installed.version === version) {
+				msg = `${highlight(`${name}@${version}`)} is already the active version`;
 			} else {
-				msg = `Set ${name}@${version} as action version`;
+				msg = `Set ${highlight(`${name}@${version}`)} as action version`;
 				await addPackageToConfig(name, info.path);
 			}
 
 			if (argv.json) {
 				console.log(JSON.stringify({
-					success: true,
 					name,
 					version,
 					path: info.path
-				}, null, '  '));
+				}, null, 2));
 			} else {
 				console.log(msg);
 			}
 		} catch (err) {
-			if (argv.json) {
-				console.error(JSON.stringify({ success: false, message: err.message }, null, '  '));
-			} else {
-				console.error(err);
-			}
-			process.exit(1);
+			handleError({ console, err, json: argv.json });
 		}
 	}
 };

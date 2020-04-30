@@ -28,7 +28,7 @@
     "pluralize": "^8.0.0",
     "snooplogg": "^2.3.3",
     "source-map-support": "^0.5.19",
-    "tmp": "^0.2.0",
+    "tmp": "^0.2.1",
     "uuid": "^7.0.3"
   },
   "devDependencies": {

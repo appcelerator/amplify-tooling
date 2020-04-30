@@ -25,10 +25,10 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "@axway/amplify-cli-utils": "^2.3.0",
     "@axway/amplify-config": "^1.3.0",
     "@axway/amplify-registry-sdk": "^1.4.0",
     "cli-kit": "^0.16.2",
-    "cli-table3": "^0.6.0",
     "listr": "^0.14.3",
     "npm-package-arg": "^8.0.1",
     "ora": "4.0.4",

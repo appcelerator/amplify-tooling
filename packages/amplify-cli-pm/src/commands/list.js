@@ -1,25 +1,30 @@
 export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all installed packages',
+	options: {
+		'--json': 'Outputs packages as JSON'
+	},
 	async action({ argv, console }) {
 		const [
+			{ createTable },
 			{ getInstalledPackages, packagesDir },
-			{ default: Table },
-			snooplogg
+			semver,
+			{ default: snooplogg }
 		] = await Promise.all([
+			import('@axway/amplify-cli-utils'),
 			import('@axway/amplify-registry-sdk'),
-			import('cli-table3'),
+			import('semver'),
 			import('snooplogg')
 		]);
 
 		const installed = getInstalledPackages();
 
 		if (argv.json) {
-			console.log(JSON.stringify(installed, null, '  '));
+			console.log(JSON.stringify(installed, null, 2));
 			return;
 		}
 
-		const { cyan, gray, green } = snooplogg.styles;
+		const { cyan, gray } = snooplogg.styles;
 		console.log(`Packages directory: ${cyan(packagesDir)}\n`);
 
 		if (!installed.length) {
@@ -27,38 +32,17 @@ export default {
 			return;
 		}
 
-		const table = new Table({
-			chars: {
-				bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
-				left: '', 'left-mid': '',
-				mid: '', 'mid-mid': '', middle: '  ',
-				right: '', 'right-mid': '',
-				top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
-			},
-			head: [ 'Name', 'Installed Versions', 'Active Version' ],
-			style: {
-				head: [ 'bold' ],
-				'padding-left': 0,
-				'padding-right': 0
-			}
-		});
-
+		const table = createTable('Name', 'Versions');
 		const unmanaged = {};
 
 		for (const pkg of installed) {
-			const { managed } = pkg.versions[pkg.version];
+			const { version } = pkg;
+			const { managed } = pkg.versions[version];
+			const versions = Object.keys(pkg.versions).sort(semver.rcompare);
+
 			table.push([
-				managed || Object.keys(pkg.versions).some(ver => pkg.versions[ver].managed) ? green(pkg.name) : `${cyan(pkg.name)} ${gray('(unmanaged)')}`,
-				Object.keys(pkg.versions)
-					.map(ver => {
-						if (pkg.versions[ver].managed) {
-							return ver;
-						}
-						unmanaged[`${pkg.name}${ver}`] = 1;
-						return cyan(ver);
-					})
-					.join(', '),
-				!pkg.version ? 'Unknown' : managed ? pkg.version : cyan(pkg.version)
+				managed || Object.keys(pkg.versions).some(ver => pkg.versions[ver].managed) ? pkg.name : `${pkg.name} ${gray('(unmanaged)')}`,
+				versions.map(v => semver.eq(v, version) ? cyan(v) : v).join(', ')
 			]);
 			if (!managed) {
 				unmanaged[`${pkg.name}${pkg.version}`] = 1;

@@ -1,4 +1,9 @@
 import loadConfig from '@axway/amplify-config';
+import snooplogg from 'snooplogg';
+
+import { ansi } from 'cli-kit';
+
+const { alert } = snooplogg.styles;
 
 /**
  * Cached user agent.
@@ -28,43 +33,63 @@ export function getRegistryParams(env) {
  * Convert an error thrown by the `fetchAndInstall` function into something
  * human readable/actionable.
  *
- * @param {Error} error - Error thrown by the install process.
- * @returns {Object} Object with a message and code property, representing
- * the message to be logged and the process exitCode.
+ * @param {Error} err - Error object to inspect.
+ * @returns {Error} The original error object.
  */
-export function handleInstallError(error) {
-	let { message, stack } = error;
-	let exitCode = 1;
+export function formatError(err) {
+	err.exitCode = 1;
 
-	switch (error.code) {
+	switch (err.code) {
 		case 'ECONNREFUSED':
-			message = 'Unable to connect to registry server';
-			exitCode = 3;
+			err.message = 'Unable to connect to registry server';
+			err.exitCode = 3;
 			break;
 		case 'EINVALIDIR':
-			message = `You are in an invalid directory to install this component type\n${error.message}`;
-			break;
-		case 'ENONPM':
-			message = error.message;
-			break;
-		case 'ENOVERSIONDATA':
-			message = error.message;
+			err.message = `You are in an invalid directory to install this component type\n${err.message}`;
 			break;
 		case 'ENPMINSTALLERROR':
 			// TODO: Need to break this error down into some sort of actionable items
-			message = `An error occurred when running "npm install"\n${error.stack}`;
+			err.message = `An error occurred when running "npm install"\n${err.stack}`;
 			break;
 		case 'NO_DATA':
-			message = 'No results found';
-			break;
-		default :
-			message = `${message}\n${stack}`;
+			err.message = 'No results found';
 			break;
 	}
-	return {
-		message,
-		exitCode
-	};
+
+	return err;
+}
+
+/**
+ * Handles error formatting and outputting. Sets the `process.exitCode` to error.
+ *
+ * @param {Object} opts - Various options.
+ * @param {Console} opts.console - A console object instance.
+ * @param {Error} opts.err - The error object.
+ * @param {Boolean} [opts.json] - When `true`, outputs the error as JSON.
+ * @param {Function} [opts.outputError] - A function to output the main error message.
+ */
+export function handleError({ console, err, json, outputError }) {
+	err = formatError(err);
+	process.exitCode = err.exitCode || 1;
+
+	if (json) {
+		console.error(JSON.stringify({
+			error: {
+				message: err.toString(),
+				detail: err.detail && ansi.strip(err.detail),
+				code: err.code,
+			}
+		}, null, 2));
+	} else {
+		if (outputError) {
+			outputError(err.toString());
+		} else {
+			console.error(alert(err.toString()));
+		}
+		if (err.detail) {
+			console.error(`\n${err.detail}`);
+		}
+	}
 }
 
 /**

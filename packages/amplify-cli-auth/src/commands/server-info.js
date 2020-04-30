@@ -2,22 +2,15 @@ export default {
 	hidden: true,
 	name: 'server-info',
 	async action({ argv, console }) {
-		const [
-			{ AmplifySDK },
-			{ buildParams }
-		] = await Promise.all([
-			import('@axway/amplify-sdk'),
-			import('@axway/amplify-cli-utils')
-		]);
-
-		const params = buildParams({
+		const { initSDK } = await import('@axway/amplify-cli-utils');
+		const { sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
 			clientId: argv.clientId,
 			env:      argv.env,
 			realm:    argv.realm
 		});
 
-		const info = await new AmplifySDK(params).auth.serverInfo();
-		console.log(JSON.stringify(info, null, '  '));
+		const info = await sdk.auth.serverInfo();
+		console.log(JSON.stringify(info, null, 2));
 	}
 };

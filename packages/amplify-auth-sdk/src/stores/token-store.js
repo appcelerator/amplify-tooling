@@ -247,7 +247,7 @@ export default class TokenStore {
 		const entries = await this.list();
 
 		for (let i = 0, len = entries.length; i < len; i++) {
-			if (entries[i].auth.baseUrl === data.baseUrl && entries[i].name === data.name) {
+			if (entries[i].auth.baseUrl === data.auth.baseUrl && entries[i].name === data.name) {
 				entries.splice(i, 1);
 				break;
 			}

@@ -3,34 +3,33 @@ export default {
 	args: [
 		{
 			name: 'search',
-			desc: 'The package name or keywords',
-			required: false
+			desc: 'The package name or keywords'
 		}
 	],
 	desc: 'Searches registry for packages',
 	options: {
+		'--json': 'Outputs packages as JSON',
 		'--repository [repository]': 'The repository to search',
 		'--type [type]': 'Type of package to search'
 	},
 	async action({ argv, console }) {
 		const [
-			{ default: Table },
-			{ buildUserAgentString, getRegistryParams },
+			{ createTable },
 			{ Registry },
-			{ snooplogg }
+			{ buildUserAgentString, getRegistryParams }
 		] = await Promise.all([
-			import('cli-table3'),
-			import('../utils'),
+			import('@axway/amplify-cli-utils'),
 			import('@axway/amplify-registry-sdk'),
-			import('appcd-logger')
+			import('../utils')
 		]);
 
 		const registry = new Registry(getRegistryParams(argv.env));
 		const { repository, search, type } = argv;
-		let results;
 		const headers = {
 			'User-Agent': buildUserAgentString()
 		};
+		let results;
+
 		try {
 			results = (await registry.search({ headers, text: search, repository, type })).map(d => {
 				return {
@@ -40,16 +39,16 @@ export default {
 					description: d.description
 				};
 			});
-		} catch (e) {
-			if (e.code === 'ECONNREFUSED') {
+		} catch (err) {
+			if (err.code === 'ECONNREFUSED') {
 				console.error('Unable to connect to registry server');
 				process.exit(3);
 			}
-			throw e;
+			throw err;
 		}
 
 		if (argv.json) {
-			console.log(JSON.stringify(results, null, '  '));
+			console.log(JSON.stringify(results, null, 2));
 			return;
 		}
 
@@ -58,27 +57,11 @@ export default {
 			return;
 		}
 
-		const { green } = snooplogg.styles;
-
-		const table = new Table({
-			chars: {
-				bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
-				left: '', 'left-mid': '',
-				mid: '', 'mid-mid': '', middle: '  ',
-				right: '', 'right-mid': '',
-				top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
-			},
-			head: [ 'Name', 'Versions', 'Type', 'Description' ],
-			style: {
-				head: [ 'bold' ],
-				'padding-left': 0,
-				'padding-right': 0
-			}
-		});
+		const table = createTable('Name', 'Versions', 'Type', 'Description');
 
 		for (const pkg of results) {
 			table.push([
-				green(pkg.name),
+				pkg.name,
 				pkg.version,
 				pkg.type,
 				pkg.description

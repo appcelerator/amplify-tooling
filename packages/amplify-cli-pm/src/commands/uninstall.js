@@ -9,30 +9,34 @@ export default {
 		}
 	],
 	desc: 'Uninstalls the specified package',
+	options: {
+		'--json': 'Outputs packages as JSON'
+	},
 	async action({ argv, console }) {
 		const [
+			{ getInstalledPackages, packagesDir, removePackageFromConfig },
 			fs,
 			semver,
 			{ default: npa },
 			{ default: snooplogg },
-			{ getInstalledPackages, packagesDir, removePackageFromConfig }
+			{ handleError }
 		] = await Promise.all([
+			import('@axway/amplify-registry-sdk'),
 			import('fs-extra'),
 			import('semver'),
 			import('npm-package-arg'),
 			import('snooplogg'),
-			import('@axway/amplify-registry-sdk')
+			import('../utils')
 		]);
 
-		const { cyan } = snooplogg.styles;
-		const { log } = snooplogg('amplify-cli-pm:uninstall');
+		const { highlight, note } = snooplogg.styles;
 
 		try {
 			const { type, name, fetchSpec } = npa(argv.package);
 			const installed = getInstalledPackages().find(pkg => pkg.name === name);
 
 			if (!installed) {
-				throw new Error(`"${name}" is not installed`);
+				throw new Error(`Package "${name}" is not installed`);
 			}
 
 			const installedVersions = Object.keys(installed.versions);
@@ -71,31 +75,27 @@ export default {
 			}
 
 			// unregister extension
-			console.log(`Unregistering ${cyan(name)}`);
+			if (!argv.json) {
+				console.log(`Unregistering ${highlight(name)}`);
+			}
 			await removePackageFromConfig(name, replacement.path);
 
 			for (const { managed, path, version } of versions) {
 				if (managed && path.startsWith(packagesDir)) {
-					log(`Deleting ${cyan(path)}`);
-					fs.removeSync(path);
 					if (!argv.json) {
-						console.log(`Removed ${name}@${version}`);
+						console.log(`Deleting ${highlight(`${name}@${version}`)} ${note(`(${path})`)}`);
 					}
+					await fs.remove(path);
 				}
 			}
 
 			if (argv.json) {
-				console.log(JSON.stringify(versions, null, '  '));
+				console.log(JSON.stringify(versions, null, 2));
 			} else if (replacement.path) {
-				console.log(`Set ${name}@${replacement.version} as the active version`);
+				console.log(`${highlight(`${name}@${replacement.version}`)} is now the active version`);
 			}
 		} catch (err) {
-			if (argv.json) {
-				console.error(JSON.stringify({ success: false, error: err.message }, null, '  '));
-			} else {
-				console.error(err.message);
-			}
-			process.exit(1);
+			handleError({ console, err, json: argv.json });
 		}
 	}
 };
