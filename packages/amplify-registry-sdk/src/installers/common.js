@@ -86,7 +86,7 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
 	}
 
 	cfg.set(`extensions.${name}`, path);
-	await cfg.save(location);
+	cfg.save(location);
 }
 
 /**
@@ -120,7 +120,7 @@ export async function removePackageFromConfig(name, replacementPath, cfg = loadC
 		cfg.delete(`extensions.${name}`);
 	}
 
-	await cfg.save(location);
+	cfg.save(location);
 }
 
 /**

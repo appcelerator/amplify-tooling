@@ -1,6 +1,6 @@
 import http from 'http';
 
-import { find } from '../dist/auth';
+import { initSDK } from '../dist/index';
 import { MemoryStore } from '@axway/amplify-auth-sdk';
 
 describe('auth', () => {
@@ -17,6 +17,36 @@ describe('auth', () => {
 					res.end(JSON.stringify({
 						name: 'bar',
 						email: 'foo@bar.com'
+					}));
+					break;
+
+				case '/api/v1/auth/findSession':
+					res.writeHead(200, { 'Content-Type': 'application/json' });
+					res.end(JSON.stringify({
+						result: {
+							org: {
+								org_id: 123,
+								name: 'foo org'
+							},
+							orgs: [
+								{
+									org_id: 123,
+									name: 'foo org'
+								},
+								{
+									org_id: 456,
+									name: 'bar org'
+								}
+							],
+							user: {
+								axway_id: 'abc123',
+								email: 'foo@bar.com',
+								firstname: 'foo',
+								guid: 'def456',
+								lastname: 'bar',
+								organization: 'foo org'
+							}
+						}
 					}));
 					break;
 
@@ -77,14 +107,16 @@ describe('auth', () => {
 		const tokenStore = new MemoryStore();
 		await tokenStore.set(token);
 
-		const { account } = await find({
+		const { sdk } = initSDK({
 			baseUrl: 'http://127.0.0.1:1337/',
 			clientId: 'test',
 			clientSecret: 'shhhh',
+			platformUrl: 'http://127.0.0.1:1337/',
 			realm: 'baz',
 			tokenStore
 		});
 
+		const account = await sdk.auth.find();
 		expect(account).to.deep.equal(token);
 	});
 
@@ -110,26 +142,28 @@ describe('auth', () => {
 		const tokenStore = new MemoryStore();
 		await tokenStore.set(token);
 
-		const { account } = await find({
+		const { sdk } = initSDK({
 			clientId: 'test',
 			env: 'preprod',
 			baseUrl: 'http://127.0.0.1:1337/',
+			platformUrl: 'http://127.0.0.1:1337/',
 			realm: 'baz',
 			tokenStore
-		}, 'test:acbba128ef48ea3cb8c122225f095eb1');
+		});
 
+		const account = await sdk.auth.find('test:acbba128ef48ea3cb8c122225f095eb1');
 		expect(account).to.deep.equal(token);
 	});
 
 	it('should not find an access token by auth params', async () => {
-		const tokenStore = new MemoryStore();
-		const { account } = await find({ tokenStore });
-		expect(account).to.equal(undefined);
+		const { sdk } = initSDK({ tokenStore: new MemoryStore() });
+		const account = await sdk.auth.find();
+		expect(account).to.equal(null);
 	});
 
 	it('should not find an access token by id', async () => {
-		const tokenStore = new MemoryStore();
-		const { account } = await find({ tokenStore }, 'foo');
-		expect(account).to.equal(undefined);
+		const { sdk } = initSDK({ tokenStore: new MemoryStore() });
+		const account = await sdk.auth.find('foo');
+		expect(account).to.equal(null);
 	});
 });

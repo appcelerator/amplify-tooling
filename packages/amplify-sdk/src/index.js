@@ -21,6 +21,7 @@ export class AmplifySDK {
 	 * Initializes the environment and SDK's API.
 	 *
 	 * @param {Object} opts - Authentication options.
+	 * @param {Object} [opts.env=prod] - The environment name.
 	 * @access public
 	 */
 	constructor(opts) {
@@ -35,6 +36,12 @@ export class AmplifySDK {
 		 * @type {Object}
 		 */
 		this.env = environments.resolve(opts.env);
+
+		/**
+		 * The platform URL.
+		 * @type {String}
+		 */
+		this.platformUrl = opts.platformUrl ? opts.platformUrl.replace(/\/$/, '') : null;
 
 		this.auth = {
 			/**
@@ -62,35 +69,39 @@ export class AmplifySDK {
 			 * @returns {Promise<Object>} Resolves the original account info object.
 			 */
 			loadSession: async account => {
-				const { org, orgs, user } = await this.request('/api/v1/auth/findSession', account);
+				try {
+					const { org, orgs, user } = await this.request('/api/v1/auth/findSession', account);
 
-				account.org = {
-					guid: org.guid,
-					id:   org.org_id,
-					name: org.name
-				};
+					account.org = {
+						guid: org.guid,
+						id:   org.org_id,
+						name: org.name
+					};
 
-				log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
-				account.orgs = orgs.map(({ guid, name, org_id }) => ({ guid, id: org_id, name }));
+					log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+					account.orgs = orgs.map(({ guid, name, org_id }) => ({ guid, id: org_id, name }));
 
-				log('Available orgs:');
-				for (const org of account.orgs) {
-					log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+					log('Available orgs:');
+					for (const org of account.orgs) {
+						log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+					}
+
+					Object.assign(account.user, {
+						axwayId:      user.axway_id,
+						email:        user.email,
+						firstName:    user.firstname,
+						guid:         user.guid,
+						is2FAEnabled: !user.disable_2fa,
+						lastName:     user.lastname,
+						organization: user.organization
+					});
+
+					await this.client.updateAccount(account);
+
+					return account;
+				} catch (e) {
+					throw new Error(`Failed to get session: ${e.message}`);
 				}
-
-				Object.assign(account.user, {
-					axwayId:      user.axway_id,
-					email:        user.email,
-					firstName:    user.firstname,
-					guid:         user.guid,
-					is2FAEnabled: !user.disable_2fa,
-					lastName:     user.lastname,
-					organization: user.organization
-				});
-
-				await this.client.updateAccount(account);
-
-				return account;
 			},
 
 			/**
@@ -436,7 +447,7 @@ export class AmplifySDK {
 			throw new Error('Invalid/expired account');
 		}
 
-		const url = `${this.env.platformUrl}${path}`;
+		const url = `${this.platformUrl || this.env.platformUrl}${path}`;
 		const headers = {
 			Accept: 'application/json'
 		};

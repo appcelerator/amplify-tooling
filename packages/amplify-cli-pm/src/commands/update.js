@@ -12,7 +12,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const [
-			{ addPackageToConfig, getInstalledPackages, packagesDir, PackageInstaller, Registry },
+			{ addPackageToConfig, getInstalledPackages, PackageInstaller, Registry },
 			{ default: Listr },
 			{ default: snooplogg },
 			{ getRegistryParams, formatError }

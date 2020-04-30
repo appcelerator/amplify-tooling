@@ -39,6 +39,7 @@ export function buildParams(opts = {}, config) {
 		interactiveLoginTimeout: undefined,
 		homeDir:                 locations.axwayHome,
 		password:                undefined,
+		platformUrl:             undefined,
 		realm,
 		secretFile:              undefined,
 		serverHost:              undefined,
@@ -106,8 +107,9 @@ export function initSDK(opts = {}, config) {
 /**
  * Loads the AMPLIFY CLI config file using the lazy loaded AMPLIFY Config package.
  *
+ * @param {Object} [opts] - Various options. See `@axway/amplify-config` for more details.
  * @returns {Config}
  */
-export function loadConfig() {
-	return require('@axway/amplify-config').default();
+export function loadConfig(opts) {
+	return require('@axway/amplify-config').default(opts);
 }
