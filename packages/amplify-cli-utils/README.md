@@ -118,6 +118,50 @@ const config = loadConfig();
 console.log(config);
 ```
 
+## Upgrading from version 1.x
+
+In v2, the entire `auth` API was removed to take advantage of the new AMPLIFY SDK, which now
+contains the auth API.
+
+```js
+// Find account by login parameters
+
+// v1
+import { auth } from '@axway/amplify-cli-utils';
+const { account, client, config } = await auth.getAccount({ /* auth options */ });
+
+// v2
+import { initSDK } from '@axway/amplify-cli-utils';
+const { config, sdk } = initSDK({ /* auth options */ });
+const account = await sdk.auth.find();
+```
+
+```js
+// Find account by id
+
+// v1
+import { auth } from '@axway/amplify-cli-utils';
+const { account, client, config } = await auth.getAccount('<CLIENT_ID>:<EMAIL>');
+
+// v2
+import { initSDK } from '@axway/amplify-cli-utils';
+const { config, sdk } = initSDK({ /* auth options */ });
+const account = await sdk.auth.find('<CLIENT_ID>:<EMAIL>');
+```
+
+```js
+// Get all credentialed accounts
+
+// v1
+import { auth } from '@axway/amplify-cli-utils';
+const accounts = await auth.list();
+
+// v2
+import { initSDK } from '@axway/amplify-cli-utils';
+const { config, sdk } = initSDK({ /* auth options */ });
+const accounts = await sdk.auth.list();
+```
+
 ## Legal
 
 This project is open source under the [Apache Public License v2][1] and is developed by

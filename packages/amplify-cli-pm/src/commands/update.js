@@ -67,40 +67,38 @@ export default {
 		};
 
 		for (const pkg of installed) {
-			if (pkg.managed && pkg.path.startsWith(packagesDir)) {
-				tasks.add({
-					title: `Checking ${highlight(pkg.name)}`,
-					async task(ctx, task) {
-						try {
-							const meta = await registry.metadata({ name: pkg.name });
+			tasks.add({
+				title: `Checking ${highlight(pkg.name)}`,
+				async task(ctx, task) {
+					try {
+						const meta = await registry.metadata({ name: pkg.name });
 
-							if (pkg.version === meta.version) {
-								task.title = `${highlight(`${pkg.name}@${meta.version}`)} is already up-to-date`;
-								results.alreadyActive.push(`${pkg.name}@${meta.version}`);
-								return;
-							}
-
-							if (Object.keys(pkg.versions).includes(meta.version)) {
-								const versionData = pkg.versions[meta.version];
-								task.title = `${highlight(`${pkg.name}@${meta.version}`)} is installed, setting it as active`;
-								await addPackageToConfig(pkg.name, versionData.path);
-								results.selected.push(`${pkg.name}@${meta.version}`);
-							} else {
-								task.title = `Downloading and installing ${highlight(`${pkg.name}@${meta.version}`)}`;
-								await installNewPackage({ name: pkg.name, fetchSpec: meta.version, ...registryParams }, task);
-								results.installed.push(`${pkg.name}@${meta.version}`);
-							}
-
-							task.title = `${highlight(`${pkg.name}@${meta.version}`)} set as active version`;
-						} catch (err) {
-							err = formatError(err);
-							process.exitCode = err.exitCode || 1;
-							results.failures.push({ package: pkg.name, error: err.toString() });
-							throw err;
+						if (pkg.version === meta.version) {
+							task.title = `${highlight(`${pkg.name}@${meta.version}`)} is already up-to-date`;
+							results.alreadyActive.push(`${pkg.name}@${meta.version}`);
+							return;
 						}
+
+						if (Object.keys(pkg.versions).includes(meta.version)) {
+							const versionData = pkg.versions[meta.version];
+							task.title = `${highlight(`${pkg.name}@${meta.version}`)} is installed, setting it as active`;
+							await addPackageToConfig(pkg.name, versionData.path);
+							results.selected.push(`${pkg.name}@${meta.version}`);
+						} else {
+							task.title = `Downloading and installing ${highlight(`${pkg.name}@${meta.version}`)}`;
+							await installNewPackage({ name: pkg.name, fetchSpec: meta.version, ...registryParams }, task);
+							results.installed.push(`${pkg.name}@${meta.version}`);
+						}
+
+						task.title = `${highlight(`${pkg.name}@${meta.version}`)} set as active version`;
+					} catch (err) {
+						err = formatError(err);
+						process.exitCode = err.exitCode || 1;
+						results.failures.push({ package: pkg.name, error: err.toString() });
+						throw err;
 					}
-				});
-			}
+				}
+			});
 		}
 
 		try {

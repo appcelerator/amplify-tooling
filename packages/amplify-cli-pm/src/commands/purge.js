@@ -47,20 +47,18 @@ export default {
 			let packagesRemoved = 0;
 			const removedPackages = {};
 
-			for (const { managed, name, path, version, versions } of packages) {
-				if (managed && path.startsWith(packagesDir)) {
-					for (const [ ver, versionData ] of Object.entries(versions)) {
-						if (versionData.managed && semver.neq(ver, version)) {
-							removals.add({
-								title: `Purging ${highlight(`${name}@${ver}`)}`,
-								task: () => remove(versionData.path)
-							});
-							packagesRemoved++;
-							if (!removedPackages[name]) {
-								removedPackages[name] = [];
-							}
-							removedPackages[name].push(ver);
+			for (const { name, version, versions } of packages) {
+				for (const [ ver, versionData ] of Object.entries(versions)) {
+					if (versionData.managed && versionData.path.startsWith(packagesDir) && semver.neq(ver, version)) {
+						removals.add({
+							title: `Purging ${highlight(`${name}@${ver}`)}`,
+							task: () => remove(versionData.path)
+						});
+						packagesRemoved++;
+						if (!removedPackages[name]) {
+							removedPackages[name] = [];
 						}
+						removedPackages[name].push(ver);
 					}
 				}
 			}

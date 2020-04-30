@@ -20,18 +20,17 @@
 		"test": "gulp test"
 	},
 	"dependencies": {
-		"@axway/amplify-cli-utils": "^0.4.0",
-		"cli-kit": "^0.7.5"
+		"@axway/amplify-cli-utils": "^2.3.0",
+		"cli-kit": "^0.16.2"
 	},
 	"devDependencies": {
-		"appcd-gulp": "^2.1.0",
-		"gulp": "^4.0.0"
+		"appcd-gulp": "^2.4.0"
 	},
 	"homepage": "",
 	"bugs": "",
 	"repository": "",
 	"engines": {
-		"node": ">=8.10.0"
+		"node": ">=10"
 	},
 	"amplify": {
 		"type": "amplify-cli-plugin"
