@@ -80,10 +80,8 @@ export async function createLoginServer(opts = {}) {
 					break;
 
 				case '/auth/realms/test_realm/protocol/openid-connect/userinfo':
-					if (typeof opts.userinfo === 'function') {
-						if (opts.userinfo(post, req, res)) {
-							break;
-						}
+					if (typeof opts.userinfo === 'function' && opts.userinfo(post, req, res)) {
+						break;
 					}
 
 					res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -94,10 +92,8 @@ export async function createLoginServer(opts = {}) {
 					break;
 
 				case '/auth/realms/test_realm/.well-known/openid-configuration':
-					if (typeof opts.serverinfo === 'function') {
-						if (opts.serverinfo(post, req, res)) {
-							break;
-						}
+					if (typeof opts.serverinfo === 'function' && opts.serverinfo(post, req, res)) {
+						break;
 					}
 
 					res.writeHead(200, { 'Content-Type': 'application/json' });

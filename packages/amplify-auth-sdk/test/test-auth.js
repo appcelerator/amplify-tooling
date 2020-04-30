@@ -86,6 +86,7 @@ describe('Auth', () => {
 				serverinfo(post, req, res) {
 					res.writeHead(500);
 					res.end('Server error');
+					return true;
 				}
 			});
 
@@ -101,6 +102,7 @@ describe('Auth', () => {
 				serverinfo(post, req, res) {
 					res.writeHead(200);
 					res.end('{{{{{{{{{{');
+					return true;
 				}
 			});
 
