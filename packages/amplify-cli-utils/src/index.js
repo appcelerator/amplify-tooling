@@ -87,7 +87,8 @@ export function createTable(...head) {
  *
  * @param {Object} [opts] - SDK options including `env` and auth options.
  * @param {Object} [config] - The AMPLIFY config. If not passed in, the config file is loaded.
- * @returns {Object}
+ * @returns {Object} Returns an object containing the AMPLIFY CLI config and an initialized
+ * AMPLIFY SDK instance.
  */
 export function initSDK(opts = {}, config) {
 	const AmplifySDK = require('@axway/amplify-sdk').default;
@@ -102,6 +103,11 @@ export function initSDK(opts = {}, config) {
 	};
 }
 
+/**
+ * Loads the AMPLIFY CLI config file using the lazy loaded AMPLIFY Config package.
+ *
+ * @returns {Config}
+ */
 export function loadConfig() {
 	return require('@axway/amplify-config').default();
 }
