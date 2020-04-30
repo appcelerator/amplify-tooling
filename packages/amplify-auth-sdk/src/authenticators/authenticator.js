@@ -525,8 +525,11 @@ export default class Authenticator {
 	 * Defaults to the `interactiveLoginTimeout` property.
 	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
 	 * promise. If `false` it's fulfilled immediately when opening the app.
-	 * @returns {Promise<Object>} Resolves an object containing the access token, account name, and
-	 * user info.
+	 * @returns {Promise<Object>} In `manual` mode, then resolves an object containing the
+	 * authentication `url`, a `promise` that is resolved once the browser redirects to the local
+	 * web server after authenticating, and a `cancel` method to abort the authentication and stop
+	 * the local web server. When not using `manual` mode, the `account` info is resolved after
+	 * successfully authenticating.
 	 * @access public
 	 */
 	async login(opts = {}) {

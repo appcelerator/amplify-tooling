@@ -3,10 +3,15 @@
 The AMPLIFY Auth SDK for Node.js makes it easy for Node.js applications to authenticate with
 AxwayID in order to access AMPLIFY Services.
 
+> NOTICE:
+>
+> In nearly all cases, you should use [@axway/amplify-sdk][amplify-sdk] instead of this package.
+> AMPLIFY SDK will populate the account org info and facilitate org switching which was removed
+> from this package in v2.
+
 ## Installation
 
 	npm i @axway/amplify-auth-sdk --save
-	npm i keytar --save-optional
 
 ## Overview
 
@@ -83,10 +88,9 @@ import Auth from '@axway/amplify-auth-sdk';
 	});
 
 	// this will launch the default browser and wait for the user to complete the process
-	const { accessToken, account, userInfo } = await auth.login();
+	const account = await auth.login();
 
 	console.log(`Authenticated successfully ${account.name}!`);
-	console.log(userInfo);
 })().catch(console.error);
 ```
 
@@ -97,8 +101,7 @@ You can also manually authenticate manually without a browser.
 
 ```js
 import Auth from '@axway/amplify-auth-sdk';
-import fetch from 'node-fetch';
-import { parse, URLSearchParams } from 'url';
+import got from 'got';
 
 (async function main() {
 	const auth = new Auth({
@@ -107,12 +110,11 @@ import { parse, URLSearchParams } from 'url';
 	});
 
 	const { url } = await auth.login({ manual: true });
-	const res = await fetch(url, { redirect: 'manual' });
-	const code = new URLSearchParams(parse(res.headers.get('location')).query).get('code');
-	const { accessToken, account, userInfo } = await auth.login({ code });
+  const res = await got(url, { followRedirect: false });
+  const code = new URL(res.headers.get('location')).searchParams.get('code');
+	const account = await auth.login({ code });
 
 	console.log(`Authenticated successfully ${account.name}!`);
-	console.log(userInfo);
 })().catch(console.error);
 ```
 
@@ -129,10 +131,9 @@ import Auth from '@axway/amplify-auth-sdk';
 		password: 'password1'
 	});
 
-	const { accessToken, account, userInfo } = await auth.login();
+	const account = await auth.login();
 
 	console.log(`Authenticated successfully ${account.name}!`);
-	console.log(userInfo);
 })().catch(console.error);
 ```
 
@@ -149,10 +150,9 @@ import Auth from '@axway/amplify-auth-sdk';
 	});
 
 	// this will launch the default browser and wait for the user to complete the process
-	const { accessToken, account, userInfo } = await auth.login();
+	const account = await auth.login();
 
 	console.log(`Authenticated successfully ${account.name}!`);
-	console.log(userInfo);
 })().catch(console.error);
 ```
 
@@ -168,10 +168,9 @@ import Auth from '@axway/amplify-auth-sdk';
 		secretFile: '/path/to/rsa-private-key.pem'
 	});
 
-	const { accessToken, account, userInfo } = await auth.login();
+	const account = await auth.login();
 
 	console.log(`Authenticated successfully ${account.name}!`);
-	console.log(userInfo);
 })().catch(console.error);
 ```
 
@@ -227,7 +226,7 @@ used when a method is invoked and a property has not be specified.
 
 ### Methods
 
-#### `getAccount(options)`
+#### `find(options)`
 
 Retrieves the access token based on the supplied account name.
 
@@ -242,18 +241,19 @@ Retrieves the access token based on the supplied account name.
 
 Returns a `Promise` that resolves an `Object` containing:
 
- * `authenticator`: (String) The authentication method.
- * `baseUrl`: (String) The base URL.
- * `env`: (String) The environment name. Note that a user may override the environment's base URL.
- * `expired`: (Boolean) This is a computed property that determimes if the access token is expired.
+ * `auth`: (Object) Authentication related info.
+ * `auth.authenticator`: (String) The authentication method.
+ * `auth.baseUrl`: (String) The base URL.
+ * `auth.env`: (String) The environment name. Note that a user may override the environment's base URL.
+ * `auth.expired`: (Boolean) This is a computed property that determimes if the access token is expired.
    Auth SDK consumers should check this after retreiving the account to see if they need to
    re-authenticate by calling `login()`.
- * `expires`: (Object) An object containing a timestamp (in milliseconds) for which the `access` and
-   `refresh` tokens expire.
+ * `auth.expires`: (Object) An object containing a timestamp (in milliseconds) for which the `access` and
+ * `auth.realm`: (String) The OpenID realm.
+   `auth.refresh` tokens expire.
+ * `auth.tokens`: (Object) The original OpenID tokens object.
  * `hash`: (String) A base64 encoded md5 hash of the authenticator parameters.
  * `name`: (String) The account name. Generally this is the user's email address.
- * `realm`: (String) The OpenID realm.
- * `tokens`: (Object) The original OpenID tokens object.
 
 If the account is not found or if the `tokenStoreType` has been explicitly set to `null`, it will
 resolve `null`.
@@ -261,7 +261,7 @@ resolve `null`.
 ##### Example
 
 ```js
-const account = await auth.getAccount({ accountName: 'foo@bar.com' });
+const account = await auth.find({ accountName: 'foo@bar.com' });
 if (account) {
 	if (account.expired) {
 		console.log(`Found ${account.name}, but the access token is expired and you must call login() again`);
@@ -279,7 +279,7 @@ Returns a list of all valid access tokens.
 
 ##### Return Value
 
-Returns a `Promise` that resolves an `Array` of account objects (as described in `getAccount()`).
+Returns a `Promise` that resolves an `Array` of account objects (as described in `find()`).
 
 If the `tokenStoreType` has been explicitly set to `null`, it will resolve an empty array.
 
@@ -370,24 +370,20 @@ If `manual`, the resolved object contains:
    HTTP server containing the authorization code used to retreive the access token when calling
    `login({ code })`.
 
-If *NOT* `manual`, the resolved object contains:
-
- * `accessToken`: (String) The access token.
- * `account`: (Object) The account info as described in the `getAccount()` return value description.
- * `authenticator`: (Authenticator) A reference to the authenticator that performed the login.
- * `userInfo`: (Object) An object containing various information returned by the server about the
-   user.
+If *NOT* `manual`, it resolves an `account` info object as described in the `find()` return value
+description.
 
 ##### Example
 
 ```js
-const { accessToken, account, userInfo } = await auth.login();
-console.log(`Access token = ${accessToken}`);
+const account = await auth.login();
 console.log(`Account name = ${account.name}`);
-console.log('User info =', userInfo);
+console.log(`Access token = ${account.auth.tokens.access_token}`);
+console.log('User info =', account.user);
+console.log('Org info =', account.org);
 ```
 
-#### `revoke(options)`
+#### `logout(options)`
 
 Invalidates all or specific account access tokens by name.
 
@@ -404,18 +400,18 @@ Returns a `Promise` that resolves an `Array` of revoked accounts.
 > Note: If all accounts have been revoked, the token store implementation generally removes the
 > entire store rather than keep an empty store.
 
-This function will always succeed regardless if it the Axway platform was able to
-invalidate the access token.
+This function will always succeed regardless if it the Axway platform was able to invalidate the
+access token.
 
 ##### Example
 
 ```js
-const revoked = await auth.revoke({ accounts: [ 'foo@bar.com' ] });
+const revoked = await auth.logout({ accounts: [ 'foo@bar.com' ] });
 console.log(`Revoked ${revoked.length} accounts`);
 ```
 
 ```js
-const revoked = await auth.revoke({ all: true });
+const revoked = await auth.logout({ all: true });
 console.log(`Revoked ${revoked.length} accounts`);
 ```
 
@@ -514,3 +510,4 @@ This project is open source under the [Apache Public License v2][1] and is devel
 in this distribution for more information.
 
 [1]: https://github.com/appcelerator/amplify-tooling/blob/master/packages/amplify-auth-sdk/LICENSE
+[amplify-sdk]: https://npmjs.com/package/@axway/amplify-sdk
