@@ -25,14 +25,16 @@ describe('Auth', () => {
 			expect(() => {
 				new Auth({
 					homeDir,
-					tokenRefreshThreshold: 'foo'
+					tokenRefreshThreshold: 'foo',
+					tokenStoreType: 'memory'
 				});
 			}).to.throw(TypeError, 'Expected token refresh threshold to be a number of seconds');
 
 			expect(() => {
 				new Auth({
 					homeDir,
-					tokenRefreshThreshold: -123
+					tokenRefreshThreshold: -123,
+					tokenStoreType: 'memory'
 				});
 			}).to.throw(RangeError, 'Token refresh threshold must be greater than or equal to zero');
 		});
