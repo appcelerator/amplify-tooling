@@ -19,7 +19,7 @@ export default {
 		'--type [name]': {
 			desc: 'The package type',
 			values: {
-				'amplify-cli-plugin': 'An AMPFLIY CLI plugin package',
+				'amplify-cli-plugin': 'An AMPLIFY CLI plugin package',
 				'apib-data-connector': 'An API builder connector'
 			}
 		}
