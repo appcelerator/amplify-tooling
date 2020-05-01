@@ -238,9 +238,10 @@ export default class Auth {
 			// copy over the correct auth params
 			for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env' ]) {
 				if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
-					const prev = opts[prop].name;
-					opts[prop] = environments.resolve(account.auth[prop]);
-					log(`Overriding "${prop}" auth param with account's: ${prev} -> ${opts[prop].name}`);
+					const from = prop === 'env' ? opts[prop].name : opts[prop];
+					const to = prop === 'env' ? account.auth[prop].name : account.auth[prop];
+					log(`Overriding "${prop}" auth param with account's: ${from} -> ${to}`);
+					opts[prop] = account.auth[prop];
 				}
 			}
 			authenticator = this.createAuthenticator(opts);

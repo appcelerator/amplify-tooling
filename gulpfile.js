@@ -3,18 +3,14 @@
 const chug         = require('gulp-chug');
 const debug        = require('gulp-debug');
 const fs           = require('fs-extra');
-const globule      = require('globule');
 const gulp         = require('gulp');
 const log          = require('fancy-log');
 const path         = require('path');
 const plumber      = require('gulp-plumber');
-const spawn        = require('child_process').spawn;
 const spawnSync    = require('child_process').spawnSync;
 const tmp          = require('tmp');
 
 const { join }     = require('path');
-const { red }      = require('chalk');
-
 const { parallel, series } = gulp;
 
 const nodeInfo = exports['node-info'] = async function nodeInfo() {
@@ -45,99 +41,18 @@ const build = exports.build = async function build() {
 /*
  * test tasks
  */
-exports.test = series(parallel(nodeInfo, build), function test() {
+exports.test = series(nodeInfo, build, function test() {
 	return runTests();
 });
-exports.coverage = series(parallel(nodeInfo, build), function test() {
-	return runTests(true);
+exports.coverage = series(nodeInfo, build, function coverage() {
+	return runTests(true, true);
 });
 
-async function runTests(cover, cb) {
-	let task = cover ? 'coverage-only' : 'test-only';
-	let libCoverage;
-	let libReport;
-	let reports;
-	let coverageDir;
-	let mergedCoverageMap;
-
-	if (cover) {
-		libCoverage = require('istanbul-lib-coverage');
-		libReport = require('istanbul-lib-report');
-		reports = require('istanbul-reports');
-		coverageDir = path.join(__dirname, 'coverage');
-	}
-
+async function runTests(cover, all) {
+	process.env.APPCD_TEST_GLOBAL_PACKAGE_DIR = path.join(__dirname, 'packages');
 	process.env.SNOOPLOGG = '*';
-
-	const gulp = path.join(path.dirname(require.resolve('gulp')), 'bin', 'gulp.js');
-	const gulpfiles = globule.find([ 'packages/*/gulpfile.js' ]);
-	const failedProjects = [];
-
-	await gulpfiles
-		.reduce((promise, gulpfile) => {
-			return promise
-				.then(() => new Promise((resolve, reject) => {
-					gulpfile = path.resolve(gulpfile);
-					const dir = path.dirname(gulpfile);
-
-					log(`Spawning: ${process.execPath} ${gulp} coverage # CWD=${dir}`);
-					const child = spawn(process.execPath, [ gulp, task, '--colors' ], { cwd: dir, stdio: [ 'inherit', 'pipe', 'inherit' ] });
-
-					let out = '';
-					child.stdout.on('data', data => {
-						out += data.toString();
-						process.stdout.write(data);
-					});
-
-					child.on('close', code => {
-						if (!code) {
-							log(`Exit code: ${code}`);
-							if (cover) {
-								for (let coverageFile of globule.find(dir + '/coverage/coverage*.json')) {
-									const map = libCoverage.createCoverageMap(JSON.parse(fs.readFileSync(path.resolve(coverageFile), 'utf8')));
-									if (mergedCoverageMap) {
-										mergedCoverageMap.merge(map);
-									} else {
-										mergedCoverageMap = map;
-									}
-								}
-							}
-						} else if (out.indexOf(`Task '${task}' is not in your gulpfile`) === -1) {
-							log(`Exit code: ${code}`);
-							failedProjects.push(path.basename(dir));
-						} else {
-							log(`Exit code: ${code}, no '${task}' task, continuing`);
-						}
-
-						resolve();
-					});
-				}));
-		}, Promise.resolve());
-
-	if (cover) {
-		fs.removeSync(coverageDir);
-		fs.mkdirsSync(coverageDir);
-		console.log();
-
-		const ctx = libReport.createContext({
-			dir: coverageDir
-		});
-
-		const tree = libReport.summarizers.pkg(mergedCoverageMap);
-		for (const type of [ 'lcov', 'json', 'text', 'text-summary', 'cobertura' ]) {
-			tree.visit(reports.create(type), ctx);
-		}
-	}
-
-	if (failedProjects.length) {
-		if (failedProjects.length === 1) {
-			log(red('1 failured project:'));
-		} else {
-			log(red(`${failedProjects.length} failured projects:`));
-		}
-		failedProjects.forEach(p => log(red(p)));
-		process.exit(1);
-	}
+	const runner = require('appcd-gulp/src/test-runner');
+	return runner.runTests({ root: __dirname, projectDir: __dirname, cover, all });
 }
 
 exports.integration = series(parallel(nodeInfo, build), async function integration() {
