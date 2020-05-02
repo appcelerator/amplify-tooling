@@ -1,7 +1,7 @@
+import got from 'got';
 import snooplogg from 'snooplogg';
 
 import { environments } from '@axway/amplify-cli-utils';
-import request from '@axway/amplify-request';
 
 const { log } = snooplogg('amplify-registry-sdk:registry');
 const { highlight } = snooplogg.styles;
@@ -19,7 +19,7 @@ export default class Registry {
 	 * @access public
 	 */
 	constructor({ env, url } = {}) {
-		this.url = url || (env && environments[env] || environments.prod).registry.url;
+		this.url = url || environments.resolve(env).registry.url;
 	}
 
 	/**
@@ -47,7 +47,7 @@ export default class Registry {
 			url = `${url}${sep}type=${encodeURIComponent(type)}`;
 		}
 
-		const { body } = await request({ url, headers, validateJSON: true });
+		const { body } = await got(url, { headers, responseType: 'json' });
 		return body.result;
 	}
 
@@ -69,7 +69,7 @@ export default class Registry {
 		log(`Fetching package info: ${highlight(url)}`);
 		let body;
 		try {
-			const data = await request({ headers, url, validateJSON: true });
+			const data = await got(url, { headers, responseType: 'json' });
 			body = data.body;
 		} catch (err) {
 			if (err.statusCode === 404) {

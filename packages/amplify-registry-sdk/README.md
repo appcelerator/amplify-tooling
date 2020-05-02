@@ -5,9 +5,8 @@ An SDK for interacting with the AMPLIFY Registry.
 ## Installation
 
 ```sh
-	npm i -g @axway/amplify-registry-sdk
+	npm i @axway/amplify-registry-sdk --save
 ```
-
 
 ## Legal
 

@@ -2,8 +2,6 @@ import E from './errors';
 import http from 'http';
 import snooplogg from 'snooplogg';
 
-import { parse, URLSearchParams } from 'url';
-
 const { error, log } = snooplogg('amplify-auth:server');
 const { gray, green, highlight, magenta, red } = snooplogg.styles;
 
@@ -29,7 +27,7 @@ const servers = {};
  * @returns {Promise<Promise>} Resolves a promise once the server is started that resolves another
  * promise which resolves the auth code.
  */
-export async function start({ getResponse, getToken, requestId, serverHost, serverPort, timeout }) {
+export async function start({ getResponse, getToken, redirect, requestId, serverHost, serverPort, timeout }) {
 	const serverId = `${serverHost}:${serverPort}`;
 
 	if (!servers[serverId]) {
@@ -37,13 +35,13 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 		servers[serverId] = {
 			pending: new Map(),
 			server: createServer(async (req, res) => {
-				const url = parse(req.url);
+				const url = new URL(req.url, `http://${serverHost}:${serverPort}`);
 				const m = url.pathname.match(callbackRegExp);
 				let stopServer = false;
 
 				try {
 					if (m && m[1] === 'callback') {
-						const code = new URLSearchParams(url.query).get('code');
+						const code = url.searchParams.get('code');
 						const id = m[2];
 						const request = servers[serverId].pending.get(id);
 
@@ -64,12 +62,20 @@ export async function start({ getResponse, getToken, requestId, serverHost, serv
 						// still fail
 						try {
 							log(`Getting token using code: ${highlight(code)}`);
-							const accessToken = await getToken(code, id);
-							request.resolve(accessToken);
+							const account = await getToken(code, id);
+							request.resolve(account);
 
 							const { contentType, message } = getResponse(req, 'interactiveSuccess');
-							log(`[${serverId}] ${green(200)} ${url.pathname} (${m[2]})`);
-							res.writeHead(200, { 'Content-Type': contentType });
+							const statusCode = !process.env.APPCD_TEST && redirect ? 302 : 200;
+							const headers = {
+								'Content-Type': contentType
+							};
+							if (redirect) {
+								headers.Location = redirect;
+							}
+							log(`[${serverId}] ${green(statusCode)} ${url.pathname} (${m[2]})`);
+
+							res.writeHead(statusCode, headers);
 							res.end(message);
 						} catch (e) {
 							request.reject(e);

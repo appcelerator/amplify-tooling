@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import E from '../errors';
 
 import getEndpoints from '../endpoints';
+import got from 'got';
 import jws from 'jws';
 import open from 'open';
 import snooplogg from 'snooplogg';
@@ -10,8 +11,7 @@ import TokenStore from '../stores/token-store';
 
 import * as server from '../server';
 
-import { handleRequestError, md5, renderHTML, stringifyQueryString } from '../util';
-import request from '@axway/amplify-request';
+import { handleRequestError, md5, prepareForm, renderHTML } from '../util';
 
 const { log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
@@ -105,15 +105,6 @@ export default class Authenticator {
 	serverPort = 3000;
 
 	/**
-	 * Indicates this client should error if the call `findSession` to get the orgs fails. Service
-	 * accounts will set this to `false`, so if `findSession` fails, the error is squelched.
-	 *
-	 * @type {Boolean}
-	 * @access private
-	 */
-	shouldFetchOrgs = true;
-
-	/**
 	 * The store to persist the token.
 	 *
 	 * @type {TokenStore}
@@ -136,7 +127,6 @@ export default class Authenticator {
 	 * before shutting down the local HTTP server.
 	 * @param {Object} [opts.messages] - A map of categorized messages to display to the end user.
 	 * Supports plain text or HTML strings.
-	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
 	 * @param {String} [opts.responseType=code] - The response type to send with requests.
 	 * @param {String} [opts.scope=openid] - The name of the scope to send with requests.
@@ -161,14 +151,6 @@ export default class Authenticator {
 		}
 		if (!this.baseUrl || typeof this.baseUrl !== 'string') {
 			throw E.MISSING_REQUIRED_PARAMETER('Invalid base URL: env or baseUrl required');
-		}
-
-		// process the platform URL
-		if (opts.platformUrl) {
-			this.platformUrl = opts.platformUrl;
-		}
-		if (!this.platformUrl || typeof this.platformUrl !== 'string') {
-			throw E.MISSING_REQUIRED_PARAMETER('Missing or invalid platform URL');
 		}
 
 		// validate the required string properties
@@ -286,74 +268,37 @@ export default class Authenticator {
 	 * @access public
 	 */
 	async getInfo(account) {
-		const accessToken = account.tokens.access_token;
-		const req = async (type, url, optional) => {
-			let response;
-
-			try {
-				response = await request({
-					headers: {
-						Accept: 'application/json',
-						Authorization: `Bearer ${accessToken}`
-					},
-					url,
-					validateJSON: true
-				});
-			} catch (e) {
-				throw handleRequestError({ label: `Fetch ${type} info failed`, response: e, optional });
-			}
-
-			if (response.statusCode >= 200 && response.statusCode < 300 && response.body) {
-				return response.body;
-			}
-
-			throw handleRequestError({ label: `Fetch ${type} info failed`, response, optional });
-		};
-
-		log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
-		const { email, given_name, user_guid, family_name } = await req('user', this.endpoints.userinfo);
-		if (!account.user || typeof account.user !== 'object') {
-			account.user = {};
-		}
-		account.user.email     = email;
-		account.user.firstName = given_name;
-		account.user.guid      = user_guid;
-		account.user.lastName  = family_name;
-
 		try {
-			log(`Fetching session info: ${highlight(this.endpoints.findSession)} ${note(accessToken)}`);
-			const { result } = await req('session', this.endpoints.findSession, !this.shouldFetchOrgs);
-			log(result);
-			const { org, orgs, user } = result;
-			account.org = {
-				org_id: org.org_id,
-				name:   org.name
-			};
-
-			log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
-			account.orgs = orgs.map(({ org_id, name }) => ({ org_id, name }));
-
-			log('Available orgs:');
-			for (const org of account.orgs) {
-				log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
-			}
-
-			Object.assign(account.user, {
-				axwayId:      user.axway_id,
-				email:        user.email,
-				firstname:    user.firstname,
-				guid:         user.guid,
-				is2FAEnabled: !user.disable_2fa,
-				lastname:     user.lastname,
-				organization: user.organization
+			const accessToken = account.auth.tokens.access_token;
+			log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
+			const { body } = await got(this.endpoints.userinfo, {
+				headers: {
+					Accept: 'application/json',
+					Authorization: `Bearer ${accessToken}`
+				},
+				responseType: 'json',
+				retry: 0
 			});
-		} catch (e) {
-			if (this.shouldFetchOrgs) {
-				throw e;
-			}
-		}
+			const { email, family_name, given_name, org_guid, org_name, user_guid } = body;
 
-		return account;
+			if (!account.user || typeof account.user !== 'object') {
+				account.user = {};
+			}
+			account.user.email     = email;
+			account.user.firstName = given_name;
+			account.user.guid      = user_guid;
+			account.user.lastName  = family_name;
+
+			if (!account.org || typeof account.org !== 'object') {
+				account.org = {};
+			}
+			account.org.name = org_name;
+			account.org.guid = org_guid;
+
+			return account;
+		} catch (err) {
+			throw handleRequestError({ label: 'Fetch user info failed', response: err });
+		}
 	}
 
 	/**
@@ -412,7 +357,7 @@ export default class Authenticator {
 	 * @param {String} [code] - When present, adds the code to the payload along with a redirect
 	 * URL.
 	 * @param {String} [requestId] - Used to construct the redirect URI when using the `code`.
-	 * @returns {Promise<Object>} Resolves an object containing the access token and account name.
+	 * @returns {Promise<Object>} Resolves the account object.
 	 * @access private
 	 */
 	async getToken(code, requestId) {
@@ -430,18 +375,12 @@ export default class Authenticator {
 					log('Found account in token store:');
 					log(entry);
 
-					expires = entry.expires;
-					tokens = entry.tokens;
-
+					({ expires, tokens } = entry.auth);
 					if (tokens.access_token && expires.access > now) {
-						return {
-							accessToken: tokens.access_token,
-							account: entry
-						};
+						return entry;
 					}
 
 					log('Access token is expired, but the refresh token is still good');
-
 					break;
 				}
 			}
@@ -472,20 +411,14 @@ export default class Authenticator {
 		}
 
 		const url = this.endpoints.token;
-		const body = stringifyQueryString(params);
 
 		log(`Fetching token: ${highlight(url)}`);
-		log(`Post body: ${highlight(stringifyQueryString({ ...params, password: '********' }))}`);
+		log('Post form:', { ...params, password: '********' });
 
 		try {
-			response = await request({
-				body,
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				method: 'POST',
-				url,
-				validateJSON: true
+			response = await got.post(url, {
+				form: prepareForm(params),
+				responseType: 'json'
 			});
 		} catch (err) {
 			if (err.code === 'ECONNREFUSED') {
@@ -525,27 +458,29 @@ export default class Authenticator {
 		now = Date.now();
 
 		const account = await this.getInfo({
-			authenticator: this.constructor.name,
-			baseUrl:       this.baseUrl,
-			clientId:      this.clientId,
-			env:           this.env,
-			expires: {
-				access: (tokens.expires_in * 1000) + now,
-				refresh: (tokens.refresh_expires_in * 1000) + now
+			auth: {
+				authenticator: this.constructor.name,
+				baseUrl:       this.baseUrl,
+				clientId:      this.clientId,
+				env:           this.env,
+				expires: {
+					access: (tokens.expires_in * 1000) + now,
+					refresh: (tokens.refresh_expires_in * 1000) + now
+				},
+				realm:         this.realm,
+				tokens
 			},
-			hash:          this.hash,
+			hash:              this.hash,
 			name,
-			realm:         this.realm,
-			tokens,
 			org,
-			orgs:          org ? [ org ] : [],
+			orgs:              org ? [ org ] : [],
 			user: {
-				axwayId:      null,
+				axwayId:       null,
 				email,
-				firstName:    null,
-				guid:         null,
-				lastName:     null,
-				organization: null
+				firstName:     null,
+				guid:          null,
+				lastName:      null,
+				organization:  null
 			}
 		});
 
@@ -554,8 +489,8 @@ export default class Authenticator {
 			await this.tokenStore.set(account);
 		}
 
-		if (!Object.getOwnPropertyDescriptor(account, 'expired')) {
-			Object.defineProperty(account, 'expired', {
+		if (!Object.getOwnPropertyDescriptor(account.auth, 'expired')) {
+			Object.defineProperty(account.auth, 'expired', {
 				configurable: true,
 				get() {
 					return this.expires.access < Date.now();
@@ -563,10 +498,7 @@ export default class Authenticator {
 			});
 		}
 
-		return {
-			accessToken: tokens.access_token,
-			account
-		};
+		return account;
 	}
 
 	/* istanbul ignore next */
@@ -593,8 +525,11 @@ export default class Authenticator {
 	 * Defaults to the `interactiveLoginTimeout` property.
 	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
 	 * promise. If `false` it's fulfilled immediately when opening the app.
-	 * @returns {Promise<Object>} Resolves an object containing the access token, account name, and
-	 * user info.
+	 * @returns {Promise<Object>} In `manual` mode, then resolves an object containing the
+	 * authentication `url`, a `promise` that is resolved once the browser redirects to the local
+	 * web server after authenticating, and a `cancel` method to abort the authentication and stop
+	 * the local web server. When not using `manual` mode, the `account` info is resolved after
+	 * successfully authenticating.
 	 * @access public
 	 */
 	async login(opts = {}) {
@@ -604,12 +539,7 @@ export default class Authenticator {
 			} else {
 				log('Retrieving tokens using auth code');
 			}
-			const { accessToken, account } = await this.getToken(opts.code);
-			return {
-				accessToken,
-				account,
-				authenticator: this
-			};
+			return await this.getToken(opts.code);
 		}
 
 		// we're interactive, so we either are manual or starting a web server
@@ -623,7 +553,7 @@ export default class Authenticator {
 			responseType: this.responseType,
 			redirectUri:  `${this.serverUrl}/callback/${requestId}`
 		}, this.authorizationUrlParams);
-		const authorizationUrl = `${this.endpoints.auth}?${stringifyQueryString(queryParams)}`;
+		const authorizationUrl = `${this.endpoints.auth}?${prepareForm(queryParams).toString()}`;
 
 		log(`Starting ${opts.manual ? 'manual ' : ''}login request ${highlight(requestId)} clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
@@ -631,19 +561,11 @@ export default class Authenticator {
 		let { cancel, promise } = await server.start({
 			getResponse: (req, result) => this.getResponse(req, result),
 			getToken:    (code, id) => this.getToken(code, id),
+			redirect:    this.env?.redirectLoginSuccess,
 			requestId,
 			serverHost:  this.serverHost,
 			serverPort:  this.serverPort,
 			timeout:     opts.timeout || this.interactiveLoginTimeout
-		});
-
-		// chain the promise to fetch the user info
-		promise = promise.then(async ({ accessToken, account }) => {
-			return {
-				accessToken,
-				account,
-				authenticator: this
-			};
 		});
 
 		// if manual, return now with the auth url

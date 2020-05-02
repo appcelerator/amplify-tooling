@@ -22,15 +22,6 @@ export const environments = {
 			url: 'https://registry.axwaytest.net'
 		}
 	},
-	staging: {
-		auth: {
-			clientId: 'amplify-cli',
-			realm: 'Broker'
-		},
-		registry: {
-			url: 'https://registry.axwaytest.net'
-		}
-	},
 	prod: {
 		auth: {
 			clientId: 'amplify-cli',
@@ -42,4 +33,30 @@ export const environments = {
 	}
 };
 
-export default environments;
+const mapping = {
+	development: 'dev',
+	preproduction: 'preprod',
+	'pre-production': 'preprod',
+	production: 'prod',
+	staging: 'preprod',
+	test: 'preprod'
+};
+
+export function resolve(env) {
+	let environment = 'prod';
+	if (env) {
+		if (typeof env !== 'string') {
+			throw new TypeError('Expected environment to be a string');
+		}
+		environment = env.toLowerCase();
+		environment = mapping[environment] || environment;
+		if (!environments[environment]) {
+			throw new Error(`Invalid environment "${env}"`);
+		}
+	}
+
+	return {
+		name: environment,
+		...environments[environment]
+	};
+}

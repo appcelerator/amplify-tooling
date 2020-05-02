@@ -70,9 +70,8 @@ export async function extractTar({ dest, file, opts }) {
  * @param {String} name - Name of the package.
  * @param {String} path - Path to the package.
  * @param {Object} [cfg] - The config object.
- * @param {String} [location] - The path to the config file.
  */
-export async function addPackageToConfig(name, path, cfg = loadConfig(), location = locations.configFile) {
+export async function addPackageToConfig(name, path, cfg = loadConfig()) {
 	if (!name || typeof name !== 'string') {
 		throw new TypeError('Expected name to be a valid string');
 	}
@@ -86,7 +85,7 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
 	}
 
 	cfg.set(`extensions.${name}`, path);
-	await cfg.save(location);
+	cfg.save();
 }
 
 /**
@@ -95,9 +94,8 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
  * @param {String} name - Name of the package to remove/replace.
  * @param {String} [replacementPath] - Path to replace the existing version with.
  * @param {Object} [cfg] - The config object.
- * @param {String} [location] - The path to the config file.
  */
-export async function removePackageFromConfig(name, replacementPath, cfg = loadConfig(), location = locations.configFile) {
+export async function removePackageFromConfig(name, replacementPath, cfg = loadConfig()) {
 	if (!name || typeof name !== 'string') {
 		throw new TypeError('Expected name to be a valid string');
 	}
@@ -120,7 +118,7 @@ export async function removePackageFromConfig(name, replacementPath, cfg = loadC
 		cfg.delete(`extensions.${name}`);
 	}
 
-	await cfg.save(location);
+	cfg.save();
 }
 
 /**
@@ -166,9 +164,11 @@ export function getInstalledPackages({ packageName } = {}, cfg = loadConfig(), p
 			}
 		}
 	}
+
 	if (packageName) {
 		return packages.filter(pkg => packageName === pkg.name);
 	}
+
 	return packages;
 }
 
@@ -182,7 +182,6 @@ function getPackageInfo(pluginPath) {
 		};
 	} catch (e) {
 		// TODO: Do we need our format to allow for non-node packages to give us info?
-		return undefined;
 	}
 }
 
@@ -203,10 +202,6 @@ function getPackageData(name, activePkgs, pkgDir) {
 		active = getPackageInfo(activePkgs[name]);
 	}
 
-	if (active) {
-		packageData.version = active.version;
-	}
-
 	for (const version of fs.readdirSync(pkgDir)) {
 		const versionDir = join(pkgDir, version);
 		const pkgJsonFile = join(versionDir, 'package.json');
@@ -216,12 +211,25 @@ function getPackageData(name, activePkgs, pkgDir) {
 				const pkgJson = fs.readJsonSync(pkgJsonFile);
 				packageData.description = pkgJson.description;
 				packageData.versions[version] = {
-					path: versionDir
+					path: versionDir,
+					managed: true
 				};
 			} catch (e) {
 				// squelch
 			}
 		}
 	}
+
+	if (active) {
+		packageData.version = active.version;
+
+		if (!packageData.versions[active.version]) {
+			packageData.versions[active.version] = {
+				path: activePkgs[name],
+				managed: false
+			};
+		}
+	}
+
 	return packageData;
 }

@@ -3,33 +3,33 @@ export default {
 	args: [
 		{
 			name: 'search',
-			desc: 'the package name or keywords',
-			required: false
+			desc: 'The package name or keywords'
 		}
 	],
-	desc: 'searches registry for packages',
+	desc: 'Searches registry for packages',
 	options: {
-		'--auth <account>': 'the authorization account to use',
-		'--repository <repository>': 'repository to search',
-		'--type <type>': 'type of component to search'
+		'--json': 'Outputs packages as JSON',
+		'--repository [repository]': 'The repository to search',
+		'--type [type]': 'Type of package to search'
 	},
 	async action({ argv, console }) {
 		const [
-			{ default: columnify },
-			{ buildUserAgentString, getRegistryParams },
-			{ Registry }
+			{ createTable },
+			{ Registry },
+			{ buildUserAgentString, getRegistryParams }
 		] = await Promise.all([
-			import('columnify'),
-			import('../utils'),
-			import('@axway/amplify-registry-sdk')
+			import('@axway/amplify-cli-utils'),
+			import('@axway/amplify-registry-sdk'),
+			import('../utils')
 		]);
 
 		const registry = new Registry(getRegistryParams(argv.env));
 		const { repository, search, type } = argv;
-		let results;
 		const headers = {
 			'User-Agent': buildUserAgentString()
 		};
+		let results;
+
 		try {
 			results = (await registry.search({ headers, text: search, repository, type })).map(d => {
 				return {
@@ -39,16 +39,16 @@ export default {
 					description: d.description
 				};
 			});
-		} catch (e) {
-			if (e.code === 'ECONNREFUSED') {
+		} catch (err) {
+			if (err.code === 'ECONNREFUSED') {
 				console.error('Unable to connect to registry server');
 				process.exit(3);
 			}
-			throw e;
+			throw err;
 		}
 
 		if (argv.json) {
-			console.log(JSON.stringify(results, null, '  '));
+			console.log(JSON.stringify(results, null, 2));
 			return;
 		}
 
@@ -57,24 +57,17 @@ export default {
 			return;
 		}
 
-		const columnConfig = {
-			columnSplitter: ' | ',
-			showHeaders: true,
-			config: {
-				name: {
-					minWidth: 25
-				},
-				version: {
-					minWidth: 8
-				},
-				type: {
-					minWidth: 8
-				},
-				description: {
-					maxWidth: 80 - (25 + 8)
-				}
-			}
-		};
-		console.log(columnify(results, columnConfig));
+		const table = createTable('Name', 'Versions', 'Type', 'Description');
+
+		for (const pkg of results) {
+			table.push([
+				pkg.name,
+				pkg.version,
+				pkg.type,
+				pkg.description
+			]);
+		}
+
+		console.log(table.toString());
 	}
 };

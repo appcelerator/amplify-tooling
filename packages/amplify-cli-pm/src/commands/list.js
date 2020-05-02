@@ -1,47 +1,58 @@
 export default {
 	aliases: [ 'ls' ],
-	desc: 'lists all installed packages',
+	desc: 'Lists all installed packages',
+	options: {
+		'--json': 'Outputs packages as JSON'
+	},
 	async action({ argv, console }) {
 		const [
-			{ default: columnify },
-			{ getInstalledPackages }
+			{ createTable },
+			{ getInstalledPackages, packagesDir },
+			semver,
+			{ default: snooplogg }
 		] = await Promise.all([
-			import('columnify'),
-			import('@axway/amplify-registry-sdk')
+			import('@axway/amplify-cli-utils'),
+			import('@axway/amplify-registry-sdk'),
+			import('semver'),
+			import('snooplogg')
 		]);
+
 		const installed = getInstalledPackages();
 
 		if (argv.json) {
-			console.log(JSON.stringify(installed, null, '  '));
+			console.log(JSON.stringify(installed, null, 2));
 			return;
 		}
+
+		const { cyan, gray } = snooplogg.styles;
+		console.log(`Packages directory: ${cyan(packagesDir)}\n`);
 
 		if (!installed.length) {
 			console.log('No packages installed');
 			return;
 		}
 
-		const columnConfig = {
-			columnSplitter: ' | ',
-			showHeaders: true,
-			config: {
-				name: {
-					minWidth: 25
-				},
-				versions: {
-					minWidth: 8
-				}
+		const table = createTable('Name', 'Versions');
+		const unmanaged = {};
+
+		for (const pkg of installed) {
+			const { version } = pkg;
+			const versions = Object.keys(pkg.versions).sort(semver.rcompare);
+			const managed = versions.every(v => pkg.versions[v].managed);
+
+			table.push([
+				managed || Object.keys(pkg.versions).some(ver => pkg.versions[ver].managed) ? pkg.name : `${pkg.name} ${gray('(unmanaged)')}`,
+				versions.map(v => version && semver.eq(v, version) ? cyan(v) : v).join(', ')
+			]);
+			if (!managed) {
+				unmanaged[`${pkg.name}${pkg.version}`] = 1;
 			}
-		};
+		}
 
-		const data = installed.map(d => {
-			return {
-				name: d.name,
-				'installed versions': Object.keys(d.versions),
-				'active version': d.version || 'Unknown'
-			};
-		});
+		console.log(table.toString());
 
-		console.log(columnify(data, columnConfig));
+		if (Object.keys(unmanaged).length) {
+			console.log('\nNote: Unmanaged packages were not installed by the AMPLIFY CLI and cannot be purged or uninstalled.');
+		}
 	}
 };

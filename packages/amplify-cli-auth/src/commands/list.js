@@ -1,31 +1,34 @@
 export default {
 	aliases: [ 'ls' ],
-	desc: 'lists all authenticated accounts',
+	desc: 'Lists all authenticated accounts',
 	options: {
-		'--json': 'outputs accounts as JSON'
+		'--json': 'Outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
-		const { auth, loadConfig } = await import('@axway/amplify-cli-utils');
+		const [
+			{ createTable, initSDK },
+			{ default: snooplogg }
+		] = await Promise.all([
+			import('@axway/amplify-cli-utils'),
+			import('snooplogg')
+		]);
 
-		const config = loadConfig();
-
-		const params = auth.buildParams({
+		const { config, sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
 			clientId: argv.clientId,
 			env:      argv.env,
 			realm:    argv.realm
-		}, config);
+		});
 
-		const client = auth.createAuth(params);
-		const accounts = await client.list();
-		const active = config.get('auth.defaultAccount');
+		const accounts = await sdk.auth.list();
+		const defaultAccount = config.get('auth.defaultAccount');
 
 		for (const account of accounts) {
-			account.active = account.name === active;
+			account.active = account.name === defaultAccount;
 		}
 
 		if (argv.json) {
-			console.log(JSON.stringify(accounts, null, '  '));
+			console.log(JSON.stringify(accounts, null, 2));
 			return;
 		}
 
@@ -34,22 +37,22 @@ export default {
 			return;
 		}
 
-		console.log('| Active | Account Name | Organization | Expires | Environment |');
-		console.log('| ------ | ------------ | ------------ | ------- | ----------- |');
-
+		const { green } = snooplogg.styles;
+		const table = createTable('Account Name', 'Organization', 'Expires', 'Environment');
 		const now = Date.now();
 		const pretty = require('pretty-ms');
 		const urlRE = /^.*\/\//;
+		const check = process.platform === 'win32' ? '√' : '✔';
 
-		for (const account of accounts) {
-			const { active, baseUrl, expires, name, org } = account;
-			console.log(
-				`| ${active ? ':check:' : ' '} `
-				+ `| ${name} `
-				+ `| ${org && org.name ? `${org.name} (${org.org_id})` : ' '} `
-				+ `| ${pretty(expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 })} `
-				+ `| ${baseUrl.replace(urlRE, '')} |`
-			);
+		for (const { active, auth, name, org } of accounts) {
+			table.push([
+				active ? green(`${check} ${name}`) : `  ${name}`,
+				!org || !org.name ? '' : org.id ? `${org.name} (${org.id})` : org.name,
+				pretty(auth.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
+				auth.baseUrl.replace(urlRE, '')
+			]);
 		}
+
+		console.log(table.toString());
 	}
 };

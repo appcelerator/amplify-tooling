@@ -3,8 +3,11 @@ if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
+import Config from 'config-kit';
 import os from 'os';
 import path from 'path';
+
+import { expandPath } from 'appcd-path';
 
 export const configFile = path.join(os.homedir(), '.axway', 'amplify-cli.json');
 
@@ -13,28 +16,29 @@ export const configFile = path.join(os.homedir(), '.axway', 'amplify-cli.json');
  * loaded.
  *
  * @param {Object} [opts] - An object with various options.
- * @param {String} [opts.configFile] - Path to the config file to load as the reference.
- * @param {String} [opts.userConfigFile=~/.axway/amplify-cli.json] - Path to the user defined
- * config file. If the file does not exist, an empty object will be written
- * @returns {Config} An appcd-config instance
+ * @param {Object} [opts.config] - A object to initialize the config with. Note that if a
+ * `configFile` is also specified, this `config` is applied AFTER the config file has been loaded.
+ * @param {String} [opts.configFile] - The path to a .js or .json config file to load.
+ * @returns {Config}
  */
-export function loadConfig({ configFile: appConfigFile, userConfigFile } = {}) {
-	const { existsSync, outputJSONSync } = require('fs-extra');
-	const Config = require('appcd-config').default;
-
-	if (!userConfigFile) {
-		userConfigFile = configFile;
+export function loadConfig(opts = {}) {
+	// validate the config options
+	if (opts.config && (typeof opts.config !== 'object' || Array.isArray(opts.config))) {
+		throw new TypeError('Expected config to be an object');
 	}
 
-	if (!existsSync(userConfigFile)) {
-		outputJSONSync(userConfigFile, {});
+	if (opts.configFile && typeof opts.configFile !== 'string') {
+		throw new TypeError('Expected config file to be a string');
 	}
 
-	const cfg = new Config({ configFile: appConfigFile });
-	cfg.userConfigFile = userConfigFile;
-	cfg.loadUserConfig(userConfigFile);
+	const cfg = new Config({
+		data: opts.config,
+		file: expandPath(opts.configFile || configFile)
+	});
 
 	return cfg;
 }
 
 export default loadConfig;
+
+export { Config };

@@ -4,29 +4,30 @@ export default {
 		{
 			name: 'package',
 			hint: 'package[@version]',
-			desc: 'the package name and version to install',
+			desc: 'The package name and version to view',
 			required: true
 		},
 		{
 			name: 'filter',
 			hint: 'field[.subfield]',
-			desc: 'display specific package fields'
+			desc: 'Display specific package fields'
 		}
 	],
-	desc: 'displays info for a specific package',
+	desc: 'Displays info for a specific package',
 	options: {
-		'--type <name>': {
-			desc: 'the package type',
+		'--json': 'Outputs package info as JSON',
+		'--type [name]': {
+			desc: 'The package type',
 			values: {
-				'amplify-cli-plugin': 'an AMPFLIY CLI plugin package',
-				'apib-data-connector': 'an API builder connector'
+				'amplify-cli-plugin': 'An AMPLIFY CLI plugin package',
+				'apib-data-connector': 'An API builder connector'
 			}
 		}
 	},
 	async action({ argv, cli, console }) {
 		const [
 			{ default: npa },
-			{ getRegistryParams, handleInstallError },
+			{ getRegistryParams, handleError },
 			{ Registry }
 		] = await Promise.all([
 			import('npm-package-arg'),
@@ -34,10 +35,10 @@ export default {
 			import('@axway/amplify-registry-sdk')
 		]);
 
-		const { name, fetchSpec } = npa(argv.package);
-		const registry = new Registry(getRegistryParams(argv.env));
-
 		try {
+			const { name, fetchSpec } = npa(argv.package);
+			const registry = new Registry(getRegistryParams(argv.env));
+
 			let result = await registry.metadata({
 				name,
 				type: argv.type,
@@ -55,21 +56,15 @@ export default {
 
 			if (argv.json) {
 				cli.banner = false;
-				console.log(JSON.stringify(result, null, '  '));
+				console.log(JSON.stringify(result, null, 2));
 			} else if (result) {
 				// TODO: render results a little nicer... possibly use a template?
 				console.log(result);
 			} else {
 				console.log(`No result found for ${name}`);
 			}
-		} catch (error) {
-			const { message, exitCode } = handleInstallError(error);
-			if (argv.json) {
-				console.error({ success: false, message });
-			} else {
-				console.error(message);
-			}
-			process.exitCode = exitCode;
+		} catch (err) {
+			handleError({ console, err, json: argv.json });
 		}
 	}
 };

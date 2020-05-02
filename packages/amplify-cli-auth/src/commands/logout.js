@@ -3,54 +3,45 @@ export default {
 	args: [
 		{
 			name: 'accounts...',
-			desc: 'one or more specific accounts to revoke credentials'
+			desc: 'One or more specific accounts to revoke credentials'
 		}
 	],
-	desc: 'log out all or specific accounts from the AMPLIFY platform',
+	desc: 'Log out all or specific accounts from the AMPLIFY platform',
 	options: {
-		'-a, --all': 'revoke all credentials; supersedes list of accounts',
-		'--json': 'outputs accounts as JSON'
+		'--json': 'Outputs revoked accounts as JSON'
 	},
 	async action({ argv, console }) {
-		const { auth } = await import('@axway/amplify-cli-utils');
+		const [
+			{ initSDK },
+			{ default: snooplogg }
+		] = await Promise.all([
+			import('@axway/amplify-cli-utils'),
+			import('snooplogg')
+		]);
 
-		if (!argv.accounts.length && !argv.all) {
-			throw new Error('Missing list of accounts to revoke or `--all` flag');
+		if (!argv.accounts.length) {
+			argv.all = true;
 		}
 
-		const {
-			homeDir,
-			keytarServiceName,
-			tokenRefreshThreshold,
-			tokenStoreDir,
-			tokenStoreType
-		} = auth.buildParams();
-
-		const client = auth.createAuth({
-			homeDir,
-			keytarServiceName,
-			tokenRefreshThreshold,
-			tokenStoreDir,
-			tokenStoreType
-		});
-
-		const revoked = await client.revoke(argv);
+		const { sdk } = initSDK();
+		const revoked = await sdk.auth.logout(argv);
 
 		if (argv.json) {
-			console.log(JSON.stringify(revoked, null, '  '));
+			console.log(JSON.stringify(revoked, null, 2));
 			return;
 		}
 
 		// pretty output
 		if (revoked.length) {
+			const { highlight } = snooplogg.styles;
 			console.log('Revoked authenticated accounts:');
 			for (const account of revoked) {
-				console.log(` * ${account.name}`);
+				console.log(` ${highlight(account.name)}`);
 			}
 		} else if (Array.isArray(argv.accounts) && argv.accounts.length === 1) {
-			console.log(`No account "${argv.accounts[0]}" to revoke.`);
+			console.log(`No account "${argv.accounts[0]}" to revoke`);
 		} else {
-			console.log('No credentialed accounts to revoke.');
+			console.log('No accounts to revoke');
 		}
 	}
 };

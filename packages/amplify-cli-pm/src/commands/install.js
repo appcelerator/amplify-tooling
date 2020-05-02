@@ -4,62 +4,70 @@ export default {
 		{
 			name: 'package',
 			hint: 'package[@version]',
-			desc: 'the package name and version to install',
+			desc: 'The package name and version to install',
 			required: true
 		}
 	],
-	desc: 'installs the specified package',
+	desc: 'Installs the specified package',
 	options: {
-		'--auth <account>': 'the authorization account to use'
+		'--json': 'Output results as JSON'
 	},
-	async action({ argv }) {
+	async action({ argv, console, terminal }) {
 		const [
+			{ PackageInstaller },
 			{ default: npa },
 			{ default: ora },
-			{ PackageInstaller },
-			{ getRegistryParams, handleInstallError }
+			{ default: snooplogg },
+			{ getRegistryParams, handleError }
 		] = await Promise.all([
+			import('@axway/amplify-registry-sdk'),
 			import('npm-package-arg'),
 			import('ora'),
-			import('@axway/amplify-registry-sdk'),
+			import('snooplogg'),
 			import('../utils')
 		]);
 
+		const { alert, highlight } = snooplogg.styles;
 		const { name, fetchSpec } = npa(argv.package);
 		const messages = [];
 		let spinner;
+
 		try {
 			if (!argv.json) {
-				spinner = ora(`looking up ${name}`).start();
+				spinner = ora({
+					text: `Looking up "${name}"`,
+					stream: terminal.stderr
+				}).start();
 			}
 
-			const installProcess = new PackageInstaller(Object.assign({
+			const installProcess = new PackageInstaller({
 				fetchSpec,
-				name
-			}, getRegistryParams(argv.env)));
+				name,
+				...getRegistryParams(argv.env)
+			});
 
 			installProcess
 				.on('preActions', () => {
 					if (!argv.json) {
-						spinner.text = 'running pre-actions';
+						spinner.text = 'Running pre-actions';
 					}
 				})
 				.on('download', () => {
 					if (!argv.json) {
-						spinner.text = 'downloading package';
+						spinner.text = 'Downloading package';
 					}
 				})
 				.on('extract', () => {
 					if (!argv.json) {
-						spinner.text = 'extracting package';
+						spinner.text = 'Extracting package';
 					}
 				})
 				.on('postActions', () => {
 					if (!argv.json) {
-						spinner.text = 'running post-actions';
+						spinner.text = 'Running post-actions';
 					}
 				})
-				.on('log', (message) => {
+				.on('log', message => {
 					if (!argv.json) {
 						const currText = spinner.text;
 						spinner.info(message);
@@ -72,22 +80,16 @@ export default {
 			const info = await installProcess.start();
 			if (argv.json) {
 				console.log(JSON.stringify({
-					success: true,
 					name,
 					version: info.version,
-					messages
-				}, null, '  '));
+					path: info.path,
+					messages: messages.length && messages || undefined
+				}, null, 2));
 			} else {
-				spinner.succeed(`Installed ${name}@${info.version}`);
+				spinner.succeed(`Installed ${highlight(`${name}@${info.version}`)}`);
 			}
-		} catch (error) {
-			const { exitCode, message } = handleInstallError(error);
-			process.exitCode = exitCode;
-			if (argv.json) {
-				console.error(JSON.stringify({ success: false, message }, null, '  '));
-			} else {
-				spinner.fail(message);
-			}
+		} catch (err) {
+			handleError({ console, err, json: argv.json, outputError: e => spinner.fail(alert(e)) });
 		}
 	}
 };

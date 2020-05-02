@@ -12,16 +12,16 @@ export default new CLI({
 	helpExitCode: 2,
 	name: 'amplify-cli-auth',
 	options: {
-		'--base-url <url>': {
+		'--base-url [url]': {
 			hidden: true
 		},
-		'--client-id <id>': {
+		'--client-id [id]': {
 			hidden: true
 		},
-		'--env <name>': {
-			desc: 'the environment to use'
+		'--env [name]': {
+			desc: 'The environment to use'
 		},
-		'--realm <realm>': {
+		'--realm [realm]': {
 			hidden: true
 		}
 	},

@@ -4,36 +4,39 @@ export default {
 		{
 			name: 'package',
 			hint: 'package[@version]',
-			desc: 'the package name and version to uninstall',
+			desc: 'The package name and version to uninstall',
 			required: true
 		}
 	],
-	desc: 'uninstalls the specified package',
+	desc: 'Uninstalls the specified package',
+	options: {
+		'--json': 'Outputs packages as JSON'
+	},
 	async action({ argv, console }) {
 		const [
+			{ getInstalledPackages, packagesDir, removePackageFromConfig },
 			fs,
-			{ default: npa },
 			semver,
-			{ getInstalledPackages, removePackageFromConfig }
+			{ default: npa },
+			{ default: snooplogg },
+			{ handleError }
 		] = await Promise.all([
+			import('@axway/amplify-registry-sdk'),
 			import('fs-extra'),
-			import('npm-package-arg'),
 			import('semver'),
-			import('@axway/amplify-registry-sdk')
+			import('npm-package-arg'),
+			import('snooplogg'),
+			import('../utils')
 		]);
+
+		const { highlight, note } = snooplogg.styles;
 
 		try {
 			const { type, name, fetchSpec } = npa(argv.package);
-			let installed;
-			for (const pkg of getInstalledPackages()) {
-				if (pkg.name === name) {
-					installed = pkg;
-					break;
-				}
-			}
+			const installed = getInstalledPackages().find(pkg => pkg.name === name);
 
 			if (!installed) {
-				throw new Error(`"${name}" is not installed`);
+				throw new Error(`Package "${name}" is not installed`);
 			}
 
 			const installedVersions = Object.keys(installed.versions);
@@ -72,27 +75,27 @@ export default {
 			}
 
 			// unregister extension
+			if (!argv.json) {
+				console.log(`Unregistering ${highlight(name)}`);
+			}
 			await removePackageFromConfig(name, replacement.path);
 
-			for (const { version, path } of versions) {
-				fs.removeSync(path);
-				if (!argv.json) {
-					console.log(`Removed ${name}@${version}`);
+			for (const { managed, path, version } of versions) {
+				if (managed && path.startsWith(packagesDir)) {
+					if (!argv.json) {
+						console.log(`Deleting ${highlight(`${name}@${version}`)} ${note(`(${path})`)}`);
+					}
+					await fs.remove(path);
 				}
 			}
 
 			if (argv.json) {
-				console.log(JSON.stringify(versions, null, '  '));
+				console.log(JSON.stringify(versions, null, 2));
 			} else if (replacement.path) {
-				console.log(`Set ${name}@${replacement.version} as the active version`);
+				console.log(`${highlight(`${name}@${replacement.version}`)} is now the active version`);
 			}
 		} catch (err) {
-			if (argv.json) {
-				console.error(JSON.stringify({ success: false, message: err.message }, null, '  '));
-			} else {
-				console.error(err.message);
-			}
-			process.exit(1);
+			handleError({ console, err, json: argv.json });
 		}
 	}
 };

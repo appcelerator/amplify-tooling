@@ -1,11 +1,12 @@
 export default {
-	desc: 'displays info about your authenticated account',
+	desc: 'Displays info about your authenticated account',
 	options: {
-		'--account <name>': 'the account to switch to'
+		'--account [name]': 'The account to switch to'
 	},
 	async action({ argv, console }) {
-		const { auth } = await import('@axway/amplify-cli-utils');
-		const accounts = await auth.list();
+		const { initSDK } = await import('@axway/amplify-cli-utils');
+		const { config, sdk } = initSDK();
+		const accounts = await sdk.auth.list();
 
 		if (accounts.length) {
 			console.log(`Found ${accounts.length} authenticated account${accounts.length === 1 ? '' : 's'}:`);
@@ -19,7 +20,7 @@ export default {
 		console.log();
 
 		try {
-			const { account, config } = await auth.getAccount(argv.account);
+			const account = await sdk.auth.find(argv.account);
 
 			const defaultAccount = config.get('auth.defaultAccount');
 			console.log(defaultAccount ? `Default account: ${defaultAccount}\n` : 'No default account\n');

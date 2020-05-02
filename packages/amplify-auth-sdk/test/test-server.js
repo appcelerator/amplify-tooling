@@ -1,7 +1,5 @@
 import Auth, { server } from '../dist/index';
-
-import { parse, URLSearchParams } from 'url';
-import request from '@axway/amplify-request';
+import got from 'got';
 
 describe('Server', () => {
 	afterEach(async () => {
@@ -19,9 +17,9 @@ describe('Server', () => {
 		const { cancel } = await auth.login({ manual: true });
 
 		try {
-			await request({ url: 'http://127.0.0.1:3000/callback' });
+			await got('http://127.0.0.1:3000/callback');
 		} catch (error) {
-			expect(error.statusCode).to.equal(400);
+			expect(error.response.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -38,9 +36,9 @@ describe('Server', () => {
 		const { cancel } = await auth.login({ manual: true });
 
 		try {
-			await request({ url: 'http://127.0.0.1:3000/callback?code=123' });
+			await got('http://127.0.0.1:3000/callback?code=123');
 		} catch (error) {
-			expect(error.statusCode).to.equal(400);
+			expect(error.response.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -57,9 +55,9 @@ describe('Server', () => {
 		const { cancel } = await auth.login({ manual: true });
 
 		try {
-			await request({ url: 'http://127.0.0.1:3000/callback/foo?code=123' });
+			await got('http://127.0.0.1:3000/callback/foo?code=123');
 		} catch (error) {
-			expect(error.statusCode).to.equal(400);
+			expect(error.response.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -76,16 +74,16 @@ describe('Server', () => {
 		});
 
 		const { cancel, promise, url } = await auth.login({ manual: true });
-		const redirect_uri = new URLSearchParams(parse(url).query).get('redirect_uri');
+		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
 		const id = redirect_uri.match(/\/callback\/([A-Z0-9]+)/)[1];
 
 		// squeltch unhandled rejections
 		promise.catch(() => {});
 
 		try {
-			await request({ url: `http://127.0.0.1:3000/callback/${id}?code=123` });
+			await got(`http://127.0.0.1:3000/callback/${id}?code=123`);
 		} catch (error) {
-			expect(error.statusCode).to.equal(400);
+			expect(error.response.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -102,9 +100,9 @@ describe('Server', () => {
 		const { cancel } = await auth.login({ manual: true });
 
 		try {
-			await request({ url: 'http://127.0.0.1:3000' });
+			await got('http://127.0.0.1:3000');
 		} catch (error) {
-			expect(error.statusCode).to.equal(404);
+			expect(error.response.statusCode).to.equal(404);
 		} finally {
 			await cancel();
 		}

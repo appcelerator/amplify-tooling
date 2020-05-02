@@ -4,20 +4,71 @@ A common utils library for AMPLIFY CLI and related packages.
 
 ## Installation
 
-	npm i -g @axway/amplify-cli-utils
+	npm i @axway/amplify-cli-utils --save
 
-## Authentication Helper
+## API
 
-A simple helper that loads the config file and attempts to find the account tokens by auth params
-or by id.
+### `buildParams(opts, config)`
 
-### Find account by login parameters
+Creates an AMPLIFY SDK or AMPLIFY Auth SDK constructor options object based on the supplied `opts`
+and AMPLIFY CLI `config` object. If `config` is not defined, the config is loaded from disk.
 
 ```js
-import { auth } from '@axway/amplify-cli-utils';
+import { buildParams } from '@axway/amplify-cli-utils';
+
+const opts = buildParams({
+	baseUrl: 'foo',
+	clientId: 'bar'
+});
+```
+
+### `createTable(heading1, heading2, heading3, ...)`
+
+Creates a `cli-table3` instance with common table padding and styling.
+
+```js
+import { createTable } from '@axway/amplify-cli-utils';
+
+const table = createTable('Name', 'Version');
+table.push([ 'foo', '1.0.0' ]);
+table.push([ 'bar', '2.0.0' ]);
+console.log(table.toString());
+```
+
+### `environments.resolve(env)`
+
+Returns environment specific settings.
+
+```js
+import { environments } from '@axway/amplify-cli-utils';
+
+console.log(environments.resolve());
+console.log(environments.resolve('prod'));
+console.log(environments.resolve('production'));
+```
+
+### `locations`
+
+An object containing the `axwayHome` and `configFile` paths.
+
+```js
+import { locations } from '@axway/amplify-cli-utils';
+
+console.log('Axway Home Directory:', locations.axwayHome);
+console.log('AMPLIFY CLI Config Path:', locations.configFile);
+```
+
+### `initSDK(opts, config)`
+
+Loads the AMPLIFY CLI config and initializes an AMPLIFY SDK instance.
+
+#### Find account by login parameters
+
+```js
+import { initSDK } from '@axway/amplify-cli-utils';
 
 (async () => {
-	const params = {
+	const { sdk, config } = initSDK({
 		baseUrl:      '',
 		clientId:     '',
 		clientSecret: '',
@@ -26,9 +77,9 @@ import { auth } from '@axway/amplify-cli-utils';
 		realm:        '',
 		secretFile:   '',
 		username:     ''
-	};
+	});
 
-	const { account, client, config } = await auth.getAccount(params);
+	const account = await sdk.auth.find('foo');
 
 	if (account && !account.expired) {
 		console.log('Found a valid access token!');
@@ -45,34 +96,70 @@ import { auth } from '@axway/amplify-cli-utils';
 ### Find account by id
 
 ```js
-import { auth } from '@axway/amplify-cli-utils';
-
-(async () => {
-	const id = 'ID GOES HERE';
-
-	const { account, client, config } = await auth.getAccount(id);
-
-	if (account && !account.expired) {
-		console.log('Found a valid access token!');
-		console.log(account);
-		return;
-	}
-
-	console.error('No valid authentication token found. Please login in again by running:');
-	console.error('  amplify auth login');
-	process.exit(1);
-}());
+const accountName = '<client_id>:<email_address>';
+const account = await sdk.auth.getAccount(accountName);
 ```
 
 ### Get all credentialed accounts
 
 ```js
-import { auth } from '@axway/amplify-cli-utils';
+const accounts = await sdk.auth.list();
+console.log(accounts);
+```
 
-(async () => {
-	const accounts = await auth.list();
-	console.log(accounts);
-}());
+### `loadConfig()`
+
+Loads the AMPLIFY CLI config file using the lazy loaded AMPLIFY Config package.
+
+```js
+import { loadConfig } from '@axway/amplify-cli-utils';
+
+const config = loadConfig();
+console.log(config);
+```
+
+## Upgrading from version 1.x
+
+In v2, the entire `auth` API was removed to take advantage of the new AMPLIFY SDK, which now
+contains the auth API.
+
+```js
+// Find account by login parameters
+
+// v1
+import { auth } from '@axway/amplify-cli-utils';
+const { account, client, config } = await auth.getAccount({ /* auth options */ });
+
+// v2
+import { initSDK } from '@axway/amplify-cli-utils';
+const { config, sdk } = initSDK({ /* auth options */ });
+const account = await sdk.auth.find();
+```
+
+```js
+// Find account by id
+
+// v1
+import { auth } from '@axway/amplify-cli-utils';
+const { account, client, config } = await auth.getAccount('<CLIENT_ID>:<EMAIL>');
+
+// v2
+import { initSDK } from '@axway/amplify-cli-utils';
+const { config, sdk } = initSDK({ /* auth options */ });
+const account = await sdk.auth.find('<CLIENT_ID>:<EMAIL>');
+```
+
+```js
+// Get all credentialed accounts
+
+// v1
+import { auth } from '@axway/amplify-cli-utils';
+const accounts = await auth.list();
+
+// v2
+import { initSDK } from '@axway/amplify-cli-utils';
+const { config, sdk } = initSDK({ /* auth options */ });
+const accounts = await sdk.auth.list();
 ```
 
 ## Legal

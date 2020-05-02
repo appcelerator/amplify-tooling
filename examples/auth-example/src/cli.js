@@ -11,7 +11,7 @@ export default new CLI({
 	helpExitCode: 2,
 	name: 'auth-example',
 	options: {
-		'--env <env>': 'the environment to use'
+		'--env [env]': 'The environment to use'
 	},
 	version
 });

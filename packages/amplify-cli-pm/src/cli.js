@@ -11,8 +11,7 @@ export default new CLI({
 	helpExitCode: 2,
 	name: 'amplify-cli-pm',
 	options: {
-		'--env <env>': 'the environment to use',
-		'--json': 'outputs accounts as JSON'
+		'--env [env]': 'The environment to use'
 	},
 	version
 });

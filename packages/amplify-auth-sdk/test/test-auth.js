@@ -25,14 +25,16 @@ describe('Auth', () => {
 			expect(() => {
 				new Auth({
 					homeDir,
-					tokenRefreshThreshold: 'foo'
+					tokenRefreshThreshold: 'foo',
+					tokenStoreType: 'memory'
 				});
 			}).to.throw(TypeError, 'Expected token refresh threshold to be a number of seconds');
 
 			expect(() => {
 				new Auth({
 					homeDir,
-					tokenRefreshThreshold: -123
+					tokenRefreshThreshold: -123,
+					tokenStoreType: 'memory'
 				});
 			}).to.throw(RangeError, 'Token refresh threshold must be greater than or equal to zero');
 		});
@@ -64,18 +66,7 @@ describe('Auth', () => {
 			const auth = new Auth({
 				tokenStoreType: null
 			});
-
-			try {
-				await auth.login({
-					env: 'foo'
-				});
-			} catch (err) {
-				expect(err).to.be.instanceof(Error);
-				expect(err.message).to.equal('Invalid environment: foo');
-				return;
-			}
-
-			throw new Error('Expected error');
+			await expect(auth.login({ env: 'foo' })).to.eventually.be.rejectedWith(Error, 'Invalid environment "foo"');
 		});
 	});
 
@@ -97,21 +88,15 @@ describe('Auth', () => {
 				serverinfo(post, req, res) {
 					res.writeHead(500);
 					res.end('Server error');
+					return true;
 				}
 			});
 
-			try {
-				const auth = new Auth({
-					tokenStoreType: null
-				});
-				await auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' });
-			} catch (err) {
-				expect(err).to.be.instanceof(Error);
-				expect(err.message).to.equal('Failed to get server info (status 500)');
-				return;
-			}
-
-			throw new Error('Expected error to be thrown');
+			const auth = new Auth({
+				tokenStoreType: null
+			});
+			await expect(auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' }))
+				.to.eventually.be.rejectedWith(Error, 'Failed to get server info (status 500)');
 		});
 
 		it('should throw error if server response is invalid', async function () {
@@ -119,45 +104,31 @@ describe('Auth', () => {
 				serverinfo(post, req, res) {
 					res.writeHead(200);
 					res.end('{{{{{{{{{{');
+					return true;
 				}
 			});
 
-			try {
-				const auth = new Auth({
-					tokenStoreType: null
-				});
-				await auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' });
-			} catch (err) {
-				expect(err).to.be.instanceof(Error);
-				expect(err.message).to.match(/^Invalid JSON response at/);
-				return;
-			}
-
-			throw new Error('Expected error to be thrown');
+			const auth = new Auth({
+				tokenStoreType: null
+			});
+			await expect(auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' }))
+				.to.eventually.be.rejectedWith(Error, /^Unexpected token {/);
 		});
 
 		it('should throw error applying defaults if env is invalid', async () => {
-			try {
-				const auth = new Auth({
-					tokenStoreType: null
-				});
-				await auth.serverInfo({ env: 'foo' });
-			} catch (err) {
-				expect(err).to.be.instanceof(Error);
-				expect(err.message).to.equal('Invalid environment: foo');
-				return;
-			}
-
-			throw new Error('Expected error to be thrown');
+			const auth = new Auth({
+				tokenStoreType: null
+			});
+			await expect(auth.serverInfo({ env: 'foo' })).to.eventually.be.rejectedWith(Error, 'Invalid environment "foo"');
 		});
 	});
 
-	describe('Revoke', () => {
+	describe('Logout', () => {
 		it('should return empty array if no token store', async () => {
 			const auth = new Auth({
 				tokenStoreType: null
 			});
-			const revoked = await auth.revoke();
+			const revoked = await auth.logout();
 			expect(revoked).to.have.lengthOf(0);
 		});
 
@@ -167,7 +138,7 @@ describe('Auth', () => {
 			});
 
 			try {
-				await auth.revoke();
+				await auth.logout();
 			} catch (err) {
 				expect(err).to.be.instanceof(Error);
 				expect(err.message).to.equal('Expected accounts to be "all" or a list of accounts');

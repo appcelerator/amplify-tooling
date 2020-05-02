@@ -16,13 +16,12 @@ import MemoryStore from './stores/memory-store';
 import SecureStore from './stores/secure-store';
 import TokenStore from './stores/token-store';
 
-import environments from './environments';
 import getEndpoints from './endpoints';
+import got from 'got';
 import snooplogg from 'snooplogg';
-import * as server from './server';
 
-import request from '@axway/amplify-request';
-import { getServerInfo, handleRequestError } from './util';
+import * as environments from './environments';
+import * as server from './server';
 
 const { log } = snooplogg('amplify-auth');
 const { alert, highlight, magenta, note } = snooplogg.styles;
@@ -43,7 +42,7 @@ export default class Auth {
 	 * Initializes the authentication instance by setting the default settings and creating the
 	 * token store.
 	 *
-	 * @param {Object} opts - Various options.
+	 * @param {Object} [opts] - Various options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
 	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
@@ -53,7 +52,6 @@ export default class Auth {
 	 * directory where `keytar` is located. This option is required when `tokenStoreType` is set to
 	 * `secure`, which is the default.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
-	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
 	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
@@ -84,7 +82,6 @@ export default class Auth {
 			env:            { value: opts.env },
 			messages:       { value: opts.messages },
 			password:       { value: opts.password },
-			platformUrl:    { value: opts.platformUrl },
 			realm:          { value: opts.realm },
 			secretFile:     { value: opts.secretFile },
 			serviceAccount: { value: opts.serviceAccount },
@@ -148,18 +145,17 @@ export default class Auth {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		const env = opts.env || this.env || 'prod';
-		if (!environments[env]) {
+		const env = environments.resolve(opts.env || this.env);
+		if (!env) {
 			throw E.INVALID_VALUE(`Invalid environment: ${opts.env || this.env}`);
 		}
 
-		opts.baseUrl        = opts.baseUrl || this.baseUrl || environments[env].baseUrl;
+		opts.baseUrl        = opts.baseUrl || this.baseUrl || env.baseUrl;
 		opts.clientId       = opts.clientId || this.clientId;
 		opts.clientSecret   = opts.clientSecret || this.clientSecret;
 		opts.env            = env;
 		opts.messages       = opts.messages || this.messages;
 		opts.password       = opts.password || this.password;
-		opts.platformUrl    = opts.platformUrl || this.platformUrl || environments[env].platformUrl;
 		opts.realm          = opts.realm || this.realm;
 		opts.secretFile     = opts.secretFile || this.secretFile;
 		opts.serviceAccount = opts.serviceAccount || this.serviceAccount;
@@ -217,11 +213,10 @@ export default class Auth {
 	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
 	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.baseUrl] - The base URL to filter by.
-	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
-	async getAccount(opts = {}) {
+	async find(opts = {}) {
 		if (!this.tokenStore) {
 			log('Cannot get account, no token store');
 			return null;
@@ -242,14 +237,16 @@ export default class Auth {
 		if (account) {
 			// copy over the correct auth params
 			for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env' ]) {
-				if (account[prop] && opts[prop] !== account[prop]) {
-					log(`Overriding "${prop}" auth param with account's: ${opts[prop]} -> ${account[prop]}`);
-					opts[prop] = account[prop];
+				if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
+					const from = prop === 'env' ? opts[prop].name : opts[prop];
+					const to = prop === 'env' ? account.auth[prop].name : account.auth[prop];
+					log(`Overriding "${prop}" auth param with account's: ${from} -> ${to}`);
+					opts[prop] = account.auth[prop];
 				}
 			}
 			authenticator = this.createAuthenticator(opts);
 
-			if (account.expired) {
+			if (account.auth.expired) {
 				// refresh the access token if the refresh token is valid
 				log(`Access token for account ${account.name || account.hash} is expired`);
 
@@ -259,8 +256,7 @@ export default class Auth {
 				}
 
 				log(`Refreshing access token for account ${account.name || account.hash}`);
-				const result = await authenticator.getToken();
-				return result.account;
+				return await authenticator.getToken();
 			}
 
 			return await authenticator.getInfo(account);
@@ -295,7 +291,6 @@ export default class Auth {
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
 	 * launching the auth URL in the default browser.
-	 * @param {String} [opts.platformUrl] - The platform URL used to get user info and orgs.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * Defaults to the `interactiveLoginTimeout` property.
@@ -318,10 +313,10 @@ export default class Auth {
 	 * @param {Array.<String>|String} opts.accounts - A list of accounts names.
 	 * @param {Boolean} opts.all - When `true`, revokes all accounts.
 	 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
-	 * @returns {Promise<Array>} Returns a list of revoked credentials.
+	 * @returns {Promise<Array>} Resolves a list of revoked credentials.
 	 * @access public
 	 */
-	async revoke({ accounts, all, baseUrl } = {}) {
+	async logout({ accounts, all, baseUrl } = {}) {
 		if (!this.tokenStore) {
 			log('No token store, returning empty array');
 			return [];
@@ -344,9 +339,9 @@ export default class Auth {
 
 		if (Array.isArray(revoked)) {
 			for (const entry of revoked) {
-				const url = `${getEndpoints(entry).logout}?id_token_hint=${entry.tokens.id_token}`;
+				const url = `${getEndpoints(entry.auth).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
 				try {
-					const { status } = await request({ url, validateJSON: true });
+					const { status } = await got(url, { responseType: 'json', retry: 0 });
 					log(`Successfully logged out ${highlight(entry.name)} ${magenta(status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
 				} catch (err) {
 					log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
@@ -378,112 +373,32 @@ export default class Auth {
 			url = getEndpoints(opts).wellKnown;
 		}
 
-		return await getServerInfo(url);
+		if (!url || typeof url !== 'string') {
+			throw E.INVALID_ARGUMENT('Expected URL to be a non-empty string');
+		}
+
+		try {
+			log(`Fetching server info: ${url}...`);
+			return (await got(url, { responseType: 'json', retry: 0 })).body;
+		} catch (err) {
+			if (err.name !== 'ParseError') {
+				err.message = `Failed to get server info (status ${err.response.statusCode})`;
+			}
+			throw err;
+		}
 	}
 
 	/**
-	 * Switches the current organization.
+	 * Update the stored account.
 	 *
-	 * @param {Object} opts - Various options.
-	 * @param {String} opts.accessToken - The access token.
-	 * @param {Object} [opts.account] - The account object.
-	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
-	 * @param {String} opts.orgId - The org id.
-	 * @param {String} [opts.platformUrl] - The Axway Platform URL.
-	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
-	 * @returns {Promise<Object>} Resolves the selected organization info.
+	 * @param {Object} account - An object containing the account info.
+	 * @returns {Promise}
 	 * @access public
 	 */
-	async switchOrg(opts) {
-		if (!opts || typeof opts !== 'object') {
-			throw E.INVALID_ARGUMENT('Expected options to be an object');
+	async updateAccount(account) {
+		if (this.tokenStore) {
+			await this.tokenStore.set(account);
 		}
-
-		this.applyDefaults(opts);
-
-		const { accessToken, orgId } = opts;
-		log(`Switching org to ${orgId}`);
-
-		const response = await request({
-			formData: { org_id: orgId },
-			headers: {
-				Accept: 'application/json',
-				Authorization: `Bearer ${accessToken}`
-			},
-			method: 'POST',
-			url: `${getEndpoints(opts).switchLoggedInOrg}`,
-			validateJSON: true
-		});
-		const { body, status, statusCode } = response;
-
-		if (statusCode >= 200 && statusCode < 300) {
-			if (!body) {
-				throw E.REQUEST_FAILED(`Switch org failed: Response has no body (${status})`);
-			}
-
-			if (!body.success) {
-				throw E.REQUEST_FAILED(`Switch org failed: Request was not successful (${status})`);
-			}
-
-			if (!body.result) {
-				throw E.REQUEST_FAILED(`Switch org failed: Response did not contain a result (${status})`);
-			}
-
-			log('Switch org successful:');
-			log(body.result);
-
-			const org = {
-				name:   body.result.org_name,
-				org_id: body.result.org_id
-			};
-
-			if (opts.account && typeof opts.account === 'object' && this.tokenStore) {
-				opts.account.org = org;
-				await this.tokenStore.set(opts.account);
-			}
-
-			return org;
-		}
-
-		throw handleRequestError({ label: 'Failed to switch org', response });
-	}
-
-	/**
-	 * Sends the device auth code to the platform.
-	 *
-	 * @param {Object} opts - Various options.
-	 * @param {String} opts.accessToken - The access token.
-	 * @param {String} opts.code - The device authorization code.
-	 * @access public
-	 */
-	async sendAuthCode(opts) {
-		if (!opts || typeof opts !== 'object') {
-			throw E.INVALID_ARGUMENT('Expected options to be an object');
-		}
-
-		this.applyDefaults(opts);
-
-		const { accessToken, code } = opts;
-		const response = await request({
-			formData: {
-				code,
-				from: 'cli'
-			},
-			headers: {
-				Accept: 'application/json',
-				Authorization: `Bearer ${accessToken}`
-			},
-			method: 'POST',
-			url: `${getEndpoints(opts).deviceauth}`,
-			validateJSON: true
-		});
-		const { body, statusCode } = response;
-
-		if (statusCode >= 400 || !body || !body.success || !body.result || body.result.expired === true) {
-			throw handleRequestError({ label: 'Failed to send device auth code', response });
-		}
-
-		log(`Auth code sent successfully (status ${statusCode})`);
 	}
 }
 

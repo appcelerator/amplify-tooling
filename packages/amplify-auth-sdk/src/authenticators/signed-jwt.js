@@ -2,7 +2,8 @@ import Authenticator from './authenticator';
 import E from '../errors';
 import fs from 'fs';
 import jws from 'jws';
-import uuid from 'uuid';
+
+import { v4 as uuidv4 } from 'uuid';
 
 const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;
 
@@ -59,7 +60,7 @@ export default class SignedJWT extends Authenticator {
 				exp: issuedAt + (60 * 60 * 1000), // 1 hour
 				iat: issuedAt,
 				iss: this.clientId,
-				jti: uuid.v4(),
+				jti: uuidv4(),
 				sub: this.clientId
 			},
 			secret:  fs.readFileSync(this.secretFile, 'utf8')

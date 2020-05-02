@@ -23,19 +23,19 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^2.3.0",
     "@axway/amplify-config": "^1.3.0",
-    "@axway/amplify-request": "^1.2.0",
-    "appcd-fs": "^1.1.8",
-    "appcd-subprocess": "^1.3.0",
-    "fs-extra": "^8.1.0",
-    "pacote": "^9.5.8",
-    "snooplogg": "^2.3.2",
-    "source-map-support": "^0.5.13",
-    "tar": "^4.4.11",
+    "appcd-fs": "^1.1.10",
+    "appcd-subprocess": "^3.0.2",
+    "fs-extra": "^9.0.0",
+    "got": "^11.0.3",
+    "pacote": "^11.1.8",
+    "snooplogg": "^3.0.0",
+    "source-map-support": "^0.5.19",
+    "tar": "^6.0.2",
     "targit": "^0.1.4",
-    "tmp": "^0.1.0"
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.2.0"
+    "appcd-gulp": "^3.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
@@ -44,7 +44,7 @@
     "url": "git+https://github.com/appcelerator/amplify-tooling.git"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.13.0"
   },
   "main": "./dist/index",
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"

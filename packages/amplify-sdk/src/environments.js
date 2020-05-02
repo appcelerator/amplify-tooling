@@ -1,25 +1,20 @@
 /**
- * Environment specific settings.
+ * Environment specific default settings.
  *
  * @type {Object}
  */
 export const environments = {
-	dev: {
-		baseUrl: 'https://login-dev.axway.com',
-		redirectLoginSuccess: 'https://platform.axwaytest.net/'
-	},
 	preprod: {
-		baseUrl: 'https://login-preprod.axway.com',
-		redirectLoginSuccess: 'https://platform.axwaytest.net/'
+		platformUrl: 'https://platform.axwaytest.net'
 	},
 	prod: {
-		baseUrl: 'https://login.axway.com',
-		redirectLoginSuccess: 'https://platform.axway.com/'
+		platformUrl: 'https://platform.axway.com'
 	}
 };
 
 const mapping = {
-	development: 'dev',
+	dev: 'preprod',
+	development: 'preprod',
 	preproduction: 'preprod',
 	'pre-production': 'preprod',
 	production: 'prod',

@@ -2,33 +2,32 @@ export default {
 	args: [
 		{
 			name: 'account-name',
-			desc: 'the account to show'
+			desc: 'The account to display'
 		}
 	],
-	desc: 'dumps info for the specified account',
+	desc: 'Dumps info for the specified account',
 	hidden: true,
 	async action({ argv, console }) {
-		const { auth } = await import('@axway/amplify-cli-utils');
-
-		const params = auth.buildParams({
+		const { initSDK } = await import('@axway/amplify-cli-utils');
+		const { sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm
 		});
-
-		const client = auth.createAuth(params);
+		const accounts = await sdk.auth.list();
 
 		if (argv.accountName) {
-			const account = await client.getAccount(argv.accountName);
+			const account = accounts.find(a => a.name === argv.accountName);
 			if (account) {
-				console.log(JSON.stringify(account, null, '  '));
+				console.log(JSON.stringify(account, null, 2));
 			} else {
-				console.log(`Account "${argv.accountName}" not authenticated.`);
+				console.log(JSON.stringify({
+					code: 'ENOTFOUND',
+					error: `Account "${argv.accountName}" not authenticated`
+				}, null, 2));
 			}
-
 		} else {
-			const tokens = await client.list();
-			console.log(JSON.stringify(tokens, null, '  '));
+			console.log(JSON.stringify(accounts, null, 2));
 		}
 	}
 };
