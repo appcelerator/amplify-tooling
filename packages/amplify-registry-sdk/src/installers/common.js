@@ -70,9 +70,8 @@ export async function extractTar({ dest, file, opts }) {
  * @param {String} name - Name of the package.
  * @param {String} path - Path to the package.
  * @param {Object} [cfg] - The config object.
- * @param {String} [location] - The path to the config file.
  */
-export async function addPackageToConfig(name, path, cfg = loadConfig(), location = locations.configFile) {
+export async function addPackageToConfig(name, path, cfg = loadConfig()) {
 	if (!name || typeof name !== 'string') {
 		throw new TypeError('Expected name to be a valid string');
 	}
@@ -86,7 +85,7 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
 	}
 
 	cfg.set(`extensions.${name}`, path);
-	cfg.save(location);
+	cfg.save();
 }
 
 /**
@@ -95,9 +94,8 @@ export async function addPackageToConfig(name, path, cfg = loadConfig(), locatio
  * @param {String} name - Name of the package to remove/replace.
  * @param {String} [replacementPath] - Path to replace the existing version with.
  * @param {Object} [cfg] - The config object.
- * @param {String} [location] - The path to the config file.
  */
-export async function removePackageFromConfig(name, replacementPath, cfg = loadConfig(), location = locations.configFile) {
+export async function removePackageFromConfig(name, replacementPath, cfg = loadConfig()) {
 	if (!name || typeof name !== 'string') {
 		throw new TypeError('Expected name to be a valid string');
 	}
@@ -120,7 +118,7 @@ export async function removePackageFromConfig(name, replacementPath, cfg = loadC
 		cfg.delete(`extensions.${name}`);
 	}
 
-	cfg.save(location);
+	cfg.save();
 }
 
 /**

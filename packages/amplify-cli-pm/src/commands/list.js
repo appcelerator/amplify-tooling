@@ -37,12 +37,12 @@ export default {
 
 		for (const pkg of installed) {
 			const { version } = pkg;
-			const { managed } = pkg.versions[version];
 			const versions = Object.keys(pkg.versions).sort(semver.rcompare);
+			const managed = versions.every(v => pkg.versions[v].managed);
 
 			table.push([
 				managed || Object.keys(pkg.versions).some(ver => pkg.versions[ver].managed) ? pkg.name : `${pkg.name} ${gray('(unmanaged)')}`,
-				versions.map(v => semver.eq(v, version) ? cyan(v) : v).join(', ')
+				versions.map(v => version && semver.eq(v, version) ? cyan(v) : v).join(', ')
 			]);
 			if (!managed) {
 				unmanaged[`${pkg.name}${pkg.version}`] = 1;

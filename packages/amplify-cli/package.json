@@ -26,12 +26,12 @@
   "dependencies": {
     "@axway/amplify-cli-auth": "^1.4.0",
     "@axway/amplify-cli-pm": "^1.4.1",
-    "cli-kit": "0.16.2",
+    "cli-kit": "1.0.0",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.1.0"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.4.0"
+    "appcd-gulp": "^3.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

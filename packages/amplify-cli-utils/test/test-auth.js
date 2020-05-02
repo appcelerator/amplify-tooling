@@ -1,5 +1,6 @@
 import http from 'http';
 
+import { Config } from '@axway/amplify-config';
 import { initSDK } from '../dist/index';
 import { MemoryStore } from '@axway/amplify-auth-sdk';
 
@@ -114,7 +115,7 @@ describe('auth', () => {
 			platformUrl: 'http://127.0.0.1:1337/',
 			realm: 'baz',
 			tokenStore
-		});
+		}, new Config());
 
 		const account = await sdk.auth.find();
 		expect(account).to.deep.equal(token);
@@ -149,20 +150,20 @@ describe('auth', () => {
 			platformUrl: 'http://127.0.0.1:1337/',
 			realm: 'baz',
 			tokenStore
-		});
+		}, new Config());
 
 		const account = await sdk.auth.find('test:acbba128ef48ea3cb8c122225f095eb1');
 		expect(account).to.deep.equal(token);
 	});
 
 	it('should not find an access token by auth params', async () => {
-		const { sdk } = initSDK({ tokenStore: new MemoryStore() });
+		const { sdk } = initSDK({ tokenStore: new MemoryStore() }, new Config());
 		const account = await sdk.auth.find();
 		expect(account).to.equal(null);
 	});
 
 	it('should not find an access token by id', async () => {
-		const { sdk } = initSDK({ tokenStore: new MemoryStore() });
+		const { sdk } = initSDK({ tokenStore: new MemoryStore() }, new Config());
 		const account = await sdk.auth.find('foo');
 		expect(account).to.equal(null);
 	});

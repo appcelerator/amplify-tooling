@@ -27,15 +27,15 @@
     "appcd-subprocess": "^3.0.2",
     "fs-extra": "^9.0.0",
     "got": "^11.0.3",
-    "pacote": "^11.1.7",
-    "snooplogg": "^2.3.3",
+    "pacote": "^11.1.8",
+    "snooplogg": "^3.0.0",
     "source-map-support": "^0.5.19",
     "tar": "^6.0.2",
     "targit": "^0.1.4",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.4.0"
+    "appcd-gulp": "^3.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

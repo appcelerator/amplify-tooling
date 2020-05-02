@@ -1,17 +1,21 @@
 /* eslint-disable security/detect-child-process */
 
+import fs from 'fs-extra';
+import tmp from 'tmp';
+
 import { addPackageToConfig, extractTar, getInstalledPackages, npmInstall, removePackageFromConfig } from '../dist/installers/common';
 import { join } from 'path';
 import { loadConfig } from '@axway/amplify-cli-utils';
-import { removeSync } from 'fs-extra';
 import { EventEmitter } from 'events';
+
+tmp.setGracefulCleanup();
 
 // We need to require this in order to mock it
 const child_process = require('child_process');
 const tar = require('tar');
 
+const configFile = tmp.tmpNameSync({ prefix: 'test-amplify-registry-sdk-', postfix: '.json' });
 const fixturesDir = join(__dirname, 'fixtures');
-const configFile = join(fixturesDir, 'my-config.json');
 
 describe('common utils', () => {
 	describe('addPackageToConfig()', () => {
@@ -20,7 +24,7 @@ describe('common utils', () => {
 		});
 
 		afterEach(function () {
-			removeSync(configFile);
+			fs.removeSync(configFile);
 			this.config = null;
 		});
 
@@ -38,7 +42,6 @@ describe('common utils', () => {
 
 		it('should add a package to the config', async function () {
 			const pluginDir = join(fixturesDir, 'common', 'packages', 'foo');
-
 			await addPackageToConfig('foo', pluginDir, this.config);
 			expect(this.config.get('extensions')).to.deep.equal({
 				foo: pluginDir
@@ -56,11 +59,13 @@ describe('common utils', () => {
 
 	describe('removePackageFromConfig()', () => {
 		beforeEach(function () {
-			this.config = loadConfig({ configFile });
+			this.configFile = tmp.tmpNameSync({ prefix: 'test-amplify-registry-sdk-', postfix: '.json' });
+			fs.outputJSONSync(this.configFile, {});
+			this.config = loadConfig({ configFile: this.configFile });
 		});
 
 		afterEach(function () {
-			removeSync(configFile);
+			fs.removeSync(this.configFile);
 			this.config = null;
 		});
 
@@ -109,11 +114,13 @@ describe('common utils', () => {
 
 	describe('getInstalledPackages()', () => {
 		beforeEach(function () {
-			this.config = loadConfig({ configFile });
+			this.configFile = tmp.tmpNameSync({ prefix: 'test-amplify-registry-sdk-', postfix: '.json' });
+			fs.outputJSONSync(this.configFile, {});
+			this.config = loadConfig({ configFile: this.configFile });
 		});
 
 		afterEach(function () {
-			removeSync(configFile);
+			fs.removeSync(this.configFile);
 			this.config = null;
 		});
 

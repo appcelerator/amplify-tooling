@@ -26,14 +26,14 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^2.3.0",
-    "cli-kit": "^0.16.2",
+    "cli-kit": "^1.0.0",
     "inquirer": "^7.1.0",
     "pretty-ms": "^7.0.0",
-    "snooplogg": "^2.3.3",
+    "snooplogg": "^3.0.0",
     "source-map-support": "^0.5.19"
   },
   "devDependencies": {
-    "appcd-gulp": "^2.4.0"
+    "appcd-gulp": "^3.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
