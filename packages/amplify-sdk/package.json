@@ -31,5 +31,8 @@
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-sdk",
   "engines": {
     "node": ">=10.13.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
