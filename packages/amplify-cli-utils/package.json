@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@axway/amplify-auth-sdk": "^2.0.0",
-    "@axway/amplify-config": "^1.3.0",
+    "@axway/amplify-config": "^2.0.0",
     "appcd-fs": "^1.1.10",
     "cli-table3": "^0.6.0",
     "fs-extra": "^9.0.0",
