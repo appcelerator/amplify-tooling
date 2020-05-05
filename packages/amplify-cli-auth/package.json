@@ -25,7 +25,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^2.3.0",
+    "@axway/amplify-cli-utils": "^3.0.0",
     "cli-kit": "^1.0.0",
     "inquirer": "^7.1.0",
     "pretty-ms": "^7.0.0",
