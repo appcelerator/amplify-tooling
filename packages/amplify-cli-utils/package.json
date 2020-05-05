@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli-utils",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Common utils for AMPLIFY CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -23,6 +23,7 @@
   "dependencies": {
     "@axway/amplify-auth-sdk": "^2.0.0",
     "@axway/amplify-config": "^2.0.0",
+    "@axway/amplify-sdk": "^1.0.0",
     "appcd-fs": "^1.1.10",
     "cli-table3": "^0.6.0",
     "fs-extra": "^9.0.0",
