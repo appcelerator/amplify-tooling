@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^2.3.0",
-    "@axway/amplify-config": "^1.3.0",
+    "@axway/amplify-config": "^2.0.0",
     "@axway/amplify-registry-sdk": "^1.4.0",
     "cli-kit": "^1.0.0",
     "listr": "^0.14.3",
