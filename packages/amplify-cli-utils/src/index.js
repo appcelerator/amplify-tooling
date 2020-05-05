@@ -3,10 +3,12 @@ if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
+import AmplifySDK from '@axway/amplify-sdk';
 import * as environments from './environments';
 import * as locations from './locations';
 
 export {
+	AmplifySDK,
 	environments,
 	locations
 };
@@ -92,8 +94,6 @@ export function createTable(...head) {
  * AMPLIFY SDK instance.
  */
 export function initSDK(opts = {}, config) {
-	const AmplifySDK = require('@axway/amplify-sdk').default;
-
 	if (!config) {
 		config = loadConfig();
 	}
