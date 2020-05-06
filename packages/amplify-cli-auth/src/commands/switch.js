@@ -105,7 +105,7 @@ export default {
 				console.log();
 			}
 
-			if (account.org && account.org !== org) {
+			if (!account.org || account.org !== org) {
 				// need to switch org
 				account = await sdk.auth.switchOrg(account, org.id);
 			}
