@@ -250,7 +250,7 @@ export default class Auth {
 				// refresh the access token if the refresh token is valid
 				log(`Access token for account ${account.name || account.hash} is expired`);
 
-				if (account.expires.refresh < Date.now()) {
+				if (account.auth.expires.refresh < Date.now()) {
 					log(`Unable to refresh access token for account ${account.name || account.hash} because refresh token is also expired`);
 					return;
 				}

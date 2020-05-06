@@ -21,7 +21,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^3.0.0",
+    "@axway/amplify-cli-utils": "^3.0.1",
     "@axway/amplify-config": "^2.0.0",
     "appcd-fs": "^1.1.10",
     "appcd-subprocess": "^3.0.2",
