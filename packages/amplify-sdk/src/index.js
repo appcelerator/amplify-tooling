@@ -407,7 +407,7 @@ export class AmplifySDK {
 	/**
 	 * Returns an AMPLIFY Auth SDK client or creates one if it doesn't exist.
 	 * @type {Auth}
-	 * @access private
+	 * @access public
 	 */
 	get client() {
 		try {
