@@ -219,7 +219,9 @@ export default class TokenStore {
 			entries.splice(i--, 1);
 		}
 
-		log(`Purged ${highlight(count)} ${pluralize('entry', count)}`);
+		if (count) {
+			log(`Purged ${highlight(count)} ${pluralize('entry', count)}`);
+		}
 
 		return entries;
 	}
