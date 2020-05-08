@@ -91,7 +91,6 @@ export class AmplifySDK {
 						email:        user.email,
 						firstName:    user.firstname,
 						guid:         user.guid,
-						is2FAEnabled: !user.disable_2fa,
 						lastName:     user.lastname,
 						organization: user.organization
 					});
