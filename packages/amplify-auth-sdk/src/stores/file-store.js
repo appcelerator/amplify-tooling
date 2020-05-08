@@ -160,7 +160,12 @@ export default class FileStore extends TokenStore {
 			try {
 				log(`Reading ${highlight(this.tokenStoreFile)}`);
 				const entries = await this.decode(fs.readFileSync(this.tokenStoreFile, 'utf8'));
-				return this.purge(entries);
+				const validEntries = this.purge(entries);
+				if (validEntries.length < entries.length) {
+					// something was purged, update the token store
+					await this.save(validEntries);
+				}
+				return validEntries;
 			} catch (e) {
 				// the decode failed (or there was a keytar problem), so just log a warning and
 				// return an empty result
@@ -171,6 +176,19 @@ export default class FileStore extends TokenStore {
 	}
 
 	/**
+	 * Saves the entires to the token store file.
+	 *
+	 * @param {Array} entries - The list of entries.
+	 * @returns {Promise}
+	 * @access private
+	 */
+	async save(entries) {
+		const data = await this.encode(entries);
+		log(`Writing ${highlight(this.tokenStoreFile)}`);
+		await fs.outputFile(this.tokenStoreFile, data, { mode: 384 /* 600 */ });
+	}
+
+	/**
 	 * Saves account credentials. If exists, the old one is deleted.
 	 *
 	 * @param {Object} obj - The token data.
@@ -178,9 +196,6 @@ export default class FileStore extends TokenStore {
 	 * @access public
 	 */
 	async set(obj) {
-		const entries = await super._set(obj);
-		const data = await this.encode(entries);
-		log(`Writing ${highlight(this.tokenStoreFile)}`);
-		await fs.outputFile(this.tokenStoreFile, data, { mode: 384 /* 600 */ });
+		await this.save(await super._set(obj));
 	}
 }

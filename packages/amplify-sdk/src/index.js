@@ -83,7 +83,7 @@ export class AmplifySDK {
 
 					log('Available orgs:');
 					for (const org of account.orgs) {
-						log(`  ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
+						log(`  ${highlight(org.name)} ${note(`(${org.id})`)}`);
 					}
 
 					Object.assign(account.user, {

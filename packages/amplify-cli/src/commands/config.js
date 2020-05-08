@@ -20,7 +20,7 @@ const writeActions = {
 
 export default {
 	aliases: [ 'c' ],
-	desc: 'get and set config options',
+	desc: 'Manage configuration options',
 	options: {
 		'--json': 'outputs the config as JSON'
 	},
