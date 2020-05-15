@@ -62,7 +62,7 @@ export default {
 
 			config.set('auth.defaultAccount', account.name);
 			config.save();
-			account.active = true;
+			account.default = true;
 
 			// determine the org
 			let org;

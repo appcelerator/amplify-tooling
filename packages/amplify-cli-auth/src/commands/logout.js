@@ -39,9 +39,9 @@ export default {
 				console.log(` ${highlight(account.name)}`);
 			}
 		} else if (Array.isArray(argv.accounts) && argv.accounts.length === 1) {
-			console.log(`No account "${argv.accounts[0]}" to revoke`);
+			console.log(`No account "${argv.accounts[0]}" to revoke.`);
 		} else {
-			console.log('No accounts to revoke');
+			console.log('No accounts to revoke.');
 		}
 	}
 };

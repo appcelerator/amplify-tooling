@@ -145,7 +145,7 @@ export default class Auth {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		const env = environments.resolve(opts.env || this.env);
+		const env = opts.env?.name || environments.resolve(opts.env || this.env);
 		if (!env) {
 			throw E.INVALID_VALUE(`Invalid environment: ${opts.env || this.env}`);
 		}
@@ -185,21 +185,26 @@ export default class Auth {
 			if (!(opts.authenticator instanceof Authenticator)) {
 				throw E.INVALID_ARUGMENT('Expected authenticator to be an Authenticator instance.');
 			}
+			log(`Using existing ${highlight(opts.authenticator.constructor.name)} authenticator`);
 			return opts.authenticator;
 		}
 
 		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
+			log(`Creating ${highlight('OwnerPassword')} authenticator`);
 			return new OwnerPassword(opts);
 		}
 
 		if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
+			log(`Creating ${highlight('ClientSecret')} authenticator`);
 			return new ClientSecret(opts);
 		}
 
 		if (typeof opts.secretFile === 'string' && opts.secretFile) {
+			log(`Creating ${highlight('SignedJWT')} authenticator`);
 			return new SignedJWT(opts);
 		}
 
+		log(`Creating ${highlight('PKCE')} authenticator`);
 		return new PKCE(opts);
 	}
 
@@ -229,6 +234,7 @@ export default class Auth {
 		} else {
 			this.applyDefaults(opts);
 			authenticator = this.createAuthenticator(opts);
+			log(`Authenticator hash: ${highlight(authenticator.hash)}`);
 			opts.hash = authenticator.hash;
 		}
 
@@ -237,7 +243,7 @@ export default class Auth {
 		if (account) {
 			// copy over the correct auth params
 			for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env' ]) {
-				if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
+				if (account.auth[prop] && ((prop !== 'env' && opts[prop] !== account.auth[prop]) || (prop === 'env' && opts[prop].name !== account.auth[prop].name))) {
 					const from = prop === 'env' ? opts[prop].name : opts[prop];
 					const to = prop === 'env' ? account.auth[prop].name : account.auth[prop];
 					log(`Overriding "${prop}" auth param with account's: ${from} -> ${to}`);
@@ -248,14 +254,14 @@ export default class Auth {
 
 			if (account.auth.expired) {
 				// refresh the access token if the refresh token is valid
-				log(`Access token for account ${account.name || account.hash} is expired`);
+				log(`Access token for account ${highlight(account.name || account.hash)} has expired`);
 
 				if (account.auth.expires.refresh < Date.now()) {
-					log(`Unable to refresh access token for account ${account.name || account.hash} because refresh token is also expired`);
+					log(`Unable to refresh access token for account ${highlight(account.name || account.hash)} because refresh token is also expired`);
 					return;
 				}
 
-				log(`Refreshing access token for account ${account.name || account.hash}`);
+				log(`Refreshing access token for account ${highlight(account.name || account.hash)}`);
 				return await authenticator.getToken();
 			}
 

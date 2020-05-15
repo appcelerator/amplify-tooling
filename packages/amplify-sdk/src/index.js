@@ -111,8 +111,20 @@ export class AmplifySDK {
 			 * details.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
-			login: async opts => {
-				const account = await this.client.login(opts);
+			login: async (opts = {}) => {
+				let account;
+
+				if (!opts?.force) {
+					account = await this.client.find(opts);
+					if (account && !account.auth.expired) {
+						const err = new Error('Account already authenticated');
+						err.account = account;
+						err.code = 'EAUTHENTICATED';
+						throw err;
+					}
+				}
+
+				account = await this.client.login(opts);
 				return await this.auth.loadSession(account);
 			},
 
