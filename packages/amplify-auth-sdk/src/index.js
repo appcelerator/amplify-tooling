@@ -145,9 +145,10 @@ export default class Auth {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		const env = opts.env?.name || environments.resolve(opts.env || this.env);
+		const name = !opts.env ? this.env : (typeof opts.env === 'object' && opts.env.name || opts.env);
+		const env = environments.resolve(name);
 		if (!env) {
-			throw E.INVALID_VALUE(`Invalid environment: ${opts.env || this.env}`);
+			throw E.INVALID_VALUE(`Invalid environment: ${name}`);
 		}
 
 		opts.baseUrl        = opts.baseUrl || this.baseUrl || env.baseUrl;

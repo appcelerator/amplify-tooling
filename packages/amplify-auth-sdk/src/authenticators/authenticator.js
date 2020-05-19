@@ -418,10 +418,13 @@ export default class Authenticator {
 				responseType: 'json'
 			});
 		} catch (err) {
+			if (err.code === 'ECONNREFUSED') {
+				throw err;
+			}
 			const e = E.AUTH_FAILED(`Authentication failed: ${err.message}`);
-			e.body = err.response.body;
-			e.statusCode = err.response.statusCode;
-			e.statusMessage = err.response.statusMessage;
+			e.body = err.response?.body;
+			e.statusCode = err.response?.statusCode;
+			e.statusMessage = err.response?.statusMessage;
 			throw e;
 		}
 

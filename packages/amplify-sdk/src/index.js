@@ -10,7 +10,7 @@ import snooplogg from 'snooplogg';
 
 import * as environments from './environments';
 
-const { log } = snooplogg('amplify-sdk');
+const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, magenta, note } = snooplogg.styles;
 
 /**
@@ -117,6 +117,7 @@ export class AmplifySDK {
 				if (!opts?.force) {
 					account = await this.client.find(opts);
 					if (account && !account.auth.expired) {
+						warn(`Account ${highlight(account.name)} is already authenticated`);
 						const err = new Error('Account already authenticated');
 						err.account = account;
 						err.code = 'EAUTHENTICATED';
@@ -161,10 +162,14 @@ export class AmplifySDK {
 					throw new TypeError('Expected org id');
 				}
 
-				const { guid, org_id, org_name: name } = await this.request('/api/v1/auth/switchLoggedInOrg', account, {
+				await this.request('/api/v1/auth/switchLoggedInOrg', account, {
 					json: { org_id: orgId }
 				});
-				account.org = { guid, name, org_id };
+
+				// refresh the account
+				account = await this.auth.loadSession(account);
+
+				// store the refreshed account
 				await this.client.updateAccount(account);
 
 				return account;
