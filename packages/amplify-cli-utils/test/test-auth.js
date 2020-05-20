@@ -101,7 +101,7 @@ describe('auth', () => {
 					access_token: 'foo'
 				}
 			},
-			hash: 'test:acbba128ef48ea3cb8c122225f095eb1',
+			hash: 'test:85e0419f4473118bf2bc8a8bba9f6abc',
 			name: 'bar'
 		};
 

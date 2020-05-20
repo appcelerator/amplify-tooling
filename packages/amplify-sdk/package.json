@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@axway/amplify-auth-sdk": "^2.0.2",
-    "got": "^11.1.2",
+    "got": "^11.1.4",
     "set-cookie-parser": "^2.4.5",
     "snooplogg": "^3.0.0"
   },

@@ -62,7 +62,7 @@ export default {
 
 			config.set('auth.defaultAccount', account.name);
 			config.save();
-			account.active = true;
+			account.default = true;
 
 			// determine the org
 			let org;
@@ -89,7 +89,7 @@ export default {
 			} else if (account.orgs.length > 1) {
 				let defaultOrg = config.get(`auth.defaultOrg.${account.hash}`);
 				if (defaultOrg) {
-					defaultOrg = account.orgs.find(o => o.id === defaultOrg);
+					defaultOrg = account.orgs.find(o => o.guid === defaultOrg);
 				}
 
 				org = (await inquirer.prompt({
@@ -102,6 +102,7 @@ export default {
 						value: org
 					}))
 				})).selected;
+
 				console.log();
 			}
 
@@ -111,7 +112,7 @@ export default {
 			}
 
 			if (org) {
-				config.set(`auth.defaultOrg.${account.hash}`, org.id);
+				config.set(`auth.defaultOrg.${account.hash}`, org.guid);
 				config.save();
 			}
 

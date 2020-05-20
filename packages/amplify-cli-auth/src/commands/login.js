@@ -1,16 +1,15 @@
 export default {
 	desc: 'Log in to the Axway AMPLIFY platform',
 	options: {
-		'--force':                   're-authenticate even if the account is already authenticated',
-		'--json':                    'outputs accounts as JSON',
-		'--no-launch-browser':       'display the authentication URL instead of opening it in the default web browser',
-		'--org [id|name]':           'the organization to use',
-		'-c, --client-secret [key]': 'a secret key used to authenticate',
-		'-s, --secret-file [path]':  'path to the PEM key used to authenticate',
-		'-u, --username [user]':     'username to authenticate with',
-		'-p, --password [pass]':     'password to authenticate with'
+		'--force':                   'Re-authenticate even if the account is already authenticated',
+		'--json':                    'Outputs accounts as JSON',
+		'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser',
+		'-c, --client-secret [key]': 'A secret key used to authenticate',
+		'-s, --secret-file [path]':  'Path to the PEM key used to authenticate',
+		'-u, --username [user]':     'Username to authenticate with',
+		'-p, --password [pass]':     'Password to authenticate with'
 	},
-	async action({ argv, console }) {
+	async action({ argv, console, exitCode }) {
 		const [
 			{ initSDK },
 			inquirer,
@@ -48,7 +47,7 @@ export default {
 			}
 
 			if (questions.length && argv.json) {
-				console.error(JSON.stringify({ error: '--username and --password are required when --json is set' }, null, '  '));
+				console.error(JSON.stringify({ error: '--username and --password are required when --json is set' }, null, 2));
 				process.exit(1);
 			}
 
@@ -66,24 +65,13 @@ export default {
 			secretFile:   argv.secretFile,
 			username:     argv.username
 		});
-		const current = config.get('auth.defaultAccount');
-		let account = await sdk.auth.find();
-
-		// exit early if we are already authenticated
-		if (!argv.force && account && !account.auth.expired) {
-			if (argv.json) {
-				account.active = current === account.name;
-				console.log(JSON.stringify(account, null, 2));
-			} else {
-				console.log('Account already authenticated.');
-			}
-			return;
-		}
+		let account;
+		const { alert, highlight } = snooplogg.styles;
 
 		// perform the login
 		const manual = !argv.launchBrowser;
 
-		// 	// show the url and wait for the user to open it
+		// show the url and wait for the user to open it
 		if (manual) {
 			const { cancel, promise, url } = await sdk.auth.login({ manual });
 
@@ -97,19 +85,37 @@ export default {
 			console.log(`Please open following link in your browser:\n\n  ${url}\n`);
 			account = await promise;
 		} else {
-			account = await sdk.auth.login();
+			try {
+				account = await sdk.auth.login({ force: argv.force });
+			} catch (err) {
+				if (err.code === 'EAUTHENTICATED') {
+					({ account } = err);
+					if (argv.json) {
+						account.default = config.get('auth.defaultAccount') === account.name;
+						console.log(JSON.stringify(account, null, 2));
+					} else {
+						console.log(`You are already logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
+					}
+					return;
+				} else if (err.code === 'ERR_AUTH_FAILED') {
+					console.error(alert(err.message));
+					exitCode(1);
+					return;
+				}
+				throw err;
+			}
 		}
 
-		// // determine if the account is active
+		// determine if the account is the default
 		const accounts = await sdk.auth.list();
 		if (accounts.length === 1) {
 			config.set('auth.defaultAccount', account.name);
 			config.save();
-			account.active = true;
+			account.default = true;
 		} else if (config.get('auth.defaultAccount') === account.name) {
-			account.active = true;
+			account.default = true;
 		} else {
-			account.active = false;
+			account.default = false;
 		}
 
 		if (argv.json) {
@@ -117,17 +123,15 @@ export default {
 			return;
 		}
 
-		const { highlight } = snooplogg.styles;
-
-		console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}\n`);
+		console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.\n`);
 
 		// set the current
 		if (accounts.length === 1) {
-			console.log('This account has been set as active');
-		} else if (account.active) {
-			console.log('This account is active');
+			console.log('This account has been set as the default');
+		} else if (account.default) {
+			console.log('This account is the default');
 		} else {
-			console.log('To make this account active, run:');
+			console.log('To make this account the default, run:');
 			console.log(`  ${highlight(`amplify config set auth.defaultAccount ${account.name}`)}`);
 		}
 	}

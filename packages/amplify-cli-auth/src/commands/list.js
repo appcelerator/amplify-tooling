@@ -24,7 +24,7 @@ export default {
 		const defaultAccount = config.get('auth.defaultAccount');
 
 		for (const account of accounts) {
-			account.active = account.name === defaultAccount;
+			account.default = account.name === defaultAccount;
 		}
 
 		if (argv.json) {
@@ -44,9 +44,9 @@ export default {
 		const urlRE = /^.*\/\//;
 		const check = process.platform === 'win32' ? '√' : '✔';
 
-		for (const { active, auth, name, org } of accounts) {
+		for (const { default: def, auth, name, org } of accounts) {
 			table.push([
-				active ? green(`${check} ${name}`) : `  ${name}`,
+				def ? green(`${check} ${name}`) : `  ${name}`,
 				!org || !org.name ? '' : org.id ? `${org.name} (${org.id})` : org.name,
 				pretty(auth.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
 				auth.baseUrl.replace(urlRE, '')

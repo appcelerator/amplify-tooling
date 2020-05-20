@@ -11,7 +11,7 @@ import TokenStore from '../stores/token-store';
 
 import * as server from '../server';
 
-import { handleRequestError, md5, prepareForm, renderHTML } from '../util';
+import { md5, prepareForm, renderHTML } from '../util';
 
 const { log } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
@@ -240,13 +240,6 @@ export default class Authenticator {
 			}
 			this.tokenStore = opts.tokenStore;
 		}
-
-		// generate the hash that attempts to uniquely identify this authentication methods and its
-		// parameters
-		this.hash = this.clientId.replace(/\s/g, '_').replace(/_+/g, '_') + ':' + md5(Object.assign({
-			baseUrl:  this.baseUrl,
-			realm:    this.realm
-		}, this.hashParams));
 	}
 
 	/* istanbul ignore next */
@@ -297,7 +290,11 @@ export default class Authenticator {
 
 			return account;
 		} catch (err) {
-			throw handleRequestError({ label: 'Fetch user info failed', response: err });
+			const e = E.REQUEST_FAILED(`Fetch user info failed: ${err.message}`);
+			e.body = err.response.body;
+			e.statusCode = err.response.statusCode;
+			e.statusMessage = err.response.statusMessage;
+			throw e;
 		}
 	}
 
@@ -424,7 +421,11 @@ export default class Authenticator {
 			if (err.code === 'ECONNREFUSED') {
 				throw err;
 			}
-			throw handleRequestError({ label: 'Authentication failed', response: err });
+			const e = E.AUTH_FAILED(`Authentication failed: ${err.message}`);
+			e.body = err.response?.body;
+			e.statusCode = err.response?.statusCode;
+			e.statusMessage = err.response?.statusMessage;
+			throw e;
 		}
 
 		tokens = response.body;
@@ -499,6 +500,20 @@ export default class Authenticator {
 		}
 
 		return account;
+	}
+
+	/**
+	 * Generate the hash that attempts to uniquely identify this authentication methods and its
+	 * parameters.
+	 *
+	 * @type {String}
+	 * @access public
+	 */
+	get hash() {
+		return this.clientId.replace(/\s/g, '_').replace(/_+/g, '_') + ':' + md5(Object.assign({
+			baseUrl:  this.baseUrl,
+			realm:    this.realm
+		}, this.hashParams));
 	}
 
 	/* istanbul ignore next */
