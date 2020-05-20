@@ -57,7 +57,7 @@ export default class SignedJWT extends Authenticator {
 			header:  { alg: 'RS256', typ: 'JWT' },
 			payload: {
 				aud: this.endpoints.token,
-				exp: issuedAt + (60 * 60 * 1000), // 1 hour
+				exp: issuedAt + (60 * 60), // 1 hour (exp is in seconds)
 				iat: issuedAt,
 				iss: this.clientId,
 				jti: uuidv4(),
