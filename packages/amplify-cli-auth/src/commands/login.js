@@ -10,15 +10,9 @@ export default {
 		'-p, --password [pass]':     'Password to authenticate with'
 	},
 	async action({ argv, console, exitCode }) {
-		const [
-			{ initSDK },
-			inquirer,
-			{ default: snooplogg }
-		] = await Promise.all([
-			import('@axway/amplify-cli-utils'),
-			import('inquirer'),
-			import('snooplogg')
-		]);
+		const { default: snooplogg } = require('snooplogg');
+		const { initSDK } = require('@axway/amplify-cli-utils');
+		const { prompt } = require('enquirer');
 
 		// prompt for the username and password
 		if (Object.prototype.hasOwnProperty.call(argv, 'username')) {
@@ -51,7 +45,7 @@ export default {
 				process.exit(1);
 			}
 
-			Object.assign(argv, await inquirer.prompt(questions));
+			Object.assign(argv, await prompt(questions));
 			console.log();
 		}
 

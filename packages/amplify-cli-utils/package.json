@@ -21,7 +21,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-auth-sdk": "^2.0.3",
+    "@axway/amplify-auth-sdk": "^2.0.4",
     "@axway/amplify-config": "^2.0.0",
     "@axway/amplify-sdk": "^1.0.2",
     "appcd-fs": "^1.1.10",

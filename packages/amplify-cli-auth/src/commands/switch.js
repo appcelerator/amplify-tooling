@@ -6,18 +6,10 @@ export default {
 		'--org [guid|id|name]': 'The organization to switch to'
 	},
 	async action({ argv, console }) {
-		const [
-			{ initSDK },
-			{ ansi },
-			inquirer,
-			{ default: snooplogg }
-		] = await Promise.all([
-			import('@axway/amplify-cli-utils'),
-			import('cli-kit'),
-			import('inquirer'),
-			import('snooplogg')
-		]);
-
+		const { ansi } = require('cli-kit');
+		const { default: snooplogg } = require('snooplogg');
+		const { initSDK } = require('@axway/amplify-cli-utils');
+		const { prompt } = require('enquirer');
 		const { alert, highlight } = snooplogg.styles;
 		const { config, sdk } = initSDK();
 		const accounts = await sdk.auth.list();
@@ -47,16 +39,28 @@ export default {
 			} else if (accounts.length === 1) {
 				account = accounts[0];
 			} else if (!argv.json) {
-				account = (await inquirer.prompt({
-					type: 'list',
-					name: 'selected',
-					message: 'Please choose an account:',
-					default: config.get('auth.defaultAccount'),
-					choices: accounts.map(acct => ({
-						name: acct.name,
-						value: acct
-					}))
-				})).selected;
+				let initial;
+				const defaultAccount = config.get('auth.defaultAccount');
+
+				({ account } = await prompt({
+					choices: accounts
+						.map((acct, i) => {
+							if (acct.name === defaultAccount) {
+								initial = i;
+							}
+							return {
+								name:    acct.name,
+								message: acct.name,
+								value:   acct
+							};
+						})
+						.sort((a, b) => a.message.localeCompare(b.message)),
+					initial,
+					message: 'Please choose an account',
+					name:    'account',
+					type:    'select'
+				}));
+
 				console.log();
 			}
 
@@ -87,21 +91,30 @@ export default {
 			} else if (argv.json) {
 				throw new Error('Must specify --org when --json is set and the selected account has multiple organizations');
 			} else if (account.orgs.length > 1) {
+				let initial;
 				let defaultOrg = config.get(`auth.defaultOrg.${account.hash}`);
 				if (defaultOrg) {
 					defaultOrg = account.orgs.find(o => o.guid === defaultOrg);
 				}
 
-				org = (await inquirer.prompt({
-					type: 'list',
-					name: 'selected',
-					message: 'Please choose an organization:',
-					default: defaultOrg,
-					choices: account.orgs.map(org => ({
-						name: `${org.name} (${org.id})`,
-						value: org
-					}))
-				})).selected;
+				({ org } = await prompt({
+					choices: account.orgs
+						.map((org, i) => {
+							if (org.guid === defaultOrg) {
+								initial = i;
+							}
+							return {
+								name:    org.name,
+								message: `${org.name} (${org.guid} : ${org.id})`,
+								value:   org
+							};
+						})
+						.sort((a, b) => a.message.localeCompare(b.message)),
+					initial,
+					message: 'Select an organization to switch to',
+					name:    'org',
+					type:    'select'
+				}));
 
 				console.log();
 			}
