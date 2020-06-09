@@ -20,9 +20,9 @@
   },
   "dependencies": {
     "accepts": "^1.3.7",
-    "cross-spawn": "^7.0.2",
-    "fs-extra": "^9.0.0",
-    "got": "^11.1.4",
+    "cross-spawn": "^7.0.3",
+    "fs-extra": "^9.0.1",
+    "got": "^11.3.0",
     "jws": "^4.0.0",
     "open": "^7.0.4",
     "pluralize": "^8.0.0",
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "appcd-gulp": "^3.0.0",
-    "keytar": "5.6.0"
+    "keytar": "6.0.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
@@ -41,6 +41,6 @@
   "engines": {
     "node": ">=10.13.0"
   },
-  "keytar": "5.6.0",
+  "keytar": "6.0.1",
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }

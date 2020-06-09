@@ -100,7 +100,7 @@ export default class SecureStore extends FileStore {
 				keytar = require(keytarPath);
 			} catch (e2) {
 				log(e2);
-				throw E.NPM_ERROR(`Failed to install keytar. Please check that your version of Node.js (${process.version}) is supported.`);
+				throw E.NPM_ERROR(`Failed to install keytar@${keytarVersion}. Please check that your version of Node.js (${process.version}) is supported.\n${e2.toString()}`);
 			}
 		} finally {
 			if (fs.existsSync(cacheDir)) {

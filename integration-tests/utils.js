@@ -45,6 +45,12 @@ function readConfig() {
 
 async function runCommand(args, opts = {}) {
 	Object.assign(opts, { ignoreExitCode: true });
+	opts.env = {
+		...opts.env,
+		...process.env
+	};
+	delete opts.env.SNOOPLOGG;
+
 	const amplifyCmd = getAmplifyCommand();
 	// On Windows we need to spawn the local bin file using node to execute it
 	// this is handled by the npm wrapper when we use the global install
@@ -75,7 +81,7 @@ async function runJSONCommand(args, opts) {
 		args.push('--json');
 	}
 	const resp = await runCommand(args, opts);
-	resp.stdout = JSON.parse(resp.stdout);
+	resp.stdout = resp.stdout.trim() === 'undefined' ? 'undefined' :  JSON.parse(resp.stdout);
 	return resp;
 }
 

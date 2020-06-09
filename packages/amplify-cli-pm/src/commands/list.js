@@ -24,7 +24,7 @@ export default {
 			return;
 		}
 
-		const { cyan, gray } = snooplogg.styles;
+		const { cyan, gray, green } = snooplogg.styles;
 		console.log(`Packages directory: ${cyan(packagesDir)}\n`);
 
 		if (!installed.length) {
@@ -42,7 +42,7 @@ export default {
 
 			table.push([
 				managed || Object.keys(pkg.versions).some(ver => pkg.versions[ver].managed) ? pkg.name : `${pkg.name} ${gray('(unmanaged)')}`,
-				versions.map(v => version && semver.eq(v, version) ? cyan(v) : v).join(', ')
+				versions.map(v => version && semver.eq(v, version) ? green(v) : v).join(', ')
 			]);
 			if (!managed) {
 				unmanaged[`${pkg.name}${pkg.version}`] = 1;

@@ -208,6 +208,26 @@ Below are the supported `"cli-kit"` properties in the `package.json`.
 > If the npm package's `package.json` has a `bin` that matches original package name, but differs from
 > the `"cli-kit"` extension name, then the `bin` name is automatically added to the list of aliases.
 
+### Renaming Your CLI
+
+Should the name of your extension CLI product change, you simply need to update the `"name"` in the
+`package.json`. It is highly recommended you add an alias for the previous name:
+
+```
+{
+	"name": "mynewcli",
+	"cli-kit": {
+		"aliases": [ "myoldcli" ]
+	}
+}
+```
+
+Afterwards, publish the new product. The Registry Server will automatically register your new
+extension CLI.
+
+Note that commands such as `amplify pm update` will not resolve the new product name. Users will
+need to explicitly install the new extension CLI.
+
 ## Legal
 
 This project is open source under the [Apache Public License v2][3] and is developed by
