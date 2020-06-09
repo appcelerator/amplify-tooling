@@ -28,7 +28,7 @@
     "@axway/amplify-cli-utils": "^3.0.2",
     "@axway/amplify-config": "^2.0.0",
     "@axway/amplify-registry-sdk": "^1.4.0",
-    "cli-kit": "^1.1.0",
+    "cli-kit": "^1.2.0",
     "listr": "^0.14.3",
     "npm-package-arg": "^8.0.1",
     "ora": "4.0.4",
