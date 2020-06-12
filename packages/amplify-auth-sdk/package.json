@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-auth-sdk",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Axway AMPLIFY authentication SDK for Node.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -32,7 +32,7 @@
     "uuid": "^8.1.0"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.0.0",
+    "appcd-gulp": "^3.0.1",
     "keytar": "6.0.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
