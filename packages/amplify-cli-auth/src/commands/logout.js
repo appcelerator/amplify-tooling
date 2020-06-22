@@ -1,5 +1,5 @@
 export default {
-	aliases: [ 'revoke' ],
+	aliases: [ '!revoke' ],
 	args: [
 		{
 			name: 'accounts...',
