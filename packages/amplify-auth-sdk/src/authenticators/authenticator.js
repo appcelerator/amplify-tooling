@@ -291,9 +291,9 @@ export default class Authenticator {
 			return account;
 		} catch (err) {
 			const e = E.REQUEST_FAILED(`Fetch user info failed: ${err.message}`);
-			e.body = err.response.body;
-			e.statusCode = err.response.statusCode;
-			e.statusMessage = err.response.statusMessage;
+			e.body = err.response?.body;
+			e.statusCode = err.response?.statusCode;
+			e.statusMessage = err.response?.statusMessage;
 			throw e;
 		}
 	}
