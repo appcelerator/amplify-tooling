@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-config",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "publishConfig": {
     "access": "public"
   },
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "appcd-path": "^2.0.1",
-    "config-kit": "^1.0.1",
+    "config-kit": "^1.2.0",
     "fs-extra": "^9.0.1",
     "source-map-support": "^0.5.19"
   },
