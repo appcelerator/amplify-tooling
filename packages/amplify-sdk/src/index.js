@@ -70,7 +70,12 @@ export class AmplifySDK {
 			 */
 			loadSession: async account => {
 				try {
-					const { org, orgs, user } = await this.request('/api/v1/auth/findSession', account);
+					const result = await this.request('/api/v1/auth/findSession', account);
+					if (!result) {
+						return account;
+					}
+
+					const { org, orgs, user } = result;
 
 					account.org = {
 						guid: org.guid,
