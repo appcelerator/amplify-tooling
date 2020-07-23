@@ -78,9 +78,17 @@ export class AmplifySDK {
 					const { org, orgs, user } = result;
 
 					account.org = {
-						guid: org.guid,
-						id:   org.org_id,
-						name: org.name
+						entitlements: Object
+							.entries(org.entitlements)
+							.reduce((obj, [ name, value ]) => {
+								if (name[0] !== '_') {
+									obj[name] = value;
+								}
+								return obj;
+							}, {}),
+						guid:         org.guid,
+						id:           org.org_id,
+						name:         org.name
 					};
 
 					log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);

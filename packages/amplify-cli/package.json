@@ -26,7 +26,7 @@
   "dependencies": {
     "@axway/amplify-cli-auth": "^2.0.1",
     "@axway/amplify-cli-pm": "^2.0.1",
-    "cli-kit": "1.2.4",
+    "cli-kit": "1.5.0",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.1.1"
   },
