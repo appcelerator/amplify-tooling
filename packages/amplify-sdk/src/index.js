@@ -79,7 +79,7 @@ export class AmplifySDK {
 
 					account.org = {
 						entitlements: Object
-							.entries(org.entitlements)
+							.entries(org.entitlements || {})
 							.reduce((obj, [ name, value ]) => {
 								if (name[0] !== '_') {
 									obj[name] = value;
