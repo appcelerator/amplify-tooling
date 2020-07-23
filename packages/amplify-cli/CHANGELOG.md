@@ -1,12 +1,4 @@
-# v2.0.0-rc3
-
- * chore: Updated dependencies.
-
-# v2.0.0-rc2 (Jul 2, 2020)
-
- * chore: Updated dependencies.
-
-# v2.0.0-rc (Jun 12, 2020)
+# v2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
    ([CLI-89](https://jira.axway.com/browse/CLI-89))
