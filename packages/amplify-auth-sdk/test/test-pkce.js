@@ -1,10 +1,9 @@
 /* eslint-disable max-len */
 
 import Auth, { Authenticator } from '../dist/index';
+import got from 'got';
 import snooplogg from 'snooplogg';
-
 import { createLoginServer, stopLoginServer } from './common';
-import request from '@axway/amplify-request';
 
 const { log } = snooplogg('test:amplify-auth:pkce');
 
@@ -291,9 +290,8 @@ describe('PKCE', () => {
 			promise.catch(() => {});
 
 			log(`Manually fetching ${url}`);
-			let res = await request({
+			let res = await got({
 				followRedirect: false,
-				simple: false,
 				url
 			});
 			expect(res.statusCode).to.equal(301);
@@ -301,7 +299,7 @@ describe('PKCE', () => {
 			url = res.headers['location'];
 			log(`Fetching ${url}`);
 
-			res = await request({
+			res = await got({
 				headers: {
 					Accept: 'text/plain'
 				},
@@ -336,14 +334,13 @@ describe('PKCE', () => {
 
 			promise.catch(() => {});
 
-			let res = await request({
+			let res = await got({
 				followRedirect: false,
-				simple: false,
 				url
 			});
 			expect(res.statusCode).to.equal(301);
 
-			res = await request({ url: res.headers['location'] });
+			res = await got({ url: res.headers['location'] });
 			expect(res.statusCode).to.equal(200);
 			expect(res.body).to.equal(html);
 		});
@@ -368,9 +365,8 @@ describe('PKCE', () => {
 			promise.catch(() => {});
 
 			log(`Manually fetching ${url}`);
-			let res = await request({
+			let res = await got({
 				followRedirect: false,
-				simple: false,
 				url
 			});
 			expect(res.statusCode).to.equal(301);
@@ -378,7 +374,7 @@ describe('PKCE', () => {
 			url = res.headers['location'];
 			log(`Fetching ${url}`);
 
-			res = await request({
+			res = await got({
 				headers: {
 					Accept: 'application/json'
 				},
@@ -412,9 +408,8 @@ describe('PKCE', () => {
 			promise.catch(() => {});
 
 			log(`Manually fetching ${url}`);
-			let res = await request({
+			let res = await got({
 				followRedirect: false,
-				simple: false,
 				url
 			});
 			expect(res.statusCode).to.equal(301);
@@ -422,19 +417,23 @@ describe('PKCE', () => {
 			url = res.headers['location'].split('?')[0];
 			log(`Fetching ${url}`);
 
-			res = await request({
-				headers: {
-					Accept: 'application/json'
-				},
-				simple: false,
-				url
-			});
+			try {
+				await got({
+					headers: {
+						Accept: 'application/json'
+					},
+					url
+				});
+			} catch (err) {
+				expect(err.response.statusCode).to.equal(400);
+				expect(JSON.parse(err.response.body)).to.deep.equal({
+					message: 'Invalid auth code',
+					success: false
+				});
+				return;
+			}
 
-			expect(res.statusCode).to.equal(400);
-			expect(JSON.parse(res.body)).to.deep.equal({
-				message: 'Invalid auth code',
-				success: false
-			});
+			throw new Error('Expected 400 exception');
 		});
 	});
 });
