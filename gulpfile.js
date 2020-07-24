@@ -326,13 +326,16 @@ exports['release-notes'] = async function releaseNotes() {
 
 	// Step 4: loop over every `@axway/amplify-cli` release and generate the changelog
 	for (const ver of Object.keys(amplifyCli.releases).sort(semver.compare)) {
+		if (semver.lt(ver, '2.0.0')) {
+			continue;
+		}
 		const { minor, patch } = semver.parse(ver);
 		const { raw } = semver.coerce(ver);
-		const dest = path.join(__dirname, 'docs', 'Release Notes', `Appc Daemon ${raw}.md`);
+		const dest = path.join(__dirname, 'docs', 'Release Notes', `AMPLIFY CLI ${raw}.md`);
 		const { changelog, local, ts } = amplifyCli.releases[ver];
 		const dt = ts ? new Date(ts) : new Date();
 		const rd = ts && dt.toDateString().split(' ').slice(1);
-		let s = `# Appc Daemon ${raw}\n\n## ${local ? 'Unreleased' : `${rd[0]} ${rd[1]}, ${rd[2]}`}\n\n`;
+		let s = `# AMPLIFY CLI ${raw}\n\n## ${local ? 'Unreleased' : `${rd[0]} ${rd[1]}, ${rd[2]}`}\n\n`;
 
 		if (patch === 0) {
 			if (minor === 0) {
@@ -344,7 +347,9 @@ exports['release-notes'] = async function releaseNotes() {
 			s += 'This is a patch release with bug fixes and minor dependency updates.\n\n';
 		}
 		s += `### Installation\n\n\`\`\`\nnpm i -g @axway/amplify-cli@${ver}\n\`\`\`\n\n`
-		s += `### @axway/amplify-cli@${ver}\n\n${changelog}\n\n`;
+		if (changelog) {
+			s += `### amplify-cli@${ver}\n\n${changelog}\n\n`;
+		}
 
 		for (const pkg of pkgs) {
 			const vers = Object.keys(packages[pkg].releases).filter(ver => {
@@ -354,7 +359,7 @@ exports['release-notes'] = async function releaseNotes() {
 
 			for (const v of vers) {
 				if (packages[pkg].releases[v].changelog) {
-					s += `### ${pkg}@${v}\n\n${packages[pkg].releases[v].changelog}\n\n`;
+					s += `### ${pkg.replace(/@.+\//, '')}@${v}\n\n${packages[pkg].releases[v].changelog}\n\n`;
 				}
 				delete packages[pkg].releases[v];
 			}
