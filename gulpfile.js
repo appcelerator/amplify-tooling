@@ -152,3 +152,220 @@ async function runLernaBuild(scope) {
 		throw new Error(`lerna build failed ${scope ? `for ${scope}` : ''}`);
 	}
 }
+
+exports['release-notes'] = async function releaseNotes() {
+	const { cyan } = require('ansi-colors');
+	const https    = require('https');
+	const semver   = require('semver');
+	const tar      = require('tar-stream');
+	const zlib     = require('zlib');
+
+	const packages = {
+		'@axway/amplify-cli': { latest: null, releases: {} }
+	};
+	const re = /^@axway\//;
+	const tempDir = tmp.dirSync({
+		mode: '755',
+		prefix: 'amplify-cli-release-notes-',
+		unsafeCleanup: true
+	}).name;
+
+	const fetch = async name => {
+		log(`Fetching ${cyan(name)}`);
+		return JSON.parse(spawnSync('npm', [ 'view', name, '--json' ]).stdout.toString());
+	};
+
+	const getReleases = async name => {
+		if (packages[name] || !re.test(name)) {
+			return;
+		}
+
+		const { time } = await fetch(name);
+		packages[name] = { latest: null, releases: {} };
+
+		for (const [ ver, ts ] of Object.entries(time)) {
+			if (semver.valid(ver) && semver.gt(ver, '0.0.0')) {
+				const { prerelease } = semver.parse(ver);
+				if (!prerelease || !prerelease.length) {
+					packages[name].releases[ver] = { changelog: null, ts };
+				}
+			}
+		}
+
+		const latest = Object.keys(packages[name].releases).sort(semver.compare).pop();
+		packages[name].latest = latest;
+
+		const release = await fetch(`${name}@${latest}`);
+		for (const type of [ 'dependencies', 'devDependencies' ]) {
+			if (release[type]) {
+				for (const name of Object.keys(release[type])) {
+					await getReleases(name);
+				}
+			}
+		}
+	};
+
+	try {
+		// Step 1: get all the `@axway/amplify-cli` releases and their `@axway/*` dependencies
+		const versions = (await fetch('@axway/amplify-cli')).time;
+		for (const [ ver, ts ] of Object.entries(versions)) {
+			if (semver.valid(ver) && semver.gt(ver, '0.0.0')) {
+				const { prerelease } = semver.parse(ver);
+				if (!prerelease || !prerelease.length) {
+					packages['@axway/amplify-cli'].releases[ver] = { changelog: null, ts };
+
+					const release = await fetch(`@axway/amplify-cli@${ver}`);
+					for (const type of [ 'dependencies', 'devDependencies' ]) {
+						if (release[type]) {
+							for (const name of Object.keys(release[type])) {
+								await getReleases(name);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		const processChangelog = (name, changelog) => {
+			const changes = changelog.split('\n\n#').map((s, i) => `${i ? '#' : ''}${s}`.trim());
+			for (const chunk of changes) {
+				const m = chunk.match(/^# v?([^\s\n]*)[^\n]*\n+(.+)$/s);
+				if (m && packages[name].releases[m[1]]) {
+					packages[name].releases[m[1]].changelog = m[2];
+				}
+			}
+		};
+
+		// Step 2: add in the local packages
+		for (const subdir of fs.readdirSync(path.join(__dirname, 'packages'))) {
+			try {
+				const pkgJson = fs.readJsonSync(path.join(__dirname, 'packages', subdir, 'package.json'));
+				let { name, version } = pkgJson;
+				const changelog = fs.readFileSync(path.join(__dirname, 'packages', subdir, 'CHANGELOG.md')).toString();
+				let ts = null;
+
+				const m = changelog.match(/^# v([^\s]+)/);
+				if (m && m[1] !== version) {
+					// set release timestamp to now unless package is @axway/amplify-cli, then make it 10 seconds older
+					ts = new Date(Date.now() + (name === '@axway/amplify-cli' ? 10000 : 0));
+					version = m[1];
+				}
+
+				if (!packages[name]) {
+					packages[name] = { latest: null, releases: {} };
+				}
+				packages[name].local = true;
+
+				if (!packages[name].releases[version]) {
+					packages[name].releases[version] = { changelog: null, ts };
+				}
+				packages[name].releases[version].local = true;
+
+				if (changelog) {
+					processChangelog(name, changelog);
+				}
+			} catch (e) {}
+		}
+
+		// Step 3: for each package, fetch the latest npm package and extract the changelog
+		for (const [ pkg, info ] of Object.entries(packages)) {
+			if (!packages[pkg].latest) {
+				packages[pkg].latest = Object.keys(info.releases).sort(semver.compare).pop();
+			}
+
+			if (info.local) {
+				continue;
+			}
+
+			const url = `https://registry.npmjs.org/${pkg}/-/${path.basename(pkg)}-${info.latest}.tgz`;
+			const file = path.join(tempDir, `${path.basename(pkg)}-${info.latest}.tgz`);
+
+			await new Promise((resolve, reject) => {
+				const dest = fs.createWriteStream(file);
+				dest.on('finish', () => dest.close(resolve));
+				log(`Downloading ${cyan(url)}`);
+				https.get(url, response => response.pipe(dest))
+					.on('error', reject);
+			});
+
+			await new Promise((resolve, reject) => {
+				const gunzip = zlib.createGunzip();
+				const extract = tar.extract();
+
+				extract.on('entry', (header, stream, next) => {
+					if (header.name !== 'package/CHANGELOG.md') {
+						stream.resume();
+						return next();
+					}
+
+					let changelog = '';
+					stream
+						.on('data', chunk => changelog += chunk)
+						.on('end', () => {
+							processChangelog(pkg, changelog);
+							next();
+						})
+						.on('error', reject)
+						.resume();
+				});
+
+				extract.on('finish', resolve);
+				extract.on('error', reject);
+
+				log(`Extract changelog from ${cyan(file)}`);
+				fs.createReadStream(file).pipe(gunzip).pipe(extract);
+			});
+		}
+	} finally {
+		fs.removeSync(tempDir);
+	}
+
+	const amplifyCli = packages['@axway/amplify-cli'];
+	delete packages['@axway/amplify-cli'];
+	const pkgs = Object.keys(packages).sort();
+
+	// Step 4: loop over every `@axway/amplify-cli` release and generate the changelog
+	for (const ver of Object.keys(amplifyCli.releases).sort(semver.compare)) {
+		if (semver.lt(ver, '2.0.0')) {
+			continue;
+		}
+		const { minor, patch } = semver.parse(ver);
+		const { raw } = semver.coerce(ver);
+		const dest = path.join(__dirname, 'docs', 'Release Notes', `AMPLIFY CLI ${raw}.md`);
+		const { changelog, local, ts } = amplifyCli.releases[ver];
+		const dt = ts ? new Date(ts) : new Date();
+		const rd = ts && dt.toDateString().split(' ').slice(1);
+		let s = `# AMPLIFY CLI ${raw}\n\n## ${local ? 'Unreleased' : `${rd[0]} ${rd[1]}, ${rd[2]}`}\n\n`;
+
+		if (patch === 0) {
+			if (minor === 0) {
+				s += 'This is a major release with breaking changes, new features, bug fixes, and dependency updates.\n\n';
+			} else {
+				s += 'This is a minor release with new features, bug fixes, and dependency updates.\n\n';
+			}
+		} else {
+			s += 'This is a patch release with bug fixes and minor dependency updates.\n\n';
+		}
+		s += `### Installation\n\n\`\`\`\nnpm i -g @axway/amplify-cli@${ver}\n\`\`\`\n\n`
+		if (changelog) {
+			s += `### amplify-cli@${ver}\n\n${changelog}\n\n`;
+		}
+
+		for (const pkg of pkgs) {
+			const vers = Object.keys(packages[pkg].releases).filter(ver => {
+				const { ts } = packages[pkg].releases[ver];
+				return !ts || new Date(ts) < dt;
+			}).sort(semver.compare);
+
+			for (const v of vers) {
+				if (packages[pkg].releases[v].changelog) {
+					s += `### ${pkg.replace(/@.+\//, '')}@${v}\n\n${packages[pkg].releases[v].changelog}\n\n`;
+				}
+				delete packages[pkg].releases[v];
+			}
+		}
+
+		log(`Writing release notes ${cyan(dest)}`);
+		fs.outputFileSync(dest, s.trim());
+	}
+};
