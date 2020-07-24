@@ -463,7 +463,7 @@ export default class Authenticator {
 				authenticator: this.constructor.name,
 				baseUrl:       this.baseUrl,
 				clientId:      this.clientId,
-				env:           this.env,
+				env:           this.env.name,
 				expires: {
 					access: (tokens.expires_in * 1000) + now,
 					refresh: (tokens.refresh_expires_in * 1000) + now

@@ -145,25 +145,27 @@ export default class Auth {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		const name = !opts.env ? this.env : (typeof opts.env === 'object' && opts.env.name || opts.env);
+		const name = opts.env || this.env;
 		const env = environments.resolve(name);
 		if (!env) {
 			throw E.INVALID_VALUE(`Invalid environment: ${name}`);
 		}
 
-		opts.baseUrl        = opts.baseUrl || this.baseUrl || env.baseUrl;
-		opts.clientId       = opts.clientId || this.clientId;
-		opts.clientSecret   = opts.clientSecret || this.clientSecret;
-		opts.env            = env;
-		opts.messages       = opts.messages || this.messages;
-		opts.password       = opts.password || this.password;
-		opts.realm          = opts.realm || this.realm;
-		opts.secretFile     = opts.secretFile || this.secretFile;
-		opts.serviceAccount = opts.serviceAccount || this.serviceAccount;
-		opts.tokenStore     = this.tokenStore;
-		opts.username       = opts.username || this.username;
-
-		return opts;
+		// copy the options so we don't modify the original object since we don't own it
+		return {
+			...opts,
+			baseUrl:        opts.baseUrl || this.baseUrl || env.baseUrl,
+			clientId:       opts.clientId || this.clientId,
+			clientSecret:   opts.clientSecret || this.clientSecret,
+			env:            env,
+			messages:       opts.messages || this.messages,
+			password:       opts.password || this.password,
+			realm:          opts.realm || this.realm,
+			secretFile:     opts.secretFile || this.secretFile,
+			serviceAccount: opts.serviceAccount || this.serviceAccount,
+			tokenStore:     this.tokenStore,
+			username:       opts.username || this.username
+		};
 	}
 
 	/**
@@ -233,7 +235,7 @@ export default class Auth {
 		if (typeof opts === 'string') {
 			opts = this.applyDefaults({ accountName: opts, hash: opts });
 		} else {
-			this.applyDefaults(opts);
+			opts = this.applyDefaults(opts);
 			authenticator = this.createAuthenticator(opts);
 			log(`Authenticator hash: ${highlight(authenticator.hash)}`);
 			opts.hash = authenticator.hash;
@@ -244,10 +246,8 @@ export default class Auth {
 		if (account) {
 			// copy over the correct auth params
 			for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env' ]) {
-				if (account.auth[prop] && ((prop !== 'env' && opts[prop] !== account.auth[prop]) || (prop === 'env' && opts[prop].name !== account.auth[prop].name))) {
-					const from = prop === 'env' ? opts[prop].name : opts[prop];
-					const to = prop === 'env' ? account.auth[prop].name : account.auth[prop];
-					log(`Overriding "${prop}" auth param with account's: ${from} -> ${to}`);
+				if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
+					log(`Overriding "${prop}" auth param with account's: ${opts[prop]} -> ${account.auth[prop]}`);
 					opts[prop] = account.auth[prop];
 				}
 			}
@@ -308,7 +308,7 @@ export default class Auth {
 	 * @access public
 	 */
 	async login(opts = {}) {
-		this.applyDefaults(opts);
+		opts = this.applyDefaults(opts);
 		const authenticator = this.createAuthenticator(opts);
 		return await authenticator.login(opts);
 	}
@@ -372,7 +372,7 @@ export default class Auth {
 	 * @access public
 	 */
 	async serverInfo(opts = {}) {
-		this.applyDefaults(opts);
+		opts = this.applyDefaults(opts);
 
 		let { url } = opts;
 
