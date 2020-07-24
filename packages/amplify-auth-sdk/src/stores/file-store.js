@@ -28,7 +28,7 @@ export default class FileStore extends TokenStore {
 	 * The name of the token store file.
 	 * @type {String}
 	 */
-	filename = '.tokenstore';
+	filename = '.tokenstore.v2';
 
 	/**
 	 * Initializes the file store.
@@ -58,12 +58,9 @@ export default class FileStore extends TokenStore {
 	async clear(baseUrl) {
 		const { entries, removed } = await super._clear(baseUrl);
 		if (entries.length) {
-			const data = await this.encode(entries);
-			log(`Writing ${highlight(this.tokenStoreFile)}`);
-			await fs.outputFile(this.tokenStoreFile, data, { mode: 384 /* 600 */ });
+			await this.save(entries);
 		} else {
-			log(`Deleting empty token file: ${highlight(this.tokenStoreFile)}`);
-			await fs.remove(this.tokenStoreFile);
+			await this.remove();
 		}
 		return removed;
 	}
@@ -89,8 +86,7 @@ export default class FileStore extends TokenStore {
 		} catch (e) {
 			// it's possible that there was a tokenstore on disk that was encrypted with an old key
 			// that no longer exists and the new key can't decode it, so just nuke the tokenstore
-			log(`Removing ${highlight(this.tokenStoreFile)}`);
-			await fs.remove(this.tokenStoreFile);
+			await this.remove();
 			throw e;
 		}
 	}
@@ -106,12 +102,9 @@ export default class FileStore extends TokenStore {
 	async delete(accounts, baseUrl) {
 		const { entries, removed } = await super._delete(accounts, baseUrl);
 		if (entries.length) {
-			const data = await this.encode(entries);
-			log(`Writing ${highlight(this.tokenStoreFile)}`);
-			await fs.outputFile(this.tokenStoreFile, data, { mode: 0o600 });
+			await this.save(entries);
 		} else {
-			log(`Deleting empty token file: ${highlight(this.tokenStoreFile)}`);
-			await fs.remove(this.tokenStoreFile);
+			await this.remove();
 		}
 		return removed;
 	}
@@ -176,16 +169,56 @@ export default class FileStore extends TokenStore {
 	}
 
 	/**
-	 * Saves the entires to the token store file.
+	 * Removes both v1 and v2 token store files.
+	 *
+	 * @returns {Promise}
+	 * @access private
+	 */
+	async remove() {
+		for (let ver = 1; ver <= 2; ver++) {
+			const file = ver === 2 ? this.tokenStoreFile : this.tokenStoreFile.replace(/\.v2$/, '');
+			log(`Removing ${highlight(file)}`);
+			await fs.remove(file);
+		}
+	}
+
+	/**
+	 * Saves the entires to both v1 and v2 token store files.
 	 *
 	 * @param {Array} entries - The list of entries.
 	 * @returns {Promise}
 	 * @access private
 	 */
 	async save(entries) {
-		const data = await this.encode(entries);
-		log(`Writing ${highlight(this.tokenStoreFile)}`);
-		await fs.outputFile(this.tokenStoreFile, data, { mode: 384 /* 600 */ });
+		// Auth SDK v2 changed the structure of the data in the token store, but some dependencies
+		// still rely on Auth SDK v1's structure. We can't change force them to update and we can't
+		// change the structure, so we have to write two versions of the token store. v2 is written
+		// as is, but for v1, the data is translated into Auth SDK v1's structure.
+		for (let ver = 1; ver <= 2; ver++) {
+			const data = await this.encode(ver === 2 ? entries : entries.map(acct => {
+				const v1 = {
+					...acct,
+					...acct.auth,
+					org: {
+						...acct.org,
+						org_id: acct.org?.id
+					},
+					orgs: acct.orgs.map(org => {
+						const o = { ...org, org_id: org.id };
+						delete o.id;
+						return o;
+					})
+				};
+
+				delete v1.auth;
+				delete v1.org.id;
+
+				return v1;
+			}));
+			const file = ver === 2 ? this.tokenStoreFile : this.tokenStoreFile.replace(/\.v2$/, '');
+			log(`Writing ${highlight(file)}`);
+			await fs.outputFile(file, data, { mode: 384 /* 600 */ });
+		}
 	}
 
 	/**
