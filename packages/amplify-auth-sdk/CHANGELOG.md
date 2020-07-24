@@ -1,5 +1,8 @@
 # v2.1.3
 
+ * fix: Copy options object so the original reference isn't modified.
+ * fix: `env` in the account object was the resolved environment settings including URLs instead of
+   just the environment name.
  * chore: Updated dependencies.
 
 # v2.1.2 (Jul 2, 2020)
