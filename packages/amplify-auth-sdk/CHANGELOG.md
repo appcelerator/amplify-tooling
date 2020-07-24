@@ -1,4 +1,4 @@
-# v2.1.3
+# v2.1.3 (Jul 24, 2020)
 
  * fix: Added token store backwards compatibility by writing both a v2 and v1 versions of the token
    store. See readme for details.
