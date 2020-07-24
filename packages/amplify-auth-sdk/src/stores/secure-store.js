@@ -21,7 +21,7 @@ export default class SecureStore extends FileStore {
 	 * The name of the token store file.
 	 * @type {String}
 	 */
-	filename = '.tokenstore.secure';
+	filename = '.tokenstore.secure.v2';
 
 	/**
 	 * Loads the `keytar` library and initializes the token file.

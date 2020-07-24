@@ -9,6 +9,15 @@ AxwayID in order to access AMPLIFY Services.
 > AMPLIFY SDK will populate the account org info and facilitate org switching which was removed
 > from this package in v2.
 
+## Compatibility
+
+Auth SDK v2 changed the structure of the data in the token store, but some dependencies still rely
+on Auth SDK v1. To ensure other CLI's won't break, Auth SDK v2 will write the accounts in both the
+v1 and v2 formats.
+
+Note that Auth SDK v1 is unaware of the v2 token store and thus revoking an account using Auth SDK
+v1 will only affect the credentials stored in the v1 token store.
+
 ## Installation
 
 	npm i @axway/amplify-auth-sdk --save

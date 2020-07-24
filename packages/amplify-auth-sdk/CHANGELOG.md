@@ -1,5 +1,7 @@
 # v2.1.3
 
+ * fix: Added token store backwards compatibility by writing both a v2 and v1 versions of the token
+   store. See readme for details.
  * fix: Copy options object so the original reference isn't modified.
  * fix: `env` in the account object was the resolved environment settings including URLs instead of
    just the environment name.
