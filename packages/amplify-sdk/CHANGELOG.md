@@ -1,4 +1,4 @@
-# v1.0.6
+# v1.0.6 (Jul 24, 2020)
 
  * feat: Added `entitlements` to the org data.
  * chore: Updated dependencies.
