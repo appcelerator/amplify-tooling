@@ -103,16 +103,27 @@ export default {
 							if (org.guid === defaultOrg) {
 								initial = i;
 							}
+							org.toString = () => org.name;
 							return {
-								name:    org.name,
 								message: `${org.name} (${org.guid} : ${org.id})`,
 								value:   org
 							};
 						})
 						.sort((a, b) => a.message.localeCompare(b.message)),
+					format: function () {
+						// for some reason, enquirer doesn't print the selected value using the primary
+						// (green) color for select prompts, so we just force it for all prompts
+						return this.style(this.value);
+					},
 					initial,
 					message: 'Select an organization to switch to',
 					name:    'org',
+					styles: {
+						em(msg) {
+							// stylize emphasised text with just the primary color, no underline
+							return this.primary(msg);
+						}
+					},
 					type:    'select'
 				}));
 
@@ -144,11 +155,10 @@ export default {
 					details: err.details && ansi.strip(err.details),
 					accounts: accounts.map(a => a.name)
 				}, null, 2));
+			} else if (err.details) {
+				console.error(`${alert(err.toString())}\n${err.details}`);
 			} else {
-				console.error(alert(err.toString()));
-				if (err.details) {
-					console.error(`\n${err.details}`);
-				}
+				console.error(alert(err));
 			}
 			process.exit(err.exitCode || 1);
 		}

@@ -1,3 +1,7 @@
+# v2.0.3 (Aug 3, 2020)
+
+ * fix: Fixed bug in `switch` command which was using the org name instead of the org id.
+
 # v2.0.2 (Jul 24, 2020)
 
  * chore: Updated dependencies.
