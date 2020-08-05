@@ -1,3 +1,7 @@
+# v3.1.0
+
+ * refactor: Moved AMPLIFY CLI config file from `~/.axway` to `~/.axway/amplify-cli`.
+
 # v3.0.6 (Jul 24, 2020)
 
  * chore: Updated dependencies.

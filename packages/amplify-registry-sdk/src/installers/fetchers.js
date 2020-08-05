@@ -5,8 +5,6 @@ import { download } from 'targit';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-const npmCacheDir = join(cacheDir, 'npm');
-
 export default async function fetchPackage(pkgInfo) {
 	let downloadLocation;
 
@@ -29,7 +27,7 @@ export default async function fetchPackage(pkgInfo) {
 				version = pkg.version;
 			}
 
-			downloadLocation = join(npmCacheDir, name, version, 'package.tgz');
+			downloadLocation = join(cacheDir, 'npm', name, version, 'package.tgz');
 
 			if (!existsSync(downloadLocation)) {
 				await pacote.tarball.file(`${name}@${version}`, downloadLocation, opts);

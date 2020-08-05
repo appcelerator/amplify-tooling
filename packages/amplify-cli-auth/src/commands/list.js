@@ -38,7 +38,7 @@ export default {
 		}
 
 		const { green } = snooplogg.styles;
-		const table = createTable('Account Name', 'Organization', 'Expires', 'Environment');
+		const table = createTable([ 'Account Name', 'Organization', 'Expires', 'Environment' ]);
 		const now = Date.now();
 		const pretty = require('pretty-ms');
 		const urlRE = /^.*\/\//;

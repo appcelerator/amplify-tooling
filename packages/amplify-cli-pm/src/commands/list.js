@@ -32,7 +32,7 @@ export default {
 			return;
 		}
 
-		const table = createTable('Name', 'Versions');
+		const table = createTable([ 'Name', 'Versions' ]);
 		const unmanaged = {};
 
 		for (const pkg of installed) {

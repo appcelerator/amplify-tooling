@@ -4,12 +4,15 @@ if (!Error.prepareStackTrace) {
 }
 
 import Config from 'config-kit';
+import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
-
 import { expandPath } from 'appcd-path';
+import { isFile } from 'appcd-fs';
 
-export const configFile = path.join(os.homedir(), '.axway', 'amplify-cli.json');
+const axwayHome = path.join(os.homedir(), '.axway');
+
+export const configFile = path.join(axwayHome, 'amplify-cli', 'amplify-cli.json');
 
 /**
  * Load a users config, if no userConfig is given then the default AMPLIFY CLI config will be
@@ -29,6 +32,13 @@ export function loadConfig(opts = {}) {
 
 	if (opts.configFile && typeof opts.configFile !== 'string') {
 		throw new TypeError('Expected config file to be a string');
+	}
+
+	// in v2.1.0, the config file was moved to keep the ~/.axway directory tidy as other Axway
+	// CLI's are added
+	const legacyConfigFile = path.join(axwayHome, 'amplify-cli.json');
+	if (!isFile(configFile) && isFile(legacyConfigFile)) {
+		fs.moveSync(legacyConfigFile, configFile);
 	}
 
 	const cfg = new Config({

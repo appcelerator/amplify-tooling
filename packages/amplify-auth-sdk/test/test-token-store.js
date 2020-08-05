@@ -218,7 +218,7 @@ describe('Token Store', () => {
 					realm:          'test_realm',
 					tokenStoreType: 'file'
 				});
-			}).to.throw(TypeError, 'Token store requires a token store path');
+			}).to.throw(TypeError, 'Token store requires a home directory');
 		});
 
 		it('should persist the token to a file', async function () {

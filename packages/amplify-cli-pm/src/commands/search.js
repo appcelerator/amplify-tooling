@@ -57,7 +57,7 @@ export default {
 			return;
 		}
 
-		const table = createTable('Name', 'Versions', 'Type', 'Description');
+		const table = createTable([ 'Name', 'Versions', 'Type', 'Description' ]);
 
 		for (const pkg of results) {
 			table.push([

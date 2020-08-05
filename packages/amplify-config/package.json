@@ -24,6 +24,7 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "appcd-fs": "^2.0.0",
     "appcd-path": "^2.0.1",
     "config-kit": "^1.2.1",
     "fs-extra": "^9.0.1",

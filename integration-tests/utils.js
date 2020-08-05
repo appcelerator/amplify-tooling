@@ -5,7 +5,7 @@ const { run } = require('appcd-subprocess');
 const isWindows = process.platform === 'win32';
 
 const axwayHome = join(homedir(), '.axway');
-const configFile = join(axwayHome, 'amplify-cli.json');
+const configFile = join(axwayHome, 'amplify-cli', 'amplify-cli.json');
 let amplifyCmd;
 
 function preCheck() {
