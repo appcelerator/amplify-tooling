@@ -93,6 +93,12 @@ npm i -g @axway/amplify-cli@2.0.0
    just the environment name.
  * chore: Updated dependencies.
 
+### amplify-auth-sdk@2.2.0
+
+ * refactor(secure-store): Moved keytar file from `~/.axway/lib` to `~/.axway/amplify-cli/lib`.
+ * refactor(file-store): Moved token store file from `~/.axway` to `~/.axway/amplify-cli`.
+ * chore: Updated dependencies.
+
 ### amplify-cli-auth@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -119,6 +125,15 @@ npm i -g @axway/amplify-cli@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-cli-auth@2.0.3
+
+ * fix: Fixed bug in `switch` command which was using the org name instead of the org id.
+
+### amplify-cli-auth@2.1.0
+
+ * style: Adopted Axway style guide for tables.
+ * chore: Updated dependencies.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -140,6 +155,11 @@ npm i -g @axway/amplify-cli@2.0.0
 
 ### amplify-cli-pm@2.0.2
 
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.1.0
+
+ * style: Adopted Axway style guide for tables.
  * chore: Updated dependencies.
 
 ### amplify-cli-utils@3.0.0
@@ -178,6 +198,14 @@ npm i -g @axway/amplify-cli@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-cli-utils@3.0.6
+
+ * chore: Updated dependencies.
+
+### amplify-cli-utils@3.1.0
+
+ * refactor: Moved AMPLIFY CLI config file from `~/.axway` to `~/.axway/amplify-cli`.
+
 ### amplify-config@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -197,6 +225,15 @@ npm i -g @axway/amplify-cli@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-config@2.1.0
+
+ * refactor: Moved AMPLIFY CLI config file from `~/.axway` to `~/.axway/amplify-cli`.
+ * chore: Updated dependencies.
+
+### amplify-config@2.1.1
+
+ * fix: Update extension paths in config file when migrating to new AMPLIFY CLI home directory.
+
 ### amplify-registry-sdk@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -212,6 +249,10 @@ npm i -g @axway/amplify-cli@2.0.0
 ### amplify-registry-sdk@2.0.2
 
  * chore: Updated dependencies.
+
+### amplify-registry-sdk@2.1.0
+
+ * refactor: Moved cache and packages directories from `~/.axway` to `~/.axway/amplify-cli`.
 
 ### amplify-sdk@1.0.0
 
@@ -244,4 +285,8 @@ npm i -g @axway/amplify-cli@2.0.0
 ### amplify-sdk@1.0.6
 
  * feat: Added `entitlements` to the org data.
+ * chore: Updated dependencies.
+
+### amplify-sdk@1.1.0
+
  * chore: Updated dependencies.
