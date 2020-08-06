@@ -4,6 +4,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import TokenStore from './token-store';
+import { isFile } from 'appcd-fs';
 
 const { log, warn } = snooplogg('amplify-auth:file-store');
 const { highlight } = snooplogg.styles;
@@ -34,18 +35,33 @@ export default class FileStore extends TokenStore {
 	 * Initializes the file store.
 	 *
 	 * @param {Object} opts - Various options.
-	 * @param {String} opts.tokenStoreDir - The path to the file-based token store.
+	 * @param {String} opts.homeDir - The path to the home directory containing.
+	 * @param {String} [opts.tokenStoreDir] - DEPRECATED. The path to the file-based token store.
+	 * Use `opts.homeDir` instead.
 	 * @access public
 	 */
 	constructor(opts = {}) {
 		super(opts);
 
-		if (!opts.tokenStoreDir || typeof opts.tokenStoreDir !== 'string') {
-			throw E.MISSING_REQUIRED_PARAMETER('Token store requires a token store path');
+		let { homeDir, tokenStoreDir } = opts;
+		if (!homeDir || typeof homeDir !== 'string') {
+			if (tokenStoreDir && typeof tokenStoreDir === 'string') {
+				homeDir = tokenStoreDir;
+			} else {
+				throw E.MISSING_REQUIRED_PARAMETER('Token store requires a home directory');
+			}
 		}
 
-		this.tokenStoreDir = path.resolve(opts.tokenStoreDir);
+		homeDir = path.resolve(homeDir);
+
+		this.tokenStoreDir = path.join(homeDir, 'amplify-cli');
 		this.tokenStoreFile = path.join(this.tokenStoreDir, this.filename);
+
+		// check if token store file needs to be migrated
+		const legacyTokenStoreFile = path.join(homeDir, this.filename);
+		if (!isFile(this.tokenStoreFile) && isFile(legacyTokenStoreFile)) {
+			fs.moveSync(legacyTokenStoreFile, this.tokenStoreFile);
+		}
 	}
 
 	/**

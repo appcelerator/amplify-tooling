@@ -1,3 +1,8 @@
+# v2.1.0
+
+ * style: Adopted Axway style guide for tables.
+ * chore: Updated dependencies.
+
 # v2.0.3 (Aug 3, 2020)
 
  * fix: Fixed bug in `switch` command which was using the org name instead of the org id.

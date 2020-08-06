@@ -37,17 +37,15 @@ describe('config', () => {
 		done();
 	});
 
-	it('should default to loading amplify config', done => {
+	it('should default to loading amplify config', () => {
 		fs.copySync(path.join(fixturesDir, 'existing-file.json'), configFile, { overwrite: true });
 		const cfg = loadConfig();
 		expect(cfg.data(Config.Base)).to.deep.equal({ existing: true });
-		done();
 	});
 
-	it('should allow a custom userConfig to be passed in', done => {
+	it('should allow a custom userConfig to be passed in', () => {
 		const configFile = path.join(fixturesDir, 'my-own-config.json');
 		const cfg = loadConfig({ configFile });
 		expect(cfg.data(Config.Base)).to.deep.equal({ ownConfig: true });
-		done();
 	});
 });

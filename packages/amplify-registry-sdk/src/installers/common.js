@@ -1,14 +1,29 @@
 import fs from 'fs-extra';
 import loadConfig from '@axway/amplify-config';
-
 import { extract } from 'tar';
 import { isDir, isFile } from 'appcd-fs';
 import { join } from 'path';
 import { locations } from '@axway/amplify-cli-utils';
 import { run, which } from 'appcd-subprocess';
 
-export const cacheDir = join(locations.axwayHome, 'cache');
-export const packagesDir = join(locations.axwayHome, 'packages');
+export const cacheDir = join(locations.axwayHome, 'amplify-cli', 'cache');
+export const packagesDir = join(locations.axwayHome, 'amplify-cli', 'packages');
+
+/**
+ * Migrate the cache and packages directories from the old to the new location.
+ */
+{
+	const legacyCacheDir = join(locations.axwayHome, 'cache');
+	const legacyPackagesDir = join(locations.axwayHome, 'packages');
+
+	if (!isDir(cacheDir) && isDir(legacyCacheDir)) {
+		fs.moveSync(legacyCacheDir, cacheDir);
+	}
+
+	if (!isDir(packagesDir) && isDir(legacyPackagesDir)) {
+		fs.moveSync(legacyPackagesDir, packagesDir);
+	}
+}
 
 const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
 

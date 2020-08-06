@@ -7,7 +7,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import tmp from 'tmp';
-
+import { isDir, isFile } from 'appcd-fs';
 import { sync as spawnSync } from 'cross-spawn';
 
 const { log, warn } = snooplogg('amplify-auth:secure-store');
@@ -43,8 +43,15 @@ export default class SecureStore extends FileStore {
 			throw E.INVALID_PARAMETER('Secure store requires the home directory to be specified');
 		}
 
+		const libDir = path.join(homeDir, 'amplify-cli', 'lib');
+		const legacyLibDir = path.join(homeDir, 'lib');
+
+		if (!isDir(libDir) && isDir(legacyLibDir)) {
+			fs.moveSync(legacyLibDir, libDir);
+		}
+
 		const keytarVersion = fs.readJsonSync(path.resolve(__dirname, '..', '..', 'package.json')).keytar.replace(/[^\d.]*/g, '');
-		const prefix = path.join(homeDir, 'lib', 'keytar', `${keytarVersion}_${process.platform}_${process.arch}_${process.versions.modules}`);
+		const prefix = path.join(libDir, 'keytar', `${keytarVersion}_${process.platform}_${process.arch}_${process.versions.modules}`);
 		const keytarPath = path.join(prefix, 'node_modules', 'keytar');
 		let keytar;
 
@@ -114,6 +121,12 @@ export default class SecureStore extends FileStore {
 		this.keytar = keytar;
 		this.serviceName = opts.secureServiceName || 'Axway AMPLIFY Auth';
 		this.tokenStoreFile = path.join(this.tokenStoreDir, this.filename);
+
+		// check if token store file needs to be migrated
+		const legacyTokenStoreFile = path.join(homeDir, this.filename);
+		if (!isFile(this.tokenStoreFile) && isFile(legacyTokenStoreFile)) {
+			fs.moveSync(legacyTokenStoreFile, this.tokenStoreFile);
+		}
 	}
 
 	/**

@@ -5,4 +5,4 @@ import path from 'path';
 export const axwayHome = path.join(os.homedir(), '.axway');
 
 // Files
-export const configFile = path.join(axwayHome, 'amplify-cli.json');
+export const configFile = path.join(axwayHome, 'amplify-cli', 'amplify-cli.json');
