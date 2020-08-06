@@ -1,4 +1,4 @@
-# v2.1.0
+# v2.1.0 (Aug 6, 2020)
 
  * style: Adopted Axway style guide for tables.
  * chore: Updated dependencies.

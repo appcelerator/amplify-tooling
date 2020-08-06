@@ -1,4 +1,4 @@
-# v2.2.0
+# v2.2.0 (Aug 6, 2020)
 
  * refactor(secure-store): Moved keytar file from `~/.axway/lib` to `~/.axway/amplify-cli/lib`.
  * refactor(file-store): Moved token store file from `~/.axway` to `~/.axway/amplify-cli`.
