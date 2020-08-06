@@ -1,3 +1,7 @@
+# v2.1.1 (Aug 6, 2020)
+
+ * fix: Update extension paths in config file when migrating to new AMPLIFY CLI home directory.
+
 # v2.1.0 (Aug 6, 2020)
 
  * refactor: Moved AMPLIFY CLI config file from `~/.axway` to `~/.axway/amplify-cli`.
