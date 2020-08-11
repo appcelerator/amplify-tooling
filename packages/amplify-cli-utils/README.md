@@ -62,6 +62,31 @@ console.log('AMPLIFY CLI Config Path:', locations.configFile);
 
 Loads the AMPLIFY CLI config and initializes an AMPLIFY SDK instance.
 
+#### Get the default account or login if needed:
+
+```js
+import { initSDK } from '@axway/amplify-cli-utils';
+
+async function getAccount(opts) {
+	try {
+		return await initSDK(opts).sdk.auth.login();
+	} catch (err) {
+		if (err.code === 'EAUTHENTICATED') {
+			return err.account;
+		}
+		throw err;
+	}
+}
+
+(async () => {
+	const account = await getAccount({ clientId: 'foo' });
+	if (!account) {
+		console.error('Please login in by running: amplify auth login');
+		process.exit(1);
+	}
+}());
+```
+
 #### Find account by login parameters
 
 ```js
