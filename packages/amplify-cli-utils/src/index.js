@@ -4,6 +4,7 @@ if (!Error.prepareStackTrace) {
 }
 
 import AmplifySDK from '@axway/amplify-sdk';
+import { ansi } from 'cli-kit';
 import * as environments from './environments';
 import * as locations from './locations';
 
@@ -77,9 +78,9 @@ export function createTable(head, indent = 0) {
 			right: '', 'right-mid': '',
 			top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
 		},
-		head: Array.isArray(head) ? head.map(s => String(s).toUpperCase()) : head,
+		head: Array.isArray(head) ? head.map(ansi.toUpperCase) : head,
 		style: {
-			head: [ 'bold' ],
+			head: [],
 			'padding-left': 0,
 			'padding-right': 0
 		}

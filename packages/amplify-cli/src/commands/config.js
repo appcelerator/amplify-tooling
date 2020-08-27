@@ -117,10 +117,6 @@ async function runConfig(action, { argv, cmd, console, setExitCode }) {
 		}
 	};
 
-	// in general, we do not want to show the help screen for the errors below
-	// since they are valid messages and we're just using errors for flow control
-	cmd.showHelpOnError = false;
-
 	try {
 		if (action === 'get') {
 			const value = cfg.get(filter);
@@ -160,10 +156,7 @@ async function runConfig(action, { argv, cmd, console, setExitCode }) {
 			print({ value: result });
 		}
 	} catch (err) {
-		if (json) {
-			cmd.showHelpOnError = false;
-			err.json = json;
-		}
+		err.json = json;
 		throw err;
 	}
 }

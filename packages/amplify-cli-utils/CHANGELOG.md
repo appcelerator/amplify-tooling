@@ -1,3 +1,8 @@
+# v3.1.1
+
+ * style: Update table style.
+ * chore: Updated dependencies.
+
 # v3.1.0 (Aug 6, 2020)
 
  * refactor: Moved AMPLIFY CLI config file from `~/.axway` to `~/.axway/amplify-cli`.

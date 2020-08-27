@@ -43,7 +43,7 @@ new CLI({
 				result: err.toString()
 			}, null, 2));
 		} else {
-			console.error(err.message || err);
+			console.error(chalk.red(err));
 		}
 
 		process.exit(exitCode);

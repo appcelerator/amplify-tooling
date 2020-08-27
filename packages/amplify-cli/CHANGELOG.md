@@ -10,4 +10,5 @@
  * refactor(config): Do not show the banner for `config` related commands.
  * refactor(config): Replaced config action with subcommands for cleaner code and improved help
    information.
+ * fix(config): Latest cli-kit no longer requires `showHelpOnError` to be disabled.
  * chore: Updated dependencies.
