@@ -1,4 +1,4 @@
-# v2.0.0-rc4 (Aug 6, 2020)
+# v2.0.0-rc5 (Aug 27, 2020)
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
    ([CLI-89](https://jira.axway.com/browse/CLI-89))
@@ -10,4 +10,5 @@
  * refactor(config): Do not show the banner for `config` related commands.
  * refactor(config): Replaced config action with subcommands for cleaner code and improved help
    information.
+ * fix(config): Latest cli-kit no longer requires `showHelpOnError` to be disabled.
  * chore: Updated dependencies.

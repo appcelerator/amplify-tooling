@@ -26,12 +26,12 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^3.1.0",
-    "@axway/amplify-config": "^2.1.0",
+    "@axway/amplify-config": "^2.1.1",
     "@axway/amplify-registry-sdk": "^2.1.0",
-    "cli-kit": "^1.6.1",
+    "cli-kit": "^1.8.2",
     "listr": "^0.14.3",
     "npm-package-arg": "^8.0.1",
-    "ora": "4.0.5",
+    "ora": "5.0.0",
     "semver": "^7.3.2",
     "snooplogg": "^3.0.0",
     "source-map-support": "^0.5.19"

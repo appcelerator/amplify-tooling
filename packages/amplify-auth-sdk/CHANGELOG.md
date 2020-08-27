@@ -1,3 +1,7 @@
+# v2.2.1 (Aug 27, 2020)
+
+ * chore: Updated dependencies.
+
 # v2.2.0 (Aug 6, 2020)
 
  * refactor(secure-store): Moved keytar file from `~/.axway/lib` to `~/.axway/amplify-cli/lib`.

@@ -318,7 +318,7 @@ export class AmplifySDK {
 			 * @param {String} data.appId - The application id.
 			 * @param {String} data.deployType - The deploy type (production, test, development).
 			 * @param {String} data.fingerprint - The machine's fingerprint.
-			 * @param {String} data.ipAddress - The machine's IP address.
+			 * @param {String} [data.ipAddress] - The machine's IP address.
 			 * @param {String} [data.modules] - An array of modules from the `tiapp.xml`.
 			 * @param {String} data.tiapp - The contents of the `tiapp.xml`.
 			 * @returns {Promise<Object>} Resolves the verification info.
@@ -327,7 +327,7 @@ export class AmplifySDK {
 				if (!data || typeof data !== 'object') {
 					throw new TypeError('Expected data to be an object');
 				}
-				for (const key of [ 'appGuid', 'appId', 'deployType', 'fingerprint', 'ipAddress', 'tiapp' ]) {
+				for (const key of [ 'appGuid', 'appId', 'deployType', 'fingerprint', 'tiapp' ]) {
 					if (!data[key] || typeof data[key] !== 'string') {
 						throw new TypeError(`Expected ${key.replace(/[A-Z]/g, s => ` ${s.toLowerCase()}`)} to be a non-empty string`);
 					}
@@ -349,7 +349,7 @@ export class AmplifySDK {
 						deploytype:  data.deployType,
 						fingerprint: data.fingerprint,
 						guid:        data.appGuid,
-						ipaddress:   data.ipAddress,
+						ipaddress:   data.ipAddress || '0.0.0.0',
 						modules:     data.modules,
 						tiappxml:    data.tiapp
 					}

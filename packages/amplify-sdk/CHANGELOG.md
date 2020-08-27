@@ -1,3 +1,8 @@
+# v1.1.1 (Aug 27, 2020)
+
+ * fix: Make Titanium build verify `ipaddress` optional.
+ * chore: Updated dependencies.
+
 # v1.1.0 (Aug 6, 2020)
 
  * chore: Updated dependencies.

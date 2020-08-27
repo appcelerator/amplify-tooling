@@ -1,3 +1,7 @@
+# v2.2.1 (Aug 27, 2020)
+
+ * chore: Updated dependencies.
+
 # v2.1.0 (Aug 6, 2020)
 
  * style: Adopted Axway style guide for tables.

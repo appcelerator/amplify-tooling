@@ -1,3 +1,7 @@
+# v2.1.1 (Aug 27, 2020)
+
+ * chore: Updated dependencies.
+
 # v2.1.0 (Aug 6, 2020)
 
  * refactor: Moved cache and packages directories from `~/.axway` to `~/.axway/amplify-cli`.
