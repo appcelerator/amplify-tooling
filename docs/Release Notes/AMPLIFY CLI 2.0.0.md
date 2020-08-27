@@ -22,6 +22,7 @@ npm i -g @axway/amplify-cli@2.0.0
  * refactor(config): Do not show the banner for `config` related commands.
  * refactor(config): Replaced config action with subcommands for cleaner code and improved help
    information.
+ * fix(config): Latest cli-kit no longer requires `showHelpOnError` to be disabled.
  * chore: Updated dependencies.
 
 ### amplify-auth-sdk@2.0.0
@@ -99,6 +100,10 @@ npm i -g @axway/amplify-cli@2.0.0
  * refactor(file-store): Moved token store file from `~/.axway` to `~/.axway/amplify-cli`.
  * chore: Updated dependencies.
 
+### amplify-auth-sdk@2.2.1
+
+ * chore: Updated dependencies.
+
 ### amplify-cli-auth@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -134,6 +139,10 @@ npm i -g @axway/amplify-cli@2.0.0
  * style: Adopted Axway style guide for tables.
  * chore: Updated dependencies.
 
+### amplify-cli-auth@2.2.1
+
+ * chore: Updated dependencies.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -160,6 +169,10 @@ npm i -g @axway/amplify-cli@2.0.0
 ### amplify-cli-pm@2.1.0
 
  * style: Adopted Axway style guide for tables.
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.2.1
+
  * chore: Updated dependencies.
 
 ### amplify-cli-utils@3.0.0
@@ -206,6 +219,11 @@ npm i -g @axway/amplify-cli@2.0.0
 
  * refactor: Moved AMPLIFY CLI config file from `~/.axway` to `~/.axway/amplify-cli`.
 
+### amplify-cli-utils@3.1.1
+
+ * style: Update table style.
+ * chore: Updated dependencies.
+
 ### amplify-config@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -234,6 +252,10 @@ npm i -g @axway/amplify-cli@2.0.0
 
  * fix: Update extension paths in config file when migrating to new AMPLIFY CLI home directory.
 
+### amplify-config@2.1.2
+
+ * No changes. Lerna forced version bump.
+
 ### amplify-registry-sdk@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -253,6 +275,10 @@ npm i -g @axway/amplify-cli@2.0.0
 ### amplify-registry-sdk@2.1.0
 
  * refactor: Moved cache and packages directories from `~/.axway` to `~/.axway/amplify-cli`.
+
+### amplify-registry-sdk@2.1.1
+
+ * chore: Updated dependencies.
 
 ### amplify-sdk@1.0.0
 
@@ -289,4 +315,9 @@ npm i -g @axway/amplify-cli@2.0.0
 
 ### amplify-sdk@1.1.0
 
+ * chore: Updated dependencies.
+
+### amplify-sdk@1.1.1
+
+ * fix: Make Titanium build verify `ipaddress` optional.
  * chore: Updated dependencies.
