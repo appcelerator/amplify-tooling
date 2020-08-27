@@ -1,3 +1,7 @@
+# v2.1.2 (Aug 27, 2020)
+
+ * No changes. Lerna forced version bump.
+
 # v2.1.1 (Aug 6, 2020)
 
  * fix: Update extension paths in config file when migrating to new AMPLIFY CLI home directory.
