@@ -15,7 +15,7 @@ export default {
 		const { prompt } = require('enquirer');
 
 		// prompt for the username and password
-		if (Object.prototype.hasOwnProperty.call(argv, 'username')) {
+		if (argv.username !== undefined) {
 			const questions = [];
 
 			if (!argv.username || typeof argv.username !== 'string') {
