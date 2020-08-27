@@ -1,4 +1,4 @@
-# v3.1.1
+# v3.1.1 (Aug 27, 2020)
 
  * style: Update table style.
  * chore: Updated dependencies.
