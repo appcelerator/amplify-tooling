@@ -1,3 +1,7 @@
+# v2.2.2 (Aug 27, 2020)
+
+ * fix(login): Fixed bug where login would default to the username flow instead of the pkce flow.
+
 # v2.2.1 (Aug 27, 2020)
 
  * chore: Updated dependencies.
