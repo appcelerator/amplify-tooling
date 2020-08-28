@@ -1,4 +1,4 @@
-# v1.2.0
+# v1.2.0 (Aug 28, 2020)
 
  * feat: Improved error messages.
  * feat: Added server error response `code` to exceptions.
