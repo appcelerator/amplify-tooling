@@ -1,3 +1,10 @@
+# v1.2.0
+
+ * feat: Improved error messages.
+ * feat: Added server error response `code` to exceptions.
+ * fix: Added Titanium app `name` to list of required build verify parameters.
+ * fix: Added missing `fingerprint_description` and `org_id` to build verify request parameters.
+
 # v1.1.1 (Aug 27, 2020)
 
  * fix: Make Titanium build verify `ipaddress` optional.
