@@ -70,7 +70,9 @@ export class AmplifySDK {
 			 */
 			loadSession: async account => {
 				try {
-					const result = await this.request('/api/v1/auth/findSession', account);
+					const result = await this.request('/api/v1/auth/findSession', account, {
+						errorMsg: 'Failed to find session'
+					});
 					if (!result) {
 						return account;
 					}
@@ -176,6 +178,7 @@ export class AmplifySDK {
 				}
 
 				await this.request('/api/v1/auth/switchLoggedInOrg', account, {
+					errorMsg: 'Failed to switch org',
 					json: { org_id: orgId }
 				});
 
@@ -189,15 +192,13 @@ export class AmplifySDK {
 			}
 		};
 
-		const mbsUserHelper = async (account, groupId, env, userInfo) => {
+		const mbsUserHelper = async (account, groupId, env, opts) => {
 			if (!groupId || typeof groupId !== 'string') {
 				throw new TypeError('Expected group id to be a non-empty string');
 			}
 			if (!env || typeof env !== 'string') {
 				throw new TypeError('Expected env to be a non-empty string');
 			}
-
-			let opts = userInfo && { json: userInfo };
 			const { response } = await this.request(`/api/v1/acs/${groupId}/${env}/data/user`, account, opts);
 			return response.users;
 		};
@@ -212,6 +213,7 @@ export class AmplifySDK {
 			 */
 			createApps: async (account, appGuid, appName) => {
 				const { response } = await this.request('/api/v1/acs', account, {
+					errorMsg: 'Failed to create MBS apps',
 					json: {
 						app_guid: appGuid,
 						app_name: appName
@@ -251,7 +253,10 @@ export class AmplifySDK {
 				if (!userInfo.password_confirmation || typeof userInfo.password_confirmation !== 'string') {
 					throw new TypeError('Expected user password confirmation to be a non-empty string');
 				}
-				return (await mbsUserHelper(account, groupId, env, userInfo))[0];
+				return (await mbsUserHelper(account, groupId, env, {
+					errorMsg: 'Failed to create MBS user',
+					json: userInfo
+				}))[0];
 			},
 
 			/**
@@ -262,7 +267,9 @@ export class AmplifySDK {
 			 * @returns {Promise<Array>}
 			 */
 			getUsers: async (account, groupId, env) => {
-				return await mbsUserHelper(account, groupId, env);
+				return await mbsUserHelper(account, groupId, env, {
+					errorMsg: 'Failed to get MBS user'
+				});
 			}
 		};
 
@@ -272,7 +279,9 @@ export class AmplifySDK {
 			 * @param {Object} account - The account object.
 			 * @returns {Promise<Array>}
 			 */
-			getEnvironments: account => this.request('/api/v1/org/env', account)
+			getEnvironments: account => this.request('/api/v1/org/env', account, {
+				errorMsg: 'Failed to get environments'
+			})
 		};
 
 		this.ti = {
@@ -301,6 +310,7 @@ export class AmplifySDK {
 				}
 
 				await this.request('/api/v1/auth/build-update', account, {
+					errorMsg: 'Failed to update build info',
 					json: {
 						buildid:  data.buildId,
 						buildsha: data.buildSHA,
@@ -318,8 +328,8 @@ export class AmplifySDK {
 			 * @param {String} data.appId - The application id.
 			 * @param {String} data.deployType - The deploy type (production, test, development).
 			 * @param {String} data.fingerprint - The machine's fingerprint.
-			 * @param {String} [data.ipAddress] - The machine's IP address.
 			 * @param {String} [data.modules] - An array of modules from the `tiapp.xml`.
+			 * @param {String} data.name - The name of the application.
 			 * @param {String} data.tiapp - The contents of the `tiapp.xml`.
 			 * @returns {Promise<Object>} Resolves the verification info.
 			 */
@@ -327,7 +337,7 @@ export class AmplifySDK {
 				if (!data || typeof data !== 'object') {
 					throw new TypeError('Expected data to be an object');
 				}
-				for (const key of [ 'appGuid', 'appId', 'deployType', 'fingerprint', 'tiapp' ]) {
+				for (const key of [ 'appGuid', 'appId', 'deployType', 'fingerprint', 'name', 'tiapp' ]) {
 					if (!data[key] || typeof data[key] !== 'string') {
 						throw new TypeError(`Expected ${key.replace(/[A-Z]/g, s => ` ${s.toLowerCase()}`)} to be a non-empty string`);
 					}
@@ -343,17 +353,27 @@ export class AmplifySDK {
 					});
 				}
 
-				return await this.request('/api/v1/auth/build-verify', account, {
-					json: {
-						appid:       data.appId,
-						deploytype:  data.deployType,
-						fingerprint: data.fingerprint,
-						guid:        data.appGuid,
-						ipaddress:   data.ipAddress || '0.0.0.0',
-						modules:     data.modules,
-						tiappxml:    data.tiapp
-					}
-				});
+				try {
+					return await this.request('/api/v1/auth/build-verify', account, {
+						errorMsg: 'Failed to verify build',
+						json: {
+							appid:                   data.appId,
+							deploytype:              data.deployType,
+							fingerprint:             data.fingerprint,
+							fingerprint_description: '',
+							guid:                    data.appGuid,
+							ipaddress:               '',
+							modules:                 data.modules,
+							name:                    data.name,
+							org_id:                  account.org.id,
+							tiappxml:                data.tiapp
+						}
+					});
+				} catch (err) {
+					// strip off the irrelevant message saying to logout via the old Appc CLI
+					err.message = err.message.replace(/\s*Please logout.*$/i, '');
+					throw err;
+				}
 			},
 
 			/**
@@ -374,7 +394,11 @@ export class AmplifySDK {
 						throw new TypeError(`Expected ${key.replace(/[A-Z]/g, s => ` ${s.toLowerCase()}`)} to be a non-empty string`);
 					}
 				}
-				return await this.request('/api/v1/auth/dev-enroll', account, { json: data, resultKey: 'certificate' });
+				return await this.request('/api/v1/auth/dev-enroll', account, {
+					errorMsg: 'Failed to enroll developer',
+					json: data,
+					resultKey: 'certificate'
+				});
 			},
 
 			/**
@@ -388,7 +412,9 @@ export class AmplifySDK {
 				if (!appGuid || typeof appGuid !== 'string') {
 					throw new TypeError('Expected app guid');
 				}
-				return await this.request(`/api/v1/app/${appGuid}/upload`, account);
+				return await this.request(`/api/v1/app/${appGuid}/upload`, account, {
+					errorMsg: 'Failed to get ACA upload URL'
+				});
 			},
 
 			/**
@@ -401,7 +427,9 @@ export class AmplifySDK {
 				if (!appGuid || typeof appGuid !== 'string') {
 					throw new TypeError('Expected app guid');
 				}
-				return await this.request(`/api/v1/app/${appGuid}`, account);
+				return await this.request(`/api/v1/app/${appGuid}`, account, {
+					errorMsg: 'Failed to get app info'
+				});
 			},
 
 			/**
@@ -415,7 +443,9 @@ export class AmplifySDK {
 			 * @param {Object} account - The account object.
 			 * @returns {Promise<Array>} Resolves the list of modules.
 			 */
-			getDownloads: async account => await this.request('/api/v1/downloads', account),
+			getDownloads: async account => await this.request('/api/v1/downloads', account, {
+				errorMsg: 'Failed to get downloads'
+			}),
 
 			/**
 			 * Updates or registers a Titanium app with the platform by uploading a `tiapp.xml`.
@@ -428,7 +458,10 @@ export class AmplifySDK {
 				if (!tiapp || typeof tiapp !== 'string') {
 					throw new TypeError('Expected tiapp to be a non-empty string');
 				}
-				return await this.request('/api/v1/app/saveFromTiApp', account, { json: { tiapp } });
+				return await this.request('/api/v1/app/saveFromTiApp', account, {
+					errorMsg: 'Failed to update/register app',
+					json: { tiapp }
+				});
 			}
 		};
 	}
@@ -465,49 +498,65 @@ export class AmplifySDK {
 	 * @returns {Promise} Resolves the JSON-parsed result.
 	 * @access private
 	 */
-	async request(path, account, { resultKey = 'result', json, method } = {}) {
-		if (!account || typeof account !== 'object') {
-			throw new Error('Account required');
+	async request(path, account, { errorMsg, json, method, resultKey = 'result' } = {}) {
+		try {
+			if (!account || typeof account !== 'object') {
+				throw new Error('Account required');
+			}
+
+			const { sid } = account;
+			const token = account.auth?.tokens?.access_token;
+			if (!sid && !token) {
+				throw new Error('Invalid/expired account');
+			}
+
+			const url = `${this.platformUrl || this.env.platformUrl}${path}`;
+			const headers = {
+				Accept: 'application/json'
+			};
+
+			if (account.sid) {
+				headers.Cookie = `connect.sid=${account.sid}`;
+			} else {
+				headers.Authorization = `Bearer ${token}`;
+			}
+
+			if (!method) {
+				method = json ? 'post' : 'get';
+			}
+
+			log(`Requesting ${magenta(method)} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
+			// log(headers);
+			// if (json) {
+			// 	log(json);
+			// }
+			const response = await got[method](url, {
+				headers,
+				json,
+				responseType: 'json',
+				retry: 0
+			});
+
+			const cookies = response.headers['set-cookie'];
+			const connectSid = cookies && setCookie.parse(cookies).find(c => c.name === 'connect.sid')?.value;
+			if (connectSid) {
+				log(`Setting sid: ${highlight(connectSid)}`);
+				account.sid = connectSid;
+				await this.client.updateAccount(account);
+			}
+
+			return response.body?.[resultKey];
+		} catch (err) {
+			const msg = err.response?.body?.message || err.response?.body?.description;
+			err.message = `${errorMsg ? `${errorMsg}: ` : ''}${msg || err.message}`;
+
+			const code = err.repsonse?.body?.code;
+			if (code) {
+				err.code = code;
+			}
+
+			throw err;
 		}
-
-		const { sid } = account;
-		const token = account.auth?.tokens?.access_token;
-		if (!sid && !token) {
-			throw new Error('Invalid/expired account');
-		}
-
-		const url = `${this.platformUrl || this.env.platformUrl}${path}`;
-		const headers = {
-			Accept: 'application/json'
-		};
-
-		if (account.sid) {
-			headers.Cookie = `connect.sid=${account.sid}`;
-		} else {
-			headers.Authorization = `Bearer ${token}`;
-		}
-
-		if (!method) {
-			method = json ? 'post' : 'get';
-		}
-
-		log(`Requesting ${magenta(method)} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
-		const response = await got[method](url, {
-			headers,
-			json,
-			responseType: 'json',
-			retry: 0
-		});
-
-		const cookies = response.headers['set-cookie'];
-		const connectSid = cookies && setCookie.parse(cookies).find(c => c.name === 'connect.sid')?.value;
-		if (connectSid) {
-			log(`Setting sid: ${highlight(connectSid)}`);
-			account.sid = connectSid;
-			await this.client.updateAccount(account);
-		}
-
-		return response.body?.[resultKey];
 	}
 }
 
