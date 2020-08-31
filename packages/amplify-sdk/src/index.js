@@ -550,7 +550,7 @@ export class AmplifySDK {
 			const msg = err.response?.body?.message || err.response?.body?.description;
 			err.message = `${errorMsg ? `${errorMsg}: ` : ''}${msg || err.message}`;
 
-			const code = err.repsonse?.body?.code;
+			const code = err.response?.body?.code;
 			if (code) {
 				err.code = code;
 			}
