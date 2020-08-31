@@ -1,3 +1,7 @@
+# v1.2.1 (Aug 31, 2020)
+
+ * fix: Fixed misspelled property.
+
 # v1.2.0 (Aug 28, 2020)
 
  * feat: Improved error messages.
