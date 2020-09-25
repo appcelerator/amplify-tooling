@@ -1,3 +1,12 @@
+# v2.3.0
+
+ * fix(login): Added missing `--service` login flag when using `--client-secret`.
+ * fix(login): Added missing `--base-url`, `--client-id`, and `--realm` login arguments.
+ * fix(switch): Fixed initial selected account and org when prompting.
+ * fix: Removed `preferGlobal` package setting.
+ * style: Cleaned up verbiage in descriptions.
+ * chore: Updated dependencies.
+
 # v2.2.2 (Aug 27, 2020)
 
  * fix(login): Fixed bug where login would default to the username flow instead of the pkce flow.

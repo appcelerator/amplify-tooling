@@ -17,13 +17,13 @@ import SecureStore from './stores/secure-store';
 import TokenStore from './stores/token-store';
 
 import getEndpoints from './endpoints';
-import got from 'got';
 import snooplogg from 'snooplogg';
 
 import * as environments from './environments';
+import * as request from '@axway/amplify-request';
 import * as server from './server';
 
-const { log } = snooplogg('amplify-auth');
+const { log, warn } = snooplogg('amplify-auth');
 const { alert, highlight, magenta, note } = snooplogg.styles;
 
 /**
@@ -53,6 +53,8 @@ export default class Auth {
 	 * `secure`, which is the default.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
+	 * @param {Object} [opts.requestOptions] - An options object to pass into AMPLIFY CLI Utils to
+	 * create the `got` HTTP client.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
 	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
 	 * using this library when using the "secure" token store.
@@ -80,6 +82,7 @@ export default class Auth {
 			clientId:       { value: opts.clientId },
 			clientSecret:   { value: opts.clientSecret },
 			env:            { value: opts.env },
+			got:            { value: request.init(opts.requestOptions) },
 			messages:       { value: opts.messages },
 			password:       { value: opts.password },
 			realm:          { value: opts.realm },
@@ -157,7 +160,7 @@ export default class Auth {
 			baseUrl:        opts.baseUrl || this.baseUrl || env.baseUrl,
 			clientId:       opts.clientId || this.clientId,
 			clientSecret:   opts.clientSecret || this.clientSecret,
-			env:            env,
+			env:            name,
 			messages:       opts.messages || this.messages,
 			password:       opts.password || this.password,
 			realm:          opts.realm || this.realm,
@@ -242,32 +245,43 @@ export default class Auth {
 		}
 
 		const account = await this.tokenStore.get(opts);
+		if (!account) {
+			return;
+		}
 
-		if (account) {
-			// copy over the correct auth params
-			for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env' ]) {
-				if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
-					log(`Overriding "${prop}" auth param with account's: ${opts[prop]} -> ${account.auth[prop]}`);
-					opts[prop] = account.auth[prop];
-				}
+		// copy over the correct auth params
+		for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env' ]) {
+			if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
+				log(`Overriding "${prop}" auth param with account's: ${opts[prop]} -> ${account.auth[prop]}`);
+				opts[prop] = account.auth[prop];
 			}
-			authenticator = this.createAuthenticator(opts);
+		}
+		authenticator = this.createAuthenticator(opts);
 
-			if (account.auth.expired) {
-				// refresh the access token if the refresh token is valid
-				log(`Access token for account ${highlight(account.name || account.hash)} has expired`);
+		if (account.auth.expired) {
+			// refresh the access token if the refresh token is valid
+			log(`Access token for account ${highlight(account.name || account.hash)} has expired`);
 
-				if (account.auth.expires.refresh < Date.now()) {
-					log(`Unable to refresh access token for account ${highlight(account.name || account.hash)} because refresh token is also expired`);
-					return;
-				}
+			if (account.auth.expires.refresh < Date.now()) {
+				log(`Unable to refresh access token for account ${highlight(account.name || account.hash)} because refresh token is also expired`);
+				return;
+			}
 
+			try {
 				log(`Refreshing access token for account ${highlight(account.name || account.hash)}`);
 				return await authenticator.getToken();
+			} catch (err) {
+				if (err.code === 'EINVALIDGRANT') {
+					warn(err.message);
+					log(`Removing invalid account ${highlight(account.name || account.hash)} due to invalid refresh token`);
+					await this.tokenStore.delete(account, opts.baseUrl);
+					return null;
+				}
+				throw err;
 			}
-
-			return await authenticator.getInfo(account);
 		}
+
+		return await authenticator.getInfo(account);
 	}
 
 	/**
@@ -287,8 +301,8 @@ export default class Auth {
 	 * Authenticates using the configured authenticator.
 	 *
 	 * @param {Object} [opts] - Various options.
-	 * @param {String|Array.<String>} [opt.app] - Specify the app to open the `target` with, or an
-	 * array with the app and app arguments.
+	 * @param {String|Array.<String>} [opt.app] - The web browser app to open the `target` with, or
+	 * an array with the app and app arguments.
 	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
 	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
@@ -301,8 +315,6 @@ export default class Auth {
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * Defaults to the `interactiveLoginTimeout` property.
-	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
-	 * promise. If `false` it's fulfilled immediately when opening the app.
 	 * @returns {Promise<Object>} Resolves an object containing the access token, account name, and
 	 * user info.
 	 * @access public
@@ -348,10 +360,10 @@ export default class Auth {
 			for (const entry of revoked) {
 				const url = `${getEndpoints(entry.auth).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
 				try {
-					const { status } = await got(url, { responseType: 'json', retry: 0 });
-					log(`Successfully logged out ${highlight(entry.name)} ${magenta(status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
+					const { statusCode } = await this.got(url, { responseType: 'json', retry: 0 });
+					log(`Successfully logged out ${highlight(entry.name)} ${magenta(statusCode)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
 				} catch (err) {
-					log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.baseUrl}, ${entry.realm})`)}`);
+					log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
 				}
 			}
 		}
@@ -386,7 +398,7 @@ export default class Auth {
 
 		try {
 			log(`Fetching server info: ${url}...`);
-			return (await got(url, { responseType: 'json', retry: 0 })).body;
+			return (await this.got(url, { responseType: 'json', retry: 0 })).body;
 		} catch (err) {
 			if (err.name !== 'ParseError') {
 				err.message = `Failed to get server info (status ${err.response.statusCode})`;

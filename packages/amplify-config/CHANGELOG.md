@@ -1,3 +1,7 @@
+# v2.1.3
+
+ * fix: Removed `preferGlobal` package setting.
+
 # v2.1.2 (Aug 27, 2020)
 
  * No changes. Lerna forced version bump.

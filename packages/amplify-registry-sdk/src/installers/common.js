@@ -3,7 +3,7 @@ import loadConfig from '@axway/amplify-config';
 import { extract } from 'tar';
 import { isDir, isFile } from 'appcd-fs';
 import { join } from 'path';
-import { locations } from '@axway/amplify-cli-utils';
+import { createNPMRequestArgs, locations } from '@axway/amplify-cli-utils';
 import { run, which } from 'appcd-subprocess';
 
 export const cacheDir = join(locations.axwayHome, 'amplify-cli', 'cache');
@@ -28,7 +28,7 @@ export const packagesDir = join(locations.axwayHome, 'amplify-cli', 'packages');
 const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
 
 /**
- * TODO
+ * Installs the package's production dependencies.
  *
  * @param {Object} params - Various options.
  * @param {String} params.directory - The directory to run npm in.
@@ -51,11 +51,13 @@ export async function npmInstall({ directory, npm }) {
 		}
 	}
 
+	const args = [ 'install', '--production', ...createNPMRequestArgs() ];
+
 	try {
-		await run(npm, [ 'install', '--production' ], {
+		await run(npm, args, {
 			cwd: directory,
-			windowsHide: true,
-			env: Object.assign(process.env, { NO_UPDATE_NOTIFIER: 1 })
+			env: Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env),
+			windowsHide: true
 		});
 	} catch (err) {
 		// Add an error code but move the original code value here into an exitCode prop

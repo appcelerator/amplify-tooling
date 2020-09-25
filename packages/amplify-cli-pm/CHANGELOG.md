@@ -1,3 +1,10 @@
+# v2.3.0
+
+ * fix: Added back proxy server support.
+ * fix: Removed `preferGlobal` package setting.
+ * style: Cleaned up verbiage in descriptions.
+ * chore: Updated dependencies.
+
 # v2.2.1 (Aug 27, 2020)
 
  * chore: Updated dependencies.

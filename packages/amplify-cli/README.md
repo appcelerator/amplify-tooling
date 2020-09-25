@@ -4,7 +4,7 @@ The AMPLIFY CLI is the unified CLI for the Axway AMPLIFY platform.
 
 ## Prerequisites
 
-The AMPLIFY CLI requires [Node.js][1] 8.10.0 or newer.
+The AMPLIFY CLI requires [Node.js][1] 10.13.0 or newer.
 
 ## Installation
 
@@ -23,6 +23,10 @@ Show all available commands:
 
 	amplify
 
+Log into the Axway AMPLIFY platform:
+
+	amplify auth login
+
 List available packages:
 
 	amplify pm search [keyword]
@@ -31,9 +35,94 @@ Install a package:
 
 	amplify pm install [package-name]
 
-Log into the Axway platform:
+List config settings:
 
-	amplify auth login
+	amplify config ls
+
+Set a config setting:
+
+	amplify config set <name> <value>
+
+## Config Settings
+
+<table><tbody>
+	<tr>
+		<th>Name</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><code>auth.clientId</code></td>
+		<td>string</td>
+		<td><code>"amplify-cli"</code></td>
+		<td>The global client ID to use when authenticating. You can be logged into multiple different client IDs at the same time.</td>
+	</tr>
+	<tr>
+		<td><code>auth.serverHost</code></td>
+		<td>string</td>
+		<td><code>"localhost"</code></td>
+		<td>The hostname the local web server should listen on and await the successful login browser redirect.</td>
+	</tr>
+	<tr>
+		<td><code>auth.serverPort</code></td>
+		<td>number</td>
+		<td><code>3000</code></td>
+		<td>The port number the local web server should listen on and await the successful login browser redirect. Must be between<code>1024</code> and <code>65535</code>.</td>
+	</tr>
+	<tr>
+		<td><code>auth.tokenRefreshThreshold</code></td>
+		<td>number</td>
+		<td><code>0</code></td>
+		<td>The number of seconds before the access token expires and should be refreshed. As long as the refresh token is not expired, a new access token can be retrieved. This setting is only useful if the access token is still valid, but almost expired and you need a valid access token for an operation in the near future. Must be a non-negative integer.</td>
+	</tr>
+	<tr>
+		<td><code>auth.tokenStoreType</code></td>
+		<td>string</td>
+		<td><code>"secure"</code></td>
+		<td><p>The type of store to persist the access token after authenticating.</p>
+			<p>Allowed values:</p>
+			<ul>
+				<li><code>"auto"</code> : Attempts to use the <code>"secure"</code> store, but falls back to <code>"file"</code> if secure store is unavailable.</li>
+				<li><code>"secure"</code> : Encrypts the access token and using a generated key which is stored in the system's keychain.</li>
+				<li><code>"file"</code> : Encrypts the access token using the embedded key.</li>
+				<li><code>"memory"</code> : Stores the access token in memory instead of on disk. The access tokens are lost when the process exits. This is intended for testing purposes only.</li>
+				<li><code>"null"</code> : Disables all forms of token persistence and simply returns the access token. Subsequent calls to login in the same process will force the authentication flow. This is intended for migration scripts and testing purposes only.</li>
+			</ul>
+		</td>
+	</tr>
+	<tr>
+		<td><code>env</code></td>
+		<td>string</td>
+		<td><code>"prod"</code></td>
+		<td>The name of the environment to use for all commands.</td>
+	</tr>
+	<tr>
+		<td><code>extensions.&lt;name&gt;</code></td>
+		<td>string</td>
+		<td></td>
+		<td>The path to an AMPLIFY CLI extension. The <code>"name"</code> is the command name and is displayed in the AMPLIFY CLI's list of commands. The value is a path to the extension which can be a Node.js package directory or an executable. If the path is a Node.js package, then the <code>"name"</code> is from the <code>package.json</code> is used. Any alpha-numeric name is acceptable except <code>"auth"</code>, <code>"config"</code>, and <code>"pm"</code>.</td>
+	</tr>
+	<tr>
+		<td><code>network.caFile</code></td>
+		<td>string</td>
+		<td></td>
+		<td>The path to a PEM formatted certificate authority bundle used to validate untrusted SSL certificates.</td>
+	</tr>
+	<tr>
+		<td><code>network.proxy</code></td>
+		<td>string</td>
+		<td></td>
+		<td><p>The URL of the proxy server. This proxy server URL is used for both HTTP and HTTPS requests.</p>
+			<p>Note: If the proxy server uses a self signed certifcate, you must specify the <code>network.caFile</code>, set <code>network.strictSSL</code> to <code>false</code>, or set the environment variable <code>NODE_TLS_REJECT_UNAUTHORIZED=0</code>.</p></td>
+	</tr>
+	<tr>
+		<td><code>network.strictSSL</code></td>
+		<td>bool</td>
+		<td><code>true</code></td>
+		<td>Enforces valid TLS certificates on all outbound HTTPS requests. Set this to <code>false</code> if you are behind a proxy server with a self signed certificate.</td>
+	</tr>
+</tbody></table>
 
 ## Extensions
 

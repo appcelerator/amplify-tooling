@@ -16,7 +16,6 @@
     "amplify-cli-pm": "./bin/amplify-cli-pm"
   },
   "main": "./dist/main",
-  "preferGlobal": true,
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -31,7 +30,7 @@
     "cli-kit": "^1.8.2",
     "listr": "^0.14.3",
     "npm-package-arg": "^8.0.1",
-    "ora": "5.0.0",
+    "ora": "5.1.0",
     "semver": "^7.3.2",
     "snooplogg": "^3.0.0",
     "source-map-support": "^0.5.19"

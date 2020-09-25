@@ -1,6 +1,7 @@
 import pacote from 'pacote';
 
 import { cacheDir } from './common';
+import { createRequestOptions } from '@axway/amplify-cli-utils';
 import { download } from 'targit';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -11,7 +12,7 @@ export default async function fetchPackage(pkgInfo) {
 	switch (pkgInfo.dist.download_type) {
 		case 'npm':
 			let { name, version } = pkgInfo;
-			const opts = {};
+			const opts = createRequestOptions();
 
 			if (pkgInfo.dist.registry_url) {
 				opts.registry = pkgInfo.dist.registry_url;

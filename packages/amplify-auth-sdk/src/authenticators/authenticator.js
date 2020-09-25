@@ -3,12 +3,13 @@ import crypto from 'crypto';
 import E from '../errors';
 
 import getEndpoints from '../endpoints';
-import got from 'got';
 import jws from 'jws';
 import open from 'open';
 import snooplogg from 'snooplogg';
 import TokenStore from '../stores/token-store';
 
+import * as environments from '../environments';
+import * as request from '@axway/amplify-request';
 import * as server from '../server';
 
 import { md5, prepareForm, renderHTML } from '../util';
@@ -123,6 +124,8 @@ export default class Authenticator {
 	 * endpoints are: `auth`, `certs`, `logout`, `token`, `userinfo`, and `wellKnown`.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {Function} [opts.got] - A reference to a `got` HTTP client. If not defined, the
+	 * default `got` instance will be used.
 	 * @param {Number} [opts.interactiveLoginTimeout=120000] - The number of milliseconds to wait
 	 * before shutting down the local HTTP server.
 	 * @param {Object} [opts.messages] - A map of categorized messages to display to the end user.
@@ -143,7 +146,7 @@ export default class Authenticator {
 		}
 
 		// check the environment
-		this.env = opts.env;
+		this.env = environments.resolve(opts.env);
 
 		// process the base URL
 		if (opts.baseUrl) {
@@ -240,6 +243,8 @@ export default class Authenticator {
 			}
 			this.tokenStore = opts.tokenStore;
 		}
+
+		this.got = opts.got || request.got;
 	}
 
 	/* istanbul ignore next */
@@ -264,7 +269,7 @@ export default class Authenticator {
 		try {
 			const accessToken = account.auth.tokens.access_token;
 			log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
-			const { body } = await got(this.endpoints.userinfo, {
+			const { body } = await this.got(this.endpoints.userinfo, {
 				headers: {
 					Accept: 'application/json',
 					Authorization: `Bearer ${accessToken}`
@@ -383,49 +388,61 @@ export default class Authenticator {
 			}
 		}
 
-		const params = {
-			clientId: this.clientId
+		const url = this.endpoints.token;
+		const fetchTokens = async params => {
+			log(`Fetching token: ${highlight(url)}`);
+			log('Post form:', { ...params, password: '********' });
+
+			try {
+				return await this.got.post(url, {
+					form: prepareForm(params),
+					responseType: 'json'
+				});
+			} catch (err) {
+				if (err.code === 'ECONNREFUSED') {
+					// don't change the code, just re-throw
+					throw err;
+				}
+
+				const desc = err.response?.body?.error_description;
+
+				if (err.response?.body?.error === 'invalid_grant') {
+					const e = E.AUTH_FAILED(`Invalid Grant${desc ? `: ${desc}` : ''}`);
+					e.code = 'EINVALIDGRANT';
+					e.statusCode = err.response.statusCode;
+					e.statusMessage = err.response.statusMessage;
+					throw e;
+				}
+
+				const e = E.AUTH_FAILED(`Authentication failed: ${desc ? `${desc}: ` : ''}${err.message}`);
+				e.body = err.response?.body;
+				e.statusCode = err.response?.statusCode;
+				e.statusMessage = err.response?.statusMessage;
+				throw e;
+			}
 		};
 
 		if (tokens && tokens.refresh_token && expires.refresh > now) {
-			Object.assign(params, {
+			response = await fetchTokens(Object.assign({
+				clientId:     this.clientId,
 				grantType:    Authenticator.GrantTypes.RefreshToken,
 				refreshToken: tokens.refresh_token
-			}, this.refreshTokenParams);
+			}, this.refreshTokenParams));
 		} else {
-			Object.assign(params, {
-				scope: this.scope
+			const params = Object.assign({
+				clientId: this.clientId,
+				scope:    this.scope
 			}, this.tokenParams);
 
 			if (this.interactive) {
 				if (!code || typeof code !== 'string') {
 					throw E.MISSING_AUTH_CODE('Expected code for interactive authentication to be a non-empty string');
 				}
-
 				params.code = code;
 				params.redirectUri = `${this.serverUrl}/callback${requestId ? `/${requestId}` : ''}`;
 			}
-		}
 
-		const url = this.endpoints.token;
-
-		log(`Fetching token: ${highlight(url)}`);
-		log('Post form:', { ...params, password: '********' });
-
-		try {
-			response = await got.post(url, {
-				form: prepareForm(params),
-				responseType: 'json'
-			});
-		} catch (err) {
-			if (err.code === 'ECONNREFUSED') {
-				throw err;
-			}
-			const e = E.AUTH_FAILED(`Authentication failed: ${err.message}`);
-			e.body = err.response?.body;
-			e.statusCode = err.response?.statusCode;
-			e.statusMessage = err.response?.statusMessage;
-			throw e;
+			response = await fetchTokens(params);
 		}
 
 		tokens = response.body;
@@ -538,8 +555,6 @@ export default class Authenticator {
 	 * launching the auth URL in the default browser.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * Defaults to the `interactiveLoginTimeout` property.
-	 * @param {Boolean} [opts.wait=false] - Wait for the opened app to exit before fulfilling the
-	 * promise. If `false` it's fulfilled immediately when opening the app.
 	 * @returns {Promise<Object>} In `manual` mode, then resolves an object containing the
 	 * authentication `url`, a `promise` that is resolved once the browser redirects to the local
 	 * web server after authenticating, and a `cancel` method to abort the authentication and stop
@@ -593,11 +608,13 @@ export default class Authenticator {
 		}
 
 		// launch the default web browser
-		if (opts.wait === undefined) {
-			opts.wait = false;
-		}
 		log(`Launching default web browser: ${highlight(authorizationUrl)}`);
-		open(authorizationUrl, opts);
+		try {
+			await open(authorizationUrl, opts);
+		} catch (err) {
+			const m = err.message.match(/Exited with code (\d+)/i);
+			throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
+		}
 
 		// wait for authentication to succeed or fail
 		return promise;

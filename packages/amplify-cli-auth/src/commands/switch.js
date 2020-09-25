@@ -2,7 +2,7 @@ export default {
 	desc: 'Select default account and organization',
 	options: {
 		'--account [name]':     'The account to switch to',
-		'--json':               'Outputs accounts as JSON',
+		'--json':               'Outputs selected account as JSON',
 		'--org [guid|id|name]': 'The organization to switch to'
 	},
 	async action({ argv, console }) {
@@ -39,22 +39,18 @@ export default {
 			} else if (accounts.length === 1) {
 				account = accounts[0];
 			} else if (!argv.json) {
-				let initial;
 				const defaultAccount = config.get('auth.defaultAccount');
+				const choices = accounts
+					.map(acct => ({
+						name:    acct.name,
+						message: acct.name,
+						value:   acct
+					}))
+					.sort((a, b) => a.message.localeCompare(b.message));
+				const initial = choices.findIndex(a => a.name === defaultAccount);
 
 				({ account } = await prompt({
-					choices: accounts
-						.map((acct, i) => {
-							if (acct.name === defaultAccount) {
-								initial = i;
-							}
-							return {
-								name:    acct.name,
-								message: acct.name,
-								value:   acct
-							};
-						})
-						.sort((a, b) => a.message.localeCompare(b.message)),
+					choices,
 					initial,
 					message: 'Please choose an account',
 					name:    'account',
@@ -91,25 +87,21 @@ export default {
 			} else if (argv.json) {
 				throw new Error('Must specify --org when --json is set and the selected account has multiple organizations');
 			} else if (account.orgs.length > 1) {
-				let initial;
-				let defaultOrg = config.get(`auth.defaultOrg.${account.hash}`);
-				if (defaultOrg) {
-					defaultOrg = account.orgs.find(o => o.guid === defaultOrg);
-				}
+				const defaultOrg = config.get(`auth.defaultOrg.${account.hash}`);
+				const choices = account.orgs
+					.map(org => {
+						org.toString = () => org.name;
+						return {
+							guid:    org.guid,
+							message: `${org.name} (${org.guid} : ${org.id})`,
+							value:   org
+						};
+					})
+					.sort((a, b) => a.message.localeCompare(b.message));
+				const initial = choices.findIndex(org => org.guid === defaultOrg);
 
 				({ org } = await prompt({
-					choices: account.orgs
-						.map((org, i) => {
-							if (org.guid === defaultOrg) {
-								initial = i;
-							}
-							org.toString = () => org.name;
-							return {
-								message: `${org.name} (${org.guid} : ${org.id})`,
-								value:   org
-							};
-						})
-						.sort((a, b) => a.message.localeCompare(b.message)),
+					choices,
 					format: function () {
 						// for some reason, enquirer doesn't print the selected value using the primary
 						// (green) color for select prompts, so we just force it for all prompts
@@ -132,6 +124,9 @@ export default {
 
 			if (!account.org || account.org !== org) {
 				// need to switch org
+				if (!argv.json) {
+					console.log('Launching web browser to switch organization...');
+				}
 				account = await sdk.auth.switchOrg(account, org.id);
 			}
 

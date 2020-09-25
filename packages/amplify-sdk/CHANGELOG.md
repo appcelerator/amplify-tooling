@@ -1,3 +1,15 @@
+# v1.3.0
+
+ * feat: Added back proxy server support.
+ * feat: Added `auth.findSession()` helper that is the same as `auth.loadSession()` except it does
+   not persist the newly loaded account in the token store.
+ * refactor: Switched from using `got` directly to `amplify-request`.
+ * fix: Added missing `coverage` and `docs` npm scripts.
+ * fix: Switched to launching the web browser to switch org instead of via API.
+ * fix: Fallback to token and delete sid if server call returned a 401 unauthorized due to the sid
+   becoming stale.
+ * chore: Updated dependencies.
+
 # v1.2.1 (Aug 31, 2020)
 
  * fix: Fixed misspelled property.

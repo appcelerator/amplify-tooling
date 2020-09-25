@@ -1,3 +1,10 @@
+# v3.2.0
+
+ * feat: Added HTTP request helpers for preparing proxy config and creating a `got` instance.
+ * fix: Removed `preferGlobal` package setting.
+ * refactor: Renamed `buildParams()` to `buildAuthParams()` to be more clear on purpose.
+ * chore: Updated dependencies.
+
 # v3.1.1 (Aug 27, 2020)
 
  * style: Update table style.

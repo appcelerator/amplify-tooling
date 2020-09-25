@@ -16,7 +16,6 @@
     "amplify-cli-auth": "./bin/amplify-cli-auth"
   },
   "main": "./dist/main",
-  "preferGlobal": true,
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -28,7 +27,7 @@
     "@axway/amplify-cli-utils": "^3.1.1",
     "cli-kit": "^1.8.2",
     "enquirer": "^2.3.6",
-    "pretty-ms": "^7.0.0",
+    "pretty-ms": "^7.0.1",
     "snooplogg": "^3.0.0",
     "source-map-support": "^0.5.19"
   },
