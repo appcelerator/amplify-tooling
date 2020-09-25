@@ -1,6 +1,6 @@
 # v1.3.0
 
- * feat: Added back proxy server support.
+ * feat: Added back proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
  * feat: Added `auth.findSession()` helper that is the same as `auth.loadSession()` except it does
    not persist the newly loaded account in the token store.
  * refactor: Switched from using `got` directly to `amplify-request`.

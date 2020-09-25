@@ -6,7 +6,7 @@
  * fix: Removed `wait` option when launching web browser as setting this flag to `true` would cause
    the login to pause indefinitely.
  * fix: Logout debug logging referenced undefined account auth properties.
- * fix: Added back proxy server support.
+ * fix: Added back proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
  * refactor: Switched from using `got` directly to `amplify-request`.
  * refactor: Improved error handling when fetching token.
  * chore: Updated dependencies.
