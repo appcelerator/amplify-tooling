@@ -7,8 +7,8 @@ import Auth from '@axway/amplify-auth-sdk';
 import open from 'open';
 import setCookie from 'set-cookie-parser';
 import snooplogg from 'snooplogg';
-import * as request from '@axway/amplify-request';
 import * as environments from './environments';
+import * as request from '@axway/amplify-request';
 
 const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, magenta, note } = snooplogg.styles;
