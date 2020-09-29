@@ -14,8 +14,12 @@ export { got };
  * Creates `got` instance with the applied configuration.
  *
  * @param {Object} [opts] - `got` options.
- * @param {Buffer|String} [opts.ca] - A buffer containing the certificate authority bundle bytes or
- * a path to a PEM-formatted ca bundle.
+ * @param {Buffer|String} [opts.ca] - A buffer containing the certificate authority bundle or a
+ * path to a PEM-formatted ca bundle.
+ * @param {Buffer|String} [opts.cert] - A buffer containing a client certificate or a path to a
+ * cert file. This value is used for HTTP authentication.
+ * @param {Buffer|String} [opts.key] - A buffer containing a client private key or a path to a
+ * private key file. This value is used for HTTP authentication.
  * @param {String} [opts.proxy] - A proxy server URL. Can be `http` or `https`.
  * @param {Boolean} [opts.strictSSL=true] - When falsey, disables TLS/SSL certificate validation
  * for both `https` destinations and `https` proxy servers.
@@ -34,14 +38,14 @@ export function init(opts = {}) {
 	delete opts.proxy;
 	delete opts.strictSSL;
 
-	const load = it => Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : null;
+	const load = it => Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : it;
 
 	opts.https = {
 		...opts.https,
-		certificate:          load(cert) || opts.https?.certificate,
-		certificateAuthority: load(ca)   || opts.https?.certificateAuthority,
-		key:                  load(key)  || opts.https?.key,
-		rejectUnauthorized:   strictSSL !== undefined ? !!strictSSL !== false : opts.https?.rejectUnauthorized
+		certificate:          load(opts.https?.certificate || cert),
+		certificateAuthority: load(opts.https?.certificateAuthority || ca),
+		key:                  load(opts.https?.key || key),
+		rejectUnauthorized:   opts.https?.rejectUnauthorized !== undefined ? opts.https.rejectUnauthorized : !!strictSSL !== false
 	};
 
 	if (proxy) {
