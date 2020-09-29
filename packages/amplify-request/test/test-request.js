@@ -41,7 +41,7 @@ describe('init', () => {
 	});
 
 	it('should reject with the error', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 
 		try {
 			await init()('http://127.0.0.1:1337');
@@ -70,7 +70,7 @@ describe('init', () => {
 	});
 
 	it('should throw when getting ECONNREFUSED', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 
 		try {
 			await init()({ url: 'http://127.0.0.1:1336' });

@@ -25,9 +25,12 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "appcd-util": "^3.0.0",
     "got": "^11.7.0",
     "http-proxy-agent": "^4.0.1",
     "https-proxy-agent": "^5.0.0",
+    "pretty-bytes": "^5.4.1",
+    "snooplogg": "^3.0.0",
     "source-map-support": "^0.5.19"
   },
   "devDependencies": {

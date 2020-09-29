@@ -22,7 +22,7 @@
   "dependencies": {
     "@axway/amplify-auth-sdk": "^2.2.1",
     "@axway/amplify-request": "^2.0.0",
-    "open": "^7.2.1",
+    "open": "^7.3.0",
     "set-cookie-parser": "^2.4.6",
     "snooplogg": "^3.0.0"
   },

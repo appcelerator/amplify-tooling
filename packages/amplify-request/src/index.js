@@ -7,6 +7,12 @@ import fs from 'fs';
 import got from 'got';
 import HttpProxyAgent from 'http-proxy-agent';
 import HttpsProxyAgent from 'https-proxy-agent';
+import prettyBytes from 'pretty-bytes';
+import snooplogg from 'snooplogg';
+import { mergeDeep } from 'appcd-util';
+
+const { log } = snooplogg('amplify-request');
+const { alert, ok, note } = snooplogg.styles;
 
 export { got };
 
@@ -40,13 +46,28 @@ export function init(opts = {}) {
 
 	const load = it => Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : it;
 
-	opts.https = {
-		...opts.https,
+	opts.hooks = mergeDeep(opts.hooks, {
+		afterResponse: [
+			response => {
+				const { headers, request, statusCode, url } = response;
+				log(
+					'%s %s %s %s',
+					note(request.options.method),
+					url,
+					statusCode < 400 ? ok(statusCode) : alert(statusCode),
+					Object.prototype.hasOwnProperty.call(headers, 'content-length') ? note(`(${prettyBytes(~~headers['content-length'])})`) : ''
+				);
+				return response; // note: this must return response
+			}
+		]
+	});
+
+	opts.https = mergeDeep(opts.https, {
 		certificate:          load(opts.https?.certificate || cert),
 		certificateAuthority: load(opts.https?.certificateAuthority || ca),
 		key:                  load(opts.https?.key || key),
 		rejectUnauthorized:   opts.https?.rejectUnauthorized !== undefined ? opts.https.rejectUnauthorized : !!strictSSL !== false
-	};
+	});
 
 	if (proxy) {
 		const { hostname: host, pathname: path, port, protocol } = new URL(proxy);
