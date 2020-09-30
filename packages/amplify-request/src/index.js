@@ -26,8 +26,6 @@ export { got };
  * cert file. This value is used for HTTP authentication.
  * @param {Object} [opts.defaults] - An object with the default options. This is helpful when you
  * want to merge settings from some config file with various got() options such as `headers`.
- * Supported properties are `caFile`, `certFile`, `keyFile`, `proxy`, and `strictSSL`. Note that
- * the cert related properties are name `*File` for compatibility with names in a config file.
  * @param {Buffer|String} [opts.key] - A buffer containing a client private key or a path to a
  * private key file. This value is used for HTTP authentication.
  * @param {String} [opts.proxy] - A proxy server URL. Can be `http` or `https`.
@@ -44,17 +42,23 @@ export function options(opts = {}) {
 
 	const { defaults } = opts;
 	const {
-		ca        = defaults?.caFile,
-		cert      = defaults?.certFile,
-		key       = defaults?.keyFile,
+		ca        = defaults?.ca,
+		caFile    = defaults?.caFile,
+		cert      = defaults?.cert,
+		certFile  = defaults?.certFile,
+		key       = defaults?.key,
+		keyFile   = defaults?.keyFile,
 		proxy     = defaults?.proxy,
 		strictSSL = defaults?.strictSSL
 	} = opts;
 
 	delete opts.ca;
+	delete opts.caFile;
 	delete opts.cert;
+	delete opts.certFile;
 	delete opts.defaults;
 	delete opts.key;
+	delete opts.keyFile;
 	delete opts.proxy;
 	delete opts.strictSSL;
 
@@ -77,9 +81,9 @@ export function options(opts = {}) {
 	});
 
 	opts.https = mergeDeep(opts.https, {
-		certificate:          load(opts.https?.certificate || cert),
-		certificateAuthority: load(opts.https?.certificateAuthority || ca),
-		key:                  load(opts.https?.key || key),
+		certificate:          load(opts.https?.certificate || cert || certFile),
+		certificateAuthority: load(opts.https?.certificateAuthority || ca || caFile),
+		key:                  load(opts.https?.key || key || keyFile),
 		rejectUnauthorized:   opts.https?.rejectUnauthorized !== undefined ? opts.https.rejectUnauthorized : !!strictSSL !== false
 	});
 
