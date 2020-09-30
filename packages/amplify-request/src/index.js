@@ -24,7 +24,10 @@ export { got };
  * path to a PEM-formatted ca bundle.
  * @param {Buffer|String} [opts.cert] - A buffer containing a client certificate or a path to a
  * cert file. This value is used for HTTP authentication.
- * @param {Object} [opts.defaults] - An object with the request defaults.
+ * @param {Object} [opts.defaults] - An object with the default options. This is helpful when you
+ * want to merge settings from some config file with various got() options such as `headers`.
+ * Supported properties are `caFile`, `certFile`, `keyFile`, `proxy`, and `strictSSL`. Note that
+ * the cert related properties are name `*File` for compatibility with names in a config file.
  * @param {Buffer|String} [opts.key] - A buffer containing a client private key or a path to a
  * private key file. This value is used for HTTP authentication.
  * @param {String} [opts.proxy] - A proxy server URL. Can be `http` or `https`.
