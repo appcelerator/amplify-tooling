@@ -62,7 +62,7 @@ export function buildAuthParams(opts = {}, config) {
 		params[prop] = opts[prop] || config.get(`auth.${prop}`, props[prop]);
 	}
 
-	params.requestOptions = createRequestOptions(config);
+	params.requestOptions = createRequestOptions(opts, config);
 
 	return params;
 }
@@ -141,26 +141,43 @@ export function createRequestOptions(opts = {}, config) {
 		opts = {};
 	} else if (!opts && typeof opts !== 'object') {
 		throw new TypeError('Expected options to be an object');
+	} else {
+		opts = { ...opts };
 	}
 
-	if (!config) {
-		config = loadConfig();
-	} else if (!(config instanceof Config)) {
+	if (config && !(config instanceof Config)) {
 		throw new TypeError('Expected config to be an AMPLIFY Config instance');
 	}
 
-	const caFile   = config.get('network.caFile');
-	const certFile = config.get('network.certFile');
-	const keyFile  = config.get('network.keyFile');
-
-	return {
-		ca:        caFile && fs.readFileSync(caFile),
-		cert:      certFile && fs.readFileSync(certFile),
-		key:       keyFile && fs.readFileSync(keyFile),
-		proxy:     config.get('network.proxy') || config.get('network.httpsProxy') || config.get('network.httpProxy'),
-		strictSSL: config.get('network.strictSSL'),
-		...opts
+	const load = (src, dest) => {
+		if (opts[dest] !== undefined) {
+			return;
+		}
+		if (!config) {
+			config = loadConfig();
+		}
+		const value = config.get(src);
+		if (value === undefined) {
+			return;
+		}
+		if (dest === 'proxy') {
+			opts[dest] = value;
+		} else if (dest === 'strictSSL') {
+			opts[dest] = !!value !== false;
+		} else {
+			opts[dest] = fs.readFileSync(value);
+		}
 	};
+
+	load('network.caFile',     'ca');
+	load('network.certFile',   'cert');
+	load('network.keyFile',    'key');
+	load('network.proxy',      'proxy');
+	load('network.httpsProxy', 'proxy');
+	load('network.httpProxy',  'proxy');
+	load('network.strictSSL',  'strictSSL');
+
+	return opts;
 }
 
 /**

@@ -11,7 +11,7 @@ import * as environments from './environments';
 import * as request from '@axway/amplify-request';
 
 const { log, warn } = snooplogg('amplify-sdk');
-const { highlight, magenta, note } = snooplogg.styles;
+const { highlight, note } = snooplogg.styles;
 
 /**
  * An SDK for accessing AMPLIFY API's.
@@ -122,7 +122,7 @@ export class AmplifySDK {
 				account = await this.auth.findSession(account);
 				await this.client.updateAccount(account);
 
-				log(`Current org: ${highlight(account.org.name)} ${note(`(${account.org.org_id})`)}`);
+				log(`Current org: ${highlight(account.org.name)} ${note(`(${account.org.id})`)}`);
 				log('Available orgs:');
 				for (const org of account.orgs) {
 					log(`  ${highlight(org.name)} ${note(`(${org.id})`)}`);
@@ -570,7 +570,7 @@ export class AmplifySDK {
 			};
 
 			try {
-				log(`Requesting ${magenta(method)} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
+				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
 				response = await this.got[method](url, opts);
 			} catch (err) {
 				if (account.sid && err.response?.statusCode === 401) {
@@ -578,7 +578,7 @@ export class AmplifySDK {
 					warn('Platform session was invalidated, trying again to reinitialize session with token');
 					headers.Authorization = `Bearer ${token}`;
 					delete headers.Cookie;
-					log(`Requesting ${magenta(method)} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
+					log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
 					response = await this.got[method](url, opts);
 				} else  {
 					throw err;

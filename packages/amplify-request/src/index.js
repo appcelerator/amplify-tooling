@@ -12,7 +12,7 @@ import snooplogg from 'snooplogg';
 import { mergeDeep } from 'appcd-util';
 
 const { log } = snooplogg('amplify-request');
-const { alert, ok, note } = snooplogg.styles;
+const { alert, highlight, magenta, ok, note } = snooplogg.styles;
 
 export { got };
 
@@ -61,13 +61,13 @@ export function options(opts = {}) {
 		afterResponse: [
 			response => {
 				const { headers, request, statusCode, url } = response;
-				log(
-					'%s %s %s %s',
-					note(request.options.method),
-					url,
-					statusCode < 400 ? ok(statusCode) : alert(statusCode),
-					Object.prototype.hasOwnProperty.call(headers, 'content-length') ? note(`(${prettyBytes(~~headers['content-length'])})`) : ''
-				);
+				log([
+					request.options.method,
+					highlight(url),
+					proxy && note(`[proxy ${proxy}]`),
+					Object.prototype.hasOwnProperty.call(headers, 'content-length') && magenta(`(${prettyBytes(~~headers['content-length'])})`),
+					statusCode < 400 ? ok(statusCode) : alert(statusCode)
+				].filter(Boolean).join(' '));
 				return response; // note: this must return response
 			}
 		]
