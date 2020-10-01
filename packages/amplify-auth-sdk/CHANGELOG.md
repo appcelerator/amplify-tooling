@@ -1,4 +1,4 @@
-# v2.3.0
+# v2.3.0 (Oct 1, 2020)
 
  * fix: Improved error handling if the default web browser fails to launch.
  * fix: Added missing `coverage` and `docs` npm scripts.

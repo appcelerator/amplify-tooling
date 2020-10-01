@@ -19,6 +19,9 @@ npm i -g @axway/amplify-cli@2.0.0
  * BREAKING CHANGE(config): `config list` command no longer supports filtering, use `config get`
    instead.
  * BREAKING CHANGE(config): Write operations such as `set` return `"OK"` instead of `"Saved"`.
+ * feat: Bundled `node-pty-prebuilt-multiarch` which cli-kit will use to spawn non-cli-kit
+   extensions using a pseudo terminal and preserve stdio for things such as prompting.
+ * feat(config): Added proxy info to config help.
  * refactor(config): Do not show the banner for `config` related commands.
  * refactor(config): Replaced config action with subcommands for cleaner code and improved help
    information.
@@ -104,6 +107,19 @@ npm i -g @axway/amplify-cli@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-auth-sdk@2.3.0
+
+ * fix: Improved error handling if the default web browser fails to launch.
+ * fix: Added missing `coverage` and `docs` npm scripts.
+ * fix: Fixed bug where `env` was being clobbered.
+ * fix: Removed `wait` option when launching web browser as setting this flag to `true` would cause
+   the login to pause indefinitely.
+ * fix: Logout debug logging referenced undefined account auth properties.
+ * fix: Added back proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
+ * fix: Improved error handling when fetching token. ([CLI-99](https://jira.axway.com/browse/CLI-99))
+ * refactor: Switched from using `got` directly to `amplify-request`.
+ * chore: Updated dependencies.
+
 ### amplify-cli-auth@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -139,8 +155,21 @@ npm i -g @axway/amplify-cli@2.0.0
  * style: Adopted Axway style guide for tables.
  * chore: Updated dependencies.
 
-### amplify-cli-auth@2.2.1
+### amplify-cli-auth@2.1.1
 
+ * chore: Updated dependencies.
+
+### amplify-cli-auth@2.1.2
+
+ * fix(login): Fixed bug where login would default to the username flow instead of the pkce flow.
+
+### amplify-cli-auth@2.2.0
+
+ * fix(login): Added missing `--service` login flag when using `--client-secret`.
+ * fix(login): Added missing `--base-url`, `--client-id`, and `--realm` login arguments.
+ * fix(switch): Fixed initial selected account and org when prompting.
+ * fix: Removed `preferGlobal` package setting.
+ * style: Cleaned up verbiage in descriptions.
  * chore: Updated dependencies.
 
 ### amplify-cli-pm@2.0.0
@@ -171,8 +200,15 @@ npm i -g @axway/amplify-cli@2.0.0
  * style: Adopted Axway style guide for tables.
  * chore: Updated dependencies.
 
-### amplify-cli-pm@2.2.1
+### amplify-cli-pm@2.1.1
 
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.2.0
+
+ * fix: Added back proxy server support.
+ * fix: Removed `preferGlobal` package setting.
+ * style: Cleaned up verbiage in descriptions.
  * chore: Updated dependencies.
 
 ### amplify-cli-utils@3.0.0
@@ -224,6 +260,14 @@ npm i -g @axway/amplify-cli@2.0.0
  * style: Update table style.
  * chore: Updated dependencies.
 
+### amplify-cli-utils@3.2.0
+
+ * feat: Added HTTP request helpers for preparing proxy config and creating a `got` instance.
+   ([CLI-98](https://jira.axway.com/browse/CLI-98))
+ * fix: Removed `preferGlobal` package setting.
+ * refactor: Renamed `buildParams()` to `buildAuthParams()` to be more clear on purpose.
+ * chore: Updated dependencies.
+
 ### amplify-config@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -256,6 +300,10 @@ npm i -g @axway/amplify-cli@2.0.0
 
  * No changes. Lerna forced version bump.
 
+### amplify-config@2.1.3
+
+ * fix: Removed `preferGlobal` package setting.
+
 ### amplify-registry-sdk@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -278,6 +326,21 @@ npm i -g @axway/amplify-cli@2.0.0
 
 ### amplify-registry-sdk@2.1.1
 
+ * chore: Updated dependencies.
+
+### amplify-registry-sdk@2.1.2
+
+ * fix: Removed `preferGlobal` package setting.
+ * fix: Added back proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
+ * refactor: Switched from using `got` directly to `amplify-request`.
+
+### amplify-request@2.0.0
+
+ * BREAKING CHANGE: Completely new API.
+ * BREAKING CHANGE: Switched from `request` to `got` http request library.
+ * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
+   ([CLI-89](https://jira.axway.com/browse/CLI-89))
+ * feat: Added proxy support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
  * chore: Updated dependencies.
 
 ### amplify-sdk@1.0.0
@@ -317,7 +380,25 @@ npm i -g @axway/amplify-cli@2.0.0
 
  * chore: Updated dependencies.
 
-### amplify-sdk@1.1.1
+### amplify-sdk@1.2.0
 
- * fix: Make Titanium build verify `ipaddress` optional.
+ * feat: Improved error messages.
+ * feat: Added server error response `code` to exceptions.
+ * fix: Added Titanium app `name` to list of required build verify parameters.
+ * fix: Added missing `fingerprint_description` and `org_id` to build verify request parameters.
+
+### amplify-sdk@1.2.1
+
+ * fix: Fixed misspelled property.
+
+### amplify-sdk@1.3.0
+
+ * feat: Added proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
+ * feat: Added `auth.findSession()` helper that is the same as `auth.loadSession()` except it does
+   not persist the newly loaded account in the token store.
+ * refactor: Switched from using `got` directly to `amplify-request`.
+ * fix: Added missing `coverage` and `docs` npm scripts.
+ * fix: Switched to launching the web browser to switch org instead of via API.
+ * fix: Fallback to token and delete sid if server call returned a 401 unauthorized due to the sid
+   becoming stale.
  * chore: Updated dependencies.
