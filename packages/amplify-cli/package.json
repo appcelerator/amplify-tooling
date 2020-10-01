@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli",
-  "version": "2.0.0-rc6",
+  "version": "2.0.0-rc7",
   "publishConfig": {
     "tag": "next"
   },
@@ -27,8 +27,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-auth": "^2.1.2",
-    "@axway/amplify-cli-pm": "^2.1.1",
+    "@axway/amplify-cli-auth": "^2.2.0",
+    "@axway/amplify-cli-pm": "^2.2.0",
     "cli-kit": "1.8.2",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.1.1"
