@@ -12,7 +12,7 @@
     "axway",
     "amplify"
   ],
-  "preferGlobal": true,
+  "main": "./dist/index",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -23,7 +23,8 @@
   "dependencies": {
     "@axway/amplify-auth-sdk": "^2.2.1",
     "@axway/amplify-config": "^2.1.2",
-    "@axway/amplify-sdk": "^1.1.2",
+    "@axway/amplify-request": "^2.0.0",
+    "@axway/amplify-sdk": "^1.2.1",
     "appcd-fs": "^2.0.0",
     "cli-kit": "1.8.2",
     "cli-table3": "^0.6.0",
@@ -40,6 +41,5 @@
   "engines": {
     "node": ">=10.13.0"
   },
-  "main": "./dist/index",
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }

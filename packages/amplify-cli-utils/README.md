@@ -8,17 +8,57 @@ A common utils library for AMPLIFY CLI and related packages.
 
 ## API
 
-### `buildParams(opts, config)`
+### `buildAuthParams(opts, config)`
 
 Creates an AMPLIFY SDK or AMPLIFY Auth SDK constructor options object based on the supplied `opts`
 and AMPLIFY CLI `config` object. If `config` is not defined, the config is loaded from disk.
 
 ```js
-import { buildParams } from '@axway/amplify-cli-utils';
+import { buildAuthParams } from '@axway/amplify-cli-utils';
 
-const opts = buildParams({
+const opts = buildAuthParams({
 	baseUrl: 'foo',
 	clientId: 'bar'
+});
+```
+
+### `createNPMRequestArgs(opts, config)`
+
+If you are spawning `npm`, then the following may be useful:
+
+```js
+import { createNPMRequestArgs } from '@axway/amplify-cli-utils';
+import { spawnSync } from 'child_process';
+
+spawnSync('npm', [ 'view', '@axway/amplify-cli', ...createNPMRequestArgs() ]);
+```
+
+### `createRequestClient(opts, config)`
+
+Creates a `got` HTTP client with the AMPLIFY CLI network settings configured.
+
+```js
+import { createRequestClient } from '@axway/amplify-cli-utils';
+
+const got = createRequestClient();
+const response = await got('https://www.axway.com/');
+```
+
+### `createRequestOptions(opts, config)`
+
+Loads the AMPLIFY CLI config file and construct the options for the various Node.js HTTP clients
+including `pacote`, `npm-registry-fetch`, `make-fetch-happen`, and `request`.
+
+```js
+import { createRequestOptions } from '@axway/amplify-cli-utils';
+
+const opts = createRequestOptions();
+console.log({
+	ca:        opts.ca,
+	cert:      opts.cert,
+	key:       opts.key,
+	proxy:     opts.proxy,
+	strictSSL: opts.strictSSL
 });
 ```
 

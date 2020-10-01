@@ -1,3 +1,9 @@
+# v2.1.2
+
+ * fix: Removed `preferGlobal` package setting.
+ * fix: Added back proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
+ * refactor: Switched from using `got` directly to `amplify-request`.
+
 # v2.1.1 (Aug 27, 2020)
 
  * chore: Updated dependencies.

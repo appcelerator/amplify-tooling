@@ -17,7 +17,7 @@ export default {
 	],
 	desc: 'Activates a specific package version',
 	options: {
-		'--json': 'Outputs results as JSON'
+		'--json': 'Outputs activated package as JSON'
 	},
 	async action({ argv, console }) {
 		const [

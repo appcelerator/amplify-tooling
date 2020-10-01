@@ -1,3 +1,16 @@
+# v2.3.0
+
+ * fix: Improved error handling if the default web browser fails to launch.
+ * fix: Added missing `coverage` and `docs` npm scripts.
+ * fix: Fixed bug where `env` was being clobbered.
+ * fix: Removed `wait` option when launching web browser as setting this flag to `true` would cause
+   the login to pause indefinitely.
+ * fix: Logout debug logging referenced undefined account auth properties.
+ * fix: Added back proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
+ * fix: Improved error handling when fetching token. ([CLI-99](https://jira.axway.com/browse/CLI-99))
+ * refactor: Switched from using `got` directly to `amplify-request`.
+ * chore: Updated dependencies.
+
 # v2.2.1 (Aug 27, 2020)
 
  * chore: Updated dependencies.

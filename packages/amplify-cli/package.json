@@ -33,6 +33,9 @@
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.1.1"
   },
+  "optionalDependencies": {
+    "node-pty-prebuilt-multiarch": "^0.9.0"
+  },
   "devDependencies": {
     "appcd-gulp": "^3.0.1"
   },

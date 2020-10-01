@@ -5,9 +5,9 @@ export default {
 			desc: 'Name of the package to purge old versions for'
 		}
 	],
-	desc: 'Purges all unused packages',
+	desc: 'Removes all non-active, managed packages',
 	options: {
-		'--json': 'Outputs results as JSON'
+		'--json': 'Outputs the purged packages as JSON'
 	},
 	async action({ argv, console }) {
 		const [

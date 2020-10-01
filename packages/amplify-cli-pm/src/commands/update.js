@@ -8,7 +8,7 @@ export default {
 	],
 	desc: 'Download updates for installed packages',
 	options: {
-		'--json': 'Outputs results as JSON'
+		'--json': 'Outputs updated packages as JSON'
 	},
 	async action({ argv, console }) {
 		const [

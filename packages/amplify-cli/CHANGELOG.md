@@ -7,6 +7,9 @@
  * BREAKING CHANGE(config): `config list` command no longer supports filtering, use `config get`
    instead.
  * BREAKING CHANGE(config): Write operations such as `set` return `"OK"` instead of `"Saved"`.
+ * feat: Bundled `node-pty-prebuilt-multiarch` which cli-kit will use to spawn non-cli-kit
+   extensions using a pseudo terminal and preserve stdio for things such as prompting.
+ * feat(config): Added proxy info to config help.
  * refactor(config): Do not show the banner for `config` related commands.
  * refactor(config): Replaced config action with subcommands for cleaner code and improved help
    information.

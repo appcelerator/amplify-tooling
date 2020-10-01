@@ -15,7 +15,7 @@
     "axway",
     "amplify"
   ],
-  "preferGlobal": true,
+  "main": "./dist/index",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -39,6 +39,5 @@
   "engines": {
     "node": ">=10.13.0"
   },
-  "main": "./dist/index",
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }

@@ -2,14 +2,14 @@ export default {
 	aliases: [ 's', '!se' ],
 	args: [
 		{
-			name: 'search',
+			name: 'keyword',
 			desc: 'The package name or keywords'
 		}
 	],
 	desc: 'Searches registry for packages',
 	options: {
 		'--json': 'Outputs packages as JSON',
-		'--repository [repository]': 'The repository to search',
+		'--repository [repository]': 'The originating repository',
 		'--type [type]': 'Type of package to search'
 	},
 	async action({ argv, console }) {
@@ -24,14 +24,14 @@ export default {
 		]);
 
 		const registry = new Registry(getRegistryParams(argv.env));
-		const { repository, search, type } = argv;
+		const { keyword, repository, type } = argv;
 		const headers = {
 			'User-Agent': buildUserAgentString()
 		};
 		let results;
 
 		try {
-			results = (await registry.search({ headers, text: search, repository, type })).map(d => {
+			results = (await registry.search({ headers, text: keyword, repository, type })).map(d => {
 				return {
 					name:        d.name,
 					version:     d.version,

@@ -1,11 +1,15 @@
 export default {
 	desc: 'Log in to the Axway AMPLIFY platform',
 	options: {
+		'--base-url [url]':          { hidden: true },
+		'--client-id [id]':          'The CLI specific client ID',
+		'--realm [name]':            { hidden: true },
 		'--force':                   'Re-authenticate even if the account is already authenticated',
-		'--json':                    'Outputs accounts as JSON',
+		'--json':                    'Outputs authenticated account as JSON',
 		'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser',
 		'-c, --client-secret [key]': 'A secret key used to authenticate',
 		'-s, --secret-file [path]':  'Path to the PEM key used to authenticate',
+		'--service':                 'Authenticates client secret for non-platform service account',
 		'-u, --username [user]':     'Username to authenticate with',
 		'-p, --password [pass]':     'Password to authenticate with'
 	},
@@ -50,14 +54,15 @@ export default {
 		}
 
 		const { config, sdk } = initSDK({
-			baseUrl:      argv.baseUrl,
-			clientId:     argv.clientId,
-			clientSecret: argv.clientSecret,
-			env:          argv.env,
-			password:     argv.password,
-			realm:        argv.realm,
-			secretFile:   argv.secretFile,
-			username:     argv.username
+			baseUrl:        argv.baseUrl,
+			clientId:       argv.clientId,
+			clientSecret:   argv.clientSecret,
+			env:            argv.env,
+			password:       argv.password,
+			realm:          argv.realm,
+			secretFile:     argv.secretFile,
+			serviceAccount: argv.service,
+			username:       argv.username
 		});
 		let account;
 		const { alert, highlight } = snooplogg.styles;

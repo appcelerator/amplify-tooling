@@ -10,7 +10,7 @@ export default {
 	],
 	desc: 'Installs the specified package',
 	options: {
-		'--json': 'Output results as JSON'
+		'--json': 'Output installed package as JSON'
 	},
 	async action({ argv, console, terminal }) {
 		const [

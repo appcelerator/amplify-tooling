@@ -19,10 +19,6 @@ Install an API Builder connector:
 
 	amplify pm install appc.mongo
 
-Install a Titanium Module:
-
-	amplify pm install ti.barcode
-
 ## Legal
 
 This project is open source under the [Apache Public License v2][1] and is developed by

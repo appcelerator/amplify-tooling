@@ -4,14 +4,14 @@ if (!Error.prepareStackTrace) {
 }
 
 import Auth from '@axway/amplify-auth-sdk';
+import open from 'open';
 import setCookie from 'set-cookie-parser';
-import got from 'got';
 import snooplogg from 'snooplogg';
-
 import * as environments from './environments';
+import * as request from '@axway/amplify-request';
 
 const { log, warn } = snooplogg('amplify-sdk');
-const { highlight, magenta, note } = snooplogg.styles;
+const { highlight, note } = snooplogg.styles;
 
 /**
  * An SDK for accessing AMPLIFY API's.
@@ -22,6 +22,8 @@ export class AmplifySDK {
 	 *
 	 * @param {Object} opts - Authentication options.
 	 * @param {Object} [opts.env=prod] - The environment name.
+	 * @param {Object} [opts.requestOptions] - An options object to pass into AMPLIFY CLI Utils to
+	 * create the `got` HTTP client.
 	 * @access public
 	 */
 	constructor(opts) {
@@ -36,6 +38,12 @@ export class AmplifySDK {
 		 * @type {Object}
 		 */
 		this.env = environments.resolve(opts.env);
+
+		/**
+		 * The `got` HTTP client.
+		 * @type {Function}
+		 */
+		this.got = request.init(opts.requestOptions);
 
 		/**
 		 * The platform URL.
@@ -57,6 +65,48 @@ export class AmplifySDK {
 			},
 
 			/**
+			 * Retrieves platform session information such as the organizations, then mutates the
+			 * account object and returns it.
+			 * @param {Object} account - The account object.
+			 * @returns {Promise<Object>} Resolves the original account info object.
+			 */
+			findSession: async account => {
+				const result = await this.request('/api/v1/auth/findSession', account, { errorMsg: 'Failed to find session' });
+				if (!result) {
+					return account;
+				}
+
+				const { org, orgs, user } = result;
+
+				account.org = {
+					entitlements: Object
+						.entries(org.entitlements || {})
+						.reduce((obj, [ name, value ]) => {
+							if (name[0] !== '_') {
+								obj[name] = value;
+							}
+							return obj;
+						}, {}),
+					guid:         org.guid,
+					id:           org.org_id,
+					name:         org.name
+				};
+
+				account.orgs = orgs.map(({ guid, name, org_id }) => ({ guid, id: org_id, name }));
+
+				Object.assign(account.user, {
+					axwayId:      user.axway_id,
+					email:        user.email,
+					firstName:    user.firstname,
+					guid:         user.guid,
+					lastName:     user.lastname,
+					organization: user.organization
+				});
+
+				return account;
+			},
+
+			/**
 			 * Returns a list of all authenticated accounts.
 			 * @returns {Promise<Array>}
 			 */
@@ -69,53 +119,16 @@ export class AmplifySDK {
 			 * @returns {Promise<Object>} Resolves the original account info object.
 			 */
 			loadSession: async account => {
-				try {
-					const result = await this.request('/api/v1/auth/findSession', account, {
-						errorMsg: 'Failed to find session'
-					});
-					if (!result) {
-						return account;
-					}
+				account = await this.auth.findSession(account);
+				await this.client.updateAccount(account);
 
-					const { org, orgs, user } = result;
-
-					account.org = {
-						entitlements: Object
-							.entries(org.entitlements || {})
-							.reduce((obj, [ name, value ]) => {
-								if (name[0] !== '_') {
-									obj[name] = value;
-								}
-								return obj;
-							}, {}),
-						guid:         org.guid,
-						id:           org.org_id,
-						name:         org.name
-					};
-
-					log(`Current org: ${highlight(org.name)} ${note(`(${org.org_id})`)}`);
-					account.orgs = orgs.map(({ guid, name, org_id }) => ({ guid, id: org_id, name }));
-
-					log('Available orgs:');
-					for (const org of account.orgs) {
-						log(`  ${highlight(org.name)} ${note(`(${org.id})`)}`);
-					}
-
-					Object.assign(account.user, {
-						axwayId:      user.axway_id,
-						email:        user.email,
-						firstName:    user.firstname,
-						guid:         user.guid,
-						lastName:     user.lastname,
-						organization: user.organization
-					});
-
-					await this.client.updateAccount(account);
-
-					return account;
-				} catch (e) {
-					throw new Error(`Failed to get session: ${e.message}`);
+				log(`Current org: ${highlight(account.org.name)} ${note(`(${account.org.id})`)}`);
+				log('Available orgs:');
+				for (const org of account.orgs) {
+					log(`  ${highlight(org.name)} ${note(`(${org.id})`)}`);
 				}
+
+				return account;
 			},
 
 			/**
@@ -135,6 +148,11 @@ export class AmplifySDK {
 						warn(`Account ${highlight(account.name)} is already authenticated`);
 						const err = new Error('Account already authenticated');
 						err.account = account;
+						try {
+							err.account = await this.auth.loadSession(account);
+						} catch (e) {
+							warn(e);
+						}
 						err.code = 'EAUTHENTICATED';
 						throw err;
 					}
@@ -177,18 +195,36 @@ export class AmplifySDK {
 					throw new TypeError('Expected org id');
 				}
 
-				await this.request('/api/v1/auth/switchLoggedInOrg', account, {
-					errorMsg: 'Failed to switch org',
-					json: { org_id: orgId }
-				});
+				if (account.auth.expired) {
+					account = await this.client.login();
+				}
 
-				// refresh the account
-				account = await this.auth.loadSession(account);
+				try {
+					await open(`https://platform.axway.com/#/switchorg/${orgId}`);
+				} catch (err) {
+					const m = err.message.match(/Exited with code (\d+)/i);
+					throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
+				}
 
-				// store the refreshed account
-				await this.client.updateAccount(account);
+				for (let i = 0; i < 10; i++) {
+					await new Promise(resolve => setTimeout(resolve, 666));
+					try {
+						// refresh the account
+						log(`Deleting sid ${account.sid}`);
+						delete account.sid;
+						const newAccount = await this.auth.findSession(account);
+						if (newAccount.org.id === orgId) {
+							// store the refreshed account
+							await this.client.updateAccount(newAccount);
+							return newAccount;
+						}
+					} catch (e) {
+						// squelch
+						log(e);
+					}
+				}
 
-				return account;
+				throw new Error('Failed to switch organization');
 			}
 		};
 
@@ -501,7 +537,7 @@ export class AmplifySDK {
 	async request(path, account, { errorMsg, json, method, resultKey = 'result' } = {}) {
 		try {
 			if (!account || typeof account !== 'object') {
-				throw new Error('Account required');
+				throw new TypeError('Account required');
 			}
 
 			const { sid } = account;
@@ -525,17 +561,29 @@ export class AmplifySDK {
 				method = json ? 'post' : 'get';
 			}
 
-			log(`Requesting ${magenta(method)} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
-			// log(headers);
-			// if (json) {
-			// 	log(json);
-			// }
-			const response = await got[method](url, {
+			let response;
+			const opts = {
 				headers,
 				json,
 				responseType: 'json',
 				retry: 0
-			});
+			};
+
+			try {
+				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
+				response = await this.got[method](url, opts);
+			} catch (err) {
+				if (account.sid && err.response?.statusCode === 401) {
+					// sid is probably bad, try again with the token
+					warn('Platform session was invalidated, trying again to reinitialize session with token');
+					headers.Authorization = `Bearer ${token}`;
+					delete headers.Cookie;
+					log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
+					response = await this.got[method](url, opts);
+				} else  {
+					throw err;
+				}
+			}
 
 			const cookies = response.headers['set-cookie'];
 			const connectSid = cookies && setCookie.parse(cookies).find(c => c.name === 'connect.sid')?.value;

@@ -29,6 +29,7 @@ export default class SecureStore extends FileStore {
 	 * @param {Object} opts - Various options.
 	 * @param {String} opts.homeDir - The path to the home directory containing the `lib`
 	 * directory where `keytar` is located.
+	 * @param {Object} [opts.requestOptions] - HTTP client options.
 	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
      * using this library.
 	 * @access public
@@ -63,9 +64,12 @@ export default class SecureStore extends FileStore {
 			log(`Loading keytar: ${highlight(keytarPath)}`);
 			keytar = require(keytarPath);
 		} catch (e) {
+			// failed because version not installed or Node version change
+
 			// just in case there was a pre-existing botched install
 			fs.removeSync(keytarPath);
 
+			const args = [ 'install', `keytar@${keytarVersion}`, '--no-audit', '--no-save', '--production', '--prefix', prefix ];
 			const env = Object.assign({
 				NO_UPDATE_NOTIFIER: 1,
 				npm_config_cache: cacheDir
@@ -73,11 +77,26 @@ export default class SecureStore extends FileStore {
 
 			log(`node ${highlight(process.version)} modules ${highlight(process.versions.modules)} npm ${highlight(spawnSync('npm', [ '-v' ], { env, windowsHide: true }).stdout.toString().trim())}`);
 
-			// failed because version not installed or Node version change
-			const args = [ 'install', `keytar@${keytarVersion}`, '--no-audit', '--no-save', '--production', '--prefix', prefix ];
-			log(`keytar not found, running: ${highlight(`npm_config_cache=${cacheDir} npm ${args.join(' ')}`)}`);
+			// add the network config
+			if (opts.requestOptions) {
+				const { ca, cert, key, proxy, strictSSL } = opts.requestOptions;
+				if (ca) {
+					args.push('--ca', ca.toString());
+				}
+				if (cert) {
+					args.push('--cert', cert.toString());
+				}
+				if (key) {
+					args.push('--key', key.toString());
+				}
+				if (proxy) {
+					args.push('--https-proxy', proxy);
+				}
+				args.push('--strict-ssl', String(strictSSL !== false));
+			}
 
 			// run npm install
+			log(`keytar not found, running: ${highlight(`npm_config_cache=${cacheDir} npm ${args.join(' ')}`)}`);
 			const result = spawnSync('npm', args, { env, windowsHide: true });
 			log(`npm install exited (code ${result.status})`);
 

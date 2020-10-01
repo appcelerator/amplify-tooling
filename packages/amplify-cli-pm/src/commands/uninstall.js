@@ -8,9 +8,9 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Uninstalls the specified package',
+	desc: 'Removes the specified package',
 	options: {
-		'--json': 'Outputs packages as JSON'
+		'--json': 'Outputs removed packages as JSON'
 	},
 	async action({ argv, console }) {
 		const [

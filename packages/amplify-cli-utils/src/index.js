@@ -4,14 +4,17 @@ if (!Error.prepareStackTrace) {
 }
 
 import AmplifySDK from '@axway/amplify-sdk';
+import fs from 'fs';
 import { ansi } from 'cli-kit';
 import * as environments from './environments';
 import * as locations from './locations';
+import * as request from '@axway/amplify-request';
 
 export {
 	AmplifySDK,
 	environments,
-	locations
+	locations,
+	request
 };
 
 /**
@@ -21,8 +24,8 @@ export {
  * @param {Config} [config] - The AMPLIFY config object.
  * @returns {Object}
  */
-export function buildParams(opts = {}, config) {
-	if (opts && typeof opts !== 'object') {
+export function buildAuthParams(opts = {}, config) {
+	if (!opts || typeof opts !== 'object') {
 		throw new Error('Expected options to be an object');
 	}
 
@@ -47,6 +50,7 @@ export function buildParams(opts = {}, config) {
 		secretFile:              undefined,
 		serverHost:              undefined,
 		serverPort:              undefined,
+		serviceAccount:          undefined,
 		tokenRefreshThreshold:   undefined,
 		tokenStore:              undefined,
 		tokenStoreDir:           locations.axwayHome,
@@ -58,7 +62,122 @@ export function buildParams(opts = {}, config) {
 		params[prop] = opts[prop] || config.get(`auth.${prop}`, props[prop]);
 	}
 
+	params.requestOptions = createRequestOptions(opts, config);
+
 	return params;
+}
+
+// `buildParams()` is too ambiguous, so it was renamed to `buildAuthParams()`, but we still need to
+// maintain backwards compatibility
+export { buildAuthParams as buildParams };
+
+/**
+ * Builds an array of AMPLIFY CLI network settings for use as command line arguments when spawning
+ * `npm`.
+ *
+ * @param {Object} [opts] - Request configuration options to override the AMPLIFY CLI config
+ * settings.
+ * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
+ * from disk.
+ * @returns {Array.<String>}
+ */
+export function createNPMRequestArgs(opts, config) {
+	const { ca, cert, key, proxy, strictSSL } = createRequestOptions(opts, config);
+	const args = [];
+
+	if (ca) {
+		args.push('--ca', ca.toString());
+	}
+	if (cert) {
+		args.push('--cert', cert.toString());
+	}
+	if (proxy) {
+		args.push('--https-proxy', proxy);
+	}
+	if (key) {
+		args.push('--key', key.toString());
+	}
+	args.push('--strict-ssl', String(strictSSL !== false));
+
+	return args;
+}
+
+/**
+ * Load the config file and initializes a `got` instance for making HTTP calls using the network
+ * settings from the AMPLIFY CLI config file.
+ *
+ * @param {Object} [opts] - `got` option to override the AMPLIFY CLI config settings.
+ * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
+ * from disk.
+ * @returns {Function}
+ */
+export function createRequestClient(opts, config) {
+	opts = createRequestOptions(opts, config);
+	return request.init({
+		...opts,
+		https: {
+			certificate: opts.cert,
+			key: opts.key,
+			...opts.https
+		}
+	});
+}
+
+/**
+ * Loads the AMPLIFY CLI config file and construct the options for the various Node.js HTTP clients
+ * including `pacote`, `npm-registry-fetch`, `make-fetch-happen`, and `request`.
+ *
+ * @param {Object} [opts] - Request configuration options to override the AMPLIFY CLI config
+ * settings.
+ * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
+ * from disk.
+ * @returns {Object}
+ */
+export function createRequestOptions(opts = {}, config) {
+	const { Config } = require('@axway/amplify-config');
+
+	if (opts instanceof Config) {
+		config = opts;
+		opts = {};
+	} else if (!opts && typeof opts !== 'object') {
+		throw new TypeError('Expected options to be an object');
+	} else {
+		opts = { ...opts };
+	}
+
+	if (config && !(config instanceof Config)) {
+		throw new TypeError('Expected config to be an AMPLIFY Config instance');
+	}
+
+	const load = (src, dest) => {
+		if (opts[dest] !== undefined) {
+			return;
+		}
+		if (!config) {
+			config = loadConfig();
+		}
+		const value = config.get(src);
+		if (value === undefined) {
+			return;
+		}
+		if (dest === 'proxy') {
+			opts[dest] = value;
+		} else if (dest === 'strictSSL') {
+			opts[dest] = !!value !== false;
+		} else {
+			opts[dest] = fs.readFileSync(value);
+		}
+	};
+
+	load('network.caFile',     'ca');
+	load('network.certFile',   'cert');
+	load('network.keyFile',    'key');
+	load('network.proxy',      'proxy');
+	load('network.httpsProxy', 'proxy');
+	load('network.httpProxy',  'proxy');
+	load('network.strictSSL',  'strictSSL');
+
+	return opts;
 }
 
 /**
@@ -102,7 +221,7 @@ export function initSDK(opts = {}, config) {
 
 	return {
 		config,
-		sdk: new AmplifySDK(buildParams(opts, config))
+		sdk: new AmplifySDK(buildAuthParams(opts, config))
 	};
 }
 
@@ -113,5 +232,5 @@ export function initSDK(opts = {}, config) {
  * @returns {Config}
  */
 export function loadConfig(opts) {
-	return require('@axway/amplify-config').default(opts);
+	return require('@axway/amplify-config').loadConfig(opts);
 }
