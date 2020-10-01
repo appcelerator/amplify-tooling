@@ -1,4 +1,4 @@
-# v2.0.0-rc6 (Aug 27, 2020)
+# v2.0.0-rc7 (Oct 1, 2020)
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
    ([CLI-89](https://jira.axway.com/browse/CLI-89))

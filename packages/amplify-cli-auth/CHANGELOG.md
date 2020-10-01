@@ -1,4 +1,4 @@
-# v2.3.0
+# v2.2.0 (Oct 1, 2020)
 
  * fix(login): Added missing `--service` login flag when using `--client-secret`.
  * fix(login): Added missing `--base-url`, `--client-id`, and `--realm` login arguments.
@@ -7,11 +7,11 @@
  * style: Cleaned up verbiage in descriptions.
  * chore: Updated dependencies.
 
-# v2.2.2 (Aug 27, 2020)
+# v2.1.2 (Aug 27, 2020)
 
  * fix(login): Fixed bug where login would default to the username flow instead of the pkce flow.
 
-# v2.2.1 (Aug 27, 2020)
+# v2.1.1 (Aug 27, 2020)
 
  * chore: Updated dependencies.
 

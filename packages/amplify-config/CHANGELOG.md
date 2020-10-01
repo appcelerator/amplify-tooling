@@ -1,4 +1,4 @@
-# v2.1.3
+# v2.1.3 (Oct 1, 2020)
 
  * fix: Removed `preferGlobal` package setting.
 

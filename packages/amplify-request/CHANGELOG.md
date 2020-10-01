@@ -1,4 +1,4 @@
-# v2.0.0
+# v2.0.0 (Oct 1, 2020)
 
  * BREAKING CHANGE: Completely new API.
  * BREAKING CHANGE: Switched from `request` to `got` http request library.

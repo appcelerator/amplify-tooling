@@ -1,4 +1,4 @@
-# v3.2.0
+# v3.2.0 (Oct 1, 2020)
 
  * feat: Added HTTP request helpers for preparing proxy config and creating a `got` instance.
    ([CLI-98](https://jira.axway.com/browse/CLI-98))

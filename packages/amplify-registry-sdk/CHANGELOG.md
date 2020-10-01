@@ -1,4 +1,4 @@
-# v2.1.2
+# v2.1.2 (Oct 1, 2020)
 
  * fix: Removed `preferGlobal` package setting.
  * fix: Added back proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
