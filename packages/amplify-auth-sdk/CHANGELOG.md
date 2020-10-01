@@ -7,8 +7,8 @@
    the login to pause indefinitely.
  * fix: Logout debug logging referenced undefined account auth properties.
  * fix: Added back proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))
+ * fix: Improved error handling when fetching token. ([CLI-99](https://jira.axway.com/browse/CLI-99))
  * refactor: Switched from using `got` directly to `amplify-request`.
- * refactor: Improved error handling when fetching token.
  * chore: Updated dependencies.
 
 # v2.2.1 (Aug 27, 2020)
