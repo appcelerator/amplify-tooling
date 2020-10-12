@@ -151,7 +151,7 @@ export default {
 					accounts: accounts.map(a => a.name)
 				}, null, 2));
 			} else if (err.details) {
-				console.error(`${alert(err.toString())}\n${err.details}`);
+				console.error(`${alert(err.toString())}\n\n${err.details}`);
 			} else {
 				console.error(alert(err));
 			}
