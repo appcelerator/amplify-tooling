@@ -1,6 +1,6 @@
 {
   "name": "@axway/cli",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0-rc8",
   "publishConfig": {
     "tag": "next"
   },
