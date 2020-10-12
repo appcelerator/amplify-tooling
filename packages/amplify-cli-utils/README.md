@@ -1,6 +1,6 @@
-# AMPLIFY CLI Utils
+# Axway CLI Utils
 
-A common utils library for AMPLIFY CLI and related packages.
+A common utils library for Axway CLI and related packages.
 
 ## Installation
 
@@ -11,7 +11,7 @@ A common utils library for AMPLIFY CLI and related packages.
 ### `buildAuthParams(opts, config)`
 
 Creates an AMPLIFY SDK or AMPLIFY Auth SDK constructor options object based on the supplied `opts`
-and AMPLIFY CLI `config` object. If `config` is not defined, the config is loaded from disk.
+and Axway CLI `config` object. If `config` is not defined, the config is loaded from disk.
 
 ```js
 import { buildAuthParams } from '@axway/amplify-cli-utils';
@@ -30,12 +30,12 @@ If you are spawning `npm`, then the following may be useful:
 import { createNPMRequestArgs } from '@axway/amplify-cli-utils';
 import { spawnSync } from 'child_process';
 
-spawnSync('npm', [ 'view', '@axway/amplify-cli', ...createNPMRequestArgs() ]);
+spawnSync('npm', [ 'view', '@axway/cli', ...createNPMRequestArgs() ]);
 ```
 
 ### `createRequestClient(opts, config)`
 
-Creates a `got` HTTP client with the AMPLIFY CLI network settings configured.
+Creates a `got` HTTP client with the Axway CLI network settings configured.
 
 ```js
 import { createRequestClient } from '@axway/amplify-cli-utils';
@@ -46,7 +46,7 @@ const response = await got('https://www.axway.com/');
 
 ### `createRequestOptions(opts, config)`
 
-Loads the AMPLIFY CLI config file and construct the options for the various Node.js HTTP clients
+Loads the Axway CLI config file and construct the options for the various Node.js HTTP clients
 including `pacote`, `npm-registry-fetch`, `make-fetch-happen`, and `request`.
 
 ```js
@@ -95,12 +95,12 @@ An object containing the `axwayHome` and `configFile` paths.
 import { locations } from '@axway/amplify-cli-utils';
 
 console.log('Axway Home Directory:', locations.axwayHome);
-console.log('AMPLIFY CLI Config Path:', locations.configFile);
+console.log('Axway CLI Config Path:', locations.configFile);
 ```
 
 ### `initSDK(opts, config)`
 
-Loads the AMPLIFY CLI config and initializes an AMPLIFY SDK instance.
+Loads the Axway CLI config and initializes an AMPLIFY SDK instance.
 
 #### Get the default account or login if needed:
 
@@ -174,7 +174,7 @@ console.log(accounts);
 
 ### `loadConfig()`
 
-Loads the AMPLIFY CLI config file using the lazy loaded AMPLIFY Config package.
+Loads the Axway CLI config file using the lazy loaded AMPLIFY Config package.
 
 ```js
 import { loadConfig } from '@axway/amplify-cli-utils';

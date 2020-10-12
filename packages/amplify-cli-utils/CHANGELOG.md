@@ -1,3 +1,9 @@
+# v4.0.0
+
+ * BREAKING CHANGE: Updated AMPLIFY CLI references to Axway CLI. The config file was moved from
+   `~/.axway/amplify-cli/amplify-cli.json` to `~/.axway/axway-cli/config.json`.
+   ([CLI-100](https://jira.axway.com/browse/CLI-100))
+
 # v3.2.0 (Oct 1, 2020)
 
  * feat: Added HTTP request helpers for preparing proxy config and creating a `got` instance.

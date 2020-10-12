@@ -1,3 +1,9 @@
+# v3.0.0
+
+ * BREAKING CHANGE: Updated AMPLIFY CLI references to Axway CLI. The config file was moved from
+   `~/.axway/amplify-cli/amplify-cli.json` to `~/.axway/axway-cli/config.json`.
+   ([CLI-100](https://jira.axway.com/browse/CLI-100))
+
 # v2.1.3 (Oct 1, 2020)
 
  * fix: Removed `preferGlobal` package setting.

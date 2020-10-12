@@ -12,10 +12,10 @@ import { isFile } from 'appcd-fs';
 
 const axwayHome = path.join(os.homedir(), '.axway');
 
-export const configFile = path.join(axwayHome, 'amplify-cli', 'amplify-cli.json');
+export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
 
 /**
- * Load a users config, if no userConfig is given then the default AMPLIFY CLI config will be
+ * Load a users config, if no userConfig is given then the default Axway CLI config will be
  * loaded.
  *
  * @param {Object} [opts] - An object with various options.
@@ -43,7 +43,7 @@ export function loadConfig(opts = {}) {
 
 		if (json.extensions && typeof json.extensions === 'object') {
 			const oldPackagesDir = path.join(axwayHome, 'packages');
-			const newPackagesDir = path.join(axwayHome, 'amplify-cli', 'packages');
+			const newPackagesDir = path.join(axwayHome, 'axway-cli', 'packages');
 			let changed = false;
 
 			for (const [ name, extPath ] of Object.entries(json.extensions)) {

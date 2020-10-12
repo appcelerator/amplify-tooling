@@ -6,8 +6,8 @@ import { join } from 'path';
 import { createNPMRequestArgs, locations } from '@axway/amplify-cli-utils';
 import { run, which } from 'appcd-subprocess';
 
-export const cacheDir = join(locations.axwayHome, 'amplify-cli', 'cache');
-export const packagesDir = join(locations.axwayHome, 'amplify-cli', 'packages');
+export const cacheDir = join(locations.axwayHome, 'axway-cli', 'cache');
+export const packagesDir = join(locations.axwayHome, 'axway-cli', 'packages');
 
 /**
  * Migrate the cache and packages directories from the old to the new location.
@@ -82,7 +82,7 @@ export async function extractTar({ dest, file, opts }) {
 }
 
 /**
- * Add a package to the amplify cli config
+ * Add a package to the Axway CLI config.
  *
  * @param {String} name - Name of the package.
  * @param {String} path - Path to the package.
@@ -106,7 +106,7 @@ export async function addPackageToConfig(name, path, cfg = loadConfig()) {
 }
 
 /**
- * Remove a package from the amplify cli config, optionally replacing it with another version.
+ * Remove a package from the Axway CLI config, optionally replacing it with another version.
  *
  * @param {String} name - Name of the package to remove/replace.
  * @param {String} [replacementPath] - Path to replace the existing version with.
