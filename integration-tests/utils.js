@@ -5,7 +5,7 @@ const { run } = require('appcd-subprocess');
 const isWindows = process.platform === 'win32';
 
 const axwayHome = join(homedir(), '.axway');
-const configFile = join(axwayHome, 'amplify-cli', 'amplify-cli.json');
+const configFile = join(axwayHome, 'axway-cli', 'config.json');
 let amplifyCmd;
 
 function preCheck() {
@@ -16,7 +16,7 @@ function preCheck() {
 		if (contents.length > 1) {
 			throw new Error(`Expected ${axwayHome} to be empty. Please relocate your home dir before running the tests `);
 		}
-		if (contents.length === 1 && contents.includes('amplify-cli.json')) {
+		if (contents.length === 1 && contents.includes('config.json')) {
 			const backupFile = join(homedir(), `amplify-config-backup-${Date.now()}.json`);
 			moveSync(configFile, backupFile);
 			console.log(`Moved ${configFile} to ${backupFile}`);
@@ -54,7 +54,7 @@ async function runCommand(args, opts = {}) {
 	const amplifyCmd = getAmplifyCommand();
 	// On Windows we need to spawn the local bin file using node to execute it
 	// this is handled by the npm wrapper when we use the global install
-	if (isWindows && amplifyCmd !== 'amplify.cmd') {
+	if (isWindows && amplifyCmd !== 'axway.cmd') {
 		args.unshift(amplifyCmd);
 		return await run(process.execPath, args, opts);
 	}
@@ -68,9 +68,9 @@ function getAmplifyCommand () {
 	if (process.env.AMPLIFY_BIN){
 		amplifyCmd = process.env.AMPLIFY_BIN;
 	} else if(isWindows) {
-		amplifyCmd = 'amplify.cmd';
+		amplifyCmd = 'axway.cmd';
 	} else {
-		amplifyCmd = 'amplify';
+		amplifyCmd = 'axway';
 	}
 
 	return amplifyCmd;
