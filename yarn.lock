@@ -2,27 +2,6 @@
 # yarn lockfile v1
 
 
-"@axway/amplify-cli-utils@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@axway/amplify-cli-utils/-/amplify-cli-utils-0.1.2.tgz#f4d209a31daddbcbe280f18beec1beb09e4d089d"
-  integrity sha512-M7VWxcUsQTA+UcAkApAi5qkdzpOp3gi8PXeMGfZdX169ZY1ZiVvfKTexAnje1/h0L4N6xORjLWC0FlOIp8ChcA==
-  dependencies:
-    appcd-config "^1.1.2"
-    appcd-fs "^1.1.3"
-    fs-extra "^7.0.0"
-    source-map-support "^0.5.9"
-
-"@axway/amplify-request@^0.1.2":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@axway/amplify-request/-/amplify-request-0.1.3.tgz#a78ed0355868e494bde92edbfd1bdc5929aed2a5"
-  integrity sha512-KasW6ABFAbTpBER1dTTNYV/AqHNj6+2yVEAlMSBxa4FyQO7K54YuuDgh5qrKf+ra2GjEngjZHjXipV5Y6IRSTQ==
-  dependencies:
-    "@axway/amplify-cli-utils" "^0.1.2"
-    appcd-fs "^1.1.3"
-    request "^2.88.0"
-    request-promise-native "^1.0.5"
-    source-map-support "^0.5.9"
-
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.10.4.tgz#168da1a36e90da68ae8d49c0f1b48c7c6249213a"
@@ -210,7 +189,7 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@babel/parser@^7.10.4", "@babel/parser@^7.11.5", "@babel/parser@^7.5.5", "@babel/parser@^7.7.0":
+"@babel/parser@^7.10.4", "@babel/parser@^7.11.5", "@babel/parser@^7.7.0":
   version "7.11.5"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.11.5.tgz#c7ff6303df71080ec7a4f5b8c003c58f1cf51037"
   integrity sha512-X9rD8qqm695vgmeaQ4fvz/o3+Wk4ZzQvSHkDBgpYKxpD4qTAUm88ZKtHkVqIOsYFFbIQ6wQYhC6q7pjqVK0E0Q==
@@ -309,7 +288,7 @@
     "@babel/parser" "^7.10.4"
     "@babel/types" "^7.10.4"
 
-"@babel/traverse@^7.10.4", "@babel/traverse@^7.11.5", "@babel/traverse@^7.5.5", "@babel/traverse@^7.7.0":
+"@babel/traverse@^7.10.4", "@babel/traverse@^7.11.5", "@babel/traverse@^7.7.0":
   version "7.11.5"
   resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.11.5.tgz#be777b93b518eb6d76ee2e1ea1d143daa11e61c3"
   integrity sha512-EjiPXt+r7LiCZXEfRpSJd+jUMnBd4/9OUv7Nx3+0u9+eimMwJmG0Q98lw4/289JCoxSE8OolDMNZaaF/JZ69WQ==
@@ -324,7 +303,7 @@
     globals "^11.1.0"
     lodash "^4.17.19"
 
-"@babel/types@^7.10.4", "@babel/types@^7.11.0", "@babel/types@^7.11.5", "@babel/types@^7.5.5", "@babel/types@^7.7.0":
+"@babel/types@^7.10.4", "@babel/types@^7.11.0", "@babel/types@^7.11.5", "@babel/types@^7.7.0":
   version "7.11.5"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.11.5.tgz#d9de577d01252d77c6800cee039ee64faf75662d"
   integrity sha512-bvM7Qz6eKnJVFIn+1LPtjlBFPVN5jNDc1XmN15vWe7Q3DPBufWWsLiIvUu7xW87uTG6QoggpIDnUgLQvPheU+Q==
@@ -1894,22 +1873,6 @@ anymatch@~3.1.1:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-appcd-config@^1.1.2:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/appcd-config/-/appcd-config-1.3.1.tgz#fed72b2cf6c75f94b6b1f56cba4b179e83263b74"
-  integrity sha512-LyeDXcuLUGEAijPrK5+4rorFo6k459hydhQBS4xqDZGsPS4ZxsILlgSbtL/IUr4ySU5HgvFj0tOPRCigoqGfTw==
-  dependencies:
-    "@babel/parser" "^7.5.5"
-    "@babel/traverse" "^7.5.5"
-    "@babel/types" "^7.5.5"
-    appcd-fs "^1.1.8"
-    appcd-logger "^2.0.2"
-    appcd-path "^1.1.7"
-    doctrine "^3.0.0"
-    fs-extra "^8.1.0"
-    gawk "^4.6.4"
-    source-map-support "^0.5.13"
-
 appcd-dispatcher@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/appcd-dispatcher/-/appcd-dispatcher-3.0.0.tgz#a0d9db3a133f63c50d6aa32a267ab4adacaac384"
@@ -1922,13 +1885,6 @@ appcd-dispatcher@^3.0.0:
     pluralize "^8.0.0"
     source-map-support "^0.5.19"
     uuid "^8.1.0"
-
-appcd-fs@^1.1.3, appcd-fs@^1.1.8:
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/appcd-fs/-/appcd-fs-1.1.10.tgz#feb17938e2e3d8a09b565a75611203e000aae861"
-  integrity sha512-hLtsgLpR5T5HacraXPCjtNP8yDc9sdGx6cLie0PoutwvhqVJcpkD1LXRLRweKBM/O/Nwwyb8Ry3Um/HxCtMN9g==
-  dependencies:
-    source-map-support "^0.5.16"
 
 appcd-fs@^2.0.0:
   version "2.0.0"
@@ -1983,14 +1939,6 @@ appcd-gulp@^3.0.1:
     sinon-chai "^3.5.0"
     webpack "^4.43.0"
 
-appcd-logger@^2.0.2:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/appcd-logger/-/appcd-logger-2.0.5.tgz#19f59f477fb5663046b1da003e2aa2ff6bc7b4c5"
-  integrity sha512-/YHgZEYBKijfp00TvpfCFmRMOqQ9NGRqJ3ydX513+3NztaNDpd5MPzKKwLnbAMEHTS+ttWEpCNpDMcWOyhRh6A==
-  dependencies:
-    snooplogg "^2.3.3"
-    source-map-support "^0.5.16"
-
 appcd-logger@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/appcd-logger/-/appcd-logger-3.0.0.tgz#894e3e7f41e4299f4c2f82ff186df0aed8a7e9ef"
@@ -2014,13 +1962,6 @@ appcd-nodejs@^4.0.0:
     source-map-support "^0.5.19"
     tar-stream "^2.1.2"
     yauzl "^2.10.0"
-
-appcd-path@^1.1.7:
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/appcd-path/-/appcd-path-1.1.10.tgz#62d8b61a1e0394d613958488e59acff410cede2a"
-  integrity sha512-SHVMoAjhwJIYkqrP3P8JdKGNOOfK9TTsGnXHJ8/FprmvWEvv7p7NbUCPX6GcTahF46QrMIoAqEUeKzO744bd9Q==
-  dependencies:
-    source-map-support "^0.5.16"
 
 appcd-path@^2.0.1:
   version "2.0.1"
@@ -2711,7 +2652,7 @@ browserify-zlib@^0.2.0:
   dependencies:
     pako "~1.0.5"
 
-bryt@^1.0.1, bryt@^1.0.2:
+bryt@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/bryt/-/bryt-1.0.2.tgz#041b58d0038aabb7517920e4d7ccad27f172cdd3"
   integrity sha512-K/qt3xOAOU71q5Y2yJKOqleBwfeJ3J5tOn1pds9b/iQvQ/cq984oSzuv6iOXRxoTdZH3WGOazX1HXu0+sLU7VA==
@@ -3008,14 +2949,6 @@ chalk@^2.0.0, chalk@^2.1.0, chalk@^2.3.0, chalk@^2.3.1, chalk@^2.4.1, chalk@^2.4
     ansi-styles "^3.2.1"
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
-
-chalk@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-3.0.0.tgz#3f73c2bf526591f574cc492c51e2456349f844e4"
-  integrity sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg==
-  dependencies:
-    ansi-styles "^4.1.0"
-    supports-color "^7.1.0"
 
 chalk@^4.0.0, chalk@^4.1.0:
   version "4.1.0"
@@ -5357,15 +5290,6 @@ fs-extra@5.0.0:
     jsonfile "^4.0.0"
     universalify "^0.1.0"
 
-fs-extra@^7.0.0:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
-  integrity sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==
-  dependencies:
-    graceful-fs "^4.1.2"
-    jsonfile "^4.0.0"
-    universalify "^0.1.0"
-
 fs-extra@^8.1.0:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-8.1.0.tgz#49d43c45a88cd9677668cb7be1b46efdb8d2e1c0"
@@ -5375,7 +5299,7 @@ fs-extra@^8.1.0:
     jsonfile "^4.0.0"
     universalify "^0.1.0"
 
-fs-extra@^9.0.1:
+fs-extra@^9.0.0, fs-extra@^9.0.1:
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-9.0.1.tgz#910da0062437ba4c39fedd863f1675ccfefcb9fc"
   integrity sha512-h2iAoN838FqAFJY2/qVpzFXy+EBxfVE220PalAqQLDVsFOHLJrZvut5puAbCdNv6WJk+B8ihI+k0c7JK5erwqQ==
@@ -5459,7 +5383,7 @@ gauge@~2.7.3:
     strip-ansi "^3.0.1"
     wide-align "^1.1.0"
 
-gawk@^4.6.4, gawk@^4.7.1:
+gawk@^4.7.1:
   version "4.7.1"
   resolved "https://registry.yarnpkg.com/gawk/-/gawk-4.7.1.tgz#63a75424048053a62b495da9ecbe61528056be07"
   integrity sha512-fjKlaTJX+SKQWjuHgBKOztySsWGP596Qou1mM4yKpY6IbWizsOXO9Yuu2az/wmKgvkK2WHTcKUKJprTqBLCgww==
@@ -8136,7 +8060,7 @@ nan@^2.12.1, nan@^2.14.0:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.1.tgz#d7be34dfa3105b91494c3147089315eff8874b01"
   integrity sha512-isWHgVjnFjh2x2yuJ/tj3JbwoHu3UC2dX5G/88Cm24yB6YopVgxvBObDY7n5xW6ExmFhJpSEQqFPvq9zaXc8Jw==
 
-nanobuffer@^1.1.6, nanobuffer@^1.1.7:
+nanobuffer@^1.1.7:
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/nanobuffer/-/nanobuffer-1.1.7.tgz#d81b71411c1dc47af58c4c5f864cd2b0eb0bf404"
   integrity sha512-LP1JYWQh4qFmpLaauE3mWuOjGJSxts+wnYeTlSb4zurdn8xIhJ906oyb7M7Ih6EiImaUskFdHfYx9gyijf1FLA==
@@ -9850,22 +9774,6 @@ replace-homedir@^1.0.0:
     is-absolute "^1.0.0"
     remove-trailing-separator "^1.1.0"
 
-request-promise-core@1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/request-promise-core/-/request-promise-core-1.1.4.tgz#3eedd4223208d419867b78ce815167d10593a22f"
-  integrity sha512-TTbAfBBRdWD7aNNOoVOBH4pN/KigV6LyapYNNlAPA8JwbovRti1E88m3sYAwsLi5ryhPKsE9APwnjFTgdUjTpw==
-  dependencies:
-    lodash "^4.17.19"
-
-request-promise-native@^1.0.5:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/request-promise-native/-/request-promise-native-1.0.9.tgz#e407120526a5efdc9a39b28a5679bf47b9d9dc28"
-  integrity sha512-wcW+sIUiWnKgNY0dqCpOZkUbF/I+YPi+f09JZIDa39Ec+q82CpSYniDp+ISgTTbKmnpJWASeJBPZmoxH84wt3g==
-  dependencies:
-    request-promise-core "1.1.4"
-    stealthy-require "^1.1.1"
-    tough-cookie "^2.3.3"
-
 request@^2.55.0, request@^2.88.0, request@^2.88.2:
   version "2.88.2"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.2.tgz#d73c918731cb5a87da047e207234146f664d12b3"
@@ -10283,17 +10191,6 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-snooplogg@^2.3.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/snooplogg/-/snooplogg-2.3.3.tgz#5ff87d24e6dd4d59bb45f9c97372b45a64eaeb9d"
-  integrity sha512-ibqjTxEjn4axSxl+bX17h71ioK/MN8xHdaLFNAkyqHvywOI5xqT7blyUm6ALPDYzfVNIe6Itr+61odaVSEU20A==
-  dependencies:
-    bryt "^1.0.1"
-    chalk "^3.0.0"
-    nanobuffer "^1.1.6"
-    source-map-support "^0.5.16"
-    supports-color "^7.1.0"
-
 snooplogg@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/snooplogg/-/snooplogg-3.0.0.tgz#045f8fadc1ff3f66509861b1a47ec16ff25fbc3d"
@@ -10361,7 +10258,7 @@ source-map-resolve@^0.5.0, source-map-resolve@^0.5.2:
     source-map-url "^0.4.0"
     urix "^0.1.0"
 
-source-map-support@^0.5.13, source-map-support@^0.5.16, source-map-support@^0.5.19, source-map-support@^0.5.9, source-map-support@~0.5.12:
+source-map-support@^0.5.16, source-map-support@^0.5.19, source-map-support@~0.5.12:
   version "0.5.19"
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.19.tgz#a98b62f86dcaf4f67399648c085291ab9e8fed61"
   integrity sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==
@@ -10506,11 +10403,6 @@ static-extend@^0.1.1:
   dependencies:
     define-property "^0.2.5"
     object-copy "^0.1.0"
-
-stealthy-require@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/stealthy-require/-/stealthy-require-1.1.1.tgz#35b09875b4ff49f26a777e509b3090a3226bf24b"
-  integrity sha1-NbCYdbT/SfJqd35QmzCQoyJr8ks=
 
 stream-browserify@^2.0.1:
   version "2.0.2"
@@ -10873,14 +10765,14 @@ targit-parser@^0.1.0:
   resolved "https://registry.yarnpkg.com/targit-parser/-/targit-parser-0.1.0.tgz#1255b8ce0f8eaa32d11193f8b16c2d984a03c4a4"
   integrity sha512-1xwMD5eRZ/olB7aPf7+prEkP3e/i1X9R7pl3k+9DCf0S3wYt0RRuULw5P3THtf0sjjxGlNYOb87ltdOfvCpZ5Q==
 
-targit@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/targit/-/targit-0.1.4.tgz#ff8d3ad30cb5d5674be015777b37a241df6b876a"
-  integrity sha512-HJNAIEjaZV4EiT0eK3usQiuUWk5s8W2MR2y30DmwdGmb3mbeG3yFt875j4WrvQW1boFympshQbpO70mVMNvjlw==
+targit@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/targit/-/targit-0.2.0.tgz#8abb7f3794cebaa537cee889d10945c89887527f"
+  integrity sha512-451qjpUmDezoWUFGXaSJAdX+4hFeEnMoiVrKRMvNWlkM3vDDtwH4e0l/TQFL2Ub/QOO4sMocQdSZEkunY5gGzw==
   dependencies:
-    "@axway/amplify-request" "^0.1.2"
+    "@axway/amplify-request" "^2.0.0"
     decompress "^4.2.0"
-    mkdirp "^0.5.1"
+    fs-extra "^9.0.0"
     targit-parser "^0.1.0"
 
 temp-dir@^1.0.0:
@@ -11094,7 +10986,7 @@ to-through@^2.0.0:
   dependencies:
     through2 "^2.0.3"
 
-tough-cookie@^2.2.0, tough-cookie@^2.3.3, tough-cookie@~2.5.0:
+tough-cookie@^2.2.0, tough-cookie@~2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/tough-cookie/-/tough-cookie-2.5.0.tgz#cd9fb2a0aa1d5a12b473bd9fb96fa3dcff65ade2"
   integrity sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==
