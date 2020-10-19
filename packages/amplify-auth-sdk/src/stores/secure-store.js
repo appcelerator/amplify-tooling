@@ -44,15 +44,8 @@ export default class SecureStore extends FileStore {
 			throw E.INVALID_PARAMETER('Secure store requires the home directory to be specified');
 		}
 
-		const libDir = path.join(homeDir, 'amplify-cli', 'lib');
-		const legacyLibDir = path.join(homeDir, 'lib');
-
-		if (!isDir(libDir) && isDir(legacyLibDir)) {
-			fs.moveSync(legacyLibDir, libDir);
-		}
-
 		const keytarVersion = fs.readJsonSync(path.resolve(__dirname, '..', '..', 'package.json')).keytar.replace(/[^\d.]*/g, '');
-		const prefix = path.join(libDir, 'keytar', `${keytarVersion}_${process.platform}_${process.arch}_${process.versions.modules}`);
+		const prefix = path.join(homeDir, 'axway-cli', 'lib', 'keytar', `${keytarVersion}_${process.platform}_${process.arch}_${process.versions.modules}`);
 		const keytarPath = path.join(prefix, 'node_modules', 'keytar');
 		let keytar;
 
@@ -191,7 +184,7 @@ export default class SecureStore extends FileStore {
 						'',
 						'To use the insecure token store, run the following:',
 						'',
-						'  amplify config set auth.tokenStoreType file'
+						'  axway config set auth.tokenStoreType file'
 					].join('\n'));
 				}
 				throw err;

@@ -1,3 +1,8 @@
+# v2.3.1
+
+ * fix: No longer move old v1 token store as it breaks products still using older amplify-cli-util
+   versions.
+
 # v2.3.0 (Oct 1, 2020)
 
  * fix: Improved error handling if the default web browser fails to launch.

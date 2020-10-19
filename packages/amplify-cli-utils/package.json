@@ -1,7 +1,7 @@
 {
   "name": "@axway/amplify-cli-utils",
   "version": "3.2.0",
-  "description": "Common utils for AMPLIFY CLI packages",
+  "description": "Common utils for Axway CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Ewan Harris <eharris@axway.com>",

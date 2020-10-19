@@ -72,10 +72,10 @@ export function buildAuthParams(opts = {}, config) {
 export { buildAuthParams as buildParams };
 
 /**
- * Builds an array of AMPLIFY CLI network settings for use as command line arguments when spawning
+ * Builds an array of Axway CLI network settings for use as command line arguments when spawning
  * `npm`.
  *
- * @param {Object} [opts] - Request configuration options to override the AMPLIFY CLI config
+ * @param {Object} [opts] - Request configuration options to override the Axway CLI config
  * settings.
  * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
  * from disk.
@@ -104,9 +104,9 @@ export function createNPMRequestArgs(opts, config) {
 
 /**
  * Load the config file and initializes a `got` instance for making HTTP calls using the network
- * settings from the AMPLIFY CLI config file.
+ * settings from the Axway CLI config file.
  *
- * @param {Object} [opts] - `got` option to override the AMPLIFY CLI config settings.
+ * @param {Object} [opts] - `got` option to override the Axway CLI config settings.
  * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
  * from disk.
  * @returns {Function}
@@ -124,10 +124,10 @@ export function createRequestClient(opts, config) {
 }
 
 /**
- * Loads the AMPLIFY CLI config file and construct the options for the various Node.js HTTP clients
+ * Loads the Axway CLI config file and construct the options for the various Node.js HTTP clients
  * including `pacote`, `npm-registry-fetch`, `make-fetch-happen`, and `request`.
  *
- * @param {Object} [opts] - Request configuration options to override the AMPLIFY CLI config
+ * @param {Object} [opts] - Request configuration options to override the Axway CLI config
  * settings.
  * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
  * from disk.
@@ -211,7 +211,7 @@ export function createTable(head, indent = 0) {
  *
  * @param {Object} [opts] - SDK options including `env` and auth options.
  * @param {Object} [config] - The AMPLIFY config. If not passed in, the config file is loaded.
- * @returns {Object} Returns an object containing the AMPLIFY CLI config and an initialized
+ * @returns {Object} Returns an object containing the Axway CLI config and an initialized
  * AMPLIFY SDK instance.
  */
 export function initSDK(opts = {}, config) {
@@ -226,7 +226,7 @@ export function initSDK(opts = {}, config) {
 }
 
 /**
- * Loads the AMPLIFY CLI config file using the lazy loaded AMPLIFY Config package.
+ * Loads the Axway CLI config file using the lazy loaded AMPLIFY Config package.
  *
  * @param {Object} [opts] - Various options. See `@axway/amplify-config` for more details.
  * @returns {Config}

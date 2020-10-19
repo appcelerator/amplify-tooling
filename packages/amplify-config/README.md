@@ -1,6 +1,6 @@
 # AMPLIFY Config
 
-Configuration helper for the AMPLIFY CLI.
+Configuration helper for the Axway CLI.
 
 ## Installation
 
@@ -11,15 +11,15 @@ Configuration helper for the AMPLIFY CLI.
 ```js
 import loadConfig from '@axway/amplify-config';
 
-// load just the amplify-cli.json config file
+// load just the Axway CLI config file
 let config = loadConfig();
 console.log(config);
 
-// load a default config file, then merge the amplify-cli-json config on top
+// load a default config file, then merge another config file on top
 config = loadConfig({ configFile: '/path/to/default/config.js' });
 console.log(config);
 
-// load a specific config file instead of the default amplify-cli.json file
+// load a specific config file instead of the default config file
 config = loadConfig({ userConfigFile: '/path/to/default/my-config.js' });
 console.log(config);
 ```

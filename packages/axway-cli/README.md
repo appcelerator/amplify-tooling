@@ -1,49 +1,47 @@
-> ## ATTENTION: This package has been moved to [Axway CLI](https://npmjs.org/package/@axway/cli).
+# Axway CLI
 
-# AMPLIFY CLI
-
-The AMPLIFY CLI is the unified CLI for the Axway AMPLIFY platform.
+The Axway CLI is the unified CLI for the Axway AMPLIFY platform.
 
 ## Prerequisites
 
-The AMPLIFY CLI requires [Node.js][1] 10.13.0 or newer.
+The Axway CLI requires [Node.js][1] 10.13.0 or newer.
 
 ## Installation
 
-	npm install --global @axway/amplify-cli
+	npm install --global @axway/cli
 
 ### macOS and Linux Users
 
-Due to file permissions, when installing the AMPLIFY CLI globally, you may need to prefix the
+Due to file permissions, when installing the Axway CLI globally, you may need to prefix the
 command above with `sudo`:
 
-	sudo npm install --global @axway/amplify-cli
+	sudo npm install --global @axway/cli
 
 ## Quick Start
 
 Show all available commands:
 
-	amplify
+	axway
 
 Log into the Axway AMPLIFY platform:
 
-	amplify auth login
+	axway auth login
 
 List available packages:
 
-	amplify pm search [keyword]
+	axway pm search [keyword]
 
 Install a package:
 
-	amplify pm install [package-name]
+	axway pm install [package-name]
 
 List config settings:
 
-	amplify config ls
+	axway config ls
 
 Set a config setting:
 
-	amplify config set <name> <value>
+	axway config set <name> <value>
 
 ## Config Settings
 
@@ -103,7 +101,7 @@ Set a config setting:
 		<td><code>extensions.&lt;name&gt;</code></td>
 		<td>string</td>
 		<td></td>
-		<td>The path to an AMPLIFY CLI extension. The <code>"name"</code> is the command name and is displayed in the AMPLIFY CLI's list of commands. The value is a path to the extension which can be a Node.js package directory or an executable. If the path is a Node.js package, then the <code>"name"</code> is from the <code>package.json</code> is used. Any alpha-numeric name is acceptable except <code>"auth"</code>, <code>"config"</code>, and <code>"pm"</code>.</td>
+		<td>The path to an Axway CLI extension. The <code>"name"</code> is the command name and is displayed in the Axway CLI's list of commands. The value is a path to the extension which can be a Node.js package directory or an executable. If the path is a Node.js package, then the <code>"name"</code> is from the <code>package.json</code> is used. Any alpha-numeric name is acceptable except <code>"auth"</code>, <code>"config"</code>, and <code>"pm"</code>.</td>
 	</tr>
 	<tr>
 		<td><code>network.caFile</code></td>
@@ -128,19 +126,20 @@ Set a config setting:
 
 ## Extensions
 
-AMPLIFY CLI is a unified CLI and provides a main entry point for invoking other local CLI programs.
+Axway CLI is a unified CLI and provides a main entry point for invoking other local CLI programs.
 These other CLIs are called "extensions". Extension CLIs can be a npm package, a single Node.js
 JavaScript file, or a native executable.
 
 With the exception of [cli-kit][2] enabled CLIs, all extension CLIs are run as subprocesses and the
-AMPLIFY CLI banner is suppressed. The only indication an extension CLI has that it's being run by
-the AMPLIFY CLI is the `AMPLIFY_CLI` environment variable containing the AMPLIFY CLI's version.
+Axway CLI banner is suppressed. The only indication an extension CLI has that it's being run by
+the Axway CLI is the `AXWAY_CLI` environment variable (also `AMPLIFY_CLI` for backwards
+compatibility) containing the Axway CLI's version.
 
 cli-kit enabled CLIs are directly loaded via `require()` and the exported CLI structure is merged
 with the parent CLI command context tree. This promotes efficient reuse parser state and provides a
 seamless user experience.
 
-If an extension is a npm package, the AMPLIFY CLI will automatically invoke it using the Node.js
+If an extension is a npm package, the Axway CLI will automatically invoke it using the Node.js
 executable. Specifying the extension as `node /path/to/script.js` will treat the extension as a
 native executable.
 
@@ -209,7 +208,7 @@ cli.exec()
 ```
 
 While not required, you probably will also want to add a `bin` script to your project so you can run
-your CLI outside of the AMPLIFY CLI:
+your CLI outside of the Axway CLI:
 
 ```js
 #!/usr/bin/env node
@@ -243,10 +242,10 @@ entire `package.json` definition. This allows you to override the `name` and `de
 
 #### Step 4
 
-To register your CLI with the AMPLIFY CLI, simply run:
+To register your CLI with the Axway CLI, simply run:
 
 ```
-$ amplify config set extensions.mycli /path/to/package
+$ axway config set extensions.mycli /path/to/package
 ```
 
 > :bulb: Note that the extension path should be to your local project directory containing the
@@ -257,27 +256,27 @@ $ amplify config set extensions.mycli /path/to/package
 Run your CLI!
 
 ```
-$ amplify mycli profit --turbo
+$ axway mycli profit --turbo
 It works and it's super fast!
 ```
 
 ### Publishing Your CLI
 
 Publish your CLI as you normally would using `npm publish`. To install your CLI, you could
-`npm install -g <name>`, but then you would also have to manually register it with the AMPLIFY CLI.
+`npm install -g <name>`, but then you would also have to manually register it with the Axway CLI.
 
-The recommended way to install your CLI package is to use teh AMPLIFY CLI package manager:
+The recommended way to install your CLI package is to use teh Axway CLI package manager:
 
 ```
-$ amplify pm install <name>
+$ axway pm install <name>
 ```
 
 This will not only download and install the package, including dependencies, but also automatically
-register it with the AMPLIFY CLI.
+register it with the Axway CLI.
 
-> :bulb: Note that the AMPLIFY CLI package manager allows for multiple versions of a package to be
-> installed simultaneously, however only one is the "active" version. Run the `amplify pm ls`
-> command to see which versions are installed and run the `amplify pm use <name>@<version>` command
+> :bulb: Note that the Axway CLI package manager allows for multiple versions of a package to be
+> installed simultaneously, however only one is the "active" version. Run the `axway pm ls`
+> command to see which versions are installed and run the `axway pm use <name>@<version>` command
 > to switch the active version.
 
 ### cli-kit package.json Properties
@@ -285,7 +284,7 @@ register it with the AMPLIFY CLI.
 Below are the supported `"cli-kit"` properties in the `package.json`.
 
 > :warning: Note that while each property is optional, the `"cli-kit"` property __MUST__ exist in
-> order for the AMPLIFY CLI to detect the Node.js package as
+> order for the Axway CLI to detect the Node.js package as
 
 | Name | Type | Description |
 | --- | --- | --- |
@@ -316,7 +315,7 @@ Should the name of your extension CLI product change, you simply need to update 
 Afterwards, publish the new product. The Registry Server will automatically register your new
 extension CLI.
 
-Note that commands such as `amplify pm update` will not resolve the new product name. Users will
+Note that commands such as `axway pm update` will not resolve the new product name. Users will
 need to explicitly install the new extension CLI.
 
 ## Legal
@@ -327,4 +326,4 @@ in this distribution for more information.
 
 [1]: https://nodejs.org/
 [2]: https://github.com/cb1kenobi/cli-kit
-[3]: https://github.com/appcelerator/amplify-tooling/blob/master/packages/amplify-cli/LICENSE
+[3]: https://github.com/appcelerator/amplify-tooling/blob/master/packages/axway-cli/LICENSE

@@ -52,7 +52,7 @@ export default {
 		console.log(table.toString());
 
 		if (Object.keys(unmanaged).length) {
-			console.log('\nNote: Unmanaged packages were not installed by the AMPLIFY CLI and cannot be purged or uninstalled.');
+			console.log('\nNote: Unmanaged packages were not installed by the Axway CLI and cannot be purged or uninstalled.');
 		}
 	}
 };

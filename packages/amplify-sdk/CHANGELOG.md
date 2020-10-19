@@ -1,3 +1,8 @@
+# v1.3.1
+
+ * chore: Updated AMPLIFY CLI references to Axway CLI.
+   ([CLI-100](https://jira.axway.com/browse/CLI-100))
+
 # v1.3.0 (Oct 1, 2020)
 
  * feat: Added proxy server support. ([CLI-98](https://jira.axway.com/browse/CLI-98))

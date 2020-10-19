@@ -18,7 +18,7 @@ export default {
 			if (!accounts.length) {
 				const err = new Error('No authenticated accounts found');
 				err.code = 'ERR_NO_ACCOUNTS';
-				err.details = `Please login first:\n  ${highlight('amplify auth login')}`;
+				err.details = `Please login first:\n  ${highlight(`${process.env.AXWAY_CLI ? 'axway' : 'amplify'} auth login`)}`;
 				throw err;
 			}
 
@@ -151,7 +151,7 @@ export default {
 					accounts: accounts.map(a => a.name)
 				}, null, 2));
 			} else if (err.details) {
-				console.error(`${alert(err.toString())}\n${err.details}`);
+				console.error(`${alert(err.toString())}\n\n${err.details}`);
 			} else {
 				console.error(alert(err));
 			}

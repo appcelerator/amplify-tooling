@@ -52,16 +52,10 @@ export default class FileStore extends TokenStore {
 			}
 		}
 
-		homeDir = path.resolve(homeDir);
+		this.homeDir = path.resolve(homeDir);
 
-		this.tokenStoreDir = path.join(homeDir, 'amplify-cli');
+		this.tokenStoreDir = path.join(this.homeDir, 'axway-cli');
 		this.tokenStoreFile = path.join(this.tokenStoreDir, this.filename);
-
-		// check if token store file needs to be migrated
-		const legacyTokenStoreFile = path.join(homeDir, this.filename);
-		if (!isFile(this.tokenStoreFile) && isFile(legacyTokenStoreFile)) {
-			fs.moveSync(legacyTokenStoreFile, this.tokenStoreFile);
-		}
 	}
 
 	/**
@@ -192,7 +186,7 @@ export default class FileStore extends TokenStore {
 	 */
 	async remove() {
 		for (let ver = 1; ver <= 2; ver++) {
-			const file = ver === 2 ? this.tokenStoreFile : this.tokenStoreFile.replace(/\.v2$/, '');
+			const file = ver === 2 ? this.tokenStoreFile : path.join(this.homeDir, this.filename.replace(/\.v2$/, ''));
 			log(`Removing ${highlight(file)}`);
 			await fs.remove(file);
 		}
@@ -231,7 +225,7 @@ export default class FileStore extends TokenStore {
 
 				return v1;
 			}));
-			const file = ver === 2 ? this.tokenStoreFile : this.tokenStoreFile.replace(/\.v2$/, '');
+			const file = ver === 2 ? this.tokenStoreFile : path.join(this.homeDir, this.filename.replace(/\.v2$/, ''));
 			log(`Writing ${highlight(file)}`);
 			await fs.outputFile(file, data, { mode: 384 /* 600 */ });
 		}

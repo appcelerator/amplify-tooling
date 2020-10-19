@@ -1,22 +1,22 @@
-# AMPLIFY CLI Authentication
+# Axway Auth CLI
 
 Authenticates a machine with the Axway AMPLIFY platform.
 
 ## Installation
 
-This package is bundled with the AMPLIFY CLI and thus does not need to be directly installed.
+This package is bundled with the Axway CLI and thus does not need to be directly installed.
 
-	npm i -g @axway/amplify-cli
+	npm i -g @axway/cli
 
 ## Quick Start
 
 Log into the Axway platform:
 
-	amplify auth login
+	axway auth login
 
 Log out of the Axway platform:
 
-	amplify auth logout
+	axway auth logout
 
 ## Commands
 
@@ -27,9 +27,9 @@ Lists all credentialed accounts.
 Alias: `ls`
 
 ```
-amplify auth list
+axway auth list
 
-amplify auth list --json
+axway auth list --json
 ```
 
 ### `login`
@@ -37,15 +37,19 @@ amplify auth list --json
 Log in to the Axway AMPLIFY platform.
 
 ```
-amplify auth login
+axway auth login
 
-amplify auth login --json
+axway auth login --json
 
-amplify auth login <username> <password>
+axway auth login --username
 
-amplify auth login --secret <CLIENT_SECRET>
+axway auth login --username <username>
 
-amplify auth login --secret-file <path/to/pem/file>
+axway auth login --username <username> --password <password>
+
+axway auth login --secret <CLIENT_SECRET>
+
+axway auth login --secret-file <path/to/pem/file>
 ```
 
 ### `logout`
@@ -55,11 +59,11 @@ Log out all or specific accounts from the AMPLIFY platform.
 Alias: `revoke`
 
 ```
-amplify auth logout --all
+axway auth logout --all
 
-amplify auth logout --all --json
+axway auth logout --all --json
 
-amplify auth logout <ACCOUNT_NAME_1> <ACCOUNT_NAME_2>
+axway auth logout <ACCOUNT_NAME_1> <ACCOUNT_NAME_2>
 ```
 
 ## Legal
