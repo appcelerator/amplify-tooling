@@ -19,8 +19,11 @@ const extensions = [
 	dirname(require.resolve('@axway/amplify-cli-pm'))
 ];
 
-const banner = `${chalk.cyan('AMPLIFY CLI')}, version ${version}\n`
-		+ 'Copyright (c) 2018-2020, Axway, Inc. All Rights Reserved.';
+const banner = `${chalk.cyan('AMPLIFY CLI')}, version ${version}
+Copyright (c) 2018-2020, Axway, Inc. All Rights Reserved.
+
+${chalk.yellow(`ATTENTION! The AMPLIFY CLI is deprecated in favor of the new Axway CLI.
+To install the Axway CLI, run: ${chalk.cyan('npm i -g axway')}`)}`;
 
 process.env.AMPLIFY_CLI = version;
 

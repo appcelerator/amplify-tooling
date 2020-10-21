@@ -8,14 +8,14 @@ The Axway CLI requires [Node.js][1] 10.13.0 or newer.
 
 ## Installation
 
-	npm install --global @axway/cli
+	npm install -g axway
 
 ### macOS and Linux Users
 
 Due to file permissions, when installing the Axway CLI globally, you may need to prefix the
 command above with `sudo`:
 
-	sudo npm install --global @axway/cli
+	sudo npm install -g axway
 
 ## Quick Start
 

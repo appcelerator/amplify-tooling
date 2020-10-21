@@ -2,6 +2,8 @@
 
  * fix: No longer move old v1 token store as it breaks products still using older amplify-cli-util
    versions.
+ * fix: Create the `keytar` prefix directory if it doesn't exist.
+ * chore: Updated dependencies.
 
 # v2.3.0 (Oct 1, 2020)
 

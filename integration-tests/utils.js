@@ -5,12 +5,14 @@ const { run } = require('appcd-subprocess');
 const isWindows = process.platform === 'win32';
 
 const axwayHome = join(homedir(), '.axway');
-const configFile = join(axwayHome, 'axway-cli', 'config.json');
+const configFile = process.env.AMPLIFY_CONFIG_FILE || join(axwayHome, 'axway-cli', 'config.json');
 let amplifyCmd;
 
 function preCheck() {
 	console.log(`Home: ${axwayHome}`);
-	console.log(`Using ${getAmplifyCommand()} as the amplify binary`);
+	console.log(`Binary: ${getAmplifyCommand()}`);
+	console.log(`Config: ${configFile}`);
+
 	if (existsSync(axwayHome)) {
 		const contents = readdirSync(axwayHome);
 		if (contents.length > 1) {

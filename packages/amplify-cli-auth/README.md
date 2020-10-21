@@ -6,7 +6,7 @@ Authenticates a machine with the Axway AMPLIFY platform.
 
 This package is bundled with the Axway CLI and thus does not need to be directly installed.
 
-	npm i -g @axway/cli
+	npm i -g axway
 
 ## Quick Start
 

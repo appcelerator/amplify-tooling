@@ -89,7 +89,8 @@ export class AmplifySDK {
 						}, {}),
 					guid:         org.guid,
 					id:           org.org_id,
-					name:         org.name
+					name:         org.name,
+					region:       org.region
 				};
 
 				account.orgs = orgs.map(({ guid, name, org_id }) => ({ guid, id: org_id, name }));
@@ -516,7 +517,7 @@ export class AmplifySDK {
 		} catch (err) {
 			if (err.code === 'ERR_SECURE_STORE_UNAVAILABLE') {
 				const isWin = process.platform === 'win32';
-				err.message = `Secure token store is not available.\nPlease reinstall the Axway CLI by running:\n    ${isWin ? '' : 'sudo '}npm install --global ${isWin ? '' : '--unsafe-perm '}@axway/cli`;
+				err.message = `Secure token store is not available.\nPlease reinstall the Axway CLI by running:\n    ${isWin ? '' : 'sudo '}npm install --global ${isWin ? '' : '--unsafe-perm '}axway`;
 			}
 			throw err;
 		}

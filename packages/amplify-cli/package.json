@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli",
-  "version": "2.0.0-rc7",
+  "version": "1.5.0-rc1",
   "publishConfig": {
     "tag": "next"
   },
@@ -27,23 +27,20 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-auth": "^2.2.0",
-    "@axway/amplify-cli-pm": "^2.2.0",
-    "cli-kit": "1.8.2",
+    "@axway/amplify-cli-auth": "^1.4.0",
+    "@axway/amplify-cli-pm": "^1.4.0",
+    "cli-kit": "0.16.2",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.1.1"
   },
-  "optionalDependencies": {
-    "node-pty-prebuilt-multiarch": "^0.9.0"
-  },
   "devDependencies": {
-    "appcd-gulp": "^3.0.1"
+    "appcd-gulp": "^2.4.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli",
   "engines": {
-    "node": ">=10.13.0"
+    "node": ">=8.10.0"
   },
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }

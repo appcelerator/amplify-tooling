@@ -1,17 +1,6 @@
-# v2.0.0-rc7 (Oct 1, 2020)
+# v1.5.0
 
- * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
-   ([CLI-89](https://jira.axway.com/browse/CLI-89))
- * BREAKING CHANGE(config): `config` command does not return current value when doing a `set`,
-   `push`, or `unshift`.
- * BREAKING CHANGE(config): `config list` command no longer supports filtering, use `config get`
-   instead.
- * BREAKING CHANGE(config): Write operations such as `set` return `"OK"` instead of `"Saved"`.
- * feat: Bundled `node-pty-prebuilt-multiarch` which cli-kit will use to spawn non-cli-kit
-   extensions using a pseudo terminal and preserve stdio for things such as prompting.
- * feat(config): Added proxy info to config help.
- * refactor(config): Do not show the banner for `config` related commands.
- * refactor(config): Replaced config action with subcommands for cleaner code and improved help
-   information.
- * fix(config): Latest cli-kit no longer requires `showHelpOnError` to be disabled.
+ * chore: Added deprecation notice in favor of the new
+   [Axway CLI](https://npmjs.org/package/axway).
+   [(CLI-100)](https://jira.axway.com/browse/CLI-100)
  * chore: Updated dependencies.

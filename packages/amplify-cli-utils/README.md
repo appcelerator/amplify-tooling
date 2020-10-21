@@ -30,7 +30,7 @@ If you are spawning `npm`, then the following may be useful:
 import { createNPMRequestArgs } from '@axway/amplify-cli-utils';
 import { spawnSync } from 'child_process';
 
-spawnSync('npm', [ 'view', '@axway/cli', ...createNPMRequestArgs() ]);
+spawnSync('npm', [ 'view', 'axway', ...createNPMRequestArgs() ]);
 ```
 
 ### `createRequestClient(opts, config)`
