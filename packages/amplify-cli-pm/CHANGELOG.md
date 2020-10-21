@@ -1,4 +1,4 @@
-# v2.2.1
+# v2.2.1 (Oct 21, 2020)
 
  * chore: Updated AMPLIFY CLI references to Axway CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))

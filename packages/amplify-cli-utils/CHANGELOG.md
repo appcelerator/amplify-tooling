@@ -1,8 +1,9 @@
-# v4.0.0
+# v4.0.0 (Oct 21, 2020)
 
  * BREAKING CHANGE: Updated AMPLIFY CLI references to Axway CLI. The config file was moved from
    `~/.axway/amplify-cli/amplify-cli.json` to `~/.axway/axway-cli/config.json`.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
+ * chore: Updated dependencies.
 
 # v3.2.0 (Oct 1, 2020)
 

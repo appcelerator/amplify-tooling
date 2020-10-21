@@ -1,8 +1,9 @@
-# v1.3.1
+# v1.4.0 (Oct 21, 2020)
 
  * feat: Added `region` to org info.
  * chore: Updated AMPLIFY CLI references to Axway CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
+ * chore: Updated dependencies.
 
 # v1.3.0 (Oct 1, 2020)
 
