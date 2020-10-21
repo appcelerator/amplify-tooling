@@ -7,7 +7,7 @@ Titanium SDK, and Appc Daemon.
 
 This package is bundled with the Axway CLI and thus does not need to be directly installed.
 
-	npm i -g @axway/cli
+	npm i -g axway
 
 ## Quick Start
 
