@@ -9,9 +9,10 @@ const path         = require('path');
 const plumber      = require('gulp-plumber');
 const spawnSync    = require('child_process').spawnSync;
 const tmp          = require('tmp');
+const util         = require('util');
 
 const { join }     = require('path');
-const { parallel, series } = gulp;
+const { series } = gulp;
 
 const nodeInfo = exports['node-info'] = async function nodeInfo() {
 	log(`Node.js ${process.version} (${process.platform})`);
@@ -178,12 +179,12 @@ exports['release-notes'] = async function releaseNotes() {
 	const zlib     = require('zlib');
 
 	const packages = {
-		'@axway/amplify-cli': { latest: null, releases: {} }
+		'axway': { latest: null, releases: {} }
 	};
 	const re = /^@axway\//;
 	const tempDir = tmp.dirSync({
 		mode: '755',
-		prefix: 'amplify-cli-release-notes-',
+		prefix: 'axway-cli-release-notes-',
 		unsafeCleanup: true
 	}).name;
 
@@ -223,13 +224,13 @@ exports['release-notes'] = async function releaseNotes() {
 	};
 
 	try {
-		// Step 1: get all the `@axway/amplify-cli` releases and their `@axway/*` dependencies
-		const versions = (await fetch('@axway/amplify-cli')).time;
+		// Step 1: get all the `axway` releases and their `@axway/*` dependencies
+		let versions = (await fetch('@axway/amplify-cli')).time;
 		for (const [ ver, ts ] of Object.entries(versions)) {
 			if (semver.valid(ver) && semver.gt(ver, '0.0.0')) {
 				const { prerelease } = semver.parse(ver);
 				if (!prerelease || !prerelease.length) {
-					packages['@axway/amplify-cli'].releases[ver] = { changelog: null, ts };
+					packages['axway'].releases[ver] = { changelog: null, ts };
 
 					const release = await fetch(`@axway/amplify-cli@${ver}`);
 					for (const type of [ 'dependencies', 'devDependencies' ]) {
@@ -237,6 +238,24 @@ exports['release-notes'] = async function releaseNotes() {
 							for (const name of Object.keys(release[type])) {
 								await getReleases(name);
 							}
+						}
+					}
+				}
+			}
+		}
+
+		// this is a hack for v2 prerelease
+		versions = (await fetch('axway')).time;
+		for (const [ ver, ts ] of Object.entries(versions)) {
+			if (semver.valid(ver) && semver.gt(ver, '0.0.0')) {
+				const { version } = semver.coerce(ver);
+				packages['axway'].releases[version] = { changelog: null, ts };
+
+				const release = await fetch(`axway@${ver}`);
+				for (const type of [ 'dependencies', 'devDependencies' ]) {
+					if (release[type]) {
+						for (const name of Object.keys(release[type])) {
+							await getReleases(name);
 						}
 					}
 				}
@@ -263,9 +282,15 @@ exports['release-notes'] = async function releaseNotes() {
 
 				const m = changelog.match(/^# v([^\s]+)/);
 				if (m && m[1] !== version) {
-					// set release timestamp to now unless package is @axway/amplify-cli, then make it 10 seconds older
-					ts = new Date(Date.now() + (name === '@axway/amplify-cli' ? 10000 : 0));
+					// set release timestamp to now unless package is axway, then make it 10 seconds older
+					ts = new Date(Date.now() + (name === 'axway' || name === '@axway/amplify-cli' ? 10000 : 0));
 					version = m[1];
+				}
+
+				// another v2 prerelease hack
+				version = semver.coerce(version).version;
+				if (name === '@axway/amplify-cli') {
+					name = 'axway';
 				}
 
 				if (!packages[name]) {
@@ -337,22 +362,22 @@ exports['release-notes'] = async function releaseNotes() {
 		fs.removeSync(tempDir);
 	}
 
-	const amplifyCli = packages['@axway/amplify-cli'];
-	delete packages['@axway/amplify-cli'];
+	const axwayCli = packages['axway'];
+	delete packages['axway'];
 	const pkgs = Object.keys(packages).sort();
 
-	// Step 4: loop over every `@axway/amplify-cli` release and generate the changelog
-	for (const ver of Object.keys(amplifyCli.releases).sort(semver.compare)) {
+	// Step 4: loop over every `axway` release and generate the changelog
+	for (const ver of Object.keys(axwayCli.releases).sort(semver.compare)) {
 		const { raw } = semver.coerce(ver);
 		if (semver.lt(raw, '2.0.0')) {
 			continue;
 		}
 		const { minor, patch } = semver.parse(ver);
-		const dest = path.join(__dirname, 'docs', 'Release Notes', `AMPLIFY CLI ${raw}.md`);
-		const { changelog, local, ts } = amplifyCli.releases[ver];
+		const dest = path.join(__dirname, 'docs', 'Release Notes', `Axway CLI ${raw}.md`);
+		const { changelog, local, ts } = axwayCli.releases[ver];
 		const dt = ts ? new Date(ts) : new Date();
 		const rd = ts && dt.toDateString().split(' ').slice(1);
-		let s = `# AMPLIFY CLI ${raw}\n\n## ${local ? 'Unreleased' : `${rd[0]} ${rd[1]}, ${rd[2]}`}\n\n`;
+		let s = `# Axway CLI ${raw}\n\n## ${local ? 'Unreleased' : `${rd[0]} ${rd[1]}, ${rd[2]}`}\n\n`;
 
 		if (patch === 0) {
 			if (minor === 0) {
@@ -363,9 +388,9 @@ exports['release-notes'] = async function releaseNotes() {
 		} else {
 			s += 'This is a patch release with bug fixes and minor dependency updates.\n\n';
 		}
-		s += `### Installation\n\n\`\`\`\nnpm i -g @axway/amplify-cli@${raw}\n\`\`\`\n\n`
+		s += `### Installation\n\n\`\`\`\nnpm i -g axway@${raw}\n\`\`\`\n\n`
 		if (changelog) {
-			s += `### amplify-cli@${raw}\n\n${changelog}\n\n`;
+			s += `### axway@${raw}\n\n${changelog}\n\n`;
 		}
 
 		for (const pkg of pkgs) {
