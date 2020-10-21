@@ -1,5 +1,6 @@
 # v1.3.1
 
+ * feat: Added `region` to org info.
  * chore: Updated AMPLIFY CLI references to Axway CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
 

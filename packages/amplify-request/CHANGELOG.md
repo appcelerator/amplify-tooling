@@ -1,3 +1,7 @@
+# v2.0.1
+
+ * chore: Updated dependencies.
+
 # v2.0.0 (Oct 1, 2020)
 
  * BREAKING CHANGE: Completely new API.

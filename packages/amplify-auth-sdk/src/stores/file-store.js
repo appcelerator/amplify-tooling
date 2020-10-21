@@ -4,7 +4,6 @@ import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import TokenStore from './token-store';
-import { isFile } from 'appcd-fs';
 
 const { log, warn } = snooplogg('amplify-auth:file-store');
 const { highlight } = snooplogg.styles;

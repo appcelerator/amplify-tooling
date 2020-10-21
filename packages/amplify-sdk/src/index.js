@@ -89,7 +89,8 @@ export class AmplifySDK {
 						}, {}),
 					guid:         org.guid,
 					id:           org.org_id,
-					name:         org.name
+					name:         org.name,
+					region:       org.region
 				};
 
 				account.orgs = orgs.map(({ guid, name, org_id }) => ({ guid, id: org_id, name }));

@@ -1,200 +1,213 @@
-export default {
-	aliases: [ 'conf' ],
-	commands: {
-		'@ls, list': {
-			desc: 'Display all config settings',
-			action: ctx => runConfig('get', ctx)
-		},
-		'get [key]': {
-			desc: 'Display a specific config setting',
-			action: ctx => runConfig('get', ctx)
-		},
-		'set <key> <value>': {
-			desc: 'Change a config setting',
-			action: ctx => runConfig('set', ctx)
-		},
-		'@rm, delete, !remove, !unset <key>': {
-			desc: 'Remove a config setting',
-			action: ctx => runConfig('delete', ctx)
-		},
-		'push <key> <value>': {
-			desc: 'Add a value to the end of a list',
-			action: ctx => runConfig('push', ctx)
-		},
-		'pop <key>': {
-			desc: 'Remove the last value in a list',
-			action: ctx => runConfig('pop', ctx)
-		},
-		'shift <key>': {
-			desc: 'Remove the first value in a list',
-			action: ctx => runConfig('shift', ctx)
-		},
-		'unshift <key> <value>': {
-			desc: 'Add a value to the beginning of a list',
-			action: ctx => runConfig('unshift', ctx)
-		}
-	},
-	desc: 'Manage configuration options',
-	help: {
-		header() {
-			return `${this.desc}.`;
-		},
-		footer: ({ style }) => `${style.heading('Examples:')}
-
-  List all config settings:
-    ${style.highlight('amplify config ls')}
-
-  Return the config as JSON:
-    ${style.highlight('amplify config ls --json')}
-
-  Get a specific config setting:
-    ${style.highlight('amplify config get home')}
-
-  Set a config setting:
-    ${style.highlight('amplify config set env production')}
-
-${style.heading('Settings:')}
-
-  ${style.highlight('auth.tokenStoreType')} ${style.note('[string] (default: "secure")')}
-    The type of store to persist the access token after authenticating.
-
-    Allowed values:
-      ${style.magenta('"auto"')}    Attempts to use the "secure" store, but falls back to "file" if
-                secure store is unavailable.
-      ${style.magenta('"secure"')}  Encrypts the access token and using a generated key which is
-                stored in the system's keychain.
-      ${style.magenta('"file"')}    Encrypts the access token using the embedded key.
-      ${style.magenta('"memory"')}  Stores the access token in memory instead of on disk. The
-                access tokens are lost when the process exits. This is intended
-                for testing purposes only.
-      ${style.magenta('"null"')}    Disables all forms of token persistence and simply returns the
-                access token. Subsequent calls to login in the same process
-                will force the authentication flow. This is intended for
-                migration scripts and testing purposes only.
-
-  ${style.highlight('env')} ${style.note('[string] (default: "prod")')}
-    The name of the environment to use for all commands.
-
-  ${style.highlight('network.caFile')} ${style.note('[string]')}
-    The path to a PEM formatted certificate authority bundle used to validate
-    untrusted SSL certificates.
-
-  ${style.highlight('network.proxy')} ${style.note('[string]')}
-    The URL of the proxy server. This proxy server URL is used for both HTTP
-    and HTTPS requests.
-
-    Note: If the proxy server uses a self signed certifcate, you must specify
-    the network.caFile, set network.strictSSL to false, or set the environment
-    variable NODE_TLS_REJECT_UNAUTHORIZED=0.
-
-  ${style.highlight('network.strictSSL')} ${style.note('[bool] (default: true)')}
-    Enforces valid TLS certificates on all outbound HTTPS requests. Set this to
-    false if you are behind a proxy server with a self signed certificate.`
-	},
-	options: {
-		'--json': 'outputs the config as JSON'
-	}
+const readActions = {
+	get:     'get',
+	ls:      'get',
+	list:    'get'
 };
 
-async function runConfig(action, { argv, cmd, console, setExitCode }) {
-	const { loadConfig } = await import('@axway/amplify-config');
+const writeActions = {
+	set:     'set',
 
-	let { json, key, value } = argv;
-	const cfg = loadConfig(argv);
-	const data = { action, key, value };
-	const filter = key && key.split(/\.|\//).filter(Boolean).join('.') || undefined;
+	delete:  'delete',
+	remove:  'delete',
+	rm:      'delete',
+	unset:   'delete',
 
-	if (typeof data.value === 'string') {
-		try {
-			data.value = JSON.parse(data.value);
-		} catch (e) {
-			// squelch
+	push:    'push',
+	pop:     'pop',
+	shift:   'shift',
+	unshift: 'unshift'
+};
+
+export default {
+	aliases: [ 'c' ],
+	desc: 'Manage configuration options',
+	options: {
+		'--json': 'outputs the config as JSON'
+	},
+	args: [ '<action>', 'key', 'value' ],
+	async action({ argv }) {
+		const { loadConfig, configFile } = await import('@axway/amplify-config');
+
+		let { action, key, value } = argv;
+
+		if (!readActions[action] && !writeActions[action]) {
+			throw new Error(`Unknown action: ${action}`);
 		}
-	}
 
-	const print = ({ code = 0, key = null, value }) => {
-		setExitCode(code);
-		cmd.banner = false;
+		const cfg = loadConfig(argv);
+		const data = {
+			action,
+			key,
+			value
+		};
 
-		if (json) {
-			console.log(JSON.stringify(value, null, 2));
-		} else if (value && typeof value === 'object') {
-			let width = 0;
-			const rows = [];
-
-			(function walk(scope, segments) {
-				if (Array.isArray(scope) && !scope.length) {
-					const path = segments.join('.');
-					width = Math.max(width, path.length);
-					rows.push([ path, '[]' ]);
-					return;
-				}
-
-				for (const key of Object.keys(scope).sort()) {
-					segments.push(key);
-					if (scope[key] && typeof scope[key] === 'object') {
-						walk(scope[key], segments);
-					} else {
-						const path = segments.join('.');
-						width = Math.max(width, path.length);
-						rows.push([ path, scope[key] ]);
-					}
-					segments.pop();
-				}
-			}(value, key ? key.split('.') : []));
-
-			if (rows.length) {
-				for (const row of rows) {
-					console.log(`${row[0].padEnd(width)} = ${row[1]}`);
-				}
-			} else {
-				console.log('No config settings found');
+		if (writeActions[action]) {
+			if (!key) {
+				return printAndExit({
+					value: `Error: Missing the configuration key to ${action}`,
+					json: argv.json,
+					exitCode: 1
+				});
 			}
-		} else {
-			console.log(value);
+
+			try {
+				data.value = JSON.parse(data.value);
+			} catch (e) {
+				// squelch
+			}
+
+			if ((action === 'set' || action === 'push' || action === 'unshift') && data.value === undefined) {
+				return printAndExit({
+					value: `Error: Missing the configuration value to ${action}`,
+					json: argv.json,
+					exitCode: 1
+				});
+			}
 		}
-	};
 
-	try {
-		if (action === 'get') {
+		if (readActions[action]) {
+			const filter = key && key.split(/\.|\//).join('.') || undefined;
 			const value = cfg.get(filter);
-			print({ code: value === undefined ? 6 : 0, key: filter || key, value });
-		} else {
-			// it's a write operation
-			let result = 'OK';
+			if (value === undefined) {
+				return printAndExit({
+					key,
+					value: `Not Found: ${key}`,
+					json: argv.json,
+					exitCode: 6
+				});
+			} else {
+				return printAndExit({ key, value, json: argv.json });
+			}
+		}
 
+		// it's a write operation
+
+		try {
+			let result = 'Saved';
+			let value;
+			// If it's an aliased action, then get the real action
+			action = writeActions[action];
 			switch (action) {
 				case 'set':
 					cfg.set(key, data.value);
 					break;
 
 				case 'delete':
-					cfg.delete(key);
+					if (!cfg.has(key)) {
+						return printAndExit({
+							value: `Not Found: ${key}`,
+							json: argv.json,
+							exitCode: 6
+						});
+					} else if (!cfg.delete(key)) {
+						return printAndExit({
+							value: `Error: Unable to delete key "${key}"`,
+							json: argv.json,
+							exitCode: 1
+						});
+					}
 					break;
 
 				case 'push':
 					cfg.push(key, data.value);
+					result = cfg.get(key);
+					if (!argv.json) {
+						result = JSON.stringify(result);
+					}
 					break;
 
 				case 'pop':
-					result = cfg.pop(key);
+					if (!cfg.has(key)) {
+						return printAndExit({
+							value: `Not Found: ${key}`,
+							json: argv.json,
+							exitCode: 6
+						});
+					} else {
+						value = cfg.pop(key);
+						result = value || (argv.json ? null : '<empty>');
+					}
 					break;
 
 				case 'shift':
-					result = cfg.shift(key);
+					if (!cfg.has(key)) {
+						return printAndExit({
+							value: `Not Found: ${key}`,
+							json: argv.json,
+							exitCode: 6
+						});
+					} else {
+						value = cfg.shift(key);
+						result = value || (argv.json ? null : '<empty>');
+					}
 					break;
 
 				case 'unshift':
 					cfg.unshift(key, data.value);
+					result = cfg.get(key);
+					if (!argv.json) {
+						result = JSON.stringify(result);
+					}
 					break;
 			}
 
-			cfg.save();
+			await cfg.save(configFile);
 
-			print({ value: result });
+			printAndExit({ value: result, json: argv.json });
+		} catch (err) {
+			printAndExit({
+				value: argv.json ? err.message : err.toString(),
+				json: argv.json,
+				exitCode: 1
+			});
 		}
-	} catch (err) {
-		err.json = json;
-		throw err;
 	}
+};
+
+/**
+ * Prints the result.
+ *
+ * @param {Object} opts - Various options.
+ * @param {Number} [opts.exitCode=0] - The exit code to return after printing the value.
+ * @param {Boolean} [opts.json=false] - When `true`, displays the output as json.
+ * @param {String} [opts.key=null] - The prefix used for the filter to prepend the keys when
+ * listing the config settings.
+ * @param {*} opts.value - The resulting value.
+ */
+async function printAndExit({ exitCode = 0, json, key = null, value }) {
+	if (json) {
+		console.log(JSON.stringify({
+			code: exitCode,
+			result: value
+		}, null, 2));
+	} else if (value && typeof value === 'object') {
+		let width = 0;
+		const rows = [];
+
+		(function walk(scope, segments) {
+			for (const key of Object.keys(scope).sort()) {
+				segments.push(key);
+				if (scope[key] && typeof scope[key] === 'object') {
+					walk(scope[key], segments);
+				} else {
+					const path = segments.join('.');
+					width = Math.max(width, path.length);
+					rows.push([ path, scope[key] ]);
+				}
+				segments.pop();
+			}
+		}(value, key ? key.split('.') : []));
+
+		if (rows.length) {
+			for (const row of rows) {
+				console.log(row[0].padEnd(width) + ' = ' + row[1]);
+			}
+		} else {
+			console.log('No config settings found');
+		}
+	} else {
+		console.log(value);
+	}
+
+	process.exit(exitCode);
 }
