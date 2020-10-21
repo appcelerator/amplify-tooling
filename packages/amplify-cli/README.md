@@ -1,9 +1,9 @@
 > ## ATTENTION!
 >
 > The AMPLIFY CLI is deprecated in favor of the new
-> [Axway CLI](https://npmjs.org/package/@axway/cli).
+> [Axway CLI](https://npmjs.org/package/axway).
 >
-> To install the Axway CLI, run: `npm i -g @axway/cli`.
+> To install the Axway CLI, run: `npm i -g axway`.
 >
 > Thank you!
 
