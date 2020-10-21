@@ -1,4 +1,4 @@
-# v2.3.1
+# v2.3.1 (Oct 21, 2020)
 
  * fix: No longer move old v1 token store as it breaks products still using older amplify-cli-util
    versions.

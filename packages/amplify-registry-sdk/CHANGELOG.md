@@ -1,8 +1,9 @@
-# v2.2.0
+# v2.2.0 (Oct 21, 2020)
 
  * chore: Updated AMPLIFY CLI references to Axway CLI. Note that the internal registry SDK's
    internal `cache` and `packages` directories have moved from `~/.axway/amplify-cli` to
    `~/.axway/axway-cli`. ([CLI-100](https://jira.axway.com/browse/CLI-100))
+ * chore: Updated dependencies.
 
 # v2.1.2 (Oct 1, 2020)
 
