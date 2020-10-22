@@ -266,8 +266,9 @@ exports['release-notes'] = async function releaseNotes() {
 			const changes = changelog.split('\n\n#').map((s, i) => `${i ? '#' : ''}${s}`.trim());
 			for (const chunk of changes) {
 				const m = chunk.match(/^# v?([^\s\n]*)[^\n]*\n+(.+)$/s);
-				if (m && packages[name].releases[m[1]]) {
-					packages[name].releases[m[1]].changelog = m[2];
+				const { version } = semver.coerce(m[1]);
+				if (m && packages[name].releases[version]) {
+					packages[name].releases[version].changelog = m[2];
 				}
 			}
 		};
