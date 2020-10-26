@@ -48,7 +48,12 @@ export function loadConfig(opts = {}) {
 
 			for (const [ name, extPath ] of Object.entries(json.extensions)) {
 				if (extPath.startsWith(oldPackagesDir)) {
-					json.extensions[name] = extPath.replace(oldPackagesDir, newPackagesDir);
+					const dest = json.extensions[name] = extPath.replace(oldPackagesDir, newPackagesDir);
+
+					if (!fs.existsSync(dest)) {
+						fs.copySync(extPath, dest);
+					}
+
 					changed = true;
 				}
 			}

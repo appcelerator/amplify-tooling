@@ -1,3 +1,8 @@
+# v3.0.1 (Oct 26, 2020)
+
+ * fix: Copy extension packages during first time migration from AMPLIFY CLI structure.
+   ([CLI-103](https://jira.axway.com/browse/CLI-103))
+
 # v3.0.0 (Oct 21, 2020)
 
  * BREAKING CHANGE: Updated AMPLIFY CLI references to Axway CLI. The config file was moved from

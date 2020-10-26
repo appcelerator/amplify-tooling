@@ -5,6 +5,7 @@ if (!Error.prepareStackTrace) {
 
 import Auth from '@axway/amplify-auth-sdk';
 import open from 'open';
+import querystring from 'querystring';
 import setCookie from 'set-cookie-parser';
 import snooplogg from 'snooplogg';
 import * as environments from './environments';
@@ -489,13 +490,19 @@ export class AmplifySDK {
 			 * The tiapp must contain a `<name>`, `<id>`, and a `<guid>`.
 			 * @param {Object} account - The account object.
 			 * @param {String} tiapp - The contents of the `tiapp.xml`.
+			 * @param {Object} [params] - Additional paramters to
+			 * @param {Boolean} [params.import] - Registers an existing app with the platform.
+			 * @param {Number} [params.org_id] - The organization to register the app with.
 			 * @returns {Promise<Object>} Resolves the app info.
 			 */
-			setApp: async (account, tiapp) => {
+			setApp: async (account, tiapp, params) => {
 				if (!tiapp || typeof tiapp !== 'string') {
 					throw new TypeError('Expected tiapp to be a non-empty string');
 				}
-				return await this.request('/api/v1/app/saveFromTiApp', account, {
+				if (params && typeof params !== 'object') {
+					throw new TypeError('Expected params to be an object');
+				}
+				return await this.request(`/api/v1/app/saveFromTiApp${params ? `?${querystring.stringify(params)}` : ''}`, account, {
 					errorMsg: 'Failed to update/register app',
 					json: { tiapp }
 				});
