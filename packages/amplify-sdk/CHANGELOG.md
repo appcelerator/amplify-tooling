@@ -1,3 +1,7 @@
+# v1.5.0 (Oct 26, 2020)
+
+ * feat(ti): Added query string `params` argument to `ti.setApp()`.
+
 # v1.4.0 (Oct 21, 2020)
 
  * feat: Added `region` to org info.
