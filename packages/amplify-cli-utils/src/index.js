@@ -4,7 +4,11 @@ if (!Error.prepareStackTrace) {
 }
 
 import AmplifySDK from '@axway/amplify-sdk';
+import boxen from 'boxen';
+import check from 'check-kit';
 import fs from 'fs';
+import loadConfig, { Config } from '@axway/amplify-config';
+import snooplogg from 'snooplogg';
 import { ansi } from 'cli-kit';
 import * as environments from './environments';
 import * as locations from './locations';
@@ -12,10 +16,14 @@ import * as request from '@axway/amplify-request';
 
 export {
 	AmplifySDK,
+	Config,
 	environments,
+	loadConfig,
 	locations,
 	request
 };
+
+const { cyan, gray, green } = snooplogg.chalk;
 
 /**
  * Constructs a parameters object to pass into an Auth instance.
@@ -70,6 +78,50 @@ export function buildAuthParams(opts = {}, config) {
 // `buildParams()` is too ambiguous, so it was renamed to `buildAuthParams()`, but we still need to
 // maintain backwards compatibility
 export { buildAuthParams as buildParams };
+
+/**
+ * Checks if a new version of an npm package is available and returns a string with the formatted
+ * update message.
+ *
+ * @param {Object} [opts] - Check update and request configuration options.
+ * @param {Number} [opts.checkInterval=3600000] - The amount of time in milliseconds before
+ * checking for an update. Defaults to 1 hour.
+ * @param {String} [opts.cwd] - The current working directory used to locate the `package.json` if
+ * `pkg` is not specified.
+ * @param {String} [opts.distTag='latest'] - The tag to check for the latest version.
+ * @param {Boolean} [opts.force=false] - Forces an update check.
+ * @param {String} [opts.metaDir] - The directory to store package update information.
+ * @param {Object|String} [opts.pkg] - The parsed `package.json`, path to the package.json file, or
+ * falsey and it will scan parent directories looking for a package.json.
+ * @param {String} [opts.registryUrl] - The npm registry URL. By default, it will autodetect the
+ * URL based on the package name/scope.
+ * @param {Number} [opts.timeout=1000] - The number of milliseconds to wait to query npm before
+ * timing out.
+ * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
+ * from disk.
+ * @returns {String}
+ */
+export async function checkForUpdate(opts, config) {
+	opts = createRequestOptions(opts, config || loadConfig());
+
+	const {
+		current,
+		latest,
+		name,
+		updateAvailable
+	} = await check(opts);
+
+	if (updateAvailable) {
+		const msg = `Update available ${gray(current)} → ${green(latest)}\nRun ${cyan(`npm i -g ${name}`)} to update`;
+		return boxen(msg, {
+			align: 'center',
+			borderColor: 'yellow',
+			borderStyle: 'round',
+			margin: { bottom: 1, left: 4, right: 4, top: 1 },
+			padding: { bottom: 1, left: 4, right: 4, top: 1 }
+		});
+	}
+}
 
 /**
  * Builds an array of Axway CLI network settings for use as command line arguments when spawning
@@ -134,8 +186,6 @@ export function createRequestClient(opts, config) {
  * @returns {Object}
  */
 export function createRequestOptions(opts = {}, config) {
-	const { Config } = require('@axway/amplify-config');
-
 	if (opts instanceof Config) {
 		config = opts;
 		opts = {};
@@ -223,14 +273,4 @@ export function initSDK(opts = {}, config) {
 		config,
 		sdk: new AmplifySDK(buildAuthParams(opts, config))
 	};
-}
-
-/**
- * Loads the Axway CLI config file using the lazy loaded AMPLIFY Config package.
- *
- * @param {Object} [opts] - Various options. See `@axway/amplify-config` for more details.
- * @returns {Config}
- */
-export function loadConfig(opts) {
-	return require('@axway/amplify-config').loadConfig(opts);
 }

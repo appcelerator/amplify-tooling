@@ -1,3 +1,9 @@
+# v4.1.0 (Nov 9, 2020)
+
+ * feat: Added API for checking if update is available.
+   ([CLI-22](https://jira.axway.com/browse/CLI-22))
+ * chore: Updated dependencies.
+
 # v4.0.0 (Oct 21, 2020)
 
  * BREAKING CHANGE: Updated AMPLIFY CLI references to Axway CLI. The config file was moved from

@@ -1,3 +1,8 @@
+# v3.0.2 (Nov 9, 2020)
+
+ * fix: Removed migration of extensions due to issues if command is cancelled while copying.
+ * chore: Updated dependencies.
+
 # v3.0.1 (Oct 26, 2020)
 
  * fix: Copy extension packages during first time migration from AMPLIFY CLI structure.

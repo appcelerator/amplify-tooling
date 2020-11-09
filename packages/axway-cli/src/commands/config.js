@@ -97,8 +97,7 @@ ${style.heading('Settings:')}
 };
 
 async function runConfig(action, { argv, cmd, console, setExitCode }) {
-	const { loadConfig } = await import('@axway/amplify-config');
-
+	const { loadConfig } = await import('@axway/amplify-cli-utils');
 	let { json, key, value } = argv;
 	const cfg = loadConfig(argv);
 	const data = { action, key, value };

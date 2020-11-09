@@ -9,22 +9,6 @@ import { run, which } from 'appcd-subprocess';
 export const cacheDir = join(locations.axwayHome, 'axway-cli', 'cache');
 export const packagesDir = join(locations.axwayHome, 'axway-cli', 'packages');
 
-/**
- * Migrate the cache and packages directories from the old to the new location.
- */
-{
-	const legacyCacheDir = join(locations.axwayHome, 'cache');
-	const legacyPackagesDir = join(locations.axwayHome, 'packages');
-
-	if (!isDir(cacheDir) && isDir(legacyCacheDir)) {
-		fs.moveSync(legacyCacheDir, cacheDir);
-	}
-
-	if (!isDir(packagesDir) && isDir(legacyPackagesDir)) {
-		fs.moveSync(legacyPackagesDir, packagesDir);
-	}
-}
-
 const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
 
 /**

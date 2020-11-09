@@ -1,3 +1,7 @@
+# v2.2.2 (Nov 9, 2020)
+
+ * chore: Updated dependencies.
+
 # v2.2.1 (Oct 21, 2020)
 
  * chore: Updated AMPLIFY CLI references to Axway CLI.

@@ -1,3 +1,7 @@
+# v2.3.2 (Nov 9, 2020)
+
+ * fix: Downgraded `keytar` from 7.0.0 to 6.0.1 due to botched `keytar` release.
+
 # v2.3.1 (Oct 21, 2020)
 
  * fix: No longer move old v1 token store as it breaks products still using older amplify-cli-util
