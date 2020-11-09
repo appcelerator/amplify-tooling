@@ -3299,10 +3299,10 @@ check-error@^1.0.2:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   integrity sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=
 
-check-kit@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/check-kit/-/check-kit-1.0.0.tgz#fd16b9f490bfe8efd8e04f0b1db215a1f303e0c6"
-  integrity sha512-N5JokhUpO5gxNe9BWzYGYUZgHC5aiRP3hr5Dm3h/sshOL8IZGHtA0S/Wu9jhQUoN+wwbqmMloonDUj7ySnMP9g==
+check-kit@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/check-kit/-/check-kit-1.0.1.tgz#0e68f65c2d397114d8c76b4b6151d794b825c72a"
+  integrity sha512-tOqG75PW2tYLeZkZu4ojhipcnV+/FXh5TDnbgoEgBIqouibdgGIt17VEPQBYAez+XPvMwhGnHV8cbPiBelyXeQ==
   dependencies:
     "@axway/amplify-request" "^2.0.1"
     ci-info "^2.0.0"
