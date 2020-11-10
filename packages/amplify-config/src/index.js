@@ -39,29 +39,8 @@ export function loadConfig(opts = {}) {
 	const legacyConfigFile = path.join(axwayHome, 'amplify-cli.json');
 	if (!isFile(configFile) && isFile(legacyConfigFile)) {
 		const json = fs.readJsonSync(legacyConfigFile);
-		fs.moveSync(legacyConfigFile, configFile);
-
-		if (json.extensions && typeof json.extensions === 'object') {
-			const oldPackagesDir = path.join(axwayHome, 'packages');
-			const newPackagesDir = path.join(axwayHome, 'axway-cli', 'packages');
-			let changed = false;
-
-			for (const [ name, extPath ] of Object.entries(json.extensions)) {
-				if (extPath.startsWith(oldPackagesDir)) {
-					const dest = json.extensions[name] = extPath.replace(oldPackagesDir, newPackagesDir);
-
-					if (!fs.existsSync(dest)) {
-						fs.copySync(extPath, dest);
-					}
-
-					changed = true;
-				}
-			}
-
-			if (changed) {
-				fs.writeJsonSync(configFile, json);
-			}
-		}
+		json.extensions = {};
+		fs.writeJsonSync(configFile, json);
 	}
 
 	const cfg = new Config({

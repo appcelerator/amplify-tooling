@@ -22,11 +22,11 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^4.0.0",
-    "@axway/amplify-config": "^3.0.0",
+    "@axway/amplify-config": "^3.0.1",
     "appcd-fs": "^2.0.0",
     "appcd-subprocess": "^4.0.0",
     "fs-extra": "^9.0.1",
-    "pacote": "^11.1.11",
+    "pacote": "^11.1.13",
     "snooplogg": "^3.0.0",
     "source-map-support": "^0.5.19",
     "tar": "^6.0.5",

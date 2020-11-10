@@ -1,6 +1,6 @@
 {
   "name": "axway",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0-rc2",
   "publishConfig": {
     "tag": "next"
   },
@@ -29,9 +29,10 @@
   "dependencies": {
     "@axway/amplify-cli-auth": "^2.2.1",
     "@axway/amplify-cli-pm": "^2.2.1",
-    "cli-kit": "1.8.2",
+    "@axway/amplify-cli-utils": "^4.0.0",
+    "cli-kit": "1.8.4",
     "source-map-support": "^0.5.19",
-    "v8-compile-cache": "^2.1.1"
+    "v8-compile-cache": "^2.2.0"
   },
   "optionalDependencies": {
     "node-pty-prebuilt-multiarch": "^0.9.0"
