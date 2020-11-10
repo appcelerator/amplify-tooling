@@ -1,4 +1,4 @@
-# v4.1.0 (Nov 9, 2020)
+# v4.1.0 (Nov 10, 2020)
 
  * feat: Added API for checking if update is available.
    ([CLI-22](https://jira.axway.com/browse/CLI-22))

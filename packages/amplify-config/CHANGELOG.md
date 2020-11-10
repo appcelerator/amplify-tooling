@@ -1,4 +1,4 @@
-# v3.0.2 (Nov 9, 2020)
+# v3.0.2 (Nov 10, 2020)
 
  * fix: Removed migration of extensions due to issues if command is cancelled while copying.
  * chore: Updated dependencies.

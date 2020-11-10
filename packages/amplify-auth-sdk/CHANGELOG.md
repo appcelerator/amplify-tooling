@@ -1,4 +1,4 @@
-# v2.3.2 (Nov 9, 2020)
+# v2.3.2 (Nov 10, 2020)
 
  * fix: Downgraded `keytar` from 7.0.0 to 6.0.1 due to botched `keytar` release.
 
