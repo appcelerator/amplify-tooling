@@ -1,5 +1,6 @@
 export default {
 	aliases: [ 'conf' ],
+	banner: false,
 	commands: {
 		'@ls, list': {
 			desc: 'Display all config settings',
@@ -96,7 +97,7 @@ ${style.heading('Settings:')}
 	}
 };
 
-async function runConfig(action, { argv, cmd, console, setExitCode }) {
+async function runConfig(action, { argv, console, setExitCode }) {
 	const { loadConfig } = await import('@axway/amplify-cli-utils');
 	let { json, key, value } = argv;
 	const cfg = loadConfig(argv);
@@ -113,7 +114,6 @@ async function runConfig(action, { argv, cmd, console, setExitCode }) {
 
 	const print = ({ code = 0, key = null, value }) => {
 		setExitCode(code);
-		cmd.banner = false;
 
 		if (json) {
 			console.log(JSON.stringify(value, null, 2));

@@ -3491,10 +3491,10 @@ cli-kit@0.16.2:
     which "^2.0.2"
     ws "^7.2.3"
 
-cli-kit@1.8.3, cli-kit@^1.8.3:
-  version "1.8.3"
-  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-1.8.3.tgz#20a5d973ff8ad8fca34687feae3388cb26cf7014"
-  integrity sha512-103mComizhJeLFvbZ7+bBYwQXG7vZtH49MQ2WjZNOz7ODiIjQeSWF8muIiRT9Pie0P0SFctwEYsqDttyv/RV7w==
+cli-kit@1.8.4, cli-kit@^1.8.4:
+  version "1.8.4"
+  resolved "https://registry.yarnpkg.com/cli-kit/-/cli-kit-1.8.4.tgz#ebbaf2cf670134655da70c2f4026914bcc38227b"
+  integrity sha512-a0MB9ark/7BHSg9Eir2O7xV2/Z+Z1VYLlSMiiZrJ5NVTAyHQa2+4+iIaD4xcbKNWPkUSG8nzCdTI0PdEdD1CXw==
   dependencies:
     argv-split "^2.0.1"
     fastest-levenshtein "^1.0.12"
@@ -3507,7 +3507,7 @@ cli-kit@1.8.3, cli-kit@^1.8.3:
     snooplogg "^3.0.0"
     source-map-support "^0.5.19"
     which "^2.0.2"
-    ws "^7.3.1"
+    ws "^7.4.0"
 
 cli-kit@^0.12.0:
   version "0.12.0"
@@ -12139,23 +12139,23 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
-watchpack-chokidar2@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/watchpack-chokidar2/-/watchpack-chokidar2-2.0.0.tgz#9948a1866cbbd6cb824dea13a7ed691f6c8ddff0"
-  integrity sha512-9TyfOyN/zLUbA288wZ8IsMZ+6cbzvsNyEzSBp6e/zkifi6xxbl8SmQ/CxQq32k8NNqrdVEVUVSEf56L4rQ/ZxA==
+watchpack-chokidar2@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/watchpack-chokidar2/-/watchpack-chokidar2-2.0.1.tgz#38500072ee6ece66f3769936950ea1771be1c957"
+  integrity sha512-nCFfBIPKr5Sh61s4LPpy1Wtfi0HE8isJ3d2Yb5/Ppw2P2B/3eVSEBjKfN0fmHJSK14+31KwMKmcrzs2GM4P0Ww==
   dependencies:
     chokidar "^2.1.8"
 
 watchpack@^1.7.4:
-  version "1.7.4"
-  resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-1.7.4.tgz#6e9da53b3c80bb2d6508188f5b200410866cd30b"
-  integrity sha512-aWAgTW4MoSJzZPAicljkO1hsi1oKj/RRq/OJQh2PKI2UKL04c2Bs+MBOB+BBABHTXJpf9mCwHN7ANCvYsvY2sg==
+  version "1.7.5"
+  resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-1.7.5.tgz#1267e6c55e0b9b5be44c2023aed5437a2c26c453"
+  integrity sha512-9P3MWk6SrKjHsGkLT2KHXdQ/9SNkyoJbabxnKOoJepsvJjJG8uYTR3yTPxPQvNDI3w4Nz1xnE0TLHK4RIVe/MQ==
   dependencies:
     graceful-fs "^4.1.2"
     neo-async "^2.5.0"
   optionalDependencies:
     chokidar "^3.4.1"
-    watchpack-chokidar2 "^2.0.0"
+    watchpack-chokidar2 "^2.0.1"
 
 wcwidth@^1.0.0, wcwidth@^1.0.1:
   version "1.0.1"
@@ -12401,7 +12401,7 @@ write@1.0.3:
   dependencies:
     mkdirp "^0.5.1"
 
-ws@^7.2.3, ws@^7.3.1:
+ws@^7.2.3, ws@^7.4.0:
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.0.tgz#a5dd76a24197940d4a8bb9e0e152bb4503764da7"
   integrity sha512-kyFwXuV/5ymf+IXhS6f0+eAFvydbaBW3zjpT6hUdAh/hbVjTIB5EHBGi0bPoCLSK2wcuz3BrEkB9LrYv1Nm4NQ==

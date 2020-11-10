@@ -1,4 +1,5 @@
 export default {
+	autoHideBanner: false,
 	desc: 'Log in to the Axway AMPLIFY platform',
 	options: {
 		'--base-url [url]':          { hidden: true },
