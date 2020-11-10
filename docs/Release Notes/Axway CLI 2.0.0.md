@@ -24,6 +24,8 @@ npm i -g axway@2.0.0
  * feat: Bundled `node-pty-prebuilt-multiarch` which cli-kit will use to spawn non-cli-kit
    extensions using a pseudo terminal and preserve stdio for things such as prompting.
  * feat(config): Added proxy info to config help.
+ * feat: Added notificaiton if new version is available.
+   ([CLI-22](https://jira.axway.com/browse/CLI-22))
  * refactor(config): Do not show the banner for `config` related commands.
  * refactor(config): Replaced config action with subcommands for cleaner code and improved help
    information.
@@ -129,6 +131,10 @@ npm i -g axway@2.0.0
  * fix: Create the `keytar` prefix directory if it doesn't exist.
  * chore: Updated dependencies.
 
+### amplify-auth-sdk@2.3.2
+
+ * fix: Downgraded `keytar` from 7.0.0 to 6.0.1 due to botched `keytar` release.
+
 ### amplify-cli-auth@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -187,6 +193,10 @@ npm i -g axway@2.0.0
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
  * chore: Updated dependencies.
 
+### amplify-cli-auth@2.2.2
+
+ * chore: Updated dependencies.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -230,6 +240,10 @@ npm i -g axway@2.0.0
 
  * chore: Updated AMPLIFY CLI references to Axway CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.2.2
+
  * chore: Updated dependencies.
 
 ### amplify-cli-utils@3.0.0
@@ -296,6 +310,12 @@ npm i -g axway@2.0.0
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
  * chore: Updated dependencies.
 
+### amplify-cli-utils@4.1.0
+
+ * feat: Added API for checking if update is available.
+   ([CLI-22](https://jira.axway.com/browse/CLI-22))
+ * chore: Updated dependencies.
+
 ### amplify-config@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -338,6 +358,16 @@ npm i -g axway@2.0.0
    `~/.axway/amplify-cli/amplify-cli.json` to `~/.axway/axway-cli/config.json`.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
 
+### amplify-config@3.0.1
+
+ * fix: Copy extension packages during first time migration from AMPLIFY CLI structure.
+   ([CLI-103](https://jira.axway.com/browse/CLI-103))
+
+### amplify-config@3.0.2
+
+ * fix: Removed migration of extensions due to issues if command is cancelled while copying.
+ * chore: Updated dependencies.
+
 ### amplify-registry-sdk@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -373,6 +403,11 @@ npm i -g axway@2.0.0
  * chore: Updated AMPLIFY CLI references to Axway CLI. Note that the internal registry SDK's
    internal `cache` and `packages` directories have moved from `~/.axway/amplify-cli` to
    `~/.axway/axway-cli`. ([CLI-100](https://jira.axway.com/browse/CLI-100))
+ * chore: Updated dependencies.
+
+### amplify-registry-sdk@2.2.1
+
+ * fix: Removed package migration from AMPLIFY CLI to Axway CLI. Packages must be reinstalled.
  * chore: Updated dependencies.
 
 ### amplify-request@2.0.0
@@ -453,4 +488,12 @@ npm i -g axway@2.0.0
  * feat: Added `region` to org info.
  * chore: Updated AMPLIFY CLI references to Axway CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
+ * chore: Updated dependencies.
+
+### amplify-sdk@1.5.0
+
+ * feat(ti): Added query string `params` argument to `ti.setApp()`.
+
+### amplify-sdk@1.5.1
+
  * chore: Updated dependencies.
