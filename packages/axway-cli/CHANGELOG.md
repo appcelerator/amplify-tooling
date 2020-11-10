@@ -1,4 +1,4 @@
-# v2.0.0-rc2 (Nov 10, 2020)
+# v2.0.0-rc3 (Nov 10, 2020)
 
  * Initial release of the Axway CLI, formerly AMPLIFY CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
@@ -9,8 +9,6 @@
  * BREAKING CHANGE(config): `config list` command no longer supports filtering, use `config get`
    instead.
  * BREAKING CHANGE(config): Write operations such as `set` return `"OK"` instead of `"Saved"`.
- * feat: Bundled `node-pty-prebuilt-multiarch` which cli-kit will use to spawn non-cli-kit
-   extensions using a pseudo terminal and preserve stdio for things such as prompting.
  * feat(config): Added proxy info to config help.
  * feat: Added notificaiton if new version is available.
    ([CLI-22](https://jira.axway.com/browse/CLI-22))
