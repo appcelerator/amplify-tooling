@@ -1,3 +1,7 @@
+# v1.5.1 (Nov 10, 2020)
+
+ * chore: Updated dependencies.
+
 # v1.5.0 (Oct 26, 2020)
 
  * feat(ti): Added query string `params` argument to `ti.setApp()`.
