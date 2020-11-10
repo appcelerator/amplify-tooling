@@ -21,8 +21,6 @@ npm i -g axway@2.0.0
  * BREAKING CHANGE(config): `config list` command no longer supports filtering, use `config get`
    instead.
  * BREAKING CHANGE(config): Write operations such as `set` return `"OK"` instead of `"Saved"`.
- * feat: Bundled `node-pty-prebuilt-multiarch` which cli-kit will use to spawn non-cli-kit
-   extensions using a pseudo terminal and preserve stdio for things such as prompting.
  * feat(config): Added proxy info to config help.
  * feat: Added notificaiton if new version is available.
    ([CLI-22](https://jira.axway.com/browse/CLI-22))
