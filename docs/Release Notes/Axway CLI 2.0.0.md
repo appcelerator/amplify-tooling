@@ -195,6 +195,10 @@ npm i -g axway@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-cli-auth@2.2.3
+
+ * chore: Updated dependencies.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -241,6 +245,10 @@ npm i -g axway@2.0.0
  * chore: Updated dependencies.
 
 ### amplify-cli-pm@2.2.2
+
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.2.3
 
  * chore: Updated dependencies.
 
@@ -312,6 +320,10 @@ npm i -g axway@2.0.0
 
  * feat: Added API for checking if update is available.
    ([CLI-22](https://jira.axway.com/browse/CLI-22))
+ * chore: Updated dependencies.
+
+### amplify-cli-utils@4.1.1
+
  * chore: Updated dependencies.
 
 ### amplify-config@2.0.0
@@ -406,6 +418,10 @@ npm i -g axway@2.0.0
 ### amplify-registry-sdk@2.2.1
 
  * fix: Removed package migration from AMPLIFY CLI to Axway CLI. Packages must be reinstalled.
+ * chore: Updated dependencies.
+
+### amplify-registry-sdk@2.2.2
+
  * chore: Updated dependencies.
 
 ### amplify-request@2.0.0
