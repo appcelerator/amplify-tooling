@@ -1,3 +1,7 @@
+# v4.1.1 (Nov 12, 2020)
+
+ * chore: Updated dependencies.
+
 # v4.1.0 (Nov 10, 2020)
 
  * feat: Added API for checking if update is available.
