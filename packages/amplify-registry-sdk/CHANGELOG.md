@@ -1,3 +1,7 @@
+# v2.2.2 (Nov 12, 2020)
+
+ * chore: Updated dependencies.
+
 # v2.2.1 (Nov 10, 2020)
 
  * fix: Removed package migration from AMPLIFY CLI to Axway CLI. Packages must be reinstalled.
