@@ -1,4 +1,4 @@
-# v1.5.2
+# v1.5.2 (Nov 13, 2020)
 
  * fix(auth): Don't load account session when doing a manual login.
 

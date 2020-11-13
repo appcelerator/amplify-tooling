@@ -1,4 +1,4 @@
-# v2.3.3
+# v2.3.3 (Nov 13, 2020)
 
  * fix(login): Handle stale access tokens when finding an account by removing the now invalid
    token.

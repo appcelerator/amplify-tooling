@@ -1,4 +1,4 @@
-# v2.2.5
+# v2.2.5 (Nov 13, 2020)
 
  * fix: Check correct status code to determine if package is found.
 
