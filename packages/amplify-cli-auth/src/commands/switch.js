@@ -16,7 +16,7 @@ export default {
 
 		try {
 			if (!accounts.length) {
-				const err = new Error('No authenticated accounts found');
+				const err = new Error('No authenticated accounts');
 				err.code = 'ERR_NO_ACCOUNTS';
 				err.details = `Please login first:\n  ${highlight(`${process.env.AXWAY_CLI ? 'axway' : 'amplify'} auth login`)}`;
 				throw err;
@@ -36,28 +36,36 @@ export default {
 					err.details = `Authenticated accounts:\n${accounts.map(a => `  ${highlight(a.name)}`).join('\n')}`;
 					throw err;
 				}
-			} else if (accounts.length === 1) {
-				account = accounts[0];
-			} else if (!argv.json) {
-				const defaultAccount = config.get('auth.defaultAccount');
-				const choices = accounts
-					.map(acct => ({
-						name:    acct.name,
-						message: acct.name,
-						value:   acct
-					}))
-					.sort((a, b) => a.message.localeCompare(b.message));
-				const initial = choices.findIndex(a => a.name === defaultAccount);
+			} else {
+				// pick account from the list of of authenticated accounts
+				let accountName = accounts[0]?.name;
 
-				({ account } = await prompt({
-					choices,
-					initial,
-					message: 'Please choose an account',
-					name:    'account',
-					type:    'select'
-				}));
+				if (accounts.length > 1 && !argv.json) {
+					// we have more than one authenticated account, so we must prompt for which account
+					const defaultAccount = config.get('auth.defaultAccount');
+					const choices = accounts
+						.map(acct => ({ value: acct.name }))
+						.sort((a, b) => a.value.localeCompare(b.value));
+					const initial = choices.findIndex(a => a.value === defaultAccount);
 
-				console.log();
+					({ accountName } = await prompt({
+						choices,
+						initial,
+						message: 'Please choose an account',
+						name:    'accountName',
+						type:    'select'
+					}));
+
+					console.log();
+				}
+
+				account = await sdk.auth.find(accountName);
+				if (!account) {
+					const err = new Error('No authenticated accounts');
+					err.code = 'ERR_NO_ACCOUNTS';
+					err.details = `Please login first:\n  ${highlight(`${process.env.AXWAY_CLI ? 'axway' : 'amplify'} auth login`)}`;
+					throw err;
+				}
 			}
 
 			config.set('auth.defaultAccount', account.name);

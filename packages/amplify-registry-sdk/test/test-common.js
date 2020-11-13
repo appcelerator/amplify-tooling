@@ -219,13 +219,14 @@ describe('common utils', () => {
 			await npmInstall({ directory: join(fixturesDir, 'common', 'npm-install-dir'), npm: 'npm' });
 		});
 
-		it('should error if npm install fails', function () {
+		it('should error if npm install fails', async function () {
 			this.timeout(25000);
 			setTimeout(() => {
 				this.fakeChild.stdout.emit('data', '');
 				this.fakeChild.emit('close', 1);
 			}, 1000);
-			return expect(npmInstall({ directory: join(fixturesDir, 'common', 'npm-install-dir'), npm: 'npm' })).to.be.rejectedWith(Error, 'Subprocess exited with code 1');
+			await expect(npmInstall({ directory: join(fixturesDir, 'common', 'npm-install-dir'), npm: 'npm' }))
+				.to.be.rejectedWith(Error, /^Failed to npm install/);
 		});
 
 		it('should attempt to find npm if no npm executable is passed in', async function () {

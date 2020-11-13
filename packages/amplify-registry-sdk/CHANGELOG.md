@@ -1,3 +1,7 @@
+# v2.2.5
+
+ * fix: Check correct status code to determine if package is found.
+
 # v2.2.4 (Nov 12, 2020)
 
  * chore: Updated dependencies.

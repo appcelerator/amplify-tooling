@@ -1,3 +1,7 @@
+# v1.5.2
+
+ * fix(auth): Don't load account session when doing a manual login.
+
 # v1.5.1 (Nov 10, 2020)
 
  * chore: Updated dependencies.

@@ -1,3 +1,9 @@
+# v2.2.5
+
+ * fix(login): Fixed logged in message after logging in using a service account which has no
+   platform organization.
+ * fix(login): Load session after manually logging in.
+
 # v2.2.4 (Nov 12, 2020)
 
  * chore: Updated dependencies.

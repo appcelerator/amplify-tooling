@@ -1,3 +1,10 @@
+# v2.3.3
+
+ * fix(login): Handle stale access tokens when finding an account by removing the now invalid
+   token.
+ * fix(login): Fixed bug where invalid accounts were not being removed from the token store.
+ * fix(switch): Validate account before initiating the org switch.
+
 # v2.3.2 (Nov 10, 2020)
 
  * fix: Downgraded `keytar` from 7.0.0 to 6.0.1 due to botched `keytar` release.
