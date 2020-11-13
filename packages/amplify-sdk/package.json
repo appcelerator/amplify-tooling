@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-sdk",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Axway AMPLIFY SDK for Node.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -20,7 +20,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-auth-sdk": "^2.3.2",
+    "@axway/amplify-auth-sdk": "^2.3.3",
     "@axway/amplify-request": "^2.0.1",
     "open": "^7.3.0",
     "set-cookie-parser": "^2.4.6",
