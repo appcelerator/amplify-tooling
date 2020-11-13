@@ -1,4 +1,4 @@
-# v2.2.3
+# v2.2.3 (Nov 12, 2020)
 
  * fix: Added npm install error output to thrown error.
 
