@@ -72,13 +72,12 @@ export default class Registry {
 			const data = await got(url, { headers, responseType: 'json' });
 			body = data.body;
 		} catch (err) {
-			if (err.statusCode === 404) {
+			if (err.response?.statusCode === 404) {
 				const error = new Error(`No version data for ${name}@${version}`);
 				error.code = 'ENOVERSIONDATA';
 				throw error;
-			} else {
-				throw err;
 			}
+			throw err;
 		}
 
 		const result = body.result;

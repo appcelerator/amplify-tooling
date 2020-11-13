@@ -161,6 +161,12 @@ export class AmplifySDK {
 				}
 
 				account = await this.client.login(opts);
+
+				if (opts.manual) {
+					// account is actually an object containing `cancel`, `promise`, and `url`
+					return account;
+				}
+
 				return await this.auth.loadSession(account);
 			},
 

@@ -274,14 +274,23 @@ export default class Auth {
 				if (err.code === 'EINVALIDGRANT') {
 					warn(err.message);
 					log(`Removing invalid account ${highlight(account.name || account.hash)} due to invalid refresh token`);
-					await this.tokenStore.delete(account, opts.baseUrl);
+					await this.tokenStore.delete(account.name, opts.baseUrl);
 					return null;
 				}
 				throw err;
 			}
 		}
 
-		return await authenticator.getInfo(account);
+		try {
+			return await authenticator.getInfo(account);
+		} catch (err) {
+			if (err.statusCode === 401) {
+				warn(`Removing invalid account ${highlight(account.name || account.hash)} due to stale token`);
+				await this.tokenStore.delete(account.name, opts.baseUrl);
+				return null;
+			}
+			throw err;
+		}
 	}
 
 	/**

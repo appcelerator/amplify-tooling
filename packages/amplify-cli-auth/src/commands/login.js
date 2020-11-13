@@ -82,8 +82,8 @@ export default {
 
 			process.on('SIGINT', () => cancel());
 
-			console.log(`Please open following link in your browser:\n\n  ${url}\n`);
-			account = await promise;
+			console.log(`Please open following link in your browser:\n\n  ${highlight(url)}\n`);
+			account = await sdk.auth.loadSession(await promise);
 		} else {
 			try {
 				account = await sdk.auth.login({ force: argv.force });
@@ -123,7 +123,11 @@ export default {
 			return;
 		}
 
-		console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.\n`);
+		if (account.org?.name) {
+			console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.\n`);
+		} else {
+			console.log(`You are logged as ${highlight(account.user.email || account.name)}.\n`);
+		}
 
 		// set the current
 		if (accounts.length === 1) {
