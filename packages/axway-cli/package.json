@@ -30,7 +30,7 @@
     "@axway/amplify-cli-auth": "^2.2.4",
     "@axway/amplify-cli-pm": "^2.2.5",
     "@axway/amplify-cli-utils": "^4.1.2",
-    "cli-kit": "^1.8.5",
+    "cli-kit": "^1.8.6",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.2.0"
   },
