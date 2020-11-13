@@ -1,3 +1,7 @@
+# v2.2.3 (Nov 12, 2020)
+
+ * fix: Added npm install error output to thrown error.
+
 # v2.2.2 (Nov 12, 2020)
 
  * chore: Updated dependencies.

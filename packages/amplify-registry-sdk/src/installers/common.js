@@ -1,5 +1,7 @@
 import fs from 'fs-extra';
 import loadConfig from '@axway/amplify-config';
+import snooplogg from 'snooplogg';
+
 import { extract } from 'tar';
 import { isDir, isFile } from 'appcd-fs';
 import { join } from 'path';
@@ -9,6 +11,8 @@ import { run, which } from 'appcd-subprocess';
 export const cacheDir = join(locations.axwayHome, 'axway-cli', 'cache');
 export const packagesDir = join(locations.axwayHome, 'axway-cli', 'packages');
 
+const { highlight } = snooplogg.styles;
+const npmErrRE = /npm err/i;
 const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
 
 /**
@@ -40,13 +44,18 @@ export async function npmInstall({ directory, npm }) {
 	try {
 		await run(npm, args, {
 			cwd: directory,
-			env: Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env),
-			windowsHide: true
+			env: Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env)
 		});
 	} catch (err) {
 		// Add an error code but move the original code value here into an exitCode prop
 		err.exitCode = err.code;
 		err.code = 'ENPMINSTALLERROR';
+		err.message = `Failed to npm install ${highlight(directory)} (code ${err.exitCode})`;
+
+		if (err.stderr) {
+			err.message += '\n' + err.stderr.split(/\r\n|\n/).filter(line => npmErrRE.test(line)).join('\n');
+		}
+
 		throw err;
 	}
 }
