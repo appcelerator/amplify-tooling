@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli",
-  "version": "1.5.0-rc1",
+  "version": "1.5.0-rc2",
   "publishConfig": {
     "tag": "next"
   },
