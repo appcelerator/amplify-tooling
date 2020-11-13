@@ -1,3 +1,7 @@
+# v3.0.3 (Nov 12, 2020)
+
+ * fix: Fixed bug writing migrated config file.
+
 # v3.0.2 (Nov 10, 2020)
 
  * fix: Removed migration of extensions due to issues if command is cancelled while copying.

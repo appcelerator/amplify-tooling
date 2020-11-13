@@ -40,7 +40,7 @@ export function loadConfig(opts = {}) {
 	if (!isFile(configFile) && isFile(legacyConfigFile)) {
 		const json = fs.readJsonSync(legacyConfigFile);
 		json.extensions = {};
-		fs.writeJsonSync(configFile, json);
+		fs.outputJsonSync(configFile, json);
 	}
 
 	const cfg = new Config({
