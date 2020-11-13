@@ -1,5 +1,5 @@
 export default {
-	aliases: [ 'conf' ],
+	aliases: [ '!conf' ],
 	banner: false,
 	commands: {
 		'@ls, list': {
