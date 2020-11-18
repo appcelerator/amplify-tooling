@@ -133,6 +133,17 @@ npm i -g axway@2.0.0
 
  * fix: Downgraded `keytar` from 7.0.0 to 6.0.1 due to botched `keytar` release.
 
+### amplify-auth-sdk@2.3.3
+
+ * fix(login): Handle stale access tokens when finding an account by removing the now invalid
+   token.
+ * fix(login): Fixed bug where invalid accounts were not being removed from the token store.
+ * fix(switch): Validate account before initiating the org switch.
+
+### amplify-auth-sdk@2.3.4
+
+ * fix: Updated `keytar` to 7.1.0 which adds support for the latest Node.js version.
+
 ### amplify-cli-auth@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -199,6 +210,16 @@ npm i -g axway@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-cli-auth@2.2.4
+
+ * chore: Updated dependencies.
+
+### amplify-cli-auth@2.2.5
+
+ * fix(login): Fixed logged in message after logging in using a service account which has no
+   platform organization.
+ * fix(login): Load session after manually logging in.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -249,6 +270,22 @@ npm i -g axway@2.0.0
  * chore: Updated dependencies.
 
 ### amplify-cli-pm@2.2.3
+
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.2.4
+
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.2.5
+
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.2.6
+
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.2.7
 
  * chore: Updated dependencies.
 
@@ -326,6 +363,18 @@ npm i -g axway@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-cli-utils@4.1.2
+
+ * chore: Updated dependencies.
+
+### amplify-cli-utils@4.1.3
+
+ * chore: Updated dependencies.
+
+### amplify-cli-utils@4.1.4
+
+ * chore: Updated dependencies.
+
 ### amplify-config@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -378,6 +427,14 @@ npm i -g axway@2.0.0
  * fix: Removed migration of extensions due to issues if command is cancelled while copying.
  * chore: Updated dependencies.
 
+### amplify-config@3.0.3
+
+ * fix: Fixed bug writing migrated config file.
+
+### amplify-config@3.0.4
+
+ * chore: Updated dependencies.
+
 ### amplify-registry-sdk@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -421,6 +478,22 @@ npm i -g axway@2.0.0
  * chore: Updated dependencies.
 
 ### amplify-registry-sdk@2.2.2
+
+ * chore: Updated dependencies.
+
+### amplify-registry-sdk@2.2.3
+
+ * fix: Added npm install error output to thrown error.
+
+### amplify-registry-sdk@2.2.4
+
+ * chore: Updated dependencies.
+
+### amplify-registry-sdk@2.2.5
+
+ * fix: Check correct status code to determine if package is found.
+
+### amplify-registry-sdk@2.2.6
 
  * chore: Updated dependencies.
 
@@ -509,5 +582,13 @@ npm i -g axway@2.0.0
  * feat(ti): Added query string `params` argument to `ti.setApp()`.
 
 ### amplify-sdk@1.5.1
+
+ * chore: Updated dependencies.
+
+### amplify-sdk@1.5.2
+
+ * fix(auth): Don't load account session when doing a manual login.
+
+### amplify-sdk@1.5.3
 
  * chore: Updated dependencies.
