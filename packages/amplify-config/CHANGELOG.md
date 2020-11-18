@@ -1,3 +1,7 @@
+# v3.0.4 (Nov 18, 2020)
+
+ * chore: Updated dependencies.
+
 # v3.0.3 (Nov 12, 2020)
 
  * fix: Fixed bug writing migrated config file.

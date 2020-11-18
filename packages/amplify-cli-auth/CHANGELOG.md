@@ -1,3 +1,7 @@
+# v2.2.4 (Nov 18, 2020)
+
+ * chore: Updated dependencies.
+
 # v2.2.5 (Nov 13, 2020)
 
  * fix(login): Fixed logged in message after logging in using a service account which has no

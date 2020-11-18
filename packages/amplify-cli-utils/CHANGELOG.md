@@ -1,3 +1,7 @@
+# v4.1.4 (Nov 18, 2020)
+
+ * chore: Updated dependencies.
+
 # v4.1.3 (Nov 13, 2020)
 
  * chore: Updated dependencies.
