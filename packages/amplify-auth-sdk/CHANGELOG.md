@@ -1,3 +1,7 @@
+# v2.3.4 (Nov 18, 2020)
+
+ * fix: Updated `keytar` to 7.1.0 which adds support for the latest Node.js version.
+
 # v2.3.3 (Nov 13, 2020)
 
  * fix(login): Handle stale access tokens when finding an account by removing the now invalid

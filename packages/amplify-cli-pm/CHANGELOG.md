@@ -1,3 +1,7 @@
+# v2.2.7 (Nov 18, 2020)
+
+ * chore: Updated dependencies.
+
 # v2.2.6 (Nov 13, 2020)
 
  * chore: Updated dependencies.
