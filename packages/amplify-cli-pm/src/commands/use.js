@@ -19,7 +19,7 @@ export default {
 	options: {
 		'--json': 'Outputs activated package as JSON'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const [
 			{ addPackageToConfig, getInstalledPackages },
 			{ default: npa },
@@ -78,12 +78,10 @@ export default {
 				await addPackageToConfig(name, info.path);
 			}
 
+			await cli.emitAction('axway:pm:use', info);
+
 			if (argv.json) {
-				console.log(JSON.stringify({
-					name,
-					version,
-					path: info.path
-				}, null, 2));
+				console.log(JSON.stringify(info, null, 2));
 			} else {
 				console.log(msg);
 			}

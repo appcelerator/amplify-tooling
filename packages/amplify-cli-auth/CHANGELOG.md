@@ -1,3 +1,10 @@
+# v2.3.0 (Dec 1, 2020)
+
+ * feat: Added `axway:auth:*` actions for `login`, `logout`, and `switch` commands.
+   ([CLI-105](https://jira.axway.com/browse/CLI-105))
+ * fix: Added missing AMPLIFY SDK init parameters to `logout` and `whoami` commands.
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+
 # v2.2.4 (Nov 18, 2020)
 
  * chore: Updated dependencies.

@@ -1,3 +1,10 @@
+# v2.3.0 (Dec 1, 2020)
+
+ * feat: Added `axway:pm:*` actions for `install`, `purge`, `uninstall`, `update`, and `use`
+   commands. ([CLI-105](https://jira.axway.com/browse/CLI-105))
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * fix(use): Return all package info when `--json` flag is set.
+
 # v2.2.7 (Nov 18, 2020)
 
  * chore: Updated dependencies.

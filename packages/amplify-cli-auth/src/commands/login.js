@@ -14,7 +14,7 @@ export default {
 		'-u, --username [user]':     'Username to authenticate with',
 		'-p, --password [pass]':     'Password to authenticate with'
 	},
-	async action({ argv, console, exitCode }) {
+	async action({ argv, cli, console, exitCode }) {
 		const { default: snooplogg } = require('snooplogg');
 		const { initSDK } = require('@axway/amplify-cli-utils');
 		const { prompt } = require('enquirer');
@@ -117,6 +117,8 @@ export default {
 		} else {
 			account.default = false;
 		}
+
+		await cli.emitAction('axway:auth:login', account);
 
 		if (argv.json) {
 			console.log(JSON.stringify(account, null, 2));

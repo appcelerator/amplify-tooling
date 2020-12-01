@@ -9,7 +9,7 @@ export default {
 	options: {
 		'--json': 'Outputs the purged packages as JSON'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const [
 			{ getInstalledPackages, packagesDir },
 			{ remove },
@@ -74,6 +74,8 @@ export default {
 			}
 
 			await removals.run();
+
+			await cli.emitAction('axway:pm:purge', removedPackages);
 
 			if (argv.json) {
 				console.log(JSON.stringify(removedPackages, null, 2));

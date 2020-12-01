@@ -1,3 +1,8 @@
+# v2.1.0 (Dec 1, 2020)
+
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * chore: Updated dependencies.
+
 # v2.0.1 (Oct 21, 2020)
 
  * chore: Updated dependencies.

@@ -10,7 +10,7 @@ export default {
 	options: {
 		'--json': 'Outputs updated packages as JSON'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const [
 			{ addPackageToConfig, getInstalledPackages, PackageInstaller, Registry },
 			{ default: Listr },
@@ -110,5 +110,7 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		}
+
+		await cli.emitAction('axway:pm:update', results);
 	}
 };
