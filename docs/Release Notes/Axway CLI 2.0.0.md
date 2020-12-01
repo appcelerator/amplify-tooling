@@ -24,10 +24,13 @@ npm i -g axway@2.0.0
  * feat(config): Added proxy info to config help.
  * feat: Added notificaiton if new version is available.
    ([CLI-22](https://jira.axway.com/browse/CLI-22))
+ * feat: Added `axway:config:save` action to `config` command.
+   ([CLI-105](https://jira.axway.com/browse/CLI-105))
  * refactor(config): Do not show the banner for `config` related commands.
  * refactor(config): Replaced config action with subcommands for cleaner code and improved help
    information.
  * fix(config): Latest cli-kit no longer requires `showHelpOnError` to be disabled.
+ * style: Prefix error message with an X symbol.
  * chore: Updated dependencies.
 
 ### amplify-auth-sdk@2.0.0
