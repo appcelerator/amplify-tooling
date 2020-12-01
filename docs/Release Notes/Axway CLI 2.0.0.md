@@ -147,6 +147,12 @@ npm i -g axway@2.0.0
 
  * fix: Updated `keytar` to 7.1.0 which adds support for the latest Node.js version.
 
+### amplify-auth-sdk@2.4.0
+
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * chore: Updated to keytar 7.2.0 which adds support for Node.js 15.
+ * chore: Updated dependencies.
+
 ### amplify-cli-auth@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -223,6 +229,13 @@ npm i -g axway@2.0.0
    platform organization.
  * fix(login): Load session after manually logging in.
 
+### amplify-cli-auth@2.3.0
+
+ * feat: Added `axway:auth:*` actions for `login`, `logout`, and `switch` commands.
+   ([CLI-105](https://jira.axway.com/browse/CLI-105))
+ * fix: Added missing AMPLIFY SDK init parameters to `logout` and `whoami` commands.
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -291,6 +304,13 @@ npm i -g axway@2.0.0
 ### amplify-cli-pm@2.2.7
 
  * chore: Updated dependencies.
+
+### amplify-cli-pm@2.3.0
+
+ * feat: Added `axway:pm:*` actions for `install`, `purge`, `uninstall`, `update`, and `use`
+   commands. ([CLI-105](https://jira.axway.com/browse/CLI-105))
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * fix(use): Return all package info when `--json` flag is set.
 
 ### amplify-cli-utils@3.0.0
 
@@ -378,6 +398,11 @@ npm i -g axway@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-cli-utils@4.2.0
+
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * chore: Updated dependencies.
+
 ### amplify-config@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -435,6 +460,10 @@ npm i -g axway@2.0.0
  * fix: Fixed bug writing migrated config file.
 
 ### amplify-config@3.0.4
+
+ * chore: Updated dependencies.
+
+### amplify-config@3.0.5
 
  * chore: Updated dependencies.
 
@@ -500,6 +529,12 @@ npm i -g axway@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-registry-sdk@2.3.0
+
+ * feat: Added `path` to installed package info.
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * fix: Removed dependency on appcd-subprocess.
+
 ### amplify-request@2.0.0
 
  * BREAKING CHANGE: Completely new API.
@@ -511,6 +546,11 @@ npm i -g axway@2.0.0
 
 ### amplify-request@2.0.1
 
+ * chore: Updated dependencies.
+
+### amplify-request@2.1.0
+
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
  * chore: Updated dependencies.
 
 ### amplify-sdk@1.0.0
@@ -594,4 +634,9 @@ npm i -g axway@2.0.0
 
 ### amplify-sdk@1.5.3
 
+ * chore: Updated dependencies.
+
+### amplify-sdk@1.6.0
+
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
  * chore: Updated dependencies.
