@@ -12,7 +12,7 @@ export default {
 	options: {
 		'--json': 'Outputs removed packages as JSON'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const [
 			{ getInstalledPackages, packagesDir, removePackageFromConfig },
 			fs,
@@ -88,6 +88,8 @@ export default {
 					await fs.remove(path);
 				}
 			}
+
+			await cli.emitAction('axway:pm:uninstall', versions);
 
 			if (argv.json) {
 				console.log(JSON.stringify(versions, null, 2));

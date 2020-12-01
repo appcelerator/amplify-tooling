@@ -1,12 +1,13 @@
 import fs from 'fs-extra';
 import loadConfig from '@axway/amplify-config';
 import snooplogg from 'snooplogg';
+import which from 'which';
 
+import { createNPMRequestArgs, locations } from '@axway/amplify-cli-utils';
 import { extract } from 'tar';
 import { isDir, isFile } from 'appcd-fs';
 import { join } from 'path';
-import { createNPMRequestArgs, locations } from '@axway/amplify-cli-utils';
-import { run, which } from 'appcd-subprocess';
+import { spawn } from 'child_process';
 
 export const cacheDir = join(locations.axwayHome, 'axway-cli', 'cache');
 export const packagesDir = join(locations.axwayHome, 'axway-cli', 'packages');
@@ -42,9 +43,35 @@ export async function npmInstall({ directory, npm }) {
 	const args = [ 'install', '--production', ...createNPMRequestArgs() ];
 
 	try {
-		await run(npm, args, {
-			cwd: directory,
-			env: Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env)
+		await new Promise((resolve, reject) => {
+			const opts = {
+				cwd: directory,
+				env: Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env),
+				windowsHide: true
+			};
+
+			let stdout = '';
+			let stderr = '';
+
+			const child = spawn(npm, args, opts);
+			child.stdout.on('data', data => stdout += data.toString());
+			child.stderr.on('data', data => stderr += data.toString());
+
+			child.on('close', code => {
+				if (code) {
+					const err = new Error(`Subprocess exited with code ${code}`);
+					err.command = npm;
+					err.args    = args;
+					err.opts    = opts;
+					err.code    = code;
+					err.stdout  = stdout;
+					err.stderr  = stderr;
+					reject(err);
+				} else {
+					resolve();
+				}
+			});
+			child.on('error', reject);
 		});
 	} catch (err) {
 		// Add an error code but move the original code value here into an exitCode prop

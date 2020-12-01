@@ -1,3 +1,9 @@
+# v2.3.0 (Dec 1, 2020)
+
+ * feat: Added `path` to installed package info.
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * fix: Removed dependency on appcd-subprocess.
+
 # v2.2.6 (Nov 18, 2020)
 
  * chore: Updated dependencies.

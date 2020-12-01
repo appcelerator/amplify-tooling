@@ -5,13 +5,18 @@ export default {
 		'--json':               'Outputs selected account as JSON',
 		'--org [guid|id|name]': 'The organization to switch to'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const { ansi } = require('cli-kit');
 		const { default: snooplogg } = require('snooplogg');
 		const { initSDK } = require('@axway/amplify-cli-utils');
 		const { prompt } = require('enquirer');
 		const { alert, highlight } = snooplogg.styles;
-		const { config, sdk } = initSDK();
+		const { config, sdk } = initSDK({
+			baseUrl:  argv.baseUrl,
+			clientId: argv.clientId,
+			env:      argv.env,
+			realm:    argv.realm
+		});
 		const accounts = await sdk.auth.list();
 
 		try {
@@ -142,6 +147,8 @@ export default {
 				config.set(`auth.defaultOrg.${account.hash}`, org.guid);
 				config.save();
 			}
+
+			await cli.emitAction('axway:auth:switch', account);
 
 			if (argv.json) {
 				console.log(JSON.stringify(account, null, 2));

@@ -12,7 +12,7 @@ export default {
 	options: {
 		'--json': 'Output installed package as JSON'
 	},
-	async action({ argv, console, terminal }) {
+	async action({ argv, cli, console, terminal }) {
 		const [
 			{ PackageInstaller },
 			{ default: npa },
@@ -78,16 +78,21 @@ export default {
 				});
 
 			const info = await installProcess.start();
+
 			if (argv.json) {
 				console.log(JSON.stringify({
-					name,
-					version: info.version,
-					path: info.path,
+					...info,
 					messages: messages.length && messages || undefined
 				}, null, 2));
 			} else {
 				spinner.succeed(`Installed ${highlight(`${name}@${info.version}`)}`);
 			}
+
+			// load the extension that was just installed
+			if (info.type === 'amplify-cli-plugin') {
+				cli.extension(info.path);
+			}
+			await cli.emitAction('axway:pm:install', info);
 		} catch (err) {
 			handleError({ console, err, json: argv.json, outputError: e => spinner.fail(alert(e)) });
 		}

@@ -34,6 +34,7 @@ export class PackageInstaller extends EventEmitter {
 
 		this.emit('extract');
 		const extractLocation = await extractPackage({ zipLocation, type: pkgInfo.type });
+		pkgInfo.path = extractLocation;
 
 		if (actions.post) {
 			this.emit('postActions');

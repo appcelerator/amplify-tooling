@@ -4,8 +4,7 @@
   "private": true,
   "dependencies": {
     "ansi-colors": "^4.1.1",
-    "appcd-gulp": "^3.0.1",
-    "appcd-subprocess": "^4.0.0",
+    "appcd-gulp": "^3.1.0",
     "chai": "^4.2.0",
     "fs-extra": "^9.0.1",
     "gulp": "^4.0.2",

@@ -10,7 +10,7 @@ export default {
 	options: {
 		'--json': 'Outputs revoked accounts as JSON'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const [
 			{ initSDK },
 			{ default: snooplogg }
@@ -23,8 +23,15 @@ export default {
 			argv.all = true;
 		}
 
-		const { sdk } = initSDK();
+		const { sdk } = initSDK({
+			baseUrl:  argv.baseUrl,
+			clientId: argv.clientId,
+			env:      argv.env,
+			realm:    argv.realm
+		});
 		const revoked = await sdk.auth.logout(argv);
+
+		await cli.emitAction('axway:auth:logout', revoked);
 
 		if (argv.json) {
 			console.log(JSON.stringify(revoked, null, 2));

@@ -1,3 +1,9 @@
+# v2.4.0 (Dec 1, 2020)
+
+ * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * chore: Updated to keytar 7.2.0 which adds support for Node.js 15.
+ * chore: Updated dependencies.
+
 # v2.3.4 (Nov 18, 2020)
 
  * fix: Updated `keytar` to 7.1.0 which adds support for the latest Node.js version.

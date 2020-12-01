@@ -1,7 +1,7 @@
 const { existsSync, readdirSync, moveSync, readJSONSync, writeJSONSync } = require('fs-extra');
 const { homedir } = require('os');
 const { join } = require('path');
-const { run } = require('appcd-subprocess');
+const { spawn } = require('child_process');
 const isWindows = process.platform === 'win32';
 
 const axwayHome = join(homedir(), '.axway');
@@ -46,21 +46,31 @@ function readConfig() {
 }
 
 async function runCommand(args, opts = {}) {
-	Object.assign(opts, { ignoreExitCode: true });
+	Object.assign(opts, { windowsHide: true });
 	opts.env = {
 		...opts.env,
 		...process.env
 	};
 	delete opts.env.SNOOPLOGG;
 
-	const amplifyCmd = getAmplifyCommand();
-	// On Windows we need to spawn the local bin file using node to execute it
+	let cmd = getAmplifyCommand();
+
+	// on Windows we need to spawn the local bin file using node to execute it
 	// this is handled by the npm wrapper when we use the global install
-	if (isWindows && amplifyCmd !== 'axway.cmd') {
-		args.unshift(amplifyCmd);
-		return await run(process.execPath, args, opts);
+	if (isWindows && cmd !== 'axway.cmd') {
+		args.unshift(cmd);
+		cmd = process.execPath;
 	}
-	return await run(amplifyCmd, args, opts);
+
+	return await new Promise((resolve, reject) => {
+		let stdout = '';
+		let stderr = '';
+		const child = spawn(cmd, args, opts);
+		child.stdout.on('data', data => stdout += data.toString());
+		child.stderr.on('data', data => stderr += data.toString());
+		child.on('close', code => resolve({ code, stdout, stderr }));
+		child.on('error', reject);
+	});
 }
 
 function getAmplifyCommand () {

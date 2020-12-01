@@ -64,7 +64,7 @@ Copyright (c) 2018-2020, Axway, Inc. All Rights Reserved.`,
 				result: err.toString()
 			}, null, 2));
 		} else {
-			console.error(chalk.red(err));
+			console.error(chalk.red(`${process.platform === 'win32' ? 'x' : '✖'} ${err}`));
 		}
 
 		process.exit(exitCode);
