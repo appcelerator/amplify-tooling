@@ -1,5 +1,5 @@
 {
-  "name": "@axway/action-exmaple",
+  "name": "@axway/action-example",
   "version": "1.0.0",
   "description": "This package demonstrates the power of Axway CLI actions",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
@@ -11,7 +11,7 @@
     "amplify-test-package"
   ],
   "bin": {
-    "action-exmaple": "./bin/action-exmaple"
+    "action-example": "./bin/action-example"
   },
   "main": "./dist/main",
   "scripts": {

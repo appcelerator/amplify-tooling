@@ -1,5 +1,5 @@
 {
-	"name": "auth-exmaple",
+	"name": "auth-example",
 	"version": "0.0.0",
 	"description": "",
 	"author": "",
@@ -9,7 +9,7 @@
 		"amplify-package"
 	],
 	"bin": {
-		"auth-exmaple": "./bin/auth-exmaple"
+		"auth-example": "./bin/auth-example"
 	},
 	"main": "./dist/main",
 	"scripts": {
