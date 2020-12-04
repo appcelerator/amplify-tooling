@@ -236,6 +236,10 @@ npm i -g axway@2.0.0
  * fix: Added missing AMPLIFY SDK init parameters to `logout` and `whoami` commands.
  * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
 
+### amplify-cli-auth@2.3.1
+
+ * style: Prefix error message with an X symbol.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -311,6 +315,13 @@ npm i -g axway@2.0.0
    commands. ([CLI-105](https://jira.axway.com/browse/CLI-105))
  * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
  * fix(use): Return all package info when `--json` flag is set.
+
+### amplify-cli-pm@2.3.1
+
+ * fix(uninstall): Remove empty package container directories.
+ * fix(uninstall): Fixed issue uninstalling package with a label in the package version.
+ * fix(use): Fixed issue with selecting a package with a label in the package version.
+ * style: Prefix error message with an X symbol.
 
 ### amplify-cli-utils@3.0.0
 
