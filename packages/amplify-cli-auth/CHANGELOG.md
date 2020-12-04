@@ -1,3 +1,7 @@
+# v2.3.1 (Dec 3, 2020)
+
+ * style: Prefix error message with an X symbol.
+
 # v2.3.0 (Dec 1, 2020)
 
  * feat: Added `axway:auth:*` actions for `login`, `logout`, and `switch` commands.

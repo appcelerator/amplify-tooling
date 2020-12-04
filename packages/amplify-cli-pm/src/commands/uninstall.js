@@ -16,6 +16,7 @@ export default {
 		const [
 			{ getInstalledPackages, packagesDir, removePackageFromConfig },
 			fs,
+			{ dirname },
 			semver,
 			{ default: npa },
 			{ default: snooplogg },
@@ -23,6 +24,7 @@ export default {
 		] = await Promise.all([
 			import('@axway/amplify-registry-sdk'),
 			import('fs-extra'),
+			import('path'),
 			import('semver'),
 			import('npm-package-arg'),
 			import('snooplogg'),
@@ -55,7 +57,12 @@ export default {
 					versions.push({ version: fetchSpec, ...info });
 				}
 			} else if (type === 'tag' && fetchSpec === 'latest') {
-				const version = semver.maxSatisfying(installedVersions, semver.validRange('*'));
+				let version;
+				for (const ver of installedVersions) {
+					if (!version || semver.gt(ver, version)) {
+						version = ver;
+					}
+				}
 				if (version) {
 					versions.push({ version, ...installed.versions[version] });
 				}
@@ -69,7 +76,12 @@ export default {
 			if (installedVersions.length > versions.length) {
 				const removed = versions.map(v => v.version);
 				const toSelectFrom = installedVersions.filter(v => !removed.includes(v));
-				const newVersion = semver.maxSatisfying(toSelectFrom, semver.validRange('*'));
+				let newVersion;
+				for (const ver of toSelectFrom) {
+					if (!newVersion || semver.gt(ver, newVersion)) {
+						newVersion = ver;
+					}
+				}
 				replacement.path = installed.versions[newVersion].path;
 				replacement.version = newVersion;
 			}
@@ -86,6 +98,11 @@ export default {
 						console.log(`Deleting ${highlight(`${name}@${version}`)} ${note(`(${path})`)}`);
 					}
 					await fs.remove(path);
+
+					const parent = dirname(path);
+					if (!fs.readdirSync(parent).filter(file => file !== '.DS_Store').length) {
+						await fs.remove(parent);
+					}
 				}
 			}
 

@@ -4,6 +4,7 @@ import snooplogg from 'snooplogg';
 import { ansi } from 'cli-kit';
 
 const { alert } = snooplogg.styles;
+const { error } = snooplogg('pm:utils');
 
 /**
  * Cached user agent.
@@ -72,6 +73,11 @@ export function handleError({ console, err, json, outputError }) {
 	err = formatError(err);
 	process.exitCode = err.exitCode || 1;
 
+	error(err);
+	if (err.detail) {
+		error(err.detail);
+	}
+
 	if (json) {
 		console.error(JSON.stringify({
 			error: {
@@ -84,7 +90,7 @@ export function handleError({ console, err, json, outputError }) {
 		if (outputError) {
 			outputError(err.toString());
 		} else {
-			console.error(alert(err.toString()));
+			console.error(alert(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`));
 		}
 		if (err.detail) {
 			console.error(`\n${err.detail}`);

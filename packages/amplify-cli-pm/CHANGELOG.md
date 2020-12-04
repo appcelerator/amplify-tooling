@@ -1,3 +1,10 @@
+# v2.3.1 (Dec 3, 2020)
+
+ * fix(uninstall): Remove empty package container directories.
+ * fix(uninstall): Fixed issue uninstalling package with a label in the package version.
+ * fix(use): Fixed issue with selecting a package with a label in the package version.
+ * style: Prefix error message with an X symbol.
+
 # v2.3.0 (Dec 1, 2020)
 
  * feat: Added `axway:pm:*` actions for `install`, `purge`, `uninstall`, `update`, and `use`

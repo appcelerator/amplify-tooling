@@ -52,7 +52,11 @@ export default {
 
 			let version;
 			if (fetchSpec === '*' || type === 'range') {
-				version = semver.maxSatisfying(Object.keys(installed.versions), fetchSpec);
+				for (const ver of Object.keys(installed.versions)) {
+					if (!version || semver.gt(ver, version)) {
+						version = ver;
+					}
+				}
 			} else if (type === 'version') {
 				version = fetchSpec;
 			}
