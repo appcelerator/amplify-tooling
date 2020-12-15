@@ -2,7 +2,7 @@ export default {
 	desc: 'Select default account and organization',
 	options: {
 		'--account [name]':     'The account to switch to',
-		'--json':               'Outputs selected account as JSON',
+		'--json':               'Disables prompting and outputs selected account and org as JSON',
 		'--org [guid|id|name]': 'The organization to switch to'
 	},
 	async action({ argv, cli, console }) {
@@ -17,18 +17,15 @@ export default {
 			env:      argv.env,
 			realm:    argv.realm
 		});
-		const accounts = await sdk.auth.list();
+		const accounts = (await sdk.auth.list()).filter(acct => acct.org);
 
 		try {
-			if (!accounts.length) {
-				const err = new Error('No authenticated accounts');
-				err.code = 'ERR_NO_ACCOUNTS';
-				err.details = `Please login first:\n  ${highlight(`${process.env.AXWAY_CLI ? 'axway' : 'amplify'} auth login`)}`;
-				throw err;
-			}
-
 			if (accounts.length > 1 && !argv.account && argv.json) {
 				throw new Error('Must specify --account when --json is set and there are multiple authenticated accounts');
+			}
+
+			if (!argv.org && argv.json) {
+				throw new Error('Must specify --org when --json is set');
 			}
 
 			let account;
@@ -64,96 +61,41 @@ export default {
 					console.log();
 				}
 
-				account = await sdk.auth.find(accountName);
-				if (!account) {
-					const err = new Error('No authenticated accounts');
-					err.code = 'ERR_NO_ACCOUNTS';
-					err.details = `Please login first:\n  ${highlight(`${process.env.AXWAY_CLI ? 'axway' : 'amplify'} auth login`)}`;
-					throw err;
+				if (accountName) {
+					account = await sdk.auth.find(accountName);
 				}
 			}
 
-			config.set('auth.defaultAccount', account.name);
-			config.save();
-			account.default = true;
-
 			// determine the org
-			let org;
+			let org = argv.org || (account?.hash && config.get(`auth.defaultOrg.${account.hash}`));
+			let orgId;
 
-			if (argv.org) {
+			if (org) {
 				for (const o of account.orgs) {
-					if (o.guid === argv.org || o.id === argv.org || o.name === argv.org) {
-						org = o;
+					if (o.guid === org || o.id === org || o.name === org) {
+						orgId = o.id;
 						break;
 					}
 				}
-
-				if (!org) {
-					const err = `Unable to find organization "${argv.org}"`;
-					err.code = 'ERR_NOT_FOUND';
-					err.details = `Available organizations:\n${account.orgs.map(a => `  ${highlight(a.name)}`).join('\n')}`;
-					throw err;
-				}
-			} else if (account.orgs.length === 1) {
-				// the list of orgs takes precendence over the org
-				org = account.orgs[0];
-			} else if (argv.json) {
-				throw new Error('Must specify --org when --json is set and the selected account has multiple organizations');
-			} else if (account.orgs.length > 1) {
-				const defaultOrg = config.get(`auth.defaultOrg.${account.hash}`);
-				const choices = account.orgs
-					.map(org => {
-						org.toString = () => org.name;
-						return {
-							guid:    org.guid,
-							message: `${org.name} (${org.guid} : ${org.id})`,
-							value:   org
-						};
-					})
-					.sort((a, b) => a.message.localeCompare(b.message));
-				const initial = choices.findIndex(org => org.guid === defaultOrg);
-
-				({ org } = await prompt({
-					choices,
-					format: function () {
-						// for some reason, enquirer doesn't print the selected value using the primary
-						// (green) color for select prompts, so we just force it for all prompts
-						return this.style(this.value);
-					},
-					initial,
-					message: 'Select an organization to switch to',
-					name:    'org',
-					styles: {
-						em(msg) {
-							// stylize emphasised text with just the primary color, no underline
-							return this.primary(msg);
-						}
-					},
-					type:    'select'
-				}));
-
-				console.log();
 			}
 
-			if (!account.org || account.org !== org) {
-				// need to switch org
-				if (!argv.json) {
-					console.log('Launching web browser to switch organization...');
-				}
-				account = await sdk.auth.switchOrg(account, org.id);
+			if (!argv.json) {
+				console.log('Launching web browser to switch organization...');
 			}
+			account = await sdk.auth.switchOrg(account, orgId);
 
-			if (org) {
-				config.set(`auth.defaultOrg.${account.hash}`, org.guid);
-				config.save();
-			}
+			config.set('auth.defaultAccount', account.name);
+			config.set(`auth.defaultOrg.${account.hash}`, account.org.guid);
+			config.save();
+
+			account.default = true;
 
 			await cli.emitAction('axway:auth:switch', account);
 
 			if (argv.json) {
 				console.log(JSON.stringify(account, null, 2));
-			} else if (org) {
-				console.log(`Default account set to ${highlight(account.user.email || account.name)} in ${highlight(org.name)}`);
+			} else if (account.org) {
+				console.log(`Default account set to ${highlight(account.user.email || account.name)} in ${highlight(account.org.name)}`);
 			} else {
 				console.log(`Default account set to ${highlight(account.user.email || account.name)}`);
 			}
@@ -166,9 +108,9 @@ export default {
 					accounts: accounts.map(a => a.name)
 				}, null, 2));
 			} else if (err.details) {
-				console.error(`${alert(err.toString())}\n\n${err.details}`);
+				console.error(`${alert(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`)}\n\n${err.details}`);
 			} else {
-				console.error(alert(err));
+				console.error(alert(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`));
 			}
 			process.exit(err.exitCode || 1);
 		}

@@ -1,3 +1,7 @@
+# v2.4.0
+
+ * ?
+
 # v2.3.1 (Dec 3, 2020)
 
  * style: Prefix error message with an X symbol.

@@ -76,7 +76,7 @@ export default {
 			const { cancel, promise, url } = await sdk.auth.login({ manual });
 
 			promise.catch(err => {
-				console.error(err.toString());
+				console.error(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`);
 				process.exit(1);
 			});
 
@@ -98,7 +98,7 @@ export default {
 					}
 					return;
 				} else if (err.code === 'ERR_AUTH_FAILED') {
-					console.error(alert(err.message));
+					console.error(alert(`${process.platform === 'win32' ? 'x' : '✖'} ${err.message}`));
 					exitCode(1);
 					return;
 				}
