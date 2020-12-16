@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
-import Auth, { Authenticator, MemoryStore, OwnerPassword } from '../dist/index';
 import tmp from 'tmp';
-
+import { Auth, Authenticator, MemoryStore, OwnerPassword } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
 
 describe('Owner Password', () => {

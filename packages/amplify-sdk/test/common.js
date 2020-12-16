@@ -3,7 +3,6 @@ import http from 'http';
 import jws from 'jws';
 import snooplogg from 'snooplogg';
 
-import { server } from '../dist/index';
 import { serverInfo } from './server-info';
 
 const { log } = snooplogg('test:amplify-auth:common');
@@ -115,6 +114,11 @@ export async function createLoginServer(opts = {}) {
 					res.end();
 					break;
 
+				case '/success':
+					res.writeHead(200, { 'Content-Type': 'text/html' });
+					res.end('<html><head><title>Test successful!</title></head><body><h1>Test successful!</h1><p>You can close this browser window</p></body></html>');
+					break;
+
 				default:
 					res.writeHead(404, { 'Content-Type': 'text/plain' });
 					res.end('Not Found');
@@ -162,8 +166,6 @@ export async function createLoginServer(opts = {}) {
 
 export async function stopLoginServer() {
 	this.timeout(5000);
-
-	await server.stop(true);
 
 	if (this.server) {
 		log('Destroying test auth server...');

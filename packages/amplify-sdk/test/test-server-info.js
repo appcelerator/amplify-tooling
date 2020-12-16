@@ -1,5 +1,4 @@
-import Auth from '../dist/index';
-
+import { Auth } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
 import { serverInfo } from './server-info';
 

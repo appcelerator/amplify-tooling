@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 
-import Auth, { Authenticator, ClientSecret } from '../dist/index';
-
+import { Auth, Authenticator, ClientSecret } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
 
 const isCI = process.env.CI || process.env.JENKINS;
@@ -44,7 +43,7 @@ describe('Client Secret', () => {
 
 			const { cancel, url } = await auth.login({ manual: true });
 			await cancel();
-			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback%2F.+&response_type=code&scope=openid$/);
+			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&grant_type=authorization_code&redirect_uri=http%3A%2F%2F127\.0\.0\.1%3A3000%2Fcallback%2F.+&response_type=code&scope=openid$/);
 		});
 
 		it('should error if getting token without a code', async function () {
@@ -182,13 +181,14 @@ describe('Client Secret', () => {
 			this.server = await createLoginServer();
 
 			const auth = new Auth({
-				clientSecret:      '###',
-				serviceAccount:    false,
-				baseUrl:           'http://127.0.0.1:1337',
-				clientId:          'test_client',
-				realm:             'test_realm',
-				redirectOrgSelect: 'http://127.0.0.1:1337/auth/org.select',
-				tokenStoreType:    'memory'
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				clientSecret:   '###',
+				orgSelectUrl:   'http://127.0.0.1:1337/auth/org.select',
+				platformUrl:    'http://127.0.0.1:1337/success',
+				realm:          'test_realm',
+				serviceAccount: false,
+				tokenStoreType: 'memory'
 			});
 
 			const account = await auth.login();

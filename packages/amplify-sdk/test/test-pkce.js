@@ -1,11 +1,7 @@
 /* eslint-disable max-len */
 
-import Auth, { Authenticator } from '../dist/index';
-import got from 'got';
-import snooplogg from 'snooplogg';
+import { Auth, Authenticator } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
-
-const { log } = snooplogg('test:amplify-auth:pkce');
 
 const isCI = process.env.CI || process.env.JENKINS;
 
@@ -35,7 +31,7 @@ describe('PKCE', () => {
 
 			const { cancel, url } = await auth.login({ manual: true });
 			await cancel();
-			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&code_challenge=.+&code_challenge_method=S256&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback%2F.+&response_type=code&scope=openid$/);
+			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&code_challenge=.+&code_challenge_method=S256&grant_type=authorization_code&redirect_uri=http%3A%2F%2F127\.0\.0\.1%3A3000%2Fcallback%2F.+&response_type=code&scope=openid$/);
 		});
 
 		it('should error if getting token without a code', async function () {
@@ -155,11 +151,12 @@ describe('PKCE', () => {
 			this.server = await createLoginServer();
 
 			const auth = new Auth({
-				baseUrl:           'http://127.0.0.1:1337',
-				clientId:          'test_client',
-				realm:             'test_realm',
-				redirectOrgSelect: 'http://127.0.0.1:1337/auth/org.select',
-				tokenStoreType:    null
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				orgSelectUrl:   'http://127.0.0.1:1337/auth/org.select',
+				platformUrl:    'http://127.0.0.1:1337/success',
+				realm:          'test_realm',
+				tokenStoreType: null
 			});
 
 			const account = await auth.login();
@@ -265,179 +262,6 @@ describe('PKCE', () => {
 			const revoked = await auth.logout({ accounts: 'test_client:foo@bar.com' });
 			expect(revoked).to.have.lengthOf(0);
 			expect(counter).to.equal(0);
-		});
-	});
-
-	describe('Messages', () => {
-		afterEach(stopLoginServer);
-
-		it('should override a default message with a text string', async function () {
-			this.server = await createLoginServer();
-
-			const text = 'It worked!';
-
-			const auth = new Auth({
-				baseUrl:           'http://127.0.0.1:1337',
-				clientId:          'test_client',
-				realm:             'test_realm',
-				redirectOrgSelect: 'http://127.0.0.1:1337/auth/org.select',
-				tokenStoreType:    null,
-				messages: {
-					interactiveSuccess: text
-				}
-			});
-
-			let { promise, url } = await auth.login({ manual: true });
-
-			promise.catch(() => {});
-
-			log(`Manually fetching ${url}`);
-			let res = await got({
-				followRedirect: false,
-				url
-			});
-			expect(res.statusCode).to.equal(301);
-
-			url = res.headers['location'];
-			log(`Fetching ${url}`);
-
-			res = await got({
-				headers: {
-					Accept: 'text/plain'
-				},
-				url
-			});
-
-			expect(res.statusCode).to.equal(200);
-			expect(res.body).to.equal(text);
-		});
-
-		it('should override a default message with an object and html', async function () {
-			this.server = await createLoginServer();
-
-			const html = '<html><body>It worked!!</body></html>';
-
-			const auth = new Auth({
-				baseUrl:           'http://127.0.0.1:1337',
-				clientId:          'test_client',
-				realm:             'test_realm',
-				redirectOrgSelect: 'http://127.0.0.1:1337/auth/org.select',
-				tokenStoreType:    null
-			});
-
-			const { promise, url } = await auth.login({
-				manual: true,
-				messages: {
-					interactiveSuccess: {
-						html,
-						text: 'It worked!!'
-					}
-				}
-			});
-
-			promise.catch(() => {});
-
-			let res = await got({
-				followRedirect: false,
-				url
-			});
-			expect(res.statusCode).to.equal(301);
-
-			res = await got({ url: res.headers['location'] });
-			expect(res.statusCode).to.equal(200);
-			expect(res.body).to.equal(html);
-		});
-
-		it('should respond to interactive login as json', async function () {
-			this.server = await createLoginServer();
-
-			const text = 'It worked!';
-
-			const auth = new Auth({
-				baseUrl:           'http://127.0.0.1:1337',
-				clientId:          'test_client',
-				realm:             'test_realm',
-				redirectOrgSelect: 'http://127.0.0.1:1337/auth/org.select',
-				tokenStoreType:    null,
-				messages: {
-					interactiveSuccess: text
-				}
-			});
-
-			let { promise, url } = await auth.login({ manual: true });
-
-			promise.catch(() => {});
-
-			log(`Manually fetching ${url}`);
-			let res = await got({
-				followRedirect: false,
-				url
-			});
-			expect(res.statusCode).to.equal(301);
-
-			url = res.headers['location'];
-			log(`Fetching ${url}`);
-
-			res = await got({
-				headers: {
-					Accept: 'application/json'
-				},
-				url
-			});
-
-			expect(res.statusCode).to.equal(200);
-			expect(JSON.parse(res.body)).to.deep.equal({
-				message: 'It worked!',
-				success: true
-			});
-		});
-
-		it('should respond to failed interactive login as json', async function () {
-			this.server = await createLoginServer();
-
-			const text = 'It worked!';
-
-			const auth = new Auth({
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreType: null,
-				messages: {
-					interactiveSuccess: text
-				}
-			});
-
-			let { promise, url } = await auth.login({ manual: true });
-
-			promise.catch(() => {});
-
-			log(`Manually fetching ${url}`);
-			let res = await got({
-				followRedirect: false,
-				url
-			});
-			expect(res.statusCode).to.equal(301);
-
-			url = res.headers['location'].split('?')[0];
-			log(`Fetching ${url}`);
-
-			try {
-				await got({
-					headers: {
-						Accept: 'application/json'
-					},
-					url
-				});
-			} catch (err) {
-				expect(err.response.statusCode).to.equal(400);
-				expect(JSON.parse(err.response.body)).to.deep.equal({
-					message: 'Invalid auth code',
-					success: false
-				});
-				return;
-			}
-
-			throw new Error('Expected 400 exception');
 		});
 	});
 });

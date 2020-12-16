@@ -23,6 +23,42 @@ export default class Server {
 		this.port = null;
 		this.server = null;
 		this.serverURL = null;
+		this.timeout = opts.timeout || defaultTimeout;
+	}
+
+	async createCallback(handler) {
+		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();
+
+		log(`Creating callback: ${requestId}`);
+
+		await this.createServer();
+
+		// set up the timer to stop the server
+		const timer = setTimeout(() => {
+			const request = this.pending.get(requestId);
+			if (request) {
+				log(`Request ${highlight(requestId)} timed out`);
+				this.pending.delete(requestId);
+				request.reject(E.AUTH_TIMEOUT('Authentication failed: Timed out'));
+			}
+			this.stop();
+		}, this.timeout);
+
+		return {
+			cancel: async () => {
+				const request = this.pending.get(requestId);
+				if (request) {
+					log(`Cancelling request ${highlight(requestId)}`);
+					clearTimeout(request.timer);
+					this.pending.delete(requestId);
+					await this.stop();
+				}
+			},
+			promise: new Promise((resolve, reject) => {
+				this.pending.set(requestId, { handler, resolve, reject, timer });
+			}),
+			url: `${this.serverURL}/callback/${requestId}`
+		};
 	}
 
 	async createServer() {
@@ -130,39 +166,6 @@ export default class Server {
 				})
 				.listen(port, host);
 		});
-	}
-
-	async createCallback(handler) {
-		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();
-
-		await this.createServer();
-
-		// set up the timer to stop the server
-		const timer = setTimeout(() => {
-			const request = this.pending.get(requestId);
-			if (request) {
-				log(`Request ${highlight(requestId)} timed out`);
-				this.pending.delete(requestId);
-				request.reject(E.AUTH_TIMEOUT('Authentication failed: Timed out'));
-			}
-			this.stop();
-		}, defaultTimeout);
-
-		return {
-			async cancel() {
-				const request = this.pending.get(requestId);
-				if (request) {
-					log(`Cancelling request ${highlight(requestId)}`);
-					clearTimeout(request.timer);
-					this.pending.delete(requestId);
-					await this.stop();
-				}
-			},
-			promise: new Promise((resolve, reject) => {
-				this.pending.set(requestId, { handler, resolve, reject, timer });
-			}),
-			url: `${this.serverURL}/callback/${requestId}`
-		};
 	}
 
 	async stop(force) {

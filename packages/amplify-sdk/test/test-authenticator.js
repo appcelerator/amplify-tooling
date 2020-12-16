@@ -70,101 +70,6 @@ describe('Authenticator', () => {
 			}).to.throw(TypeError, 'Expected parameter "scope" to be a string');
 		});
 
-		it('should error if server host is invalid', () => {
-			expect(() => {
-				new Authenticator({
-					baseUrl: 'http://127.0.0.1:1337',
-					clientId: 'test_client',
-					realm: 'test_realm',
-					serverHost: 123
-				});
-			}).to.throw(TypeError, 'Expected parameter "serverHost" to be a string');
-		});
-
-		it('should set the server host', () => {
-			const auth = new Authenticator({
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
-				serverHost: 'foo'
-			});
-
-			expect(auth.serverHost).to.equal('foo');
-		});
-
-		it('should error if interactive login timeout is invalid', () => {
-			expect(() => {
-				new Authenticator({
-					baseUrl: 'http://127.0.0.1:1337',
-					clientId: 'test_client',
-					realm: 'test_realm',
-					interactiveLoginTimeout: 'foo'
-				});
-			}).to.throw(TypeError, 'Expected interactive login timeout to be a number of milliseconds');
-
-			expect(() => {
-				new Authenticator({
-					baseUrl: 'http://127.0.0.1:1337',
-					clientId: 'test_client',
-					realm: 'test_realm',
-					interactiveLoginTimeout: -123
-				});
-			}).to.throw(RangeError, 'Interactive login timeout must be greater than or equal to zero');
-		});
-
-		it('should set the interactive login timeout', () => {
-			const auth = new Authenticator({
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
-				interactiveLoginTimeout: 1234
-			});
-
-			expect(auth.interactiveLoginTimeout).to.equal(1234);
-		});
-
-		it('should error if server port is invalid', () => {
-			expect(() => {
-				new Authenticator({
-					baseUrl: 'http://127.0.0.1:1337',
-					clientId: 'test_client',
-					realm: 'test_realm',
-					serverPort: 'foo'
-				});
-			}).to.throw(TypeError, 'Expected server port to be a number between 1024 and 65535');
-
-			expect(() => {
-				new Authenticator({
-					baseUrl: 'http://127.0.0.1:1337',
-					clientId: 'test_client',
-					realm: 'test_realm',
-					serverPort: 123
-				});
-			}).to.throw(RangeError, 'Expected server port to be a number between 1024 and 65535');
-		});
-
-		it('should set the server port', () => {
-			const auth = new Authenticator({
-				baseUrl: 'http://127.0.0.1:1337',
-				clientId: 'test_client',
-				realm: 'test_realm',
-				serverPort: 1234
-			});
-
-			expect(auth.serverPort).to.equal(1234);
-		});
-
-		it('should error when overriding endpoints parameter is invalid', () => {
-			expect(() => {
-				new Authenticator({
-					baseUrl: 'http://127.0.0.1:1337',
-					clientId: 'test_client',
-					realm: 'test_realm',
-					endpoints: 'foo'
-				});
-			}).to.throw(TypeError, 'Expected endpoints to be an object of names to URLs');
-		});
-
 		it('should error when overriding with invalid endpoint URL', () => {
 			expect(() => {
 				new Authenticator({
@@ -204,18 +109,6 @@ describe('Authenticator', () => {
 			});
 
 			expect(auth.endpoints.auth).to.equal('bar');
-		});
-
-		it('should error if messages is not an object', () => {
-			expect(() => {
-				new Authenticator({
-					baseUrl:        'http://127.0.0.1:1337',
-					clientId:       'test_client',
-					realm:          'test_realm',
-					tokenStoreType: null,
-					messages:       'foo'
-				});
-			}).to.throw(TypeError, 'Expected messages to be an object');
 		});
 
 		it('should error if tokenStore is not a TokenStore', () => {

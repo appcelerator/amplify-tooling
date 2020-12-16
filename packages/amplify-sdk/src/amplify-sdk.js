@@ -26,7 +26,11 @@ export default class AmplifySDK {
 	 * create the `got` HTTP client.
 	 * @access public
 	 */
-	constructor(opts) {
+	constructor(opts = {}) {
+		if (typeof opts !== 'object') {
+			throw new TypeError('Expected options to be an object');
+		}
+
 		/**
 		 * Authentication options including baseURL, clientID, env, realm, and token store settings.
 		 * @type {Object}

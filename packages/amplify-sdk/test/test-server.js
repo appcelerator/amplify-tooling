@@ -1,11 +1,7 @@
-import Auth, { server } from '../dist/index';
 import got from 'got';
+import { Auth } from '../dist/index';
 
 describe('Server', () => {
-	afterEach(async () => {
-		await server.stop(true);
-	});
-
 	it('should error if callback does not have an auth code', async () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
@@ -102,7 +98,7 @@ describe('Server', () => {
 		try {
 			await got('http://127.0.0.1:3000');
 		} catch (error) {
-			expect(error.response.statusCode).to.equal(404);
+			expect(error.response.statusCode).to.equal(400);
 		} finally {
 			await cancel();
 		}
@@ -116,15 +112,10 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { promise } = await auth.login({ manual: true });
+		const { cancel, promise } = await auth.login({ manual: true });
 
-		setImmediate(() => server.stop(true));
+		await cancel();
 
-		return promise
-			.then(() => {
-				throw new Error('Expected promise to be rejected with server stopped error');
-			}, err => {
-				expect(err.message).to.equal('Server stopped');
-			});
+		expect(promise).to.eventually.be.rejectedWith(Error, 'Expected promise to be rejected with server stopped error');
 	});
 });

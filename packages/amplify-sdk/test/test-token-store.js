@@ -1,9 +1,8 @@
 /* eslint-disable no-unused-expressions */
 
-import Auth, { MemoryStore, TokenStore } from '../dist/index';
 import fs from 'fs-extra';
 import tmp from 'tmp';
-
+import { Auth, MemoryStore, TokenStore } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
 
 const isCI = process.env.CI || process.env.JENKINS;

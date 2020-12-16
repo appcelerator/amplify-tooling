@@ -1,8 +1,7 @@
-import Auth from '../dist/index';
-import tmp from 'tmp';
-
+import { Auth } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
 import { serverInfo } from './server-info';
+import tmp from 'tmp';
 
 tmp.setGracefulCleanup();
 

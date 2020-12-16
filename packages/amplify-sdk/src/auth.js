@@ -45,12 +45,12 @@ export default class Auth {
 	 * @param {String} [opts.homeDir] - The path to the home directory containing the `lib`
 	 * directory where `keytar` is located. This option is required when `tokenStoreType` is set to
 	 * `secure`, which is the default.
-	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
-	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
-	 * @param {String} [opts.redirectLoginSuccess] - The URL to redirect the browser to after a
-	 * successful login.
-	 * @param {String} [opts.redirectOrgSelect] - The URL to redirect the browser to after the
+	 * @param {String} [opts.orgSelectUrl] - The URL to redirect the browser to after the
 	 * access token has been fetched.
+	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
+	 * @param {String} [opts.platformUrl] - The URL to redirect the browser to after a
+	 * successful login.
+	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {Object} [opts.requestOptions] - An options object to pass into AMPLIFY CLI Utils to
 	 * create the `got` HTTP client.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
@@ -76,19 +76,19 @@ export default class Auth {
 		}
 
 		Object.defineProperties(this, {
-			baseUrl:              { value: opts.baseUrl },
-			clientId:             { value: opts.clientId },
-			clientSecret:         { value: opts.clientSecret },
-			env:                  { value: opts.env },
-			got:                  { value: request.init(opts.requestOptions) },
-			messages:             { value: opts.messages },
-			password:             { value: opts.password },
-			realm:                { value: opts.realm },
-			redirectLoginSuccess: { value: opts.redirectLoginSuccess },
-			redirectOrgSelect:    { value: opts.redirectOrgSelect },
-			secretFile:           { value: opts.secretFile },
-			serviceAccount:       { value: opts.serviceAccount },
-			username:             { value: opts.username }
+			baseUrl:        { value: opts.baseUrl },
+			clientId:       { value: opts.clientId },
+			clientSecret:   { value: opts.clientSecret },
+			env:            { value: opts.env },
+			got:            { value: request.init(opts.requestOptions) },
+			messages:       { value: opts.messages },
+			password:       { value: opts.password },
+			realm:          { value: opts.realm },
+			platformUrl:    { value: opts.platformUrl },
+			orgSelectUrl:   { value: opts.orgSelectUrl },
+			secretFile:     { value: opts.secretFile },
+			serviceAccount: { value: opts.serviceAccount },
+			username:       { value: opts.username }
 		});
 
 		if (opts.tokenStore) {
@@ -157,19 +157,19 @@ export default class Auth {
 		// copy the options so we don't modify the original object since we don't own it
 		return {
 			...opts,
-			baseUrl:              opts.baseUrl || this.baseUrl || env.baseUrl,
-			clientId:             opts.clientId || this.clientId,
-			clientSecret:         opts.clientSecret || this.clientSecret,
-			env:                  name,
-			messages:             opts.messages || this.messages,
-			password:             opts.password || this.password,
-			realm:                opts.realm || this.realm,
-			redirectLoginSuccess: opts.redirectLoginSuccess || this.redirectLoginSuccess,
-			redirectOrgSelect:    opts.redirectOrgSelect || this.redirectOrgSelect,
-			secretFile:           opts.secretFile || this.secretFile,
-			serviceAccount:       opts.serviceAccount || this.serviceAccount,
-			tokenStore:           this.tokenStore,
-			username:             opts.username || this.username
+			baseUrl:        opts.baseUrl || this.baseUrl || env.baseUrl,
+			clientId:       opts.clientId || this.clientId,
+			clientSecret:   opts.clientSecret || this.clientSecret,
+			env:            name,
+			messages:       opts.messages || this.messages,
+			orgSelectUrl:   opts.orgSelectUrl || this.orgSelectUrl,
+			password:       opts.password || this.password,
+			platformUrl:    opts.platformUrl || this.platformUrl,
+			realm:          opts.realm || this.realm,
+			secretFile:     opts.secretFile || this.secretFile,
+			serviceAccount: opts.serviceAccount || this.serviceAccount,
+			tokenStore:     this.tokenStore,
+			username:       opts.username || this.username
 		};
 	}
 
@@ -325,7 +325,6 @@ export default class Auth {
 	 * launching the auth URL in the default browser.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
-	 * Defaults to the `interactiveLoginTimeout` property.
 	 * @returns {Promise<Object>} Resolves an object containing the access token, account name, and
 	 * user info.
 	 * @access public

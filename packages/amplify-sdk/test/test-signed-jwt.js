@@ -1,6 +1,5 @@
-import Auth, { Authenticator, SignedJWT } from '../dist/index';
 import path from 'path';
-
+import { Auth, Authenticator, SignedJWT } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
 
 describe('Signed JWT', () => {

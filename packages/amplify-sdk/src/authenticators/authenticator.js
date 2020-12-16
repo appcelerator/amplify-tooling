@@ -422,6 +422,7 @@ export default class Authenticator {
 	 * @param {String} [opts.code] - The authentication code from a successful interactive login.
 	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
 	 * launching the auth URL in the default browser.
+	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * @returns {Promise<Object>} In `manual` mode, then resolves an object containing the
 	 * authentication `url`, a `promise` that is resolved once the browser redirects to the local
 	 * web server after authenticating, and a `cancel` method to abort the authentication and stop
@@ -441,7 +442,9 @@ export default class Authenticator {
 
 		// we're interactive, so we either are manual or starting a web server
 
-		const server = new Server();
+		const server = new Server({
+			timeout: opts.timeout
+		});
 
 		const orgSelectedCallback = await server.createCallback(async (req, res) => {
 			res.writeHead(302, {
