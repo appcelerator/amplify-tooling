@@ -31,7 +31,7 @@ describe('PKCE', () => {
 
 			const { cancel, url } = await auth.login({ manual: true });
 			await cancel();
-			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&code_challenge=.+&code_challenge_method=S256&grant_type=authorization_code&redirect_uri=http%3A%2F%2F127\.0\.0\.1%3A3000%2Fcallback%2F.+&response_type=code&scope=openid$/);
+			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&code_challenge=.+&code_challenge_method=S256&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback%2F.+&response_type=code&scope=openid$/);
 		});
 
 		it('should error if getting token without a code', async function () {

@@ -1,10 +1,12 @@
+import fs from 'fs-extra';
 import loadConfig from '@axway/amplify-config';
+import path from 'path';
 import snooplogg from 'snooplogg';
-
 import { ansi } from 'cli-kit';
+import { spawnSync } from 'child_process';
 
-const { alert } = snooplogg.styles;
-const { error } = snooplogg('pm:utils');
+const { alert, highlight } = snooplogg.styles;
+const { error, log } = snooplogg('pm:utils');
 
 /**
  * Cached user agent.
@@ -113,4 +115,28 @@ export function buildUserAgentString() {
 	}
 
 	return userAgent = `AMPLIFY-CLI-PM/${require('../package.json').version}`;
+}
+
+/**
+ * Uninstalls a package.
+ *
+ * @param {String} dir - Path to the package to delete.
+ * @returns {Promise}
+ */
+export async function uninstallPackage(dir) {
+	try {
+		const pkgJson = require(path.join(dir, 'package.json'));
+		if (pkgJson.scripts.uninstall) {
+			log(`Running npm uninstall script: ${highlight(pkgJson.scripts.uninstall)}`);
+			const { status, stderr } = spawnSync('npm', [ 'run', 'uninstall' ], { cwd: dir });
+			if (status) {
+				error(alert('Failed to run npm uninstall script:'));
+				error(stderr);
+			}
+		}
+	} catch (e) {
+		// squelch
+	}
+
+	await fs.remove(dir);
 }

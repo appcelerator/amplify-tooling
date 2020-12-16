@@ -225,10 +225,12 @@ export default class AmplifySDK {
 
 					try {
 						try {
-							await open(createURL(this.opts.orgSelectUrl, {
+							const url = createURL(this.opts.orgSelectUrl, {
 								org_id: orgId,
 								redirect: encodeURIComponent(redirect)
-							}));
+							});
+							log(`Launching default web browser: ${highlight(url)}`);
+							await open(url);
 						} catch (err) {
 							const m = err.message.match(/Exited with code (\d+)/i);
 							throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;

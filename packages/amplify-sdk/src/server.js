@@ -13,7 +13,17 @@ const { green, highlight, red } = snooplogg.styles;
 const defaultPort = 3000;
 const defaultTimeout = 120000; // 2 minutes
 
+/**
+ * An HTTP server to listen for redirect callbacks.
+ */
 export default class Server {
+	/**
+	 * Initializes the server.
+	 *
+	 * @param {Object} [opts] - Various options.
+	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
+	 * @access public
+	 */
 	constructor(opts = {}) {
 		if (!opts || typeof opts !== 'object') {
 			throw new TypeError('Expected options to be an object');
@@ -26,6 +36,13 @@ export default class Server {
 		this.timeout = opts.timeout || defaultTimeout;
 	}
 
+	/**
+	 * Creates a callback URL.
+	 *
+	 * @param {Function} [handler] - A response handler for a request callback.
+	 * @returns {Promise}
+	 * @access public
+	 */
 	async createCallback(handler) {
 		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();
 
@@ -61,12 +78,18 @@ export default class Server {
 		};
 	}
 
+	/**
+	 * Creates the server if it's not already created.
+	 *
+	 * @returns {Promise}
+	 * @access private
+	 */
 	async createServer() {
 		if (this.server) {
 			return;
 		}
 
-		const host = '127.0.0.1';
+		const host = 'localhost'; // this has to be localhost because platform whitelists it
 		const port = this.port = this.port || await getPort({ port: defaultPort });
 		const connections = {};
 		const callbackRegExp = /^\/callback\/([A-Z0-9]+)/;
@@ -168,6 +191,14 @@ export default class Server {
 		});
 	}
 
+	/**
+	 * Stops the callback server.
+	 *
+	 * @param {Boolean} [force] - When `true`, stops the server, drops all connections, and rejects
+	 * all pending callbacks.
+	 * @returns {Promise}
+	 * @memberof Server
+	 */
 	async stop(force) {
 		if (force || this.pending.size === 0) {
 			const { server } = this;

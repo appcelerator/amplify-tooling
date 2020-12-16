@@ -20,7 +20,7 @@ export default {
 			semver,
 			{ default: npa },
 			{ default: snooplogg },
-			{ handleError }
+			{ handleError, uninstallPackage }
 		] = await Promise.all([
 			import('@axway/amplify-registry-sdk'),
 			import('fs-extra'),
@@ -97,7 +97,7 @@ export default {
 					if (!argv.json) {
 						console.log(`Deleting ${highlight(`${name}@${version}`)} ${note(`(${path})`)}`);
 					}
-					await fs.remove(path);
+					await uninstallPackage(path);
 
 					const parent = dirname(path);
 					if (!fs.readdirSync(parent).filter(file => file !== '.DS_Store').length) {

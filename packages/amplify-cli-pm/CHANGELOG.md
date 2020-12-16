@@ -1,3 +1,7 @@
+# v2.4.0
+
+ * feat(purge,uninstall): Added support for running a package's npm uninstall script.
+
 # v2.3.1 (Dec 3, 2020)
 
  * fix(uninstall): Remove empty package container directories.
