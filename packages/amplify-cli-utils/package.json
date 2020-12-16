@@ -21,7 +21,6 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-auth-sdk": "^2.4.0",
     "@axway/amplify-config": "^3.0.5",
     "@axway/amplify-request": "^2.1.0",
     "@axway/amplify-sdk": "^1.6.0",
