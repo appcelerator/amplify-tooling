@@ -234,6 +234,7 @@ export default class AmplifySDK {
 							throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
 						}
 
+						log(`Waiting for browser to be redirected to: ${highlight(redirect)}`);
 						await promise;
 					} finally {
 						await server.stop();
