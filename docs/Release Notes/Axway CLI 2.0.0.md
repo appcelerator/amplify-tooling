@@ -240,6 +240,12 @@ npm i -g axway@2.0.0
 
  * style: Prefix error message with an X symbol.
 
+### amplify-cli-auth@2.4.0
+
+ * refactor(switch): Reworked the `switch` command to use the web browser to switch the org instead
+   of prompting.
+ * style: Prefixed more error messages with an X symbol.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -322,6 +328,10 @@ npm i -g axway@2.0.0
  * fix(uninstall): Fixed issue uninstalling package with a label in the package version.
  * fix(use): Fixed issue with selecting a package with a label in the package version.
  * style: Prefix error message with an X symbol.
+
+### amplify-cli-pm@2.4.0
+
+ * feat(purge,uninstall): Added support for running a package's npm uninstall script.
 
 ### amplify-cli-utils@3.0.0
 
@@ -412,6 +422,10 @@ npm i -g axway@2.0.0
 ### amplify-cli-utils@4.2.0
 
  * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * chore: Updated dependencies.
+
+### amplify-cli-utils@4.2.1
+
  * chore: Updated dependencies.
 
 ### amplify-config@2.0.0
@@ -651,3 +665,10 @@ npm i -g axway@2.0.0
 
  * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
  * chore: Updated dependencies.
+
+### amplify-sdk@1.7.0
+
+ * refactor: Merged the AMPLIFY Auth SDK into the AMPLIFY SDK as to promote code sharing and
+   prevent the Auth SDK from having platform specific knowledge.
+ * feat(server): Added support for redirecting to a select organization page in the web browser
+   after getting the token.
