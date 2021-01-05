@@ -1,3 +1,9 @@
+# v2.4.0
+
+ * refactor(switch): Reworked the `switch` command to use the web browser to switch the org instead
+   of prompting.
+ * style: Prefixed more error messages with an X symbol.
+
 # v2.3.1 (Dec 3, 2020)
 
  * style: Prefix error message with an X symbol.

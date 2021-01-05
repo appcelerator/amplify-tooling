@@ -2,7 +2,7 @@ import http from 'http';
 
 import { Config } from '@axway/amplify-config';
 import { initSDK } from '../dist/index';
-import { MemoryStore } from '@axway/amplify-auth-sdk';
+import { MemoryStore } from '@axway/amplify-sdk';
 
 describe('auth', () => {
 	before(async function () {
@@ -49,6 +49,11 @@ describe('auth', () => {
 							}
 						}
 					}));
+					break;
+
+				case '/success':
+					res.writeHead(200, { 'Content-Type': 'text/html' });
+					res.end('<html><head><title>Test successful!</title></head><body><h1>Test successful!</h1><p>You can close this browser window</p></body></html>');
 					break;
 
 				default:
@@ -109,11 +114,12 @@ describe('auth', () => {
 		await tokenStore.set(token);
 
 		const { sdk } = initSDK({
-			baseUrl: 'http://127.0.0.1:1337/',
-			clientId: 'test',
+			baseUrl:      'http://127.0.0.1:1337/',
+			clientId:     'test',
 			clientSecret: 'shhhh',
-			platformUrl: 'http://127.0.0.1:1337/',
-			realm: 'baz',
+			orgSelectUrl: 'http://127.0.0.1:1337/auth/org.select',
+			platformUrl:  'http://127.0.0.1:1337/',
+			realm:        'baz',
 			tokenStore
 		}, new Config());
 
@@ -144,11 +150,12 @@ describe('auth', () => {
 		await tokenStore.set(token);
 
 		const { sdk } = initSDK({
-			clientId: 'test',
-			env: 'preprod',
-			baseUrl: 'http://127.0.0.1:1337/',
-			platformUrl: 'http://127.0.0.1:1337/',
-			realm: 'baz',
+			clientId:     'test',
+			env:          'preprod',
+			baseUrl:      'http://127.0.0.1:1337/',
+			orgSelectUrl: 'http://127.0.0.1:1337/auth/org.select',
+			platformUrl:  'http://127.0.0.1:1337/',
+			realm:        'baz',
 			tokenStore
 		}, new Config());
 

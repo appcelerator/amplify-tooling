@@ -12,14 +12,12 @@ export default {
 	async action({ argv, cli, console }) {
 		const [
 			{ getInstalledPackages, packagesDir },
-			{ remove },
 			{ default: Listr },
 			semver,
 			{ default: snooplogg },
-			{ handleError }
+			{ handleError, uninstallPackage }
 		] = await Promise.all([
 			import('@axway/amplify-registry-sdk'),
-			import('fs-extra'),
 			import('listr'),
 			import('semver'),
 			import('snooplogg'),
@@ -52,7 +50,7 @@ export default {
 					if (versionData.managed && versionData.path.startsWith(packagesDir) && semver.neq(ver, version)) {
 						removals.add({
 							title: `Purging ${highlight(`${name}@${ver}`)}`,
-							task: () => remove(versionData.path)
+							task: () => uninstallPackage(versionData.path)
 						});
 						packagesRemoved++;
 						if (!removedPackages[name]) {

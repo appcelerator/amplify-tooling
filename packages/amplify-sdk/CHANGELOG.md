@@ -1,3 +1,10 @@
+# v1.7.0
+
+ * refactor: Merged the AMPLIFY Auth SDK into the AMPLIFY SDK as to promote code sharing and
+   prevent the Auth SDK from having platform specific knowledge.
+ * feat(server): Added support for redirecting to a select organization page in the web browser
+   after getting the token.
+
 # v1.6.0 (Dec 1, 2020)
 
  * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
