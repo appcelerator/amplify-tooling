@@ -3,11 +3,10 @@
 The AMPLIFY Auth SDK for Node.js makes it easy for Node.js applications to authenticate with
 AxwayID in order to access AMPLIFY Services.
 
-> NOTICE:
+> :warning: DEPRECATION WARNING
 >
-> In nearly all cases, you should use [@axway/amplify-sdk][amplify-sdk] instead of this package.
-> AMPLIFY SDK will populate the account org info and facilitate org switching which was removed
-> from this package in v2.
+> The AMPLIFY Auth SDK has be integrated into the [AMPLIFY SDK][amplify-sdk]. You should use that
+> package instead: npm i @axway/amplify-sdk
 
 ## Compatibility
 
