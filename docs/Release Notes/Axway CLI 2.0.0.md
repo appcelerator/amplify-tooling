@@ -153,6 +153,10 @@ npm i -g axway@2.0.0
  * chore: Updated to keytar 7.2.0 which adds support for Node.js 15.
  * chore: Updated dependencies.
 
+### amplify-auth-sdk@2.5.0
+
+ * chore: Updated dependencies.
+
 ### amplify-cli-auth@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -332,6 +336,7 @@ npm i -g axway@2.0.0
 ### amplify-cli-pm@2.4.0
 
  * feat(purge,uninstall): Added support for running a package's npm uninstall script.
+ * chore: Updated dependencies.
 
 ### amplify-cli-utils@3.0.0
 
@@ -492,6 +497,10 @@ npm i -g axway@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-config@3.0.6
+
+ * chore: Updated dependencies.
+
 ### amplify-registry-sdk@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -560,6 +569,10 @@ npm i -g axway@2.0.0
  * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
  * fix: Removed dependency on appcd-subprocess.
 
+### amplify-registry-sdk@2.3.1
+
+ * chore: Updated dependencies.
+
 ### amplify-request@2.0.0
 
  * BREAKING CHANGE: Completely new API.
@@ -576,6 +589,10 @@ npm i -g axway@2.0.0
 ### amplify-request@2.1.0
 
  * fix: Bumped minimum Node.js requirement to 10.19.0 to prevent warnings on install.
+ * chore: Updated dependencies.
+
+### amplify-request@2.1.1
+
  * chore: Updated dependencies.
 
 ### amplify-sdk@1.0.0
@@ -672,3 +689,4 @@ npm i -g axway@2.0.0
    prevent the Auth SDK from having platform specific knowledge.
  * feat(server): Added support for redirecting to a select organization page in the web browser
    after getting the token.
+ * chore: Updated dependencies.
