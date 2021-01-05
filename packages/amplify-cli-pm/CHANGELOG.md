@@ -1,6 +1,7 @@
-# v2.4.0
+# v2.4.0 (Jan 5, 2021)
 
  * feat(purge,uninstall): Added support for running a package's npm uninstall script.
+ * chore: Updated dependencies.
 
 # v2.3.1 (Dec 3, 2020)
 

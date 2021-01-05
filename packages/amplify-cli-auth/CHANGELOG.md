@@ -1,4 +1,4 @@
-# v2.4.0
+# v2.4.0 (Jan 5, 2021)
 
  * refactor(switch): Reworked the `switch` command to use the web browser to switch the org instead
    of prompting.
