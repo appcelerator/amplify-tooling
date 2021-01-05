@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@axway/amplify-request": "^2.1.0",
-    "appcd-fs": "^2.0.1",
+    "appcd-fs": "^2.0.2",
     "cross-spawn": "^7.0.3",
     "ejs": "^3.1.5",
     "fs-extra": "^9.0.1",
@@ -29,14 +29,14 @@
     "open": "^7.3.0",
     "pluralize": "^8.0.0",
     "set-cookie-parser": "^2.4.6",
-    "snooplogg": "^3.0.1",
+    "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.1.0",
-    "keytar": "7.2.0"
+    "appcd-gulp": "^3.1.1",
+    "keytar": "7.3.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
@@ -47,5 +47,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "keytar": "7.2.0"
+  "keytar": "7.3.0"
 }

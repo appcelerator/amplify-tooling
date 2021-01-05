@@ -1,3 +1,7 @@
+# v2.3.1 (Jan 5, 2021)
+
+ * chore: Updated dependencies.
+
 # v2.3.0 (Dec 1, 2020)
 
  * feat: Added `path` to installed package info.

@@ -1,9 +1,10 @@
-# v1.7.0
+# v1.7.0 (Jan 5, 2021)
 
  * refactor: Merged the AMPLIFY Auth SDK into the AMPLIFY SDK as to promote code sharing and
    prevent the Auth SDK from having platform specific knowledge.
  * feat(server): Added support for redirecting to a select organization page in the web browser
    after getting the token.
+ * chore: Updated dependencies.
 
 # v1.6.0 (Dec 1, 2020)
 

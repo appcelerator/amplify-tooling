@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "ansi-colors": "^4.1.1",
-    "appcd-gulp": "^3.1.0",
+    "appcd-gulp": "^3.1.1",
     "chai": "^4.2.0",
     "fs-extra": "^9.0.1",
     "gulp": "^4.0.2",
@@ -15,7 +15,7 @@
     "mocha": "^8.2.1",
     "pretty-log": "^0.1.0",
     "semver": "^7.3.4",
-    "tar-stream": "^2.1.4"
+    "tar-stream": "^2.2.0"
   },
   "scripts": {
     "build": "lerna exec gulp build",
