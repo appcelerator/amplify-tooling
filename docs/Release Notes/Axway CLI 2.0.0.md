@@ -338,6 +338,10 @@ npm i -g axway@2.0.0
  * feat(purge,uninstall): Added support for running a package's npm uninstall script.
  * chore: Updated dependencies.
 
+### amplify-cli-pm@2.4.1
+
+ * fix(uninstall): Switched to `cross-spawn` to find and run `npm` on Windows.
+
 ### amplify-cli-utils@3.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -690,3 +694,11 @@ npm i -g axway@2.0.0
  * feat(server): Added support for redirecting to a select organization page in the web browser
    after getting the token.
  * chore: Updated dependencies.
+
+### amplify-sdk@1.7.1
+
+ * fix: Added missing `get-port` dependency.
+
+### amplify-sdk@1.7.2
+
+ * fix: Removed double encoding of switch org redirect param.
