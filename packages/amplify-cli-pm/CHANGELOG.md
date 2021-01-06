@@ -1,3 +1,7 @@
+# v2.4.1 (Jan 6, 2021)
+
+ * fix(uninstall): Switched to `cross-spawn` to find and run `npm` on Windows.
+
 # v2.4.0 (Jan 5, 2021)
 
  * feat(purge,uninstall): Added support for running a package's npm uninstall script.
