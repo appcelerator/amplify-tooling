@@ -1,3 +1,7 @@
+# v1.7.2 (Jan 6, 2021)
+
+ * fix: Removed double encoding of switch org redirect param.
+
 # v1.7.1 (Jan 5, 2021)
 
  * fix: Added missing `get-port` dependency.

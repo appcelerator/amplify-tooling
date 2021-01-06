@@ -227,7 +227,7 @@ export default class AmplifySDK {
 						try {
 							const url = createURL(this.opts.orgSelectUrl, {
 								org_id: orgId,
-								redirect: encodeURIComponent(redirect)
+								redirect
 							});
 							log(`Launching default web browser: ${highlight(url)}`);
 							await open(url);
