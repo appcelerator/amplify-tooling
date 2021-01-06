@@ -1,3 +1,7 @@
+# v1.7.1 (Jan 5, 2021)
+
+ * fix: Added missing `get-port` dependency.
+
 # v1.7.0 (Jan 5, 2021)
 
  * refactor: Merged the AMPLIFY Auth SDK into the AMPLIFY SDK as to promote code sharing and
