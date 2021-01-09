@@ -1,5 +1,13 @@
 export default {
 	autoHideBanner: false,
+	async banner(state) {
+		// this is a hack to conditionally render the banner based on the parsed args
+		const { argv, cmd } = state;
+		if (!argv.json && cmd.parent) {
+			const banner = cmd.parent.prop('banner');
+			return typeof banner === 'function' ? await banner(state) : banner;
+		}
+	},
 	desc: 'Log in to the Axway AMPLIFY platform',
 	options: {
 		'--base-url [url]':          { hidden: true },
@@ -73,17 +81,20 @@ export default {
 
 		// show the url and wait for the user to open it
 		if (manual) {
-			const { cancel, promise, url } = await sdk.auth.login({ manual });
+			account = await sdk.auth.login({ manual });
+			const { cancel, promise, url } = account;
 
-			promise.catch(err => {
-				console.error(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`);
-				process.exit(1);
-			});
+			if (promise) {
+				promise.catch(err => {
+					console.error(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`);
+					process.exit(1);
+				});
 
-			process.on('SIGINT', () => cancel());
+				process.on('SIGINT', () => cancel());
 
-			console.log(`Please open following link in your browser:\n\n  ${highlight(url)}\n`);
-			account = await sdk.auth.loadSession(await promise);
+				console.log(`Please open following link in your browser:\n\n  ${highlight(url)}\n`);
+				account = await sdk.auth.loadSession(await promise);
+			}
 		} else {
 			try {
 				account = await sdk.auth.login({ force: argv.force });
@@ -93,8 +104,10 @@ export default {
 					if (argv.json) {
 						account.default = config.get('auth.defaultAccount') === account.name;
 						console.log(JSON.stringify(account, null, 2));
-					} else {
+					} else if (account.org?.name) {
 						console.log(`You are already logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
+					} else {
+						console.log(`You are already logged in as ${highlight(account.user.email || account.name)}.\n`);
 					}
 					return;
 				} else if (err.code === 'ERR_AUTH_FAILED') {
@@ -128,7 +141,7 @@ export default {
 		if (account.org?.name) {
 			console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.\n`);
 		} else {
-			console.log(`You are logged as ${highlight(account.user.email || account.name)}.\n`);
+			console.log(`You are logged in as ${highlight(account.user.email || account.name)}.\n`);
 		}
 
 		// set the current
@@ -138,7 +151,7 @@ export default {
 			console.log('This account is the default');
 		} else {
 			console.log('To make this account the default, run:');
-			console.log(`  ${highlight(`amplify config set auth.defaultAccount ${account.name}`)}`);
+			console.log(`  ${highlight(`axway config set auth.defaultAccount ${account.name}`)}`);
 		}
 	}
 };

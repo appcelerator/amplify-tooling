@@ -53,18 +53,23 @@ export default class SignedJWT extends Authenticator {
 
 		const issuedAt = Math.floor(Date.now() / 1000);
 
-		return this.signedJWT = jws.sign({
-			header:  { alg: 'RS256', typ: 'JWT' },
-			payload: {
-				aud: this.endpoints.token,
-				exp: issuedAt + (60 * 60), // 1 hour (exp is in seconds)
-				iat: issuedAt,
-				iss: this.clientId,
-				jti: uuidv4(),
-				sub: this.clientId
-			},
-			secret:  fs.readFileSync(this.secretFile, 'utf8')
-		});
+		try {
+			return this.signedJWT = jws.sign({
+				header:  { alg: 'RS256', typ: 'JWT' },
+				payload: {
+					aud: this.endpoints.token,
+					exp: issuedAt + (60 * 60), // 1 hour (exp is in seconds)
+					iat: issuedAt,
+					iss: this.clientId,
+					jti: uuidv4(),
+					sub: this.clientId
+				},
+				secret:  fs.readFileSync(this.secretFile, 'utf8')
+			});
+		} catch (err) {
+			err.message = `Bad secret file "${this.secretFile}" (${err.message})`;
+			throw err;
+		}
 	}
 
 	/**

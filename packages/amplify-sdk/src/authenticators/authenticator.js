@@ -477,7 +477,7 @@ export default class Authenticator {
 
 		log(`Starting ${opts.manual ? 'manual ' : ''}login request clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
-		const promise = codeCallback.promise
+		const promise = codeCallback.start()
 			.then(async ({ searchParams }) => {
 				const code = searchParams.get('code');
 				if (!code) {
@@ -486,7 +486,7 @@ export default class Authenticator {
 
 				log(`Getting token using code: ${highlight(code)}`);
 				const account = await this.getToken(code, codeCallback.url);
-				await orgSelectedCallback.promise;
+				await orgSelectedCallback.start();
 				return account;
 			})
 			.finally(() => server.stop());
