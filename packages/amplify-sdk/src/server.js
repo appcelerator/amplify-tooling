@@ -50,17 +50,6 @@ export default class Server {
 
 		await this.createServer();
 
-		// set up the timer to stop the server
-		const timer = setTimeout(() => {
-			const request = this.pending.get(requestId);
-			if (request) {
-				log(`Request ${highlight(requestId)} timed out`);
-				this.pending.delete(requestId);
-				request.reject(E.AUTH_TIMEOUT('Authentication failed: Timed out'));
-			}
-			this.stop();
-		}, this.timeout);
-
 		return {
 			cancel: async () => {
 				const request = this.pending.get(requestId);
@@ -71,8 +60,21 @@ export default class Server {
 					await this.stop();
 				}
 			},
-			promise: new Promise((resolve, reject) => {
-				this.pending.set(requestId, { handler, resolve, reject, timer });
+			start: () => new Promise((resolve, reject) => {
+				this.pending.set(requestId, {
+					handler,
+					resolve,
+					reject,
+					timer: setTimeout(() => {
+						const request = this.pending.get(requestId);
+						if (request) {
+							log(`Request ${highlight(requestId)} timed out`);
+							this.pending.delete(requestId);
+							request.reject(E.AUTH_TIMEOUT('Authentication failed: Timed out'));
+						}
+						this.stop();
+					}, this.timeout)
+				});
 			}),
 			url: `${this.serverURL}/callback/${requestId}`
 		};
@@ -90,7 +92,7 @@ export default class Server {
 		}
 
 		const host = 'localhost'; // this has to be localhost because platform whitelists it
-		const port = this.port = this.port || await getPort({ port: defaultPort });
+		const port = this.port = this.port || await getPort({ host, port: defaultPort });
 		const connections = {};
 		const callbackRegExp = /^\/callback\/([A-Z0-9]+)/;
 		const serverURL = `http://${host}:${port}`;

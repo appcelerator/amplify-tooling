@@ -25,10 +25,10 @@
     "@axway/amplify-config": "^3.0.6",
     "appcd-fs": "^2.0.2",
     "fs-extra": "^9.0.1",
-    "pacote": "^11.1.13",
+    "pacote": "^11.1.14",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19",
-    "tar": "^6.0.5",
+    "tar": "^6.1.0",
     "targit": "^0.2.0",
     "tmp": "^0.2.1",
     "which": "^2.0.2"

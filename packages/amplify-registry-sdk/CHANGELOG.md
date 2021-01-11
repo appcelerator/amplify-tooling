@@ -1,3 +1,9 @@
+# v2.3.2 (Jan 11, 2021)
+
+ * fix: Remove "prepare" script from package's `package.json` before installing npm dependencies to
+   prevent npm 7 from erroring due to only production dependencies being installed.
+ * chore: Updated dependencies.
+
 # v2.3.1 (Jan 5, 2021)
 
  * chore: Updated dependencies.

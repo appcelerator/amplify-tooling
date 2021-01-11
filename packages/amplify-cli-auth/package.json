@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^4.2.1",
-    "cli-kit": "^1.9.2",
+    "cli-kit": "^1.9.3",
     "enquirer": "^2.3.6",
     "pretty-ms": "^7.0.1",
     "snooplogg": "^3.0.2",

@@ -85,6 +85,8 @@ export default class AmplifySDK {
 			 */
 			findSession: async account => {
 				const result = await this.request('/api/v1/auth/findSession', account, { errorMsg: 'Failed to find session' });
+				account.isPlatform = !!result;
+
 				if (!result) {
 					return account;
 				}
@@ -216,7 +218,7 @@ export default class AmplifySDK {
 					account = await this.client.login();
 				} else {
 					const server = new Server();
-					const { promise, url: redirect } = await server.createCallback((req, res) => {
+					const { start, url: redirect } = await server.createCallback((req, res) => {
 						res.writeHead(302, {
 							Location: this.opts.platformUrl
 						});
@@ -237,7 +239,7 @@ export default class AmplifySDK {
 						}
 
 						log(`Waiting for browser to be redirected to: ${highlight(redirect)}`);
-						await promise;
+						await start();
 					} finally {
 						await server.stop();
 					}

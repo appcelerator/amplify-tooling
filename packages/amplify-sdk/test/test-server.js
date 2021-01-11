@@ -10,10 +10,11 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel } = await auth.login({ manual: true });
+		const { cancel, url } = await auth.login({ manual: true });
+		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri'));
 
 		try {
-			await got('http://127.0.0.1:3000/callback');
+			await got(`${redirect_uri.origin}/callback`);
 		} catch (error) {
 			expect(error.response.statusCode).to.equal(400);
 		} finally {
@@ -29,10 +30,11 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel } = await auth.login({ manual: true });
+		const { cancel, url } = await auth.login({ manual: true });
+		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
 
 		try {
-			await got('http://127.0.0.1:3000/callback?code=123');
+			await got(`${redirect_uri}?code=123`);
 		} catch (error) {
 			expect(error.response.statusCode).to.equal(400);
 		} finally {
@@ -48,10 +50,11 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel } = await auth.login({ manual: true });
+		const { cancel, url } = await auth.login({ manual: true });
+		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
 
 		try {
-			await got('http://127.0.0.1:3000/callback/foo?code=123');
+			await got(`${redirect_uri}/foo?code=123`);
 		} catch (error) {
 			expect(error.response.statusCode).to.equal(400);
 		} finally {
@@ -71,14 +74,14 @@ describe('Server', () => {
 
 		const { cancel, promise, url } = await auth.login({ manual: true });
 		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
-		const id = redirect_uri.match(/\/callback\/([A-Z0-9]+)/)[1];
 
 		// squeltch unhandled rejections
 		promise.catch(() => {});
 
 		try {
-			await got(`http://127.0.0.1:3000/callback/${id}?code=123`);
+			await got(`${redirect_uri}?code=123`);
 		} catch (error) {
+			console.log(error);
 			expect(error.response.statusCode).to.equal(400);
 		} finally {
 			await cancel();
@@ -93,10 +96,11 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel } = await auth.login({ manual: true });
+		const { cancel, url } = await auth.login({ manual: true });
+		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri'));
 
 		try {
-			await got('http://127.0.0.1:3000');
+			await got(redirect_uri.origin);
 		} catch (error) {
 			expect(error.response.statusCode).to.equal(400);
 		} finally {

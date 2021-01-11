@@ -12,6 +12,7 @@ import { spawn } from 'child_process';
 export const cacheDir = join(locations.axwayHome, 'axway-cli', 'cache');
 export const packagesDir = join(locations.axwayHome, 'axway-cli', 'packages');
 
+const { log } = snooplogg('registry-sdk:common');
 const { highlight } = snooplogg.styles;
 const npmErrRE = /npm err/i;
 const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
@@ -24,7 +25,9 @@ const scopedPackageRegex = /@[a-z0-9][\w-.]+\/?/;
  * @param {String} [params.npm] - The path to the npm. Defaults to resolving npm in the system path.
  */
 export async function npmInstall({ directory, npm }) {
-	if (!isFile(join(directory, 'package.json'))) {
+	const pkgJsonFile = join(directory, 'package.json');
+
+	if (!isFile(pkgJsonFile)) {
 		const error = new Error('Directory does not contain a package.json');
 		error.code = 'ENOPKGJSON';
 		throw error;
@@ -40,9 +43,18 @@ export async function npmInstall({ directory, npm }) {
 		}
 	}
 
-	const args = [ 'install', '--production', ...createNPMRequestArgs() ];
+	// npm 7 has started calling the "prepare" script, but since we are only installing production
+	// dependencies, "prepare" will likely fail, so we have to remove it
+	const pkgJson = await fs.readJson(pkgJsonFile);
+	if (pkgJson.scripts) {
+		await fs.move(pkgJsonFile, `${pkgJsonFile}.bak`, { overwrite: true });
+		delete pkgJson.scripts.prepare;
+		await fs.writeJson(pkgJsonFile, pkgJson);
+	}
 
 	try {
+		const args = [ 'install', '--production', ...createNPMRequestArgs() ];
+
 		await new Promise((resolve, reject) => {
 			const opts = {
 				cwd: directory,
@@ -52,6 +64,8 @@ export async function npmInstall({ directory, npm }) {
 
 			let stdout = '';
 			let stderr = '';
+
+			log(`Running PWD=${directory} ${highlight(`${npm} ${args.join(' ')}`)}`);
 
 			const child = spawn(npm, args, opts);
 			child.stdout.on('data', data => stdout += data.toString());
@@ -84,6 +98,10 @@ export async function npmInstall({ directory, npm }) {
 		}
 
 		throw err;
+	} finally {
+		if (fs.existsSync(`${pkgJsonFile}.bak`)) {
+			await fs.move(`${pkgJsonFile}.bak`, pkgJsonFile, { overwrite: true });
+		}
 	}
 }
 

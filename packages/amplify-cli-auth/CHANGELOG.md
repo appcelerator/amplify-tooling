@@ -1,3 +1,13 @@
+# v2.5.0 (Jan 11, 2021)
+
+ * feat(list): Added platform flag to account list.
+ * fix(login): Don't show the banner during login when `--json` is set.
+ * fix(login): Support service accounts when logging in with `--no-launch-browser`.
+ * fix(login): Fixed verbiage when logging in using a service account.
+ * fix(login): Removed reference to AMPLIFY CLI.
+ * fix(switch): Only allow users to switch org for authenticated platform accounts.
+ * chore: Updated dependencies.
+
 # v2.4.0 (Jan 5, 2021)
 
  * refactor(switch): Reworked the `switch` command to use the web browser to switch the org instead

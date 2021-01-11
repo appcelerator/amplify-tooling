@@ -1,3 +1,7 @@
+# v2.4.2 (Jan 11, 2021)
+
+ * chore: Updated dependencies.
+
 # v2.4.1 (Jan 6, 2021)
 
  * fix(uninstall): Switched to `cross-spawn` to find and run `npm` on Windows.
