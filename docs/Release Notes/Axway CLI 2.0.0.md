@@ -14,7 +14,7 @@ npm i -g axway@2.0.0
 
  * Initial release of the Axway CLI, formerly AMPLIFY CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
- * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
+ * BREAKING CHANGE: Require Node.js 10.19.0 or newer.
    ([CLI-89](https://jira.axway.com/browse/CLI-89))
  * BREAKING CHANGE(config): `config` command does not return current value when doing a `set`,
    `push`, or `unshift`.
@@ -250,6 +250,16 @@ npm i -g axway@2.0.0
    of prompting.
  * style: Prefixed more error messages with an X symbol.
 
+### amplify-cli-auth@2.5.0
+
+ * feat(list): Added platform flag to account list.
+ * fix(login): Don't show the banner during login when `--json` is set.
+ * fix(login): Support service accounts when logging in with `--no-launch-browser`.
+ * fix(login): Fixed verbiage when logging in using a service account.
+ * fix(login): Removed reference to AMPLIFY CLI.
+ * fix(switch): Only allow users to switch org for authenticated platform accounts.
+ * chore: Updated dependencies.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -341,6 +351,10 @@ npm i -g axway@2.0.0
 ### amplify-cli-pm@2.4.1
 
  * fix(uninstall): Switched to `cross-spawn` to find and run `npm` on Windows.
+
+### amplify-cli-pm@2.4.2
+
+ * chore: Updated dependencies.
 
 ### amplify-cli-utils@3.0.0
 
@@ -434,6 +448,10 @@ npm i -g axway@2.0.0
  * chore: Updated dependencies.
 
 ### amplify-cli-utils@4.2.1
+
+ * chore: Updated dependencies.
+
+### amplify-cli-utils@4.2.2
 
  * chore: Updated dependencies.
 
@@ -577,6 +595,12 @@ npm i -g axway@2.0.0
 
  * chore: Updated dependencies.
 
+### amplify-registry-sdk@2.3.2
+
+ * fix: Remove "prepare" script from package's `package.json` before installing npm dependencies to
+   prevent npm 7 from erroring due to only production dependencies being installed.
+ * chore: Updated dependencies.
+
 ### amplify-request@2.0.0
 
  * BREAKING CHANGE: Completely new API.
@@ -702,3 +726,12 @@ npm i -g axway@2.0.0
 ### amplify-sdk@1.7.2
 
  * fix: Removed double encoding of switch org redirect param.
+
+### amplify-sdk@1.8.0
+
+ * feat: Added `isPlatform` flag to authenticated accounts.
+ * fix(server): Added `start()` method to being listening for callback to prevent callback
+   listeners from timing out.
+ * fix(server): Fixed bug with unavailable HTTP server port being used.
+ * fix(jwt): Improved error message when secret file is not a valid private key.
+ * chore: Updated dependencies.
