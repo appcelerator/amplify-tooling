@@ -2,7 +2,7 @@
 
  * Initial release of the Axway CLI, formerly AMPLIFY CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))
- * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
+ * BREAKING CHANGE: Require Node.js 10.19.0 or newer.
    ([CLI-89](https://jira.axway.com/browse/CLI-89))
  * BREAKING CHANGE(config): `config` command does not return current value when doing a `set`,
    `push`, or `unshift`.

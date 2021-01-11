@@ -41,7 +41,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli",
   "engines": {
-    "node": ">=10.13.0"
+    "node": ">=10.19.0"
   },
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }
