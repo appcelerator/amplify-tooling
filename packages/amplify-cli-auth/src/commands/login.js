@@ -104,7 +104,7 @@ export default {
 					if (argv.json) {
 						account.default = config.get('auth.defaultAccount') === account.name;
 						console.log(JSON.stringify(account, null, 2));
-					} else if (account.org?.name) {
+					} else if (account.isPlatform && account.org?.name) {
 						console.log(`You are already logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
 					} else {
 						console.log(`You are already logged in as ${highlight(account.user.email || account.name)}.\n`);
@@ -138,7 +138,7 @@ export default {
 			return;
 		}
 
-		if (account.org?.name) {
+		if (account.isPlatform && account.org?.name) {
 			console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.\n`);
 		} else {
 			console.log(`You are logged in as ${highlight(account.user.email || account.name)}.\n`);

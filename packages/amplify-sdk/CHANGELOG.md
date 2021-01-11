@@ -1,3 +1,12 @@
+# v1.8.0 (Jan 11, 2021)
+
+ * feat: Added `isPlatform` flag to authenticated accounts.
+ * fix(server): Added `start()` method to being listening for callback to prevent callback
+   listeners from timing out.
+ * fix(server): Fixed bug with unavailable HTTP server port being used.
+ * fix(jwt): Improved error message when secret file is not a valid private key.
+ * chore: Updated dependencies.
+
 # v1.7.2 (Jan 6, 2021)
 
  * fix: Removed double encoding of switch org redirect param.
