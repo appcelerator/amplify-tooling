@@ -38,7 +38,7 @@ export default {
 		}
 
 		const { green } = snooplogg.styles;
-		const table = createTable([ 'Account Name', 'Organization', 'Expires', 'Environment' ]);
+		const table = createTable([ 'Account Name', 'Organization', 'Is Platform', 'Expires', 'Environment' ]);
 		const now = Date.now();
 		const pretty = require('pretty-ms');
 		const urlRE = /^.*\/\//;
@@ -48,6 +48,7 @@ export default {
 			table.push([
 				def ? green(`${check} ${name}`) : `  ${name}`,
 				!org || !org.name ? '' : org.id ? `${org.name} (${org.id})` : org.name,
+				org.isPlatform ? 'Yes' : 'No',
 				pretty(auth.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
 				auth.baseUrl.replace(urlRE, '')
 			]);

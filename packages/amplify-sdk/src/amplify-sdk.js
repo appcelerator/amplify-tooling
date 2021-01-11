@@ -85,6 +85,8 @@ export default class AmplifySDK {
 			 */
 			findSession: async account => {
 				const result = await this.request('/api/v1/auth/findSession', account, { errorMsg: 'Failed to find session' });
+				account.isPlatform = !!result;
+
 				if (!result) {
 					return account;
 				}

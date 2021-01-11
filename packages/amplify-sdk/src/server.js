@@ -92,7 +92,7 @@ export default class Server {
 		}
 
 		const host = 'localhost'; // this has to be localhost because platform whitelists it
-		const port = this.port = this.port || await getPort({ port: defaultPort });
+		const port = this.port = this.port || await getPort({ host, port: defaultPort });
 		const connections = {};
 		const callbackRegExp = /^\/callback\/([A-Z0-9]+)/;
 		const serverURL = `http://${host}:${port}`;

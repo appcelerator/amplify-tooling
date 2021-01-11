@@ -41,7 +41,7 @@ Copyright (c) 2018-2020, Axway, Inc. All Rights Reserved.`,
 		checkWait = checkForUpdate({
 			metaDir: resolve(locations.axwayHome, 'axway-cli', 'update'),
 			pkg
-		});
+		}).catch(() => {});
 	});
 
 	try {

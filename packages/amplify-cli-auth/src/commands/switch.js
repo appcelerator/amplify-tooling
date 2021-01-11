@@ -17,9 +17,14 @@ export default {
 			env:      argv.env,
 			realm:    argv.realm
 		});
-		const accounts = (await sdk.auth.list()).filter(acct => acct.org);
+		const actualAccounts = await sdk.auth.list();
+		const accounts = actualAccounts.filter(acct => acct.isPlatform && acct.org);
 
 		try {
+			if (actualAccounts.length && !accounts.length) {
+				throw new Error('No authenticated platform accounts found to switch');
+			}
+
 			if (accounts.length > 1 && !argv.account && argv.json) {
 				throw new Error('Must specify --account when --json is set and there are multiple authenticated accounts');
 			}
