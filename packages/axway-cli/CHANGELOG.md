@@ -1,4 +1,4 @@
-# v2.0.0-rc12 (Jan 11, 2021)
+# v2.0.0-rc13 (Jan 13, 2021)
 
  * Initial release of the Axway CLI, formerly AMPLIFY CLI.
    ([CLI-100](https://jira.axway.com/browse/CLI-100))

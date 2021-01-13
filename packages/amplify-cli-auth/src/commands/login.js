@@ -80,43 +80,43 @@ export default {
 		const manual = !argv.launchBrowser;
 
 		// show the url and wait for the user to open it
-		if (manual) {
-			account = await sdk.auth.login({ manual });
-			const { cancel, promise, url } = account;
+		try {
+			if (manual) {
+				account = await sdk.auth.login({ manual });
+				const { cancel, promise, url } = account;
 
-			if (promise) {
-				promise.catch(err => {
-					console.error(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`);
-					process.exit(1);
-				});
+				if (promise) {
+					promise.catch(err => {
+						console.error(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`);
+						process.exit(1);
+					});
 
-				process.on('SIGINT', () => cancel());
+					process.on('SIGINT', () => cancel());
 
-				console.log(`Please open following link in your browser:\n\n  ${highlight(url)}\n`);
-				account = await sdk.auth.loadSession(await promise);
-			}
-		} else {
-			try {
-				account = await sdk.auth.login({ force: argv.force });
-			} catch (err) {
-				if (err.code === 'EAUTHENTICATED') {
-					({ account } = err);
-					if (argv.json) {
-						account.default = config.get('auth.defaultAccount') === account.name;
-						console.log(JSON.stringify(account, null, 2));
-					} else if (account.isPlatform && account.org?.name) {
-						console.log(`You are already logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
-					} else {
-						console.log(`You are already logged in as ${highlight(account.user.email || account.name)}.\n`);
-					}
-					return;
-				} else if (err.code === 'ERR_AUTH_FAILED') {
-					console.error(alert(`${process.platform === 'win32' ? 'x' : '✖'} ${err.message}`));
-					exitCode(1);
-					return;
+					console.log(`Please open following link in your browser:\n\n  ${highlight(url)}\n`);
+					account = await sdk.auth.loadSession(await promise);
 				}
-				throw err;
+			} else {
+				account = await sdk.auth.login({ force: argv.force });
 			}
+		} catch (err) {
+			if (err.code === 'EAUTHENTICATED') {
+				({ account } = err);
+				if (argv.json) {
+					account.default = config.get('auth.defaultAccount') === account.name;
+					console.log(JSON.stringify(account, null, 2));
+				} else if (account.isPlatform && account.org?.name) {
+					console.log(`You are already logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
+				} else {
+					console.log(`You are already logged in as ${highlight(account.user.email || account.name)}.\n`);
+				}
+				return;
+			} else if (err.code === 'ERR_AUTH_FAILED') {
+				console.error(alert(`${process.platform === 'win32' ? 'x' : '✖'} ${err.message}`));
+				exitCode(1);
+				return;
+			}
+			throw err;
 		}
 
 		// determine if the account is the default

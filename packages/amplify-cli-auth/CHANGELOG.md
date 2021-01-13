@@ -1,3 +1,8 @@
+# v2.5.1 (Jan 13, 2021)
+
+ * fix(login): Display gracefully message when logging in with `--no-launch-browser` and you are
+   already logged in.
+
 # v2.5.0 (Jan 11, 2021)
 
  * feat(list): Added platform flag to account list.
