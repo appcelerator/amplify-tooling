@@ -260,6 +260,11 @@ npm i -g axway@2.0.0
  * fix(switch): Only allow users to switch org for authenticated platform accounts.
  * chore: Updated dependencies.
 
+### amplify-cli-auth@2.5.1
+
+ * fix(login): Display gracefully message when logging in with `--no-launch-browser` and you are
+   already logged in.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
