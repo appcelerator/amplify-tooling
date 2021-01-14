@@ -1,3 +1,8 @@
+# v2.5.2 (Jan 14, 2021)
+
+ * fix(list): Fixed display of account type.
+ * fix(switch): Allow service accounts to be selected as the default, but skip the org selection.
+
 # v2.5.1 (Jan 13, 2021)
 
  * fix(login): Display gracefully message when logging in with `--no-launch-browser` and you are

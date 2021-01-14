@@ -38,17 +38,17 @@ export default {
 		}
 
 		const { green } = snooplogg.styles;
-		const table = createTable([ 'Account Name', 'Organization', 'Is Platform', 'Expires', 'Environment' ]);
+		const table = createTable([ 'Account Name', 'Organization', 'Type', 'Expires', 'Environment' ]);
 		const now = Date.now();
 		const pretty = require('pretty-ms');
 		const urlRE = /^.*\/\//;
 		const check = process.platform === 'win32' ? '√' : '✔';
 
-		for (const { default: def, auth, name, org } of accounts) {
+		for (const { default: def, auth, isPlatform, name, org } of accounts) {
 			table.push([
 				def ? green(`${check} ${name}`) : `  ${name}`,
-				!org || !org.name ? '' : org.id ? `${org.name} (${org.id})` : org.name,
-				org.isPlatform ? 'Yes' : 'No',
+				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
+				isPlatform ? 'Platform' : 'Service',
 				pretty(auth.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
 				auth.baseUrl.replace(urlRE, '')
 			]);
