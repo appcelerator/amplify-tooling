@@ -1,6 +1,6 @@
 {
   "name": "axway",
-  "version": "2.0.0-rc13",
+  "version": "2.0.0-rc14",
   "publishConfig": {
     "tag": "next"
   },
@@ -27,9 +27,9 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-auth": "^2.5.1",
-    "@axway/amplify-cli-pm": "^2.4.2",
-    "@axway/amplify-cli-utils": "^4.2.2",
+    "@axway/amplify-cli-auth": "^2.5.2",
+    "@axway/amplify-cli-pm": "^2.4.3",
+    "@axway/amplify-cli-utils": "^4.2.3",
     "cli-kit": "^1.9.3",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.2.0"
