@@ -1,3 +1,7 @@
+# v2.3.3 (Jan 14, 2021)
+
+ * chore: Updated dependencies.
+
 # v2.3.2 (Jan 11, 2021)
 
  * fix: Remove "prepare" script from package's `package.json` before installing npm dependencies to
