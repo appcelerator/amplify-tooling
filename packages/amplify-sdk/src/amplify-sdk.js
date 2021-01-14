@@ -126,7 +126,10 @@ export default class AmplifySDK {
 			 * Returns a list of all authenticated accounts.
 			 * @returns {Promise<Array>}
 			 */
-			list: () => this.client.list(),
+			list: async () => {
+				const accounts = await this.client.list();
+				return accounts.sort((a, b) => a.name.localeCompare(b.name));
+			},
 
 			/**
 			 * Populates the specified account info object with a dashboard session id and org

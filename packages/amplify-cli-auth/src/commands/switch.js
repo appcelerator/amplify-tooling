@@ -17,14 +17,9 @@ export default {
 			env:      argv.env,
 			realm:    argv.realm
 		});
-		const actualAccounts = await sdk.auth.list();
-		const accounts = actualAccounts.filter(acct => acct.isPlatform && acct.org);
+		const accounts = await sdk.auth.list();
 
 		try {
-			if (actualAccounts.length && !accounts.length) {
-				throw new Error('No authenticated platform accounts found to switch');
-			}
-
 			if (accounts.length > 1 && !argv.account && argv.json) {
 				throw new Error('Must specify --account when --json is set and there are multiple authenticated accounts');
 			}
@@ -71,35 +66,39 @@ export default {
 				}
 			}
 
-			// determine the org
-			let org = argv.org || (account?.hash && config.get(`auth.defaultOrg.${account.hash}`));
-			let orgId;
-
-			if (org) {
-				for (const o of account.orgs) {
-					if (o.guid === org || o.id === org || o.name === org) {
-						orgId = o.id;
-						break;
-					}
-				}
-			}
-
-			if (!argv.json) {
-				console.log('Launching web browser to switch organization...');
-			}
-			account = await sdk.auth.switchOrg(account, orgId);
-
+			account.default = true;
 			config.set('auth.defaultAccount', account.name);
-			config.set(`auth.defaultOrg.${account.hash}`, account.org.guid);
+			config.delete(`auth.defaultOrg.${account.hash}`);
 			config.save();
 
-			account.default = true;
+			if (account.isPlatform) {
+				// determine the org
+				let org = argv.org || (account?.hash && config.get(`auth.defaultOrg.${account.hash}`));
+				let orgId;
+
+				if (org) {
+					for (const o of account.orgs) {
+						if (o.guid === org || o.id === org || o.name === org) {
+							orgId = o.id;
+							break;
+						}
+					}
+				}
+
+				if (!argv.json) {
+					console.log('Launching web browser to switch organization...');
+				}
+				account = await sdk.auth.switchOrg(account, orgId);
+
+				config.set(`auth.defaultOrg.${account.hash}`, account.org.guid);
+				config.save();
+			}
 
 			await cli.emitAction('axway:auth:switch', account);
 
 			if (argv.json) {
 				console.log(JSON.stringify(account, null, 2));
-			} else if (account.org) {
+			} else if (account.isPlatform && account.org?.name) {
 				console.log(`Default account set to ${highlight(account.user.email || account.name)} in ${highlight(account.org.name)}`);
 			} else {
 				console.log(`Default account set to ${highlight(account.user.email || account.name)}`);

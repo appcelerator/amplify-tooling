@@ -22,10 +22,10 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "cli-kit": "^1.9.1"
+    "cli-kit": "^1.9.3"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.1.0"
+    "appcd-gulp": "^3.1.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

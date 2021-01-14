@@ -1,3 +1,7 @@
+# 1.8.1 (Jan 14, 2021)
+
+ * fix: Sort the list of authenticated accounts by name.
+
 # v1.8.0 (Jan 11, 2021)
 
  * feat: Added `isPlatform` flag to authenticated accounts.
