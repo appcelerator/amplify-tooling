@@ -265,6 +265,11 @@ npm i -g axway@2.0.0
  * fix(login): Display gracefully message when logging in with `--no-launch-browser` and you are
    already logged in.
 
+### amplify-cli-auth@2.5.2
+
+ * fix(list): Fixed display of account type.
+ * fix(switch): Allow service accounts to be selected as the default, but skip the org selection.
+
 ### amplify-cli-pm@2.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 10.12.0 and older.
@@ -358,6 +363,14 @@ npm i -g axway@2.0.0
  * fix(uninstall): Switched to `cross-spawn` to find and run `npm` on Windows.
 
 ### amplify-cli-pm@2.4.2
+
+ * chore: Updated dependencies.
+
+### amplify-cli-pm@2.4.3
+
+ * chore: Updated dependencies.
+
+### amplify-cli-utils@2.4.3
 
  * chore: Updated dependencies.
 
@@ -606,6 +619,10 @@ npm i -g axway@2.0.0
    prevent npm 7 from erroring due to only production dependencies being installed.
  * chore: Updated dependencies.
 
+### amplify-registry-sdk@2.3.3
+
+ * chore: Updated dependencies.
+
 ### amplify-request@2.0.0
 
  * BREAKING CHANGE: Completely new API.
@@ -740,3 +757,7 @@ npm i -g axway@2.0.0
  * fix(server): Fixed bug with unavailable HTTP server port being used.
  * fix(jwt): Improved error message when secret file is not a valid private key.
  * chore: Updated dependencies.
+
+### amplify-sdk@1.8.1
+
+ * fix: Sort the list of authenticated accounts by name.
