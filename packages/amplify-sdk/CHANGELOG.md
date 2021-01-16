@@ -1,3 +1,7 @@
+# 1.8.2
+
+ * fix: Removed `orgSelectUrl` and appended the org select path to `platformUrl`.
+
 # 1.8.1 (Jan 14, 2021)
 
  * fix: Sort the list of authenticated accounts by name.

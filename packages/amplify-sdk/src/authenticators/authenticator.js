@@ -112,7 +112,6 @@ export default class Authenticator {
 		}
 
 		this.platformUrl = opts.platformUrl || this.env.platformUrl;
-		this.orgSelectUrl = opts.orgSelectUrl || this.env.orgSelectUrl;
 
 		// validate the required string properties
 		for (const prop of [ 'clientId', 'realm' ]) {
@@ -460,7 +459,7 @@ export default class Authenticator {
 
 		const codeCallback = await server.createCallback((req, res) => {
 			res.writeHead(302, {
-				Location: createURL(this.orgSelectUrl, {
+				Location: createURL(`${this.platformUrl}/#/auth/org.select`, {
 					redirect: orgSelectedCallback.url
 				})
 			});

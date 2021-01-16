@@ -184,7 +184,6 @@ describe('Client Secret', () => {
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
 				clientSecret:   '###',
-				orgSelectUrl:   'http://127.0.0.1:1337/auth/org.select',
 				platformUrl:    'http://127.0.0.1:1337/success',
 				realm:          'test_realm',
 				serviceAccount: false,

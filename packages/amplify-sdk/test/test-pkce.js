@@ -153,7 +153,6 @@ describe('PKCE', () => {
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
-				orgSelectUrl:   'http://127.0.0.1:1337/auth/org.select',
 				platformUrl:    'http://127.0.0.1:1337/success',
 				realm:          'test_realm',
 				tokenStoreType: null
