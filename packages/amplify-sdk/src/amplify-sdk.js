@@ -20,8 +20,6 @@ export default class AmplifySDK {
 	 *
 	 * @param {Object} opts - Authentication options.
 	 * @param {Object} [opts.env=prod] - The environment name.
-	 * @param {String} [opts.orgSelectUrl] - A URL to direct the web browser to for selecting an
-	 * organization.
 	 * @param {Object} [opts.requestOptions] - An options object to pass into AMPLIFY CLI Utils to
 	 * create the `got` HTTP client.
 	 * @access public
@@ -42,11 +40,6 @@ export default class AmplifySDK {
 		 * @type {Object}
 		 */
 		this.env = environments.resolve(opts.env);
-
-		// set the default redirect URLs
-		if (!this.opts.orgSelectUrl) {
-			this.opts.orgSelectUrl = this.env.orgSelectUrl;
-		}
 
 		if (!this.opts.platformUrl) {
 			this.opts.platformUrl = this.env.platformUrl;
@@ -230,7 +223,7 @@ export default class AmplifySDK {
 
 					try {
 						try {
-							const url = createURL(this.opts.orgSelectUrl, {
+							const url = createURL(`${this.opts.platformUrl}/#/auth/org.select`, {
 								org_id: orgId,
 								redirect
 							});

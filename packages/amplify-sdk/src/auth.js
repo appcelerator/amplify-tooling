@@ -45,8 +45,6 @@ export default class Auth {
 	 * @param {String} [opts.homeDir] - The path to the home directory containing the `lib`
 	 * directory where `keytar` is located. This option is required when `tokenStoreType` is set to
 	 * `secure`, which is the default.
-	 * @param {String} [opts.orgSelectUrl] - The URL to redirect the browser to after the
-	 * access token has been fetched.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
 	 * @param {String} [opts.platformUrl] - The URL to redirect the browser to after a
 	 * successful login.
@@ -85,7 +83,6 @@ export default class Auth {
 			password:       { value: opts.password },
 			realm:          { value: opts.realm },
 			platformUrl:    { value: opts.platformUrl },
-			orgSelectUrl:   { value: opts.orgSelectUrl },
 			secretFile:     { value: opts.secretFile },
 			serviceAccount: { value: opts.serviceAccount },
 			username:       { value: opts.username }
@@ -162,7 +159,6 @@ export default class Auth {
 			clientSecret:   opts.clientSecret || this.clientSecret,
 			env:            name,
 			messages:       opts.messages || this.messages,
-			orgSelectUrl:   opts.orgSelectUrl || this.orgSelectUrl,
 			password:       opts.password || this.password,
 			platformUrl:    opts.platformUrl || this.platformUrl,
 			realm:          opts.realm || this.realm,

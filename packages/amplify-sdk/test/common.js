@@ -102,21 +102,25 @@ export async function createLoginServer(opts = {}) {
 					res.end(JSON.stringify(serverInfo));
 					break;
 
-				case '/auth/org.select':
-					const redirect = url.searchParams.get('redirect');
-					if (redirect) {
-						res.writeHead(301, {
-							Location: redirect
-						});
-					} else {
-						res.writeHead(200);
-					}
-					res.end();
-					break;
-
 				case '/success':
+				case '/success/':
 					res.writeHead(200, { 'Content-Type': 'text/html' });
-					res.end('<html><head><title>Test successful!</title></head><body><h1>Test successful!</h1><p>You can close this browser window</p></body></html>');
+					res.end(`<html>
+<head>
+	<title>Test successful!</title>
+</head>
+<body>
+	<h1>Test successful!</h1>
+	<p>You can close this browser window</p>
+	<script>
+	let u = new URL(location.href);
+	let m = u.hash && u.hash.match(/redirect=(.+)/);
+	if (m) {
+		location.href = decodeURIComponent(m[1]);
+	}
+	</script>
+</body>
+</html>`);
 					break;
 
 				default:
@@ -166,6 +170,11 @@ export async function createLoginServer(opts = {}) {
 
 export async function stopLoginServer() {
 	this.timeout(5000);
+
+	// we need to wait 1 second because after logging in, the browser is redirect to platform and
+	// even though this is a test, we should avoid the browser erroring because we killed the
+	// server too soon
+	await new Promise(resolve => setTimeout(resolve, 1000));
 
 	if (this.server) {
 		log('Destroying test auth server...');
