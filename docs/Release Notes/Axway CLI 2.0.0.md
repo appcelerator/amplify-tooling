@@ -37,6 +37,10 @@ npm i -g axway@2.0.0
 
 ### amplify-cli-auth
 
+ * **v2.5.3** - 1/20/2021
+
+   * chore: Updated dependencies.
+
  * **v2.5.2** - 1/14/2021
 
    * fix(list): Fixed display of account type.
@@ -152,6 +156,10 @@ npm i -g axway@2.0.0
 
 ### amplify-cli-pm
 
+ * **v2.4.4** - 1/20/2021
+
+   * chore: Updated dependencies.
+
  * **v2.4.3** - 1/14/2021
 
    * chore: Updated dependencies.
@@ -253,6 +261,10 @@ npm i -g axway@2.0.0
    * chore: Updated dependencies.
 
 ### amplify-cli-utils
+
+ * **v4.2.4** - 1/20/2021
+
+   * chore: Updated dependencies.
 
  * **v4.2.3** - 1/14/2021
 
@@ -359,6 +371,10 @@ npm i -g axway@2.0.0
 
 ### amplify-config
 
+ * **v3.0.7** - 1/20/2021
+
+   * chore: Updated dependencies.
+
  * **v3.0.6** - 1/5/2021
 
    * chore: Updated dependencies.
@@ -428,6 +444,10 @@ npm i -g axway@2.0.0
    * chore: Updated dependencies.
 
 ### amplify-registry-sdk
+
+ * **v2.3.4** - 1/20/2021
+
+   * chore: Updated dependencies.
 
  * **v2.3.3** - 1/14/2021
 
@@ -536,6 +556,12 @@ npm i -g axway@2.0.0
    * chore: Updated dependencies.
 
 ### amplify-sdk
+
+ * **v1.8.2** - 1/20/2021
+
+   * fix: Removed `orgSelectUrl` and appended the org select path to `platformUrl`.
+   * fix(logout): Launch web browser to logout of session for platform accounts.
+   * chore: Updated dependencies.
 
  * **v1.8.1** - 1/14/2021
 
