@@ -1,3 +1,7 @@
+# v2.5.3 (Jan 20, 2021)
+
+ * chore: Updated dependencies.
+
 # v2.5.2 (Jan 14, 2021)
 
  * fix(list): Fixed display of account type.

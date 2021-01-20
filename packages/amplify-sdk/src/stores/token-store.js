@@ -82,7 +82,7 @@ export default class TokenStore {
 		}
 
 		const removed = [];
-		baseUrl = baseUrl.replace(/^.*\/\//, '');
+		baseUrl = baseUrl.replace(protoRegExp, '');
 		for (let i = 0; i < entries.length; i++) {
 			if (entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl) {
 				const entry = entries.splice(i--, 1)[0];
@@ -120,7 +120,7 @@ export default class TokenStore {
 		const removed = [];
 
 		if (baseUrl) {
-			baseUrl = baseUrl.replace(/^.*\/\//, '');
+			baseUrl = baseUrl.replace(protoRegExp, '');
 		}
 
 		if (!Array.isArray(accounts)) {

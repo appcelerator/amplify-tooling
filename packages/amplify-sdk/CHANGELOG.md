@@ -1,6 +1,8 @@
-# 1.8.2
+# 1.8.2 (Jan 20, 2021)
 
  * fix: Removed `orgSelectUrl` and appended the org select path to `platformUrl`.
+ * fix(logout): Launch web browser to logout of session for platform accounts.
+ * chore: Updated dependencies.
 
 # 1.8.1 (Jan 14, 2021)
 

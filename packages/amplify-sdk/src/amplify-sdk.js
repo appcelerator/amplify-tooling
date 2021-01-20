@@ -1,4 +1,5 @@
 import Auth from './auth';
+import E from './errors';
 import open from 'open';
 import querystring from 'querystring';
 import Server from './server';
@@ -41,8 +42,12 @@ export default class AmplifySDK {
 		 */
 		this.env = environments.resolve(opts.env);
 
-		if (!this.opts.platformUrl) {
-			this.opts.platformUrl = this.env.platformUrl;
+		if (!opts.baseUrl) {
+			opts.baseUrl = this.env.baseUrl;
+		}
+
+		if (!opts.platformUrl) {
+			opts.platformUrl = this.env.platformUrl;
 		}
 
 		/**
@@ -50,6 +55,12 @@ export default class AmplifySDK {
 		 * @type {Function}
 		 */
 		this.got = request.init(opts.requestOptions);
+
+		/**
+		 * The base Axway ID URL.
+		 * @type {String}
+		 */
+		this.baseUrl = opts.baseUrl ? opts.baseUrl.replace(/\/$/, '') : null;
 
 		/**
 		 * The platform URL.
@@ -185,12 +196,35 @@ export default class AmplifySDK {
 			 * @param {Object} opts - Various authentication options to override the defaults set
 			 * via the constructor. See the AMPLIFY Auth SDK (@axway/amplify-auth-sdk) for more
 			 * details.
-			 * @param {Array.<String>|String} opts.accounts - A list of accounts names.
+			 * @param {Array.<String>} opts.accounts - A list of accounts names.
 			 * @param {Boolean} opts.all - When `true`, revokes all accounts.
 			 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
 			 * @returns {Promise<Object>} Resolves a list of revoked credentials.
 			 */
-			logout: opts => this.client.logout(opts),
+			logout: async ({ accounts, all, baseUrl = this.baseUrl } = {}) => {
+				if (all) {
+					accounts = await this.client.list();
+				} else {
+					if (!Array.isArray(accounts)) {
+						throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
+					}
+					if (!accounts.length) {
+						return [];
+					}
+					accounts = (await this.client.list()).filter(account => accounts.includes(account.name));
+				}
+
+				for (const account of accounts) {
+					if (account.isPlatform) {
+						// note: there should only be 1 platform account in the accounts list
+						const url = `${this.platformUrl}/api/v1/auth/logout?redirect=${encodeURIComponent(`${this.baseUrl}/auth/realms/Broker/protocol/openid-connect/logout?redirect_uri=${this.platformUrl}/signed.out?msg=signin`)}`;
+						log(`Launching default web browser: ${highlight(url)}`);
+						await open(url);
+					}
+				}
+
+				return await this.client.logout({ accounts: accounts.map(account => account.name), baseUrl });
+			},
 
 			/**
 			 * Returns AxwayID server information.

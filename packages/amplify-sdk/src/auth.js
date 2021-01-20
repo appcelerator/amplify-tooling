@@ -335,7 +335,7 @@ export default class Auth {
 	 * Revokes all or specific authenticated accounts.
 	 *
 	 * @param {Object} opts - Required options.
-	 * @param {Array.<String>|String} opts.accounts - A list of accounts names.
+	 * @param {Array.<String>} opts.accounts - A list of accounts names.
 	 * @param {Boolean} opts.all - When `true`, revokes all accounts.
 	 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>} Resolves a list of revoked credentials.
@@ -347,12 +347,13 @@ export default class Auth {
 			return [];
 		}
 
-		if (!all && typeof accounts !== 'string' && !Array.isArray(accounts)) {
-			throw E.INVALID_ARGUMENT('Expected accounts to be "all" or a list of accounts');
-		}
-
-		if (!all && !accounts.length) {
-			return [];
+		if (!all) {
+			if (!Array.isArray(accounts)) {
+				throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
+			}
+			if (!accounts.length) {
+				return [];
+			}
 		}
 
 		let revoked;
@@ -364,12 +365,15 @@ export default class Auth {
 
 		if (Array.isArray(revoked)) {
 			for (const entry of revoked) {
-				const url = `${getEndpoints(entry.auth).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
-				try {
-					const { statusCode } = await this.got(url, { responseType: 'json', retry: 0 });
-					log(`Successfully logged out ${highlight(entry.name)} ${magenta(statusCode)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
-				} catch (err) {
-					log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
+				// don't logout of platform accounts here, it's done in the AMPLIFY SDK by opening the browser
+				if (!entry.isPlatform) {
+					const url = `${getEndpoints(entry.auth).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
+					try {
+						const { statusCode } = await this.got(url, { responseType: 'json', retry: 0 });
+						log(`Successfully logged out ${highlight(entry.name)} ${magenta(statusCode)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
+					} catch (err) {
+						log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
+					}
 				}
 			}
 		}
