@@ -502,16 +502,19 @@ exports['release-notes'] = async function releaseNotes() {
 			const vers = Object.keys(packages[pkg].versions).filter(ver => {
 				const { ts } = packages[pkg].versions[ver];
 				return !ts || new Date(ts) < dt;
-			}).sort(semver.compare);
+			}).sort(semver.rcompare);
 
-			s += `### ${pkg.replace(/@.+\//, '')}\n\n`;
+			let vs = '';
 			for (const v of vers) {
 				if (packages[pkg].versions[v].changelog) {
 					const pts = new Date(packages[pkg].versions[v].ts);
-					s += ` * **v${v}** - ${pts.toLocaleDateString()}\n\n`;
-					s += `${packages[pkg].versions[v].changelog.split('\n').map(s => `  ${s}`).join('\n')}\n\n`;
+					vs += ` * **v${v}** - ${pts.toLocaleDateString()}\n\n`;
+					vs += `${packages[pkg].versions[v].changelog.split('\n').map(s => `  ${s}`).join('\n')}\n\n`;
 				}
 				delete packages[pkg].versions[v];
+			}
+			if (vs) {
+				s += `### ${pkg.replace(/@.+\//, '')}\n\n${vs}`;
 			}
 		}
 
