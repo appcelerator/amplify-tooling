@@ -488,18 +488,28 @@ exports['release-notes'] = async function releaseNotes() {
 		}
 		s += `### Installation\n\n\`\`\`\nnpm i -g axway@${cleanVersion}\n\`\`\`\n\n`
 		if (changelog) {
-			s += `### axway@${cleanVersion}\n\n${changelog}\n\n`;
+			s += '### axway\n\n';
+			s += ` * **v${cleanVersion}**${ts ? ` - ${dt.toLocaleDateString()}` : ''}\n\n`;
+			s += `${changelog.split('\n').map(s => `  ${s}`).join('\n')}\n\n`;
 		}
 
 		for (const pkg of pkgs) {
+			// the AMPLIFY CLI and Auth SDK are deprecated, so ignore them
+			if (pkg === '@axway/amplify-cli' || pkg === '@axway/amplify-auth-sdk') {
+				continue;
+			}
+
 			const vers = Object.keys(packages[pkg].versions).filter(ver => {
 				const { ts } = packages[pkg].versions[ver];
 				return !ts || new Date(ts) < dt;
 			}).sort(semver.compare);
 
+			s += `### ${pkg.replace(/@.+\//, '')}\n\n`;
 			for (const v of vers) {
 				if (packages[pkg].versions[v].changelog) {
-					s += `### ${pkg.replace(/@.+\//, '')}@${v}\n\n${packages[pkg].versions[v].changelog}\n\n`;
+					const pts = new Date(packages[pkg].versions[v].ts);
+					s += ` * **v${v}** - ${pts.toLocaleDateString()}\n\n`;
+					s += `${packages[pkg].versions[v].changelog.split('\n').map(s => `  ${s}`).join('\n')}\n\n`;
 				}
 				delete packages[pkg].versions[v];
 			}
