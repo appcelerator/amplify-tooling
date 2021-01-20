@@ -140,7 +140,7 @@ describe('Auth', () => {
 				await auth.logout();
 			} catch (err) {
 				expect(err).to.be.instanceof(Error);
-				expect(err.message).to.equal('Expected accounts to be "all" or a list of accounts');
+				expect(err.message).to.equal('Expected accounts to be a list of accounts');
 				return;
 			}
 

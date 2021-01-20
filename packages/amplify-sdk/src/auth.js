@@ -348,6 +348,12 @@ export default class Auth {
 		}
 
 		if (!all) {
+			if (!accounts) {
+				throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
+			}
+			if (typeof accounts === 'string') {
+				accounts = [ accounts ];
+			}
 			if (!Array.isArray(accounts)) {
 				throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
 			}
