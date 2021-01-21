@@ -1,3 +1,7 @@
+# 1.8.3
+
+ * fix: Added missing `realm` environment defaults.
+
 # 1.8.2 (Jan 20, 2021)
 
  * fix: Removed `orgSelectUrl` and appended the org select path to `platformUrl`.

@@ -1,5 +1,6 @@
 import Auth from './auth';
 import E from './errors';
+import getEndpoints from './endpoints';
 import open from 'open';
 import querystring from 'querystring';
 import Server from './server';
@@ -42,12 +43,11 @@ export default class AmplifySDK {
 		 */
 		this.env = environments.resolve(opts.env);
 
-		if (!opts.baseUrl) {
-			opts.baseUrl = this.env.baseUrl;
-		}
-
-		if (!opts.platformUrl) {
-			opts.platformUrl = this.env.platformUrl;
+		// set the defaults based on the environment
+		for (const prop of [ 'baseUrl', 'platformUrl', 'realm' ]) {
+			if (!opts[prop]) {
+				opts[prop] = this.env[prop];
+			}
 		}
 
 		/**
@@ -67,6 +67,12 @@ export default class AmplifySDK {
 		 * @type {String}
 		 */
 		this.platformUrl = opts.platformUrl ? opts.platformUrl.replace(/\/$/, '') : null;
+
+		/**
+		 * The Axway ID realm.
+		 * @type {String}
+		 */
+		this.realm = opts.realm;
 
 		this.auth = {
 			/**
@@ -217,7 +223,9 @@ export default class AmplifySDK {
 				for (const account of accounts) {
 					if (account.isPlatform) {
 						// note: there should only be 1 platform account in the accounts list
-						const url = `${this.platformUrl}/api/v1/auth/logout?redirect=${encodeURIComponent(`${this.baseUrl}/auth/realms/Broker/protocol/openid-connect/logout?redirect_uri=${this.platformUrl}/signed.out?msg=signin`)}`;
+						const { logout } = getEndpoints({ baseUrl: this.baseUrl, realm: this.realm });
+						const redirect = `${logout}?redirect_uri=${this.platformUrl}/signed.out?msg=signin`;
+						const url = `${this.platformUrl}/api/v1/auth/logout?redirect=${encodeURIComponent(redirect)}`;
 						log(`Launching default web browser: ${highlight(url)}`);
 						await open(url);
 					}
