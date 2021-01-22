@@ -1,4 +1,4 @@
-> ## ATTENTION!
+> Thank you for your interest in the AMPLIFY CLI.
 >
 > The AMPLIFY CLI is deprecated in favor of the new
 > [Axway CLI](https://npmjs.org/package/axway).

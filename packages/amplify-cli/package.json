@@ -1,9 +1,6 @@
 {
   "name": "@axway/amplify-cli",
-  "version": "1.5.0-rc2",
-  "publishConfig": {
-    "tag": "next"
-  },
+  "version": "1.5.0",
   "description": "A unified CLI for the Axway AMPLIFY platform.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [

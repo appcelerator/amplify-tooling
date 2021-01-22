@@ -1,4 +1,4 @@
-# v1.5.0-rc2 (Nov 12, 2020)
+# v1.5.0 (Jan 22, 2021)
 
  * chore: Added deprecation notice in favor of the new
    [Axway CLI](https://npmjs.org/package/axway).
