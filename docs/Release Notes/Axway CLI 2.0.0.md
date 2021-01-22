@@ -37,6 +37,10 @@ npm i -g axway@2.0.0
 
 ### amplify-cli-auth
 
+ * **v2.5.4** - 1/22/2021
+
+   * chore: Updated dependencies.
+
  * **v2.5.3** - 1/20/2021
 
    * chore: Updated dependencies.
@@ -156,6 +160,10 @@ npm i -g axway@2.0.0
 
 ### amplify-cli-pm
 
+ * **v2.4.5** - 1/22/2021
+
+   * chore: Updated dependencies.
+
  * **v2.4.4** - 1/20/2021
 
    * chore: Updated dependencies.
@@ -261,6 +269,10 @@ npm i -g axway@2.0.0
    * chore: Updated dependencies.
 
 ### amplify-cli-utils
+
+ * **v4.2.5** - 1/22/2021
+
+   * chore: Updated dependencies.
 
  * **v4.2.4** - 1/20/2021
 
@@ -445,6 +457,10 @@ npm i -g axway@2.0.0
 
 ### amplify-registry-sdk
 
+ * **v2.3.5** - 1/22/2021
+
+   * chore: Updated dependencies.
+
  * **v2.3.4** - 1/20/2021
 
    * chore: Updated dependencies.
@@ -556,6 +572,10 @@ npm i -g axway@2.0.0
    * chore: Updated dependencies.
 
 ### amplify-sdk
+
+ * **v1.8.3** - 1/22/2021
+
+   * fix: Added missing `realm` environment defaults.
 
  * **v1.8.2** - 1/20/2021
 
