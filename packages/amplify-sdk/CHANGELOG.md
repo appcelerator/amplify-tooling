@@ -1,4 +1,4 @@
-# 1.8.3
+# 1.8.3 (Jan 22, 2021)
 
  * fix: Added missing `realm` environment defaults.
 
