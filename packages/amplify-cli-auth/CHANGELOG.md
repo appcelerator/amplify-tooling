@@ -1,3 +1,7 @@
+# v2.5.5
+
+ * chore: Updated dependencies.
+
 # v2.5.4 (Jan 22, 2021)
 
  * chore: Updated dependencies.

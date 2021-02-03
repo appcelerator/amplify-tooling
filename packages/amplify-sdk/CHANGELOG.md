@@ -1,14 +1,18 @@
-# 1.8.3 (Jan 22, 2021)
+# v1.8.4
+
+ * chore: Updated dependencies.
+
+# v1.8.3 (Jan 22, 2021)
 
  * fix: Added missing `realm` environment defaults.
 
-# 1.8.2 (Jan 20, 2021)
+# v1.8.2 (Jan 20, 2021)
 
  * fix: Removed `orgSelectUrl` and appended the org select path to `platformUrl`.
  * fix(logout): Launch web browser to logout of session for platform accounts.
  * chore: Updated dependencies.
 
-# 1.8.1 (Jan 14, 2021)
+# v1.8.1 (Jan 14, 2021)
 
  * fix: Sort the list of authenticated accounts by name.
 

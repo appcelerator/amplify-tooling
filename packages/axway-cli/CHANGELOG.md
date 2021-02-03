@@ -1,3 +1,7 @@
+# v2.0.1
+
+ * chore: Updated dependencies.
+
 # v2.0.0 (Jan 22, 2021)
 
  * Initial release of the Axway CLI, formerly AMPLIFY CLI.
