@@ -20,6 +20,7 @@
     "build": "gulp build",
     "coverage": "gulp coverage",
     "docs": "gulp docs",
+    "postinstall": "node scripts/postinstall.js || node -e true",
     "prepare": "gulp build",
     "test": "gulp test"
   },
@@ -28,6 +29,7 @@
     "@axway/amplify-cli-pm": "^2.4.5",
     "@axway/amplify-cli-utils": "^4.2.5",
     "cli-kit": "^1.9.3",
+    "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.2.0"
   },
