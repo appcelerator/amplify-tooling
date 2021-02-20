@@ -19,7 +19,8 @@ import { readFileSync } from 'fs';
 	const extensions = [
 		...Object.values(cfg.get('extensions', {})),
 		dirname(require.resolve('@axway/amplify-cli-auth')),
-		dirname(require.resolve('@axway/amplify-cli-pm'))
+		dirname(require.resolve('@axway/amplify-cli-pm')),
+		dirname(require.resolve('@axway/axway-cli-oum'))
 	];
 
 	let checkWait;
