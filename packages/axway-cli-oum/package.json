@@ -38,7 +38,7 @@
     "node": ">=10.19.0"
   },
   "cli-kit": {
-    "contexts": {
+    "exports": {
       "org": {
         "main": "./dist/org"
       },
