@@ -1,12 +1,34 @@
-# Axway AMPLIFY organization and user management CLI
+# Axway AMPLIFY OUM CLI
 
-Manage organizations and users.
+Manage organizations, teams, and users.
 
 ## Installation
 
 This package is bundled with the Axway CLI and thus does not need to be directly installed.
 
 	npm i -g axway
+
+## Usage
+
+### Organizations
+
+List all organizations:
+
+```
+$ axway org list
+```
+
+View an organization:
+
+```
+$ axway org view <org>
+```
+
+Edit an organization:
+
+```
+$ axway org set <org> <key> <value>
+```
 
 ## Legal
 

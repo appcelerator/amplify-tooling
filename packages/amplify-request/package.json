@@ -25,16 +25,16 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "appcd-util": "^3.1.3",
-    "got": "^11.8.1",
+    "appcd-util": "^3.1.4",
+    "got": "^11.8.2",
     "http-proxy-agent": "^4.0.1",
     "https-proxy-agent": "^5.0.0",
-    "pretty-bytes": "^5.5.0",
+    "pretty-bytes": "^5.6.0",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.1.3"
+    "appcd-gulp": "^3.1.4"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

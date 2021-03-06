@@ -1,7 +1,9 @@
 import Auth from './auth';
 import E from './errors';
+import fs from 'fs-extra';
 import getEndpoints from './endpoints';
 import open from 'open';
+import path from 'path';
 import querystring from 'querystring';
 import Server from './server';
 import setCookie from 'set-cookie-parser';
@@ -28,7 +30,7 @@ export default class AmplifySDK {
 	 */
 	constructor(opts = {}) {
 		if (typeof opts !== 'object') {
-			throw new TypeError('Expected options to be an object');
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
 		/**
@@ -73,6 +75,14 @@ export default class AmplifySDK {
 		 * @type {String}
 		 */
 		this.realm = opts.realm;
+
+		const { version } = fs.readJsonSync(path.resolve(__dirname, '../package.json'));
+
+		/**
+		 * The Axway ID realm.
+		 * @type {String}
+		 */
+		this.userAgent = `AMPLIFY SDK/${version} (${process.platform}; ${process.arch}; node:${process.versions.node})${process.env.AXWAY_CLI ? ` Axway CLI/${process.env.AXWAY_CLI}` : ''}`;
 
 		this.auth = {
 			/**
@@ -382,13 +392,124 @@ export default class AmplifySDK {
 
 		this.org = {
 			/**
+			 * Retrieves organization details for an account.
+			 * @param {Object} account - The account object.
+			 * @param {String} org - The name, id, or guid of the organization to get info for.
+			 * @returns {Promise<Array>}
+			 */
+			get: async (account, orgId) => {
+				if (!account || typeof account !== 'object') {
+					throw E.INVALID_ACCOUNT('Account required');
+				}
+
+				if (!account.isPlatform) {
+					throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
+				}
+
+				const org = await this.request(`/api/v1/org/${orgId}`, account, {
+					errorMsg: 'Failed to get organization'
+				});
+
+				const subscriptions = org.subscriptions.map(s => ({
+					expired:    !!s.expired,
+					governance: s.governance,
+					plan:       s.plan,
+					product:    s.product,
+					startDate:  s.start_date,
+					endDate:    s.end_date,
+					tier:       s.tier
+				}));
+
+				console.log(org);
+
+				const family = await this.org.getFamily(account, orgId);
+
+				const result = {
+					active:           org.active,
+					created:          org.created,
+					childOrgs:        family.children,
+					guid:             org.guid,
+					id:               orgId,
+					name:             org.name,
+					parentOrg:        null,
+					region:           org.region,
+					insightUserCount: ~~org.entitlements.limit_read_only_users,
+					members:          await this.org.getMembers(account, orgId),
+					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
+					subscriptions,
+					teams:            await this.org.getTeams(account, orgId)
+				};
+
+				if (org.parent_org_guid) {
+					const parent = await this.request(`/api/v1/org/${org.parent_org_guid}`, account, {
+						errorMsg: 'Failed to get organization'
+					});
+					result.parentOrg = {
+						guid: parent.guid,
+						id:   parent.org_id,
+						name: parent.name
+					};
+				}
+
+				return result;
+			},
+
+			/**
 			 * Retrieves the list of environments associated to the user's org.
 			 * @param {Object} account - The account object.
 			 * @returns {Promise<Array>}
 			 */
 			getEnvironments: account => this.request('/api/v1/org/env', account, {
-				errorMsg: 'Failed to get environments'
-			})
+				errorMsg: 'Failed to get org environments'
+			}),
+
+			getFamily: (account, orgId) => this.request(`/api/v1/org/${orgId}/family`, account, {
+				errorMsg: 'Failed to get org family'
+			}),
+
+			getMembers: async (account, orgId) => {
+				return [];
+			},
+
+			getTeams: async (account, orgId) => {
+				return [];
+			},
+
+			/**
+			 * Retrieves the list of orgs from the specified account.
+			 * @param {Object} account - The account object.
+			 * @param {String} defaultOrg - The name, id, or guid of the default organization.
+			 * @returns {Promise<Array>}
+			 */
+			list: async (account, defaultOrg) => {
+				if (!account || typeof account !== 'object') {
+					throw new TypeError('Account required');
+				}
+
+				const orgs = account.orgs.map(org => {
+					org.active = false;
+					return org;
+				});
+
+				if (defaultOrg === undefined) {
+					defaultOrg = account.org.id;
+				}
+
+				for (const org of orgs) {
+					if (org.guid === defaultOrg || org.id === defaultOrg || org.name === defaultOrg) {
+						org.active = true;
+						break;
+					}
+				}
+
+				return orgs;
+			}
+		};
+
+		this.team = {
+			create: async ({ account, org, name, description, tags }) => {
+				// org_guid
+			}
 		};
 
 		this.ti = {
@@ -577,6 +698,10 @@ export default class AmplifySDK {
 				});
 			}
 		};
+
+		this.user = {
+			//
+		};
 	}
 
 	/**
@@ -625,7 +750,8 @@ export default class AmplifySDK {
 
 			const url = `${this.platformUrl || this.env.platformUrl}${path}`;
 			const headers = {
-				Accept: 'application/json'
+				Accept: 'application/json' // ,
+				// 'User-Agent': this.userAgent
 			};
 
 			if (account.sid) {
@@ -645,11 +771,16 @@ export default class AmplifySDK {
 				responseType: 'json',
 				retry: 0
 			};
+			let err;
 
 			try {
 				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
 				response = await this.got[method](url, opts);
-			} catch (err) {
+			} catch (e) {
+				err = e;
+			}
+
+			if (err || (path === '/api/v1/auth/findSession' && response.body?.[resultKey] === null)) {
 				if (account.sid && err.response?.statusCode === 401) {
 					// sid is probably bad, try again with the token
 					warn('Platform session was invalidated, trying again to reinitialize session with token');

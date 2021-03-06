@@ -123,6 +123,7 @@ export default {
 		const accounts = await sdk.auth.list();
 		if (accounts.length === 1) {
 			config.set('auth.defaultAccount', account.name);
+			config.set(`auth.defaultOrg.${account.hash}`, account.org.guid);
 			config.save();
 			account.default = true;
 		} else if (config.get('auth.defaultAccount') === account.name) {

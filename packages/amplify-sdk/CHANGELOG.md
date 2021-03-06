@@ -1,5 +1,6 @@
-# v1.8.4
+# v1.9.0
 
+ * feat: Added organization and user management APIs.
  * chore: Updated dependencies.
 
 # v1.8.3 (Jan 22, 2021)
