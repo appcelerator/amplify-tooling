@@ -24,10 +24,10 @@ View an organization:
 $ axway org view <org>
 ```
 
-Edit an organization:
+Renamet an organization:
 
 ```
-$ axway org set <org> <key> <value>
+$ axway org rename <org> <name>
 ```
 
 ## Legal

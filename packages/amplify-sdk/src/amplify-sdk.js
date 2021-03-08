@@ -128,7 +128,12 @@ export default class AmplifySDK {
 					region:       org.region
 				};
 
-				account.orgs = orgs.map(({ guid, name, org_id }) => ({ guid, id: org_id, name }));
+				account.orgs = orgs.map(({ guid, name, org_id }) => ({
+					default: org_id === org.org_id,
+					guid,
+					id: org_id,
+					name
+				}));
 
 				Object.assign(account.user, {
 					axwayId:      user.axway_id,
@@ -397,7 +402,7 @@ export default class AmplifySDK {
 			 * @param {String} org - The name, id, or guid of the organization to get info for.
 			 * @returns {Promise<Array>}
 			 */
-			get: async (account, orgId) => {
+			get: async (account, org) => {
 				if (!account || typeof account !== 'object') {
 					throw E.INVALID_ACCOUNT('Account required');
 				}
@@ -406,41 +411,49 @@ export default class AmplifySDK {
 					throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
 				}
 
-				const org = await this.request(`/api/v1/org/${orgId}`, account, {
+				const found = account.orgs.find(o => {
+					return o.guid.toLowerCase() === String(org).toLowerCase()
+						|| o.id === ~~org
+						|| o.name.toLowerCase() === String(org).toLowerCase();
+				});
+
+				if (!found) {
+					throw new Error(`Unable to find an organization "${org}"`);
+				}
+				const { id } = found;
+
+				org = await this.request(`/api/v1/org/${id}`, account, {
 					errorMsg: 'Failed to get organization'
 				});
 
 				const subscriptions = org.subscriptions.map(s => ({
+					category:   s.product,  // TODO: Replace with annotated name
+					edition:    s.plan,     // TODO: Replace with annotated name
 					expired:    !!s.expired,
 					governance: s.governance,
-					plan:       s.plan,
-					product:    s.product,
 					startDate:  s.start_date,
 					endDate:    s.end_date,
 					tier:       s.tier
 				}));
 
-				console.log(org);
-
-				const family = await this.org.getFamily(account, orgId);
-
 				const result = {
 					active:           org.active,
 					created:          org.created,
-					childOrgs:        family.children,
+					childOrgs:        null,
 					guid:             org.guid,
-					id:               orgId,
+					id:               id,
 					name:             org.name,
 					parentOrg:        null,
 					region:           org.region,
 					insightUserCount: ~~org.entitlements.limit_read_only_users,
-					members:          await this.org.getMembers(account, orgId),
 					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
 					subscriptions,
-					teams:            await this.org.getTeams(account, orgId)
+					teamCount:        (await this.org.getTeams(account, id)).length,
+					userCount:        org.users.length
 				};
 
 				if (org.parent_org_guid) {
+					// get the parent org info
 					const parent = await this.request(`/api/v1/org/${org.parent_org_guid}`, account, {
 						errorMsg: 'Failed to get organization'
 					});
@@ -449,6 +462,17 @@ export default class AmplifySDK {
 						id:   parent.org_id,
 						name: parent.name
 					};
+				} else {
+					// check for children
+					const { children } = await this.org.getFamily(account, id);
+					result.childOrgs = children.map(o => ({
+						active:    o.active,
+						created:   o.created,
+						guid:      o.guid,
+						id:        o.id,
+						name:      o.name,
+						userCount: o.users.length
+					}));
 				}
 
 				return result;
@@ -460,20 +484,21 @@ export default class AmplifySDK {
 			 * @returns {Promise<Array>}
 			 */
 			getEnvironments: account => this.request('/api/v1/org/env', account, {
-				errorMsg: 'Failed to get org environments'
+				errorMsg: 'Failed to get organization environments'
 			}),
 
 			getFamily: (account, orgId) => this.request(`/api/v1/org/${orgId}/family`, account, {
-				errorMsg: 'Failed to get org family'
+				errorMsg: 'Failed to get organization family'
 			}),
 
 			getMembers: async (account, orgId) => {
+				// TODO
 				return [];
 			},
 
-			getTeams: async (account, orgId) => {
-				return [];
-			},
+			getTeams: (account, orgId) => this.request(`/api/v1/team?org_id=${orgId}`, account, {
+				errorMsg: 'Failed to get organization teams'
+			}),
 
 			/**
 			 * Retrieves the list of orgs from the specified account.
@@ -486,23 +511,52 @@ export default class AmplifySDK {
 					throw new TypeError('Account required');
 				}
 
-				const orgs = account.orgs.map(org => {
-					org.active = false;
-					return org;
+				if (defaultOrg === undefined) {
+					return account.orgs;
+				}
+
+				// if we have a defaultOrg, we need to copy the orgs, then mutate
+
+				return account.orgs.map(o => ({
+					...o,
+					default: o.guid.toLowerCase() === String(defaultOrg).toLowerCase()
+						|| o.id === ~~defaultOrg
+						|| o.name.toLowerCase() === String(defaultOrg).toLowerCase()
+				}));
+			},
+
+			rename: async (account, org, name) => {
+				if (!account || typeof account !== 'object') {
+					throw E.INVALID_ACCOUNT('Account required');
+				}
+
+				if (!account.isPlatform) {
+					throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
+				}
+
+				const found = account.orgs.find(o => {
+					return o.guid.toLowerCase() === String(org).toLowerCase()
+						|| o.id === ~~org
+						|| o.name.toLowerCase() === String(org).toLowerCase();
 				});
 
-				if (defaultOrg === undefined) {
-					defaultOrg = account.org.id;
+				if (!found) {
+					throw new Error(`Unable to find an organization "${org}"`);
 				}
 
-				for (const org of orgs) {
-					if (org.guid === defaultOrg || org.id === defaultOrg || org.name === defaultOrg) {
-						org.active = true;
-						break;
-					}
+				if (typeof name !== 'string' || !(name = name.trim())) {
+					throw new TypeError('Organization name must be a non-empty string');
 				}
 
-				return orgs;
+				const result = await this.request(`/api/v1/org/${found.id}`, account, {
+					errorMsg: 'Failed to rename organization',
+					json: { name },
+					method: 'put'
+				});
+
+				result.oldName = found.name;
+
+				return result;
 			}
 		};
 

@@ -6,15 +6,11 @@ export default {
 		'--json': 'Outputs accounts as JSON'
 	},
 	async action({ argv, console }) {
-		const { createTable, initSDK } = require('@axway/amplify-cli-utils');
+		const { initPlatformAccount } = require('../lib/util');
+		const { createTable } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight } = snooplogg.styles;
-		const { config, sdk } = initSDK();
-		const account = await sdk.auth.find(argv.account || config.get('auth.defaultAccount'));
-
-		if (!account || !account.isPlatform) {
-			throw new Error('You must me logged into a platform account\n\nPlease run "axway auth login"');
-		}
+		const { account, config, sdk } = await initPlatformAccount(argv.account, argv.org);
 
 		const orgs = await sdk.org.list(account, config.get(`auth.defaultOrg.${account.hash}`));
 
