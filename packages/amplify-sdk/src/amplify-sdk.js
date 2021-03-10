@@ -756,14 +756,44 @@ export default class AmplifySDK {
 		};
 
 		this.user = {
-			update: async (account, info) => {
-				if (!account || typeof account !== 'object') {
-					throw E.INVALID_ACCOUNT('Account required');
+			activity: async (account, params) => {
+				assertPlatformAccount(account);
+
+				const tsRE = /^\d{4}-\d{2}-\d{2}$/;
+				let url = `/api/v1/activity?user_guid=${account.user.guid}&data=true`;
+				let ts;
+				let from;
+				let to = null;
+
+				if (params.from) {
+					if (!tsRE.test(params.from) || isNaN(ts = Date.parse(`${params.from} 00:00:00 GMT`))) {
+						throw new Error('Expected "from" date to be in the format YYYY-MM-DD');
+					}
+					from = new Date(ts);
+					url += `&from=${from.toISOString()}`;
+				} else {
+					from = new Date(Date.now() - (14 * 24 * 60 * 60 * 1000)); // 14 days
 				}
 
-				if (!account.isPlatform) {
-					throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
+				if (params.to) {
+					if (!tsRE.test(params.to) || isNaN(ts = Date.parse(`${params.to} 23:59:59 GMT`))) {
+						throw new Error('Expected "to" date to be in the format YYYY-MM-DD');
+					}
+					to = new Date(ts);
+					url += `&to=${to.toISOString()}`;
 				}
+
+				return {
+					from,
+					to,
+					events: await this.request(url, account, {
+						errorMsg: 'Failed to get user activity'
+					})
+				};
+			},
+
+			update: async (account, info) => {
+				assertPlatformAccount(account);
 
 				await this.request(`/api/v1/user/profile/${account.user.guid}`, account, {
 					errorMsg: 'Failed to update user information',
@@ -893,5 +923,15 @@ export default class AmplifySDK {
 
 			throw err;
 		}
+	}
+}
+
+function assertPlatformAccount(account) {
+	if (!account || typeof account !== 'object') {
+		throw E.INVALID_ACCOUNT('Account required');
+	}
+
+	if (!account.isPlatform) {
+		throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
 	}
 }
