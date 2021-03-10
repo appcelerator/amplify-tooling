@@ -1,11 +1,51 @@
 export default {
 	desc: 'Change your information',
 	options: {
-		'--first-name [name]': 'Your first name',
-		'--json': 'Outputs accounts as JSON',
-		'--last-name [name]': 'Your last name'
+		'--firstname [value]': {
+			aliases: '--first-name',
+			desc: 'Your first name'
+		},
+		'--json': 'Outputs result as JSON',
+		'--lastname [value]': {
+			aliases: '--last-name',
+			desc: 'Your last name'
+		},
+		'--phone [value]': 'Your phone number'
 	},
 	async action({ argv, console }) {
-		console.log('Update user info');
+		const { initPlatformAccount } = require('../lib/util');
+		const { account, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const info = {};
+		const labels = {
+			firstname: 'first name',
+			lastname: 'last name',
+			phone: 'phone number'
+		};
+
+		for (const key of [ 'firstname', 'lastname', 'phone' ]) {
+			if (argv[key]) {
+				info[key] = argv[key].trim();
+			}
+		}
+
+		if (!Object.keys(info).length) {
+			const err = new Error('Please specify a setting to update');
+			err.showHelp = true;
+			throw err;
+		}
+
+		const user = await sdk.user.update(account, info);
+
+		if (argv.json) {
+			console.log(JSON.stringify(user, null, 2));
+			return;
+		}
+
+		const { default: snooplogg } = require('snooplogg');
+		const { highlight } = snooplogg.styles;
+
+		for (const [ key, value ] of Object.entries(info)) {
+			console.log(`Updated ${highlight(labels[key])} to ${highlight(`"${user[key]}"`)}`);
+		}
 	}
 };

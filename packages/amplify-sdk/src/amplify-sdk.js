@@ -137,11 +137,13 @@ export default class AmplifySDK {
 
 				Object.assign(account.user, {
 					axwayId:      user.axway_id,
+					dateJoined:   user.date_activated,
 					email:        user.email,
-					firstName:    user.firstname,
+					firstname:    user.firstname,
 					guid:         user.guid,
-					lastName:     user.lastname,
-					organization: user.organization
+					lastname:     user.lastname,
+					organization: user.organization,
+					phone:        user.phone
 				});
 
 				return account;
@@ -754,7 +756,28 @@ export default class AmplifySDK {
 		};
 
 		this.user = {
-			//
+			update: async (account, info) => {
+				if (!account || typeof account !== 'object') {
+					throw E.INVALID_ACCOUNT('Account required');
+				}
+
+				if (!account.isPlatform) {
+					throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
+				}
+
+				await this.request(`/api/v1/user/profile/${account.user.guid}`, account, {
+					errorMsg: 'Failed to update user information',
+					json: {
+						firstname: info.firstname,
+						lastname:  info.lastname,
+						phone:     info.phone
+					},
+					method: 'put'
+				});
+
+				log('Refreshing account information...');
+				return (await this.auth.loadSession(account)).user;
+			}
 		};
 	}
 
@@ -804,8 +827,8 @@ export default class AmplifySDK {
 
 			const url = `${this.platformUrl || this.env.platformUrl}${path}`;
 			const headers = {
-				Accept: 'application/json' // ,
-				// 'User-Agent': this.userAgent
+				Accept: 'application/json',
+				'User-Agent': this.userAgent
 			};
 
 			if (account.sid) {
@@ -821,7 +844,7 @@ export default class AmplifySDK {
 			let response;
 			const opts = {
 				headers,
-				json,
+				json: json ? JSON.parse(JSON.stringify(json)) : undefined,
 				responseType: 'json',
 				retry: 0
 			};
@@ -829,6 +852,9 @@ export default class AmplifySDK {
 
 			try {
 				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
+				if (opts.json) {
+					log(opts.json);
+				}
 				response = await this.got[method](url, opts);
 			} catch (e) {
 				err = e;

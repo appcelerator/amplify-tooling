@@ -100,20 +100,6 @@ View the organization activity:
 
 	$ axway org activity <org> --from [yyyy-mm-dd] --to [yyyy-mm-dd]
 
-### Organization Branding
-
-View the organization branding:
-
-	$ axway org branding view <org> [--render]
-
-Upload a new branding logo:
-
-	$ axway org branding logo <org> <file>
-
-Change a branding setting:
-
-	$ axway org branding update <org> --header-left <color> --header-right <color> --tile-border <color> --tile-border-hover <color>
-
 ### Organization IdP
 
 TBD
@@ -131,6 +117,10 @@ Update your account information:
 View your user activity:
 
 	$ axway user activity --from [yyyy-mm-dd] --to [yyyy-mm-dd]
+
+Change your log in credentials:
+
+	$ axway user credentials
 
 ## Legal
 
