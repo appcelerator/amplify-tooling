@@ -1,6 +1,7 @@
 # v1.9.0
 
  * feat: Added organization and user management APIs.
+ * feat: Added HTTP status code to error messages.
  * chore: Updated dependencies.
 
 # v1.8.3 (Jan 22, 2021)

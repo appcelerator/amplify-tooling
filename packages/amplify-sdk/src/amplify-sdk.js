@@ -915,6 +915,9 @@ export default class AmplifySDK {
 		} catch (err) {
 			const msg = err.response?.body?.message || err.response?.body?.description;
 			err.message = `${errorMsg ? `${errorMsg}: ` : ''}${msg || err.message}`;
+			if (err.response?.statusCode) {
+				err.message += ` (${err.response.statusCode})`;
+			}
 
 			const code = err.response?.body?.code;
 			if (code) {
