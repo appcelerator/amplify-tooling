@@ -1,6 +1,6 @@
 # Axway AMPLIFY OUM CLI
 
-Manage organizations, teams, and users.
+Manage organizations, teams, and members.
 
 ## Installation
 
@@ -14,21 +14,123 @@ This package is bundled with the Axway CLI and thus does not need to be directly
 
 List all organizations:
 
-```
-$ axway org list
-```
+	$ axway org list
 
 View an organization:
 
-```
-$ axway org view <org>
-```
+	$ axway org view
 
-Renamet an organization:
+	$ axway org view <org>
 
-```
-$ axway org rename <org> <name>
-```
+Rename an organization:
+
+	$ axway org rename <org> <name>
+
+### Organization Members
+
+List all organization members:
+
+	$ axway org member list <org>
+
+Add a member to an org:
+
+	$ axway org member add <org> <guid|email> --role <role1> [...--role <role2>]
+
+Update a member's roles:
+
+	$ axway org member update <org> <guid|email> --role <role1> [...--role <role2>]
+
+Delete a member:
+
+	$ axway org member remove <org> <guid|email>
+
+### Organization Teams
+
+List all organization teams:
+
+	$ axway team list <org>
+
+View a team's info:
+
+	$ axway team view <team>
+
+Add a team to an org:
+
+	$ axway team add <org> <name> --desc [value]
+
+Update a team:
+
+	$ axway team update # shows help
+
+	$ axway team update <team> # shows help
+
+	$ axway team update <team> --name [value] --desc [value]
+
+Remove a team from an org:
+
+	$ axway team remove <team>
+
+### Organization Team Members
+
+List all members in a team:
+
+	$ axway team member list <team>
+
+Add a member to a team:
+
+	$ axway team member add <team> <guid|email> --role <role1> [...--role <role2>]
+
+Update a member's role within a team:
+
+	$ axway team member update <team> <guid|email> --role <role1> [...--role <role2>]
+
+Remove a member from a team:
+
+	$ axway team member remove <team> <guid|email>
+
+### Organization Usage
+
+View the usage:
+
+	$ axway org usage <org> --from [yyyy-mm-dd] --to [yyyy-mm-dd]
+
+### Organization Activity
+
+View the organization activity:
+
+	$ axway org activity <org> --from [yyyy-mm-dd] --to [yyyy-mm-dd]
+
+### Organization Branding
+
+View the organization branding:
+
+	$ axway org branding view <org> [--render]
+
+Upload a new branding logo:
+
+	$ axway org branding logo <org> <file>
+
+Change a branding setting:
+
+	$ axway org branding update <org> --header-left <color> --header-right <color> --tile-border <color> --tile-border-hover <color>
+
+### Organization IdP
+
+TBD
+
+### Account Management
+
+View an account including organizations and roles:
+
+	$ axway user view
+
+Update your account information:
+
+	$ axway user update --first-name <name> --last-name <name>
+
+View your user activity:
+
+	$ axway user activity --from [yyyy-mm-dd] --to [yyyy-mm-dd]
 
 ## Legal
 

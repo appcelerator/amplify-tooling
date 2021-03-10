@@ -42,6 +42,9 @@
       "org": {
         "main": "./dist/org"
       },
+      "team": {
+        "main": "./dist/team"
+      },
       "user": {
         "main": "./dist/user"
       }

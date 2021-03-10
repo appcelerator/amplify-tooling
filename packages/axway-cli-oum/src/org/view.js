@@ -1,12 +1,12 @@
 export default {
-	aliases: [ 'v', '!info' ],
+	aliases: [ '!info' ],
 	args: [
 		{
 			name: 'org',
 			desc: 'The organization name, id, or guid; defaults to the current org'
 		}
 	],
-	desc: 'View organization details',
+	desc: 'View organization information',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON'
@@ -59,11 +59,11 @@ export default {
 		console.log(subs.toString());
 
 		if (org.childOrgs) {
-			const children = createTable([ '  Name', 'ID', 'Date Created', 'Status', 'Members' ]);
+			const children = createTable([ '  Name', 'GUID', 'Date Created', 'Status', 'Members' ]);
 			for (const o of org.childOrgs) {
 				children.push([
 					`  ${o.name}`,
-					o.id,
+					o.guid,
 					new Date(o.created).toLocaleDateString(),
 					o.active ? 'Active' : 'Inactive',
 					o.userCount

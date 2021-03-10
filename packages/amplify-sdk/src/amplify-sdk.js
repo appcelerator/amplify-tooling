@@ -166,10 +166,10 @@ export default class AmplifySDK {
 				account = await this.auth.findSession(account);
 				await this.client.updateAccount(account);
 
-				log(`Current org: ${highlight(account.org.name)} ${note(`(${account.org.id})`)}`);
+				log(`Current org: ${highlight(account.org.name)} ${note(`(${account.org.guid})`)}`);
 				log('Available orgs:');
 				for (const org of account.orgs) {
-					log(`  ${highlight(org.name)} ${note(`(${org.id})`)}`);
+					log(`  ${highlight(org.name)} ${note(`(${org.guid})`)}`);
 				}
 
 				return account;
@@ -430,7 +430,7 @@ export default class AmplifySDK {
 					category:   s.product,  // TODO: Replace with annotated name
 					edition:    s.plan,     // TODO: Replace with annotated name
 					expired:    !!s.expired,
-					governance: s.governance,
+					governance: s.governance || 'SaaS',
 					startDate:  s.start_date,
 					endDate:    s.end_date,
 					tier:       s.tier
