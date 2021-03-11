@@ -41,12 +41,15 @@
   "cli-kit": {
     "exports": {
       "org": {
+        "desc": "Manage AMPLIFY platform organizations",
         "main": "./dist/org"
       },
       "team": {
+        "desc": "Manage AMPLIFY platform teams",
         "main": "./dist/team"
       },
       "user": {
+        "desc": "Manage AMPLIFY platform users",
         "main": "./dist/user"
       }
     }
