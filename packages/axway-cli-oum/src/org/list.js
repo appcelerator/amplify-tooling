@@ -9,7 +9,6 @@ export default {
 		const { initPlatformAccount } = require('../lib/util');
 		const { createTable } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
-		const { highlight } = snooplogg.styles;
 		const { account, config, sdk } = await initPlatformAccount(argv.account, argv.org);
 
 		const orgs = await sdk.org.list(account, config.get(`auth.defaultOrg.${account.hash}`));
@@ -19,6 +18,7 @@ export default {
 			return;
 		}
 
+		const { green, highlight } = snooplogg.styles;
 		console.log(`Account: ${highlight(account.name)}\n`);
 
 		if (!orgs.length) {
@@ -26,13 +26,12 @@ export default {
 			return;
 		}
 
-		const { green } = snooplogg.styles;
 		const table = createTable([ 'Organization', 'GUID', 'ID' ]);
 		const check = process.platform === 'win32' ? '√' : '✔';
 
-		for (const { name, guid, id, active } of orgs) {
+		for (const { default: def, guid, id, name } of orgs) {
 			table.push([
-				active ? green(`${check} ${name}`) : `  ${name}`,
+				def ? green(`${check} ${name}`) : `  ${name}`,
 				guid,
 				id
 			]);

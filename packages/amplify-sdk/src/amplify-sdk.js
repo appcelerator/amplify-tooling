@@ -397,33 +397,58 @@ export default class AmplifySDK {
 			}
 		};
 
+		const getActivity = async (account, params) => {
+			let { from, to } = resolveDateRange(params.from, params.to);
+			let url = '/api/v1/activity?data=true';
+
+			if (params.orgId) {
+				url += `&org_id=${params.orgId}`;
+			}
+
+			if (params.userGuid) {
+				url += `&user_guid=${params.userGuid}`;
+			}
+
+			if (from) {
+				from = from.toISOString();
+				url += `&from=${from}`;
+			}
+
+			if (to) {
+				to = to.toISOString();
+				url += `&to=${to}`;
+			}
+
+			return {
+				from,
+				to,
+				events: await this.request(url, account, {
+					errorMsg: 'Failed to get user activity'
+				})
+			};
+		};
+
 		this.org = {
+			activity: async (account, params) => {
+				assertPlatformAccount(account);
+
+				const { id: orgId } = resolveOrg(account, params.org);
+				return await getActivity(account, {
+					...params,
+					orgId
+				});
+			},
+
 			/**
 			 * Retrieves organization details for an account.
 			 * @param {Object} account - The account object.
 			 * @param {String} org - The name, id, or guid of the organization to get info for.
 			 * @returns {Promise<Array>}
 			 */
-			get: async (account, org) => {
-				if (!account || typeof account !== 'object') {
-					throw E.INVALID_ACCOUNT('Account required');
-				}
+			find: async (account, org) => {
+				assertPlatformAccount(account);
 
-				if (!account.isPlatform) {
-					throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
-				}
-
-				const found = account.orgs.find(o => {
-					return o.guid.toLowerCase() === String(org).toLowerCase()
-						|| o.id === ~~org
-						|| o.name.toLowerCase() === String(org).toLowerCase();
-				});
-
-				if (!found) {
-					throw new Error(`Unable to find an organization "${org}"`);
-				}
-				const { id } = found;
-
+				const { id } = resolveOrg(account, org);
 				org = await this.request(`/api/v1/org/${id}`, account, {
 					errorMsg: 'Failed to get organization'
 				});
@@ -450,7 +475,7 @@ export default class AmplifySDK {
 					insightUserCount: ~~org.entitlements.limit_read_only_users,
 					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
 					subscriptions,
-					teamCount:        (await this.org.getTeams(account, id)).length,
+					teamCount:        (await this.team.list(account, id)).length,
 					userCount:        org.users.length
 				};
 
@@ -466,7 +491,7 @@ export default class AmplifySDK {
 					};
 				} else {
 					// check for children
-					const { children } = await this.org.getFamily(account, id);
+					const { children } = await this.org.family(account, id);
 					result.childOrgs = children.map(o => ({
 						active:    o.active,
 						created:   o.created,
@@ -485,21 +510,12 @@ export default class AmplifySDK {
 			 * @param {Object} account - The account object.
 			 * @returns {Promise<Array>}
 			 */
-			getEnvironments: account => this.request('/api/v1/org/env', account, {
+			environments: account => this.request('/api/v1/org/env', account, {
 				errorMsg: 'Failed to get organization environments'
 			}),
 
-			getFamily: (account, orgId) => this.request(`/api/v1/org/${orgId}/family`, account, {
+			family: (account, orgId) => this.request(`/api/v1/org/${orgId}/family`, account, {
 				errorMsg: 'Failed to get organization family'
-			}),
-
-			getMembers: async (account, orgId) => {
-				// TODO
-				return [];
-			},
-
-			getTeams: (account, orgId) => this.request(`/api/v1/team?org_id=${orgId}`, account, {
-				errorMsg: 'Failed to get organization teams'
 			}),
 
 			/**
@@ -519,52 +535,74 @@ export default class AmplifySDK {
 
 				// if we have a defaultOrg, we need to copy the orgs, then mutate
 
+				const { guid } = resolveOrg(account, defaultOrg);
+
 				return account.orgs.map(o => ({
 					...o,
-					default: o.guid.toLowerCase() === String(defaultOrg).toLowerCase()
-						|| o.id === ~~defaultOrg
-						|| o.name.toLowerCase() === String(defaultOrg).toLowerCase()
-				}));
+					default: o.guid === guid
+				})).sort((a, b) => a.name.localeCompare(b.name));
 			},
 
 			rename: async (account, org, name) => {
-				if (!account || typeof account !== 'object') {
-					throw E.INVALID_ACCOUNT('Account required');
-				}
+				assertPlatformAccount(account);
 
-				if (!account.isPlatform) {
-					throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
-				}
-
-				const found = account.orgs.find(o => {
-					return o.guid.toLowerCase() === String(org).toLowerCase()
-						|| o.id === ~~org
-						|| o.name.toLowerCase() === String(org).toLowerCase();
-				});
-
-				if (!found) {
-					throw new Error(`Unable to find an organization "${org}"`);
-				}
+				const { id, name: oldName } = resolveOrg(account, org);
 
 				if (typeof name !== 'string' || !(name = name.trim())) {
 					throw new TypeError('Organization name must be a non-empty string');
 				}
 
-				const result = await this.request(`/api/v1/org/${found.id}`, account, {
+				const result = await this.request(`/api/v1/org/${id}`, account, {
 					errorMsg: 'Failed to rename organization',
 					json: { name },
 					method: 'put'
 				});
 
-				result.oldName = found.name;
+				result.oldName = oldName;
 
 				return result;
+			},
+
+			usage: async (account, org, params = {}) => {
+				const { id } = resolveOrg(account, org);
+				const { from, to } = resolveDateRange(params.from, params.to);
+				let url = `/api/v1/org/${id}/usage`;
+
+				if (from) {
+					url += `?from=${from.toISOString()}`;
+				}
+
+				if (to) {
+					url += `${from ? '&' : '?'}to=${to.toISOString()}`;
+				}
+
+				return await this.request(url, account, {
+					errorMsg: 'Failed to get organization usage'
+				});
 			}
 		};
 
 		this.team = {
 			create: async ({ account, org, name, description, tags }) => {
+				assertPlatformAccount(account);
+
 				// org_guid
+			},
+
+			find: async (account, teamGuid) => {
+				assertPlatformAccount(account);
+				return await this.request(`/api/v1/team/${teamGuid}`, account, {
+					errorMsg: 'Failed to get team'
+				});
+			},
+
+			list: async (account, org) => {
+				assertPlatformAccount(account);
+				const { id } = resolveOrg(account, org);
+				const teams = await this.request(`/api/v1/team?org_id=${id}`, account, {
+					errorMsg: 'Failed to get organization teams'
+				});
+				return teams.sort((a, b) => a.name.localeCompare(b.name));
 			}
 		};
 
@@ -758,38 +796,10 @@ export default class AmplifySDK {
 		this.user = {
 			activity: async (account, params) => {
 				assertPlatformAccount(account);
-
-				const tsRE = /^\d{4}-\d{2}-\d{2}$/;
-				let url = `/api/v1/activity?user_guid=${account.user.guid}&data=true`;
-				let ts;
-				let from;
-				let to = null;
-
-				if (params.from) {
-					if (!tsRE.test(params.from) || isNaN(ts = Date.parse(`${params.from} 00:00:00 GMT`))) {
-						throw new Error('Expected "from" date to be in the format YYYY-MM-DD');
-					}
-					from = new Date(ts);
-					url += `&from=${from.toISOString()}`;
-				} else {
-					from = new Date(Date.now() - (14 * 24 * 60 * 60 * 1000)); // 14 days
-				}
-
-				if (params.to) {
-					if (!tsRE.test(params.to) || isNaN(ts = Date.parse(`${params.to} 23:59:59 GMT`))) {
-						throw new Error('Expected "to" date to be in the format YYYY-MM-DD');
-					}
-					to = new Date(ts);
-					url += `&to=${to.toISOString()}`;
-				}
-
-				return {
-					from,
-					to,
-					events: await this.request(url, account, {
-						errorMsg: 'Failed to get user activity'
-					})
-				};
+				return await getActivity(account, {
+					...params,
+					userGuid: account.user.guid
+				});
 			},
 
 			update: async (account, info) => {
@@ -937,4 +947,47 @@ function assertPlatformAccount(account) {
 	if (!account.isPlatform) {
 		throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
 	}
+}
+
+function resolveDateRange(from, to) {
+	const r = {
+		from: null,
+		to: null
+	};
+	const tsRE = /^\d{4}-\d{2}-\d{2}$/;
+	let ts;
+
+	if (from) {
+		if (!tsRE.test(from) || isNaN(ts = Date.parse(`${from} 00:00:00 GMT`))) {
+			throw new Error('Expected "from" date to be in the format YYYY-MM-DD');
+		}
+		r.from = new Date(ts);
+	} else {
+		r.from = new Date(Date.now() - (14 * 24 * 60 * 60 * 1000)); // 14 days
+	}
+
+	if (to) {
+		if (!tsRE.test(to) || isNaN(ts = Date.parse(`${to} 23:59:59 GMT`))) {
+			throw new Error('Expected "to" date to be in the format YYYY-MM-DD');
+		}
+		r.to = new Date(ts);
+	} else {
+		r.to = new Date();
+	}
+
+	return r;
+}
+
+function resolveOrg(account, org) {
+	const found = account.orgs.find(o => {
+		return o.guid.toLowerCase() === String(org).toLowerCase()
+			|| o.id === ~~org
+			|| o.name.toLowerCase() === String(org).toLowerCase();
+	});
+
+	if (!found) {
+		throw new Error(`Unable to find an organization "${org}"`);
+	}
+
+	return found;
 }
