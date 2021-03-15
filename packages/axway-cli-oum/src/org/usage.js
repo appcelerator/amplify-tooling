@@ -16,7 +16,6 @@ export default {
 		const { initPlatformAccount } = require('../lib/util');
 		const { createTable } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		org = await sdk.org.find(account, org);
 		const results = await sdk.org.usage(account, org.id, argv);
 
 		if (argv.json) {
@@ -54,89 +53,5 @@ export default {
 			]);
 		}
 		console.log(table.toString());
-
-		// API Calls 10,000,000 calls 0
-		// Push Notifications 8,640,000 calls 0
-		// File Storage 100 GB 0
-		// Database Storage 100 GB <0.01
-		// Container Points 4,500 points 0
-		// Analytics Events 100,000,000 events
-
-		// 	{
-		// 		"usage": {
-		// 		  "SaaS": {
-		// 			"apiRateMonth": {
-		// 			  "name": "API Calls",
-		// 			  "quota": 10000000,
-		// 			  "value": 0,
-		// 			  "unit": "calls",
-		// 			  "percent": 0,
-		// 			  "envs": {}
-		// 			},
-		// 			"pushRateMonth": {
-		// 			  "name": "Push Notifications",
-		// 			  "quota": 8640000,
-		// 			  "value": 0,
-		// 			  "unit": "calls",
-		// 			  "percent": 0,
-		// 			  "envs": {}
-		// 			},
-		// 			"storageFilesGB": {
-		// 			  "name": "File Storage",
-		// 			  "quota": 100,
-		// 			  "value": 0,
-		// 			  "unit": "GB",
-		// 			  "percent": 0,
-		// 			  "envs": {}
-		// 			},
-		// 			"storageDatabaseGB": {
-		// 			  "name": "Database Storage",
-		// 			  "quota": 100,
-		// 			  "value": 0.000003188,
-		// 			  "unit": "GB",
-		// 			  "percent": 0,
-		// 			  "envs": {
-		// 				"default": {
-		// 				  "quota": 100,
-		// 				  "value": 0.000003188,
-		// 				  "production": false
-		// 				}
-		// 			  }
-		// 			},
-		// 			"containerPoints": {
-		// 			  "name": "Container Points",
-		// 			  "quota": 4500,
-		// 			  "value": 0,
-		// 			  "unit": "points",
-		// 			  "percent": 0,
-		// 			  "envs": {
-		// 				"default": {
-		// 				  "value": 0,
-		// 				  "quota": 4500
-		// 				}
-		// 			  }
-		// 			},
-		// 			"eventRateMonth": {
-		// 			  "name": "Analytics Events",
-		// 			  "quota": 100000000,
-		// 			  "value": 0,
-		// 			  "unit": "events",
-		// 			  "percent": 0,
-		// 			  "envs": {}
-		// 			}
-		// 		  }
-		// 		},
-		// 		"limit_users": 100,
-		// 		"limit_read_only_users": 3,
-		// 		"users": 2,
-		// 		"read_only_users": 0,
-		// 		"collaborators": 0,
-		// 		"apps": 1,
-		// 		"apis": 3,
-		// 		"apisArrow": 1,
-		// 		"apisArrowDB": 2,
-		// 		"ending": "2021-03-31T23:59:59.999Z",
-		// 		"basis": "EOM"
-		// 	  }
 	}
 };

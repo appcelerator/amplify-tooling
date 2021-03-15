@@ -17,7 +17,29 @@ export default {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON'
 	},
-	async action({ argv, console }) {
-		console.log('Remove org member');
+	async action({ argv, cli, console }) {
+		const { initPlatformAccount } = require('../../lib/util');
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { default: snooplogg } = require('snooplogg');
+		const { highlight, note } = snooplogg.styles;
+
+		if (!argv.json) {
+			console.log(`Account:      ${highlight(account.name)}`);
+			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		}
+
+		await sdk.org.removeMember(account, org.id, argv.user);
+
+		if (argv.json) {
+			console.log(JSON.stringify({ success: true }, null, 2));
+		} else {
+			console.log('Successfully removed user from organization');
+		}
+
+		await cli.emitAction('axway:oum:org:member:remove', {
+			account: account.name,
+			org,
+			user: argv.user
+		});
 	}
 };

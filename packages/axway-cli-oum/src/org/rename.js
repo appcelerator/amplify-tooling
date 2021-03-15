@@ -21,16 +21,14 @@ export default {
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight } = snooplogg.styles;
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const result = await sdk.org.rename(account, org, argv.name);
+		const result = await sdk.org.rename(account, org.guid, argv.name);
 
 		if (argv.json) {
 			console.log(JSON.stringify(result, null, 2));
-			return;
+		} else {
+			console.log(`Account: ${highlight(account.name)}\n`);
+			console.log(`Successfully renamed "${result.oldName}" to "${result.name}"`);
 		}
-
-		console.log(`Account: ${highlight(account.name)}\n`);
-
-		console.log(`Successfully renamed "${result.oldName}" to "${result.name}"`);
 
 		await cli.emitAction('axway:oum:org:rename', result);
 	}

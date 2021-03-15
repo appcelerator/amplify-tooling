@@ -20,7 +20,9 @@ export default {
 			multiple: true
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		console.log('Add team member');
+
+		// await cli.emitAction('axway:oum:team:member:add', result);
 	}
 };

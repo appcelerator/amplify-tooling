@@ -20,7 +20,9 @@ export default {
 			multiple: true
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		console.log('Update org member (roles)');
+
+		// await cli.emitAction('axway:oum:org:member:update', result);
 	}
 };

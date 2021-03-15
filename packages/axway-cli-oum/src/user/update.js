@@ -12,7 +12,7 @@ export default {
 		},
 		'--phone [value]': 'Your phone number'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../lib/util');
 		const { account, sdk } = await initPlatformAccount(argv.account, argv.org);
 		const info = {};
@@ -38,14 +38,15 @@ export default {
 
 		if (argv.json) {
 			console.log(JSON.stringify(user, null, 2));
-			return;
+		} else {
+			const { default: snooplogg } = require('snooplogg');
+			const { highlight } = snooplogg.styles;
+
+			for (const key of Object.keys(info)) {
+				console.log(`Updated ${highlight(labels[key])} to ${highlight(`"${user[key]}"`)}`);
+			}
 		}
 
-		const { default: snooplogg } = require('snooplogg');
-		const { highlight } = snooplogg.styles;
-
-		for (const [ key, value ] of Object.entries(info)) {
-			console.log(`Updated ${highlight(labels[key])} to ${highlight(`"${user[key]}"`)}`);
-		}
+		await cli.emitAction('axway:oum:user:update', user);
 	}
 };

@@ -12,7 +12,9 @@ export default {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		console.log('Removing team from org');
+
+		// await cli.emitAction('axway:oum:team:remove', result);
 	}
 };

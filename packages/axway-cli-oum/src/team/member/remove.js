@@ -17,7 +17,9 @@ export default {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		console.log('Remove team member');
+
+		// await cli.emitAction('axway:oum:team:member:remove', result);
 	}
 };

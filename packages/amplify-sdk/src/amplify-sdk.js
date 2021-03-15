@@ -432,10 +432,21 @@ export default class AmplifySDK {
 			activity: async (account, params) => {
 				assertPlatformAccount(account);
 
-				const { id: orgId } = resolveOrg(account, params.org);
+				const { id: orgId } = this.resolveOrg(account, params.org);
 				return await getActivity(account, {
 					...params,
 					orgId
+				});
+			},
+
+			addMember: async (account, orgId, user, roles) => {
+				assertPlatformAccount(account);
+				return await this.request(`/api/v1/org/${orgId}/user`, account, {
+					errorMsg: 'Failed to add member to organization',
+					json: {
+						email: user,
+						roles
+					}
 				});
 			},
 
@@ -448,7 +459,7 @@ export default class AmplifySDK {
 			find: async (account, org) => {
 				assertPlatformAccount(account);
 
-				const { id } = resolveOrg(account, org);
+				const { id } = this.resolveOrg(account, org);
 				org = await this.request(`/api/v1/org/${id}`, account, {
 					errorMsg: 'Failed to get organization'
 				});
@@ -514,9 +525,12 @@ export default class AmplifySDK {
 				errorMsg: 'Failed to get organization environments'
 			}),
 
-			family: (account, orgId) => this.request(`/api/v1/org/${orgId}/family`, account, {
-				errorMsg: 'Failed to get organization family'
-			}),
+			family: async (account, orgId) => {
+				assertPlatformAccount(account);
+				return await this.request(`/api/v1/org/${orgId}/family`, account, {
+					errorMsg: 'Failed to get organization family'
+				});
+			},
 
 			/**
 			 * Retrieves the list of orgs from the specified account.
@@ -525,9 +539,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Array>}
 			 */
 			list: async (account, defaultOrg) => {
-				if (!account || typeof account !== 'object') {
-					throw new TypeError('Account required');
-				}
+				assertPlatformAccount(account);
 
 				if (defaultOrg === undefined) {
 					return account.orgs;
@@ -535,7 +547,7 @@ export default class AmplifySDK {
 
 				// if we have a defaultOrg, we need to copy the orgs, then mutate
 
-				const { guid } = resolveOrg(account, defaultOrg);
+				const { guid } = this.resolveOrg(account, defaultOrg);
 
 				return account.orgs.map(o => ({
 					...o,
@@ -543,10 +555,27 @@ export default class AmplifySDK {
 				})).sort((a, b) => a.name.localeCompare(b.name));
 			},
 
+			listMembers: async (account, org) => {
+				assertPlatformAccount(account);
+				const { id } = this.resolveOrg(account, org);
+				const members = await this.request(`/api/v1/org/${id}/user`, account, {
+					errorMsg: 'Failed to get organization members'
+				});
+				return members.sort((a, b) => a.name.localeCompare(b.name));
+			},
+
+			removeMember: async (account, orgId, userGuid) => {
+				assertPlatformAccount(account);
+				return await this.request(`/api/v1/org/${orgId}/user/${userGuid}`, account, {
+					errorMsg: 'Failed to remove member to organization',
+					method: 'delete'
+				});
+			},
+
 			rename: async (account, org, name) => {
 				assertPlatformAccount(account);
 
-				const { id, name: oldName } = resolveOrg(account, org);
+				const { id, name: oldName } = this.resolveOrg(account, org);
 
 				if (typeof name !== 'string' || !(name = name.trim())) {
 					throw new TypeError('Organization name must be a non-empty string');
@@ -564,7 +593,9 @@ export default class AmplifySDK {
 			},
 
 			usage: async (account, org, params = {}) => {
-				const { id } = resolveOrg(account, org);
+				assertPlatformAccount(account);
+
+				const { id } = this.resolveOrg(account, org);
 				const { from, to } = resolveDateRange(params.from, params.to);
 				let url = `/api/v1/org/${id}/usage`;
 
@@ -598,7 +629,7 @@ export default class AmplifySDK {
 
 			list: async (account, org) => {
 				assertPlatformAccount(account);
-				const { id } = resolveOrg(account, org);
+				const { id } = this.resolveOrg(account, org);
 				const teams = await this.request(`/api/v1/team?org_id=${id}`, account, {
 					errorMsg: 'Failed to get organization teams'
 				});
@@ -802,6 +833,13 @@ export default class AmplifySDK {
 				});
 			},
 
+			find: async (account, userGuid) => {
+				assertPlatformAccount(account);
+				return await this.request(`/api/v1/user/${userGuid}`, account, {
+					errorMsg: 'Failed to get user information'
+				});
+			},
+
 			update: async (account, info) => {
 				assertPlatformAccount(account);
 
@@ -937,6 +975,20 @@ export default class AmplifySDK {
 			throw err;
 		}
 	}
+
+	resolveOrg(account, org) {
+		const found = account.orgs.find(o => {
+			return o.guid.toLowerCase() === String(org).toLowerCase()
+				|| o.id === ~~org
+				|| o.name.toLowerCase() === String(org).toLowerCase();
+		});
+
+		if (!found) {
+			throw new Error(`Unable to find an organization "${org}"`);
+		}
+
+		return found;
+	}
 }
 
 function assertPlatformAccount(account) {
@@ -976,18 +1028,4 @@ function resolveDateRange(from, to) {
 	}
 
 	return r;
-}
-
-function resolveOrg(account, org) {
-	const found = account.orgs.find(o => {
-		return o.guid.toLowerCase() === String(org).toLowerCase()
-			|| o.id === ~~org
-			|| o.name.toLowerCase() === String(org).toLowerCase();
-	});
-
-	if (!found) {
-		throw new Error(`Unable to find an organization "${org}"`);
-	}
-
-	return found;
 }

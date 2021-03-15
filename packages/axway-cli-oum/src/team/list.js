@@ -16,8 +16,7 @@ export default {
 		const { createTable } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-
-		const teams = await sdk.team.list(account, org);
+		const teams = await sdk.team.list(account, org.id);
 
 		if (argv.json) {
 			console.log(JSON.stringify(teams, null, 2));
@@ -25,7 +24,8 @@ export default {
 		}
 
 		const { green, highlight, note } = snooplogg.styles;
-		console.log(`Account: ${highlight(account.name)}\n`);
+		console.log(`Account:      ${highlight(account.name)}`);
+		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		if (!teams.length) {
 			console.log('No teams found');

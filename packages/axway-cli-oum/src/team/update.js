@@ -13,7 +13,9 @@ export default {
 		'--json': 'Outputs accounts as JSON',
 		'--name [value]': 'The team name'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		console.log('Update team info');
+
+		// await cli.emitAction('axway:oum:team:update', result);
 	}
 };

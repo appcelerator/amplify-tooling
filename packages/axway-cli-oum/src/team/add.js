@@ -11,13 +11,15 @@ export default {
 			required: true
 		}
 	],
-	desc: 'View organization team details',
+	desc: 'Add a member to a team',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--desc [value]': 'The description of the team',
 		'--json': 'Outputs accounts as JSON'
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		console.log('Add team to org');
+
+		// await cli.emitAction('axway:oum:team:add', result);
 	}
 };
