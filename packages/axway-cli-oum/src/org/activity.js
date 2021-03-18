@@ -16,11 +16,7 @@ export default {
 		const { initPlatformAccount } = require('../lib/util');
 		const { renderActivity } = require('../lib/activity');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const results = await sdk.org.activity(account, {
-			from: argv.from,
-			org: org.id,
-			to: argv.to
-		});
+		const results = await sdk.org.activity(account, org.guid, argv);
 
 		results.org = org;
 

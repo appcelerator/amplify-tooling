@@ -21,8 +21,28 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		console.log('Update org member (roles)');
+		const { initPlatformAccount } = require('../../lib/util');
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { default: snooplogg } = require('snooplogg');
+		const { highlight, note } = snooplogg.styles;
 
-		// await cli.emitAction('axway:oum:org:member:update', result);
+		if (!argv.json) {
+			console.log(`Account:      ${highlight(account.name)}`);
+			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		}
+
+		const results = await sdk.org.member.update(account, org.guid, argv.user, argv.role);
+
+		if (argv.json) {
+			console.log(JSON.stringify(results, null, 2));
+		} else {
+			console.log(`Successfully updated user role${results.roles === 1 ? '' : 's'}`);
+		}
+
+		await cli.emitAction('axway:oum:org:member:update', {
+			account: account.name,
+			org,
+			...results
+		});
 	}
 };

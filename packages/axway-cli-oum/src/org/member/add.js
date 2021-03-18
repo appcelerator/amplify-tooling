@@ -32,7 +32,7 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const { guid } = await sdk.org.addMember(account, org.id, argv.user, argv.role);
+		const { guid } = await sdk.org.member.add(account, org.guid, argv.user, argv.role);
 		const result = {
 			account: account.name,
 			org,
