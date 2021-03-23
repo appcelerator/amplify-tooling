@@ -15,26 +15,31 @@ export default {
 		const { initPlatformAccount } = require('../../lib/util');
 		const { createTable } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const members = await sdk.org.member.list(account, org.guid);
+		const { users } = await sdk.org.member.list(account, org);
 
 		if (argv.json) {
-			console.log(JSON.stringify(members, null, 2));
+			console.log(JSON.stringify({
+				account: account.name,
+				org,
+				users
+			}, null, 2));
 			return;
 		}
 
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
+
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-		if (!members.length) {
+		if (!users.length) {
 			console.log('No members found');
 			return;
 		}
 
 		const table = createTable([ 'Member', 'Email', 'GUID', 'Teams', 'Roles' ]);
 
-		for (const { email, guid, name, roles, teams } of members) {
+		for (const { email, guid, name, roles, teams } of users) {
 			table.push([
 				name,
 				email,

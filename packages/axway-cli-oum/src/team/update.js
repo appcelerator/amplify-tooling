@@ -14,8 +14,18 @@ export default {
 		'--name [value]': 'The team name'
 	},
 	async action({ argv, cli, console }) {
-		console.log('Update team info');
+		const { initPlatformAccount } = require('../../lib/util');
+		let { account, sdk } = await initPlatformAccount(argv.account);
+		const { default: snooplogg } = require('snooplogg');
+		const { highlight, note } = snooplogg.styles;
 
-		// await cli.emitAction('axway:oum:team:update', result);
+		const result = await sdk.team.update(account, argv.team, {
+			desc: argv.desc,
+			name: argv.name
+		});
+
+		console.log(result);
+
+		await cli.emitAction('axway:oum:team:update', result);
 	}
 };

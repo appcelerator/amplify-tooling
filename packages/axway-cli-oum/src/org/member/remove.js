@@ -28,7 +28,7 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		await sdk.org.member.remove(account, org.guid, argv.user);
+		await sdk.org.member.remove(account, org, argv.user);
 
 		if (argv.json) {
 			console.log(JSON.stringify({ success: true }, null, 2));

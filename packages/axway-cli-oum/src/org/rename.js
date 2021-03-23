@@ -21,10 +21,13 @@ export default {
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight } = snooplogg.styles;
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const result = await sdk.org.rename(account, org.guid, argv.name);
+		const result = await sdk.org.rename(account, org, argv.name);
 
 		if (argv.json) {
-			console.log(JSON.stringify(result, null, 2));
+			console.log(JSON.stringify({
+				account: account.name,
+				...result
+			}, null, 2));
 		} else {
 			console.log(`Account: ${highlight(account.name)}\n`);
 			console.log(`Successfully renamed "${result.oldName}" to "${result.name}"`);

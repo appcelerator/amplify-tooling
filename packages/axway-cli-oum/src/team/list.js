@@ -16,7 +16,7 @@ export default {
 		const { createTable } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const teams = await sdk.team.list(account, org.id);
+		const { teams } = await sdk.team.list(account, org);
 
 		if (argv.json) {
 			console.log(JSON.stringify(teams, null, 2));

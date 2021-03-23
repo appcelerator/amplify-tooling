@@ -1,6 +1,6 @@
 export default {
 	desc: 'Change your log in credentials',
-	async action({ argv, console }) {
+	async action({ console }) {
 		const { initSDK } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight } = snooplogg.styles;

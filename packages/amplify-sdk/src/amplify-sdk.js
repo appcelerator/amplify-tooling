@@ -552,12 +552,6 @@ export default class AmplifySDK {
 			list: async (account, defaultOrg) => {
 				assertPlatformAccount(account);
 
-				if (defaultOrg === undefined) {
-					return account.orgs;
-				}
-
-				// if we have a defaultOrg, we need to copy the orgs, then mutate
-
 				const { guid } = this.resolveOrg(account, defaultOrg);
 
 				return account.orgs.map(o => ({
@@ -573,7 +567,7 @@ export default class AmplifySDK {
 						errorMsg: 'Failed to add member to organization',
 						json: {
 							email: user,
-							roles: await this.resolveRoles(account, roles)
+							roles: await this.org.resolveRoles(account, roles)
 						}
 					});
 				},
@@ -585,38 +579,41 @@ export default class AmplifySDK {
 				},
 
 				list: async (account, org) => {
-					const { id } = this.resolveOrg(account, org);
-					const members = await this.request(`/api/v1/org/${id}/user`, account, {
+					org = this.resolveOrg(account, org);
+					const members = await this.request(`/api/v1/org/${org.id}/user`, account, {
 						errorMsg: 'Failed to get organization members'
 					});
-					return members.sort((a, b) => a.name.localeCompare(b.name));
+					return {
+						org,
+						users: members.sort((a, b) => a.name.localeCompare(b.name))
+					};
 				},
 
 				remove: async (account, org, user) => {
-					const { id } = this.resolveOrg(account, org);
-					const member = await this.org.member.find(account, org, user);
+					org = this.resolveOrg(account, org);
+					const member = await this.org.member.find(account, org.guid, user);
 
 					if (!member) {
 						throw new Error(`User "${user}" not found`);
 					}
 
-					return await this.request(`/api/v1/org/${id}/user/${member.guid}`, account, {
-						errorMsg: 'Failed to remove member to organization',
+					return await this.request(`/api/v1/org/${org.id}/user/${member.guid}`, account, {
+						errorMsg: 'Failed to remove member from organization',
 						method: 'delete'
 					});
 				},
 
 				update: async (account, org, user, roles) => {
-					const { id } = this.resolveOrg(account, org);
-					const member = await this.org.member.find(account, org, user);
+					org = this.resolveOrg(account, org);
+					const member = await this.org.member.find(account, org.guid, user);
 
 					if (!member) {
 						throw new Error(`User "${user}" not found`);
 					}
 
-					roles = await this.resolveRoles(account, roles);
+					roles = await this.org.resolveRoles(account, roles);
 
-					await this.request(`/api/v1/org/${id}/user/${member.guid}`, account, {
+					org = await this.request(`/api/v1/org/${org.id}/user/${member.guid}`, account, {
 						errorMsg: 'Failed to update member\'s organization roles',
 						json: {
 							roles
@@ -625,8 +622,9 @@ export default class AmplifySDK {
 					});
 
 					return {
-						user: member,
-						roles
+						org,
+						roles,
+						user: member
 					};
 				}
 			},
@@ -649,6 +647,36 @@ export default class AmplifySDK {
 				return result;
 			},
 
+			resolveRoles: async (account, roles) => {
+				if (!Array.isArray(roles)) {
+					throw new TypeError('Expected roles to be an array');
+				}
+
+				const allowedRoles = await this.role.list(account);
+				const defaultRoles = allowedRoles.filter(r => r.default);
+
+				if (!roles.length) {
+					throw new Error(`Expected at least one of the following roles: ${defaultRoles.map(r => r.id).join(', ')}`);
+				}
+
+				roles = roles
+					.flatMap(role => role.split(','))
+					.map(role => {
+						const lr = role.toLowerCase().trim();
+						const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
+						if (!found) {
+							throw new Error(`Invalid role "${role}", expected one of the following: ${allowedRoles.map(r => r.id).join(', ')}`);
+						}
+						return found.id;
+					});
+
+				if (!roles.some(r => defaultRoles.includes(r))) {
+					throw new Error(`You must specify a default role: ${defaultRoles.map(r => r.id).join(', ')}`);
+				}
+
+				return roles;
+			},
+
 			usage: async (account, org, params = {}) => {
 				const { id } = this.resolveOrg(account, org);
 				const { from, to } = resolveDateRange(params.from, params.to);
@@ -669,65 +697,200 @@ export default class AmplifySDK {
 		};
 
 		this.role = {
-			list: account => this.request('/api/v1/role', account, {
-				errorMsg: 'Failed to get roles'
-			})
+			list: (account, params) => this.request(
+				`/api/v1/role${params ? `?${new URLSearchParams(params).toString()}` : ''}`,
+				account,
+				{ errorMsg: 'Failed to get roles' }
+			)
 		};
 
 		this.team = {
-			create: async ({ account, org, name, description, tags }) => {
-				assertPlatformAccount(account);
+			create: async (account, org, name, { desc, isDefault, tags } = {}) => {
+				const { guid } = this.resolveOrg(account, org);
 
-				// org_guid
+				if (!name || typeof name !== 'string') {
+					throw E.INVALID_ARGUMENT('Expected name to be a non-empty string');
+				}
+
+				if (tags !== undefined && !Array.isArray(tags)) {
+					throw E.INVALID_ARGUMENT('Expected tags to be an array of strings');
+				}
+
+				return await this.request('/api/v1/team', account, {
+					errorMsg: 'Failed to add team to organization',
+					json: {
+						desc,
+						default: isDefault || undefined,
+						name,
+						org_guid: guid,
+						tags
+					}
+				});
 			},
 
-			find: async (account, teamGuid) => {
+			find: async (account, team) => {
 				assertPlatformAccount(account);
-				return await this.request(`/api/v1/team/${teamGuid}`, account, {
-					errorMsg: 'Failed to get team'
-				});
+
+				if (!team || typeof team !== 'string') {
+					throw E.INVALID_ARGUMENT('Expected team to be a name or guid');
+				}
+
+				try {
+					return await this.request(`/api/v1/team/${team}`, account, {
+						errorMsg: 'Failed to get team'
+					});
+				} catch (e) {
+					// maybe `team` is a name?
+					return (await this.request(`/api/v1/team?name=${team}`, account, {
+						errorMsg: 'Failed to get team'
+					}))[0];
+				}
 			},
 
 			list: async (account, org) => {
-				assertPlatformAccount(account);
-				const { id } = this.resolveOrg(account, org);
-				const teams = await this.request(`/api/v1/team?org_id=${id}`, account, {
+				org = this.resolveOrg(account, org);
+				const teams = await this.request(`/api/v1/team?org_id=${org.id}`, account, {
 					errorMsg: 'Failed to get organization teams'
 				});
-				return teams.sort((a, b) => a.name.localeCompare(b.name));
+				return {
+					org,
+					teams: teams.sort((a, b) => a.name.localeCompare(b.name))
+				};
 			},
 
 			member: {
-				add: async (account, teamGuid, user, roles) => {
-					assertPlatformAccount(account);
+				add: async (account, team, user, roles) => {
+					team = await this.team.find(account, team);
+					user = await this.user.find(account, user, team.org_guid);
+					return {
+						team: await this.request(`/api/v1/team/${team.guid}/user/${user.guid}`, account, {
+							errorMsg: 'Failed to add member to organization',
+							json: {
+								roles: await this.team.resolveRoles(account, roles)
+							}
+						}),
+						user
+					};
 				},
 
-				list: async (account, teamGuid) => {
-					assertPlatformAccount(account);
-					// const members = await this.request(`/api/v1/org/${id}/user`, account, {
-					// 	errorMsg: 'Failed to get organization members'
-					// });
-					// return members.sort((a, b) => a.name.localeCompare(b.name));
+				find: async (account, team, user) => {
+					let users;
+					({ team, users } = await this.team.member.list(account, team));
+					user = user.toLowerCase();
+					return {
+						user: users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user),
+						team
+					};
 				},
 
-				remove: async (account, teamGuid, userGuid) => {
-					assertPlatformAccount(account);
-					// return await this.request(`/api/v1/org/${id}/user/${userGuid}`, account, {
-					// 	errorMsg: 'Failed to remove member to organization',
-					// 	method: 'delete'
-					// });
+				list: async (account, team) => {
+					team = await this.team.find(account, team);
+					const { users: allUsers } = await this.org.member.list(account, team.org_guid);
+					return {
+						team,
+						users: team.users
+							.map(u => ({
+								...(allUsers.find(v => v.guid === u.guid) || {}),
+								roles: u.roles
+							}))
+							.sort((a, b) => a.name.localeCompare(b.name))
+					};
 				},
 
-				update: async (account, teamGuid, user, roles) => {
-					assertPlatformAccount(account);
-					// return await this.request(`/api/v1/org/${id}/user/${userGuid}`, account, {
-					// 	errorMsg: 'Failed to remove member to organization',
-					// 	json: {
-					// 		roles
-					// 	},
-					// 	method: 'put'
-					// });
+				remove: async (account, team, user) => {
+					let member;
+					({ user: member, team } = await this.team.member.find(account, team, user));
+
+					if (!member) {
+						throw new Error(`Member "${user}" not found`);
+					}
+
+					return await this.request(`/api/v1/team/${team.guid}/user/${member.guid}`, account, {
+						errorMsg: 'Failed to remove member from team',
+						method: 'delete'
+					});
+				},
+
+				update: async (account, team, user, roles) => {
+					let member;
+					({ user: member, team } = await this.team.member.find(account, team, user));
+
+					if (!member) {
+						throw new Error(`Member "${user}" not found`);
+					}
+
+					roles = await this.team.resolveRoles(account, roles);
+
+					team = await this.request(`/api/v1/team/${team.guid}/user/${member.guid}`, account, {
+						errorMsg: 'Failed to update member\'s organization roles',
+						json: {
+							roles
+						},
+						method: 'put'
+					});
+
+					return {
+						team,
+						user: member,
+						roles
+					};
 				}
+			},
+
+			resolveRoles: async (account, roles) => {
+				if (!Array.isArray(roles)) {
+					throw new TypeError('Expected roles to be an array');
+				}
+
+				const allowedRoles = await this.role.list(account, { team: true });
+
+				if (!roles.length) {
+					throw new Error(`Expected at least one of the following roles: ${allowedRoles.map(r => r.id).join(', ')}`);
+				}
+
+				roles = roles
+					.flatMap(role => role.split(','))
+					.map(role => {
+						const lr = role.toLowerCase().trim();
+						const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
+						if (!found) {
+							throw new Error(`Invalid role "${role}", expected one of the following: ${allowedRoles.map(r => r.id).join(', ')}`);
+						}
+						return found.id;
+					});
+
+				return roles;
+			},
+
+			remove: async (account, team) => {
+				team = await this.team.find(account, team);
+
+				return await this.request(`/api/v1/team/${team.guid}`, account, {
+					errorMsg: 'Failed to remove team',
+					method: 'delete'
+				});
+			},
+
+			update: async (account, team, params = {}) => {
+				team = await this.team.find(account, team);
+
+				if (!params || typeof params !== 'object') {
+					throw E.INVALID_ARGUMENT('Expected params to be an object');
+				}
+
+				if (params.desc === undefined && params.name === undefined) {
+					// nothing to do
+					return;
+				}
+
+				return await this.request(`/api/v1/team/${team.guid}`, account, {
+					errorMsg: 'Failed to update team',
+					json: {
+						desc: params.desc || undefined,
+						name: params.name || undefined
+					},
+					method: 'put'
+				});
 			}
 		};
 
@@ -924,9 +1087,21 @@ export default class AmplifySDK {
 				userGuid: account.user.guid
 			}),
 
-			find: async (account, userGuid) => {
+			find: async (account, user, org) => {
 				assertPlatformAccount(account);
-				return await this.request(`/api/v1/user/${userGuid}`, account, {
+
+				if (user.includes('@')) {
+					org = this.resolveOrg(account, org);
+					const { users: allUsers } = await this.org.member.list(account, org.guid);
+					const luser = user.toLowerCase();
+					const found = allUsers.find(u => u.email.toLowerCase() === luser);
+					if (!found) {
+						throw new Error(`Unable to find user "${user}"`);
+					}
+					user = found.guid;
+				}
+
+				return await this.request(`/api/v1/user/${user}`, account, {
 					errorMsg: 'Failed to get user information'
 				});
 			},
@@ -1070,6 +1245,10 @@ export default class AmplifySDK {
 	resolveOrg(account, org) {
 		assertPlatformAccount(account);
 
+		if (org && typeof org === 'object' && org.guid) {
+			return org;
+		}
+
 		if (typeof org !== 'string' && typeof org !== 'number') {
 			throw new TypeError('Expected organization identifier');
 		}
@@ -1084,32 +1263,10 @@ export default class AmplifySDK {
 			throw new Error(`Unable to find an organization "${org}"`);
 		}
 
+		log(`Resolved org "${org}" as ${found.name} (${found.id}) ${found.guid}`);
+
 		return found;
 	}
-
-	async resolveRoles(account, roles) {
-		if (!Array.isArray(roles)) {
-			throw new TypeError('Expected roles to be an array');
-		}
-
-		if (!roles.length) {
-			throw new Error('Expected at least one role');
-		}
-
-		const allowedRoles = await this.role.list(account);
-
-		return roles
-			.flatMap(role => role.split(','))
-			.map(role => {
-				const lr = role.toLowerCase().trim();
-				const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
-				if (!found) {
-					throw new Error(`Invalid role "${role}"`);
-				}
-				return found.id;
-			});
-	}
-
 }
 
 function assertPlatformAccount(account) {

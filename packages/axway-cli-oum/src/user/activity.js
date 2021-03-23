@@ -10,13 +10,15 @@ export default {
 		const { initPlatformAccount } = require('../lib/util');
 		const { renderActivity } = require('../lib/activity');
 		const { account, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const results = await sdk.user.activity(account, argv);
 
 		await renderActivity({
 			account,
 			console,
 			json: argv.json,
-			results
+			results: {
+				account: account.name,
+				...(await sdk.user.activity(account, argv))
+			}
 		});
 	}
 };

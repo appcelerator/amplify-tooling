@@ -31,7 +31,7 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const results = await sdk.org.member.update(account, org.guid, argv.user, argv.role);
+		const results = await sdk.org.member.update(account, org, argv.user, argv.role);
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
