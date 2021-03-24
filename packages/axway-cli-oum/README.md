@@ -48,7 +48,7 @@ Delete a member:
 
 List all organization teams:
 
-	$ axway team list <org>
+	$ axway team list [org]
 
 View a team's info:
 
@@ -56,7 +56,7 @@ View a team's info:
 
 Add a team to an org:
 
-	$ axway team add <org> <name> --desc [value]
+	$ axway team add <org> <name> --desc [value] --tag [tag1] --tag [tag2] --default
 
 Update a team:
 
@@ -64,7 +64,7 @@ Update a team:
 
 	$ axway team update <team> # shows help
 
-	$ axway team update <team> --name [value] --desc [value]
+	$ axway team update <team> --name [value] --desc [value] --tag [tag1] --tag [tag2] --default
 
 Remove a team from an org:
 

@@ -14,14 +14,23 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
-		const { createTable } = require('@axway/amplify-cli-utils');
 		let { account, sdk } = await initPlatformAccount(argv.account);
 		const team = await sdk.team.find(account, argv.team);
+
+		if (!team) {
+			throw new Error(`Unable to find team "${argv.team}"`);
+		}
+
 		const org = await sdk.org.find(account, team.org_guid);
-		const members = await sdk.team.member.list(account, team.guid);
+		const { users: members } = await sdk.team.member.list(account, team.guid);
 
 		if (argv.json) {
-			console.log(JSON.stringify(members, null, 2));
+			console.log(JSON.stringify({
+				account: account.name,
+				org,
+				team,
+				members
+			}, null, 2));
 			return;
 		}
 
@@ -37,6 +46,7 @@ export default {
 			return;
 		}
 
+		const { createTable } = require('@axway/amplify-cli-utils');
 		const table = createTable([ 'Member', 'Email', 'GUID', 'Teams', 'Roles' ]);
 
 		for (const { email, guid, name, roles, teams } of members) {

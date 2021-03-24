@@ -19,7 +19,11 @@ export default {
 		const org = await sdk.org.find(account, team.org_guid);
 
 		if (argv.json) {
-			console.log(JSON.stringify(team, null, 2));
+			console.log(JSON.stringify({
+				account: account.name,
+				org,
+				team
+			}, null, 2));
 			return;
 		}
 

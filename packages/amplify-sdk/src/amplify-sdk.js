@@ -562,20 +562,23 @@ export default class AmplifySDK {
 
 			member: {
 				add: async (account, org, user, roles) => {
-					const { id } = this.resolveOrg(account, org);
-					return await this.request(`/api/v1/org/${id}/user`, account, {
-						errorMsg: 'Failed to add member to organization',
-						json: {
-							email: user,
-							roles: await this.org.resolveRoles(account, roles)
-						}
-					});
+					org = this.resolveOrg(account, org);
+					return {
+						org,
+						user: await this.request(`/api/v1/org/${org.id}/user`, account, {
+							errorMsg: 'Failed to add member to organization',
+							json: {
+								email: user,
+								roles: await this.org.resolveRoles(account, roles)
+							}
+						})
+					};
 				},
 
 				find: async (account, org, user) => {
-					const members = await this.org.member.list(account, org);
+					const { users } = await this.org.member.list(account, org);
 					user = user.toLowerCase();
-					return members.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user);
+					return users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user);
 				},
 
 				list: async (account, org) => {
@@ -597,10 +600,14 @@ export default class AmplifySDK {
 						throw new Error(`User "${user}" not found`);
 					}
 
-					return await this.request(`/api/v1/org/${org.id}/user/${member.guid}`, account, {
-						errorMsg: 'Failed to remove member from organization',
-						method: 'delete'
-					});
+					return {
+						org,
+						user: member,
+						...(await this.request(`/api/v1/org/${org.id}/user/${member.guid}`, account, {
+							errorMsg: 'Failed to remove member from organization',
+							method: 'delete'
+						}))
+					};
 				},
 
 				update: async (account, org, user, roles) => {
@@ -653,7 +660,7 @@ export default class AmplifySDK {
 				}
 
 				const allowedRoles = await this.role.list(account);
-				const defaultRoles = allowedRoles.filter(r => r.default);
+				const defaultRoles = allowedRoles.filter(r => r.default).map(r => r.id);
 
 				if (!roles.length) {
 					throw new Error(`Expected at least one of the following roles: ${defaultRoles.map(r => r.id).join(', ')}`);
@@ -669,6 +676,8 @@ export default class AmplifySDK {
 						}
 						return found.id;
 					});
+
+				log(`Resolved roles: ${highlight(roles.join(', '))}`);
 
 				if (!roles.some(r => defaultRoles.includes(r))) {
 					throw new Error(`You must specify a default role: ${defaultRoles.map(r => r.id).join(', ')}`);
@@ -704,28 +713,71 @@ export default class AmplifySDK {
 			)
 		};
 
+		const prepareTeamInfo = (info = {}, prev) => {
+			if (!info || typeof info !== 'object') {
+				throw E.INVALID_ARGUMENT('Expected team info to be an object');
+			}
+
+			const changes = {};
+			const data = {};
+
+			// populate data
+			if (info.default !== undefined) {
+				data.default = !!info.default;
+			}
+			if (info.desc !== undefined) {
+				data.desc = String(info.desc).trim();
+			}
+			if (info.name !== undefined) {
+				data.name = String(info.name).trim();
+			}
+			if (info.tags !== undefined) {
+				if (!Array.isArray(info.tags)) {
+					throw E.INVALID_ARGUMENT('Expected team tags to be an array of strings');
+				}
+				data.tags = info.tags.flatMap(tag => tag.split(',')).map(tag => tag.trim());
+			}
+
+			// remove unchanged
+			if (prev) {
+				for (const key of Object.keys(data)) {
+					if (Array.isArray(data[key])) {
+						if (!(data[key] < prev[key] || data[key] > prev[key])) {
+							delete data[key];
+						}
+					} else if (data[key] === prev[key]) {
+						delete data[key];
+					} else {
+						changes[key] = {
+							v: data[key],
+							p: prev[key]
+						};
+					}
+				}
+			}
+
+			return { changes, data };
+		};
+
 		this.team = {
-			create: async (account, org, name, { desc, isDefault, tags } = {}) => {
-				const { guid } = this.resolveOrg(account, org);
+			create: async (account, org, name, info) => {
+				org = this.resolveOrg(account, org);
 
 				if (!name || typeof name !== 'string') {
 					throw E.INVALID_ARGUMENT('Expected name to be a non-empty string');
 				}
 
-				if (tags !== undefined && !Array.isArray(tags)) {
-					throw E.INVALID_ARGUMENT('Expected tags to be an array of strings');
-				}
+				const { data } = prepareTeamInfo(info);
+				data.name = name;
+				data.org_guid = org.guid;
 
-				return await this.request('/api/v1/team', account, {
-					errorMsg: 'Failed to add team to organization',
-					json: {
-						desc,
-						default: isDefault || undefined,
-						name,
-						org_guid: guid,
-						tags
-					}
-				});
+				return {
+					org,
+					team: await this.request('/api/v1/team', account, {
+						errorMsg: 'Failed to add team to organization',
+						json: data
+					})
+				};
 			},
 
 			find: async (account, team) => {
@@ -805,10 +857,15 @@ export default class AmplifySDK {
 						throw new Error(`Member "${user}" not found`);
 					}
 
-					return await this.request(`/api/v1/team/${team.guid}/user/${member.guid}`, account, {
+					await this.request(`/api/v1/team/${team.guid}/user/${member.guid}`, account, {
 						errorMsg: 'Failed to remove member from team',
 						method: 'delete'
 					});
+
+					return {
+						team,
+						user
+					};
 				},
 
 				update: async (account, team, user, roles) => {
@@ -865,32 +922,36 @@ export default class AmplifySDK {
 			remove: async (account, team) => {
 				team = await this.team.find(account, team);
 
-				return await this.request(`/api/v1/team/${team.guid}`, account, {
+				await this.request(`/api/v1/team/${team.guid}`, account, {
 					errorMsg: 'Failed to remove team',
 					method: 'delete'
 				});
+
+				return team;
 			},
 
-			update: async (account, team, params = {}) => {
+			update: async (account, team, info) => {
+				const origTeam = team;
 				team = await this.team.find(account, team);
 
-				if (!params || typeof params !== 'object') {
-					throw E.INVALID_ARGUMENT('Expected params to be an object');
+				if (!team) {
+					throw new Error(`Unale to find team "${origTeam}"`);
 				}
 
-				if (params.desc === undefined && params.name === undefined) {
-					// nothing to do
-					return;
+				const { changes, data } = prepareTeamInfo(info, team);
+
+				if (Object.keys(data).length) {
+					team = await this.request(`/api/v1/team/${team.guid}`, account, {
+						errorMsg: 'Failed to update team',
+						json: data,
+						method: 'put'
+					});
 				}
 
-				return await this.request(`/api/v1/team/${team.guid}`, account, {
-					errorMsg: 'Failed to update team',
-					json: {
-						desc: params.desc || undefined,
-						name: params.name || undefined
-					},
-					method: 'put'
-				});
+				return {
+					changes,
+					team
+				};
 			}
 		};
 
@@ -1090,6 +1151,10 @@ export default class AmplifySDK {
 			find: async (account, user, org) => {
 				assertPlatformAccount(account);
 
+				if (typeof user === 'object' && user?.guid) {
+					return user;
+				}
+
 				if (user.includes('@')) {
 					org = this.resolveOrg(account, org);
 					const { users: allUsers } = await this.org.member.list(account, org.guid);
@@ -1106,21 +1171,55 @@ export default class AmplifySDK {
 				});
 			},
 
-			update: async (account, info) => {
+			update: async (account, info = {}) => {
 				assertPlatformAccount(account);
 
-				await this.request(`/api/v1/user/profile/${account.user.guid}`, account, {
-					errorMsg: 'Failed to update user information',
-					json: {
-						firstname: info.firstname,
-						lastname:  info.lastname,
-						phone:     info.phone
-					},
-					method: 'put'
-				});
+				if (!info || typeof info !== 'object') {
+					throw E.INVALID_ARGUMENT('Expected user info to be an object');
+				}
 
-				log('Refreshing account information...');
-				return (await this.auth.loadSession(account)).user;
+				const changes = {};
+				const json = {};
+				let { user } = account;
+
+				// populate data
+				if (info.firstname !== undefined) {
+					json.firstname = String(info.firstname).trim();
+				}
+				if (info.lastname !== undefined) {
+					json.lastname = String(info.lastname).trim();
+				}
+				if (info.phone !== undefined) {
+					json.phone = String(info.phone).trim();
+				}
+
+				// remove unchanged
+				for (const key of Object.keys(json)) {
+					if (json[key] === user[key]) {
+						delete json[key];
+					} else {
+						changes[key] = {
+							v: json[key],
+							p: user[key]
+						};
+					}
+				}
+
+				if (Object.keys(json).length) {
+					await this.request(`/api/v1/user/profile/${user.guid}`, account, {
+						errorMsg: 'Failed to update user information',
+						json,
+						method: 'put'
+					});
+
+					log('Refreshing account information...');
+					({ user } = await this.auth.loadSession(account));
+				}
+
+				return {
+					changes,
+					user
+				};
 			}
 		};
 	}

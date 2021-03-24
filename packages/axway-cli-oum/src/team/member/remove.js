@@ -28,18 +28,22 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		await sdk.team.member.remove(account, argv.team, argv.user);
+		const { team, user } = await sdk.team.member.remove(account, argv.team, argv.user);
 
-		if (argv.json) {
-			console.log(JSON.stringify({ success: true }, null, 2));
-		} else {
-			console.log('Successfully removed user from team');
-		}
-
-		await cli.emitAction('axway:oum:team:member:remove', {
+		const results = {
 			account: account.name,
 			org,
-			user: argv.user
-		});
+			team,
+			user
+		};
+
+		if (argv.json) {
+			console.log(JSON.stringify(results, null, 2));
+		} else {
+			const name = `${user.firstname} ${user.lastname}`.trim();
+			console.log(`Successfully removed user ${highlight(name)} from the ${highlight(team.name)} team`);
+		}
+
+		await cli.emitAction('axway:oum:team:member:remove', results);
 	}
 };

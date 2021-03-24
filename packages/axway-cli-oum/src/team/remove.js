@@ -13,15 +13,27 @@ export default {
 		'--json': 'Outputs accounts as JSON'
 	},
 	async action({ argv, cli, console }) {
-		const { initPlatformAccount } = require('../../lib/util');
+		const { initPlatformAccount } = require('../lib/util');
 		let { account, sdk } = await initPlatformAccount(argv.account);
 		const { default: snooplogg } = require('snooplogg');
-		const { highlight, note } = snooplogg.styles;
+		const { highlight } = snooplogg.styles;
 
-		const result = await sdk.team.remove(account, argv.team);
+		if (!argv.json) {
+			console.log(`Account: ${highlight(account.name)}\n`);
+		}
 
-		console.log(result);
+		const team = await sdk.team.remove(account, argv.team);
+		const results = {
+			account: account.name,
+			team
+		};
 
-		await cli.emitAction('axway:oum:team:remove', result);
+		if (argv.json) {
+			console.log(JSON.stringify(results, null, 2));
+		} else {
+			console.log(`Successfully removed team ${highlight(team.name)}`);
+		}
+
+		await cli.emitAction('axway:oum:team:remove', results);
 	}
 };

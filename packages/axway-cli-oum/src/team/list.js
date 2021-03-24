@@ -13,17 +13,21 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../lib/util');
-		const { createTable } = require('@axway/amplify-cli-utils');
-		const { default: snooplogg } = require('snooplogg');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 		const { teams } = await sdk.team.list(account, org);
 
 		if (argv.json) {
-			console.log(JSON.stringify(teams, null, 2));
+			console.log(JSON.stringify({
+				account: account.name,
+				org,
+				teams
+			}, null, 2));
 			return;
 		}
 
+		const { default: snooplogg } = require('snooplogg');
 		const { green, highlight, note } = snooplogg.styles;
+
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
@@ -32,6 +36,7 @@ export default {
 			return;
 		}
 
+		const { createTable } = require('@axway/amplify-cli-utils');
 		const table = createTable([ 'Name', 'Description', 'GUID', 'Members', 'Apps', 'Date Created' ]);
 		const check = process.platform === 'win32' ? '√' : '✔';
 

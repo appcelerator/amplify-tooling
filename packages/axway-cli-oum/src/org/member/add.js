@@ -32,20 +32,20 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const { guid } = await sdk.org.member.add(account, org, argv.user, argv.role);
-		const result = {
-			account,
+		const { user } = await sdk.org.member.add(account, org, argv.user, argv.role);
+		const results = {
+			account: account.name,
 			org,
-			user: await sdk.user.find(account, guid)
+			user: await sdk.user.find(account, user.guid)
 		};
 
 		if (argv.json) {
-			console.log(JSON.stringify(result, null, 2));
+			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const name = `${result.user.firstname} ${result.user.lastname}`.trim();
+			const name = `${results.user.firstname} ${results.user.lastname}`.trim();
 			console.log(`Successfully added ${highlight(name)} to ${highlight(org.name)}`);
 		}
 
-		await cli.emitAction('axway:oum:org:member:add', result);
+		await cli.emitAction('axway:oum:org:member:add', results);
 	}
 };

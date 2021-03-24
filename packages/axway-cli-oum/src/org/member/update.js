@@ -31,18 +31,21 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const results = await sdk.org.member.update(account, org, argv.user, argv.role);
+		const { roles, user } = await sdk.org.member.update(account, org, argv.user, argv.role);
+
+		const results = {
+			account: account.name,
+			org,
+			user
+		};
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			console.log(`Successfully updated user role${results.roles === 1 ? '' : 's'}`);
+			const name = `${user.firstname} ${user.lastname}`.trim();
+			console.log(`Successfully updated role${roles === 1 ? '' : 's'} for ${highlight(name)}`);
 		}
 
-		await cli.emitAction('axway:oum:org:member:update', {
-			account: account.name,
-			org,
-			...results
-		});
+		await cli.emitAction('axway:oum:org:member:update', results);
 	}
 };

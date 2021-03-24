@@ -14,11 +14,12 @@ export default {
 	desc: 'Add a team to an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
+		'--default':        'Set the team as the default team',
 		'--desc [value]':   'The description of the team',
-		'--is-default':     'Set the team as the default team',
 		'--json':           'Outputs accounts as JSON',
 		'--tag [tag]': {
-			desc: '?',
+			aliases: '--tags',
+			desc: 'One or more tags to assign to this team',
 			multiple: true
 		}
 	},
@@ -28,23 +29,25 @@ export default {
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
-		if (!argv.json) {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-		}
-
-		const team = await sdk.team.create(account, org, argv.name, argv);
-
-		if (argv.json) {
-			console.log(JSON.stringify(team, null, 2));
-		} else {
-			console.log(`Successfully created team "${team.name}" ${note(`(${team.guid})`)}`);
-		}
-
-		await cli.emitAction('axway:oum:team:add', {
-			account,
+		const { team } = await sdk.team.create(account, org, argv.name, {
+			desc:    argv.desc,
+			default: argv.default,
+			tags:    argv.tag
+		});
+		const results = {
+			account: account.name,
 			org,
 			team
-		});
+		};
+
+		if (argv.json) {
+			console.log(JSON.stringify(results, null, 2));
+		} else {
+			console.log(`Account:      ${highlight(account.name)}`);
+			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+			console.log(`Successfully created team ${highlight(team.name)} ${note(`(${team.guid})`)}`);
+		}
+
+		await cli.emitAction('axway:oum:team:add', results);
 	}
 };

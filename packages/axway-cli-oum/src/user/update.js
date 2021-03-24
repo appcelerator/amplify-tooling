@@ -15,35 +15,30 @@ export default {
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../lib/util');
 		const { account, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const info = {};
-		const labels = {
-			firstname: 'first name',
-			lastname: 'last name',
-			phone: 'phone number'
-		};
 
-		for (const key of [ 'firstname', 'lastname', 'phone' ]) {
-			if (argv[key]) {
-				info[key] = argv[key].trim();
-			}
-		}
-
-		if (!Object.keys(info).length) {
-			const err = new Error('Please specify a setting to update');
-			err.showHelp = true;
-			throw err;
-		}
-
-		const user = await sdk.user.update(account, info);
+		const { changes, user } = await sdk.user.update(account, {
+			firstname: argv.firstname,
+			lastname:  argv.lastname,
+			phone:     argv.phone
+		});
 
 		if (argv.json) {
 			console.log(JSON.stringify(user, null, 2));
 		} else {
 			const { default: snooplogg } = require('snooplogg');
 			const { highlight } = snooplogg.styles;
+			const labels = {
+				firstname: 'first name',
+				lastname:  'last name',
+				phone:     'phone number'
+			};
 
-			for (const key of Object.keys(info)) {
-				console.log(`Updated ${highlight(labels[key])} to ${highlight(`"${user[key]}"`)}`);
+			if (Object.keys(changes).length) {
+				for (const [ key, { v, p } ] of Object.entries(changes)) {
+					console.log(`Updated ${highlight(labels[key])} from ${highlight(`"${p}"`)} to ${highlight(`"${v}"`)}`);
+				}
+			} else {
+				console.log('No values were changed');
 			}
 		}
 
