@@ -1,6 +1,11 @@
 export default {
 	args: [
 		{
+			name: 'org',
+			desc: 'The organization name, id, or guid',
+			required: true
+		},
+		{
 			name: 'team',
 			desc: 'The team identifier',
 			required: true
@@ -22,28 +27,24 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
-		let { account, sdk } = await initPlatformAccount(argv.account);
-		const { default: snooplogg } = require('snooplogg');
-		const { highlight, note } = snooplogg.styles;
-
-		const result = await sdk.team.member.add(account, argv.team, argv.user, argv.role);
-		const org = await sdk.org.find(account, result.team.org_guid);
-
-		if (!argv.json) {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-		}
-
-		result.account = account.name;
-		result.org = org;
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const results = {
+			account: account.name,
+			...(await sdk.team.member.add(account, org, argv.team, argv.user, argv.role))
+		};
 
 		if (argv.json) {
-			console.log(JSON.stringify(result, null, 2));
+			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const name = `${result.user.firstname} ${result.user.lastname}`.trim();
-			console.log(`Successfully added ${highlight(name)} to the ${highlight(result.team.name)} team`);
+			const { default: snooplogg } = require('snooplogg');
+			const { highlight, note } = snooplogg.styles;
+			const name = `${results.user.firstname} ${results.user.lastname}`.trim();
+
+			console.log(`Account:      ${highlight(account.name)}`);
+			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+			console.log(`Successfully added ${highlight(name)} to the ${highlight(results.team.name)} team`);
 		}
 
-		await cli.emitAction('axway:oum:team:member:add', result);
+		await cli.emitAction('axway:oum:team:member:add', results);
 	}
 };

@@ -1,6 +1,11 @@
 export default {
 	args: [
 		{
+			name: 'org',
+			desc: 'The organization name, id, or guid',
+			required: true
+		},
+		{
 			name: 'team',
 			desc: 'The team identifier',
 			required: true
@@ -21,9 +26,9 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../lib/util');
-		let { account, sdk } = await initPlatformAccount(argv.account);
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 
-		const { changes, team } = await sdk.team.update(account, argv.team, {
+		const { changes, team } = await sdk.team.update(account, org, argv.team, {
 			desc:    argv.desc,
 			default: argv.default,
 			name:    argv.name,
@@ -32,6 +37,7 @@ export default {
 		const results = {
 			account: account.name,
 			changes,
+			org,
 			team
 		};
 
@@ -47,7 +53,7 @@ export default {
 				tags:    'tags'
 			};
 			const format = it => {
-				return Array.isArray(it) ? `[${it.map(s => `"${s}"`).join(', ')}]` : `"${it}"`;
+				return Array.isArray(it) ? `[${it.map(s => `"${s === undefined ? '' : s}"`).join(', ')}]` : `"${it === undefined ? '' : it}"`;
 			};
 
 			console.log(`Account: ${highlight(account.name)}`);

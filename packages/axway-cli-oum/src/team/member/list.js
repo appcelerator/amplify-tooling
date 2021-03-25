@@ -2,6 +2,11 @@ export default {
 	aliases: [ 'ls' ],
 	args: [
 		{
+			name: 'org',
+			desc: 'The organization name, id, or guid',
+			required: true
+		},
+		{
 			name: 'team',
 			desc: 'The team identifier',
 			required: true
@@ -14,22 +19,21 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
-		let { account, sdk } = await initPlatformAccount(argv.account);
-		const team = await sdk.team.find(account, argv.team);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { team } = await sdk.team.find(account, org, argv.team);
 
 		if (!team) {
 			throw new Error(`Unable to find team "${argv.team}"`);
 		}
 
-		const org = await sdk.org.find(account, team.org_guid);
-		const { users: members } = await sdk.team.member.list(account, team.guid);
+		const { users } = await sdk.team.member.list(account, org, team.guid);
 
 		if (argv.json) {
 			console.log(JSON.stringify({
 				account: account.name,
 				org,
 				team,
-				members
+				users
 			}, null, 2));
 			return;
 		}
@@ -41,7 +45,7 @@ export default {
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
 		console.log(`Team:         ${highlight(team.name)} ${note(`(${team.guid})`)}\n`);
 
-		if (!members.length) {
+		if (!users.length) {
 			console.log('No members found');
 			return;
 		}
@@ -49,7 +53,7 @@ export default {
 		const { createTable } = require('@axway/amplify-cli-utils');
 		const table = createTable([ 'Member', 'Email', 'GUID', 'Teams', 'Roles' ]);
 
-		for (const { email, guid, name, roles, teams } of members) {
+		for (const { email, guid, name, roles, teams } of users) {
 			table.push([
 				name,
 				email,

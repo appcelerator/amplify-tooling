@@ -20,29 +20,6 @@ const { highlight, note } = snooplogg.styles;
  */
 export default class AmplifySDK {
 	/**
-	 * A list of accepted roles. This list needs to be manually
-	 */
-	static roles = [
-		'administrator',
-		'developer',
-		'read_only',
-		'consumer',
-		'collaborator',
-		'ars_admin',
-		'api_central_admin',
-		'fts_admin',
-		'fc_access_manager',
-		'fc_integration',
-		'fc_it_admin',
-		'fc_products_admin',
-		'fc_spec_ops',
-		'fc_cft_admin',
-		'fc_subscriptionspecialist',
-		'auditor',
-		'analytics_specialist'
-	];
-
-	/**
 	 * Initializes the environment and SDK's API.
 	 *
 	 * @param {Object} opts - Authentication options.
@@ -420,8 +397,22 @@ export default class AmplifySDK {
 			}
 		};
 
-		const getActivity = async (account, params) => {
+		/**
+		 * Retrieves activity for an organization or user.
+		 * @param {Object} account - The account object.
+		 * @param {Object} [params] - Various parameters.
+		 * @param {String} [params.from] - The activity start date in ISO format.
+		 * @param {Object|String|Number} [params.org] - The organization object, name, guid, or id.
+		 * @param {String} [params.to] - The activity end date in ISO format.
+		 * @param {String} [params.userGuid] - The user guid.
+		 * @returns {Promise<Object>}
+		 */
+		const getActivity = async (account, params = {}) => {
 			assertPlatformAccount(account);
+
+			if (!params || typeof params !== 'object') {
+				throw E.INVALID_ARGUMENT('Expected activity params to be an object');
+			}
 
 			let { from, to } = resolveDateRange(params.from, params.to);
 			let url = '/api/v1/activity?data=true';
@@ -455,6 +446,13 @@ export default class AmplifySDK {
 		};
 
 		this.org = {
+			/**
+			 * Retieves organization activity.
+			 * @param {Object} account - The account object.
+			 * @param {Object|String|Number} org - The organization object, name, guid, or id.
+			 * @param {Object} [params] - Various parameters. See `getActivity()` above.
+			 * @returns {Promise<Object>}
+			 */
 			activity: (account, org, params) => getActivity(account, {
 				...params,
 				org
@@ -463,7 +461,7 @@ export default class AmplifySDK {
 			/**
 			 * Retrieves organization details for an account.
 			 * @param {Object} account - The account object.
-			 * @param {String} org - The name, id, or guid of the organization to get info for.
+			 * @param {String} org - The organization object, name, id, or guid.
 			 * @returns {Promise<Array>}
 			 */
 			find: async (account, org) => {
@@ -536,6 +534,12 @@ export default class AmplifySDK {
 				});
 			},
 
+			/**
+			 * Retrieves the organization family used to determine the child orgs.
+			 * @param {Object} account - The account object.
+			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+			 * @returns {Promise<Object>}
+			 */
 			family: async (account, org) => {
 				const { id } = this.resolveOrg(account, org);
 				return await this.request(`/api/v1/org/${id}/family`, account, {
@@ -561,6 +565,14 @@ export default class AmplifySDK {
 			},
 
 			member: {
+				/**
+				 * Adds a user to an org.
+				 * @param {Object} account - The account object.
+				 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+				 * @param {String} user - The user email or guid.
+				 * @param {Array.<String>} roles - One or more roles to assign. Must include a "default" role.
+				 * @returns {Promise<Object>}
+				 */
 				add: async (account, org, user, roles) => {
 					org = this.resolveOrg(account, org);
 					return {
@@ -780,22 +792,31 @@ export default class AmplifySDK {
 				};
 			},
 
-			find: async (account, team) => {
+			find: async (account, org, team) => {
 				assertPlatformAccount(account);
+
+				org = this.resolveOrg(account, org);
 
 				if (!team || typeof team !== 'string') {
 					throw E.INVALID_ARGUMENT('Expected team to be a name or guid');
 				}
 
 				try {
-					return await this.request(`/api/v1/team/${team}`, account, {
-						errorMsg: 'Failed to get team'
-					});
+					return {
+						org,
+						team: await this.request(`/api/v1/team/${team}`, account, {
+							errorMsg: 'Failed to get team'
+						})
+					};
 				} catch (e) {
 					// maybe `team` is a name?
-					return (await this.request(`/api/v1/team?name=${team}`, account, {
+					const matches = await this.request(`/api/v1/team?name=${team}&org_id=${org.id}`, account, {
 						errorMsg: 'Failed to get team'
-					}))[0];
+					});
+					if (matches.length > 1) {
+						throw new Error(`More than one team matches the name "${team}"`);
+					}
+					return { org, team: matches[0] };
 				}
 			},
 
@@ -811,10 +832,11 @@ export default class AmplifySDK {
 			},
 
 			member: {
-				add: async (account, team, user, roles) => {
-					team = await this.team.find(account, team);
-					user = await this.user.find(account, user, team.org_guid);
+				add: async (account, org, team, user, roles) => {
+					({ org, team } = await this.team.find(account, org, team));
+					user = await this.user.find(account, user, org.guid);
 					return {
+						org,
 						team: await this.request(`/api/v1/team/${team.guid}/user/${user.guid}`, account, {
 							errorMsg: 'Failed to add member to organization',
 							json: {
@@ -825,20 +847,22 @@ export default class AmplifySDK {
 					};
 				},
 
-				find: async (account, team, user) => {
+				find: async (account, org, team, user) => {
 					let users;
-					({ team, users } = await this.team.member.list(account, team));
+					({ team, users } = await this.team.member.list(account, org, team));
 					user = user.toLowerCase();
 					return {
-						user: users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user),
-						team
+						org,
+						team,
+						user: users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user)
 					};
 				},
 
-				list: async (account, team) => {
-					team = await this.team.find(account, team);
-					const { users: allUsers } = await this.org.member.list(account, team.org_guid);
+				list: async (account, org, team) => {
+					({ team } = await this.team.find(account, org, team));
+					const { users: allUsers } = await this.org.member.list(account, org.guid);
 					return {
+						org,
 						team,
 						users: team.users
 							.map(u => ({
@@ -849,9 +873,9 @@ export default class AmplifySDK {
 					};
 				},
 
-				remove: async (account, team, user) => {
+				remove: async (account, org, team, user) => {
 					let member;
-					({ user: member, team } = await this.team.member.find(account, team, user));
+					({ user: member, team } = await this.team.member.find(account, org, team, user));
 
 					if (!member) {
 						throw new Error(`Member "${user}" not found`);
@@ -863,14 +887,15 @@ export default class AmplifySDK {
 					});
 
 					return {
+						org,
 						team,
-						user
+						user: member
 					};
 				},
 
-				update: async (account, team, user, roles) => {
+				update: async (account, org, team, user, roles) => {
 					let member;
-					({ user: member, team } = await this.team.member.find(account, team, user));
+					({ user: member, team } = await this.team.member.find(account, org, team, user));
 
 					if (!member) {
 						throw new Error(`Member "${user}" not found`);
@@ -887,6 +912,7 @@ export default class AmplifySDK {
 					});
 
 					return {
+						org,
 						team,
 						user: member,
 						roles
@@ -919,23 +945,28 @@ export default class AmplifySDK {
 				return roles;
 			},
 
-			remove: async (account, team) => {
-				team = await this.team.find(account, team);
+			remove: async (account, org, team) => {
+				const origTeam = team;
+				({ org, team } = await this.team.find(account, org, team));
+
+				if (!team) {
+					throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
+				}
 
 				await this.request(`/api/v1/team/${team.guid}`, account, {
 					errorMsg: 'Failed to remove team',
 					method: 'delete'
 				});
 
-				return team;
+				return { org, team };
 			},
 
-			update: async (account, team, info) => {
+			update: async (account, org, team, info) => {
 				const origTeam = team;
-				team = await this.team.find(account, team);
+				({ org, team } = await this.team.find(account, org, team));
 
 				if (!team) {
-					throw new Error(`Unale to find team "${origTeam}"`);
+					throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
 				}
 
 				const { changes, data } = prepareTeamInfo(info, team);
@@ -950,6 +981,7 @@ export default class AmplifySDK {
 
 				return {
 					changes,
+					org,
 					team
 				};
 			}

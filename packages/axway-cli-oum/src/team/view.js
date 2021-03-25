@@ -2,7 +2,12 @@ export default {
 	aliases: [ '!info' ],
 	args: [
 		{
-			name: 'team-guid',
+			name: 'org',
+			desc: 'The organization name, id, or guid',
+			required: true
+		},
+		{
+			name: 'team',
 			desc: 'The team GUID',
 			required: true
 		}
@@ -14,9 +19,8 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../lib/util');
-		let { account, sdk } = await initPlatformAccount(argv.account);
-		const team = await sdk.team.find(account, argv.teamGuid);
-		const org = await sdk.org.find(account, team.org_guid);
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const team = await sdk.team.find(account, org, argv.team);
 
 		if (argv.json) {
 			console.log(JSON.stringify({

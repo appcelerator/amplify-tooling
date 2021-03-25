@@ -1,6 +1,11 @@
 export default {
 	args: [
 		{
+			name: 'org',
+			desc: 'The organization name, id, or guid',
+			required: true
+		},
+		{
 			name: 'team',
 			desc: 'The team identifier',
 			required: true
@@ -22,27 +27,24 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const { default: snooplogg } = require('snooplogg');
-		const { highlight, note } = snooplogg.styles;
-
-		if (!argv.json) {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-		}
-
-		const results = await sdk.team.member.update(account, argv.team, argv.user, argv.role);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const results = {
+			account: account.name,
+			org,
+			...(await sdk.team.member.update(account, org, argv.team, argv.user, argv.role))
+		};
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
+			const { default: snooplogg } = require('snooplogg');
+			const { highlight, note } = snooplogg.styles;
+
+			console.log(`Account:      ${highlight(account.name)}`);
+			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 			console.log(`Successfully updated user role${results.roles === 1 ? '' : 's'}`);
 		}
 
-		await cli.emitAction('axway:oum:team:member:update', {
-			account: account.name,
-			org,
-			...results
-		});
+		await cli.emitAction('axway:oum:team:member:update', results);
 	}
 };

@@ -2,6 +2,7 @@
 
  * feat: Added organization and user management APIs.
  * feat: Added HTTP status code to error messages.
+ * chore: Updated `keytar` from v7.4.0 to v7.5.0.
  * chore: Updated dependencies.
 
 # v1.8.3 (Jan 22, 2021)

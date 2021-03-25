@@ -14,7 +14,7 @@
     "lerna": "^4.0.0",
     "mocha": "^8.3.2",
     "pretty-log": "^0.1.0",
-    "semver": "^7.3.4",
+    "semver": "^7.3.5",
     "tar-stream": "^2.2.0"
   },
   "scripts": {

@@ -2,6 +2,11 @@ export default {
 	aliases: [ 'rm' ],
 	args: [
 		{
+			name: 'org',
+			desc: 'The organization name, id, or guid',
+			required: true
+		},
+		{
 			name: 'team',
 			desc: 'The team identifier',
 			required: true
@@ -19,16 +24,8 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const { default: snooplogg } = require('snooplogg');
-		const { highlight, note } = snooplogg.styles;
-
-		if (!argv.json) {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-		}
-
-		const { team, user } = await sdk.team.member.remove(account, argv.team, argv.user);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { team, user } = await sdk.team.member.remove(account, org, argv.team, argv.user);
 
 		const results = {
 			account: account.name,
@@ -40,7 +37,12 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
+			const { default: snooplogg } = require('snooplogg');
+			const { highlight, note } = snooplogg.styles;
 			const name = `${user.firstname} ${user.lastname}`.trim();
+
+			console.log(`Account:      ${highlight(account.name)}`);
+			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 			console.log(`Successfully removed user ${highlight(name)} from the ${highlight(team.name)} team`);
 		}
 

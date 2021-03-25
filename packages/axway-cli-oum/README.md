@@ -52,7 +52,7 @@ List all organization teams:
 
 View a team's info:
 
-	$ axway team view <team>
+	$ axway team view <org> <team>
 
 Add a team to an org:
 
@@ -62,31 +62,31 @@ Update a team:
 
 	$ axway team update # shows help
 
-	$ axway team update <team> # shows help
+	$ axway team update <org> <team> # shows help
 
-	$ axway team update <team> --name [value] --desc [value] --tag [tag1] --tag [tag2] --default
+	$ axway team update <org> <team> --name [value] --desc [value] --tag [tag1] --tag [tag2] --default
 
 Remove a team from an org:
 
-	$ axway team remove <team>
+	$ axway team remove <org> <team>
 
 ### Organization Team Members
 
 List all members in a team:
 
-	$ axway team member list <team>
+	$ axway team member list <org> <team>
 
 Add a member to a team:
 
-	$ axway team member add <team> <guid|email> --role <role1> [...--role <role2>]
+	$ axway team member add <org> <team> <guid|email> --role <role1> [...--role <role2>]
 
 Update a member's role within a team:
 
-	$ axway team member update <team> <guid|email> --role <role1> [...--role <role2>]
+	$ axway team member update <org> <team> <guid|email> --role <role1> [...--role <role2>]
 
 Remove a member from a team:
 
-	$ axway team member remove <team> <guid|email>
+	$ axway team member remove <org> <team> <guid|email>
 
 ### Organization Usage
 
