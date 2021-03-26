@@ -27,7 +27,7 @@
     "@axway/amplify-cli-utils": "^4.2.5",
     "@axway/amplify-config": "^3.0.7",
     "@axway/amplify-registry-sdk": "^2.3.5",
-    "cli-kit": "^1.10.0",
+    "cli-kit": "^1.11.0",
     "cross-spawn": "^7.0.3",
     "listr": "^0.14.3",
     "npm-package-arg": "^8.1.2",

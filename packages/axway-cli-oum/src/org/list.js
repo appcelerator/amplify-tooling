@@ -39,5 +39,9 @@ export default {
 			]);
 		}
 		console.log(table.toString());
+	},
+
+	myOtherFunction() {
+		console.log('hi from my other function!');
 	}
 };

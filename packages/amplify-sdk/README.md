@@ -1,6 +1,6 @@
-# AMPLIFY SDK
+# Amplify SDK
 
-The AMPLIFY SDK for Node.js is a set of APIs for authenticating, switching selected organization,
+The Amplify SDK for Node.js is a set of APIs for authenticating, switching selected organization,
 creating MBS apps and users, and Titanium SDK support.
 
 ## Installation
@@ -12,7 +12,7 @@ creating MBS apps and users, and Titanium SDK support.
 ```js
 import AmplifySDK from '@axway/amplify-sdk';
 
-// opts can include `env` as well as any AMPLIFY Auth SDK constructor opts
+// opts can include `env` as well as any Amplify Auth SDK constructor opts
 // (see https://www.npmjs.com/package/@axway/amplify-auth-sdk)
 const sdk = new AmplifySDK({ ...opts });
 ```
@@ -24,7 +24,7 @@ const sdk = new AmplifySDK({ ...opts });
 const accounts = await sdk.auth.list();
 
 // find an authenticated account by name and refresh access token if needed
-let account = await.sdk.auth.find('foo');
+let account = await.sdk.auth.find('<client_id>:<email>');
 
 // login using pkce browser-based flow
 account = await sdk.auth.login();
@@ -32,7 +32,7 @@ console.log(account.org);
 console.log(account.user);
 
 // switch active org, assuming you belong to more than one
-await sdk.auth.switchOrg(account, orgId);
+await sdk.auth.switchOrg(account, orgGuid);
 console.log(`Active org is now ${account.org.name}`);
 
 // log out of specific or all accounts
@@ -72,10 +72,60 @@ const users = await sdk.mbs.getUsers(account, '<GROUP ID>', '<ENVIRONMENT>');
 ### Orgs
 
 ```js
+// get all orgs
+const orgs = await sdk.org.list(account);
+console.log(orgs);
+
+// find a single org
+const org = await sdk.org.find(account, 'org name/id/guid');
+
+// get org activity
+const { from, to, events } = await sdk.org.activity(account, 'org name/id/guid', {
+	from: '2021-01-01',
+	to: '2021-01-31'
+});
+
 // retrieve a list of all available platform environments such
 // as 'production' and 'development'
 const envs = await sdk.org.getEnvironments(account);
-console.log(envs);
+
+// get org family including child orgs
+const family = await sdk.org.family(account, 'org name/id/guid');
+
+// rename an org
+await sdk.org.rename(account, 'org name/id/guid', 'new org name');
+
+// get org usage
+const usage = await sdk.org.usage(account, 'org name/id/guid', {
+	from: '2021-01-01',
+	to: '2021-01-31'
+});
+
+// list all members of an org
+const { users } = await sdk.org.member.list(account, 'org name/id/guid');
+
+// get info for an org member
+const user = await sdk.org.member.find(account, 'org name/id/guid', 'user guid or email');
+
+// add a user to an org
+// see https://platform.axway.com/api-docs.html#operation/org_userCreate
+const roles = [ 'administrator' ]; // 'developer', 'read_only', etc...
+await sdk.org.member.add(account, 'org name/id/guid', 'user guid or email', roles);
+
+// change a member's role in an org
+await sdk.org.member.update(account, 'org name/id/guid', 'user guid or email', roles);
+
+// remove a member from an org
+await sdk.org.member.remove(account, 'org name/id/guid', 'user guid or email');
+```
+
+### Roles
+
+```js
+// get org and team roles
+const orgRoles = await sdk.role.list(account);
+
+const teamRoles = await sdk.role.list(account, { team: true });
 ```
 
 ### Titanium
@@ -125,9 +175,75 @@ const downloads = await sdk.ti.getDownloads(account);
 await sdk.ti.setApp(account, '<ti:app><name/><id/><guid/></ti:app>');
 ```
 
+### Team
+
+```js
+// get all teams for an org
+const { teams } = await sdk.team.list(account, 'org name/id/guid');
+
+// get team info
+const { team } = await sdk.team.find(account, 'org name/id/guid', 'team name or guid');
+
+// create a new team
+await sdk.team.create(account, 'org name/id/guid', 'team name', {
+	// optional
+	desc: 'Tiger team',
+	default: false,
+	tags: [ 'foo', 'bar' ]
+});
+
+// update team info
+const { changes, team } = await sdk.team.update(account, 'org name/id/guid', 'team name or guid', {
+	// optional
+	desc: 'Tiger team',
+	default: false,
+	tags: [ 'foo', 'bar' ]
+});
+
+// remove a team
+await sdk.team.remove(account, 'org name/id/guid', 'team name or guid');
+
+// list all members of a team
+const { users } = await sdk.team.member.list(account, 'org name/id/guid', 'team name or guid');
+
+// get info for an org member
+const user = await sdk.team.member.find(account, 'org name/id/guid', 'team name or guid', 'user guid or email');
+
+// add a user to an org
+// see https://platform.axway.com/api-docs.html#operation/team_userAdd
+const roles = [ 'administrator' ]; // 'developer', 'read_only', etc...
+await sdk.team.member.add(account, 'org name/id/guid', 'team name or guid', 'user guid or email', roles);
+
+// change a member's role in a team
+await sdk.team.member.update(account, 'org name/id/guid', 'team name or guid', 'user guid or email', roles);
+
+// remove a member from an org
+await sdk.team.member.remove(account, 'org name/id/guid', 'team name or guid', 'user guid or email');
+```
+
+### User
+
+```js
+// find a user
+const user = await sdk.user.find(account, 'org name/id/guid', 'user guid or email');
+
+// get user activity
+const activity = await sdk.user.activity(account, {
+	from: '2021-01-01',
+	to: '2021-01-31'
+});
+
+// update user info
+const { changes, user } = await sdk.user.update(account, {
+	firstname: 'Elite',
+	lastname: 'Coder',
+	phone: '555-1212'
+});
+```
+
 ## Account Object
 
-The AMPLIFY SDK relies on the [AMPLIFY Auth SDK][2] for authenticating and managing access tokens.
+The Amplify SDK relies on the [Amplify Auth SDK][2] for authenticating and managing access tokens.
 For organization related information, it talks directly to the Axway platform.
 
 ```js
