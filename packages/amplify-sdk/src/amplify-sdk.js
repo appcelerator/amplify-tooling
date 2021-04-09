@@ -343,10 +343,6 @@ export default class AmplifySDK {
 		const getActivity = async (account, params = {}) => {
 			assertPlatformAccount(account);
 
-			if (!params || typeof params !== 'object') {
-				throw E.INVALID_ARGUMENT('Expected activity params to be an object');
-			}
-
 			let { from, to } = resolveDateRange(params.from, params.to);
 			let url = '/api/v1/activity?data=true';
 
@@ -504,21 +500,23 @@ export default class AmplifySDK {
 				 * Adds a user to an org.
 				 * @param {Object} account - The account object.
 				 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-				 * @param {String} user - The user email or guid.
+				 * @param {String} email - The user's email.
 				 * @param {Array.<String>} roles - One or more roles to assign. Must include a "default" role.
 				 * @returns {Promise<Object>}
 				 */
-				add: async (account, org, user, roles) => {
+				add: async (account, org, email, roles) => {
 					org = this.resolveOrg(account, org);
+					const { guid } = await this.request(`/api/v1/org/${org.id}/user`, account, {
+						errorMsg: 'Failed to add user to organization',
+						json: {
+							email,
+							roles: await this.org.resolveRoles(account, roles)
+						}
+					});
+					log(`User "${guid}" added to org ${org.name} (${org.guid})`);
 					return {
 						org,
-						user: await this.request(`/api/v1/org/${org.id}/user`, account, {
-							errorMsg: 'Failed to add user to organization',
-							json: {
-								email: user,
-								roles: await this.org.resolveRoles(account, roles)
-							}
-						})
+						user: await this.org.user.find(account, org, guid)
 					};
 				},
 
@@ -548,7 +546,10 @@ export default class AmplifySDK {
 					});
 					return {
 						org,
-						users: users.sort((a, b) => a.name.localeCompare(b.name))
+						users: users.sort((a, b) => {
+							const r = a.firstname.localeCompare(b.firstname);
+							return r !== 0 ? r : a.lastname.localeCompare(b.lastname);
+						})
 					};
 				},
 
@@ -564,7 +565,7 @@ export default class AmplifySDK {
 					const found = await this.org.user.find(account, org.guid, user);
 
 					if (!found) {
-						throw new Error(`User "${user}" not found`);
+						throw new Error(`Unable to find the user "${user}"`);
 					}
 
 					return {
@@ -590,23 +591,21 @@ export default class AmplifySDK {
 					const found = await this.org.user.find(account, org.guid, user);
 
 					if (!found) {
-						throw new Error(`User "${user}" not found`);
+						throw new Error(`Unable to find the user "${user}"`);
 					}
 
 					roles = await this.org.resolveRoles(account, roles);
 
-					org = await this.request(`/api/v1/org/${org.id}/user/${found.guid}`, account, {
-						errorMsg: 'Failed to update user\'s organization roles',
-						json: {
-							roles
-						},
-						method: 'put'
-					});
-
 					return {
-						org,
+						org: await this.request(`/api/v1/org/${org.id}/user/${found.guid}`, account, {
+							errorMsg: 'Failed to update user\'s organization roles',
+							json: {
+								roles
+							},
+							method: 'put'
+						}),
 						roles,
-						user: found
+						user: await this.org.user.find(account, org, found.guid)
 					};
 				}
 			},
@@ -622,7 +621,7 @@ export default class AmplifySDK {
 				const { id, name: oldName } = this.resolveOrg(account, org);
 
 				if (typeof name !== 'string' || !(name = name.trim())) {
-					throw new TypeError('Organization name must be a non-empty string');
+					throw E.INVALID_ARGUMENT('Organization name must be a non-empty string');
 				}
 
 				return {
@@ -650,7 +649,7 @@ export default class AmplifySDK {
 				const defaultRoles = allowedRoles.filter(r => r.default).map(r => r.id);
 
 				if (!roles.length) {
-					throw new Error(`Expected at least one of the following roles: ${defaultRoles.map(r => r.id).join(', ')}`);
+					throw new Error(`Expected at least one of the following roles: ${defaultRoles.join(', ')}`);
 				}
 
 				roles = roles
@@ -667,7 +666,7 @@ export default class AmplifySDK {
 				log(`Resolved roles: ${highlight(roles.join(', '))}`);
 
 				if (!roles.some(r => defaultRoles.includes(r))) {
-					throw new Error(`You must specify a default role: ${defaultRoles.map(r => r.id).join(', ')}`);
+					throw new Error(`You must specify a default role: ${defaultRoles.join(', ')}`);
 				}
 
 				return roles;
@@ -863,10 +862,10 @@ export default class AmplifySDK {
 				 */
 				add: async (account, org, team, user, roles) => {
 					({ org, team } = await this.team.find(account, org, team));
-					const found  = await this.user.find(account, org, user);
+					const found  = await this.user.find(account, user);
 
 					if (!found) {
-						throw new Error(`User "${user}" not found`);
+						throw new Error(`Unable to find the user "${user}"`);
 					}
 
 					return {
@@ -935,7 +934,7 @@ export default class AmplifySDK {
 					({ user: found, team } = await this.team.user.find(account, org, team, user));
 
 					if (!found) {
-						throw new Error(`User "${user}" not found`);
+						throw new Error(`Unable to find the user "${user}"`);
 					}
 
 					await this.request(`/api/v1/team/${team.guid}/user/${found.guid}`, account, {
@@ -964,7 +963,7 @@ export default class AmplifySDK {
 					({ user: found, team } = await this.team.user.find(account, org, team, user));
 
 					if (!found) {
-						throw new Error(`User "${user}" not found`);
+						throw new Error(`Unable to find the user "${user}"`);
 					}
 
 					roles = await this.team.resolveRoles(account, roles);
@@ -1094,11 +1093,10 @@ export default class AmplifySDK {
 			/**
 			 * Retrieves a user's information.
 			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 			 * @param {String} user - The user email or guid.
 			 * @returns {Promise<Object>}
 			 */
-			find: async (account, org, user) => {
+			find: async (account, user) => {
 				assertPlatformAccount(account);
 
 				if (typeof user === 'object' && user?.guid) {
@@ -1106,18 +1104,17 @@ export default class AmplifySDK {
 				}
 
 				if (user.includes('@')) {
-					org = this.resolveOrg(account, org);
-					const { users: allUsers } = await this.org.user.list(account, org.guid);
-					const luser = user.toLowerCase();
-					const found = allUsers.find(u => u.email.toLowerCase() === luser);
-					if (!found) {
-						throw new Error(`Unable to find user "${user}"`);
+					const users = await this.request(`/api/v1/user?term=${user}`, account, {
+						errorMsg: 'Failed to find user'
+					});
+					if (users.length === 0) {
+						throw new Error(`User "${user}" not found`);
 					}
-					user = found.guid;
+					return users[0];
 				}
 
 				return await this.request(`/api/v1/user/${user}`, account, {
-					errorMsg: 'Failed to get user information'
+					errorMsg: 'Failed to find user'
 				});
 			},
 

@@ -39,6 +39,11 @@
 					"guid": "50000",
 					"roles": [ "administrator" ],
 					"primary": true
+				},
+				{
+					"guid": "50001",
+					"roles": [ "developer" ],
+					"primary": true
 				}
 			],
 			"entitlements": {
@@ -146,10 +151,24 @@
 	"users": [
 		{
 			"guid": "50000",
-			"email": "tester@domain.com",
-			"firstname": "Good",
-			"lastname": "Tester",
-			"phone": "555-1212"
+			"email": "test1@domain.com",
+			"firstname": "Test1",
+			"lastname": "Tester1",
+			"phone": "555-5001"
+		},
+		{
+			"guid": "50001",
+			"email": "test2@domain.com",
+			"firstname": "Test2",
+			"lastname": "Tester2",
+			"phone": "555-5002"
+		},
+		{
+			"guid": "50002",
+			"email": "test3@domain.com",
+			"firstname": "Test3",
+			"lastname": "Tester3",
+			"phone": "555-5003"
 		}
 	]
 }

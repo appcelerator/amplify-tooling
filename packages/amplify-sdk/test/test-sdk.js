@@ -323,6 +323,18 @@ describe.only('amplify-sdk', () => {
 				const org = await sdk.org.rename(account, 100, 'Wiz org');
 				expect(org.name).to.equal('Wiz org');
 			});
+
+			it('should error if new name is invalid', async function () {
+				this.timeout(10000);
+				this.server = await createServer();
+
+				const { account, tokenStore } = this.server.createTokenStore();
+				const sdk = createSDK({ tokenStore });
+
+				await expect(sdk.org.rename(account, 100)).to.eventually.be.rejectedWith(TypeError, 'Organization name must be a non-empty string');
+				await expect(sdk.org.rename(account, 100, 123)).to.eventually.be.rejectedWith(TypeError, 'Organization name must be a non-empty string');
+				await expect(sdk.org.rename(account, 100, '')).to.eventually.be.rejectedWith(TypeError, 'Organization name must be a non-empty string');
+			});
 		});
 
 		describe('activity()', () => {
@@ -461,30 +473,259 @@ describe.only('amplify-sdk', () => {
 		describe('users', () => {
 			describe('list()', () => {
 				afterEach(stopServer);
+
+				it('should list all users in an org', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					let { users } = await sdk.org.user.list(account);
+					expect(users).to.deep.equal([
+						{
+							guid: '50000',
+							email: 'test1@domain.com',
+							firstname: 'Test1',
+							lastname: 'Tester1',
+							phone: '555-5001',
+							roles: [ 'administrator' ],
+							primary: true
+						},
+						{
+							guid: '50001',
+							email: 'test2@domain.com',
+							firstname: 'Test2',
+							lastname: 'Tester2',
+							phone: '555-5002',
+							roles: [ 'developer' ],
+							primary: true
+						}
+					]);
+
+					({ users } = await sdk.org.user.list(account, '2000'));
+					expect(users).to.deep.equal([
+						{
+							guid: '50000',
+							email: 'test1@domain.com',
+							firstname: 'Test1',
+							lastname: 'Tester1',
+							phone: '555-5001',
+							roles: [ 'administrator' ],
+							primary: true
+						}
+					]);
+				});
+
+				it('should error getting users for non-existing org', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.list(account, 300)).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
+				});
 			});
 
 			describe('find()', () => {
 				afterEach(stopServer);
+
+				it('should find an org user by guid', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					const user = await sdk.org.user.find(account, 100, '50000');
+					expect(user).to.deep.equal({
+						guid: '50000',
+						email: 'test1@domain.com',
+						firstname: 'Test1',
+						lastname: 'Tester1',
+						phone: '555-5001',
+						roles: [ 'administrator' ],
+						primary: true
+					});
+				});
+
+				it('should find an org user by email', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					const user = await sdk.org.user.find(account, 100, 'test2@domain.com');
+					expect(user).to.deep.equal({
+						guid: '50001',
+						email: 'test2@domain.com',
+						firstname: 'Test2',
+						lastname: 'Tester2',
+						phone: '555-5002',
+						roles: [ 'developer' ],
+						primary: true
+					});
+				});
+
+				it('should error finding an non-existing org user', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					const user = await sdk.org.user.find(account, 100, '12345');
+					expect(user).to.be.undefined;
+				});
 			});
 
 			describe('add()', () => {
 				afterEach(stopServer);
+
+				it('should add a user to an org by email', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					expect(await sdk.org.user.find(account, 100, 'test3@domain.com')).to.be.undefined;
+
+					const { user } = await sdk.org.user.add(account, 100, 'test3@domain.com', [ 'developer' ]);
+					expect(user.guid).to.deep.equal('50002');
+
+					expect(await sdk.org.user.find(account, 100, 'test3@domain.com')).to.deep.equal({
+						guid: '50002',
+						email: 'test3@domain.com',
+						firstname: 'Test3',
+						lastname: 'Tester3',
+						phone: '555-5003',
+						roles: [ 'developer' ],
+						primary: true
+					});
+
+					await expect(sdk.org.user.add(account, 100, 'test3@domain.com', [ 'developer' ])).to.eventually.be
+						.rejectedWith(Error, 'Failed to add user to organization: User is already a member of this org. (400)');
+				});
+
+				it('should error adding add a user to a non-existing org', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.add(account, 300)).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
+				});
+
+				it('should error if roles are invalid', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.add(account, 100, '12345')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.org.user.add(account, 100, '12345', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.org.user.add(account, 100, '12345', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
+					await expect(sdk.org.user.add(account, 100, '12345', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer, some_admin');
+				});
 			});
 
 			describe('update()', () => {
 				afterEach(stopServer);
+
+				it('should update an org user\'s role', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					const { user } = await sdk.org.user.update(account, 100, '50001', [ 'administrator' ]);
+					expect(user).to.deep.equal({
+						guid: '50001',
+						email: 'test2@domain.com',
+						firstname: 'Test2',
+						lastname: 'Tester2',
+						phone: '555-5002',
+						roles: [ 'administrator' ],
+						primary: true
+					});
+				});
+
+				it('should error updating user role for non-existing org', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.update(account, 300, '50001', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
+				});
+
+				it('should error update user role for user not in an org', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.update(account, 100, '50002', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
+				});
+
+				it('should error if roles are invalid', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.update(account, 100, '50001')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.org.user.update(account, 100, '50001', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.org.user.update(account, 100, '50001', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
+					await expect(sdk.org.user.update(account, 100, '50001', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer, some_admin');
+				});
 			});
 
 			describe('remove()', () => {
 				afterEach(stopServer);
+
+				it('should remove a user from an org', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					expect((await sdk.org.user.list(account, 100)).users).to.have.lengthOf(2);
+					await sdk.org.user.remove(account, 100, '50001');
+					expect((await sdk.org.user.list(account, 100)).users).to.have.lengthOf(1);
+				});
+
+				it('should error removing a user from a non-existing org', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.remove(account, 300, '50001')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
+				});
+
+				it('should error removing a user that does not currently belong to an org', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.remove(account, 100, '50002')).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
+				});
 			});
 		});
-
-		// sdk.org.user.list
-		// sdk.org.user.find
-		// sdk.org.user.add
-		// sdk.org.user.update
-		// sdk.org.user.remove
 	});
 
 	describe('Role', () => {

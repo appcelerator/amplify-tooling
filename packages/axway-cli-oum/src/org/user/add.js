@@ -6,8 +6,8 @@ export default {
 			required: true
 		},
 		{
-			name: 'user',
-			desc: 'The user guid or email address',
+			name: 'email',
+			desc: 'The email address for the user to add',
 			required: true
 		}
 	],
@@ -32,11 +32,11 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const { user } = await sdk.org.user.add(account, org, argv.user, argv.role);
+		const { user } = await sdk.org.user.add(account, org, argv.email, argv.role);
 		const results = {
 			account: account.name,
 			org,
-			user: await sdk.user.find(account, user.guid)
+			user
 		};
 
 		if (argv.json) {

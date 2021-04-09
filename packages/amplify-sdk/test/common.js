@@ -175,6 +175,110 @@ function createAPIRoutes(server, data) {
 		}
 	});
 
+	router.get('/v1/org/:id/user', ctx => {
+		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		if (org) {
+			ctx.body = {
+				success: true,
+				result: org.users.reduce((users, ou) => {
+					const user = data.users.find(u => u.guid === ou.guid);
+					if (user) {
+						users.push({
+							...user,
+							...ou
+						});
+					}
+					return users;
+				}, [])
+			};
+		}
+	});
+
+	router.post('/v1/org/:id/user', ctx => {
+		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		if (org) {
+			const { email, roles } = ctx.request.body;
+			const user = data.users.find(u => u.email === email || u.guid === email);
+
+			if (!user) {
+				ctx.status = 400;
+				ctx.body = {
+					success: false,
+					message: 'User is already a member of this org.'
+				};
+				return;
+			}
+
+			if (org.users.find(u => u.guid === user.guid)) {
+				ctx.status = 400;
+				ctx.body = {
+					success: false,
+					message: 'User is already a member of this org.'
+				};
+				return;
+			}
+
+			org.users.push({
+				guid: user.guid,
+				roles,
+				primary: true
+			})
+
+			ctx.body = {
+				success: true,
+				result: { guid: user.guid }
+			};
+		}
+	});
+
+	router.delete('/v1/org/:id/user/:user_guid', ctx => {
+		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		if (org) {
+			const { user_guid } = ctx.params;
+			const idx = org.users.findIndex(u => u.guid === user_guid);
+
+			if (idx === -1) {
+				ctx.status = 400;
+				ctx.body = {
+					success: false,
+					message: `"user_guid" contained an invalid value.`
+				};
+				return;
+			}
+
+			org.users.splice(idx, 1);
+
+			ctx.body = {
+				success: true,
+				result: {}
+			};
+		}
+	});
+
+	router.put('/v1/org/:id/user/:user_guid', ctx => {
+		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		if (org) {
+			const { user_guid } = ctx.params;
+			const user = org.users.find(u => u.guid === user_guid);
+
+			if (!user) {
+				ctx.status = 400;
+				ctx.body = {
+					success: false,
+					message: `"user_guid" contained an invalid value.`
+				};
+				return;
+			}
+
+			user.roles = ctx.request.body.roles;
+
+			ctx.body = {
+				success: true,
+				result: null
+			};
+		}
+	});
+
 	router.get('/v1/org/:id', ctx => {
 		const { id } = ctx.params;
 		const org = data.orgs.find(o => String(o.org_id) === id || o.guid === id);
@@ -222,6 +326,17 @@ function createAPIRoutes(server, data) {
 			success: true,
 			result: teams
 		};
+	});
+
+	router.get('/v1/user/:id', ctx => {
+		const { id } = ctx.params;
+		const user = data.users.find(u => u.guid === id);
+		if (user) {
+			ctx.body = {
+				success: true,
+				result: user
+			};
+		}
 	});
 
 	return router.routes();
