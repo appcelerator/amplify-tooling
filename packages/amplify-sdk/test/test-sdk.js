@@ -632,6 +632,16 @@ describe.only('amplify-sdk', () => {
 					await expect(sdk.org.user.add(account, 100, '12345', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
 					await expect(sdk.org.user.add(account, 100, '12345', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer, some_admin');
 				});
+
+				it('should error if roles does not include a default role', async function () {
+					this.timeout(10000);
+					this.server = await createServer();
+
+					const { account, tokenStore } = this.server.createTokenStore();
+					const sdk = createSDK({ tokenStore });
+
+					await expect(sdk.org.user.add(account, 100, '12345', [ 'some_admin' ])).to.eventually.be.rejectedWith(Error, 'You must specify a default role: administrator, developer');
+				});
 			});
 
 			describe('update()', () => {
