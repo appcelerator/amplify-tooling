@@ -5,7 +5,7 @@ import tmp from 'tmp';
 
 tmp.setGracefulCleanup();
 
-const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 
 describe('Auth', () => {
 	describe('Constructor', () => {

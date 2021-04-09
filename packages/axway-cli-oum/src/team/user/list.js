@@ -12,7 +12,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'List all members in a team',
+	desc: 'List all users in a team',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON'
@@ -26,7 +26,7 @@ export default {
 			throw new Error(`Unable to find team "${argv.team}"`);
 		}
 
-		const { users } = await sdk.team.member.list(account, org, team.guid);
+		const { users } = await sdk.team.user.list(account, org, team.guid);
 
 		if (argv.json) {
 			console.log(JSON.stringify({
@@ -46,12 +46,12 @@ export default {
 		console.log(`Team:         ${highlight(team.name)} ${note(`(${team.guid})`)}\n`);
 
 		if (!users.length) {
-			console.log('No members found');
+			console.log('No users found');
 			return;
 		}
 
 		const { createTable } = require('@axway/amplify-cli-utils');
-		const table = createTable([ 'Member', 'Email', 'GUID', 'Teams', 'Roles' ]);
+		const table = createTable([ 'User', 'Email', 'GUID', 'Teams', 'Roles' ]);
 
 		for (const { email, guid, name, roles, teams } of users) {
 			table.push([

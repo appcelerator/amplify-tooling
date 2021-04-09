@@ -1,5 +1,6 @@
-# v1.9.0
+# v2.0.0
 
+ * BREAKING CHANGE: Removed MBS and Titanium app development APIs.
  * feat: Added organization and user management APIs.
  * feat: Added HTTP status code to error messages.
  * chore: Updated `keytar` from v7.4.0 to v7.5.0.

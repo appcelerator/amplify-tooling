@@ -16,12 +16,12 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Add a new member to a team',
+	desc: 'Add a new user to a team',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON',
 		'--role [role]': {
-			desc: 'Assign one or more team roles to a member',
+			desc: 'Assign one or more team roles to a user',
 			multiple: true
 		}
 	},
@@ -30,7 +30,7 @@ export default {
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 		const results = {
 			account: account.name,
-			...(await sdk.team.member.add(account, org, argv.team, argv.user, argv.role))
+			...(await sdk.team.user.add(account, org, argv.team, argv.user, argv.role))
 		};
 
 		if (argv.json) {
@@ -45,6 +45,6 @@ export default {
 			console.log(`Successfully added ${highlight(name)} to the ${highlight(results.team.name)} team`);
 		}
 
-		await cli.emitAction('axway:oum:team:member:add', results);
+		await cli.emitAction('axway:oum:team:user:add', results);
 	}
 };

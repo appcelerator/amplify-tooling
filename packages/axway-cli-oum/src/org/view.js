@@ -40,7 +40,7 @@ export default {
 		}
 		console.log(`  Active:        ${highlight(org.active ? 'Yes' : 'No')}`);
 		console.log(`  Region:        ${highlight(org.region === 'US' ? 'United States' : org.region)}`);
-		console.log(`  Members:       ${highlight(`${org.userCount} user${org.userCount !== 1 ? 's' : ''}${org.seats ? ` / ${org.seats} seat${org.seats !== 1 ? 's' : ''}` : ''}`)}`);
+		console.log(`  Users:         ${highlight(`${org.userCount} user${org.userCount !== 1 ? 's' : ''}${org.seats ? ` / ${org.seats} seat${org.seats !== 1 ? 's' : ''}` : ''}`)}`);
 		if (org.insightUserCount) {
 			console.log(`  Insight Users: ${highlight(`${org.insightUserCount} user${org.insightUserCount !== 1 ? 's' : ''}`)}`);
 		}
@@ -61,7 +61,7 @@ export default {
 		console.log(subs.toString());
 
 		if (org.childOrgs) {
-			const children = createTable([ '  Name', 'GUID', 'Date Created', 'Status', 'Members' ]);
+			const children = createTable([ '  Name', 'GUID', 'Date Created', 'Status', 'Users' ]);
 			for (const o of org.childOrgs) {
 				children.push([
 					`  ${o.name}`,

@@ -17,7 +17,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Remove a member from a team',
+	desc: 'Remove a user from a team',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON'
@@ -25,7 +25,7 @@ export default {
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const { team, user } = await sdk.team.member.remove(account, org, argv.team, argv.user);
+		const { team, user } = await sdk.team.user.remove(account, org, argv.team, argv.user);
 
 		const results = {
 			account: account.name,
@@ -46,6 +46,6 @@ export default {
 			console.log(`Successfully removed user ${highlight(name)} from the ${highlight(team.name)} team`);
 		}
 
-		await cli.emitAction('axway:oum:team:member:remove', results);
+		await cli.emitAction('axway:oum:team:user:remove', results);
 	}
 };

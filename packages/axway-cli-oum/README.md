@@ -1,6 +1,6 @@
 # Axway AMPLIFY OUM CLI
 
-Manage organizations, teams, and members.
+Manage organizations, teams, and users.
 
 ## Installation
 
@@ -26,23 +26,23 @@ Rename an organization:
 
 	$ axway org rename <org> <name>
 
-### Organization Members
+### Organization Users
 
-List all organization members:
+List all organization users:
 
-	$ axway org member list <org>
+	$ axway org user list <org>
 
-Add a member to an org:
+Add a user to an org:
 
-	$ axway org member add <org> <guid|email> --role <role1> [...--role <role2>]
+	$ axway org user add <org> <guid|email> --role <role1> [...--role <role2>]
 
-Update a member's roles:
+Update a user's roles:
 
-	$ axway org member update <org> <guid|email> --role <role1> [...--role <role2>]
+	$ axway org user update <org> <guid|email> --role <role1> [...--role <role2>]
 
-Delete a member:
+Delete a user:
 
-	$ axway org member remove <org> <guid|email>
+	$ axway org user remove <org> <guid|email>
 
 ### Organization Teams
 
@@ -70,23 +70,23 @@ Remove a team from an org:
 
 	$ axway team remove <org> <team>
 
-### Organization Team Members
+### Organization Team Users
 
-List all members in a team:
+List all users in a team:
 
-	$ axway team member list <org> <team>
+	$ axway team user list <org> <team>
 
-Add a member to a team:
+Add a user to a team:
 
-	$ axway team member add <org> <team> <guid|email> --role <role1> [...--role <role2>]
+	$ axway team user add <org> <team> <guid|email> --role <role1> [...--role <role2>]
 
-Update a member's role within a team:
+Update a user's role within a team:
 
-	$ axway team member update <org> <team> <guid|email> --role <role1> [...--role <role2>]
+	$ axway team user update <org> <team> <guid|email> --role <role1> [...--role <role2>]
 
-Remove a member from a team:
+Remove a user from a team:
 
-	$ axway team member remove <org> <team> <guid|email>
+	$ axway team user remove <org> <team> <guid|email>
 
 ### Organization Usage
 

@@ -6,7 +6,7 @@ export default {
 			desc: 'The organization name, id, or guid; defaults to the current org'
 		}
 	],
-	desc: 'List all members in an organization',
+	desc: 'List all users in an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON'
@@ -15,7 +15,7 @@ export default {
 		const { initPlatformAccount } = require('../../lib/util');
 		const { createTable } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const { users } = await sdk.org.member.list(account, org);
+		const { users } = await sdk.org.user.list(account, org);
 
 		if (argv.json) {
 			console.log(JSON.stringify({
@@ -33,11 +33,11 @@ export default {
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		if (!users.length) {
-			console.log('No members found');
+			console.log('No users found');
 			return;
 		}
 
-		const table = createTable([ 'Member', 'Email', 'GUID', 'Teams', 'Roles' ]);
+		const table = createTable([ 'User', 'Email', 'GUID', 'Teams', 'Roles' ]);
 
 		for (const { email, guid, name, roles, teams } of users) {
 			table.push([

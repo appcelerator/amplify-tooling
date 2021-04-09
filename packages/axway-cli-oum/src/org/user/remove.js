@@ -1,4 +1,5 @@
 export default {
+	aliases: [ 'rm' ],
 	args: [
 		{
 			name: 'org',
@@ -11,14 +12,10 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Update an member\'s organization roles',
+	desc: 'Remove a user from an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--json': 'Outputs accounts as JSON',
-		'--role [role]': {
-			desc: 'Assign one or more team roles to a member',
-			multiple: true
-		}
+		'--json': 'Outputs accounts as JSON'
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
@@ -31,8 +28,7 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const { roles, user } = await sdk.org.member.update(account, org, argv.user, argv.role);
-
+		const { user } = await sdk.org.user.remove(account, org, argv.user);
 		const results = {
 			account: account.name,
 			org,
@@ -42,10 +38,10 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const name = `${user.firstname} ${user.lastname}`.trim();
-			console.log(`Successfully updated role${roles === 1 ? '' : 's'} for ${highlight(name)}`);
+			const name = `${results.user.firstname} ${results.user.lastname}`.trim();
+			console.log(`Successfully removed user "${highlight(name)}" from organization`);
 		}
 
-		await cli.emitAction('axway:oum:org:member:update', results);
+		await cli.emitAction('axway:oum:org:user:remove', results);
 	}
 };

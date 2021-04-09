@@ -2,7 +2,7 @@ export default {
 	args: [
 		{
 			name: 'org',
-			desc: 'The organization name, id, or guid',
+			desc: 'The organization name, id, or guid; defaults to the current org',
 			required: true
 		},
 		{
@@ -11,14 +11,13 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Add a new member to an organization',
+	desc: 'Update an user\'s organization roles',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': 'Outputs accounts as JSON',
 		'--role [role]': {
-			desc: 'Assign one or more team roles to a member',
-			multiple: true,
-			required: true
+			desc: 'Assign one or more team roles to a user',
+			multiple: true
 		}
 	},
 	async action({ argv, cli, console }) {
@@ -32,20 +31,21 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const { user } = await sdk.org.member.add(account, org, argv.user, argv.role);
+		const { roles, user } = await sdk.org.user.update(account, org, argv.user, argv.role);
+
 		const results = {
 			account: account.name,
 			org,
-			user: await sdk.user.find(account, user.guid)
+			user
 		};
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const name = `${results.user.firstname} ${results.user.lastname}`.trim();
-			console.log(`Successfully added ${highlight(name)} to ${highlight(org.name)}`);
+			const name = `${user.firstname} ${user.lastname}`.trim();
+			console.log(`Successfully updated role${roles === 1 ? '' : 's'} for ${highlight(name)}`);
 		}
 
-		await cli.emitAction('axway:oum:org:member:add', results);
+		await cli.emitAction('axway:oum:org:user:update', results);
 	}
 };

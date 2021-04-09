@@ -1,9 +1,8 @@
 export default {
-	aliases: [ 'rm' ],
 	args: [
 		{
 			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org',
+			desc: 'The organization name, id, or guid',
 			required: true
 		},
 		{
@@ -12,10 +11,15 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Remove a member from an organization',
+	desc: 'Add a new user to an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--json': 'Outputs accounts as JSON'
+		'--json': 'Outputs accounts as JSON',
+		'--role [role]': {
+			desc: 'Assign one or more team roles to a user',
+			multiple: true,
+			required: true
+		}
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
@@ -28,20 +32,20 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const { user } = await sdk.org.member.remove(account, org, argv.user);
+		const { user } = await sdk.org.user.add(account, org, argv.user, argv.role);
 		const results = {
 			account: account.name,
 			org,
-			user
+			user: await sdk.user.find(account, user.guid)
 		};
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
 			const name = `${results.user.firstname} ${results.user.lastname}`.trim();
-			console.log(`Successfully removed user "${highlight(name)}" from organization`);
+			console.log(`Successfully added ${highlight(name)} to ${highlight(org.name)}`);
 		}
 
-		await cli.emitAction('axway:oum:org:member:remove', results);
+		await cli.emitAction('axway:oum:org:user:add', results);
 	}
 };

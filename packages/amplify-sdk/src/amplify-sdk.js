@@ -4,7 +4,6 @@ import fs from 'fs-extra';
 import getEndpoints from './endpoints';
 import open from 'open';
 import path from 'path';
-import querystring from 'querystring';
 import Server from './server';
 import setCookie from 'set-cookie-parser';
 import snooplogg from 'snooplogg';
@@ -104,7 +103,9 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>} Resolves the original account info object.
 			 */
 			findSession: async account => {
-				const result = await this.request('/api/v1/auth/findSession', account, { errorMsg: 'Failed to find session' });
+				const result = await this.request('/api/v1/auth/findSession', account, {
+					errorMsg: 'Failed to find session'
+				});
 				account.isPlatform = !!result;
 
 				if (!result) {
@@ -168,10 +169,12 @@ export default class AmplifySDK {
 				account = await this.auth.findSession(account);
 				await this.client.updateAccount(account);
 
-				log(`Current org: ${highlight(account.org.name)} ${note(`(${account.org.guid})`)}`);
-				log('Available orgs:');
-				for (const org of account.orgs) {
-					log(`  ${highlight(org.name)} ${note(`(${org.guid})`)}`);
+				if (account.isPlatform) {
+					log(`Current org: ${highlight(account.org.name)} ${note(`(${account.org.guid})`)}`);
+					log('Available orgs:');
+					for (const org of account.orgs) {
+						log(`  ${highlight(org.name)} ${note(`(${org.guid})`)}`);
+					}
 				}
 
 				return account;
@@ -268,15 +271,23 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>} Resolves the updated account object.
 			 */
 			switchOrg: async (account, org) => {
-				assertPlatformAccount(account);
-				const { id } = this.resolveOrg(account, org);
-
 				if (!account || account.auth.expired) {
 					log(`${account ? 'Account is expired' : 'No account specified'}, doing login`);
 					account = await this.client.login();
 				} else {
+					try {
+						org = this.resolveOrg(account, org);
+					} catch (err) {
+						if (err.code !== 'ERR_INVALID_ACCOUNT' && err.code !== 'ERR_INVALID_PLATFORM_ACCOUNT' && err.code !== 'ERR_INVALID_ARGUMENT') {
+							// probably org not found
+							throw err;
+						}
+						org = undefined;
+					}
+
 					const server = new Server();
 					const { start, url: redirect } = await server.createCallback((req, res) => {
+						log(`Telling browser to redirect to ${highlight(this.opts.platformUrl)}`);
 						res.writeHead(302, {
 							Location: this.opts.platformUrl
 						});
@@ -286,7 +297,7 @@ export default class AmplifySDK {
 					try {
 						try {
 							const url = createURL(`${this.opts.platformUrl}/#/auth/org.select`, {
-								org_id: id,
+								org_id: org?.id,
 								redirect
 							});
 							log(`Launching default web browser: ${highlight(url)}`);
@@ -304,7 +315,7 @@ export default class AmplifySDK {
 				}
 
 				try {
-					// refresh the account
+					log('Refreshing the account session...');
 					if (account.sid) {
 						log(`Deleting sid ${account.sid}`);
 						delete account.sid;
@@ -316,87 +327,6 @@ export default class AmplifySDK {
 				}
 
 				throw new Error('Failed to switch organization');
-			}
-		};
-
-		const mbsUserHelper = async (account, groupId, env, opts) => {
-			if (!groupId || typeof groupId !== 'string') {
-				throw new TypeError('Expected group id to be a non-empty string');
-			}
-			if (!env || typeof env !== 'string') {
-				throw new TypeError('Expected env to be a non-empty string');
-			}
-			const { response } = await this.request(`/api/v1/acs/${groupId}/${env}/data/user`, account, opts);
-			return response.users;
-		};
-
-		this.mbs = {
-			/**
-			 * Creates a new MBS app for each MBS environment.
-			 * @param {Object} account - The account object.
-			 * @param {String} appGuid - The MBS app guid.
-			 * @param {String} appName - The MBS name.
-			 * @returns {Promise<Array>} Resolves the list of created apps.
-			 */
-			createApps: async (account, appGuid, appName) => {
-				const { response } = await this.request('/api/v1/acs', account, {
-					errorMsg: 'Failed to create MBS apps',
-					json: {
-						app_guid: appGuid,
-						app_name: appName
-					}
-				});
-				return response.apps;
-			},
-
-			/**
-			 * Creates an MBS user.
-			 * @param {Object} account - The account object.
-			 * @param {String} groupId - The MBS app guid (i.e. group id).
-			 * @param {String} env - The MBS environment (production, development, VPC name).
-			 * @param {Object} userInfo - Detailed user information.
-			 * @param {?} [userInfo.admin] - A admin flag of some sort.
-			 * @param {?} [userInfo.custom_fields] - Custom fields of some sort.
-			 * @param {String} [userInfo.email] - The user's email address.
-			 * @param {String} [userInfo.first_name] - The user's first name.
-			 * @param {String} [userInfo.last_name] - The user's last name.
-			 * @param {String} userInfo.password - The user's password.
-			 * @param {String} userInfo.password_confirmation - The password confirmation.
-			 * @param {?} [userInfo.photo_id] - A photo id of some sort.
-			 * @param {?} [userInfo.role] - The user's role.
-			 * @param {?} [userInfo.tags] - Metadata of some sort.
-			 * @param {String} [userInfo.username] - The user's username.
-			 * @returns {Promise<Array>} Resolves the newly created user record including the `id`,
-			 * `first_name`, `last_name`, `created_at`, `updated_at`, `external_accounts`,
-			 * `confirmed_at`, `username`, `email`, `admin`, `stats`, and `friend_counts`.
-			 */
-			createUser: async (account, groupId, env, userInfo) => {
-				if (!userInfo || typeof userInfo !== 'object') {
-					throw new TypeError('Expected user info to be an object');
-				}
-				if (!userInfo.password || typeof userInfo.password !== 'string') {
-					throw new TypeError('Expected user password to be a non-empty string');
-				}
-				if (!userInfo.password_confirmation || typeof userInfo.password_confirmation !== 'string') {
-					throw new TypeError('Expected user password confirmation to be a non-empty string');
-				}
-				return (await mbsUserHelper(account, groupId, env, {
-					errorMsg: 'Failed to create MBS user',
-					json: userInfo
-				}))[0];
-			},
-
-			/**
-			 * Retrieves the list of environments associated to the user's org.
-			 * @param {Object} account - The account object.
-			 * @param {String} groupId - The MBS app guid (i.e. group id).
-			 * @param {String} env - The MBS environment (production, development, VPC name).
-			 * @returns {Promise<Array>}
-			 */
-			getUsers: async (account, groupId, env) => {
-				return await mbsUserHelper(account, groupId, env, {
-					errorMsg: 'Failed to get MBS user'
-				});
 			}
 		};
 
@@ -569,7 +499,7 @@ export default class AmplifySDK {
 				})).sort((a, b) => a.name.localeCompare(b.name));
 			},
 
-			member: {
+			user: {
 				/**
 				 * Adds a user to an org.
 				 * @param {Object} account - The account object.
@@ -583,7 +513,7 @@ export default class AmplifySDK {
 					return {
 						org,
 						user: await this.request(`/api/v1/org/${org.id}/user`, account, {
-							errorMsg: 'Failed to add member to organization',
+							errorMsg: 'Failed to add user to organization',
 							json: {
 								email: user,
 								roles: await this.org.resolveRoles(account, roles)
@@ -600,7 +530,7 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				find: async (account, org, user) => {
-					const { users } = await this.org.member.list(account, org);
+					const { users } = await this.org.user.list(account, org);
 					user = user.toLowerCase();
 					return users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user);
 				},
@@ -613,12 +543,12 @@ export default class AmplifySDK {
 				 */
 				list: async (account, org) => {
 					org = this.resolveOrg(account, org);
-					const members = await this.request(`/api/v1/org/${org.id}/user`, account, {
-						errorMsg: 'Failed to get organization members'
+					const users = await this.request(`/api/v1/org/${org.id}/user`, account, {
+						errorMsg: 'Failed to get organization users'
 					});
 					return {
 						org,
-						users: members.sort((a, b) => a.name.localeCompare(b.name))
+						users: users.sort((a, b) => a.name.localeCompare(b.name))
 					};
 				},
 
@@ -631,17 +561,17 @@ export default class AmplifySDK {
 				 */
 				remove: async (account, org, user) => {
 					org = this.resolveOrg(account, org);
-					const member = await this.org.member.find(account, org.guid, user);
+					const found = await this.org.user.find(account, org.guid, user);
 
-					if (!member) {
+					if (!found) {
 						throw new Error(`User "${user}" not found`);
 					}
 
 					return {
 						org,
-						user: member,
-						...(await this.request(`/api/v1/org/${org.id}/user/${member.guid}`, account, {
-							errorMsg: 'Failed to remove member from organization',
+						user: found,
+						...(await this.request(`/api/v1/org/${org.id}/user/${found.guid}`, account, {
+							errorMsg: 'Failed to remove user from organization',
 							method: 'delete'
 						}))
 					};
@@ -657,16 +587,16 @@ export default class AmplifySDK {
 				 */
 				update: async (account, org, user, roles) => {
 					org = this.resolveOrg(account, org);
-					const member = await this.org.member.find(account, org.guid, user);
+					const found = await this.org.user.find(account, org.guid, user);
 
-					if (!member) {
+					if (!found) {
 						throw new Error(`User "${user}" not found`);
 					}
 
 					roles = await this.org.resolveRoles(account, roles);
 
-					org = await this.request(`/api/v1/org/${org.id}/user/${member.guid}`, account, {
-						errorMsg: 'Failed to update member\'s organization roles',
+					org = await this.request(`/api/v1/org/${org.id}/user/${found.guid}`, account, {
+						errorMsg: 'Failed to update user\'s organization roles',
 						json: {
 							roles
 						},
@@ -676,7 +606,7 @@ export default class AmplifySDK {
 					return {
 						org,
 						roles,
-						user: member
+						user: found
 					};
 				}
 			},
@@ -755,12 +685,11 @@ export default class AmplifySDK {
 			usage: async (account, org, params = {}) => {
 				const { id } = this.resolveOrg(account, org);
 				const { from, to } = resolveDateRange(params.from, params.to);
-				let url = `/api/v1/org/${id}/usage`;
 
+				let url = `/api/v1/org/${id}/usage`;
 				if (from) {
 					url += `?from=${from.toISOString()}`;
 				}
-
 				if (to) {
 					url += `${from ? '&' : '?'}to=${to.toISOString()}`;
 				}
@@ -922,7 +851,7 @@ export default class AmplifySDK {
 				};
 			},
 
-			member: {
+			user: {
 				/**
 				 * Adds a user to a team.
 				 * @param {Object} account - The account object.
@@ -934,16 +863,21 @@ export default class AmplifySDK {
 				 */
 				add: async (account, org, team, user, roles) => {
 					({ org, team } = await this.team.find(account, org, team));
-					user = await this.user.find(account, org, user);
+					const found  = await this.user.find(account, org, user);
+
+					if (!found) {
+						throw new Error(`User "${user}" not found`);
+					}
+
 					return {
 						org,
-						team: await this.request(`/api/v1/team/${team.guid}/user/${user.guid}`, account, {
-							errorMsg: 'Failed to add member to organization',
+						team: await this.request(`/api/v1/team/${team.guid}/user/${found.guid}`, account, {
+							errorMsg: 'Failed to add user to organization',
 							json: {
 								roles: await this.team.resolveRoles(account, roles)
 							}
 						}),
-						user
+						user: found
 					};
 				},
 
@@ -957,7 +891,7 @@ export default class AmplifySDK {
 				 */
 				find: async (account, org, team, user) => {
 					let users;
-					({ team, users } = await this.team.member.list(account, org, team));
+					({ team, users } = await this.team.user.list(account, org, team));
 					user = user.toLowerCase();
 					return {
 						org,
@@ -975,7 +909,7 @@ export default class AmplifySDK {
 				 */
 				list: async (account, org, team) => {
 					({ team } = await this.team.find(account, org, team));
-					const { users: allUsers } = await this.org.member.list(account, org.guid);
+					const { users: allUsers } = await this.org.user.list(account, org.guid);
 					return {
 						org,
 						team,
@@ -997,22 +931,22 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				remove: async (account, org, team, user) => {
-					let member;
-					({ user: member, team } = await this.team.member.find(account, org, team, user));
+					let found;
+					({ user: found, team } = await this.team.user.find(account, org, team, user));
 
-					if (!member) {
-						throw new Error(`Member "${user}" not found`);
+					if (!found) {
+						throw new Error(`User "${user}" not found`);
 					}
 
-					await this.request(`/api/v1/team/${team.guid}/user/${member.guid}`, account, {
-						errorMsg: 'Failed to remove member from team',
+					await this.request(`/api/v1/team/${team.guid}/user/${found.guid}`, account, {
+						errorMsg: 'Failed to remove user from team',
 						method: 'delete'
 					});
 
 					return {
 						org,
 						team,
-						user: member
+						user: found
 					};
 				},
 
@@ -1026,17 +960,17 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				update: async (account, org, team, user, roles) => {
-					let member;
-					({ user: member, team } = await this.team.member.find(account, org, team, user));
+					let found;
+					({ user: found, team } = await this.team.user.find(account, org, team, user));
 
-					if (!member) {
-						throw new Error(`Member "${user}" not found`);
+					if (!found) {
+						throw new Error(`User "${user}" not found`);
 					}
 
 					roles = await this.team.resolveRoles(account, roles);
 
-					team = await this.request(`/api/v1/team/${team.guid}/user/${member.guid}`, account, {
-						errorMsg: 'Failed to update member\'s organization roles',
+					team = await this.request(`/api/v1/team/${team.guid}/user/${found.guid}`, account, {
+						errorMsg: 'Failed to update user\'s organization roles',
 						json: {
 							roles
 						},
@@ -1046,7 +980,7 @@ export default class AmplifySDK {
 					return {
 						org,
 						team,
-						user: member,
+						user: found,
 						roles
 					};
 				}
@@ -1143,193 +1077,6 @@ export default class AmplifySDK {
 			}
 		};
 
-		this.ti = {
-			/**
-			 * Updates the app's build info in the platform.
-			 * @param {Object} account - The account object.
-			 * @param {Object} data - Post data.
-			 * @param {String} data.buildId - The build id.
-			 * @param {String} data.buildSHA - A SHA of all SHAs of encrypted .js files.
-			 * @param {Object} data.keys - A map of filenames of the encrypted .js files and their
-			 * respective keys.
-			 * @returns {Promise}
-			 */
-			buildUpdate: async (account, data) => {
-				if (!data || typeof data !== 'object') {
-					throw new TypeError('Expected data to be an object');
-				}
-				if (!data.buildId || typeof data.buildId !== 'string') {
-					throw new TypeError('Expected build id to be a string');
-				}
-				if (!data.buildSHA || typeof data.buildSHA !== 'string') {
-					throw new TypeError('Expected build SHA to be a string');
-				}
-				if (!data.keys || typeof data.keys !== 'object') {
-					throw new TypeError('Expected keys to be an object');
-				}
-
-				await this.request('/api/v1/auth/build-update', account, {
-					errorMsg: 'Failed to update build info',
-					json: {
-						buildid:  data.buildId,
-						buildsha: data.buildSHA,
-						keys:     { ...data.keys }
-					}
-				});
-			},
-
-			/**
-			 * Verifies the app is registered and the user has rights to build the app and use the
-			 * modules.
-			 * @param {Object} account - The account object.
-			 * @param {Object} data - Post data.
-			 * @param {String} data.appGuid - The application guid.
-			 * @param {String} data.appId - The application id.
-			 * @param {String} data.deployType - The deploy type (production, test, development).
-			 * @param {String} data.fingerprint - The machine's fingerprint.
-			 * @param {String} [data.modules] - An array of modules from the `tiapp.xml`.
-			 * @param {String} data.name - The name of the application.
-			 * @param {String} data.tiapp - The contents of the `tiapp.xml`.
-			 * @returns {Promise<Object>} Resolves the verification info.
-			 */
-			buildVerify: async (account, data) => {
-				if (!data || typeof data !== 'object') {
-					throw new TypeError('Expected data to be an object');
-				}
-				for (const key of [ 'appGuid', 'appId', 'deployType', 'fingerprint', 'name', 'tiapp' ]) {
-					if (!data[key] || typeof data[key] !== 'string') {
-						throw new TypeError(`Expected ${key.replace(/[A-Z]/g, s => ` ${s.toLowerCase()}`)} to be a non-empty string`);
-					}
-				}
-				if (data.modules) {
-					if (!Array.isArray(data.modules) || data.modules.some(m => !m || typeof m !== 'object')) {
-						throw new TypeError('Expected modules to be an array of objects');
-					}
-					data.modules = data.modules.map(m => {
-						const obj = { ...m };
-						delete obj.bindings;
-						return obj;
-					});
-				}
-
-				try {
-					return await this.request('/api/v1/auth/build-verify', account, {
-						errorMsg: 'Failed to verify build',
-						json: {
-							appid:                   data.appId,
-							deploytype:              data.deployType,
-							fingerprint:             data.fingerprint,
-							fingerprint_description: '',
-							guid:                    data.appGuid,
-							ipaddress:               '',
-							modules:                 data.modules,
-							name:                    data.name,
-							org_id:                  account.org.id,
-							tiappxml:                data.tiapp
-						}
-					});
-				} catch (err) {
-					// strip off the irrelevant message saying to logout via the old Appc CLI
-					err.message = err.message.replace(/\s*Please logout.*$/i, '');
-					throw err;
-				}
-			},
-
-			/**
-			 * Generates a developer certificate.
-			 * @param {Object} account - The account object.
-			 * @param {Object} data - Various post data.
-			 * @param {String} data.description - The description to use for the cert.
-			 * @param {String} data.fingerprint - The machine's fingerprint.
-			 * @param {String} data.publicKey - Public key to use for the cert.
-			 * @returns {Promise<Object>} Resolves the server generated developer certificate.
-			 */
-			enroll: async (account, data) => {
-				if (!data || typeof data !== 'object') {
-					throw new TypeError('Expected data to be an object');
-				}
-				for (const key of [ 'description', 'fingerprint', 'publicKey' ]) {
-					if (!data[key] || typeof data[key] !== 'string') {
-						throw new TypeError(`Expected ${key.replace(/[A-Z]/g, s => ` ${s.toLowerCase()}`)} to be a non-empty string`);
-					}
-				}
-				return await this.request('/api/v1/auth/dev-enroll', account, {
-					errorMsg: 'Failed to enroll developer',
-					json: data,
-					resultKey: 'certificate'
-				});
-			},
-
-			/**
-			 * Retrieves the URL to upload symbols for crash analytics.
-			 * @param {Object} account - The account object.
-			 * @param {Object} appGuid - The Titanium application guid.
-			 * @returns {Promise<Object>} Resolves an object containing the `url`, `api_token`,
-			 * `limit`, and `module`.
-			 */
-			getACAUploadURL: async (account, appGuid) => {
-				if (!appGuid || typeof appGuid !== 'string') {
-					throw new TypeError('Expected app guid');
-				}
-				return await this.request(`/api/v1/app/${appGuid}/upload`, account, {
-					errorMsg: 'Failed to get ACA upload URL'
-				});
-			},
-
-			/**
-			 * Gets info about a Titanium app.
-			 * @param {Object} account - The account object.
-			 * @param {String} appGuid - The application guid.
-			 * @returns {Promise<Object>} Resolves the app info.
-			 */
-			getApp: async (account, appGuid) => {
-				if (!appGuid || typeof appGuid !== 'string') {
-					throw new TypeError('Expected app guid');
-				}
-				return await this.request(`/api/v1/app/${appGuid}`, account, {
-					errorMsg: 'Failed to get app info'
-				});
-			},
-
-			/**
-			 * Constructs the app verify URL that gets embedded in a Titanium app.
-			 * @returns {String}
-			 */
-			getAppVerifyURL: () => `${this.env.platformUrl}/api/v1/app/verify`,
-
-			/**
-			 * Returns the list of Titanium modules.
-			 * @param {Object} account - The account object.
-			 * @returns {Promise<Array>} Resolves the list of modules.
-			 */
-			getDownloads: async account => await this.request('/api/v1/downloads', account, {
-				errorMsg: 'Failed to get downloads'
-			}),
-
-			/**
-			 * Updates or registers a Titanium app with the platform by uploading a `tiapp.xml`.
-			 * The tiapp must contain a `<name>`, `<id>`, and a `<guid>`.
-			 * @param {Object} account - The account object.
-			 * @param {String} tiapp - The contents of the `tiapp.xml`.
-			 * @param {Object} [params] - Additional paramters to
-			 * @param {Boolean} [params.import] - Registers an existing app with the platform.
-			 * @param {Number} [params.org_id] - The organization to register the app with.
-			 * @returns {Promise<Object>} Resolves the app info.
-			 */
-			setApp: async (account, tiapp, params) => {
-				if (!tiapp || typeof tiapp !== 'string') {
-					throw new TypeError('Expected tiapp to be a non-empty string');
-				}
-				if (params && typeof params !== 'object') {
-					throw new TypeError('Expected params to be an object');
-				}
-				return await this.request(`/api/v1/app/saveFromTiApp${params ? `?${querystring.stringify(params)}` : ''}`, account, {
-					errorMsg: 'Failed to update/register app',
-					json: { tiapp }
-				});
-			}
-		};
-
 		this.user = {
 			/**
 			 * Retrieves an account's user's activity.
@@ -1360,7 +1107,7 @@ export default class AmplifySDK {
 
 				if (user.includes('@')) {
 					org = this.resolveOrg(account, org);
-					const { users: allUsers } = await this.org.member.list(account, org.guid);
+					const { users: allUsers } = await this.org.user.list(account, org.guid);
 					const luser = user.toLowerCase();
 					const found = allUsers.find(u => u.email.toLowerCase() === luser);
 					if (!found) {
@@ -1503,7 +1250,7 @@ export default class AmplifySDK {
 				responseType: 'json',
 				retry: 0
 			};
-			let err;
+			let error;
 
 			try {
 				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
@@ -1512,19 +1259,19 @@ export default class AmplifySDK {
 				}
 				response = await this.got[method](url, opts);
 			} catch (e) {
-				err = e;
+				error = e;
 			}
 
-			if (err || (path === '/api/v1/auth/findSession' && response.body?.[resultKey] === null)) {
-				if (account.sid && err.response?.statusCode === 401) {
+			if (error || (path === '/api/v1/auth/findSession' && response.body?.[resultKey] === null)) {
+				if (account.sid && error.response?.statusCode === 401) {
 					// sid is probably bad, try again with the token
 					warn('Platform session was invalidated, trying again to reinitialize session with token');
 					headers.Authorization = `Bearer ${token}`;
 					delete headers.Cookie;
 					log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
 					response = await this.got[method](url, opts);
-				} else  {
-					throw err;
+				} else if (error) {
+					throw error;
 				}
 			}
 
@@ -1553,6 +1300,14 @@ export default class AmplifySDK {
 		}
 	}
 
+	/**
+	 * Resolves an org by name, id, org guid using the specified account.
+	 *
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} [org] - The organization object, name, guid, or id.
+	 * @returns {Promise<Object>} Resolves the org info from the account object.
+	 * @access public
+	 */
 	resolveOrg(account, org) {
 		assertPlatformAccount(account);
 
@@ -1560,8 +1315,12 @@ export default class AmplifySDK {
 			return org;
 		}
 
+		if (org === undefined) {
+			org = account.org.guid;
+		}
+
 		if (typeof org !== 'string' && typeof org !== 'number') {
-			throw new TypeError('Expected organization identifier');
+			throw E.INVALID_ARGUMENT('Expected organization identifier');
 		}
 
 		const found = account.orgs.find(o => {
@@ -1571,7 +1330,7 @@ export default class AmplifySDK {
 		});
 
 		if (!found) {
-			throw new Error(`Unable to find an organization "${org}"`);
+			throw new Error(`Unable to find the organization "${org}"`);
 		}
 
 		log(`Resolved org "${org}" as ${found.name} (${found.id}) ${found.guid}`);
@@ -1580,6 +1339,11 @@ export default class AmplifySDK {
 	}
 }
 
+/**
+ * Checks that the specified account is a platform account.
+ *
+ * @param {Object} account - The account object.
+ */
 function assertPlatformAccount(account) {
 	if (!account || typeof account !== 'object') {
 		throw E.INVALID_ACCOUNT('Account required');
@@ -1590,6 +1354,13 @@ function assertPlatformAccount(account) {
 	}
 }
 
+/**
+ * Takes two date strings in the format `YYYY-MM-DD` and returns them as date objects.
+ *
+ * @param {String} [from] - The range start date.
+ * @param {String} [to] - The range end date.
+ * @returns {Object}
+ */
 function resolveDateRange(from, to) {
 	const r = {
 		from: null,

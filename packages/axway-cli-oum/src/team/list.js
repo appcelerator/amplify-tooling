@@ -37,7 +37,7 @@ export default {
 		}
 
 		const { createTable } = require('@axway/amplify-cli-utils');
-		const table = createTable([ 'Name', 'Description', 'GUID', 'Members', 'Apps', 'Date Created' ]);
+		const table = createTable([ 'Name', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
 		const check = process.platform === 'win32' ? '√' : '✔';
 
 		for (const { apps, created, default: def, desc, guid, name, users } of teams) {

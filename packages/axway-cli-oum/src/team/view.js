@@ -42,7 +42,7 @@ export default {
 		console.log(`Org GUID:     ${highlight(team.guid)}`);
 		console.log(`Date Created: ${highlight(new Date(team.created).toLocaleString())}`);
 		console.log(`Is Default:   ${highlight(team.default ? 'Yes' : 'No')}`);
-		console.log(`Members:      ${highlight(team.users.length)}`);
+		console.log(`Users:        ${highlight(team.users.length)}`);
 		console.log(`Apps:         ${highlight(team.apps.length)}`);
 		console.log(`Tags:         ${team.tags.length ? highlight(team.tags.map(s => `"${s}"`).join(', ')) : note('n/a')}`);
 	}
