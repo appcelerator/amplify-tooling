@@ -917,7 +917,10 @@ export default class AmplifySDK {
 								...(allUsers.find(v => v.guid === u.guid) || {}),
 								roles: u.roles
 							}))
-							.sort((a, b) => a.name.localeCompare(b.name))
+							.sort((a, b) => {
+								const r = a.firstname.localeCompare(b.firstname);
+								return r !== 0 ? r : a.lastname.localeCompare(b.lastname);
+							})
 					};
 				},
 
@@ -975,6 +978,10 @@ export default class AmplifySDK {
 						},
 						method: 'put'
 					});
+
+					found.roles = team.users.reduce((v, u) => {
+						return u.guid === found.guid ? u.roles : v;
+					}, []);
 
 					return {
 						org,
@@ -1103,19 +1110,25 @@ export default class AmplifySDK {
 					return user;
 				}
 
-				if (user.includes('@')) {
+				try {
+					if (!user.includes('@')) {
+						return await this.request(`/api/v1/user/${user}`, account, {
+							errorMsg: 'Failed to find user'
+						});
+					}
+
 					const users = await this.request(`/api/v1/user?term=${user}`, account, {
 						errorMsg: 'Failed to find user'
 					});
-					if (users.length === 0) {
-						throw new Error(`User "${user}" not found`);
+
+					if (users.length > 0) {
+						return users[0];
 					}
-					return users[0];
+				} catch (err) {
+					warn(err.toString());
 				}
 
-				return await this.request(`/api/v1/user/${user}`, account, {
-					errorMsg: 'Failed to find user'
-				});
+				throw new Error(`User "${user}" not found`);
 			},
 
 			/**

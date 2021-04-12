@@ -7,6 +7,7 @@ import path from 'path';
 import Router from '@koa/router';
 import snooplogg from 'snooplogg';
 import { MemoryStore } from '../dist/index';
+import { v4 as uuidv4 } from 'uuid';
 
 const { log } = snooplogg('test:amplify-auth:common');
 const { highlight } = snooplogg.styles;
@@ -204,7 +205,7 @@ function createAPIRoutes(server, data) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: 'User is already a member of this org.'
+					message: 'User not found'
 				};
 				return;
 			}
@@ -310,22 +311,204 @@ function createAPIRoutes(server, data) {
 		};
 	});
 
+	router.delete('/v1/team/:guid/user/:user_guid', ctx => {
+		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		if (team) {
+			const idx = team.users.findIndex(u => u.guid === ctx.params.user_guid);
+
+			if (idx === -1) {
+				ctx.status = 400;
+				ctx.body = {
+					success: false,
+					message: `"user_guid" contained an invalid value.`
+				};
+				return;
+			}
+
+			team.users.splice(idx, 1);
+
+			ctx.body = {
+				success: true,
+				result: {}
+			};
+		}
+	});
+
+	router.post('/v1/team/:guid/user/:user_guid', ctx => {
+		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		if (team) {
+			const user = data.users.find(u => u.guid === ctx.params.user_guid);
+
+			if (!user) {
+				ctx.status = 400;
+				ctx.body = {
+					success: false,
+					message: 'User not found'
+				};
+				return;
+			}
+
+			if (team.users.find(u => u.guid === user.guid)) {
+				ctx.status = 400;
+				ctx.body = {
+					success: false,
+					message: 'User is already a member of this team.'
+				};
+				return;
+			}
+
+			if (!Array.isArray(team.users)) {
+				team.users = [];
+			}
+
+			team.users.push({
+				guid: user.guid,
+				roles: ctx.request.body.roles,
+				primary: true
+			})
+
+			ctx.body = {
+				success: true,
+				result: { guid: user.guid }
+			};
+		}
+	});
+
+	router.put('/v1/team/:guid/user/:user_guid', ctx => {
+		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		if (team) {
+			const user = team.users.find(u => u.guid === ctx.params.user_guid);
+
+			if (!user) {
+				ctx.status = 400;
+				ctx.body = {
+					success: false,
+					message: `"user_guid" contained an invalid value.`
+				};
+				return;
+			}
+
+			user.roles = ctx.request.body.roles;
+
+			ctx.body = {
+				success: true,
+				result: team
+			};
+		}
+	});
+
+	router.delete('/v1/team/:guid', ctx => {
+		const idx = data.teams.findIndex(t => t.guid === ctx.params.guid);
+		if (idx !== -1) {
+			data.teams.splice(idx, 1);
+			ctx.body = {
+				success: true,
+				result: {}
+			};
+		}
+	});
+
+	router.get('/v1/team/:guid', ctx => {
+		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		if (team) {
+			ctx.body = {
+				success: true,
+				result: team
+			};
+		}
+	});
+
+	router.put('/v1/team/:guid', ctx => {
+		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		if (team) {
+			const info = ctx.request.body;
+
+			if (info.name !== undefined) {
+				team.name = info.name;
+			}
+			if (info.default !== undefined) {
+				team.default = !!info.default;
+			}
+			if (info.desc !== undefined) {
+				team.desc = info.desc;
+			}
+			if (info.tags !== undefined) {
+				team.tags = info.tags;
+			}
+
+			ctx.body = {
+				success: true,
+				result: team
+			};
+		}
+	});
+
 	router.get('/v1/team', ctx => {
 		let { teams } = data;
 
-		const id = ctx.query.org_id;
-		if (id) {
-			const org = data.orgs.find(o => String(o.org_id) === id);
+		const { name, org_id } = ctx.query;
+		if (org_id) {
+			const org = data.orgs.find(o => String(o.org_id) === org_id);
 			if (!org) {
 				return;
 			}
-			teams = teams.filter(t => t.org_guid === org.guid);
+			teams = teams.filter(t => t.org_guid === org.guid &&
+				(!name || t.name.toLowerCase().includes(String(name).trim().toLowerCase())));
 		}
 
 		ctx.body = {
 			success: true,
 			result: teams
 		};
+	});
+
+	router.post('/v1/team', ctx => {
+		const info = ctx.request.body
+		const org = data.orgs.find(o => o.guid === info.org_guid);
+
+		if (!org) {
+			throw new Error('Org not found');
+		}
+
+		const team = {
+			name:     info.name,
+			guid:     uuidv4(),
+			default:  info.default === undefined ? true : !!info.default,
+			desc:     info.desc,
+			tags:     info.tags === undefined ? [] : info.tags,
+			org_guid: info.org_guid,
+			users:    []
+		};
+
+		data.teams.push(team);
+
+		ctx.body = {
+			success: true,
+			result: team
+		};
+	});
+
+	router.put('/v1/user/profile/:id', ctx => {
+		const { id } = ctx.params;
+		const user = data.users.find(u => u.guid === id);
+		if (user) {
+			const { firstname, lastname, phone } = ctx.request.body;
+
+			if (firstname) {
+				user.firstname = firstname;
+			}
+			if (lastname) {
+				user.lastname = lastname;
+			}
+			if (phone) {
+				user.phone = phone;
+			}
+
+			ctx.body = {
+				success: true,
+				result: user
+			};
+		}
 	});
 
 	router.get('/v1/user/:id', ctx => {
@@ -335,6 +518,16 @@ function createAPIRoutes(server, data) {
 			ctx.body = {
 				success: true,
 				result: user
+			};
+		}
+	});
+
+	router.get('/v1/user', ctx => {
+		const { term } = ctx.query;
+		if (term) {
+			ctx.body = {
+				success: true,
+				result: data.users.filter(u => u.email === term)
 			};
 		}
 	});
