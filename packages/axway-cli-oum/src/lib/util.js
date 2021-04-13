@@ -18,7 +18,7 @@ export async function initPlatformAccount(accountName, org) {
 	return {
 		account,
 		config,
-		org: sdk.resolveOrg(account, org || config.get(`auth.defaultOrg.${account.hash}`)),
+		org: await sdk.org.find(account, org || config.get(`auth.defaultOrg.${account.hash}`)),
 		sdk
 	};
 }

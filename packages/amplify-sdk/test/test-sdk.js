@@ -1,10 +1,6 @@
 import AmplifySDK from '../dist/index';
-// import tmp from 'tmp';
 import { createServer, stopServer } from './common';
 
-// tmp.setGracefulCleanup();
-
-// const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 const baseUrl = 'http://127.0.0.1:1337';
 const isCI = process.env.CI || process.env.JENKINS;
 
@@ -19,7 +15,7 @@ function createSDK(opts = {}) {
 	});
 }
 
-describe.only('amplify-sdk', () => {
+describe('amplify-sdk', () => {
 	describe('Error Handling', () => {
 		it('should error if options is not an object', () => {
 			expect(() => {

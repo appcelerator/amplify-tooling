@@ -786,7 +786,7 @@ export async function createLoginServer(opts = {}) {
 					}
 
 					res.writeHead(200, { 'Content-Type': 'application/json' });
-					res.end(fs.readFileSync(path.join(__dirname, 'server-info.json')));
+					res.end(fs.readFileSync(path.join(__dirname, 'server-info.json'), 'utf-8'));
 					break;
 
 				case '/':

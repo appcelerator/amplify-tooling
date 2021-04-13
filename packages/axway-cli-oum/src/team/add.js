@@ -29,6 +29,10 @@ export default {
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
+		if (!org.userRoles.includes('administrator')) {
+			throw new Error(`You do not have administrative access to add a new team to the "${org.name}" organization`);
+		}
+
 		const { team } = await sdk.team.create(account, org, argv.name, {
 			desc:    argv.desc,
 			default: argv.default,

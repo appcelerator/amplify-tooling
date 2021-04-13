@@ -21,6 +21,11 @@ export default {
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight } = snooplogg.styles;
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+
+		if (!org.userRoles.includes('administrator')) {
+			throw new Error('You do not have administrative access to rename the organization');
+		}
+
 		const result = await sdk.org.rename(account, org, argv.name);
 
 		if (argv.json) {

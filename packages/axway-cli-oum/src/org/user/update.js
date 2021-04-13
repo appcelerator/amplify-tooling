@@ -26,6 +26,10 @@ export default {
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
+		if (!org.userRoles.includes('administrator')) {
+			throw new Error('You do not have administrative access to update an organization\'s user roles');
+		}
+
 		if (!argv.json) {
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);

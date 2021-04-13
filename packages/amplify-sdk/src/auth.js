@@ -413,7 +413,7 @@ export default class Auth {
 		}
 
 		try {
-			log(`Fetching server info: ${url}...`);
+			log(`Fetching server info: ${highlight(url)}...`);
 			return (await this.got(url, { responseType: 'json', retry: 0 })).body;
 		} catch (err) {
 			if (err.name !== 'ParseError') {

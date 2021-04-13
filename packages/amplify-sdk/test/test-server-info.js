@@ -1,12 +1,12 @@
 import { Auth } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
-import { serverInfo } from './server-info';
+import { createServer, stopServer } from './common';
+import serverInfo from './server-info.json';
 
 describe('Server Info', () => {
-	afterEach(stopLoginServer);
+	afterEach(stopServer);
 
 	it('should fetch server info', async function () {
-		this.server = await createLoginServer();
+		this.server = await createServer();
 
 		const auth = new  Auth({
 			baseUrl:        'http://127.0.0.1:1337',

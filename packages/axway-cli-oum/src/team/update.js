@@ -28,6 +28,10 @@ export default {
 		const { initPlatformAccount } = require('../lib/util');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 
+		if (!org.userRoles.includes('administrator')) {
+			throw new Error(`You do not have administrative access to update a team in the "${org.name}" organization`);
+		}
+
 		const { changes, team } = await sdk.team.update(account, org, argv.team, {
 			desc:    argv.desc,
 			default: argv.default,

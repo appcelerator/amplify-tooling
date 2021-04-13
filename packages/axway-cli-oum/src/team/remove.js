@@ -20,6 +20,11 @@ export default {
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../lib/util');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+
+		if (!org.userRoles.includes('administrator')) {
+			throw new Error(`You do not have administrative access to remove a team from the "${org.name}" organization`);
+		}
+
 		const { team } = await sdk.team.remove(account, org, argv.team);
 		const results = {
 			account: account.name,

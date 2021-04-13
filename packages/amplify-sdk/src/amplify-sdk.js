@@ -112,7 +112,7 @@ export default class AmplifySDK {
 					return account;
 				}
 
-				const { org, orgs, user } = result;
+				const { org, orgs, role, roles, user } = result;
 
 				account.org = {
 					entitlements: Object
@@ -135,6 +135,9 @@ export default class AmplifySDK {
 					id: org_id,
 					name
 				}));
+
+				account.role = role;
+				account.roles = roles;
 
 				Object.assign(account.user, {
 					axwayId:      user.axway_id,
@@ -418,13 +421,15 @@ export default class AmplifySDK {
 					guid:             org.guid,
 					id:               id,
 					name:             org.name,
+					entitlements:     org.entitlements,
 					parentOrg:        null,
 					region:           org.region,
 					insightUserCount: ~~org.entitlements.limit_read_only_users,
 					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
 					subscriptions,
 					teamCount:        (await this.team.list(account, id)).length,
-					userCount:        org.users.length
+					userCount:        org.users.length,
+					userRoles:        org.users.find(u => u.guid === account.user.guid)?.roles
 				};
 
 				if (org.parent_org_guid) {

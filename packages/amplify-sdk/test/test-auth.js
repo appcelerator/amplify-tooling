@@ -1,6 +1,6 @@
 import { Auth } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
-import { serverInfo } from './server-info';
+import serverInfo from './server-info.json';
 import tmp from 'tmp';
 
 tmp.setGracefulCleanup();
