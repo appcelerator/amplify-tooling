@@ -16,7 +16,10 @@ export default {
 		'--account [name]': 'The platform account to use',
 		'--default':        'Set the team as the default team',
 		'--desc [value]':   'The description of the team',
-		'--json':           'Outputs accounts as JSON',
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs accounts as JSON'
+		},
 		'--name [value]':   'The team name',
 		'--tag [tag]': {
 			aliases: '--tags',

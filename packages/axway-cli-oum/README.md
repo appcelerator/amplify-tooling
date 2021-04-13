@@ -102,7 +102,9 @@ View the organization activity:
 
 ### Organization IdP
 
-TBD
+Manage the organization identity provider settings:
+
+	$ axway org idp <org>
 
 ### Account Management
 

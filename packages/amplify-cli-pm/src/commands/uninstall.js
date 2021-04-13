@@ -10,7 +10,10 @@ export default {
 	],
 	desc: 'Removes the specified package',
 	options: {
-		'--json': 'Outputs removed packages as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs removed packages as JSON'
+		}
 	},
 	async action({ argv, cli, console }) {
 		const [

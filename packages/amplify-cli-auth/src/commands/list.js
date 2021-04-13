@@ -2,7 +2,10 @@ export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all authenticated accounts',
 	options: {
-		'--json': 'Outputs accounts as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs accounts as JSON'
+		}
 	},
 	async action({ argv, console }) {
 		const { createTable, initSDK } = require('@axway/amplify-cli-utils');

@@ -2,7 +2,10 @@ export default {
 	desc: 'Select default account and organization',
 	options: {
 		'--account [name]':     'The account to switch to',
-		'--json':               'Disables prompting and outputs selected account and org as JSON',
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Disables prompting and outputs selected account and org as JSON'
+		},
 		'--org [guid|id|name]': 'The organization to switch to'
 	},
 	async action({ argv, cli, console }) {

@@ -5,7 +5,10 @@ export default {
 			aliases: '--first-name',
 			desc: 'Your first name'
 		},
-		'--json': 'Outputs result as JSON',
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs result as JSON'
+		},
 		'--lastname [value]': {
 			aliases: '--last-name',
 			desc: 'Your last name'

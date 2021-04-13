@@ -14,7 +14,10 @@ export default {
 		'--client-id [id]':          'The CLI specific client ID',
 		'--realm [name]':            { hidden: true },
 		'--force':                   'Re-authenticate even if the account is already authenticated',
-		'--json':                    'Outputs authenticated account as JSON',
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs authenticated account as JSON'
+		},
 		'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser',
 		'-c, --client-secret [key]': 'A secret key used to authenticate',
 		'-s, --secret-file [path]':  'Path to the PEM key used to authenticate',

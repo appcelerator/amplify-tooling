@@ -29,7 +29,7 @@
     "@axway/amplify-cli-pm": "^2.4.5",
     "@axway/amplify-cli-utils": "^4.2.5",
     "@axway/axway-cli-oum": "^1.0.0",
-    "cli-kit": "^1.11.1",
+    "cli-kit": "^1.11.2",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.3.0"

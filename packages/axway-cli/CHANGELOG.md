@@ -1,6 +1,7 @@
-# v2.0.1
+# v2.1.0
 
  * feat: Added post install welcome message.
+ * fix: Properly output errors when `--json` flag is set.
  * chore: Updated dependencies.
 
 # v2.0.0 (Jan 22, 2021)

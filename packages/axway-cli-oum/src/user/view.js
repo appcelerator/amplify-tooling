@@ -3,7 +3,10 @@ export default {
 	desc: 'Display your user information',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--json': 'Outputs info as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs info as JSON'
+		}
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../lib/util');

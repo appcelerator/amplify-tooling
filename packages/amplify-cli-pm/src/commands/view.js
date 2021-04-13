@@ -15,7 +15,10 @@ export default {
 	],
 	desc: 'Displays info for a specific package',
 	options: {
-		'--json': 'Outputs package info as JSON',
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs package info as JSON'
+		},
 		'--type [name]': {
 			desc: 'The package type',
 			values: {

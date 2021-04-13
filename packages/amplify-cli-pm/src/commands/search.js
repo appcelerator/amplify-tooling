@@ -8,7 +8,10 @@ export default {
 	],
 	desc: 'Searches registry for packages',
 	options: {
-		'--json': 'Outputs packages as JSON',
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs packages as JSON'
+		},
 		'--repository [repository]': 'The originating repository',
 		'--type [type]': 'Type of package to search'
 	},

@@ -14,7 +14,10 @@ export default {
 	desc: 'Add a new user to an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--json': 'Outputs accounts as JSON',
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs accounts as JSON'
+		},
 		'--role [role]': {
 			desc: 'Assign one or more team roles to a user',
 			multiple: true,

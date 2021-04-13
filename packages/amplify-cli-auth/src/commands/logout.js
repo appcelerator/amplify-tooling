@@ -8,7 +8,10 @@ export default {
 	],
 	desc: 'Log out all or specific accounts',
 	options: {
-		'--json': 'Outputs revoked accounts as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs revoked accounts as JSON'
+		}
 	},
 	async action({ argv, cli, console }) {
 		const [

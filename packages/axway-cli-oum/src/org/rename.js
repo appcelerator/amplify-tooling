@@ -14,7 +14,10 @@ export default {
 	desc: 'Rename an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--json': 'Outputs the result as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs the result as JSON'
+		}
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../lib/util');

@@ -93,7 +93,10 @@ ${style.heading('Settings:')}
     false if you are behind a proxy server with a self signed certificate.`
 	},
 	options: {
-		'--json': 'outputs the config as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs the config as JSON'
+		}
 	}
 };
 
@@ -154,48 +157,43 @@ async function runConfig(action, { argv, cli, console, setExitCode }) {
 		}
 	};
 
-	try {
-		if (action === 'get') {
-			const value = cfg.get(filter);
-			print({ code: value === undefined ? 6 : 0, key: filter || key, value });
-		} else {
-			// it's a write operation
-			let result = 'OK';
+	if (action === 'get') {
+		const value = cfg.get(filter);
+		print({ code: value === undefined ? 6 : 0, key: filter || key, value });
+	} else {
+		// it's a write operation
+		let result = 'OK';
 
-			switch (action) {
-				case 'set':
-					cfg.set(key, data.value);
-					break;
+		switch (action) {
+			case 'set':
+				cfg.set(key, data.value);
+				break;
 
-				case 'delete':
-					cfg.delete(key);
-					break;
+			case 'delete':
+				cfg.delete(key);
+				break;
 
-				case 'push':
-					cfg.push(key, data.value);
-					break;
+			case 'push':
+				cfg.push(key, data.value);
+				break;
 
-				case 'pop':
-					result = cfg.pop(key);
-					break;
+			case 'pop':
+				result = cfg.pop(key);
+				break;
 
-				case 'shift':
-					result = cfg.shift(key);
-					break;
+			case 'shift':
+				result = cfg.shift(key);
+				break;
 
-				case 'unshift':
-					cfg.unshift(key, data.value);
-					break;
-			}
-
-			cfg.save();
-
-			await cli.emitAction('axway:config:save', cfg);
-
-			print({ value: result });
+			case 'unshift':
+				cfg.unshift(key, data.value);
+				break;
 		}
-	} catch (err) {
-		err.json = json;
-		throw err;
+
+		cfg.save();
+
+		await cli.emitAction('axway:config:save', cfg);
+
+		print({ value: result });
 	}
 }

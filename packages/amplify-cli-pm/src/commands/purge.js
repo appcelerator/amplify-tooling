@@ -7,7 +7,10 @@ export default {
 	],
 	desc: 'Removes all non-active, managed packages',
 	options: {
-		'--json': 'Outputs the purged packages as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs the purged packages as JSON'
+		}
 	},
 	async action({ argv, cli, console }) {
 		const [

@@ -15,7 +15,10 @@ export default {
 	desc: 'Remove a user from an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--json': 'Outputs accounts as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs accounts as JSON'
+		}
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('../../lib/util');

@@ -15,7 +15,10 @@ export default {
 	desc: 'List all users in a team',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--json': 'Outputs accounts as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs accounts as JSON'
+		}
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../../lib/util');
