@@ -427,7 +427,7 @@ export default class AmplifySDK {
 					insightUserCount: ~~org.entitlements.limit_read_only_users,
 					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
 					subscriptions,
-					teamCount:        (await this.team.list(account, id)).length,
+					teamCount:        (await this.team.list(account, id)).teams.length,
 					userCount:        org.users.length,
 					userRoles:        org.users.find(u => u.guid === account.user.guid)?.roles
 				};
@@ -442,7 +442,7 @@ export default class AmplifySDK {
 						id:   parent.org_id,
 						name: parent.name
 					};
-				} else {
+				} else if (result.userRoles.includes('administrator')) {
 					// check for children
 					const { children } = await this.org.family(account, id);
 					result.childOrgs = children.map(o => ({
