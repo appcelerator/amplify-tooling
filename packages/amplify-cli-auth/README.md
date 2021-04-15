@@ -1,6 +1,6 @@
 # Axway Auth CLI
 
-Authenticates a machine with the Axway AMPLIFY platform.
+Authenticates a machine with the Axway Amplify platform.
 
 ## Installation
 
@@ -34,7 +34,7 @@ axway auth list --json
 
 ### `login`
 
-Log in to the Axway AMPLIFY platform.
+Log in to the Axway Amplify platform.
 
 ```
 axway auth login
@@ -54,7 +54,7 @@ axway auth login --secret-file <path/to/pem/file>
 
 ### `logout`
 
-Log out all or specific accounts from the AMPLIFY platform.
+Log out all or specific accounts from the Amplify platform.
 
 Alias: `revoke`
 

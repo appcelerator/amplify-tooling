@@ -1,4 +1,4 @@
-# Axway AMPLIFY OUM CLI
+# Axway Amplify OUM CLI
 
 Manage organizations, teams, and users.
 

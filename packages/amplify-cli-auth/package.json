@@ -1,7 +1,7 @@
 {
   "name": "@axway/amplify-cli-auth",
   "version": "2.5.4",
-  "description": "Authenticate machines with the Axway AMPLIFY platform",
+  "description": "Authenticate machines with the Axway Amplify platform",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>",

@@ -1,4 +1,4 @@
 export default {
 	commands: `${__dirname}/user`,
-	desc: 'Manage AMPLIFY platform users'
+	desc: 'Manage Amplify platform users'
 };

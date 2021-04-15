@@ -29,7 +29,7 @@ import { readFileSync } from 'fs';
 		banner:       `${chalk.cyan('AXWAY CLI')}, version ${version}
 Copyright (c) 2018-2020, Axway, Inc. All Rights Reserved.`,
 		commands:     `${__dirname}/commands`,
-		desc:         'The Axway CLI is a unified command line interface for the Axway AMPLIFY platform.',
+		desc:         'The Axway CLI is a unified command line interface for the Axway Amplify platform.',
 		extensions,
 		help:         true,
 		helpExitCode: 2,

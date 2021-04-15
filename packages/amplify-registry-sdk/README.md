@@ -1,6 +1,6 @@
-# AMPLIFY Registry SDK
+# Amplify Registry SDK
 
-An SDK for interacting with the AMPLIFY Registry.
+An SDK for interacting with the Axway Package Registry Server.
 
 ## Installation
 

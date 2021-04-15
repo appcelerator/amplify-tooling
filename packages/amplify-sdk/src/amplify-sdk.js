@@ -15,7 +15,7 @@ const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;
 
 /**
- * An SDK for accessing AMPLIFY API's.
+ * An SDK for accessing Amplify API's.
  */
 export default class AmplifySDK {
 	/**
@@ -23,7 +23,7 @@ export default class AmplifySDK {
 	 *
 	 * @param {Object} opts - Authentication options.
 	 * @param {Object} [opts.env=prod] - The environment name.
-	 * @param {Object} [opts.requestOptions] - An options object to pass into AMPLIFY CLI Utils to
+	 * @param {Object} [opts.requestOptions] - An options object to pass into Amplify CLI Utils to
 	 * create the `got` HTTP client.
 	 * @access public
 	 */
@@ -81,7 +81,7 @@ export default class AmplifySDK {
 		 * The Axway ID realm.
 		 * @type {String}
 		 */
-		this.userAgent = `AMPLIFY SDK/${version} (${process.platform}; ${process.arch}; node:${process.versions.node})${process.env.AXWAY_CLI ? ` Axway CLI/${process.env.AXWAY_CLI}` : ''}`;
+		this.userAgent = `Amplify SDK/${version} (${process.platform}; ${process.arch}; node:${process.versions.node})${process.env.AXWAY_CLI ? ` Axway CLI/${process.env.AXWAY_CLI}` : ''}`;
 
 		this.auth = {
 			/**
@@ -187,8 +187,7 @@ export default class AmplifySDK {
 			 * Authenticates a user, retrieves the access tokens, populates the session id and
 			 * org info, and returns it.
 			 * @param {Object} opts - Various authentication options to override the defaults set
-			 * via the constructor. See the AMPLIFY Auth SDK (@axway/amplify-auth-sdk) for more
-			 * details.
+			 * via the `Auth` constructor.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
 			login: async (opts = {}) => {
@@ -223,8 +222,7 @@ export default class AmplifySDK {
 			/**
 			 * Discards an access token and notifies AxwayID to revoke the access token.
 			 * @param {Object} opts - Various authentication options to override the defaults set
-			 * via the constructor. See the AMPLIFY Auth SDK (@axway/amplify-auth-sdk) for more
-			 * details.
+			 * via the `Auth` constructor.
 			 * @param {Array.<String>} opts.accounts - A list of accounts names.
 			 * @param {Boolean} opts.all - When `true`, revokes all accounts.
 			 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
@@ -260,8 +258,7 @@ export default class AmplifySDK {
 			/**
 			 * Returns AxwayID server information.
 			 * @param {Object} opts - Various authentication options to override the defaults set
-			 * via the constructor. See the AMPLIFY Auth SDK (@axway/amplify-auth-sdk) for more
-			 * details.
+			 * via the `Auth` constructor.
 			 * @returns {Promise<object>}
 			 */
 			serverInfo: opts => this.client.serverInfo(opts),
@@ -1199,7 +1196,7 @@ export default class AmplifySDK {
 	}
 
 	/**
-	 * Returns an AMPLIFY Auth SDK client or creates one if it doesn't exist.
+	 * Returns an Amplify Auth SDK client or creates one if it doesn't exist.
 	 * @type {Auth}
 	 * @access public
 	 */

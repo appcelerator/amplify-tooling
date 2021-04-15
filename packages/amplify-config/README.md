@@ -1,4 +1,4 @@
-# AMPLIFY Config
+# Amplify Config
 
 Configuration helper for the Axway CLI.
 

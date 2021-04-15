@@ -29,7 +29,7 @@ const { cyan, gray, green } = snooplogg.chalk;
  * Constructs a parameters object to pass into an Auth instance.
  *
  * @param {Object} [opts] - User option overrides.
- * @param {Config} [config] - The AMPLIFY config object.
+ * @param {Config} [config] - The Amplify config object.
  * @returns {Object}
  */
 export function buildAuthParams(opts = {}, config) {
@@ -97,7 +97,7 @@ export { buildAuthParams as buildParams };
  * URL based on the package name/scope.
  * @param {Number} [opts.timeout=1000] - The number of milliseconds to wait to query npm before
  * timing out.
- * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
+ * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
  * from disk.
  * @returns {String}
  */
@@ -129,7 +129,7 @@ export async function checkForUpdate(opts, config) {
  *
  * @param {Object} [opts] - Request configuration options to override the Axway CLI config
  * settings.
- * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
+ * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
  * from disk.
  * @returns {Array.<String>}
  */
@@ -159,7 +159,7 @@ export function createNPMRequestArgs(opts, config) {
  * settings from the Axway CLI config file.
  *
  * @param {Object} [opts] - `got` option to override the Axway CLI config settings.
- * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
+ * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
  * from disk.
  * @returns {Function}
  */
@@ -181,7 +181,7 @@ export function createRequestClient(opts, config) {
  *
  * @param {Object} [opts] - Request configuration options to override the Axway CLI config
  * settings.
- * @param {Config} [config] - An AMPLIFY Config instance. If not specified, the config is loaded
+ * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
  * from disk.
  * @returns {Object}
  */
@@ -196,7 +196,7 @@ export function createRequestOptions(opts = {}, config) {
 	}
 
 	if (config && !(config instanceof Config)) {
-		throw new TypeError('Expected config to be an AMPLIFY Config instance');
+		throw new TypeError('Expected config to be an Amplify Config instance');
 	}
 
 	const load = (src, dest) => {
@@ -257,12 +257,12 @@ export function createTable(head, indent = 0) {
 }
 
 /**
- * Loads the config and creates an AMPLIFY SDK object, then returns both of them.
+ * Loads the config and creates an Amplify SDK object, then returns both of them.
  *
  * @param {Object} [opts] - SDK options including `env` and auth options.
- * @param {Object} [config] - The AMPLIFY config. If not passed in, the config file is loaded.
+ * @param {Object} [config] - The Amplify config. If not passed in, the config file is loaded.
  * @returns {Object} Returns an object containing the Axway CLI config and an initialized
- * AMPLIFY SDK instance.
+ * Amplify SDK instance.
  */
 export function initSDK(opts = {}, config) {
 	if (!config) {

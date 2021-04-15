@@ -1,4 +1,4 @@
-# AMPLIFY Request
+# Amplify Request
 
 HTTP/HTTPS request library that wraps [got](https://www.npmjs.com/package/got) and wires up proxy support.
 

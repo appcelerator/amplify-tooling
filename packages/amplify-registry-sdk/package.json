@@ -1,7 +1,7 @@
 {
   "name": "@axway/amplify-registry-sdk",
   "version": "2.3.5",
-  "description": "SDK for AMPLIFY Package Registry",
+  "description": "SDK for Amplify Package Registry Server",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Ewan Harris <eharris@axway.com>",

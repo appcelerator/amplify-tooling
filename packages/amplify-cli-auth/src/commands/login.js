@@ -8,7 +8,7 @@ export default {
 			return typeof banner === 'function' ? await banner(state) : banner;
 		}
 	},
-	desc: 'Log in to the Axway AMPLIFY platform',
+	desc: 'Log in to the Axway Amplify platform',
 	options: {
 		'--base-url [url]':          { hidden: true },
 		'--client-id [id]':          'The CLI specific client ID',

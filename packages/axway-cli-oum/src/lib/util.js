@@ -1,7 +1,7 @@
 import { initSDK } from '@axway/amplify-cli-utils';
 
 /**
- * Initializes the AMPLIFY SDK, loads an account, and finds the default org id.
+ * Initializes the Amplify SDK, loads an account, and finds the default org id.
  *
  * @param {String} [accountName] - The name of the platform account to use.
  * @param {String} [org] - The name, id, or guid of the default organization.
