@@ -23,7 +23,7 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^4.2.5",
     "@axway/amplify-config": "^3.0.7",
-    "appcd-fs": "^2.0.5",
+    "appcd-fs": "^2.0.6",
     "fs-extra": "^9.1.0",
     "pacote": "^11.3.1",
     "snooplogg": "^3.0.2",
@@ -34,7 +34,7 @@
     "which": "^2.0.2"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.1.4"
+    "appcd-gulp": "^3.1.5"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

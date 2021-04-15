@@ -47,27 +47,28 @@ export default {
 
 		let pad = 0;
 		const width = 20;
-		const bar = ({ color, pct, used }) => {
-			return `${color('\u25A0'.repeat(used))}${gray('⠂'.repeat(width - used))} ${pct.padStart(pad)}%`;
-		};
 		const table = createTable();
 		const { format } = new Intl.NumberFormat();
+		const metrics = Object.values(usage.SaaS).sort((a, b) => a.name.localeCompare(b.name));
 
-		for (const info of Object.values(usage.SaaS)) {
+		// loop through once to compute the usage bars
+		for (const info of metrics) {
 			const pct = info.quota ? (info.value / info.quota) : 0;
 			info.color = pct > 85 ? red : pct > 65 ? yellow : green;
 			info.pct = String(Math.round(pct * 100));
 			info.used = Math.ceil(width * pct);
 			pad = Math.max(pad, info.pct.length);
 		}
-		for (const info of Object.values(usage.SaaS).sort((a, b) => a.name.localeCompare(b.name))) {
-			const { name, quota, unit, value } = info;
+
+		// print the usage
+		for (const { color, name, pct, quota, unit, used, value } of metrics) {
 			table.push([
 				name,
 				highlight(`${format(value)} / ${format(quota)} ${unit}`),
-				bar(info)
+				`${color('\u25A0'.repeat(used))}${gray('⠂'.repeat(width - used))} ${pct.padStart(pad)}%`
 			]);
 		}
+
 		console.log(table.toString());
 	}
 };
