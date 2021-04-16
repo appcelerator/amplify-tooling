@@ -1,5 +1,19 @@
 export default {
 	desc: 'Change your information',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		},
+		footer({ style }) {
+			return `${style.heading('Examples:')}
+
+  Update your first and last name:
+    ${style.highlight('axway user update --firstname <name> --lastname <name>')}
+
+  Update your phone number:
+    ${style.highlight('axway user update --phone <number>')}`;
+		}
+	},
 	options: {
 		'--firstname [value]': {
 			aliases: '--first-name',
@@ -15,7 +29,7 @@ export default {
 		},
 		'--phone [value]': 'Your phone number'
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console, help }) {
 		const { initPlatformAccount } = require('../lib/util');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 
@@ -49,10 +63,12 @@ export default {
 					console.log(`Updated ${highlight(labels[key])} from ${highlight(from)} to ${highlight(to)}`);
 				}
 			} else {
-				console.log('No values were changed');
+				console.log(await help());
 			}
 		}
 
-		await cli.emitAction('axway:oum:user:update', results);
+		if (Object.keys(changes).length) {
+			await cli.emitAction('axway:oum:user:update', results);
+		}
 	}
 };

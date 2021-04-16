@@ -12,6 +12,29 @@ export default {
 		}
 	],
 	desc: 'Update the team information',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		},
+		footer({ style }) {
+			return `${style.heading('Example:')}
+
+  You must be authenticated into an Amplify platform account to view or manage
+  organizations. Run ${style.highlight('"axway auth login"')} to authenticate.
+
+  You may specify an organization by name, id, or guid as well as the team by
+  name or guid.
+
+  Rename the team:
+    ${style.highlight('axway team update <org> <team> --name <new name>')}
+
+  Update the team description:
+    ${style.highlight('axway team update <org> <team> --desc <new description>')}
+
+  Redefine the team tags:
+    ${style.highlight('axway team update <org> <team> --tag <tag1> --tag <tag2>')}`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--default':        'Set the team as the default team',
@@ -23,7 +46,7 @@ export default {
 		'--name [value]':   'The team name',
 		'--tag [tag]': {
 			aliases: '--tags',
-			desc: 'One or more tags to assign to this team',
+			desc: 'One or more tags to assign to the team',
 			multiple: true
 		}
 	},

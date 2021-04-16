@@ -23,7 +23,7 @@ export default {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs accounts as JSON'
 		},
-		'--role [role]': {
+		'--role <role>': {
 			desc: 'Assign one or more team roles to a user',
 			multiple: true
 		}

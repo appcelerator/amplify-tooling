@@ -23,7 +23,7 @@ export default {
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../lib/util');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const team = await sdk.team.find(account, org, argv.team);
+		const { team } = await sdk.team.find(account, org, argv.team);
 
 		if (argv.json) {
 			console.log(JSON.stringify({
@@ -42,7 +42,7 @@ export default {
 
 		console.log(`Name:         ${highlight(team.name)}`);
 		console.log(`Description:  ${team.desc ? highlight(team.desc) : note('n/a')}`);
-		console.log(`Org GUID:     ${highlight(team.guid)}`);
+		console.log(`Team GUID:    ${highlight(team.guid)}`);
 		console.log(`Date Created: ${highlight(new Date(team.created).toLocaleString())}`);
 		console.log(`Is Default:   ${highlight(team.default ? 'Yes' : 'No')}`);
 		console.log(`Users:        ${highlight(team.users.length)}`);
