@@ -655,7 +655,7 @@ export default class AmplifySDK {
 				}
 
 				roles = roles
-					.flatMap(role => role.split(','))
+					.reduce((arr, role) => arr.concat(role.split(',')), [])
 					.map(role => {
 						const lr = role.toLowerCase().trim();
 						const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
@@ -744,7 +744,9 @@ export default class AmplifySDK {
 				if (!Array.isArray(info.tags)) {
 					throw E.INVALID_ARGUMENT('Expected team tags to be an array of strings');
 				}
-				data.tags = info.tags.flatMap(tag => tag.split(',')).map(tag => tag.trim());
+				data.tags = info.tags
+					.reduce((arr, tag) => arr.concat(tag.split(',')), [])
+					.map(tag => tag.trim());
 			}
 
 			// remove unchanged
@@ -1012,7 +1014,7 @@ export default class AmplifySDK {
 				}
 
 				roles = roles
-					.flatMap(role => role.split(','))
+					.reduce((arr, role) => arr.concat(role.split(',')), [])
 					.map(role => {
 						const lr = role.toLowerCase().trim();
 						const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
