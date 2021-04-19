@@ -1,5 +1,7 @@
-# v2.5.5
+# v2.6.0
 
+ * feat: Publicly expose the `whoami` command.
+ * fix: Properly output errors when `--json` flag is set.
  * chore: Updated dependencies.
 
 # v2.5.4 (Jan 22, 2021)

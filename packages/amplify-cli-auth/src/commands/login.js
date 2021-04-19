@@ -8,13 +8,16 @@ export default {
 			return typeof banner === 'function' ? await banner(state) : banner;
 		}
 	},
-	desc: 'Log in to the Axway AMPLIFY platform',
+	desc: 'Log in to the Axway Amplify platform',
 	options: {
 		'--base-url [url]':          { hidden: true },
 		'--client-id [id]':          'The CLI specific client ID',
 		'--realm [name]':            { hidden: true },
 		'--force':                   'Re-authenticate even if the account is already authenticated',
-		'--json':                    'Outputs authenticated account as JSON',
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs authenticated account as JSON'
+		},
 		'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser',
 		'-c, --client-secret [key]': 'A secret key used to authenticate',
 		'-s, --secret-file [path]':  'Path to the PEM key used to authenticate',
@@ -123,6 +126,7 @@ export default {
 		const accounts = await sdk.auth.list();
 		if (accounts.length === 1) {
 			config.set('auth.defaultAccount', account.name);
+			config.set(`auth.defaultOrg.${account.hash}`, account.org.guid);
 			config.save();
 			account.default = true;
 		} else if (config.get('auth.defaultAccount') === account.name) {

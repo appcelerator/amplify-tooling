@@ -37,13 +37,22 @@ PACKAGES:
 
     ${cyan('axway pm list')}
 
+ORGANIZATION, USER, AND TEAM MANAGEMENT:
+
+  Once authenticated as a platform user, you may manage organizations, teams,
+  and your user information using the following commands:
+
+    ${cyan('axway org')}
+    ${cyan('axway team')}
+    ${cyan('axway user')}
+
 NEXT STEPS:
 
-  Install AMPLIFY Runtime Services:
+  Install Amplify Runtime Services:
 
     ${cyan('axway pm i acs')}
 
-  Install AMPLIFY API Builder:
+  Install Amplify API Builder:
 
     ${cyan('axway pm i @axway/amplify-api-builder-cli')}
 `);

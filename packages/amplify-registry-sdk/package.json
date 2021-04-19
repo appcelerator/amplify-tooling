@@ -1,7 +1,7 @@
 {
   "name": "@axway/amplify-registry-sdk",
   "version": "2.3.5",
-  "description": "SDK for AMPLIFY Package Registry",
+  "description": "SDK for Amplify Package Registry Server",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Ewan Harris <eharris@axway.com>",
@@ -23,9 +23,9 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^4.2.5",
     "@axway/amplify-config": "^3.0.7",
-    "appcd-fs": "^2.0.4",
+    "appcd-fs": "^2.0.6",
     "fs-extra": "^9.1.0",
-    "pacote": "^11.2.4",
+    "pacote": "^11.3.1",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19",
     "tar": "^6.1.0",
@@ -34,7 +34,7 @@
     "which": "^2.0.2"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.1.3"
+    "appcd-gulp": "^3.1.5"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

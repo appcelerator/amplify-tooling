@@ -49,7 +49,7 @@ export default class Auth {
 	 * @param {String} [opts.platformUrl] - The URL to redirect the browser to after a
 	 * successful login.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
-	 * @param {Object} [opts.requestOptions] - An options object to pass into AMPLIFY CLI Utils to
+	 * @param {Object} [opts.requestOptions] - An options object to pass into Amplify CLI Utils to
 	 * create the `got` HTTP client.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
 	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
@@ -371,7 +371,7 @@ export default class Auth {
 
 		if (Array.isArray(revoked)) {
 			for (const entry of revoked) {
-				// don't logout of platform accounts here, it's done in the AMPLIFY SDK by opening the browser
+				// don't logout of platform accounts here, it's done in the Amplify SDK by opening the browser
 				if (!entry.isPlatform) {
 					const url = `${getEndpoints(entry.auth).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
 					try {
@@ -413,7 +413,7 @@ export default class Auth {
 		}
 
 		try {
-			log(`Fetching server info: ${url}...`);
+			log(`Fetching server info: ${highlight(url)}...`);
 			return (await this.got(url, { responseType: 'json', retry: 0 })).body;
 		} catch (err) {
 			if (err.name !== 'ParseError') {

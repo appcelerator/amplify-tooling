@@ -17,7 +17,10 @@ export default {
 	],
 	desc: 'Activates a specific package version',
 	options: {
-		'--json': 'Outputs activated package as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs activated package as JSON'
+		}
 	},
 	async action({ argv, cli, console }) {
 		const [

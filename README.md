@@ -1,4 +1,4 @@
-# AMPLIFY Tooling
+# Amplify Tooling
 
 This monorepo contains the Axway CLI, authentication CLI, and package manager CLI, as well as other related packages.
 

@@ -171,10 +171,6 @@ exports.integration = series(
 	integration({
 		amplifyBin: join(__dirname, 'packages', 'axway-cli', 'bin', 'axway'),
 		amplifyConfigFile: path.join('.axway', 'axway-cli', 'config.json')
-	}),
-	integration({
-		amplifyBin: join(__dirname, 'packages', 'amplify-cli', 'bin', 'amplify'),
-		amplifyConfigFile: path.join('.axway', 'amplify-cli.json')
 	})
 );
 

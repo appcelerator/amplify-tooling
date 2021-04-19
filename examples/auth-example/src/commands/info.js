@@ -1,7 +1,7 @@
 export default {
 	desc: 'Displays info about your authenticated account',
 	options: {
-		'--account [name]': 'The account to switch to'
+		'--account [name]': 'The account to use'
 	},
 	async action({ argv, console }) {
 		const { initSDK } = await import('@axway/amplify-cli-utils');

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 /**
- * ?
+ * Appends query string parameters to a URL.
  *
  * @param {String} url - The URL.
  * @param {Object} params - A map of query string parameters.

@@ -2,16 +2,14 @@ export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all authenticated accounts',
 	options: {
-		'--json': 'Outputs accounts as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs accounts as JSON'
+		}
 	},
 	async action({ argv, console }) {
-		const [
-			{ createTable, initSDK },
-			{ default: snooplogg }
-		] = await Promise.all([
-			import('@axway/amplify-cli-utils'),
-			import('snooplogg')
-		]);
+		const { createTable, initSDK } = require('@axway/amplify-cli-utils');
+		const { default: snooplogg } = require('snooplogg');
 
 		const { config, sdk } = initSDK({
 			baseUrl:  argv.baseUrl,

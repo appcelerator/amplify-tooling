@@ -10,7 +10,7 @@ A common utils library for Axway CLI and related packages.
 
 ### `buildAuthParams(opts, config)`
 
-Creates an AMPLIFY SDK or AMPLIFY Auth SDK constructor options object based on the supplied `opts`
+Creates an Amplify SDK or Amplify SDK Auth constructor options object based on the supplied `opts`
 and Axway CLI `config` object. If `config` is not defined, the config is loaded from disk.
 
 ```js
@@ -100,7 +100,7 @@ console.log('Axway CLI Config Path:', locations.configFile);
 
 ### `initSDK(opts, config)`
 
-Loads the Axway CLI config and initializes an AMPLIFY SDK instance.
+Loads the Axway CLI config and initializes an Amplify SDK instance.
 
 #### Get the default account or login if needed:
 
@@ -174,7 +174,7 @@ console.log(accounts);
 
 ### `loadConfig()`
 
-Loads the Axway CLI config file using the lazy loaded AMPLIFY Config package.
+Loads the Axway CLI config file using the lazy loaded Amplify Config package.
 
 ```js
 import { loadConfig } from '@axway/amplify-cli-utils';
@@ -185,7 +185,7 @@ console.log(config);
 
 ## Upgrading from version 1.x
 
-In v2, the entire `auth` API was removed to take advantage of the new AMPLIFY SDK, which now
+In v2, the entire `auth` API was removed to take advantage of the new Amplify SDK, which now
 contains the auth API.
 
 ```js

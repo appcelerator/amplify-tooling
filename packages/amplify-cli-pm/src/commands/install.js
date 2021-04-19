@@ -10,7 +10,10 @@ export default {
 	],
 	desc: 'Installs the specified package',
 	options: {
-		'--json': 'Output installed package as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Output installed package as JSON'
+		}
 	},
 	async action({ argv, cli, console, terminal }) {
 		const [

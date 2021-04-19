@@ -1,5 +1,6 @@
 # v2.4.6
 
+ * fix: Properly output errors when `--json` flag is set.
  * chore: Updated dependencies.
 
 # v2.4.5 (Jan 22, 2021)

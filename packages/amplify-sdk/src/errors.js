@@ -3,9 +3,11 @@ export default errors;
 
 createError('AUTH_FAILED',                Error,      'Authorization failed');
 createError('AUTH_TIMEOUT',               Error,      'A successful login did not happen within the allowed time');
+createError('INVALID_ACCOUNT',            TypeError,  'Account object is required');
 createError('INVALID_ARGUMENT',           TypeError,  'A function argument is undefined or the incorrect data type');
 createError('INVALID_FILE',               Error,      'The file does not exist or access is denied');
 createError('INVALID_PARAMETER',          TypeError,  'A parameter was not a valid value or type');
+createError('INVALID_PLATFORM_ACCOUNT',   Error,      'Authorization failed');
 createError('INVALID_RANGE',              RangeError, 'The value is not within the acceptable min/max range');
 createError('INVALID_TOKEN',              Error,      'The token could not be decoded');
 createError('INVALID_VALUE',              Error,      'The specified value is an accepted value');

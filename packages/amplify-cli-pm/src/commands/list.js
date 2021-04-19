@@ -2,7 +2,10 @@ export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all installed packages',
 	options: {
-		'--json': 'Outputs packages as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs packages as JSON'
+		}
 	},
 	async action({ argv, console }) {
 		const [

@@ -1,6 +1,6 @@
 # Axway CLI
 
-The Axway CLI is the unified CLI for the Axway AMPLIFY platform.
+The Axway CLI is the unified CLI for the Axway Amplify platform.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ Show all available commands:
 
 	axway
 
-Log into the Axway AMPLIFY platform:
+Log into the Axway Amplify platform:
 
 	axway auth login
 
@@ -236,6 +236,20 @@ Edit your `package.json` and set the following `"keywords"`, `"amplify"`, and `"
 
 > :warning: the `"main"` must point to the script exporting the CLI definition (`cli.js`), not the
 > main or bin script.
+
+If your extension has multiple entrypoints, you can define them as "exports":
+
+```json
+{
+  "cli-kit": {
+    "description": "This description is optional and overrides the top-level description",
+    "exports": {
+		"foo": "./path/to/foo-cli",
+		"bar": "./path/to/bar-cli"
+	}
+  }
+}
+```
 
 When an extension CLI is loaded, the contents of the `"cli-kit"` property is merged on top of the
 entire `package.json` definition. This allows you to override the `name` and `description`.

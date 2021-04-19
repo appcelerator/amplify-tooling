@@ -125,6 +125,7 @@ export function buildUserAgentString() {
  */
 export async function uninstallPackage(dir) {
 	try {
+		// eslint-disable-next-line security/detect-non-literal-require
 		const pkgJson = require(path.join(dir, 'package.json'));
 		if (pkgJson.scripts.uninstall) {
 			log(`Running npm uninstall script: ${highlight(pkgJson.scripts.uninstall)}`);

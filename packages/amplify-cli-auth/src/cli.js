@@ -7,7 +7,7 @@ const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.js
 
 export default new CLI({
 	commands: `${__dirname}/commands`,
-	desc: 'The AMPLIFY Auth CLI authenticates with the Axway AMPLIFY platform, manages access tokens, and retreives user information.',
+	desc: 'The Axway Auth CLI authenticates with the Axway Amplify platform, manages access tokens, and retreives user information.',
 	help: true,
 	helpExitCode: 2,
 	name: 'amplify-cli-auth',

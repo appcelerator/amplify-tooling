@@ -103,7 +103,7 @@ export default class SecureStore extends FileStore {
 				output && log(output);
 				if (process.platform === 'linux' && output.includes('libsecret')) {
 					throw E.NPM_ERROR([
-						'AMPLIFY Auth requires "libsecret" which must be manually installed.',
+						'Axway CLI uthentication requires "libsecret" which must be manually installed.',
 						'  Debian/Ubuntu: sudo apt-get install libsecret-1-dev',
 						'  Red Hat-based: sudo yum install libsecret-devel',
 						'  Arch Linux:    sudo pacman -S libsecret'

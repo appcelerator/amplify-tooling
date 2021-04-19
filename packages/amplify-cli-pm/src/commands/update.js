@@ -8,7 +8,10 @@ export default {
 	],
 	desc: 'Download updates for installed packages',
 	options: {
-		'--json': 'Outputs updated packages as JSON'
+		'--json': {
+			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			desc: 'Outputs updated packages as JSON'
+		}
 	},
 	async action({ argv, cli, console }) {
 		const [

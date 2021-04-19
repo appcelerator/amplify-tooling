@@ -1,11 +1,11 @@
 import { Auth } from '../dist/index';
 import { createLoginServer, stopLoginServer } from './common';
-import { serverInfo } from './server-info';
+import serverInfo from './server-info.json';
 import tmp from 'tmp';
 
 tmp.setGracefulCleanup();
 
-const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 
 describe('Auth', () => {
 	describe('Constructor', () => {

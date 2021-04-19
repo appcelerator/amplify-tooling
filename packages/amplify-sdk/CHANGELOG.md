@@ -1,5 +1,10 @@
-# v1.8.4
+# v2.0.0
 
+ * BREAKING CHANGE: Removed MBS and Titanium app development APIs.
+ * feat: Added organization and user management APIs.
+   ([CLI-108](https://jira.axway.com/browse/CLI-108))
+ * feat: Added HTTP status code to error messages.
+ * chore: Updated `keytar` from v7.4.0 to v7.6.0.
  * chore: Updated dependencies.
 
 # v1.8.3 (Jan 22, 2021)
