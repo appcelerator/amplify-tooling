@@ -27,7 +27,7 @@
     "fs-extra": "^9.1.0",
     "get-port": "^5.1.1",
     "jws": "^4.0.0",
-    "open": "^8.0.5",
+    "open": "^8.0.6",
     "pluralize": "^8.0.0",
     "set-cookie-parser": "^2.4.8",
     "snooplogg": "^3.0.2",
