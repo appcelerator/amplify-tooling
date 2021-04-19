@@ -2,6 +2,8 @@
 
  * feat: Added post install welcome message.
  * fix: Properly output errors when `--json` flag is set.
+ * chore: Added deprecation warning for Node.js 10 and older.
+   ([CLI-110](https://jira.axway.com/browse/CLI-110))
  * chore: Updated dependencies.
 
 # v2.0.0 (Jan 22, 2021)
