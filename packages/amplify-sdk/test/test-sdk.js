@@ -30,7 +30,7 @@ describe('amplify-sdk', () => {
 				const sdk = new AmplifySDK();
 				expect(sdk).to.be.an('object');
 				// eslint-disable-next-line security/detect-non-literal-regexp
-				expect(sdk.userAgent).to.match(new RegExp(`^AMPLIFY SDK\\/\\d\\.\\d\\.\\d \\(${process.platform}; ${process.arch}; node:${process.versions.node}\\) Axway CLI\\/2.0.0`));
+				expect(sdk.userAgent).to.match(new RegExp(`^Amplify SDK\\/\\d\\.\\d\\.\\d \\(${process.platform}; ${process.arch}; node:${process.versions.node}\\) Axway CLI\\/2.0.0`));
 			} finally {
 				process.env.AXWAY_CLI = orig;
 			}
