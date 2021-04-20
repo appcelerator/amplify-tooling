@@ -32,7 +32,6 @@ export default {
 			import('../utils')
 		]);
 
-		const { warn } = snooplogg('pm:install');
 		const { highlight } = snooplogg.styles;
 		const { name, fetchSpec } = npa(argv.package);
 		const messages = [];

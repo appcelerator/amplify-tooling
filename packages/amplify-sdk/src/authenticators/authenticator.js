@@ -14,7 +14,7 @@ import Server from '../server';
 
 import { createURL, md5, prepareForm } from '../util';
 
-const { log } = snooplogg('amplify-auth:authenticator');
+const { log, warn } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -205,15 +205,12 @@ export default class Authenticator {
 			}
 			account.org.name = org_name;
 			account.org.guid = org_guid;
-
-			return account;
 		} catch (err) {
-			const e = E.REQUEST_FAILED(`Fetch user info failed: ${err.message}`);
-			e.body = err.response?.body;
-			e.statusCode = err.response?.statusCode;
-			e.statusMessage = err.response?.statusMessage;
-			throw e;
+			const status = err.response?.statusCode;
+			warn(`Fetch user info failed: ${err.message}${status ? ` (${status})` : ''}`);
 		}
+
+		return account;
 	}
 
 	/**

@@ -194,6 +194,8 @@ describe('Owner Password', () => {
 				}
 			});
 
+			const { accessToken } = this.server;
+
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
@@ -201,10 +203,11 @@ describe('Owner Password', () => {
 				tokenStoreType: null
 			});
 
-			await expect(auth.login({
+			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			})).to.eventually.be.rejectedWith(Error, /^Fetch user info failed: Unexpected token {/i);
+			});
+			expect(account.auth.tokens.access_token).to.not.equal(accessToken);
 		});
 	});
 

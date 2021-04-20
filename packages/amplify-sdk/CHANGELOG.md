@@ -5,6 +5,8 @@
  * feat: Added organization and user management APIs.
    ([CLI-108](https://jira.axway.com/browse/CLI-108))
  * feat: Added HTTP status code to error messages.
+ * fix: Gracefully handle fetch user info request failures.
+   ([CLI-118](https://jira.axway.com/browse/CLI-118))
  * chore: Updated `keytar` from v7.4.0 to v7.6.0.
  * chore: Updated dependencies.
 
