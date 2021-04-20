@@ -285,7 +285,7 @@ export default class Authenticator {
 			}
 		};
 
-		if (tokens && tokens.refresh_token && expires.refresh > now) {
+		if (tokens?.refresh_token && expires.refresh && expires.refresh > now) {
 			// get new token using the refresh token
 			response = await fetchTokens(Object.assign({
 				clientId:     this.clientId,
@@ -340,6 +340,7 @@ export default class Authenticator {
 		// refresh `now` and set the expiry timestamp
 		now = Date.now();
 
+		const refresh = tokens.refresh_token && tokens.refresh_expires_in ? (tokens.refresh_expires_in * 1000) + now : null;
 		const account = await this.getInfo({
 			auth: {
 				authenticator: this.constructor.name,
@@ -348,7 +349,7 @@ export default class Authenticator {
 				env:           this.env.name,
 				expires: {
 					access: (tokens.expires_in * 1000) + now,
-					refresh: (tokens.refresh_expires_in * 1000) + now
+					refresh
 				},
 				realm:         this.realm,
 				tokens

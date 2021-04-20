@@ -203,7 +203,7 @@ export default class TokenStore {
 		for (let i = 0; i < entries.length; i++) {
 			const { expires } = entries[i].auth;
 			const now = Date.now();
-			if (expires && ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh > now))) {
+			if (expires && ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh && expires.refresh > now))) {
 				// not expired
 				if (!Object.getOwnPropertyDescriptor(entries[i].auth, 'expired')) {
 					Object.defineProperty(entries[i].auth, 'expired', {

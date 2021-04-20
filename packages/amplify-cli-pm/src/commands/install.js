@@ -112,6 +112,7 @@ export default {
 
 			await cli.emitAction('axway:pm:install', info);
 		} catch (err) {
+			// eslint-disable-next-line no-unused-expressions
 			spinner?.stop();
 			throw err;
 		}
