@@ -1,6 +1,7 @@
 # v2.0.0
 
  * BREAKING CHANGE: Removed MBS and Titanium app development APIs.
+   ([CLI-110](https://jira.axway.com/browse/CLI-110))
  * feat: Added organization and user management APIs.
    ([CLI-108](https://jira.axway.com/browse/CLI-108))
  * feat: Added HTTP status code to error messages.

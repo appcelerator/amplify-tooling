@@ -3,7 +3,6 @@ import loadConfig from '@axway/amplify-config';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import spawn from 'cross-spawn';
-import { ansi } from 'cli-kit';
 
 const { alert, highlight } = snooplogg.styles;
 const { error, log } = snooplogg('pm:utils');
@@ -60,44 +59,6 @@ export function formatError(err) {
 	}
 
 	return err;
-}
-
-/**
- * Handles error formatting and outputting. Sets the `process.exitCode` to error.
- *
- * @param {Object} opts - Various options.
- * @param {Console} opts.console - A console object instance.
- * @param {Error} opts.err - The error object.
- * @param {Boolean} [opts.json] - When `true`, outputs the error as JSON.
- * @param {Function} [opts.outputError] - A function to output the main error message.
- */
-export function handleError({ console, err, json, outputError }) {
-	err = formatError(err);
-	process.exitCode = err.exitCode || 1;
-
-	error(err);
-	if (err.detail) {
-		error(err.detail);
-	}
-
-	if (json) {
-		console.error(JSON.stringify({
-			error: {
-				message: err.toString(),
-				detail: err.detail && ansi.strip(err.detail),
-				code: err.code,
-			}
-		}, null, 2));
-	} else {
-		if (outputError) {
-			outputError(err.toString());
-		} else {
-			console.error(alert(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`));
-		}
-		if (err.detail) {
-			console.error(`\n${err.detail}`);
-		}
-	}
 }
 
 /**

@@ -28,19 +28,20 @@ export default {
 
 		async function installNewPackage(installData, task) {
 			const installProcess = new PackageInstaller(installData);
+			const { name, fetchSpec: version } = installData;
 
 			installProcess
 				.on('preActions', () => {
-					task.title = 'Running pre-actions';
+					task.title = `Running pre-actions ${highlight(`${name}@${version}`)}`;
 				})
 				.on('download', () => {
-					task.title = 'Downloading package';
+					task.title = `Downloading package ${highlight(`${name}@${version}`)}`;
 				})
 				.on('extract', () => {
-					task.title = 'Extracting package';
+					task.title = `Extracting package ${highlight(`${name}@${version}`)}`;
 				})
 				.on('postActions', () => {
-					task.title = 'Running post-actions';
+					task.title = `Running post-actions ${highlight(`${name}@${version}`)}`;
 				});
 
 			return await installProcess.start();
@@ -51,9 +52,9 @@ export default {
 		const installed = getInstalledPackages({ packageName: argv.package });
 
 		if (!installed.length) {
-			const message = argv.package ? `${argv.package} is not installed` : 'There are no packages to update';
-			console.log(argv.json ? JSON.stringify({ message }, null, 2) : message);
-			return;
+			const err = new Error(argv.package ? `${argv.package} is not installed` : 'There are no packages to update');
+			err.code = 'ENOTFOUND';
+			throw err;
 		}
 
 		const { highlight } = snooplogg.styles;

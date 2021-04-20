@@ -1,6 +1,10 @@
-# v2.4.6
+# v2.5.0
 
+ * feat(install): Show the command to use the newly installed CLI extension.
+   ([CLI-68](https://jira.axway.com/browse/CLI-68))
  * fix: Properly output errors when `--json` flag is set.
+ * fix(update): Show package name and version during install steps.
+   ([CLI-109](https://jira.axway.com/browse/CLI-109))
  * chore: Updated dependencies.
 
 # v2.4.5 (Jan 22, 2021)

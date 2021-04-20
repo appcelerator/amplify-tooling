@@ -18,19 +18,22 @@ export default {
 	async action({ argv, cli, console, terminal }) {
 		const [
 			{ PackageInstaller },
+			{ Extension },
 			{ default: npa },
 			{ default: ora },
 			{ default: snooplogg },
-			{ getRegistryParams, handleError }
+			{ getRegistryParams }
 		] = await Promise.all([
 			import('@axway/amplify-registry-sdk'),
+			import('cli-kit'),
 			import('npm-package-arg'),
 			import('ora'),
 			import('snooplogg'),
 			import('../utils')
 		]);
 
-		const { alert, highlight } = snooplogg.styles;
+		const { warn } = snooplogg('pm:install');
+		const { highlight } = snooplogg.styles;
 		const { name, fetchSpec } = npa(argv.package);
 		const messages = [];
 		let spinner;
@@ -91,13 +94,27 @@ export default {
 				spinner.succeed(`Installed ${highlight(`${name}@${info.version}`)}`);
 			}
 
-			// load the extension that was just installed
 			if (info.type === 'amplify-cli-plugin') {
-				cli.extension(info.path);
+				const ext = new Extension(info.path);
+
+				// load the extension that was just installed so that it can receive the `axway:pm:install` action
+				cli.extension(ext);
+
+				if (!argv.json) {
+					const cmds = Object.keys(ext.exports);
+					if (cmds.length) {
+						console.log(`\nTo use this new extension, run${cmds.length > 1 ? ' one of the following' : ''}:\n`);
+						for (const name of cmds) {
+							console.log(highlight(`  axway ${name}`));
+						}
+					}
+				}
 			}
+
 			await cli.emitAction('axway:pm:install', info);
 		} catch (err) {
-			handleError({ console, err, json: argv.json, outputError: e => spinner.fail(alert(e)) });
+			spinner?.stop();
+			throw err;
 		}
 	}
 };

@@ -73,7 +73,7 @@ export default class Registry {
 			body = data.body;
 		} catch (err) {
 			if (err.response?.statusCode === 404) {
-				const error = new Error(`No version data for ${name}@${version}`);
+				const error = new Error(`No version data for package "${name}@${version}"`);
 				error.code = 'ENOVERSIONDATA';
 				throw error;
 			}
