@@ -418,6 +418,8 @@ export default class Authenticator {
 	 * @param {String} [opts.code] - The authentication code from a successful interactive login.
 	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
 	 * launching the auth URL in the default browser.
+	 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to be
+	 * launched.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * @returns {Promise<Object>} In `manual` mode, then resolves an object containing the
 	 * authentication `url`, a `promise` that is resolved once the browser redirects to the local
@@ -498,6 +500,9 @@ export default class Authenticator {
 
 		// launch the default web browser
 		log(`Launching default web browser: ${highlight(authorizationUrl)}`);
+		if (typeof opts.onOpenBrowser === 'function') {
+			await opts.onOpenBrowser(authorizationUrl);
+		}
 		try {
 			await open(authorizationUrl, opts);
 		} catch (err) {
