@@ -222,6 +222,42 @@ describe('Signed JWT', () => {
 			expect(results.auth.tokens.access_token).to.not.equal(accessToken);
 			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
+
+		it('should authenticate when user info returns error', async function () {
+			let counter = 0;
+
+			this.server = await createLoginServer({
+				token(post) {
+					switch (++counter) {
+						case 1:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
+							break;
+
+						case 2:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
+							expect(post.refresh_token).to.equal('bar1');
+							break;
+					}
+				},
+				userinfo(post, req, res) {
+					res.writeHead(500, { 'Content-Type': 'text/plain' });
+					res.end('Server error');
+					return true;
+				}
+			});
+
+			const auth = new Auth({
+				secretFile:     path.join(__dirname, 'resources', 'rsa-private.pem'),
+				baseUrl:        'http://127.0.0.1:1337',
+				clientId:       'test_client',
+				realm:          'test_realm',
+				tokenStoreType: 'memory'
+			});
+
+			const account = await auth.login();
+			expect(account.name).to.equal('test_client:foo@bar.com');
+			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
+		});
 	});
 
 	describe('Logout', () => {
