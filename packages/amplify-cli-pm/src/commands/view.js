@@ -30,7 +30,7 @@ export default {
 	async action({ argv, cli, console }) {
 		const [
 			{ default: npa },
-			{ getRegistryParams, handleError },
+			{ getRegistryParams },
 			{ Registry }
 		] = await Promise.all([
 			import('npm-package-arg'),
@@ -38,36 +38,32 @@ export default {
 			import('@axway/amplify-registry-sdk')
 		]);
 
-		try {
-			const { name, fetchSpec } = npa(argv.package);
-			const registry = new Registry(getRegistryParams(argv.env));
+		const { name, fetchSpec } = npa(argv.package);
+		const registry = new Registry(getRegistryParams(argv.env));
 
-			let result = await registry.metadata({
-				name,
-				type: argv.type,
-				version: fetchSpec !== 'latest' && fetchSpec
-			});
+		let result = await registry.metadata({
+			name,
+			type: argv.type,
+			version: fetchSpec !== 'latest' && fetchSpec
+		});
 
-			if (argv.filter) {
-				for (const key of argv.filter.split('.')) {
-					if (typeof result !== 'object') {
-						break;
-					}
-					result = Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
+		if (argv.filter) {
+			for (const key of argv.filter.split('.')) {
+				if (typeof result !== 'object') {
+					break;
 				}
+				result = Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
 			}
+		}
 
-			if (argv.json) {
-				cli.banner = false;
-				console.log(JSON.stringify(result, null, 2));
-			} else if (result) {
-				// TODO: render results a little nicer... possibly use a template?
-				console.log(result);
-			} else {
-				console.log(`No result found for ${name}`);
-			}
-		} catch (err) {
-			handleError({ console, err, json: argv.json });
+		if (argv.json) {
+			cli.banner = false;
+			console.log(JSON.stringify(result, null, 2));
+		} else if (result) {
+			// TODO: render results a little nicer... possibly use a template?
+			console.log(result);
+		} else {
+			console.log(`No result found for ${name}`);
 		}
 	}
 };
