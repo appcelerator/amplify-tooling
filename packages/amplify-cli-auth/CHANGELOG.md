@@ -1,6 +1,8 @@
 # v2.6.0
 
  * feat: Publicly expose the `whoami` command.
+ * feat(login): Added feedback when launching the web browser for an interactive login.
+   ([CLI-79](https://jira.axway.com/browse/CLI-79))
  * fix: Properly output errors when `--json` flag is set.
  * chore: Updated dependencies.
 

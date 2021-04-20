@@ -319,6 +319,8 @@ export default class Auth {
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
 	 * launching the auth URL in the default browser.
+	 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to be
+	 * launched.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
 	 * @returns {Promise<Object>} Resolves an object containing the access token, account name, and

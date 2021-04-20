@@ -100,7 +100,15 @@ export default {
 					account = await sdk.auth.loadSession(await promise);
 				}
 			} else {
-				account = await sdk.auth.login({ force: argv.force });
+				account = await sdk.auth.login({
+					force: argv.force,
+					onOpenBrowser() {
+						// note that this is only called for interactive logins
+						if (!argv.json) {
+							console.log('Launching web browser to login...');
+						}
+					}
+				});
 			}
 		} catch (err) {
 			if (err.code === 'EAUTHENTICATED') {
@@ -143,18 +151,16 @@ export default {
 		}
 
 		if (account.isPlatform && account.org?.name) {
-			console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.\n`);
+			console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
 		} else {
-			console.log(`You are logged in as ${highlight(account.user.email || account.name)}.\n`);
+			console.log(`You are logged in as ${highlight(account.user.email || account.name)}.`);
 		}
 
 		// set the current
-		if (accounts.length === 1) {
+		if (accounts.length === 1 || account.default) {
 			console.log('This account has been set as the default');
-		} else if (account.default) {
-			console.log('This account is the default');
 		} else {
-			console.log('To make this account the default, run:');
+			console.log('\nTo make this account the default, run:');
 			console.log(`  ${highlight(`axway config set auth.defaultAccount ${account.name}`)}`);
 		}
 	}
