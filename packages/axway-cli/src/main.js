@@ -25,15 +25,26 @@ import { readFileSync } from 'fs';
 
 	let checkWait;
 
+	let banner = `${chalk.cyan('AXWAY CLI')}, version ${version}
+Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
+
+	if (process.versions.node.split('.')[0] < 12) {
+		banner += chalk.yellow(`
+
+ ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
+ ┃ deprecated and is unsupported by the Axway CLI v3. Please upgrade Node.js to
+ ┃ the latest LTS release: https://nodejs.org/`);
+	}
+
 	const cli = new CLI({
-		banner:       `${chalk.cyan('AXWAY CLI')}, version ${version}
-Copyright (c) 2018-2020, Axway, Inc. All Rights Reserved.`,
-		commands:     `${__dirname}/commands`,
-		desc:         'The Axway CLI is a unified command line interface for the Axway Amplify platform.',
+		banner,
+		commands:         `${__dirname}/commands`,
+		desc:             'The Axway CLI is a unified command line interface for the Axway Amplify platform.',
 		extensions,
-		help:         true,
-		helpExitCode: 2,
-		name:         'axway',
+		help:             true,
+		helpExitCode:     2,
+		helpTemplateFile: resolve(__dirname, '../templates/help.tpl'),
+		name:             'axway',
 		version
 	});
 
@@ -62,10 +73,19 @@ Copyright (c) 2018-2020, Axway, Inc. All Rights Reserved.`,
 		if (err.json) {
 			console.log(JSON.stringify({
 				code: exitCode,
-				result: err.toString()
+				result: err.toString(),
+				detail: err.detail
 			}, null, 2));
 		} else {
-			console.error(chalk.red(`${process.platform === 'win32' ? 'x' : '✖'} ${err}`));
+			const msg = `${process.platform === 'win32' ? 'x' : '✖'} ${err}`;
+			for (const line of msg.split(/\r\n|\n/)) {
+				console.error(chalk.red(`  ${line}`));
+			}
+			if (err.detail) {
+				for (const line of String(err.detail).split(/\r\n|\n/)) {
+					console.error(chalk.red(`    ${line}`));
+				}
+			}
 		}
 
 		process.exit(exitCode);
