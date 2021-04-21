@@ -1,4 +1,4 @@
-# v2.6.0
+# v2.6.0 (Apr 21, 2021)
 
  * feat: Publicly expose the `whoami` command.
  * feat(login): Added feedback when launching the web browser for an interactive login.

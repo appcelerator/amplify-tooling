@@ -44,31 +44,6 @@ const info = await sdk.auth.serverInfo();
 console.log(info);
 ```
 
-### MBS (formerly ACS)
-
-```js
-// create an MBS app in each platform environment
-const apps = await sdk.mbs.createApps(account, '<GUID>', '<NAME>');
-
-// create a new MBS user for a given group id (app guid) and environment (production/development)
-const user = await sdk.mbs.createUser(account, '<GROUP ID>', '<ENVIRONMENT>', {
-	admin:         undefined,
-	custom_fields: undefined,
-	email:         'user@domain.com',
-	first_name:    '',
-	last_name:     '',
-	password:      '', // required
-	password_confirmation: '', // required
-	photo_id:      undefined,
-	role:          undefined,
-	tags:          undefined,
-	username:      undefined
-});
-
-// get all MBS users for a given group id (app guid) and environment (production/development)
-const users = await sdk.mbs.getUsers(account, '<GROUP ID>', '<ENVIRONMENT>');
-```
-
 ### Orgs
 
 ```js
@@ -126,53 +101,6 @@ await sdk.org.member.remove(account, 'org name/id/guid', 'user guid or email');
 const orgRoles = await sdk.role.list(account);
 
 const teamRoles = await sdk.role.list(account, { team: true });
-```
-
-### Titanium
-
-```js
-// update Titanium app build info
-await sdk.ti.buildUpdate(account, {
-	buildId: 123,
-	buildSHA: '<SHA>',
-	keys: {
-		'file1': 'key1',
-		'file2': 'key2'
-	}
-});
-
-// verify Titanium app and modules prior to a build
-await sdk.ti.buildVerify(account, {
-	appGuid:     '<GUID>',
-	appId:       '<ID>',
-	deployType:  'production',
-	fingerprint: '<FINGERPRINT>',
-	ipAddress:   '<IPADDRESS>',
-	modules:     [],
-	tiapp:       '<ti:app><name/><id/><guid/></ti:app>'
-});
-
-// create developer certificate
-await sdk.ti.enroll(account, {
-	description: '<CERTIFICATE DESCRIPTION>',
-	fingerprint: '<FINGERPRINT>',
-	publicKey: '<PUBLIC KEY>'
-});
-
-// get the URL for upload debug symbols after building an iOS app
-const { url, api_token, limit } = await sdk.ti.getUploadURL(account, '<APP GUID>');
-
-// get info about a Titanium app
-const info = await sdk.ti.getApp(account, '<APP GUID>');
-
-// the runtime app verification URL
-const url = sdk.ti.getAppVerifyURL();
-
-// get available Titanium module downloads
-const downloads = await sdk.ti.getDownloads(account);
-
-// update or register a Titanium app
-await sdk.ti.setApp(account, '<ti:app><name/><id/><guid/></ti:app>');
 ```
 
 ### Team
@@ -243,8 +171,7 @@ const { changes, user } = await sdk.user.update(account, {
 
 ## Account Object
 
-The Amplify SDK relies on the [Amplify Auth SDK][2] for authenticating and managing access tokens.
-For organization related information, it talks directly to the Axway platform.
+Account objects contain the user info, organization info, and authentication tokens.
 
 ```js
 account: {
@@ -302,4 +229,3 @@ This project is open source under the [Apache Public License v2][1] and is devel
 in this distribution for more information.
 
 [1]: https://github.com/appcelerator/amplify-tooling/blob/master/packages/amplify-sdk/LICENSE
-[2]: https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-auth-sdk

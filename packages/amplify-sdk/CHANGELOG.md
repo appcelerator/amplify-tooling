@@ -1,4 +1,4 @@
-# v2.0.0
+# v2.0.0 (Apr 21, 2021)
 
  * BREAKING CHANGE: Removed MBS and Titanium app development APIs.
    ([CLI-110](https://jira.axway.com/browse/CLI-110))

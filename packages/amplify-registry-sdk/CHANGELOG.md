@@ -1,5 +1,6 @@
-# v2.3.6
+# v2.3.6 (Apr 21, 2021)
 
+ * style: Verbiage change.
  * chore: Updated dependencies.
 
 # v2.3.5 (Jan 22, 2021)

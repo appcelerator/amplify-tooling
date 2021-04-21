@@ -1,4 +1,4 @@
-# v4.3.0
+# v4.3.0 (Apr 21, 2021)
 
  * feat: Added `isHeadless()` helper function.
  * feat: Autodetect if headless and force token store type to `file`.
