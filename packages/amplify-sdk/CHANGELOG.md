@@ -9,6 +9,8 @@
    ([CLI-118](https://jira.axway.com/browse/CLI-118))
  * fix(auth): Handle authentication that does not return a refresh token.
    ([CLI-119](https://jira.axway.com/browse/CLI-119))
+ * feat(auth): Added `onOpenBrowser` callback param to login, switch, and logout methods.
+   ([CLI-116](https://jira.axway.com/browse/CLI-116))
  * chore: Updated `keytar` from v7.4.0 to v7.6.0.
  * chore: Updated dependencies.
 

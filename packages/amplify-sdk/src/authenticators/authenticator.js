@@ -502,7 +502,7 @@ export default class Authenticator {
 		// launch the default web browser
 		log(`Launching default web browser: ${highlight(authorizationUrl)}`);
 		if (typeof opts.onOpenBrowser === 'function') {
-			await opts.onOpenBrowser(authorizationUrl);
+			await opts.onOpenBrowser({ url: authorizationUrl });
 		}
 		try {
 			await open(authorizationUrl, opts);

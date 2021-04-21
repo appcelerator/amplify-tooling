@@ -1,5 +1,8 @@
-# v4.2.6
+# v4.3.0
 
+ * feat: Added `isHeadless()` helper function.
+ * feat: Autodetect if headless and force token store type to `file`.
+   ([CLI-116](https://jira.axway.com/browse/CLI-116))
  * chore: Updated dependencies.
 
 # v4.2.5 (Jan 22, 2021)

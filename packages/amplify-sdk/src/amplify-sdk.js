@@ -226,6 +226,8 @@ export default class AmplifySDK {
 			 * @param {Array.<String>} opts.accounts - A list of accounts names.
 			 * @param {Boolean} opts.all - When `true`, revokes all accounts.
 			 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
+			 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to
+			 * be launched.
 			 * @returns {Promise<Object>} Resolves a list of revoked credentials.
 			 */
 			logout: async ({ accounts, all, baseUrl = this.baseUrl } = {}) => {
@@ -248,7 +250,15 @@ export default class AmplifySDK {
 						const redirect = `${logout}?redirect_uri=${this.platformUrl}/signed.out?msg=signin`;
 						const url = `${this.platformUrl}/api/v1/auth/logout?redirect=${encodeURIComponent(redirect)}`;
 						log(`Launching default web browser: ${highlight(url)}`);
-						await open(url);
+						if (typeof opts.onOpenBrowser === 'function') {
+							await opts.onOpenBrowser({ url });
+						}
+						try {
+							await open(url);
+						} catch (err) {
+							const m = err.message.match(/Exited with code (\d+)/i);
+							throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
+						}
 					}
 				}
 
@@ -268,9 +278,12 @@ export default class AmplifySDK {
 			 * @param {Object} [account] - The account object. Note that this object reference will
 			 * be updated with new org info.
 			 * @param {Object|String|Number} [org] - The organization object, name, guid, or id.
+			 * @param {Object} [opts] - Various options.
+			 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to
+			 * be launched.
 			 * @returns {Promise<Object>} Resolves the updated account object.
 			 */
-			switchOrg: async (account, org) => {
+			switchOrg: async (account, org, opts = {}) => {
 				if (!account || account.auth.expired) {
 					log(`${account ? 'Account is expired' : 'No account specified'}, doing login`);
 					account = await this.client.login();
@@ -295,12 +308,15 @@ export default class AmplifySDK {
 					});
 
 					try {
+						const url = createURL(`${this.opts.platformUrl}/#/auth/org.select`, {
+							org_id: org?.id,
+							redirect
+						});
+						log(`Launching default web browser: ${highlight(url)}`);
+						if (typeof opts.onOpenBrowser === 'function') {
+							await opts.onOpenBrowser({ url });
+						}
 						try {
-							const url = createURL(`${this.opts.platformUrl}/#/auth/org.select`, {
-								org_id: org?.id,
-								redirect
-							});
-							log(`Launching default web browser: ${highlight(url)}`);
 							await open(url);
 						} catch (err) {
 							const m = err.message.match(/Exited with code (\d+)/i);

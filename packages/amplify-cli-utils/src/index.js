@@ -23,6 +23,7 @@ export {
 	request
 };
 
+const { warn } = snooplogg('amplify-cli-utils');
 const { cyan, gray, green } = snooplogg.chalk;
 
 /**
@@ -68,6 +69,17 @@ export function buildAuthParams(opts = {}, config) {
 
 	for (const prop of Object.keys(props)) {
 		params[prop] = opts[prop] || config.get(`auth.${prop}`, props[prop]);
+	}
+
+	// detect if we're headless and default token store type to `file`
+	if (params.tokenStoreType === undefined && isHeadless()) {
+		params.tokenStoreType = 'file';
+		config.set('auth.tokenStoreType', 'file');
+		try {
+			config.save();
+		} catch (err) {
+			warn(err);
+		}
 	}
 
 	params.requestOptions = createRequestOptions(opts, config);
@@ -273,4 +285,24 @@ export function initSDK(opts = {}, config) {
 		config,
 		sdk: new AmplifySDK(buildAuthParams(opts, config))
 	};
+}
+
+/**
+ * Detects if the current terminal is headless (e.g. a Docker container or SSH session).
+ *
+ * @returns {Boolean}
+ */
+export function isHeadless() {
+	try {
+		if (process.platform === 'linux' && (process.env.SSH_TTY || !process.env.DISPLAY || /docker|lxc/.test(fs.readFileSync('/proc/1/cgroup', 'utf8')))) {
+			return true;
+		}
+		if (process.platform === 'darwin' && process.env.SSH_TTY) {
+			return true;
+		}
+	} catch (e) {
+		// do nothing
+	}
+
+	return false;
 }

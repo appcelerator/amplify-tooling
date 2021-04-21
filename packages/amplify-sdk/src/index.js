@@ -17,8 +17,8 @@ import MemoryStore from './stores/memory-store';
 import SecureStore from './stores/secure-store';
 import TokenStore from './stores/token-store';
 
-import getEndpoints from './endpoints';
 import * as environments from './environments';
+import getEndpoints from './endpoints';
 
 export default AmplifySDK;
 
