@@ -23,7 +23,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^4.2.5",
+    "@axway/amplify-cli-utils": "^4.3.0",
     "cli-kit": "^1.12.0",
     "open": "^7.4.2",
     "snooplogg": "^3.0.2",

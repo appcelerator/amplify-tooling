@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-sdk",
-  "version": "1.8.3",
+  "version": "2.0.0",
   "description": "Axway Amplify SDK for Node.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -20,7 +20,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-request": "^2.1.1",
+    "@axway/amplify-request": "^2.1.2",
     "appcd-fs": "^2.0.6",
     "cross-spawn": "^7.0.3",
     "ejs": "^3.1.6",
