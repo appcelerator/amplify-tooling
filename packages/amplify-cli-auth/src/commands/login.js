@@ -25,7 +25,7 @@ export default {
 		'-u, --username [user]':     'Username to authenticate with',
 		'-p, --password [pass]':     'Password to authenticate with'
 	},
-	async action({ argv, cli, console, exitCode }) {
+	async action({ argv, cli, console }) {
 		const { default: snooplogg } = require('snooplogg');
 		const { initSDK } = require('@axway/amplify-cli-utils');
 		const { prompt } = require('enquirer');
@@ -77,7 +77,7 @@ export default {
 			username:       argv.username
 		});
 		let account;
-		const { alert, highlight } = snooplogg.styles;
+		const { highlight } = snooplogg.styles;
 
 		// perform the login
 		const manual = !argv.launchBrowser;
@@ -119,14 +119,13 @@ export default {
 				} else if (account.isPlatform && account.org?.name) {
 					console.log(`You are already logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
 				} else {
-					console.log(`You are already logged in as ${highlight(account.user.email || account.name)}.\n`);
+					console.log(`You are already logged in as ${highlight(account.user.email || account.name)}.`);
 				}
 				return;
-			} else if (err.code === 'ERR_AUTH_FAILED') {
-				console.error(alert(`${process.platform === 'win32' ? 'x' : '✖'} ${err.message}`));
-				exitCode(1);
-				return;
 			}
+
+			// add some whitespace
+			console.log();
 			throw err;
 		}
 

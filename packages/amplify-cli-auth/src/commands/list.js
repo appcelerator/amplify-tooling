@@ -43,11 +43,12 @@ export default {
 		const check = process.platform === 'win32' ? '√' : '✔';
 
 		for (const { default: def, auth, isPlatform, name, org } of accounts) {
+			const { access, refresh } = auth.expires;
 			table.push([
 				def ? green(`${check} ${name}`) : `  ${name}`,
 				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
 				isPlatform ? 'Platform' : 'Service',
-				pretty(auth.expires.refresh - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
+				pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
 				auth.baseUrl.replace(urlRE, '')
 			]);
 		}
