@@ -3,6 +3,8 @@
  * feat: Publicly expose the `whoami` command.
  * feat(login): Added feedback when launching the web browser for an interactive login.
    ([CLI-79](https://jira.axway.com/browse/CLI-79))
+ * feat: Improved handling of headless environments.
+   ([CLI-116](https://jira.axway.com/browse/CLI-116))
  * fix: Properly output errors when `--json` flag is set.
  * chore: Updated dependencies.
 

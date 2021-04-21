@@ -12,6 +12,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../lib/util');
+		const { isHeadless } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight } = snooplogg.styles;
 		const { org, sdk } = await initPlatformAccount(argv.account, argv.org);
@@ -23,6 +24,10 @@ export default {
 
 		if (!org.entitlements.idp) {
 			throw new Error(`The organization "${org.name}" does not have identity provider entitlements`);
+		}
+
+		if (isHeadless()) {
+			throw new Error('Managing identity provider settings requires a web browser and is unsupported in headless environments');
 		}
 
 		const url = `${sdk.platformUrl}#/org/${org.id}/settings/idp`;

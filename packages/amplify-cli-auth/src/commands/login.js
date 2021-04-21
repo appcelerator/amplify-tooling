@@ -27,7 +27,7 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { default: snooplogg } = require('snooplogg');
-		const { initSDK } = require('@axway/amplify-cli-utils');
+		const { initSDK, isHeadless } = require('@axway/amplify-cli-utils');
 		const { prompt } = require('enquirer');
 
 		// prompt for the username and password
@@ -103,8 +103,9 @@ export default {
 				account = await sdk.auth.login({
 					force: argv.force,
 					onOpenBrowser() {
-						// note that this is only called for interactive logins
-						if (!argv.json) {
+						if (isHeadless()) {
+							throw new Error('Only authenticating with a service account is supported in headless environments');
+						} else if (!argv.json) {
 							console.log('Launching web browser to login...');
 						}
 					}
@@ -124,8 +125,6 @@ export default {
 				return;
 			}
 
-			// add some whitespace
-			console.log();
 			throw err;
 		}
 
