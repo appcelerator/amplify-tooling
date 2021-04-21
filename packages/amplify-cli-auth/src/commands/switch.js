@@ -9,11 +9,10 @@ export default {
 		'--org [guid|id|name]': 'The organization to switch to'
 	},
 	async action({ argv, cli, console }) {
-		const { ansi } = require('cli-kit');
 		const { default: snooplogg } = require('snooplogg');
 		const { initSDK, isHeadless } = require('@axway/amplify-cli-utils');
 		const { prompt } = require('enquirer');
-		const { alert, highlight } = snooplogg.styles;
+		const { highlight } = snooplogg.styles;
 		const { config, sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
 			clientId: argv.clientId,
