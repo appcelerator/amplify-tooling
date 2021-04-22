@@ -15,6 +15,9 @@ export default {
   List all users in a team:
     ${style.highlight('axway team user list <org>')}
 
+  View available user roles:
+    ${style.highlight('axway team user roles')}
+
   Add a user to a team:
     ${style.highlight('axway team user add <org> <team> <user> --role <role>')}
 

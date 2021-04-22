@@ -21,7 +21,7 @@ export default {
 		},
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs result as JSON'
+			desc: 'Outputs the result as JSON'
 		},
 		'--lastname [value]': {
 			aliases: '--last-name',

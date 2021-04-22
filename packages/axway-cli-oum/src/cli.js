@@ -6,7 +6,7 @@ import { resolve } from 'path';
 const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
 
 export default new CLI({
-	desc: 'Manages Amplify organizations, users, and teams',
+	desc: 'Manage Amplify organizations, users, and teams',
 	commands: [
 		`${__dirname}/org.js`,
 		`${__dirname}/user.js`

@@ -1,6 +1,6 @@
 export default {
 	commands: `${__dirname}/user`,
-	desc: 'Manage Amplify platform users',
+	desc: 'Manage your user settings',
 	help: {
 		header() {
 			return `${this.desc}.`;
@@ -8,8 +8,8 @@ export default {
 		footer({ style }) {
 			return `${style.heading('Examples:')}
 
-  You must be authenticated into an Amplify platform account to view or manage
-  organizations. Run ${style.highlight('"axway auth login"')} to authenticate.
+  You must be authenticated into an Amplify platform account to view or update
+  your user settings. Run ${style.highlight('"axway auth login"')} to authenticate.
 
   View your user account details:
     ${style.highlight('axway user view')}

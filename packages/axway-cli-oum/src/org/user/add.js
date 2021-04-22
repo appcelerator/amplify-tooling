@@ -12,14 +12,35 @@ export default {
 		}
 	],
 	desc: 'Add a new user to an organization',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		},
+		footer({ style }) {
+			return `${style.heading('Examples:')}
+
+  You may specify an organization by name, id, or guid.
+
+  If the user is not already a platform user, they will automatically be
+  invited to create a platform account and join the organization.
+
+  An organization user must be assigned a platform role and optionally a
+  product specific role. You may specify the roles with multiple ${style.highlight('--role "role"')}
+  options or a single ${style.highlight('--role "role1,role2,role3"')} option with a comma-separated
+  list of roles. To view available user roles, run: ${style.highlight('axway org user roles')}
+
+  Add a user to an organization with administrator privileges.
+    ${style.highlight('axway org user add <org> <email> --role administrator')}`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
+			desc: 'Outputs the result as JSON'
 		},
 		'--role [role]': {
-			desc: 'Assign one or more team roles to a user',
+			desc: 'Assign one or more organization roles to a user',
 			multiple: true,
 			required: true
 		}

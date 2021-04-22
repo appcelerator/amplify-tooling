@@ -11,12 +11,12 @@ export default {
 		'--account [name]': 'The platform account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
+			desc: 'Outputs organization info as JSON'
 		}
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount } = require('../lib/util');
 		const { createTable } = require('@axway/amplify-cli-utils');
+		const { initPlatformAccount } = require('../lib/util');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 		org = await sdk.org.find(account, org);
 

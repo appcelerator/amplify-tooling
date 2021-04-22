@@ -17,6 +17,9 @@ export default {
   List all users for a specific organization:
     ${style.highlight('axway org user list <org>')}
 
+  View available user roles:
+    ${style.highlight('axway org user roles')}
+
   Add a user to an organization:
     ${style.highlight('axway org user add <org> <email> --role <role>')}
 

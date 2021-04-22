@@ -17,7 +17,7 @@ export default {
 		'--account [name]': 'The platform account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
+			desc: 'Outputs the list of users as JSON'
 		}
 	},
 	async action({ argv, console }) {

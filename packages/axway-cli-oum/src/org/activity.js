@@ -11,7 +11,7 @@ export default {
 		'--from [yyyy-mm-dd]': 'The start date',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
+			desc: 'Outputs the org activity as JSON'
 		},
 		'--to [yyyy-mm-dd]': 'The end date'
 	},

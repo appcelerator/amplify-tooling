@@ -17,11 +17,31 @@ export default {
 		}
 	],
 	desc: 'Add a new user to a team',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		},
+		footer({ style }) {
+			return `${style.heading('Examples:')}
+
+  You may specify an organization by name, id, or guid.
+
+  The user must already be a platform user.
+
+  An organization user must be assigned a platform role and optionally a
+  product specific role. You may specify the roles with multiple ${style.highlight('--role "role"')}
+  options or a single ${style.highlight('--role "role1,role2,role3"')} option with a comma-separated
+  list of roles. To view available user roles, run: ${style.highlight('axway team user roles')}
+
+  Add a user to an organization with administrator privileges.
+    ${style.highlight('axway team user add <org> <email> --role administrator')}`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
+			desc: 'Outputs the result as JSON'
 		},
 		'--role <role>': {
 			desc: 'Assign one or more team roles to a user',

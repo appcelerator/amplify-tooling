@@ -11,7 +11,7 @@ export default {
 		'--account [name]': 'The account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
+			desc: 'Outputs the list of teams as JSON'
 		}
 	},
 	async action({ argv, console }) {

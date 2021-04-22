@@ -43,9 +43,18 @@
   },
   "cli-kit": {
     "exports": {
-      "org": "./dist/org",
-      "team": "./dist/team",
-      "user": "./dist/user"
+      "org": {
+        "desc": "Manage Amplify platform organizations",
+        "main": "./dist/org"
+      },
+      "team": {
+        "desc": "Manage Amplify organization teams",
+        "main": "./dist/team"
+      },
+      "user": {
+        "desc": "Manage your user settings",
+        "main": "./dist/user"
+      }
     }
   },
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"

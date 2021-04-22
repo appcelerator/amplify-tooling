@@ -16,7 +16,7 @@ export default {
 		'--account [name]': 'The platform account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
+			desc: 'Outputs the result as JSON'
 		},
 		'--role [role]': {
 			desc: 'Assign one or more team roles to a user',

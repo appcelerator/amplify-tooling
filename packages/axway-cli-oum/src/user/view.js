@@ -5,7 +5,7 @@ export default {
 		'--account [name]': 'The platform account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs info as JSON'
+			desc: 'Outputs the info as JSON'
 		}
 	},
 	async action({ argv, console }) {

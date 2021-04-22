@@ -41,7 +41,7 @@ export default {
 		'--desc [value]':   'The description of the team',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
+			desc: 'Outputs the result as JSON'
 		},
 		'--name [value]':   'The team name',
 		'--tag [tag]': {

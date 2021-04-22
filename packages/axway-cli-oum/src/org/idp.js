@@ -2,8 +2,7 @@ export default {
 	args: [
 		{
 			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org',
-			required: true
+			desc: 'The organization name, id, or guid; defaults to the current org'
 		}
 	],
 	desc: 'Manage organization identity provider settings',

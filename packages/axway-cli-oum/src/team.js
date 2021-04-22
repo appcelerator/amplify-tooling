@@ -9,7 +9,7 @@ export default {
 			return `${style.heading('General Team Examples:')}
 
   You must be authenticated into an Amplify platform account to view or manage
-  organizations. Run ${style.highlight('"axway auth login"')} to authenticate.
+  organization teams. Run ${style.highlight('"axway auth login"')} to authenticate.
 
   You may specify an organization by name, id, or guid as well as the team by
   name or guid.
@@ -41,6 +41,9 @@ ${style.heading('Team User Management Examples:')}
 
   List all users in a team:
     ${style.highlight('axway team user list <org>')}
+
+  View available user roles:
+    ${style.highlight('axway org user roles')}
 
   Add a user to a team:
     ${style.highlight('axway team user add <org> <team> <user> --role <role>')}
