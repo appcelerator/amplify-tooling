@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@axway/amplify-request": "^2.1.2",
-    "appcd-fs": "^2.0.6",
+    "appcd-fs": "^2.0.7",
     "cross-spawn": "^7.0.3",
     "ejs": "^3.1.6",
     "fs-extra": "^9.1.0",
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@koa/router": "^10.0.0",
-    "appcd-gulp": "^3.1.5",
+    "appcd-gulp": "^3.1.6",
     "keytar": "7.6.0",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0"

@@ -29,13 +29,13 @@
     "@axway/amplify-cli-pm": "^2.5.0",
     "@axway/amplify-cli-utils": "^4.3.0",
     "@axway/axway-cli-oum": "^1.0.0",
-    "cli-kit": "^1.12.0",
+    "cli-kit": "^1.13.0",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.3.0"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.1.5"
+    "appcd-gulp": "^3.1.6"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
