@@ -12,7 +12,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'View organization team details',
+	desc: 'View team information',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {

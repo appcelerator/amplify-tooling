@@ -22,7 +22,7 @@ export default {
 		},
 		'--tag [tag]': {
 			aliases: '--tags',
-			desc: 'One or more tags to assign to this team',
+			desc: 'One or more tags to assign to the team',
 			multiple: true
 		}
 	},

@@ -16,7 +16,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Add a new user to a team',
+	desc: 'Add a user to a team',
 	help: {
 		header() {
 			return `${this.desc}.`;
@@ -28,10 +28,10 @@ export default {
 
   The user must already be a platform user.
 
-  An organization user must be assigned a platform role and optionally a
-  product specific role. You may specify the roles with multiple ${style.highlight('--role "role"')}
-  options or a single ${style.highlight('--role "role1,role2,role3"')} option with a comma-separated
-  list of roles. To view available user roles, run: ${style.highlight('axway team user roles')}
+  An team user must be assigned a platform role and optionally a product
+  specific role. You may specify the roles with multiple ${style.highlight('--role "role"')} options
+  or a single ${style.highlight('--role "role1,role2,role3"')} option with a comma-separated list of
+  roles. To view available user roles, run: ${style.highlight('axway team user roles')}
 
   Add a user to an organization with administrator privileges.
     ${style.highlight('axway team user add <org> <email> --role administrator')}`;

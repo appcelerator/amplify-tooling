@@ -15,6 +15,7 @@ export default {
 		}
 	},
 	options: {
+		'--account [name]': 'The platform account to use',
 		'--firstname [value]': {
 			aliases: '--first-name',
 			desc: 'Your first name'

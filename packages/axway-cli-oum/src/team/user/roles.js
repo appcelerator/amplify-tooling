@@ -1,5 +1,5 @@
 export default {
-	desc: 'View available organization user roles',
+	desc: 'View available team user roles',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
