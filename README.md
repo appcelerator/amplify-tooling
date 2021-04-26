@@ -1,3 +1,5 @@
+[![Build](https://github.com/appcelerator/amplify-tooling/actions/workflows/build.yml/badge.svg)](https://github.com/appcelerator/amplify-tooling/actions/workflows/build.yml)
+
 # Amplify Tooling
 
 This monorepo contains the Axway CLI, authentication CLI, and package manager CLI, as well as other related packages.

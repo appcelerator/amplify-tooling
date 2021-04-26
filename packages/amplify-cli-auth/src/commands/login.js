@@ -9,6 +9,23 @@ export default {
 		}
 	},
 	desc: 'Log in to the Axway Amplify platform',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		},
+		footer({ style }) {
+			return `${style.heading('Examples:')}
+
+  Log into a platform account using a web browser:
+    ${style.highlight('axway auth login')}
+
+  Log into a service account using a PEM formatted secret key:
+    ${style.highlight('axway auth login --client-id <id> --secret-file <path>')}
+
+  Log into a service account using a client secret:
+    ${style.highlight('axway auth login --client-id <id> --client-secret <token> --service')}`;
+		}
+	},
 	options: {
 		'--base-url [url]':          { hidden: true },
 		'--client-id [id]':          'The CLI specific client ID',
