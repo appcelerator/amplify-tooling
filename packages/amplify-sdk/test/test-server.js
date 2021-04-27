@@ -20,6 +20,8 @@ describe('Server', () => {
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
+			} else {
+				throw error;
 			}
 		} finally {
 			await cancel();
@@ -44,6 +46,8 @@ describe('Server', () => {
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
+			} else {
+				throw error;
 			}
 		} finally {
 			await cancel();
@@ -68,6 +72,8 @@ describe('Server', () => {
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
+			} else {
+				throw error;
 			}
 		} finally {
 			await cancel();
@@ -95,6 +101,8 @@ describe('Server', () => {
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
+			} else {
+				throw error;
 			}
 		} finally {
 			await cancel();
@@ -119,6 +127,8 @@ describe('Server', () => {
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
+			} else {
+				throw error;
 			}
 		} finally {
 			await cancel();
