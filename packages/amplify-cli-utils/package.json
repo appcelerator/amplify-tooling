@@ -24,17 +24,17 @@
     "@axway/amplify-config": "^3.0.8",
     "@axway/amplify-request": "^2.1.2",
     "@axway/amplify-sdk": "^2.0.0",
-    "appcd-fs": "^2.0.6",
+    "appcd-fs": "^2.0.7",
     "boxen": "^5.0.1",
     "check-kit": "^1.1.2",
-    "cli-kit": "^1.12.0",
+    "cli-kit": "^1.13.0",
     "cli-table3": "^0.6.0",
     "fs-extra": "^9.1.0",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.1.5"
+    "appcd-gulp": "^3.1.6"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

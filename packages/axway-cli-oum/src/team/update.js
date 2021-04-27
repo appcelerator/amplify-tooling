@@ -11,7 +11,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Update the team information',
+	desc: 'Update team information',
 	help: {
 		header() {
 			return `${this.desc}.`;

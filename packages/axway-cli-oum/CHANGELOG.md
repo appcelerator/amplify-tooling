@@ -1,6 +1,9 @@
 # v1.1.0
 
  * feat: Added `roles` command to org and team user management commands.
+ * fix: Fallback to the selected org when the default org in the Axway CLI config is stale.
+   ([CLI-121](https://jira.axway.com/browse/CLI-121))
+ * chore: Updated dependencies.
 
 # v1.0.0 (Apr 21, 2021)
 

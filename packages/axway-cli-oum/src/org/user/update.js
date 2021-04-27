@@ -2,7 +2,7 @@ export default {
 	args: [
 		{
 			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org',
+			desc: 'The organization name, id, or guid',
 			required: true
 		},
 		{
@@ -19,7 +19,7 @@ export default {
 			desc: 'Outputs the result as JSON'
 		},
 		'--role [role]': {
-			desc: 'Assign one or more team roles to a user',
+			desc: 'Assign one or more organization roles to a user',
 			multiple: true
 		}
 	},

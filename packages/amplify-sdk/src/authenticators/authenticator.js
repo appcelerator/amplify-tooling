@@ -15,7 +15,7 @@ import Server from '../server';
 import { createURL, md5, prepareForm } from '../util';
 
 const { log, warn } = snooplogg('amplify-auth:authenticator');
-const { highlight, note } = snooplogg.styles;
+const { green, highlight, red, note } = snooplogg.styles;
 
 /**
  * Orchestrates authentication and token management.
@@ -253,19 +253,22 @@ export default class Authenticator {
 
 		const url = this.endpoints.token;
 		const fetchTokens = async params => {
-			log(`Fetching token: ${highlight(url)}`);
-			log('Post form:', { ...params, password: '********' });
-
 			try {
-				return await this.got.post(url, {
+				log(`Fetching token: ${highlight(url)}`);
+				log('Post form:', { ...params, password: '********' });
+				const response = await this.got.post(url, {
 					form: prepareForm(params),
 					responseType: 'json'
 				});
+				log(`${(response.statusCode >= 400 ? red : green)(String(response.statusCode))} ${highlight(url)}`);
+				return response;
 			} catch (err) {
 				if (err.code === 'ECONNREFUSED') {
 					// don't change the code, just re-throw
 					throw err;
 				}
+
+				log(err);
 
 				const desc = err.response?.body?.error_description;
 
@@ -457,13 +460,23 @@ export default class Authenticator {
 			}));
 		});
 
-		const codeCallback = await server.createCallback((req, res) => {
+		const codeCallback = await server.createCallback(async (req, res, { searchParams }) => {
+			const code = searchParams.get('code');
+			if (!code) {
+				throw new Error('Invalid auth code');
+			}
+
+			log(`Getting token using code: ${highlight(code)}`);
+			const account = await this.getToken(code, codeCallback.url);
+
 			res.writeHead(302, {
 				Location: createURL(`${this.platformUrl}/#/auth/org.select`, {
 					redirect: orgSelectedCallback.url
 				})
 			});
 			res.end();
+
+			return account;
 		});
 
 		const authorizationUrl = createURL(this.endpoints.auth, Object.assign({
@@ -477,14 +490,7 @@ export default class Authenticator {
 		log(`Starting ${opts.manual ? 'manual ' : ''}login request clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
 		const promise = codeCallback.start()
-			.then(async ({ searchParams }) => {
-				const code = searchParams.get('code');
-				if (!code) {
-					throw new Error('Invalid auth code');
-				}
-
-				log(`Getting token using code: ${highlight(code)}`);
-				const account = await this.getToken(code, codeCallback.url);
+			.then(async ({ result: account }) => {
 				await orgSelectedCallback.start();
 				return account;
 			})

@@ -1,3 +1,7 @@
+# v4.3.1
+
+ * chore: Updated dependencies.
+
 # v4.3.0 (Apr 21, 2021)
 
  * feat: Added `isHeadless()` helper function.

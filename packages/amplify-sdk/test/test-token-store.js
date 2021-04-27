@@ -9,7 +9,7 @@ const isCI = process.env.CI || process.env.JENKINS;
 
 tmp.setGracefulCleanup();
 
-const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 
 describe('Token Store', () => {
 	describe('Constructor', () => {
@@ -224,7 +224,7 @@ describe('Token Store', () => {
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
-			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 			const auth = new Auth({
 				baseUrl,
 				clientId:       'test_client',
@@ -265,7 +265,7 @@ describe('Token Store', () => {
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
-			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 			const auth = new Auth({
 				baseUrl,
 				clientId:       'test_client',
@@ -310,7 +310,7 @@ describe('Token Store', () => {
 				refreshExpiresIn: 1
 			});
 
-			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 			const auth = new Auth({
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
@@ -360,7 +360,7 @@ describe('Token Store', () => {
 					clientId:       'test_client',
 					secureServiceName,
 					realm:          'test_realm',
-					tokenStoreDir:  tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' }),
+					tokenStoreDir:  tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' }),
 					tokenStoreType: 'secure'
 				});
 			} catch (e) {
@@ -379,7 +379,7 @@ describe('Token Store', () => {
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
-			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 			const auth = new Auth({
 				baseUrl,
 				clientId:       'test_client',
@@ -420,7 +420,7 @@ describe('Token Store', () => {
 			this.server = await createLoginServer();
 
 			const baseUrl = 'http://127.0.0.1:1337';
-			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-auth-sdk-' });
+			const tokenStoreDir = this.tempFile = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 			const auth = new Auth({
 				baseUrl,
 				clientId:       'test_client',
