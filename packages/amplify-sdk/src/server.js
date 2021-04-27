@@ -169,11 +169,15 @@ export default class Server {
 				}
 			});
 
-			this.server.destroy = function destroy() {
-				for (const conn of Object.values(connections)) {
+			this.server.destroy = async function destroy() {
+				const conns = Object.values(connections);
+				log(`Destroying ${conns.length} connection${conns.length === 1 ? '' : 's'}`);
+				for (const conn of conns) {
 					conn.destroy();
 				}
-				return new Promise(resolve => this.close(resolve));
+				log('Closing HTTP server...');
+				await new Promise(resolve => this.close(resolve));
+				log('HTTP server closed');
 			};
 
 			this.server

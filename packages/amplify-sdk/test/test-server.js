@@ -101,17 +101,19 @@ describe.only('Server', () => {
 
 		const { cancel, promise, url } = await auth.login({ manual: true });
 		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
+		const redirectUrl = `${redirect_uri}?code=123`;
 
 		// squeltch unhandled rejections
 		promise.catch(() => {});
 
 		try {
-			log(`Requesting: ${highlight(`${redirect_uri}?code=123`)}`);
-			await got(`${redirect_uri}?code=123`);
+			log(`Requesting: ${highlight(redirectUrl)}`);
+			await got(redirectUrl);
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
 			} else {
+				log(`Request failed: ${highlight(redirectUrl)}`);
 				throw error;
 			}
 		} finally {
