@@ -22,11 +22,11 @@
   "dependencies": {
     "@axway/amplify-request": "^2.1.2",
     "appcd-fs": "^2.0.7",
-    "cross-spawn": "^7.0.3",
     "ejs": "^3.1.6",
     "fs-extra": "^9.1.0",
     "get-port": "^5.1.1",
     "jws": "^4.0.0",
+    "keytar": "7.7.0",
     "open": "^7.4.2",
     "pluralize": "^8.0.0",
     "set-cookie-parser": "^2.4.8",
@@ -38,7 +38,6 @@
   "devDependencies": {
     "@koa/router": "^10.0.0",
     "appcd-gulp": "^3.1.6",
-    "keytar": "7.7.0",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0"
   },
@@ -50,6 +49,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "keytar": "7.7.0"
+  }
 }

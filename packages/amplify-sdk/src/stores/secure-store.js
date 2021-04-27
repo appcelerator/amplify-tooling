@@ -3,14 +3,10 @@
 import crypto from 'crypto';
 import E from '../errors';
 import FileStore from './file-store';
-import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
-import tmp from 'tmp';
-import { sync as spawnSync } from 'cross-spawn';
 
-const { log, warn } = snooplogg('amplify-auth:secure-store');
-const { highlight } = snooplogg.styles;
+const { log, warn } = snooplogg('amplify-sdk:auth:secure-store');
 
 /**
  * A operating-specific secure token store.
@@ -43,94 +39,9 @@ export default class SecureStore extends FileStore {
 			throw E.INVALID_PARAMETER('Secure store requires the home directory to be specified');
 		}
 
-		const cacheDir = tmp.tmpNameSync({ prefix: 'amplify-auth-sdk-npm-cache' });
-		const keytarVersion = fs.readJsonSync(path.resolve(__dirname, '..', '..', 'package.json')).keytar.replace(/[^\d.]*/g, '');
-		const prefix = path.join(homeDir, 'axway-cli', 'lib', 'keytar', `${keytarVersion}_${process.platform}_${process.arch}_${process.versions.modules}`);
-		const keytarPath = path.join(prefix, 'node_modules', 'keytar');
-		let keytar;
-
-		fs.mkdirpSync(cacheDir);
-		fs.mkdirpSync(prefix);
-
-		try {
-			// the first step is to try to load the exact version
-			log(`Loading keytar: ${highlight(keytarPath)}`);
-			keytar = require(keytarPath);
-		} catch (e) {
-			// failed because version not installed or Node version change
-
-			// just in case there was a pre-existing botched install
-			fs.removeSync(keytarPath);
-
-			const args = [ 'install', `keytar@${keytarVersion}`, '--no-audit', '--no-save', '--production', '--prefix', prefix ];
-			const env = Object.assign({
-				NO_UPDATE_NOTIFIER: 1,
-				npm_config_cache: cacheDir
-			}, process.env);
-
-			log(`node ${highlight(process.version)} modules ${highlight(process.versions.modules)} npm ${highlight(spawnSync('npm', [ '-v' ], { env, windowsHide: true }).stdout.toString().trim())}`);
-
-			// add the network config
-			if (opts.requestOptions) {
-				const { ca, cert, key, proxy, strictSSL } = opts.requestOptions;
-				if (ca) {
-					args.push('--ca', ca.toString());
-				}
-				if (cert) {
-					args.push('--cert', cert.toString());
-				}
-				if (key) {
-					args.push('--key', key.toString());
-				}
-				if (proxy) {
-					args.push('--https-proxy', proxy);
-				}
-				args.push('--strict-ssl', String(strictSSL !== false));
-			}
-
-			// run npm install
-			log(`keytar not found, running: ${highlight(`npm_config_cache=${cacheDir} npm ${args.join(' ')}`)}`);
-			const result = spawnSync('npm', args, { env, windowsHide: true });
-			log(`npm install exited (code ${result.status})`);
-
-			if (result.error) {
-				// spawn error
-				throw E.NPM_ERROR(`${result.error.code === 'ENOENT' ? 'npm executable not found' : result.error.message} (code ${result.status})`);
-			}
-
-			if (result.status) {
-				const output = result.stderr.toString().trim();
-				output && log(output);
-				if (process.platform === 'linux' && output.includes('libsecret')) {
-					throw E.NPM_ERROR([
-						'Axway CLI uthentication requires "libsecret" which must be manually installed.',
-						'  Debian/Ubuntu: sudo apt-get install libsecret-1-dev',
-						'  Red Hat-based: sudo yum install libsecret-devel',
-						'  Arch Linux:    sudo pacman -S libsecret'
-					].join('\n'));
-				}
-				throw E.NPM_ERROR(`${output ? String(output.split(/\r\n|\n/)[0]).replace(/^\s*error:\s*/i, '') : 'unknown error'} (code ${result.status})`);
-			}
-
-			const output = result.stdout.toString().trim();
-			output && log(output);
-
-			try {
-				keytar = require(keytarPath);
-			} catch (e2) {
-				log(e2);
-				throw E.NPM_ERROR(`Failed to install keytar@${keytarVersion}. Please check that your version of Node.js (${process.version}) is supported.\n${e2.toString()}`);
-			}
-		} finally {
-			if (fs.existsSync(cacheDir)) {
-				log(`Cleaning up temp npm cache dir: ${highlight(cacheDir)}`);
-				fs.removeSync(cacheDir);
-			}
-		}
-
 		super(opts);
 
-		this.keytar = keytar;
+		this.keytar = require('keytar');
 		this.serviceName = opts.secureServiceName || 'Axway AMPLIFY Auth';
 		this.tokenStoreFile = path.join(this.tokenStoreDir, this.filename);
 	}

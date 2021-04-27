@@ -1,6 +1,7 @@
 # v2.1.0
 
- * chore: Updated `keytar` from v7.6.0 to v7.7.0.
+ * fix: Updated `keytar` from v7.6.0 to v7.7.0, which now uses N-API. The Amplify SDK no longer
+   needs to install `keytar` at runtime which solves npm 7 related issues.
  * chore: Updated dependencies.
 
 # v2.0.0 (Apr 21, 2021)
