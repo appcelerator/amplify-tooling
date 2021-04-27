@@ -15,10 +15,22 @@ export async function initPlatformAccount(accountName, org) {
 		throw new Error('You must me logged into a platform account\n\nTo login, run: axway auth login');
 	}
 
+	if (org) {
+		org = await sdk.org.find(account, org);
+	} else {
+		try {
+			// check the config for a default org for this account
+			org = await sdk.org.find(account, config.get(`auth.defaultOrg.${account.hash}`));
+		} catch (err) {
+			// default org was stale, auto detect the default from the account orgs
+			org = await sdk.org.find(account);
+		}
+	}
+
 	return {
 		account,
 		config,
-		org: await sdk.org.find(account, org || config.get(`auth.defaultOrg.${account.hash}`)),
+		org,
 		sdk
 	};
 }

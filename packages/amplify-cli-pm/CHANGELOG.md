@@ -1,3 +1,7 @@
+# v2.5.1
+
+ * chore: Updated dependencies.
+
 # v2.5.0 (Apr 21, 2021)
 
  * feat(install): Show the command to use the newly installed CLI extension.

@@ -123,6 +123,10 @@ export default class Server {
 					res.writeHead = function (status, message, headers) {
 						head = true;
 						log(`${(status >= 400 ? red : green)(String(status))} ${url.pathname} (${id})`);
+						if (status === 302) {
+							const h = headers || (typeof message === 'object' && message);
+							log(`Redirecting client to ${highlight(h?.Location || 'nowhere!')}`);
+						}
 						return origWriteHead.call(res, status, message, headers);
 					};
 
@@ -133,8 +137,9 @@ export default class Server {
 						return origEnd.call(res, data, encoding, callback);
 					};
 
+					let result;
 					if (typeof request.handler === 'function') {
-						await request.handler(req, res);
+						result = await request.handler(req, res, url);
 					}
 
 					if (!end) {
@@ -149,7 +154,7 @@ export default class Server {
 
 					clearTimeout(request.timer);
 					this.pending.delete(id);
-					request.resolve(url);
+					request.resolve({ result, url });
 				} catch (err) {
 					log(`${red(err.status || '400')} ${url.pathname}`);
 					error(err);
@@ -169,11 +174,15 @@ export default class Server {
 				}
 			});
 
-			this.server.destroy = function destroy() {
-				for (const conn of Object.values(connections)) {
+			this.server.destroy = async function destroy() {
+				const conns = Object.values(connections);
+				log(`Destroying ${conns.length} connection${conns.length === 1 ? '' : 's'}`);
+				for (const conn of conns) {
 					conn.destroy();
 				}
-				return new Promise(resolve => this.close(resolve));
+				log('Closing HTTP server...');
+				await new Promise(resolve => this.close(resolve));
+				log('HTTP server closed');
 			};
 
 			this.server

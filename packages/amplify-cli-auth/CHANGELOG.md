@@ -1,3 +1,7 @@
+# v2.6.1
+
+ * chore: Updated dependencies.
+
 # v2.6.0 (Apr 21, 2021)
 
  * feat: Publicly expose the `whoami` command.
