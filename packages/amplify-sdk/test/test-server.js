@@ -109,14 +109,17 @@ describe.only('Server', () => {
 		try {
 			log(`Requesting: ${highlight(redirectUrl)}`);
 			await got(redirectUrl);
+			throw new Error('Expected request to fail');
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
-			} else {
-				log(`Request failed: ${highlight(redirectUrl)}`);
-				throw error;
+				return;
 			}
+
+			log(`Request failed: ${highlight(redirectUrl)}`);
+			throw error;
 		} finally {
+			log('Cancelling request...');
 			await cancel();
 		}
 	});
