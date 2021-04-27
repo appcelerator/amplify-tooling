@@ -137,8 +137,9 @@ export default class Server {
 						return origEnd.call(res, data, encoding, callback);
 					};
 
+					let result;
 					if (typeof request.handler === 'function') {
-						await request.handler(req, res);
+						result = await request.handler(req, res, url);
 					}
 
 					if (!end) {
@@ -153,7 +154,7 @@ export default class Server {
 
 					clearTimeout(request.timer);
 					this.pending.delete(id);
-					request.resolve(url);
+					request.resolve(url, result);
 				} catch (err) {
 					log(`${red(err.status || '400')} ${url.pathname}`);
 					error(err);

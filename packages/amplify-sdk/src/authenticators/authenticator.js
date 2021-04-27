@@ -460,13 +460,23 @@ export default class Authenticator {
 			}));
 		});
 
-		const codeCallback = await server.createCallback((req, res) => {
+		const codeCallback = await server.createCallback(async (req, res, { searchParams }) => {
+			const code = searchParams.get('code');
+			if (!code) {
+				throw new Error('Invalid auth code');
+			}
+
+			log(`Getting token using code: ${highlight(code)}`);
+			const account = await this.getToken(code, codeCallback.url);
+
 			res.writeHead(302, {
 				Location: createURL(`${this.platformUrl}/#/auth/org.select`, {
 					redirect: orgSelectedCallback.url
 				})
 			});
 			res.end();
+
+			return account;
 		});
 
 		const authorizationUrl = createURL(this.endpoints.auth, Object.assign({
@@ -480,14 +490,7 @@ export default class Authenticator {
 		log(`Starting ${opts.manual ? 'manual ' : ''}login request clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
 		const promise = codeCallback.start()
-			.then(async ({ searchParams }) => {
-				const code = searchParams.get('code');
-				if (!code) {
-					throw new Error('Invalid auth code');
-				}
-
-				log(`Getting token using code: ${highlight(code)}`);
-				const account = await this.getToken(code, codeCallback.url);
+			.then(async (url, account) => {
 				await orgSelectedCallback.start();
 				return account;
 			})
