@@ -89,7 +89,7 @@ describe.only('Server', () => {
 		}
 	});
 
-	it('should error if auth code is bad', async function () {
+	it.only('should error if auth code is bad', async function () {
 		this.timeout(10000);
 
 		const auth = new Auth({

@@ -253,10 +253,9 @@ export default class Authenticator {
 
 		const url = this.endpoints.token;
 		const fetchTokens = async params => {
-			log(`Fetching token: ${highlight(url)}`);
-			log('Post form:', { ...params, password: '********' });
-
 			try {
+				log(`Fetching token: ${highlight(url)}`);
+				log('Post form:', { ...params, password: '********' });
 				return await this.got.post(url, {
 					form: prepareForm(params),
 					responseType: 'json'
@@ -266,6 +265,8 @@ export default class Authenticator {
 					// don't change the code, just re-throw
 					throw err;
 				}
+
+				log(err);
 
 				const desc = err.response?.body?.error_description;
 
