@@ -3,7 +3,7 @@ import { Auth } from '../dist/index';
 
 describe('Server', () => {
 	it('should error if callback does not have an auth code', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
@@ -27,7 +27,7 @@ describe('Server', () => {
 	});
 
 	it('should error if request id is not set', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
@@ -51,7 +51,7 @@ describe('Server', () => {
 	});
 
 	it('should error if request id is invalid', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
@@ -75,7 +75,7 @@ describe('Server', () => {
 	});
 
 	it('should error if auth code is bad', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
@@ -102,7 +102,7 @@ describe('Server', () => {
 	});
 
 	it('should error if requesting non-callback url', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
@@ -126,7 +126,7 @@ describe('Server', () => {
 	});
 
 	it('should reject login when manual login is cancelled', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
