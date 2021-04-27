@@ -16,7 +16,9 @@ describe('Server', () => {
 		try {
 			await got(`${redirect_uri.origin}/callback`);
 		} catch (error) {
-			expect(error.response.statusCode).to.equal(400);
+			if (error.response) {
+				expect(error.response.statusCode).to.equal(400);
+			}
 		} finally {
 			await cancel();
 		}
@@ -36,7 +38,9 @@ describe('Server', () => {
 		try {
 			await got(`${redirect_uri}?code=123`);
 		} catch (error) {
-			expect(error.response.statusCode).to.equal(400);
+			if (error.response) {
+				expect(error.response.statusCode).to.equal(400);
+			}
 		} finally {
 			await cancel();
 		}
@@ -56,7 +60,9 @@ describe('Server', () => {
 		try {
 			await got(`${redirect_uri}/foo?code=123`);
 		} catch (error) {
-			expect(error.response.statusCode).to.equal(400);
+			if (error.response) {
+				expect(error.response.statusCode).to.equal(400);
+			}
 		} finally {
 			await cancel();
 		}
@@ -81,8 +87,9 @@ describe('Server', () => {
 		try {
 			await got(`${redirect_uri}?code=123`);
 		} catch (error) {
-			console.log(error);
-			expect(error.response.statusCode).to.equal(400);
+			if (error.response) {
+				expect(error.response.statusCode).to.equal(400);
+			}
 		} finally {
 			await cancel();
 		}
@@ -102,7 +109,9 @@ describe('Server', () => {
 		try {
 			await got(redirect_uri.origin);
 		} catch (error) {
-			expect(error.response.statusCode).to.equal(400);
+			if (error.response) {
+				expect(error.response.statusCode).to.equal(400);
+			}
 		} finally {
 			await cancel();
 		}
