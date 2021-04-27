@@ -93,7 +93,7 @@ describe.only('Server', () => {
 		this.timeout(10000);
 
 		const auth = new Auth({
-			baseUrl: 'http://127.0.0.1:1337',
+			baseUrl: 'http://localhost:1337',
 			clientId: 'test_client',
 			realm: 'test_realm',
 			tokenStoreType: null
