@@ -1,4 +1,4 @@
-# v2.1.0-alpha (Apr 21, 2021)
+# v2.1.0-alpha.1
 
  * feat: Added post install welcome message.
  * fix: Properly output errors when `--json` flag is set.

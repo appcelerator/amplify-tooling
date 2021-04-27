@@ -1,3 +1,8 @@
+# v2.1.0
+
+ * chore: Updated `keytar` from v7.6.0 to v7.7.0.
+ * chore: Updated dependencies.
+
 # v2.0.0 (Apr 21, 2021)
 
  * BREAKING CHANGE: Removed MBS and Titanium app development APIs.

@@ -38,7 +38,7 @@
   "devDependencies": {
     "@koa/router": "^10.0.0",
     "appcd-gulp": "^3.1.6",
-    "keytar": "7.6.0",
+    "keytar": "7.7.0",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0"
   },
@@ -51,5 +51,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "keytar": "7.6.0"
+  "keytar": "7.7.0"
 }
