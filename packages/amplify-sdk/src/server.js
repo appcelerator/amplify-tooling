@@ -122,7 +122,7 @@ export default class Server {
 					const origWriteHead = res.writeHead;
 					res.writeHead = function (status, message, headers) {
 						head = true;
-						log(`${(status >= 400 ? red : green)(String(status))} ${url.pathname} (${id})`, headers?.Location ? `Redirecting to ${headers.Location}` : '');
+						log(`${(status >= 400 ? red : green)(String(status))} ${url.pathname} (${id})`, status === 302 ? `Redirecting to ${headers?.Location || 'nowhere!'}` : '');
 						return origWriteHead.call(res, status, message, headers);
 					};
 

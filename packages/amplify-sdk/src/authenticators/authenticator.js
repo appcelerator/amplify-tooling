@@ -14,7 +14,7 @@ import Server from '../server';
 
 import { createURL, md5, prepareForm } from '../util';
 
-const { log, warn } = snooplogg('amplify-auth:authenticator');
+const { green, log, red, warn } = snooplogg('amplify-auth:authenticator');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -256,10 +256,12 @@ export default class Authenticator {
 			try {
 				log(`Fetching token: ${highlight(url)}`);
 				log('Post form:', { ...params, password: '********' });
-				return await this.got.post(url, {
+				const response = await this.got.post(url, {
 					form: prepareForm(params),
 					responseType: 'json'
 				});
+				log(`${(response.statusCode >= 400 ? red : green)(String(status))} ${highlight(url)}`);
+				return response;
 			} catch (err) {
 				if (err.code === 'ECONNREFUSED') {
 					// don't change the code, just re-throw
