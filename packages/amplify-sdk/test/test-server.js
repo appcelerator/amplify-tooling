@@ -12,6 +12,7 @@ describe.only('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
+			platformUrl: 'http://127.0.0.1:1337',
 			realm: 'test_realm',
 			tokenStoreType: null
 		});
@@ -39,6 +40,7 @@ describe.only('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
+			platformUrl: 'http://127.0.0.1:1337',
 			realm: 'test_realm',
 			tokenStoreType: null
 		});
@@ -67,6 +69,7 @@ describe.only('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
+			platformUrl: 'http://127.0.0.1:1337',
 			realm: 'test_realm',
 			tokenStoreType: null
 		});
@@ -89,12 +92,13 @@ describe.only('Server', () => {
 		}
 	});
 
-	it.only('should error if auth code is bad', async function () {
+	it('should error if auth code is bad', async function () {
 		this.timeout(10000);
 
 		const auth = new Auth({
 			baseUrl: 'http://localhost:1337',
 			clientId: 'test_client',
+			platformUrl: 'http://127.0.0.1:1337',
 			realm: 'test_realm',
 			tokenStoreType: null
 		});
@@ -115,7 +119,6 @@ describe.only('Server', () => {
 				expect(error.response.statusCode).to.equal(400);
 				return;
 			}
-
 			log(`Request failed: ${highlight(redirectUrl)}`);
 			throw error;
 		} finally {
@@ -130,6 +133,7 @@ describe.only('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
+			platformUrl: 'http://127.0.0.1:1337',
 			realm: 'test_realm',
 			tokenStoreType: null
 		});
@@ -157,6 +161,7 @@ describe.only('Server', () => {
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
 			clientId: 'test_client',
+			platformUrl: 'http://127.0.0.1:1337',
 			realm: 'test_realm',
 			tokenStoreType: null
 		});
