@@ -5,7 +5,7 @@ import snooplogg from 'snooplogg';
 const { log } = snooplogg('test:amplify-sdk:server');
 const { highlight } = snooplogg.styles;
 
-describe('Server', () => {
+describe.only('Server', () => {
 	it('should error if callback does not have an auth code', async function () {
 		this.timeout(10000);
 
@@ -20,6 +20,7 @@ describe('Server', () => {
 		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri'));
 
 		try {
+			log(`Requesting ${highlight(`${redirect_uri.origin}/callback`)}`);
 			await got(`${redirect_uri.origin}/callback`);
 		} catch (error) {
 			if (error.response) {
@@ -32,7 +33,7 @@ describe('Server', () => {
 		}
 	});
 
-	it.only('should error if request id is not set', async function () {
+	it('should error if request id is not set', async function () {
 		this.timeout(10000);
 
 		const auth = new Auth({
@@ -105,6 +106,7 @@ describe('Server', () => {
 		promise.catch(() => {});
 
 		try {
+			log(`Requesting: ${highlight(`${redirect_uri}?code=123`)}`);
 			await got(`${redirect_uri}?code=123`);
 		} catch (error) {
 			if (error.response) {
@@ -131,6 +133,7 @@ describe('Server', () => {
 		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri'));
 
 		try {
+			log(`Requesting: ${highlight(redirect_uri.origin)}`);
 			await got(redirect_uri.origin);
 		} catch (error) {
 			if (error.response) {
