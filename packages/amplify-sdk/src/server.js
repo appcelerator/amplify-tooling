@@ -154,7 +154,7 @@ export default class Server {
 
 					clearTimeout(request.timer);
 					this.pending.delete(id);
-					request.resolve(url, result);
+					request.resolve({ result, url });
 				} catch (err) {
 					log(`${red(err.status || '400')} ${url.pathname}`);
 					error(err);

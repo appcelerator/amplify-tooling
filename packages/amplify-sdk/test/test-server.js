@@ -5,7 +5,7 @@ import snooplogg from 'snooplogg';
 const { log } = snooplogg('test:amplify-sdk:server');
 const { highlight } = snooplogg.styles;
 
-describe.only('Server', () => {
+describe('Server', () => {
 	it('should error if callback does not have an auth code', async function () {
 		this.timeout(10000);
 

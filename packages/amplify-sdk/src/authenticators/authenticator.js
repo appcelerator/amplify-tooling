@@ -14,8 +14,8 @@ import Server from '../server';
 
 import { createURL, md5, prepareForm } from '../util';
 
-const { green, log, red, warn } = snooplogg('amplify-auth:authenticator');
-const { highlight, note } = snooplogg.styles;
+const { log, warn } = snooplogg('amplify-auth:authenticator');
+const { green, highlight, red, note } = snooplogg.styles;
 
 /**
  * Orchestrates authentication and token management.
@@ -490,7 +490,7 @@ export default class Authenticator {
 		log(`Starting ${opts.manual ? 'manual ' : ''}login request clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
 		const promise = codeCallback.start()
-			.then(async (url, account) => {
+			.then(async ({ result: account }) => {
 				await orgSelectedCallback.start();
 				return account;
 			})
