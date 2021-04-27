@@ -1,5 +1,9 @@
 import got from 'got';
 import { Auth } from '../dist/index';
+import snooplogg from 'snooplogg';
+
+const { log } = snooplogg('test:amplify-sdk:server');
+const { highlight } = snooplogg.styles;
 
 describe('Server', () => {
 	it('should error if callback does not have an auth code', async function () {
@@ -28,7 +32,7 @@ describe('Server', () => {
 		}
 	});
 
-	it('should error if request id is not set', async function () {
+	it.only('should error if request id is not set', async function () {
 		this.timeout(10000);
 
 		const auth = new Auth({
@@ -40,9 +44,11 @@ describe('Server', () => {
 
 		const { cancel, url } = await auth.login({ manual: true });
 		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
+		const redirectURL = redirect_uri.replace(/(\/callback)\/.+$/, '$1') + '?code=123';
 
 		try {
-			await got(`${redirect_uri}?code=123`);
+			log(`Requesting ${highlight(redirectURL)}`);
+			await got(redirectURL);
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
@@ -66,9 +72,11 @@ describe('Server', () => {
 
 		const { cancel, url } = await auth.login({ manual: true });
 		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
+		const redirectURL = redirect_uri.replace(/(\/callback)\/.+$/, '$1/foo') + '?code=123';
 
 		try {
-			await got(`${redirect_uri}/foo?code=123`);
+			log(`Requesting ${highlight(redirectURL)}`);
+			await got(redirectURL);
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
