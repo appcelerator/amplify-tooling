@@ -1,4 +1,4 @@
-# v2.1.0
+# v2.1.0 (Apr 27, 2021)
 
  * fix(token-store): Updated `keytar` from v7.6.0 to v7.7.0, which now uses N-API. The Amplify SDK
    no longer needs to install `keytar` at runtime which solves npm 7 related issues.

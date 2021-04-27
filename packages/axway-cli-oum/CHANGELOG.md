@@ -1,4 +1,4 @@
-# v1.1.0
+# v1.1.0 (Apr 27, 2021)
 
  * feat: Added `roles` command to org and team user management commands.
  * fix: Fallback to the selected org when the default org in the Axway CLI config is stale.
