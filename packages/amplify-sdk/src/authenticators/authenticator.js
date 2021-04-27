@@ -260,7 +260,7 @@ export default class Authenticator {
 					form: prepareForm(params),
 					responseType: 'json'
 				});
-				log(`${(response.statusCode >= 400 ? red : green)(String(status))} ${highlight(url)}`);
+				log(`${(response.statusCode >= 400 ? red : green)(String(response.statusCode))} ${highlight(url)}`);
 				return response;
 			} catch (err) {
 				if (err.code === 'ECONNREFUSED') {
