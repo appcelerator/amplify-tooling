@@ -442,7 +442,7 @@ export default class AmplifySDK {
 					subscriptions,
 					teamCount:        (await this.team.list(account, id)).teams.length,
 					userCount:        org.users.length,
-					userRoles:        org.users.find(u => u.guid === account.user.guid)?.roles
+					userRoles:        org.users.find(u => u.guid === account.user.guid)?.roles || []
 				};
 
 				if (org.parent_org_guid) {
@@ -1293,7 +1293,7 @@ export default class AmplifySDK {
 			}
 
 			if (error || (path === '/api/v1/auth/findSession' && response.body?.[resultKey] === null)) {
-				if (account.sid && error.response?.statusCode === 401) {
+				if (account.sid) {
 					// sid is probably bad, try again with the token
 					warn('Platform session was invalidated, trying again to reinitialize session with token');
 					headers.Authorization = `Bearer ${token}`;
