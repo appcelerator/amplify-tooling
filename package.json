@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "lerna exec gulp build",
-    "test": "yarn run gulp coverage && yarn run gulp integration"
+    "test": "yarn run gulp coverage"
   },
   "workspaces": {
     "packages": [
