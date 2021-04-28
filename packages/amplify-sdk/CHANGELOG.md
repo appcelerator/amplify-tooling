@@ -1,3 +1,10 @@
+# v2.1.2 (Apr 28, 2021)
+
+ * fix: Ensure user roles is always an array in the event the current user is not a member of an
+   organization being found.
+ * fix: Remove 401 unauthorized check and assume any error should trigger a retry using the access
+   token.
+
 # v2.1.1 (Apr 28, 2021)
 
  * fix: Use `parseInt()` instead of an operator to cast an org id to an integer.
