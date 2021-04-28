@@ -1,3 +1,7 @@
+# v1.1.1 (Apr 28, 2021)
+
+ * chore: Updated dependencies.
+
 # v1.1.0 (Apr 27, 2021)
 
  * feat: Added `roles` command to org and team user management commands.
