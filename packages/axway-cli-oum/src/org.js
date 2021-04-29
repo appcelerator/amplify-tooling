@@ -1,6 +1,6 @@
 export default {
 	commands: `${__dirname}/org`,
-	desc: 'Manage Amplify platform organizations',
+	desc: 'Manage Amplify Platform organizations',
 	help: {
 		header() {
 			return `${this.desc}.`;
@@ -8,12 +8,12 @@ export default {
 		footer({ style }) {
 			return `${style.heading('General Organization Examples:')}
 
-  You must be authenticated into an Amplify platform account to view or manage
+  You must be authenticated into an Amplify Platform account to view or manage
   organizations. Run ${style.highlight('"axway auth login"')} to authenticate.
 
   You may specify an organization by name, id, or guid.
 
-  List all organizations:
+  List organizations:
     ${style.highlight('axway org list')}
 
   View your currently selected organization's details:
@@ -32,14 +32,14 @@ export default {
     ${style.highlight('axway org usage <org>')}
 
   Open web browser to view or change identity provider (idp) settings:
-    ${style.highlight('axway org rename idp <org>')}
+    ${style.highlight('axway org idp <org>')}
 
 ${style.heading('Organization User Management Examples:')}
 
-  List all users in your currently selected organization:
+  List users in your currently selected organization:
     ${style.highlight('axway org user list')}
 
-  List all users for a specific organization:
+  List users for a specific organization:
     ${style.highlight('axway org user list <org>')}
 
   View available user roles:

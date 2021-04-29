@@ -11,7 +11,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Add a new user to an organization',
+	desc: 'Adds or invites a user to an organization',
 	help: {
 		header() {
 			return `${this.desc}.`;

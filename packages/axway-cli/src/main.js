@@ -39,7 +39,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 	const cli = new CLI({
 		banner,
 		commands:         `${__dirname}/commands`,
-		desc:             'The Axway CLI is a unified command line interface for the Axway Amplify platform.',
+		desc:             'The Axway CLI is a unified command line interface for the Axway Amplify Platform.',
 		extensions,
 		help:             true,
 		helpExitCode:     2,

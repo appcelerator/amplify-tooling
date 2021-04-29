@@ -1,3 +1,7 @@
+# v2.6.3 (Apr 29, 2021)
+
+ * doc: Improved help verbiage.
+
 # v2.6.2 (Apr 28, 2021)
 
  * chore: Updated dependencies.

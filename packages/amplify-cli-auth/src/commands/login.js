@@ -8,7 +8,7 @@ export default {
 			return typeof banner === 'function' ? await banner(state) : banner;
 		}
 	},
-	desc: 'Log in to the Axway Amplify platform',
+	desc: 'Log in to the Axway Amplify Platform',
 	help: {
 		header() {
 			return `${this.desc}.`;

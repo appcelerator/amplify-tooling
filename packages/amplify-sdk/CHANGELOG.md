@@ -1,3 +1,7 @@
+# v2.1.3 (Apr 29, 2021)
+
+ * chore: Republishing 2.1.2 because it was published out-of-band and lerna is confused.
+
 # v2.1.2 (Apr 28, 2021)
 
  * fix: Ensure user roles is always an array in the event the current user is not a member of an

@@ -8,7 +8,7 @@ export default {
 		footer({ style }) {
 			return `${style.heading('Examples:')}
 
-  You must be authenticated into an Amplify platform account to view or update
+  You must be authenticated into an Amplify Platform account to view or update
   your user settings. Run ${style.highlight('"axway auth login"')} to authenticate.
 
   View your user account details:
