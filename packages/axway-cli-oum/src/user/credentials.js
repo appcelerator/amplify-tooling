@@ -1,5 +1,5 @@
 export default {
-	desc: 'Opens a web browser to the change your password',
+	desc: 'Opens a web browser to the change your password page',
 	async action({ console }) {
 		const { initSDK, isHeadless } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');

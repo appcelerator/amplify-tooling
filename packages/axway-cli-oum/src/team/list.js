@@ -6,7 +6,7 @@ export default {
 			desc: 'The organization name, id, or guid; defaults to the current org'
 		}
 	],
-	desc: 'Lists organization teams',
+	desc: 'List organization teams',
 	options: {
 		'--account [name]': 'The account to use',
 		'--json': {

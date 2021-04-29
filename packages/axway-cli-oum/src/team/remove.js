@@ -12,7 +12,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Removes a team from an organization',
+	desc: 'Remove a team from an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {

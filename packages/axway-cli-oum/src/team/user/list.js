@@ -12,7 +12,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'List all users in a team',
+	desc: 'List users in a team',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
