@@ -1,6 +1,6 @@
 export default {
 	aliases: [ 'ls' ],
-	desc: 'Lists organizations',
+	desc: 'List organizations',
 	options: {
 		'--account [name]': 'The account to use',
 		'--json': {

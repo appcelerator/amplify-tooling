@@ -6,7 +6,7 @@ export default {
 			desc: 'The organization name, id, or guid; defaults to the current org'
 		}
 	],
-	desc: 'List all users in an organization',
+	desc: 'List users in an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {

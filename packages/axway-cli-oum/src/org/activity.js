@@ -6,6 +6,23 @@ export default {
 		}
 	],
 	desc: 'Display organization activity report',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		},
+		footer({ style }) {
+			return `${style.heading('Example:')}
+
+  You must be authenticated into an Amplify Platform account to view or manage
+  organizations. Run ${style.highlight('"axway auth login"')} to authenticate.
+
+  Display organization activity for the past 14 days:
+    ${style.highlight('axway org activity <org>')}
+
+  Display organization activity for a specific date range:
+    ${style.highlight('axway org activity <org> --from 2021-04-01 --to 2021-04-30')}`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--from [yyyy-mm-dd]': 'The start date',
