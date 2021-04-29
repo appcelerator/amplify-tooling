@@ -1,4 +1,4 @@
-# v2.6.3
+# v2.6.3 (Apr 29, 2021)
 
  * doc: Improved help verbiage.
 
