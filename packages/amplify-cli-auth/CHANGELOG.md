@@ -1,3 +1,7 @@
+# v2.6.4
+
+ * fix: Added environment name to `axway auth list`.
+
 # v2.6.3 (Apr 29, 2021)
 
  * doc: Improved help verbiage.

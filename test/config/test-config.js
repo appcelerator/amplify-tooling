@@ -5,7 +5,7 @@ import {
 	runAxwaySync
 } from '../helpers';
 
-describe('axway config', () => {
+describe.only('axway config', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
@@ -46,6 +46,12 @@ describe('axway config', () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'list' ]);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.equal('');
+		});
+
+		it('should display list help', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'list', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('list-help'));
 		});
 	});
 
@@ -93,29 +99,391 @@ describe('axway config', () => {
 			expect(status).to.equal(6);
 			expect(stdout.toString()).equal('undefined\n');
 		});
+
+		it('should display get help', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'get', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('get-help'));
+		});
 	});
 
 	describe('set', () => {
-		//
+		afterEach(resetHomeDir);
+
+		it('should set a value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]);
+			expect(status).to.equal(6);
+			expect(stdout.toString()).equal('undefined\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'set', 'foo', 'bar' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'set', 'foo', 'baz' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('baz\n');
+		});
+
+		it('should set a value and output result as JSON', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]);
+			expect(status).to.equal(6);
+			expect(stdout.toString()).equal('undefined\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'set', 'foo', 'bar', '--json' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('"OK"\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('bar\n');
+		});
+
+		it('should error setting a value without a key', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'set' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('set-value-no-key-stderr'));
+		});
+
+		it('should error setting a value without a value', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'set', 'foo' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('set-value-no-value-stderr'));
+		});
+
+		it('should display set help', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'set', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('set-help'));
+		});
 	});
 
 	describe('delete', () => {
-		//
+		afterEach(resetHomeDir);
+
+		it('should delete a value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]);
+			expect(status).to.equal(6);
+			expect(stdout.toString()).equal('undefined\n');
+
+			runAxwaySync([ 'config', 'set', 'foo', 'bar' ]);
+
+			({ status, stdout } = runAxwaySync([ 'config', 'delete', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(6);
+			expect(stdout.toString()).equal('undefined\n');
+		});
+
+		it('should delete a value and output result as JSON', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]);
+			expect(status).to.equal(6);
+			expect(stdout.toString()).equal('undefined\n');
+
+			runAxwaySync([ 'config', 'set', 'foo', 'bar' ]);
+
+			({ status, stdout } = runAxwaySync([ 'config', 'delete', 'foo', '--json' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('"OK"\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(6);
+			expect(stdout.toString()).equal('undefined\n');
+		});
+
+		it('should delete a value that does not exist', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'delete', 'foo' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.equal('OK\n');
+		});
+
+		it('should error deleting a value without a key', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'set' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('delete-value-no-key-stderr'));
+		});
+
+		it('should display delete help', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'delete', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('delete-help'));
+		});
 	});
 
 	describe('push', () => {
-		//
+		afterEach(resetHomeDir);
+
+		it('should push a new value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]);
+			expect(status).to.equal(6);
+			expect(stdout.toString()).equal('undefined\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'push', 'foo', 'bar' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('foo.0 = bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo', '--json' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).match(/\[\s*"bar"\s*\]/);
+		});
+
+		it('should push an existing array value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'push', 'foo', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'push', 'foo', 'baz' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('foo.0 = bar\nfoo.1 = baz\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo', '--json' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).match(/\[\s*"bar",\s*"baz"\s*\]/);
+		});
+
+		it('should convert existing value to array and push a new value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'set', 'foo', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'push', 'foo', 'baz' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('foo.0 = bar\nfoo.1 = baz\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo', '--json' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).match(/\[\s*"bar",\s*"baz"\s*\]/);
+		});
+
+		it('should error pushing a value without a key', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'push' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('push-value-no-key-stderr'));
+		});
+
+		it('should error pushing a value without a value', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'push', 'foo' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('push-value-no-value-stderr'));
+		});
+
+		it('should display push help', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'push', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('push-help'));
+		});
 	});
 
 	describe('pop', () => {
-		//
+		afterEach(resetHomeDir);
+
+		it('should pop a value from an existing array value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'push', 'foo', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'push', 'foo', 'baz' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'pop', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('baz\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'pop', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'pop', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('undefined\n');
+		});
+
+		it('should pop a value from an existing non-array value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'set', 'foo', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'pop', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'pop', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('undefined\n');
+		});
+
+		it('should error popping a non-existing key', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'pop', 'foo' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('undefined\n');
+		});
+
+		it('should error popping a value without a key', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'pop' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('pop-value-no-key-stderr'));
+		});
+
+		it('should display pop help', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'pop', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('pop-help'));
+		});
 	});
 
 	describe('shift', () => {
-		//
+		afterEach(resetHomeDir);
+
+		it('should shift a value from an existing array value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'push', 'foo', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'push', 'foo', 'baz' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'shift', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'shift', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('baz\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'shift', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('undefined\n');
+		});
+
+		it('should shift a value from an existing non-array value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'set', 'foo', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'shift', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'shift', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('undefined\n');
+		});
+
+		it('should error shifting a non-existing key', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'shift', 'foo' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('undefined\n');
+		});
+
+		it('should error shifting a value without a key', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'shift' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('shift-value-no-key-stderr'));
+		});
+
+		it('should display shift help', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'shift', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('shift-help'));
+		});
 	});
 
 	describe('unshift', () => {
-		//
+		afterEach(resetHomeDir);
+
+		it('should unshift a new value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]);
+			expect(status).to.equal(6);
+			expect(stdout.toString()).equal('undefined\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'unshift', 'foo', 'bar' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('foo.0 = bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo', '--json' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).match(/\[\s*"bar"\s*\]/);
+		});
+
+		it('should unshift an existing array value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'unshift', 'foo', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'unshift', 'foo', 'baz' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('foo.0 = baz\nfoo.1 = bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo', '--json' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).match(/\[\s*"baz",\s*"bar"\s*\]/);
+		});
+
+		it('should convert existing value to array and unshift a new value', async () => {
+			let { status, stdout } = runAxwaySync([ 'config', 'set', 'foo', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'unshift', 'foo', 'baz' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('OK\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).equal('foo.0 = baz\nfoo.1 = bar\n');
+
+			({ status, stdout } = runAxwaySync([ 'config', 'get', 'foo', '--json' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).match(/\[\s*"baz",\s*"bar"\s*\]/);
+		});
+
+		it('should error unshifting a value without a key', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'unshift' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('unshift-value-no-key-stderr'));
+		});
+
+		it('should error unshifting a value without a value', async () => {
+			const { status, stderr } = runAxwaySync([ 'config', 'unshift', 'foo' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('unshift-value-no-value-stderr'));
+		});
+
+		it('should display unshift help', async () => {
+			const { status, stdout } = runAxwaySync([ 'config', 'unshift', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('unshift-help'));
+		});
 	});
 });

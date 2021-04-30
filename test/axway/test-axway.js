@@ -47,4 +47,24 @@ describe('axway', () => {
 			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command-stderr'));
 		});
 	});
+
+	describe('banner', () => {
+		it('should output the help without the banner', async () => {
+			const { status, stdout } = runAxwaySync([ '--no-banner' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('help-with-color-no-banner'));
+		});
+	});
+
+	describe('version', () => {
+		it('should display the version', async () => {
+			let { status, stdout } = runAxwaySync([ '-v' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(/\d\.\d\.\d(-[^\s]*)?/);
+
+			({ status, stdout } = runAxwaySync([ '--version' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(/\d\.\d\.\d(-[^\s]*)?/);
+		});
+	});
 });
