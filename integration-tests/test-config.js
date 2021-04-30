@@ -19,12 +19,6 @@ describe('axway config integration tests', function () {
 		}
 	});
 
-	it('config should exist', async function () {
-		const { code, stdout } = await runJSONCommand([ 'config', '--help' ]);
-		expect(code).to.equal(2);
-		expect(stdout.desc).to.equal('Manage configuration options');
-	});
-
 	it('config can set values', async function () {
 		const { code, stdout } = await runJSONCommand(['config', 'set', 'foo', 'bar' ]);
 		expect(code).to.equal(0);
@@ -32,40 +26,6 @@ describe('axway config integration tests', function () {
 
 		const config = readConfig();
 		expect(config).to.deep.equal({ foo: 'bar' });
-	});
-
-	it(`config can list a specific value with get`, async function () {
-		writeConfig({
-			foo: 'bar'
-		});
-
-		const getCmd =  await runJSONCommand([ 'config', 'get', 'foo' ]);
-		expect(getCmd.code).to.equal(0);
-		expect(getCmd.stdout).to.equal('bar');
-	});
-
-	[ 'get', 'ls', 'list'].forEach( function (getCommand) {
-		it(`config can list entire config with ${getCommand}`, async function () {
-			writeConfig({
-				foo: 'bar',
-				bar: 'foo'
-			});
-
-			const getCmd =  await runJSONCommand([ 'config', getCommand ]);
-			expect(getCmd.code).to.equal(0);
-			expect(getCmd.stdout).to.deep.equal({ bar: 'foo', foo: 'bar' });
-		});
-	})
-
-	it('config can list entire config', async function () {
-		writeConfig({
-			foo: 'bar',
-			bar: 'foo'
-		});
-
-		const getCmd =  await runJSONCommand([ 'config', 'get' ]);
-		expect(getCmd.code).to.equal(0);
-		expect(getCmd.stdout).to.deep.equal({ bar: 'foo', foo: 'bar' });
 	});
 
 	[ 'delete', 'rm', 'remove', 'unset' ].forEach(function(removalCommand) {

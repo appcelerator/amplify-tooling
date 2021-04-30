@@ -111,7 +111,7 @@ async function runTests(cover, all) {
 	try {
 		process.env.APPCD_TEST_GLOBAL_PACKAGE_DIR = path.join(__dirname, 'packages');
 		process.env.SPAWN_WRAP_SHIM_ROOT = origHomeDir;
-		process.env.SNOOPLOGG = '*';
+		// process.env.SNOOPLOGG = '*';
 
 		tmpHomeDir = tmp.dirSync({
 			mode: '755',
@@ -127,7 +127,14 @@ async function runTests(cover, all) {
 		}
 
 		const runner = require('appcd-gulp/src/test-runner');
-		await runner.runTests({ root: __dirname, projectDir: __dirname, cover, all });
+		await runner.runTests({
+			all,
+			cover,
+			projectDir: __dirname,
+			root: __dirname,
+			slow: 15000,
+			timeout: 20000
+		});
 	} catch (err) {
 		//
 	} finally {

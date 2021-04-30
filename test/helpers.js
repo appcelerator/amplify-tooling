@@ -1,3 +1,4 @@
+import callerPath from 'caller-path';
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import Mustache from 'mustache';
@@ -16,6 +17,16 @@ const { highlight } = snooplogg.styles;
 
 const axwayBin = path.resolve(__dirname, `../packages/axway-cli/${process.env.APPCD_COVERAGE ? 'src' : 'dist'}/main.js`);
 
+export function initHomeDir(templateDir) {
+	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
+		templateDir = path.resolve(path.dirname(callerPath()), templateDir);
+	}
+
+	const homeDir = path.join(os.homedir(), '.axway', 'axway-cli');
+	log(`Copying ${highlight(templateDir)} => ${highlight(homeDir)}`);
+	fs.copySync(templateDir, homeDir);
+}
+
 const defaultVars = {
 	version: '(?:\\d\\.\\d\\.\\d(?:-[^\\s]*)?)',
 	x: process.platform === 'win32' ? 'x' : '✖',
@@ -31,6 +42,16 @@ export function renderRegex(str, vars) {
 	str = str.replace(/([()[\]?])/g, '\\$1');
 	str = Mustache.render(str, Object.assign({}, defaultVars, vars));
 	return new RegExp(str);
+}
+
+export function renderRegexFromFile(file) {
+	if (!fs.existsSync(file) && !/\.mustache$/.test(file)) {
+		file += '.mustache';
+	}
+	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
+		file = path.resolve(path.dirname(callerPath()), file);
+	}
+	return renderRegex(fs.readFileSync(file, 'utf8'));
 }
 
 export function resetHomeDir() {
@@ -80,4 +101,8 @@ export function startServer() {
 
 export function stopServer() {
 	//
+}
+
+export function stripColors(s) {
+	return s.replace(/\x1B\[\d+m/g, '');
 }
