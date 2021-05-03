@@ -11,13 +11,13 @@ describe('axway', () => {
 		it('should output the help screen with color', async () => {
 			const { status, stdout } = runAxwaySync();
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help-with-color'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 		});
 
 		it('should output the help screen without color', async () => {
 			const { status, stdout } = runAxwaySync([ '--no-color' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help-without-color'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-without-color'));
 		});
 
 		it('should output the help as JSON', async () => {
@@ -36,15 +36,15 @@ describe('axway', () => {
 		it('should list suggestions if command does not exist', async () => {
 			const { status, stdout, stderr } = runAxwaySync([ 'athu' ]);
 			expect(status).to.equal(1);
-			expect(stdout.toString()).to.match(renderRegexFromFile('bad-command-with-suggestions-stdout'));
-			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command-with-suggestions-stderr'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('bad-command/bad-command-with-suggestions-stdout'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command/bad-command-with-suggestions-stderr'));
 		});
 
 		it('should error if command does not exist', async () => {
 			const { status, stdout, stderr } = runAxwaySync([ 'foo' ]);
 			expect(status).to.equal(1);
-			expect(stdout.toString()).to.match(renderRegexFromFile('bad-command-stdout'));
-			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command-stderr'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('bad-command/bad-command-stdout'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command/bad-command-stderr'));
 		});
 	});
 
@@ -52,7 +52,7 @@ describe('axway', () => {
 		it('should output the help without the banner', async () => {
 			const { status, stdout } = runAxwaySync([ '--no-banner' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help-with-color-no-banner'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color-no-banner'));
 		});
 	});
 

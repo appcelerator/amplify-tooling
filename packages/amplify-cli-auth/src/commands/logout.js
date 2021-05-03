@@ -60,7 +60,7 @@ export default {
 		} else if (Array.isArray(argv.accounts) && argv.accounts.length === 1) {
 			throw new Error(`No account "${argv.accounts[0]}" found`);
 		} else {
-			throw new Error('No authenticatd accounts found');
+			throw new Error('No authenticated accounts found');
 		}
 	}
 };

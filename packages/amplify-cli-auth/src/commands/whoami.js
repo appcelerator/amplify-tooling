@@ -5,7 +5,7 @@ export default {
 			desc: 'The account to display'
 		}
 	],
-	desc: 'Dumps info for the specified account',
+	desc: 'Display info for an authenticated account',
 	options: {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,

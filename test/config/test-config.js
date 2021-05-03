@@ -5,20 +5,20 @@ import {
 	runAxwaySync
 } from '../helpers';
 
-describe.only('axway config', () => {
+describe('axway config', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
 		it('should output the help screen with color', async () => {
 			const { status, stdout } = runAxwaySync([ 'config' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help-with-color'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 		});
 
 		it('should output the help screen using --help flag', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help-with-color'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 		});
 	});
 
@@ -51,7 +51,7 @@ describe.only('axway config', () => {
 		it('should display list help', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'list', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('list-help'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('list/list-help'));
 		});
 	});
 
@@ -103,7 +103,7 @@ describe.only('axway config', () => {
 		it('should display get help', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'get', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('get-help'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('get/get-help'));
 		});
 	});
 
@@ -149,19 +149,19 @@ describe.only('axway config', () => {
 		it('should error setting a value without a key', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'set' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('set-value-no-key-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('set/set-value-no-key-stderr'));
 		});
 
 		it('should error setting a value without a value', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'set', 'foo' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('set-value-no-value-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('set/set-value-no-value-stderr'));
 		});
 
 		it('should display set help', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'set', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('set-help'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('set/set-help'));
 		});
 	});
 
@@ -209,13 +209,13 @@ describe.only('axway config', () => {
 		it('should error deleting a value without a key', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'set' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('delete-value-no-key-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('delete/delete-value-no-key-stderr'));
 		});
 
 		it('should display delete help', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'delete', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('delete-help'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('delete/delete-help'));
 		});
 	});
 
@@ -279,19 +279,19 @@ describe.only('axway config', () => {
 		it('should error pushing a value without a key', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'push' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('push-value-no-key-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('push/push-value-no-key-stderr'));
 		});
 
 		it('should error pushing a value without a value', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'push', 'foo' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('push-value-no-value-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('push/push-value-no-value-stderr'));
 		});
 
 		it('should display push help', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'push', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('push-help'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('push/push-help'));
 		});
 	});
 
@@ -343,13 +343,13 @@ describe.only('axway config', () => {
 		it('should error popping a value without a key', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'pop' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('pop-value-no-key-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('pop/pop-value-no-key-stderr'));
 		});
 
 		it('should display pop help', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'pop', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('pop-help'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('pop/pop-help'));
 		});
 	});
 
@@ -401,13 +401,13 @@ describe.only('axway config', () => {
 		it('should error shifting a value without a key', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'shift' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('shift-value-no-key-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('shift/shift-value-no-key-stderr'));
 		});
 
 		it('should display shift help', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'shift', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('shift-help'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('shift/shift-help'));
 		});
 	});
 
@@ -471,19 +471,19 @@ describe.only('axway config', () => {
 		it('should error unshifting a value without a key', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'unshift' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('unshift-value-no-key-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('unshift/unshift-value-no-key-stderr'));
 		});
 
 		it('should error unshifting a value without a value', async () => {
 			const { status, stderr } = runAxwaySync([ 'config', 'unshift', 'foo' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('unshift-value-no-value-stderr'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('unshift/unshift-value-no-value-stderr'));
 		});
 
 		it('should display unshift help', async () => {
 			const { status, stdout } = runAxwaySync([ 'config', 'unshift', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('unshift-help'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('unshift/unshift-help'));
 		});
 	});
 });
