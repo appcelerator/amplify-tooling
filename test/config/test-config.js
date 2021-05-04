@@ -26,14 +26,14 @@ describe('axway config', () => {
 		afterEach(resetHomeDir);
 
 		it('should list simple config', async () => {
-			initHomeDir('simple');
+			initHomeDir('home-simple');
 			const { status, stdout } = runAxwaySync([ 'config', 'list' ]);
 			expect(status).to.equal(0);
-			expect(stdout.toString()).to.match(renderRegexFromFile('simple/output'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('home-simple/output'));
 		});
 
 		it('should list simple config as JSON', async () => {
-			initHomeDir('simple');
+			initHomeDir('home-simple');
 			const { status, stdout } = runAxwaySync([ 'config', 'list', '--json' ]);
 			expect(status).to.equal(0);
 			expect(JSON.parse(stdout.toString())).to.deep.equal({
@@ -42,7 +42,7 @@ describe('axway config', () => {
 		});
 
 		it('should handle bad config', async () => {
-			initHomeDir('bad-config');
+			initHomeDir('home-bad-config');
 			const { status, stdout } = runAxwaySync([ 'config', 'list' ]);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.equal('');
@@ -59,14 +59,14 @@ describe('axway config', () => {
 		afterEach(resetHomeDir);
 
 		it('should get simple config', async () => {
-			initHomeDir('simple');
+			initHomeDir('home-simple');
 			const { status, stdout } = runAxwaySync([ 'config', 'get' ]);
 			expect(status).to.equal(0);
-			expect(stdout.toString()).to.match(renderRegexFromFile('simple/output'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('home-simple/output'));
 		});
 
 		it('should get simple config as JSON', async () => {
-			initHomeDir('simple');
+			initHomeDir('home-simple');
 			const { status, stdout } = runAxwaySync([ 'config', 'get', '--json' ]);
 			expect(status).to.equal(0);
 			expect(JSON.parse(stdout.toString())).to.deep.equal({
@@ -75,14 +75,14 @@ describe('axway config', () => {
 		});
 
 		it('should get simple config value', async () => {
-			initHomeDir('simple');
+			initHomeDir('home-simple');
 			const { status, stdout } = runAxwaySync([ 'config', 'get', 'foo' ]);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.equal('bar\n');
 		});
 
 		it('should get simple config value as JSON', async () => {
-			initHomeDir('simple');
+			initHomeDir('home-simple');
 			const { status, stdout } = runAxwaySync([ 'config', 'get', 'foo', '--json' ]);
 			expect(status).to.equal(0);
 			expect(JSON.parse(stdout.toString())).to.equal('bar');

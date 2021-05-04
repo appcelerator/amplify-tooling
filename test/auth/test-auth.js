@@ -1,7 +1,11 @@
 import {
+	initHomeDir,
 	renderRegexFromFile,
 	resetHomeDir,
-	runAxwaySync
+	runAxway,
+	runAxwaySync,
+	startServers,
+	stopServers
 } from '../helpers';
 
 describe('axway auth', () => {
@@ -18,18 +22,6 @@ describe('axway auth', () => {
 			const { status, stdout } = runAxwaySync([ 'auth', '--help' ]);
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
-		});
-	});
-
-	describe('login', () => {
-		afterEach(resetHomeDir);
-
-		//
-
-		it('should display login help', async () => {
-			const { status, stdout } = runAxwaySync([ 'auth', 'login', '--help' ]);
-			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-help'));
 		});
 	});
 
@@ -52,6 +44,71 @@ describe('axway auth', () => {
 			const { status, stdout } = runAxwaySync([ 'auth', 'list', '--help' ]);
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('list/list-help'));
+		});
+
+		// NOTE: `list` tests with accounts are handled by `login` tests
+	});
+
+	describe('login', () => {
+		afterEach(resetHomeDir);
+		afterEach(stopServers);
+
+		it('should login using PKCE, list account, and login again', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			let { status, stdout } = await runAxway([ 'auth', 'login' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-success'));
+
+			({ status, stdout } = runAxwaySync([ 'auth', 'list', '--json' ]));
+			expect(status).to.equal(0);
+			const accounts = JSON.parse(stdout.toString());
+			expect(accounts).to.be.an('array');
+			expect(accounts).to.have.lengthOf(1);
+
+			({ status, stdout } = await runAxway([ 'auth', 'login' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-already-authenticated'));
+		});
+
+		it('should exit if already logged in', async () => {
+			//
+		});
+
+		it('should login using PKCE and return result as JSON', async () => {
+			//
+		});
+
+		it('should login using PKCE without launching the browser', async () => {
+			//
+		});
+
+		it('should login using client secret', async () => {
+			//
+		});
+
+		it('should login to service account using client secret', async () => {
+			//
+		});
+
+		it('should login using signed JWT', async () => {
+			//
+		});
+
+		it('should login using username and password', async () => {
+			//
+		});
+
+		it('should error if browser times out', async function () {
+			this.timeout(150000); // 2.5 minutes
+
+			//
+		});
+
+		it('should display login help', async () => {
+			const { status, stdout } = runAxwaySync([ 'auth', 'login', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-help'));
 		});
 	});
 

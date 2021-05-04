@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@koa/router": "^10.0.0",
     "ansi-colors": "^4.1.1",
     "appcd-gulp": "^3.1.6",
     "caller-path": "^3.0.1",
@@ -13,6 +14,9 @@
     "gulp-chug": "^0.5.1",
     "gulp-debug": "^4.0.0",
     "gulp-plumber": "^1.2.1",
+    "jws": "^4.0.0",
+    "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
     "lerna": "^4.0.0",
     "mocha": "^8.3.2",
     "mustache": "^4.2.0",

@@ -21,7 +21,8 @@ export default class Server {
 	 * Initializes the server.
 	 *
 	 * @param {Object} [opts] - Various options.
-	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
+	 * @param {Number} [opts.timeout=120000] - The number of milliseconds to wait before timing
+	 * out.
 	 * @access public
 	 */
 	constructor(opts = {}) {
