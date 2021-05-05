@@ -85,7 +85,13 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 		args.unshift('--config', JSON.stringify(cfg));
 	}
 
-	args.unshift('--require', path.join(__dirname, 'open-shim.js'), axwayBin);
+	args.unshift(axwayBin);
+
+	if (opts.passiveOpen) {
+		args.unshift('--require', path.join(__dirname, 'open-shim-passive.js'));
+	} else {
+		args.unshift('--require', path.join(__dirname, 'open-shim.js'));
+	}
 
 	log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);
 	return fn(process.execPath, args, {

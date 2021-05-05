@@ -8,7 +8,7 @@ import {
 	stopServers
 } from '../helpers';
 
-describe.only('axway auth', () => {
+describe('axway auth', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
@@ -49,13 +49,14 @@ describe.only('axway auth', () => {
 		// NOTE: `list` tests with accounts are handled by `login` tests
 	});
 
-	describe('login pkce', () => {
+	describe('login', () => {
 		afterEach(resetHomeDir);
 		afterEach(stopServers);
 
-		it('should login using PKCE, list account, and login again', async function () {
+		it('should log into platform account using PKCE, list account, and login again', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
+
 			let { status, stdout } = await runAxway([ 'auth', 'login' ]);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-success'));
@@ -72,9 +73,10 @@ describe.only('axway auth', () => {
 			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-already-authenticated'));
 		});
 
-		it('should login using PKCE and return result as JSON', async function () {
+		it('should log into platform account using PKCE and return result as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
+
 			let { status, stdout } = await runAxway([ 'auth', 'login', '--json' ]);
 			expect(status).to.equal(0);
 			let account = JSON.parse(stdout.toString());
@@ -94,31 +96,37 @@ describe.only('axway auth', () => {
 			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
-		it('should login using PKCE without launching the browser', async function () {
+		it('should log into platform account using PKCE without launching the browser', async function () {
 			//
 		});
 
-		// it('should login using client secret', async function () {
+		// it('should log into platform account using client secret', async function () {
 		// 	//
 		// });
 
-		// it('should login to service account using client secret', async function () {
+		// it('should log into service account using client secret', async function () {
 		// 	//
 		// });
 
-		// it('should login using signed JWT', async function () {
+		// it('should log into service using signed JWT', async function () {
 		// 	//
 		// });
 
-		// it('should login using username and password', async function () {
+		// it('should log into service using username and password', async function () {
 		// 	//
 		// });
 
-		// it('should error if browser times out', async function () {
-		// 	this.timeout(150000); // 2.5 minutes
+		it('should error if browser times out', async function () {
+			initHomeDir('home-timeout');
+			this.servers = await startServers();
 
-		// 	//
-		// });
+			const { status, stdout, stderr } = await runAxway([ 'auth', 'login' ], {
+				passiveOpen: true
+			});
+			expect(status).to.equal(1);
+			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-timeout-stdout'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('login/login-timeout-stderr'));
+		});
 
 		it('should display login help', async () => {
 			const { status, stdout } = runAxwaySync([ 'auth', 'login', '--help' ]);
@@ -129,11 +137,73 @@ describe.only('axway auth', () => {
 
 	describe('logout', () => {
 		afterEach(resetHomeDir);
+		afterEach(stopServers);
+
+		it('should logout of platform account', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+
+			let { status, stdout } = await runAxway([ 'auth', 'login' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-success'));
+
+			({ status, stdout } = runAxwaySync([ 'auth', 'list', '--json' ]));
+			let accounts = JSON.parse(stdout.toString());
+			expect(accounts).to.be.an('array');
+			expect(accounts).to.have.lengthOf(1);
+			expect(accounts[0].name).to.equal('test_client:foo@bar.com');
+
+			({ status, stdout } = await runAxway([ 'auth', 'logout' ]));
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(renderRegexFromFile('logout/logout-success'));
+
+			({ status, stdout } = runAxwaySync([ 'auth', 'list', '--json' ]));
+			accounts = JSON.parse(stdout.toString());
+			expect(accounts).to.be.an('array');
+			expect(accounts).to.have.lengthOf(0);
+		});
+
+		it('should logout of platform account and return result as JSON', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+
+			let { status, stdout } = await runAxway([ 'auth', 'login' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-success'));
+
+			({ status, stdout } = runAxwaySync([ 'auth', 'list', '--json' ]));
+			let accounts = JSON.parse(stdout.toString());
+			expect(accounts).to.be.an('array');
+			expect(accounts).to.have.lengthOf(1);
+			expect(accounts[0].name).to.equal('test_client:foo@bar.com');
+
+			({ status, stdout } = await runAxway([ 'auth', 'logout', '--json' ]));
+			expect(status).to.equal(0);
+			const revoked = JSON.parse(stdout.toString());
+			expect(revoked).to.be.an('array');
+			expect(revoked).to.have.lengthOf(1);
+			expect(revoked[0].name).to.equal('test_client:foo@bar.com');
+
+			({ status, stdout } = runAxwaySync([ 'auth', 'list', '--json' ]));
+			accounts = JSON.parse(stdout.toString());
+			expect(accounts).to.be.an('array');
+			expect(accounts).to.have.lengthOf(0);
+		});
+
+		it('should logout of service account', async function () {
+			//
+		});
 
 		it('should error if no authenticated accounts', async () => {
 			const { status, stderr } = runAxwaySync([ 'auth', 'logout' ]);
 			expect(status).to.equal(1);
 			expect(stderr.toString()).to.match(renderRegexFromFile('logout/logout-no-accounts'));
+		});
+
+		it('should error if specified account is not found', async () => {
+			const { status, stderr } = runAxwaySync([ 'auth', 'logout', 'foo' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('logout/logout-not-found'));
 		});
 
 		it('should display logout help', async () => {
@@ -145,6 +215,7 @@ describe.only('axway auth', () => {
 
 	describe('switch', () => {
 		afterEach(resetHomeDir);
+		afterEach(stopServers);
 
 		//
 
@@ -157,6 +228,7 @@ describe.only('axway auth', () => {
 
 	describe('whoami', () => {
 		afterEach(resetHomeDir);
+		afterEach(stopServers);
 
 		//
 

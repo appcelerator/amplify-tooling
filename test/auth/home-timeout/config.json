@@ -1,0 +1,10 @@
+{
+	"auth": {
+		"baseUrl": "http://localhost:8555",
+		"clientId": "test_client",
+		"interactiveLoginTimeout": 2000,
+		"platformUrl": "http://localhost:8666",
+		"realm": "test_realm",
+		"tokenStoreType": "file"
+	}
+}

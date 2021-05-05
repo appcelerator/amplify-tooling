@@ -44,6 +44,18 @@ export function createPlatformRoutes(server, opts = {}) {
 		}
 	});
 
+	router.get('/v1/auth/logout', async ctx => {
+		const { redirect } = ctx.query;
+		if (redirect) {
+			ctx.redirect(redirect);
+		} else {
+			ctx.body = {
+				success: true,
+				result: null
+			};
+		}
+	});
+
 	router.get('/v1/activity', ctx => {
 		let { from, org_id, to, user_guid } = ctx.query;
 
@@ -533,6 +545,19 @@ export function createPlatformRoutes(server, opts = {}) {
 	});
 
 	server.router.use('/api', router.routes());
+
+	server.router.get('/signed.out', ctx => {
+		ctx.body = `<html>
+<head>
+<title>Logout successful!</title>
+</head>
+<body>
+<h1>You have logged out</h1>
+<p>Have a nice day!</p>
+</body>
+</html>`;
+	})
+
 	server.router.get([ '/', '/success' ], ctx => {
 		ctx.body = `<html>
 <head>
