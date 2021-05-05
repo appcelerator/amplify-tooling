@@ -85,8 +85,10 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 		args.unshift('--config', JSON.stringify(cfg));
 	}
 
+	args.unshift('--require', path.join(__dirname, 'open-shim.js'), axwayBin);
+
 	log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);
-	return fn(process.execPath, [ axwayBin, ...args ], {
+	return fn(process.execPath, args, {
 		ignoreExitCodes: true,
 		windowsHide: true,
 		...opts,
@@ -100,19 +102,17 @@ export function runAxway(args = [], opts = {},  cfg) {
 	let stderr = '';
 	child.stdout.on('data', s => {
 		stdout += s.toString();
+		// process.stdout.write(s.toString());
 		log(s.toString().trim());
 	});
 	child.stderr.on('data', s => {
 		stderr += s.toString();
+		// process.stderr.write(s.toString());
 		log(s.toString().trim());
 	});
 	return new Promise((resolve, reject) => child.on('close', status => {
 		log(`Process exited (code ${status})`);
-		if (status) {
-			reject(new Error(`Process exited (code ${status})`));
-		} else {
-			resolve({ status, stdout, stderr });
-		}
+		resolve({ status, stdout, stderr });
 	}));
 }
 

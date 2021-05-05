@@ -8,7 +8,7 @@ import {
 	stopServers
 } from '../helpers';
 
-describe('axway auth', () => {
+describe.only('axway auth', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
@@ -49,7 +49,7 @@ describe('axway auth', () => {
 		// NOTE: `list` tests with accounts are handled by `login` tests
 	});
 
-	describe('login', () => {
+	describe('login pkce', () => {
 		afterEach(resetHomeDir);
 		afterEach(stopServers);
 
@@ -65,45 +65,60 @@ describe('axway auth', () => {
 			const accounts = JSON.parse(stdout.toString());
 			expect(accounts).to.be.an('array');
 			expect(accounts).to.have.lengthOf(1);
+			expect(accounts[0].name).to.equal('test_client:foo@bar.com');
 
 			({ status, stdout } = await runAxway([ 'auth', 'login' ]));
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-already-authenticated'));
 		});
 
-		it('should exit if already logged in', async () => {
+		it('should login using PKCE and return result as JSON', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			let { status, stdout } = await runAxway([ 'auth', 'login', '--json' ]);
+			expect(status).to.equal(0);
+			let account = JSON.parse(stdout.toString());
+			expect(account).to.be.an('object');
+			expect(account.name).to.equal('test_client:foo@bar.com');
+
+			({ status, stdout } = runAxwaySync([ 'auth', 'list', '--json' ]));
+			expect(status).to.equal(0);
+			const accounts = JSON.parse(stdout.toString());
+			expect(accounts).to.be.an('array');
+			expect(accounts).to.have.lengthOf(1);
+			expect(accounts[0].name).to.equal('test_client:foo@bar.com');
+
+			({ status, stdout } = await runAxway([ 'auth', 'login', '--json' ]));
+			expect(status).to.equal(0);
+			account = JSON.parse(stdout.toString());
+			expect(account.name).to.equal('test_client:foo@bar.com');
+		});
+
+		it('should login using PKCE without launching the browser', async function () {
 			//
 		});
 
-		it('should login using PKCE and return result as JSON', async () => {
-			//
-		});
+		// it('should login using client secret', async function () {
+		// 	//
+		// });
 
-		it('should login using PKCE without launching the browser', async () => {
-			//
-		});
+		// it('should login to service account using client secret', async function () {
+		// 	//
+		// });
 
-		it('should login using client secret', async () => {
-			//
-		});
+		// it('should login using signed JWT', async function () {
+		// 	//
+		// });
 
-		it('should login to service account using client secret', async () => {
-			//
-		});
+		// it('should login using username and password', async function () {
+		// 	//
+		// });
 
-		it('should login using signed JWT', async () => {
-			//
-		});
+		// it('should error if browser times out', async function () {
+		// 	this.timeout(150000); // 2.5 minutes
 
-		it('should login using username and password', async () => {
-			//
-		});
-
-		it('should error if browser times out', async function () {
-			this.timeout(150000); // 2.5 minutes
-
-			//
-		});
+		// 	//
+		// });
 
 		it('should display login help', async () => {
 			const { status, stdout } = runAxwaySync([ 'auth', 'login', '--help' ]);
