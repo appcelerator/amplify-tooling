@@ -33,6 +33,7 @@ export function initHomeDir(templateDir) {
 }
 
 const defaultVars = {
+	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*',
 	version: '(?:\\d\\.\\d\\.\\d(?:-[^\\s]*)?)',
 	x: process.platform === 'win32' ? 'x' : '✖',
 	year: (new Date()).getFullYear()
@@ -78,7 +79,7 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 		if (args.includes('--no-color') || args.includes('--no-colors')) {
 			delete env.FORCE_COLOR;
 		}
-		// delete env.SNOOPLOGG;
+		delete env.SNOOPLOGG;
 	}
 
 	if (cfg) {
@@ -108,12 +109,16 @@ export function runAxway(args = [], opts = {},  cfg) {
 	let stderr = '';
 	child.stdout.on('data', s => {
 		stdout += s.toString();
-		// process.stdout.write(s.toString());
+		if (process.env.ECHO_CHILD) {
+			process.stdout.write(s.toString());
+		}
 		log(s.toString().trim());
 	});
 	child.stderr.on('data', s => {
 		stderr += s.toString();
-		// process.stderr.write(s.toString());
+		if (process.env.ECHO_CHILD) {
+			process.stderr.write(s.toString());
+		}
 		log(s.toString().trim());
 	});
 	return new Promise((resolve, reject) => child.on('close', status => {
@@ -126,6 +131,10 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
 	const result = _runAxway(spawnSync, args, opts, cfg);
 	logger('stdout').log(result.stdout.toString());
 	logger('stderr').log(result.stderr.toString());
+	if (process.env.ECHO_CHILD) {
+		process.stdout.write(result.stdout.toString());
+		process.stderr.write(result.stderr.toString());
+	}
 	log(`Process exited (code ${result.status})`);
 	return result;
 }

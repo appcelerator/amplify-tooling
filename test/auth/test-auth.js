@@ -61,12 +61,9 @@ describe('axway auth', () => {
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('login/login-success'));
 
-			({ status, stdout } = runAxwaySync([ 'auth', 'list', '--json' ]));
+			({ status, stdout } = runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
-			const accounts = JSON.parse(stdout.toString());
-			expect(accounts).to.be.an('array');
-			expect(accounts).to.have.lengthOf(1);
-			expect(accounts[0].name).to.equal('test_client:foo@bar.com');
+			expect(stdout.toString()).to.match(renderRegexFromFile('list/list-foo-bar-account'));
 
 			({ status, stdout } = await runAxway([ 'auth', 'login' ]));
 			expect(status).to.equal(0);
