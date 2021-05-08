@@ -9,13 +9,13 @@ describe('axway pm', () => {
 		after(resetHomeDir);
 
 		it('should output the help screen with color', async () => {
-			const { status, stdout } = runAxwaySync([ 'pm' ]);
+			const { status, stdout } = await runAxwaySync([ 'pm' ]);
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 		});
 
 		it('should output the help screen using --help flag', async () => {
-			const { status, stdout } = runAxwaySync([ 'pm', '--help' ]);
+			const { status, stdout } = await runAxwaySync([ 'pm', '--help' ]);
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 		});

@@ -113,6 +113,7 @@ async function runTests(cover, all) {
 
 		process.env.APPCD_TEST_GLOBAL_PACKAGE_DIR = path.join(__dirname, 'packages');
 		process.env.SPAWN_WRAP_SHIM_ROOT = origHomeDir;
+		process.env.NODE_ENV = 'test'; // disables the update check
 		// process.env.SNOOPLOGG = '*';
 
 		tmpHomeDir = tmp.dirSync({
@@ -151,8 +152,8 @@ async function runTests(cover, all) {
 	}
 }
 
-exports.test    = series(nodeInfo, /* build, */ function test()     { return runTests(true); });
-exports.testall = series(nodeInfo, /* build, */ function coverage() { return runTests(true, true); });
+exports.integration = series(nodeInfo, /* build, */ function test()     { return runTests(true); });
+exports.test        = series(nodeInfo, /* build, */ function coverage() { return runTests(true, true); });
 
 /*
  * watch task

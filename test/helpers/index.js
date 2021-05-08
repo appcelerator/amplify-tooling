@@ -34,13 +34,18 @@ export function initHomeDir(templateDir) {
 
 const defaultVars = {
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*',
+	url: 'http[^\\s]+',
 	version: '(?:\\d\\.\\d\\.\\d(?:-[^\\s]*)?)',
 	x: process.platform === 'win32' ? 'x' : '✖',
 	year: (new Date()).getFullYear()
 };
 for (const fn of [ 'blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'yellow' ]) {
 	defaultVars[fn] = () => {
-		return (text, render) => chalk[fn](render(text)).replace(/(?<!\\)([()[\]?])/g, '\\$1');
+		return (text, render) => {
+			return chalk[fn]('8675309')
+				.replace(/(?<!\\)([()[\]?])/g, '\\$1')
+				.replace('8675309', render(text));
+		};
 	}
 }
 
@@ -104,6 +109,10 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 }
 
 export function runAxway(args = [], opts = {},  cfg) {
+	return _runAxway(spawn, args, opts, cfg);
+}
+
+export function runAxwaySync(args = [], opts = {},  cfg) {
 	const child = _runAxway(spawn, args, opts, cfg);
 	let stdout = '';
 	let stderr = '';
@@ -127,17 +136,17 @@ export function runAxway(args = [], opts = {},  cfg) {
 	}));
 }
 
-export function runAxwaySync(args = [], opts = {},  cfg) {
-	const result = _runAxway(spawnSync, args, opts, cfg);
-	logger('stdout').log(result.stdout.toString());
-	logger('stderr').log(result.stderr.toString());
-	if (process.env.ECHO_CHILD) {
-		process.stdout.write(result.stdout.toString());
-		process.stderr.write(result.stderr.toString());
-	}
-	log(`Process exited (code ${result.status})`);
-	return result;
-}
+// export function runAxwaySync(args = [], opts = {},  cfg) {
+// 	const result = _runAxway(spawnSync, args, opts, cfg);
+// 	logger('stdout').log(result.stdout.toString());
+// 	logger('stderr').log(result.stderr.toString());
+// 	if (process.env.ECHO_CHILD) {
+// 		process.stdout.write(result.stdout.toString());
+// 		process.stderr.write(result.stderr.toString());
+// 	}
+// 	log(`Process exited (code ${result.status})`);
+// 	return result;
+// }
 
 function createServer({ port }) {
 	return new Promise((resolve, reject) => {

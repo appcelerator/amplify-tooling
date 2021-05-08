@@ -9,19 +9,19 @@ describe('axway', () => {
 		after(resetHomeDir);
 
 		it('should output the help screen with color', async () => {
-			const { status, stdout } = runAxwaySync();
+			const { status, stdout } = await runAxwaySync();
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 		});
 
 		it('should output the help screen without color', async () => {
-			const { status, stdout } = runAxwaySync([ '--no-color' ]);
+			const { status, stdout } = await runAxwaySync([ '--no-color' ]);
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-without-color'));
 		});
 
 		it('should output the help as JSON', async () => {
-			const { status, stdout } = runAxwaySync([ '--json' ]);
+			const { status, stdout } = await runAxwaySync([ '--json' ]);
 			expect(status).to.equal(2);
 
 			const help = JSON.parse(stdout.toString());
@@ -34,14 +34,14 @@ describe('axway', () => {
 		});
 
 		it('should list suggestions if command does not exist', async () => {
-			const { status, stdout, stderr } = runAxwaySync([ 'athu' ]);
+			const { status, stdout, stderr } = await runAxwaySync([ 'athu' ]);
 			expect(status).to.equal(1);
 			expect(stdout.toString()).to.match(renderRegexFromFile('bad-command/bad-command-with-suggestions-stdout'));
 			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command/bad-command-with-suggestions-stderr'));
 		});
 
 		it('should error if command does not exist', async () => {
-			const { status, stdout, stderr } = runAxwaySync([ 'foo' ]);
+			const { status, stdout, stderr } = await runAxwaySync([ 'foo' ]);
 			expect(status).to.equal(1);
 			expect(stdout.toString()).to.match(renderRegexFromFile('bad-command/bad-command-stdout'));
 			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command/bad-command-stderr'));
@@ -50,7 +50,7 @@ describe('axway', () => {
 
 	describe('banner', () => {
 		it('should output the help without the banner', async () => {
-			const { status, stdout } = runAxwaySync([ '--no-banner' ]);
+			const { status, stdout } = await runAxwaySync([ '--no-banner' ]);
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color-no-banner'));
 		});
@@ -58,11 +58,11 @@ describe('axway', () => {
 
 	describe('version', () => {
 		it('should display the version', async () => {
-			let { status, stdout } = runAxwaySync([ '-v' ]);
+			let { status, stdout } = await runAxwaySync([ '-v' ]);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(/\d\.\d\.\d(-[^\s]*)?/);
 
-			({ status, stdout } = runAxwaySync([ '--version' ]));
+			({ status, stdout } = await runAxwaySync([ '--version' ]));
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(/\d\.\d\.\d(-[^\s]*)?/);
 		});

@@ -1,4 +1,6 @@
+import fs from 'fs-extra';
 import jws from 'jws';
+import path from 'path';
 import Router from '@koa/router';
 
 export function createAuthRoutes(server, opts = {}) {
@@ -46,7 +48,7 @@ export function createAuthRoutes(server, opts = {}) {
 	});
 
 	router.get('/realms/test_realm/.well-known/openid-configuration', ctx => {
-		ctx.body = JSON.parse(fs.readFileSync(path.join(__dirname, 'server-info.json')));
+		ctx.body = fs.readJsonSync(path.join(__dirname, 'server-info.json'));
 	});
 
 	server.router.use('/auth', router.routes());
