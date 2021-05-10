@@ -56,6 +56,9 @@ export default class AmplifySDK {
 		 * @type {Function}
 		 */
 		this.got = request.init(opts.requestOptions);
+		if (!opts.got) {
+			opts.got = this.got;
+		}
 
 		/**
 		 * The base Axway ID URL.
