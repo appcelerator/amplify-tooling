@@ -1,5 +1,7 @@
-# v2.1.4
+# v2.1.4 (May 10, 2021)
 
+ * fix(auth): Pass the `AmplifySDK` `got` instance into the `Auth` class so that it can pass it
+   along to the `Authentication` class. ([CLI-124](https://jira.axway.com/browse/CLI-124))
  * fix: Added missing `interactiveLoginTimeout` param to login.
 
 # v2.1.3 (Apr 29, 2021)

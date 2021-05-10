@@ -42,6 +42,8 @@ export default class Auth {
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {Function} [opts.got] - A reference to a `got` HTTP client. If not defined, the
+	 * default `got` instance will be used.
 	 * @param {String} [opts.homeDir] - The path to the home directory containing the `lib`
 	 * directory where `keytar` is located. This option is required when `tokenStoreType` is set to
 	 * `secure`, which is the default.
@@ -80,7 +82,7 @@ export default class Auth {
 			clientId:       { value: opts.clientId },
 			clientSecret:   { value: opts.clientSecret },
 			env:            { value: opts.env },
-			got:            { value: request.init(opts.requestOptions) },
+			got:            { value: opts.got || request.init(opts.requestOptions) },
 			interactiveLoginTimeout: { value: opts.interactiveLoginTimeout },
 			messages:       { value: opts.messages },
 			password:       { value: opts.password },
@@ -161,6 +163,7 @@ export default class Auth {
 			clientId:       opts.clientId || this.clientId,
 			clientSecret:   opts.clientSecret || this.clientSecret,
 			env:            name,
+			got:            opts.got || this.got,
 			messages:       opts.messages || this.messages,
 			password:       opts.password || this.password,
 			platformUrl:    opts.platformUrl || this.platformUrl,
