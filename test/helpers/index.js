@@ -33,7 +33,7 @@ export function initHomeDir(templateDir) {
 }
 
 const defaultVars = {
-	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*',
+	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
 	url: 'http[^\\s]+',
 	version: '(?:\\d\\.\\d\\.\\d(?:-[^\\s]*)?)',
 	x: process.platform === 'win32' ? 'x' : '✖',
@@ -62,7 +62,7 @@ export function renderRegexFromFile(file) {
 	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
 		file = path.resolve(path.dirname(callerPath()), file);
 	}
-	return renderRegex(fs.readFileSync(file, 'utf8'));
+	return renderRegex(fs.readFileSync(file, 'utf8').trim());
 }
 
 export function resetHomeDir() {

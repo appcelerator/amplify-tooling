@@ -151,13 +151,56 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-account'));
 		});
 
-		// it('should log into service using signed JWT', async function () {
-		// 	//
-		// });
+		it('should error if secret file is invalid', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
 
-		// it('should log into service using username and password', async function () {
-		// 	//
-		// });
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login', '--secret-file', 'does_not_exist' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('login/secret-file-not-found'));
+
+			({ status, stdout, stderr } = await runAxwaySync([ 'auth', 'login', '--secret-file', path.join(__dirname, 'login/bad-secret.pem') ]));
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('login/invalid-secret-file'));
+		});
+
+		it('should log into service using signed JWT', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+
+			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--secret-file', path.join(__dirname, 'login/secret.pem') ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('login/success-service'));
+
+			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-service-account'));
+		});
+
+		it.skip('should log into service using username and password', async function () {
+			//
+		});
+
+		it('should log into both a platform and service account', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+
+			let { status, stdout } = await runAxwaySync([ 'auth', 'login' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('login/success'));
+
+			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-account'));
+
+			({ status, stdout } = await runAxwaySync([ 'auth', 'login', '--secret-file', path.join(__dirname, 'login/secret.pem') ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('login/success-service-not-default'));
+
+			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('list/platform-service-accounts'));
+		});
 
 		it('should error if browser times out', async function () {
 			initHomeDir('home-timeout');

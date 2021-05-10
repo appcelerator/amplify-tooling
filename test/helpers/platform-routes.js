@@ -22,7 +22,7 @@ export function createPlatformRoutes(server, opts = {}) {
 
 		log(`Finding session using token "${token}"`);
 
-		if (token === 'platform_access_token' || token === state.accessToken) {
+		if (!state.isJWT && token === state.accessToken) {
 			const user = data.users.find(u => u.guid === '50000');
 			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
 
@@ -34,7 +34,7 @@ export function createPlatformRoutes(server, opts = {}) {
 					user
 				}
 			};
-		} else if (token === 'service_access_token') {
+		} else if (state.isJWT && token === state.accessToken) {
 			ctx.body = {
 				success: true,
 				result: null

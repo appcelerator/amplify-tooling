@@ -16,15 +16,18 @@ export function createAuthRoutes(server, opts = {}) {
 	});
 
 	router.post('/realms/test_realm/protocol/openid-connect/token', ctx => {
+		state.isJWT = ctx.request.body?.client_assertion_type?.includes('jwt-bearer');
+		state.email = state.isJWT ? 'service@bar.com' : 'foo@bar.com';
+
 		state.accessToken = jws.sign({
 			header: { alg: 'HS256' },
-			payload: { email: 'foo@bar.com' },
+			payload: { email: state.email },
 			secret: `access_secret`
 		});
 
 		state.refreshToken = jws.sign({
 			header: { alg: 'HS256' },
-			payload: { email: 'foo@bar.com' },
+			payload: { email: state.email },
 			secret: `refresh_secret`
 		});
 
@@ -43,7 +46,7 @@ export function createAuthRoutes(server, opts = {}) {
 	router.get('/realms/test_realm/protocol/openid-connect/userinfo', ctx => {
 		ctx.body = {
 			name: `tester`,
-			email: 'foo@bar.com'
+			email: state.email
 		};
 	});
 
