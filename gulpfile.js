@@ -325,18 +325,15 @@ exports['release-notes'] = async function releaseNotes() {
 
 	try {
 		// Step 1: get all the `axway` releases and their `@axway/*` dependencies
-		const { versions } = await fetch('@axway/amplify-cli');
+		const { versions } = await fetch('axway');
 		for (const ver of versions) {
 			if (semver.valid(ver) && semver.gt(ver, '0.0.0')) {
 				const { prerelease } = semver.parse(ver);
 				if (!prerelease || !prerelease.length) {
-					await getPackageInfo('@axway/amplify-cli', ver);
+					await getPackageInfo('axway', ver);
 				}
 			}
 		}
-
-		// TEMP: this is temporary until v2 ships
-		packages.axway = { latest: null, versions: {} };
 
 		// Step 2: add in the local packages
 		const local = {};
@@ -443,7 +440,7 @@ exports['release-notes'] = async function releaseNotes() {
 	// Step 4: loop over every `axway` release and generate the changelog
 	for (const ver of Object.keys(axwayCli.versions).sort(semver.compare)) {
 		const { raw } = semver.coerce(ver);
-		if (semver.lt(raw, '2.0.0')) {
+		if (semver.lte(raw, '2.0.0')) {
 			continue;
 		}
 		const { major, minor, patch } = semver.parse(ver);

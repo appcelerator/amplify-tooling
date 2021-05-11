@@ -1,6 +1,6 @@
 # Axway CLI 2.0.0
 
-## Unreleased
+## Jan 22, 2021
 
 This is a major release with breaking changes, new features, bug fixes, and dependency updates.
 
@@ -12,7 +12,7 @@ npm i -g axway@2.0.0
 
 ### axway
 
- * **v2.0.0**
+ * **v2.0.0** - 1/22/2021
 
    * Initial release of the Axway CLI, formerly AMPLIFY CLI.
      ([CLI-100](https://jira.axway.com/browse/CLI-100))
