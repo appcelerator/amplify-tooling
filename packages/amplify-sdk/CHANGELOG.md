@@ -1,3 +1,7 @@
+# v2.1.5 (May 11, 2021)
+
+ * fix: Set correct user agent for platform calls.
+
 # v2.1.4 (May 10, 2021)
 
  * fix(auth): Pass the `AmplifySDK` `got` instance into the `Auth` class so that it can pass it

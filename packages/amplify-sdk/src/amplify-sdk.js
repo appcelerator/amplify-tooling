@@ -82,9 +82,12 @@ export default class AmplifySDK {
 
 		/**
 		 * The Axway ID realm.
+		 *
+		 * IMPORTANT! Platform explicitly checks this user agent, so do NOT change the name or case.
+		 *
 		 * @type {String}
 		 */
-		this.userAgent = `Amplify SDK/${version} (${process.platform}; ${process.arch}; node:${process.versions.node})${process.env.AXWAY_CLI ? ` Axway CLI/${process.env.AXWAY_CLI}` : ''}`;
+		this.userAgent = `AMPLIFY SDK/${version} (${process.platform}; ${process.arch}; node:${process.versions.node})${process.env.AXWAY_CLI ? ` Axway CLI/${process.env.AXWAY_CLI}` : ''}`;
 
 		this.auth = {
 			/**

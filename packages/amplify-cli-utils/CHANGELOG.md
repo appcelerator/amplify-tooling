@@ -1,4 +1,4 @@
-# v4.3.4
+# v4.3.4 (May 11, 2021)
 
  * fix: Prevent table padding from being styled despite there being no border.
  * chore: Updated dependencies.

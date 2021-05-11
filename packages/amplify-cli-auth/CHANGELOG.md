@@ -1,4 +1,4 @@
-# v2.6.4
+# v2.6.4 (May 11, 2021)
 
  * fix: Added environment name to `axway auth list`.
  * style(login): Removed extra blank line when authenticating with username and password.
