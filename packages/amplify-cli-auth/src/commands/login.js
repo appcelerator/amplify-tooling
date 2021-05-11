@@ -73,13 +73,15 @@ export default {
 				});
 			}
 
-			if (questions.length && argv.json) {
-				console.error(JSON.stringify({ error: '--username and --password are required when --json is set' }, null, 2));
-				process.exit(1);
-			}
+			if (questions.length) {
+				if (argv.json) {
+					console.error(JSON.stringify({ error: '--username and --password are required when --json is set' }, null, 2));
+					process.exit(1);
+				}
 
-			Object.assign(argv, await prompt(questions));
-			console.log();
+				Object.assign(argv, await prompt(questions));
+				console.log();
+			}
 		}
 
 		const { config, sdk } = initSDK({

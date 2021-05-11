@@ -148,7 +148,7 @@ describe('axway auth', () => {
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-account'));
+			expect(stdout).to.match(renderRegexFromFile('list/service-bar-account'));
 		});
 
 		it('should error if secret file is invalid', async function () {
@@ -164,7 +164,7 @@ describe('axway auth', () => {
 			expect(stderr).to.match(renderRegexFromFile('login/invalid-secret-file'));
 		});
 
-		it('should log into service using signed JWT', async function () {
+		it('should log into service account using signed JWT', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -174,11 +174,20 @@ describe('axway auth', () => {
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-service-account'));
+			expect(stdout).to.match(renderRegexFromFile('list/service-bar-account'));
 		});
 
-		it.skip('should log into service using username and password', async function () {
-			//
+		it('should log into platform account using username and password', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+
+			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--username', 'foo', '--password', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('login/success-headless'));
+
+			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
 		});
 
 		it('should log into both a platform and service account', async function () {
