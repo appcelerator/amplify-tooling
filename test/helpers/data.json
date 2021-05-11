@@ -1,0 +1,210 @@
+{
+	"activity": [
+		{
+			"ts": 1612281933000,
+			"message": "Feb 2 sample",
+			"org_id": 100
+		},
+		{
+			"ts": 1612728620000,
+			"message": "Feb 7 sample",
+			"org_id": 100
+		},
+		{
+			"ts": 1613253008000,
+			"message": "Feb 13 sample",
+			"org_id": 100
+		},
+		{
+			"ts": 1612530918676,
+			"message": "Feb 5 sample",
+			"user_guid": "50000"
+		},
+		{
+			"ts": 1612574686163,
+			"message": "Feb 6 sample",
+			"user_guid": "50000"
+		},
+		{
+			"ts": 1612906169927,
+			"message": "Feb 9 sample",
+			"user_guid": "50000"
+		},
+		{
+			"ts": 1613408276641,
+			"message": "Feb 16 sample",
+			"user_guid": "50000"
+		}
+	],
+	"orgs": [
+		{
+			"name": "Foo org",
+			"guid": "1000",
+			"org_id": 100,
+			"active": true,
+			"apps": [],
+			"children": [ "2000" ],
+			"users": [
+				{
+					"guid": "50000",
+					"roles": [ "administrator" ],
+					"primary": true
+				},
+				{
+					"guid": "50001",
+					"roles": [ "developer" ],
+					"primary": true
+				}
+			],
+			"entitlements": {
+				"_a": 10,
+				"bc": 20
+			},
+			"subscriptions": []
+		},
+		{
+			"name": "Bar org",
+			"guid": "2000",
+			"org_id": 200,
+			"active": true,
+			"apps": [],
+			"parent_org_guid": "1000",
+			"users": [
+				{
+					"guid": "50000",
+					"roles": [ "administrator" ],
+					"primary": true
+				}
+			],
+			"entitlements": {
+				"_a": 10,
+				"bc": 20
+			},
+			"subscriptions": []
+		}
+	],
+	"roles": [
+		{
+			"id": "administrator",
+			"name": "Administrator",
+			"default": true,
+			"org": true,
+			"team": true
+		},
+		{
+			"id": "developer",
+			"name": "Developer",
+			"default": true,
+			"org": true,
+			"team": true
+		},
+		{
+			"id": "some_admin",
+			"name": "Some Admin",
+			"org": true
+		}
+	],
+	"teams": [
+		{
+			"name": "A Team",
+			"guid": "60000",
+			"default": true,
+			"tags": [],
+			"org_guid": "1000",
+			"users": [
+				{
+					"guid": "50000",
+					"roles": [ "administrator" ]
+				}
+			]
+		},
+		{
+			"name": "B Team",
+			"guid": "60001",
+			"default": true,
+			"tags": [],
+			"org_guid": "2000",
+			"users": [
+				{
+					"guid": "50000",
+					"roles": [ "administrator" ]
+				}
+			]
+		},
+		{
+			"name": "B Team",
+			"guid": "60002",
+			"default": true,
+			"tags": [],
+			"org_guid": "2000",
+			"users": [
+				{
+					"guid": "50000",
+					"roles": [ "administrator" ]
+				}
+			]
+		}
+	],
+	"usage": [
+		{
+			"org_guid": "1000",
+			"quotas": {
+				"apiRateMonth": 5000,
+				"pushRateMonth": 2000,
+				"storageFilesGB": 100,
+				"storageDatabaseGB": 100,
+				"containerPoints": 1000,
+				"eventRateMonth": 10000000
+			},
+			"events": [
+				{ "type": "apiRateMonth", "value": 320, "ts": 1613357858107 },
+				{ "type": "apiRateMonth", "value": 190, "ts": 1613221986688 },
+				{ "type": "apiRateMonth", "value": 538, "ts": 1612734903031 },
+				{ "type": "apiRateMonth", "value": 246, "ts": 1612550581993 },
+
+				{ "type": "pushRateMonth", "value": 441, "ts": 1613440023678 },
+				{ "type": "pushRateMonth", "value": 603, "ts": 1612163480008 },
+				{ "type": "pushRateMonth", "value": 167, "ts": 1612863508686 },
+
+				{ "type": "storageFilesGB", "value": 0.0006, "ts": 1613170253964 },
+				{ "type": "storageFilesGB", "value": 0.0007, "ts": 1612316015732 },
+
+				{ "type": "storageDatabaseGB", "value": 0.11, "ts": 1613012955562 },
+				{ "type": "storageDatabaseGB", "value": 0.07, "ts": 1612973401134 },
+				{ "type": "storageDatabaseGB", "value": 0.14, "ts": 1612965589282 },
+
+				{ "type": "containerPoints", "value": 1360, "ts": 1613299780069 },
+				{ "type": "containerPoints", "value": 906, "ts": 1612624474909 },
+
+				{ "type": "eventRateMonth", "value": 51223, "ts": 1613335853098 },
+				{ "type": "eventRateMonth", "value": 92300, "ts": 1612221829903 },
+				{ "type": "eventRateMonth", "value": 131010, "ts": 1612465519471 },
+				{ "type": "eventRateMonth", "value": 88921, "ts": 1613036061516 },
+				{ "type": "eventRateMonth", "value": 59656, "ts": 1612420508993 }
+			]
+		}
+	],
+	"users": [
+		{
+			"guid": "50000",
+			"email": "test1@domain.com",
+			"firstname": "Test1",
+			"lastname": "Tester1",
+			"phone": "555-5001"
+		},
+		{
+			"guid": "50001",
+			"email": "test2@domain.com",
+			"firstname": "Test2",
+			"lastname": "Tester2",
+			"phone": "555-5002"
+		},
+		{
+			"guid": "50002",
+			"email": "test3@domain.com",
+			"firstname": "Test3",
+			"lastname": "Tester3",
+			"phone": "555-5003"
+		}
+	]
+}

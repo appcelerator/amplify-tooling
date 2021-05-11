@@ -1,0 +1,77 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
+
+Manage configuration options.
+
+USAGE: {{#cyan}}axway config <command> [options]{{/cyan}}
+
+CONFIG COMMANDS:
+  {{#cyan}}rm, delete   {{/cyan}}  Remove a config setting
+  {{#cyan}}get          {{/cyan}}  Display a specific config setting
+  {{#cyan}}ls, list     {{/cyan}}  Display all config settings
+  {{#cyan}}pop          {{/cyan}}  Remove the last value in a list
+  {{#cyan}}push         {{/cyan}}  Add a value to the end of a list
+  {{#cyan}}set          {{/cyan}}  Change a config setting
+  {{#cyan}}shift        {{/cyan}}  Remove the first value in a list
+  {{#cyan}}unshift      {{/cyan}}  Add a value to the beginning of a list
+
+CONFIG OPTIONS:
+  {{#cyan}}--json       {{/cyan}}  Outputs the config as JSON
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color   {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+
+EXAMPLES:
+
+  List all config settings:
+    {{#cyan}}axway config ls{{/cyan}}
+
+  Return the config as JSON:
+    {{#cyan}}axway config ls --json{{/cyan}}
+
+  Get a specific config setting:
+    {{#cyan}}axway config get home{{/cyan}}
+
+  Set a config setting:
+    {{#cyan}}axway config set env production{{/cyan}}
+
+SETTINGS:
+
+  {{#cyan}}auth.tokenStoreType{{/cyan}} {{#gray}}[string] (default: "secure"){{/gray}}
+    The type of store to persist the access token after authenticating.
+
+    Allowed values:
+      {{#magenta}}"auto"{{/magenta}}    Attempts to use the "secure" store, but falls back to "file" if
+                secure store is unavailable.
+      {{#magenta}}"secure"{{/magenta}}  Encrypts the access token and using a generated key which is
+                stored in the system's keychain.
+      {{#magenta}}"file"{{/magenta}}    Encrypts the access token using the embedded key.
+      {{#magenta}}"memory"{{/magenta}}  Stores the access token in memory instead of on disk. The
+                access tokens are lost when the process exits. This is intended
+                for testing purposes only.
+      {{#magenta}}"null"{{/magenta}}    Disables all forms of token persistence and simply returns the
+                access token. Subsequent calls to login in the same process
+                will force the authentication flow. This is intended for
+                migration scripts and testing purposes only.
+
+  {{#cyan}}env{{/cyan}} {{#gray}}[string] (default: "prod"){{/gray}}
+    The name of the environment to use for all commands.
+
+  {{#cyan}}network.caFile{{/cyan}} {{#gray}}[string]{{/gray}}
+    The path to a PEM formatted certificate authority bundle used to validate
+    untrusted SSL certificates.
+
+  {{#cyan}}network.proxy{{/cyan}} {{#gray}}[string]{{/gray}}
+    The URL of the proxy server. This proxy server URL is used for both HTTP
+    and HTTPS requests.
+
+    Note: If the proxy server uses a self signed certifcate, you must specify
+    the network.caFile, set network.strictSSL to false, or set the environment
+    variable NODE_TLS_REJECT_UNAUTHORIZED=0.
+
+  {{#cyan}}network.strictSSL{{/cyan}} {{#gray}}[bool] (default: true){{/gray}}
+    Enforces valid TLS certificates on all outbound HTTPS requests. Set this to
+    false if you are behind a proxy server with a self signed certificate.

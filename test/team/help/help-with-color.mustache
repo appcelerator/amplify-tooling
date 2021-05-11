@@ -1,0 +1,68 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
+
+Manage Amplify organization teams.
+
+USAGE: {{#cyan}}axway team <command> [options]{{/cyan}}
+
+TEAM COMMANDS:
+  {{#cyan}}add          {{/cyan}}  Add a team to an organization
+  {{#cyan}}ls, list     {{/cyan}}  List organization teams
+  {{#cyan}}rm, remove   {{/cyan}}  Remove a team from an organization
+  {{#cyan}}update       {{/cyan}}  Update team information
+  {{#cyan}}user         {{/cyan}}  Manage team users
+  {{#cyan}}view         {{/cyan}}  View team information
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color   {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+
+GENERAL TEAM EXAMPLES:
+
+  You must be authenticated into an Amplify Platform account to view or manage
+  organization teams. Run {{#cyan}}"axway auth login"{{/cyan}} to authenticate.
+
+  You may specify an organization by name, id, or guid as well as the team by
+  name or guid.
+
+  List all organization teams:
+    {{#cyan}}axway team list <org>{{/cyan}}
+
+  View team details:
+    {{#cyan}}axway team view <org> <team>{{/cyan}}
+
+  Add a new team to an organization:
+    {{#cyan}}axway team add <org> <team name>{{/cyan}}
+
+  Update team information:
+    {{#cyan}}axway team update <org> <team> [options]{{/cyan}}
+
+    Available options:
+      {{#cyan}}--default{{/cyan}}          Set the team as the default team.
+      {{#cyan}}--desc <text>{{/cyan}}      The description of the team.
+      {{#cyan}}--name <new name>{{/cyan}}  The team name.
+      {{#cyan}}--tag <value>{{/cyan}}      One or more tags to assign to the team.
+
+  Remove a team:
+    {{#cyan}}axway team remove <org> <team>{{/cyan}}
+
+TEAM USER MANAGEMENT EXAMPLES:
+
+  You may refer to a user by email address or guid.
+
+  List all users in a team:
+    {{#cyan}}axway team user list <org>{{/cyan}}
+
+  View available user roles:
+    {{#cyan}}axway org user roles{{/cyan}}
+
+  Add a user to a team:
+    {{#cyan}}axway team user add <org> <team> <user> --role <role>{{/cyan}}
+
+  Change a user's role within a team:
+    {{#cyan}}axway team user update <org> <team> <user> --role <role>{{/cyan}}
+
+  Remove a user from a team:
+    {{#cyan}}axway team user remove <org> <team> <user>{{/cyan}}

@@ -1,0 +1,6 @@
+{
+	"[mustache]": {
+		"files.trimTrailingWhitespace": false,
+		"editor.trimAutoWhitespace": false
+	}
+}

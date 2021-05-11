@@ -261,6 +261,7 @@ export function createTable(head, indent = 0) {
 		},
 		head: Array.isArray(head) ? head.map(ansi.toUpperCase) : head,
 		style: {
+			border: [],
 			head: [],
 			'padding-left': 0,
 			'padding-right': 0

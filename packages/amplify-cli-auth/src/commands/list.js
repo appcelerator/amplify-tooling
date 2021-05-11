@@ -49,7 +49,7 @@ export default {
 				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
 				isPlatform ? 'Platform' : 'Service',
 				pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
-				auth.baseUrl.replace(urlRE, '')
+				`${auth.env} (${auth.baseUrl.replace(urlRE, '')})`
 			]);
 		}
 

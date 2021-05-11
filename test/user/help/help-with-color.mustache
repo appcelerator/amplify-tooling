@@ -1,0 +1,36 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
+
+Manage your user settings.
+
+USAGE: {{#cyan}}axway user <command> [options]{{/cyan}}
+
+USER COMMANDS:
+  {{#cyan}}activity     {{/cyan}}  Display your activity
+  {{#cyan}}credentials  {{/cyan}}  Opens a web browser to the change your password page
+  {{#cyan}}update       {{/cyan}}  Change your information
+  {{#cyan}}view         {{/cyan}}  Display your user information
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color   {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+
+EXAMPLES:
+
+  You must be authenticated into an Amplify Platform account to view or update
+  your user settings. Run {{#cyan}}"axway auth login"{{/cyan}} to authenticate.
+
+  View your user account details:
+    {{#cyan}}axway user view{{/cyan}}
+
+  Update your first name, last name, or phone number:
+    {{#cyan}}axway user update --firstname <name> --lastname <name>{{/cyan}}
+    {{#cyan}}axway user update --phone <number>{{/cyan}}
+
+  View your recent activity report:
+    {{#cyan}}axway user activity{{/cyan}}
+
+  Open web browser to change your password:
+    {{#cyan}}axway user credentials{{/cyan}}

@@ -424,7 +424,8 @@ export default class Authenticator {
 	 * launching the auth URL in the default browser.
 	 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to be
 	 * launched.
-	 * @param {Number} [opts.timeout] - The number of milliseconds to wait before timing out.
+	 * @param {Number} [opts.timeout=120000] - The number of milliseconds to wait before timing
+	 * out.
 	 * @returns {Promise<Object>} In `manual` mode, then resolves an object containing the
 	 * authentication `url`, a `promise` that is resolved once the browser redirects to the local
 	 * web server after authenticating, and a `cancel` method to abort the authentication and stop

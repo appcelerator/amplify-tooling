@@ -12,7 +12,6 @@ const semver       = require('semver');
 const spawnSync    = require('child_process').spawnSync;
 const tmp          = require('tmp');
 
-const { join }     = require('path');
 const { series } = gulp;
 const { red, yellow, green, cyan, magenta, gray } = ansiColors;
 
@@ -104,75 +103,57 @@ const build = exports.build = async function build() {
 /*
  * test tasks
  */
-exports.test = series(nodeInfo, build, function test() {
-	return runTests();
-});
-exports.coverage = series(nodeInfo, build, function coverage() {
-	return runTests(true, true);
-});
+let origHomeDir = process.env.HOME;
+let tmpHomeDir = null;
 
 async function runTests(cover, all) {
-	process.env.APPCD_TEST_GLOBAL_PACKAGE_DIR = path.join(__dirname, 'packages');
-	process.env.SNOOPLOGG = '*';
-	const runner = require('appcd-gulp/src/test-runner');
-	return runner.runTests({ root: __dirname, projectDir: __dirname, cover, all });
+	try {
+		await fs.remove(path.join(__dirname, '.nyc_output'));
+		await fs.remove(path.join(__dirname, 'coverage'));
+
+		process.env.APPCD_TEST_GLOBAL_PACKAGE_DIR = path.join(__dirname, 'packages');
+		process.env.SPAWN_WRAP_SHIM_ROOT = origHomeDir;
+		process.env.NODE_ENV = 'test'; // disables the update check
+		// process.env.SNOOPLOGG = '*';
+
+		tmpHomeDir = tmp.dirSync({
+			mode: '755',
+			prefix: 'axway-cli-test-home-',
+			unsafeCleanup: true
+		}).name;
+
+		log(`Protecting home directory, overriding HOME with temp dir: ${cyan(tmpHomeDir)}`);
+		process.env.HOME = process.env.USERPROFILE = tmpHomeDir;
+		if (process.platform === 'win32') {
+			process.env.HOMEDRIVE = path.parse(tmpHomeDir).root.replace(/[\\/]/g, '');
+			process.env.HOMEPATH = tmpHomeDir.replace(process.env.HOMEDRIVE, '');
+		}
+
+		const runner = require('appcd-gulp/src/test-runner');
+		await runner.runTests({
+			all,
+			cover,
+			projectDir: __dirname,
+			root: __dirname,
+			slow: 15000,
+			timeout: 20000
+		});
+	} catch (err) {
+		//
+	} finally {
+		// restore home directory so that we can delete the temp one
+		if (tmpHomeDir) {
+			log(`Removing temp home directory: ${cyan(tmpHomeDir)}`);
+			fs.removeSync(tmpHomeDir);
+		}
+
+		log(`Restoring home directory: ${cyan(origHomeDir)}`);
+		process.env.HOME = origHomeDir;
+	}
 }
 
-function integration({ amplifyBin, amplifyConfigFile }) {
-	return async () => {
-		const args = [];
-		const mocha = require.resolve('mocha');
-
-		let axwayHomeDir;
-		if (process.argv.includes('--axway-home')) {
-			const argIndex = process.argv.indexOf('--axway-home-parent') + 1;
-			const homeArg = process.argv[argIndex];
-			if (!homeArg) {
-				log('A directory must be specified with the "--axway-home-parent" flag');
-				process.exit(1);
-			}
-			if (!fs.existsSync(homeArg)) {
-				log(`The supplied argument for "--axway-home-parent" "${homeArg}" does not exist.`);
-				process.exit(1);
-			}
-			axwayHomeDir = homeArg;
-		} else {
-			tmp.setGracefulCleanup();
-			axwayHomeDir = tmp.dirSync({ unsafeCleanup: true }).name;
-		}
-
-		if (!process.argv.includes('--use-global')) {
-			process.env.AMPLIFY_BIN = amplifyBin;
-			process.env.AMPLIFY_CONFIG_FILE = path.join(axwayHomeDir, amplifyConfigFile);
-		}
-
-		process.env.HOME = axwayHomeDir;
-		process.env.USERPROFILE = axwayHomeDir;
-
-		if (!mocha) {
-			log('Unable to find mocha!');
-			process.exit(1);
-		}
-		args.push(path.join(mocha, '..', 'bin', 'mocha'));
-		args.push('integration-tests/test-*.js');
-		log('Running: ' + process.execPath + ' ' + args.join(' '));
-
-		if (spawnSync(process.execPath, args, { stdio: 'inherit' }).status) {
-			const err = new Error('At least one test failed :(');
-			err.showStack = false;
-			throw err;
-		}
-	};
-}
-
-exports.integration = series(
-	nodeInfo,
-	build,
-	integration({
-		amplifyBin: join(__dirname, 'packages', 'axway-cli', 'bin', 'axway'),
-		amplifyConfigFile: path.join('.axway', 'axway-cli', 'config.json')
-	})
-);
+exports.integration = series(nodeInfo, /* build, */ function test()     { return runTests(true); });
+exports.test        = series(nodeInfo, /* build, */ function coverage() { return runTests(true, true); });
 
 /*
  * watch task

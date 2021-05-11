@@ -1,0 +1,45 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
+
+The Axway Auth CLI authenticates with the Axway Amplify Platform, manages access tokens, and retreives user information..
+
+USAGE: {{#cyan}}axway auth <command> [options]{{/cyan}}
+
+AUTH COMMANDS:
+  {{#cyan}}ls, list     {{/cyan}}  Lists all authenticated accounts
+  {{#cyan}}login        {{/cyan}}  Log in to the Axway Amplify Platform
+  {{#cyan}}logout       {{/cyan}}  Log out all or specific accounts
+  {{#cyan}}switch       {{/cyan}}  Select default account and organization
+  {{#cyan}}whoami       {{/cyan}}  Display info for an authenticated account
+
+AUTH OPTIONS:
+  {{#cyan}}--env [name] {{/cyan}}  The environment to use
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color   {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+
+EXAMPLES:
+
+  Log into a platform account using a web browser:
+    {{#cyan}}axway auth login{{/cyan}}
+
+  Log into a service account using a PEM formatted secret key:
+    {{#cyan}}axway auth login --client-id <id> --secret-file <path>{{/cyan}}
+
+  Log into a service account using a client secret:
+    {{#cyan}}axway auth login --client-id <id> --client-secret <token> --service{{/cyan}}
+
+  List all authenticated accounts:
+    {{#cyan}}axway auth list{{/cyan}}
+
+  Show the current default selected account:
+    {{#cyan}}axway auth whoami{{/cyan}}
+
+  Switch default account and org:
+    {{#cyan}}axway auth switch{{/cyan}}
+
+  Log out of an account:
+    {{#cyan}}axway auth logout{{/cyan}}
