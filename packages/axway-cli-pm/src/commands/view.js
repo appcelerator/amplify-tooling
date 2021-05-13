@@ -18,52 +18,43 @@ export default {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs package info as JSON'
-		},
-		'--type [name]': {
-			desc: 'The package type',
-			values: {
-				'amplify-cli-plugin': 'An Axway CLI plugin package',
-				'apib-data-connector': 'An API builder connector'
-			}
 		}
 	},
-	async action({ argv, cli, console }) {
-		const [
-			{ default: npa },
-			{ getRegistryParams },
-			{ Registry }
-		] = await Promise.all([
-			import('npm-package-arg'),
-			import('../utils'),
-			import('@axway/amplify-registry-sdk')
-		]);
-
-		const { name, fetchSpec } = npa(argv.package);
-		const registry = new Registry(getRegistryParams(argv.env));
-
-		let result = await registry.metadata({
-			name,
-			type: argv.type,
-			version: fetchSpec !== 'latest' && fetchSpec
-		});
+	async action({ argv, console }) {
+		const { view } = require('../pm');
+		let info = await view(argv.package);
 
 		if (argv.filter) {
 			for (const key of argv.filter.split('.')) {
-				if (typeof result !== 'object') {
+				if (typeof info !== 'object') {
 					break;
 				}
-				result = Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
+				info = Object.prototype.hasOwnProperty.call(info, key) ? info[key] : undefined;
 			}
 		}
 
 		if (argv.json) {
-			cli.banner = false;
-			console.log(JSON.stringify(result, null, 2));
-		} else if (result) {
-			// TODO: render results a little nicer... possibly use a template?
-			console.log(result);
+			console.log(JSON.stringify(info, null, 2));
+			return;
+		}
+
+		const { default: snooplogg } = require('snooplogg');
+		const { highlight } = snooplogg.styles;
+
+		if (info) {
+			console.log(highlight(`${info.name}@${info.version}`));
+			const desc = (info.description || '').trim();
+			if (desc) {
+				console.log(desc + '\n');
+			}
+
+			if (info.installed) {
+				console.log(`Installed versions: ${highlight(Object.keys(info.installed).join(', '))}`);
+			} else {
+				console.log(`To install this package, run:\n\n  ${highlight(`axway pm install ${info.name}`)}`);
+			}
 		} else {
-			console.log(`No result found for ${name}`);
+			console.log(`No result found for ${highlight(`"${argv.package}"`)}`);
 		}
 	}
 };

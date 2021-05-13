@@ -34,6 +34,7 @@ export function initHomeDir(templateDir) {
 
 const defaultVars = {
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
+	string: '[^\\s]+',
 	url: 'http[^\\s]+',
 	version: '(?:\\d\\.\\d\\.\\d(?:-[^\\s]*)?)',
 	x: process.platform === 'win32' ? 'x' : '✖',

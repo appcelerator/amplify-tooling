@@ -8,19 +8,12 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const [
-			{ createTable },
-			{ getInstalledPackages, packagesDir },
-			semver,
-			{ default: snooplogg }
-		] = await Promise.all([
-			import('@axway/amplify-cli-utils'),
-			import('@axway/amplify-registry-sdk'),
-			import('semver'),
-			import('snooplogg')
-		]);
+		const semver = require('semver');
+		const { default: snooplogg } = require('snooplogg');
+		const { createTable } = require('@axway/amplify-cli-utils');
+		const { list, packagesDir } = require('../pm');
 
-		const installed = getInstalledPackages();
+		const installed = await list();
 
 		if (argv.json) {
 			console.log(JSON.stringify(installed, null, 2));
