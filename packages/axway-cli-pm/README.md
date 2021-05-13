@@ -11,13 +11,21 @@ This package is bundled with the Axway CLI and thus does not need to be directly
 
 ## Quick Start
 
-Searching for a connector:
+Find first 50 packages:
 
-	axway pm search mongo --type connector
+	axway pm search
 
-Install an API Builder connector:
+Find only 10 packages:
 
-	axway pm install appc.mongo
+	axway pm search --limit 10
+
+Searching for packages by keyword:
+
+	axway pm search acs
+
+Searching for packages by type:
+
+	axway pm search --type central-cli-plugin
 
 ## Legal
 
