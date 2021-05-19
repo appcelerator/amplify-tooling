@@ -16,7 +16,12 @@ export default {
 	desc: 'Displays info for a specific package',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }) => {
+				ctx.jsonMode = value;
+				if (value) {
+					ctx.banner = false;
+				}
+			},
 			desc: 'Outputs package info as JSON'
 		}
 	},
@@ -34,7 +39,7 @@ export default {
 		}
 
 		if (argv.json) {
-			console.log(JSON.stringify(info, null, 2));
+			console.log(info ? JSON.stringify(info, null, 2) : null);
 			return;
 		}
 

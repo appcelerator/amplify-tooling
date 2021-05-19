@@ -1,16 +1,15 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Displays info for a specific package
+Installs the specified package
 
-USAGE: {{#cyan}}axway pm view <package[@version]> [options] [<field[.subfield]>]{{/cyan}}
+USAGE: {{#cyan}}axway pm install <package[@version]> [options]{{/cyan}}
 
-VIEW ARGUMENTS:
-  {{#cyan}}package      {{/cyan}}  The package name and version to view
-  {{#cyan}}filter       {{/cyan}}  Display specific package fields
+INSTALL ARGUMENTS:
+  {{#cyan}}package      {{/cyan}}  The package name and version to install
 
-VIEW OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs package info as JSON
+INSTALL OPTIONS:
+  {{#cyan}}--json       {{/cyan}}  Output installed package as JSON
 
 PM OPTIONS:
   {{#cyan}}--env [env]  {{/cyan}}  The environment to use

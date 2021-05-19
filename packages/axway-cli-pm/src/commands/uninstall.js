@@ -123,6 +123,7 @@ export default {
 			try {
 				await (new Listr(tasks, {
 					concurrent: 10,
+					dateFormat: false,
 					renderer: argv.json ? 'silent' : 'default'
 				})).run();
 

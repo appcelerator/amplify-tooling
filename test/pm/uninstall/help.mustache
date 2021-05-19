@@ -1,16 +1,15 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Displays info for a specific package
+Removes the specified package
 
-USAGE: {{#cyan}}axway pm view <package[@version]> [options] [<field[.subfield]>]{{/cyan}}
+USAGE: {{#cyan}}axway pm uninstall <package[@version]> [options]{{/cyan}}
 
-VIEW ARGUMENTS:
-  {{#cyan}}package      {{/cyan}}  The package name and version to view
-  {{#cyan}}filter       {{/cyan}}  Display specific package fields
+UNINSTALL ARGUMENTS:
+  {{#cyan}}package      {{/cyan}}  The package name and version to uninstall
 
-VIEW OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs package info as JSON
+UNINSTALL OPTIONS:
+  {{#cyan}}--json       {{/cyan}}  Outputs removed packages as JSON
 
 PM OPTIONS:
   {{#cyan}}--env [env]  {{/cyan}}  The environment to use

@@ -36,7 +36,7 @@ const defaultVars = {
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
 	string: '[^\\s]+',
 	url: 'http[^\\s]+',
-	version: '(?:\\d\\.\\d\\.\\d(?:-[^\\s]*)?)',
+	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
 	x: process.platform === 'win32' ? 'x' : '✖',
 	year: (new Date()).getFullYear()
 };
@@ -56,14 +56,14 @@ export function renderRegex(str, vars) {
 	return new RegExp(str);
 }
 
-export function renderRegexFromFile(file) {
+export function renderRegexFromFile(file, vars) {
 	if (!fs.existsSync(file) && !/\.mustache$/.test(file)) {
 		file += '.mustache';
 	}
 	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
 		file = path.resolve(path.dirname(callerPath()), file);
 	}
-	return renderRegex(fs.readFileSync(file, 'utf8').trim());
+	return renderRegex(fs.readFileSync(file, 'utf8').trim(), vars);
 }
 
 export function resetHomeDir() {

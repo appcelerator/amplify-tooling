@@ -52,24 +52,24 @@ export default {
 			});
 
 			installProcess
-				.on('preActions', () => {
+				.on('preActions', ({ name, version }) => {
 					if (!argv.json) {
-						spinner.text = 'Running pre-actions';
+						spinner.text = `Running pre-actions ${highlight(`${name}@${version}`)}`;
 					}
 				})
-				.on('download', () => {
+				.on('download', ({ name, version }) => {
 					if (!argv.json) {
-						spinner.text = 'Downloading package';
+						spinner.text = `Downloading package ${highlight(`${name}@${version}`)}`;
 					}
 				})
-				.on('extract', () => {
+				.on('extract', ({ name, version }) => {
 					if (!argv.json) {
-						spinner.text = 'Extracting package';
+						spinner.text = `Extracting package ${highlight(`${name}@${version}`)}`;
 					}
 				})
-				.on('postActions', () => {
+				.on('postActions', ({ name, version }) => {
 					if (!argv.json) {
-						spinner.text = 'Running post-actions';
+						spinner.text = `Running post-actions ${highlight(`${name}@${version}`)}`;
 					}
 				})
 				.on('log', message => {

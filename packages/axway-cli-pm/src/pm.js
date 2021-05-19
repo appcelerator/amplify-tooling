@@ -125,7 +125,14 @@ export async function list(packageName) {
 export async function search({ keyword, limit, type } = {}) {
 	const plimit = promiseLimit(10);
 	const requestOpts = createRequestOptions();
-	const packages = await npmsearch([ 'amplify-package', keyword ], {
+	const keywords = [ 'amplify-package' ];
+	if (process.env.TEST) {
+		keywords.push('amplify-test-package');
+	}
+	if (keyword) {
+		keywords.push(keyword);
+	}
+	const packages = await npmsearch(keywords, {
 		...requestOpts,
 		limit: Math.max(limit && parseInt(limit, 10) || 50, 1)
 	});
@@ -168,7 +175,7 @@ export async function view(pkgName, { requestOpts = createRequestOptions(), type
 	if (!pkg
 		|| !pkg.amplify?.type
 		|| (type && pkg.amplify.type !== type)
-		|| pkg.keywords.includes('amplify-test-package')
+		|| (pkg.keywords.includes('amplify-test-package') && !process.env.TEST)
 		|| !pkg.keywords.includes('amplify-package')
 		|| !pkg.maintainers.some(m => maintainers.includes(m.name))
 	) {

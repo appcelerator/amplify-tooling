@@ -3,6 +3,9 @@
  * refactor: Renamed package from `@axway/amplify-cli-pm` to `@axway/axway-cli-pm`.
  * refactor: Removed registry server integration in favor of querying npm directly.
    ([CLI-111](https://jira.axway.com/browse/CLI-111))
+ * fix(install): Show package name and version during install steps.
+   ([CLI-126](https://jira.axway.com/browse/CLI-126))
+ * fix(view): Return `null` instead of `undefined` if package not found.
 
 # v2.5.4 (May 11, 2021)
 

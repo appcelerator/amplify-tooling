@@ -26,18 +26,18 @@ export class PackageInstaller extends EventEmitter {
 		const actions = await getActions(pkgInfo.type);
 
 		if (actions.pre) {
-			this.emit('preActions');
+			this.emit('preActions', pkgInfo);
 			await actions.pre();
 		}
-		this.emit('download');
+		this.emit('download', pkgInfo);
 		const zipLocation = await fetchPackage(pkgInfo);
 
-		this.emit('extract');
+		this.emit('extract', pkgInfo);
 		const extractLocation = await extractPackage({ zipLocation, type: pkgInfo.type });
 		pkgInfo.path = extractLocation;
 
 		if (actions.post) {
-			this.emit('postActions');
+			this.emit('postActions', pkgInfo);
 			await actions.post({ pkgInfo, location: extractLocation, emit: this });
 		}
 		return pkgInfo;
