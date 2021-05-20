@@ -124,6 +124,7 @@ export default {
 				await (new Listr(tasks, {
 					concurrent: 10,
 					dateFormat: false,
+					exitOnError: false,
 					renderer: argv.json ? 'silent' : 'default'
 				})).run();
 

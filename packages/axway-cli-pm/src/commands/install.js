@@ -2,97 +2,85 @@ export default {
 	aliases: [ 'i' ],
 	args: [
 		{
-			name: 'package',
+			name: 'packages...',
 			hint: 'package[@version]',
-			desc: 'The package name and version to install',
+			desc: 'One or more packages by name and version to install',
 			required: true
 		}
 	],
-	desc: 'Installs the specified package',
+	desc: 'Installs an Axway CLI package',
 	options: {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Output installed package as JSON'
 		}
 	},
-	async action({ argv, cli, console, terminal }) {
-		const [
-			{ PackageInstaller },
-			{ Extension },
-			{ default: npa },
-			{ default: ora },
-			{ default: snooplogg },
-			{ getRegistryParams }
-		] = await Promise.all([
-			import('@axway/amplify-registry-sdk'),
-			import('cli-kit'),
-			import('npm-package-arg'),
-			import('ora'),
-			import('snooplogg'),
-			import('../utils')
-		]);
-
+	async action({ argv, cli, console }) {
+		const Listr = require('listr');
+		const { default: snooplogg } = require('snooplogg');
+		const { Extension } = require('cli-kit');
+		const { install } = require('../pm');
 		const { highlight } = snooplogg.styles;
-		const { name, fetchSpec } = npa(argv.package);
-		const messages = [];
-		let spinner;
+		const tasks = [];
+		const results = {
+			installed: [],
+			failures: []
+		};
+
+		const packages = (Array.isArray(argv.packages) ? argv.packages : [ argv.packages ]).filter(Boolean);
+		if (!packages.length) {
+			throw new TypeError('Expected one or more package names');
+		}
+
+		for (const pkg of packages) {
+			tasks.push({
+				title: `Fetching metadata ${highlight(pkg)}`,
+				async task(ctx, task) {
+					try {
+						await new Promise((resolve, reject) => {
+							install(pkg)
+								.on('download', ({ name, version }) => {
+									task.title = `Downloading ${highlight(`${name}@${version}`)}`;
+								})
+								.on('install', ({ name, version }) => {
+									task.title = `Installing ${highlight(`${name}@${version}`)}`;
+								})
+								.on('register', ({ name, version }) => {
+									task.title = `Registering ${highlight(`${name}@${version}`)}`;
+								})
+								.on('end', info => {
+									task.title = `Installed ${highlight(`${info.name}@${info.version}`)}`;
+									results.installed.push(info);
+									resolve();
+								})
+								.on('error', reject);
+						});
+					} catch (err) {
+						results.failures.push({
+							error: err.toString(),
+							package: pkg
+						});
+					}
+				}
+			});
+		}
 
 		try {
-			if (!argv.json) {
-				spinner = ora({
-					text: `Looking up "${name}"`,
-					stream: terminal.stderr
-				}).start();
-			}
+			await new Listr(tasks, {
+				concurrent: 10,
+				dateFormat: false,
+				exitOnError: false,
+				renderer: argv.json ? 'silent' : 'default'
+			}).run();
+		} catch (err) {
+			// errors are stored in the results
+		}
 
-			const installProcess = new PackageInstaller({
-				fetchSpec,
-				name,
-				...getRegistryParams(argv.env)
-			});
+		if (argv.json) {
+			console.log(JSON.stringify(results, null, 2));
+		}
 
-			installProcess
-				.on('preActions', ({ name, version }) => {
-					if (!argv.json) {
-						spinner.text = `Running pre-actions ${highlight(`${name}@${version}`)}`;
-					}
-				})
-				.on('download', ({ name, version }) => {
-					if (!argv.json) {
-						spinner.text = `Downloading package ${highlight(`${name}@${version}`)}`;
-					}
-				})
-				.on('extract', ({ name, version }) => {
-					if (!argv.json) {
-						spinner.text = `Extracting package ${highlight(`${name}@${version}`)}`;
-					}
-				})
-				.on('postActions', ({ name, version }) => {
-					if (!argv.json) {
-						spinner.text = `Running post-actions ${highlight(`${name}@${version}`)}`;
-					}
-				})
-				.on('log', message => {
-					if (!argv.json) {
-						const currText = spinner.text;
-						spinner.info(message);
-						spinner = ora(currText).start();
-					} else {
-						messages.push(message);
-					}
-				});
-
-			const info = await installProcess.start();
-
-			if (argv.json) {
-				console.log(JSON.stringify({
-					...info,
-					messages: messages.length && messages || undefined
-				}, null, 2));
-			} else {
-				spinner.succeed(`Installed ${highlight(`${name}@${info.version}`)}`);
-			}
-
+		for (const info of results.installed) {
 			if (info.type === 'amplify-cli-plugin') {
 				const ext = new Extension(info.path);
 
@@ -111,10 +99,6 @@ export default {
 			}
 
 			await cli.emitAction('axway:pm:install', info);
-		} catch (err) {
-			// eslint-disable-next-line no-unused-expressions
-			spinner?.stop();
-			throw err;
 		}
 	}
 };

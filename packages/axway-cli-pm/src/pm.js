@@ -4,16 +4,171 @@ import npmsearch from 'libnpmsearch';
 import pacote from 'pacote';
 import path from 'path';
 import promiseLimit from 'promise-limit';
-import { createRequestOptions, loadConfig, locations } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+import which from 'which';
+import { createNPMRequestArgs, createRequestOptions, loadConfig, locations } from '@axway/amplify-cli-utils';
+import { EventEmitter } from 'events';
 import { isDir, isFile } from 'appcd-fs';
+import { spawn, spawnSync } from 'child_process';
 
 const scopedPackageRegex = /^@[a-z0-9][\w-.]+\/?/;
+const { log } = snooplogg('pm');
+const { highlight } = snooplogg.styles;
 
 /**
  * The path to the Axway CLI packages directory.
  * @type {String}
  */
 export const packagesDir = path.join(locations.axwayHome, 'axway-cli', 'packages');
+
+/**
+ * Installs a package from npm.
+ *
+ * @param {String} pkgName - The package and version to install.
+ * @returns {EventEmitter}
+ */
+export function install(pkgName) {
+	const emitter = new EventEmitter();
+
+	setImmediate(async () => {
+		const cfg = loadConfig();
+		let previousActivePackage;
+		let info;
+
+		try {
+			info = await view(pkgName);
+			if (!info) {
+				throw new Error(`Package "${pkgName}" not found`);
+			}
+
+			let npm;
+			try {
+				npm = await which('npm');
+			} catch (e) {
+				const error = new Error('Unable to find the "npm" executable. Please ensure you have "npm" installed on your machine');
+				error.code = 'ENONPM';
+				throw error;
+			}
+
+			previousActivePackage = cfg.get(`extensions.${info.name}`);
+
+			info.path = path.join(packagesDir, info.name, info.version);
+			await fs.mkdirp(info.path);
+
+			emitter.emit('download', info);
+			await pacote.extract(`${info.name}@${info.version}`, info.path, createRequestOptions());
+
+			emitter.emit('install', info);
+			const args = [
+				'install',
+				'--production',
+				...createNPMRequestArgs()
+			];
+			const opts = {
+				cwd: info.path,
+				env: Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env),
+				windowsHide: true
+			};
+			log(`node ${highlight(process.version)} npm ${highlight(spawnSync('npm', [ '-v' ], opts).stdout.toString().trim())}`);
+			log(`Running PWD=${info.path} ${highlight(`${npm} ${args.join(' ')}`)}`);
+			await new Promise((resolve, reject) => {
+				let stderr = '';
+				const child = spawn(npm, args, opts);
+
+				child.stdout.on('data', data => log(data.toString().trim()));
+				child.stderr.on('data', data => {
+					const s = data.toString();
+					stderr += s;
+					log(s.trim());
+				});
+
+				child.on('close', status => {
+					if (status) {
+						reject(new Error(`${stderr ? String(stderr.split(/\r\n|\n/)[0]).replace(/^\s*error:\s*/i, '') : 'unknown error'} (code ${status})`));
+					} else {
+						resolve();
+					}
+				});
+			});
+
+			// if (result.error) {
+			// 	// spawn error
+			// 	throw new Error(`${result.error.code === 'ENOENT' ? 'npm executable not found' : result.error.message} (code ${result.status})`);
+			// }
+
+			// const output = result.stdout.toString().trim();
+			// output && log(output);
+
+			emitter.emit('register', info);
+			cfg.set(`extensions.${info.name}`, info.path);
+			cfg.save();
+
+			emitter.emit('end', info);
+		} catch (err) {
+			if (info) {
+				if (previousActivePackage === info.path) {
+					// package was reinstalled, but failed and directory is in an unknown state
+					cfg.delete(`extensions.${info.name}`);
+					cfg.save();
+				} else if (previousActivePackage) {
+					// restore the previous value
+					cfg.set(`extensions.${info.name}`, previousActivePackage);
+					cfg.save();
+				}
+
+				await fs.remove(info.path);
+			}
+
+			emitter.emit('error', err);
+		}
+	});
+
+	return emitter;
+}
+
+/**
+ * Detects all installed packages.
+ *
+ * @param {String} [packageName] - Name of the package to only return data for.
+ * @returns {Promise<Array.<Object>>}
+ */
+export async function list(packageName) {
+	if (!isDir(packagesDir)) {
+		return [];
+	}
+
+	const extensions = loadConfig().get('extensions', {});
+	const packages = [];
+
+	packageName = typeof packageName === 'string' ? packageName.toLowerCase() : packageName;
+
+	for (const name of fs.readdirSync(packagesDir)) {
+		const pkgDir = path.join(packagesDir, name);
+		if (!isDir(pkgDir)) {
+			continue;
+		}
+
+		if (scopedPackageRegex.test(name)) {
+			for (const pkgSubDir of fs.readdirSync(pkgDir)) {
+				const dir = path.join(pkgDir, pkgSubDir);
+				const pkgName = `${name}/${pkgSubDir}`;
+				if (isDir(dir) && (!packageName || pkgName.toLowerCase() === packageName)) {
+					const packageData = loadPackageData(pkgName, extensions, dir);
+					if (packageData.version || Object.keys(packageData.versions).length) {
+						packages.push(packageData);
+					}
+				}
+			}
+		} else if (!packageName || name.toLowerCase() === packageName) {
+			const packageData = loadPackageData(name, extensions, pkgDir);
+			if (packageData.version || Object.keys(packageData.versions).length) {
+				packages.push(packageData);
+			}
+		}
+	}
+
+	return packages;
+}
 
 /**
  * Scans a package directory for all installed versions.
@@ -67,50 +222,6 @@ function loadPackageData(name, extensions, pkgDir) {
 	}
 
 	return packageData;
-}
-
-/**
- * Detects all installed packages.
- *
- * @param {String} [packageName] - Name of the package to only return data for.
- * @returns {Promise<Array.<Object>>}
- */
-export async function list(packageName) {
-	if (!isDir(packagesDir)) {
-		return [];
-	}
-
-	const extensions = loadConfig().get('extensions', {});
-	const packages = [];
-
-	packageName = typeof packageName === 'string' ? packageName.toLowerCase() : packageName;
-
-	for (const name of fs.readdirSync(packagesDir)) {
-		const pkgDir = path.join(packagesDir, name);
-		if (!isDir(pkgDir)) {
-			continue;
-		}
-
-		if (scopedPackageRegex.test(name)) {
-			for (const pkgSubDir of fs.readdirSync(pkgDir)) {
-				const dir = path.join(pkgDir, pkgSubDir);
-				const pkgName = `${name}/${pkgSubDir}`;
-				if (isDir(dir) && (!packageName || pkgName.toLowerCase() === packageName)) {
-					const packageData = loadPackageData(pkgName, extensions, dir);
-					if (packageData.version || Object.keys(packageData.versions).length) {
-						packages.push(packageData);
-					}
-				}
-			}
-		} else if (!packageName || name.toLowerCase() === packageName) {
-			const packageData = loadPackageData(name, extensions, pkgDir);
-			if (packageData.version || Object.keys(packageData.versions).length) {
-				packages.push(packageData);
-			}
-		}
-	}
-
-	return packages;
 }
 
 /**

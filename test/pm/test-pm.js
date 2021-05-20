@@ -110,7 +110,7 @@ describe('axway pm', () => {
 
 			let { status, stdout } = await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('install/acs-installed'));
+			expect(stdout).to.match(renderRegexFromFile('install/acs-219-installed'));
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
 			expect(status).to.equal(0);
