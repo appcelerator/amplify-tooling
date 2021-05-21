@@ -3,6 +3,7 @@ import loadConfig from '@axway/amplify-config';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import spawn from 'cross-spawn';
+import { ansi } from 'cli-kit';
 
 const { alert, highlight } = snooplogg.styles;
 const { error, log } = snooplogg('pm:utils');
@@ -12,6 +13,42 @@ const { error, log } = snooplogg('pm:utils');
  * @type {String}
  */
 let userAgent;
+
+/**
+ * Custom Listr renderer for non-TTY environments.
+ */
+export class ListrTextRenderer {
+	constructor(tasks, options) {
+		this._tasks = tasks;
+		this._console = options?.console || console;
+	}
+
+	static get nonTTY() {
+		return true;
+	}
+
+	render() {
+		this._console.error(ansi.cursor.hide);
+
+		for (const task of this._tasks) {
+			task.subscribe(
+				event => {
+					if (event.type === 'STATE') {
+						const message = task.isPending() ? 'started' : task.state;
+						this._console.log(`${task.title} [${message}]`);
+					} else if (event.type === 'TITLE') {
+						this._console.log(`${task.title}`);
+					}
+				},
+				err => this._console.error(err)
+			);
+		}
+	}
+
+	end() {
+		this._console.error(ansi.cursor.show);
+	}
+}
 
 /**
  * Returns the registry URL from the config.

@@ -8,19 +8,20 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Installs an Axway CLI package',
+	desc: 'Install a package',
 	options: {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Output installed package as JSON'
 		}
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console, exitCode }) {
 		const Listr = require('listr');
 		const { default: snooplogg } = require('snooplogg');
 		const { Extension } = require('cli-kit');
 		const { install } = require('../pm');
-		const { highlight } = snooplogg.styles;
+		const { ListrTextRenderer } = require('../utils');
+		const { alert, highlight } = snooplogg.styles;
 		const tasks = [];
 		const results = {
 			installed: [],
@@ -49,7 +50,7 @@ export default {
 									task.title = `Registering ${highlight(`${name}@${version}`)}`;
 								})
 								.on('end', info => {
-									task.title = `Installed ${highlight(`${info.name}@${info.version}`)}`;
+									task._task.title = `Installed ${highlight(`${info.name}@${info.version}`)}`;
 									results.installed.push(info);
 									resolve();
 								})
@@ -60,6 +61,10 @@ export default {
 							error: err.toString(),
 							package: pkg
 						});
+						task._task.title = alert(err.toString());
+						err.message = undefined; // prevent the error from rendering twice
+						exitCode(1);
+						throw err;
 					}
 				}
 			});
@@ -68,9 +73,10 @@ export default {
 		try {
 			await new Listr(tasks, {
 				concurrent: 10,
+				console,
 				dateFormat: false,
 				exitOnError: false,
-				renderer: argv.json ? 'silent' : 'default'
+				renderer: argv.json ? 'silent' : process.stdout.isTTY === true ? 'default' : ListrTextRenderer
 			}).run();
 		} catch (err) {
 			// errors are stored in the results

@@ -1,6 +1,6 @@
 export default {
 	aliases: [ 'ls' ],
-	desc: 'Lists all installed packages',
+	desc: 'List all installed packages',
 	options: {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,

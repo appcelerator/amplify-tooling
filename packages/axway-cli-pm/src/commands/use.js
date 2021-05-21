@@ -23,24 +23,17 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const [
-			{ addPackageToConfig, getInstalledPackages },
-			{ default: npa },
-			semver,
-			{ default: snooplogg }
-		] = await Promise.all([
-			import('@axway/amplify-registry-sdk'),
-			import('npm-package-arg'),
-			import('semver'),
-			import('snooplogg')
-		]);
-
+		const npa = require('npm-package-arg');
+		const semver = require('semver');
+		const { default: snooplogg } = require('snooplogg');
+		const { find } = require('../pm');
+		const { loadConfig } = require('@axway/amplify-cli-utils');
 		const { highlight } = snooplogg.styles;
 		let { type, name, fetchSpec } = npa(argv.package);
-		const installed = getInstalledPackages().find(pkg => pkg.name === name);
+		const installed = find(name);
 
 		if (!installed) {
-			const err = new Error(`${name} is not installed`);
+			const err = new Error(`Package "${name}" is not installed`);
 			err.code = 'ENOTFOUND';
 			err.detail = `Please run ${highlight(`"axway pm install ${name}"`)} to install it`;
 			throw err;
@@ -60,15 +53,15 @@ export default {
 		} else if (type === 'version') {
 			version = fetchSpec;
 		}
+
 		if (!version) {
 			throw new Error(`No version installed that satisfies ${fetchSpec}`);
 		}
 
 		const info = installed.versions[version];
+
 		if (!info) {
-			// TODO: Bikeshed the semantic differences between use and install, whether use should install
-			// a package if it is not available and whether install should set a package as in use after install
-			const err = new Error(`${name}@${version} is not installed`);
+			const err = new Error(`Package "${name}@${version}" is not installed`);
 			err.code = 'ENOTFOUND';
 			err.detail = `Please run ${highlight(`"axway pm install ${name}@${version}"`)} to install it`;
 			throw err;
@@ -79,15 +72,18 @@ export default {
 			msg = `${highlight(`${name}@${version}`)} is already the active version`;
 		} else {
 			msg = `Set ${highlight(`${name}@${version}`)} as action version`;
-			await addPackageToConfig(name, info.path);
+			installed.version = version;
+			loadConfig()
+				.set(`extensions.${name}`, info.path)
+				.save();
 		}
 
-		await cli.emitAction('axway:pm:use', info);
-
 		if (argv.json) {
-			console.log(JSON.stringify(info, null, 2));
+			console.log(JSON.stringify(installed, null, 2));
 		} else {
 			console.log(msg);
 		}
+
+		await cli.emitAction('axway:pm:use', installed);
 	}
 };

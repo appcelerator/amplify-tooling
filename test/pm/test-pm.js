@@ -83,6 +83,12 @@ describe('axway pm', () => {
 	});
 
 	describe('install', () => {
+		before(function () {
+			this.origPath = process.env.PATH;
+		});
+		afterEach(function () {
+			process.env.PATH = this.origPath;
+		});
 		afterEach(resetHomeDir);
 
 		it('should install the acs extension', async function () {
@@ -118,6 +124,26 @@ describe('axway pm', () => {
 			expect(results).to.have.lengthOf(1);
 			expect(results[0].name).to.equal('acs');
 			expect(results[0].version).to.equal('2.1.9');
+		});
+
+		it('should error if package not found', async function () {
+			this.timeout(60000);
+			this.slow(30000);
+
+			const { status, stdout } = await runAxwaySync([ 'pm', 'install', 'abcdef' ]);
+			expect(status).to.equal(1);
+			expect(stdout).to.match(renderRegexFromFile('install/package-not-found'));
+		});
+
+		it('should error if npm is not found', async function () {
+			this.timeout(60000);
+			this.slow(30000);
+
+			process.env.PATH = '';
+
+			const { status, stdout } = await runAxwaySync([ 'pm', 'install', 'acs' ]);
+			expect(status).to.equal(1);
+			expect(stdout).to.match(renderRegexFromFile('install/npm-not-found'));
 		});
 
 		it('should output install help', async () => {
@@ -169,8 +195,68 @@ describe('axway pm', () => {
 		});
 	});
 
+	describe('use', () => {
+		afterEach(resetHomeDir);
+
+		it('should use a package', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.10' ]);
+
+			let { status, stdout } = await runAxwaySync([ 'pm', 'use', 'acs@2.1.9' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('use/acs-219'));
+
+			({ status, stdout } = await runAxwaySync([ 'pm', 'use', 'acs@2.1.9' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('use/acs-219-already-used'));
+
+			({ status, stdout } = await runAxwaySync([ 'pm', 'use', 'acs@2.1.10' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('use/acs-2110'));
+		});
+
+		it('should error using a non-installed package', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			const { status, stderr } = await runAxwaySync([ 'pm', 'use', 'abcdef' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('use/not-found'));
+		});
+
+		it('should error using a non-installed package version', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
+
+			const { status, stderr } = await runAxwaySync([ 'pm', 'use', 'acs@2.1.10' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('use/acs-2110-not-installed'));
+		});
+
+		it('should output use help', async () => {
+			const { status, stdout } = await runAxwaySync([ 'pm', 'use', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout).to.match(renderRegexFromFile('use/help'));
+		});
+	});
+
 	describe('update', () => {
 		afterEach(resetHomeDir);
+
+		// update a package
+		// no updates
+		// invalid package
+
+		it('should output update help', async () => {
+			const { status, stdout } = await runAxwaySync([ 'pm', 'use', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout).to.match(renderRegexFromFile('use/help'));
+		});
 	});
 
 	describe('purge', () => {
@@ -200,16 +286,19 @@ describe('axway pm', () => {
 		});
 
 		it('should error if package is not found', async () => {
-			const { status, stdout } = await runAxwaySync([ 'pm', 'view', 'abcdef' ]);
-			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('view/not-found'));
+			const { status, stderr } = await runAxwaySync([ 'pm', 'view', 'abcdef' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('view/not-found'));
 		});
 
 		it('should error if package is not found as JSON', async () => {
 			const { status, stdout } = await runAxwaySync([ 'pm', 'view', 'abcdef', '--json' ]);
-			expect(status).to.equal(0);
+			expect(status).to.equal(1);
 			const info = JSON.parse(stdout);
-			expect(info).to.equal(null);
+			expect(info).to.deep.equal({
+				code: 1,
+				result: 'Error: Package "abcdef" not found'
+			});
 		});
 
 		it('should output view help', async () => {

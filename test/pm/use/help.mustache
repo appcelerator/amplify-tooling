@@ -1,12 +1,15 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-List all installed packages
+Activates a specific package version
 
-USAGE: {{#cyan}}axway pm list [options]{{/cyan}}
+USAGE: {{#cyan}}axway pm use <package[@version]> [options]{{/cyan}}
 
-LIST OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs packages as JSON
+USE ARGUMENTS:
+  {{#cyan}}package      {{/cyan}}  The package version or latest to activate
+
+USE OPTIONS:
+  {{#cyan}}--json       {{/cyan}}  Outputs activated package as JSON
 
 PM OPTIONS:
   {{#cyan}}--env [env]  {{/cyan}}  The environment to use

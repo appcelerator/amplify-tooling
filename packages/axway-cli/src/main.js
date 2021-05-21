@@ -82,8 +82,9 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 				console.error(chalk.red(`  ${line}`));
 			}
 			if (err.detail) {
+				console.error();
 				for (const line of String(err.detail).split(/\r\n|\n/)) {
-					console.error(chalk.red(`    ${line}`));
+					console.error(chalk.red(`  ${line}`));
 				}
 			}
 		}

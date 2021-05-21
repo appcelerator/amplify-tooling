@@ -22,6 +22,51 @@ const { highlight } = snooplogg.styles;
 export const packagesDir = path.join(locations.axwayHome, 'axway-cli', 'packages');
 
 /**
+ * Finds a specific installed package.
+ *
+ * @param {String} packageName - The name of the package to find.
+ * @returns {Object}
+ */
+export function find(packageName) {
+	if (!packageName || typeof packageName !== 'string') {
+		throw new TypeError('Expected package name to be a non-empty string');
+	}
+
+	if (!isDir(packagesDir)) {
+		return undefined;
+	}
+
+	const extensions = loadConfig().get('extensions', {});
+
+	packageName = packageName.toLowerCase();
+
+	for (const name of fs.readdirSync(packagesDir)) {
+		const pkgDir = path.join(packagesDir, name);
+		if (!isDir(pkgDir)) {
+			continue;
+		}
+
+		if (scopedPackageRegex.test(name)) {
+			for (const pkgSubDir of fs.readdirSync(pkgDir)) {
+				const dir = path.join(pkgDir, pkgSubDir);
+				const pkgName = `${name}/${pkgSubDir}`;
+				if (isDir(dir) && pkgName.toLowerCase() === packageName) {
+					const packageData = loadPackageData(pkgName, extensions, dir);
+					if (packageData.version || Object.keys(packageData.versions).length) {
+						return packageData;
+					}
+				}
+			}
+		} else if (name.toLowerCase() === packageName) {
+			const packageData = loadPackageData(name, extensions, pkgDir);
+			if (packageData.version || Object.keys(packageData.versions).length) {
+				return packageData;
+			}
+		}
+	}
+}
+
+/**
  * Installs a package from npm.
  *
  * @param {String} pkgName - The package and version to install.
@@ -37,9 +82,6 @@ export function install(pkgName) {
 
 		try {
 			info = await view(pkgName);
-			if (!info) {
-				throw new Error(`Package "${pkgName}" not found`);
-			}
 
 			let npm;
 			try {
@@ -91,14 +133,6 @@ export function install(pkgName) {
 				});
 			});
 
-			// if (result.error) {
-			// 	// spawn error
-			// 	throw new Error(`${result.error.code === 'ENOENT' ? 'npm executable not found' : result.error.message} (code ${result.status})`);
-			// }
-
-			// const output = result.stdout.toString().trim();
-			// output && log(output);
-
 			emitter.emit('register', info);
 			cfg.set(`extensions.${info.name}`, info.path);
 			cfg.save();
@@ -116,7 +150,9 @@ export function install(pkgName) {
 					cfg.save();
 				}
 
-				await fs.remove(info.path);
+				if (info.path) {
+					await fs.remove(info.path);
+				}
 			}
 
 			emitter.emit('error', err);
@@ -129,18 +165,15 @@ export function install(pkgName) {
 /**
  * Detects all installed packages.
  *
- * @param {String} [packageName] - Name of the package to only return data for.
  * @returns {Promise<Array.<Object>>}
  */
-export async function list(packageName) {
+export async function list() {
 	if (!isDir(packagesDir)) {
 		return [];
 	}
 
 	const extensions = loadConfig().get('extensions', {});
 	const packages = [];
-
-	packageName = typeof packageName === 'string' ? packageName.toLowerCase() : packageName;
 
 	for (const name of fs.readdirSync(packagesDir)) {
 		const pkgDir = path.join(packagesDir, name);
@@ -152,14 +185,14 @@ export async function list(packageName) {
 			for (const pkgSubDir of fs.readdirSync(pkgDir)) {
 				const dir = path.join(pkgDir, pkgSubDir);
 				const pkgName = `${name}/${pkgSubDir}`;
-				if (isDir(dir) && (!packageName || pkgName.toLowerCase() === packageName)) {
+				if (isDir(dir)) {
 					const packageData = loadPackageData(pkgName, extensions, dir);
 					if (packageData.version || Object.keys(packageData.versions).length) {
 						packages.push(packageData);
 					}
 				}
 			}
-		} else if (!packageName || name.toLowerCase() === packageName) {
+		} else {
 			const packageData = loadPackageData(name, extensions, pkgDir);
 			if (packageData.version || Object.keys(packageData.versions).length) {
 				packages.push(packageData);
@@ -251,9 +284,13 @@ export async function search({ keyword, limit, type } = {}) {
 
 	await Promise.all(packages.map(({ name, version }) => {
 		return plimit(async () => {
-			const pkg = await view(`${name}@${version}`, { requestOpts, type });
-			if (pkg) {
-				results.push(pkg);
+			try {
+				const pkg = await view(`${name}@${version}`, { requestOpts, type });
+				if (pkg) {
+					results.push(pkg);
+				}
+			} catch (err) {
+				// squelch
 			}
 		});
 	}));
@@ -275,10 +312,20 @@ export async function view(pkgName, { requestOpts = createRequestOptions(), type
 	}
 
 	const { name, fetchSpec } = npa(pkgName);
-	const info = await pacote.packument(name, {
-		...requestOpts,
-		fullMetadata: true
-	});
+	let info;
+
+	try {
+		info = await pacote.packument(name, {
+			...requestOpts,
+			fullMetadata: true
+		});
+	} catch (err) {
+		if (err.statusCode === 404) {
+			throw new Error(`Package "${pkgName}" not found`);
+		}
+		throw err;
+	}
+
 	const version = info['dist-tags']?.[fetchSpec] || fetchSpec;
 	const pkg = info.versions[version];
 	const maintainers = [ 'appcelerator', 'axway-npm' ];
@@ -290,16 +337,17 @@ export async function view(pkgName, { requestOpts = createRequestOptions(), type
 		|| !pkg.keywords.includes('amplify-package')
 		|| !pkg.maintainers.some(m => maintainers.includes(m.name))
 	) {
-		return;
+		throw new Error(`Package "${pkgName}" not found`);
 	}
 
-	const installed = (await list(pkg.name))[0];
+	const installed = find(pkg.name);
 
 	return {
 		description: pkg.description,
 		installed:   installed?.versions || false,
 		name:        pkg.name,
 		type:        pkg.amplify.type,
-		version
+		version,
+		versions:    Object.keys(info.versions)
 	};
 }
