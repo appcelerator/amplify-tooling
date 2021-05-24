@@ -16,11 +16,12 @@ export default {
 		}
 	},
 	async action({ argv, cli, console, exitCode }) {
-		const Listr = require('listr');
+		const Listr                  = require('listr');
 		const { default: snooplogg } = require('snooplogg');
-		const { Extension } = require('cli-kit');
-		const { install } = require('../pm');
-		const { ListrTextRenderer } = require('../utils');
+		const { Extension }          = require('cli-kit');
+		const { install }            = require('../pm');
+		const { ListrTextRenderer }  = require('../utils');
+
 		const { alert, highlight } = snooplogg.styles;
 		const tasks = [];
 		const results = {

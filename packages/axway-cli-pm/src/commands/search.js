@@ -17,7 +17,8 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { createTable } = require('@axway/amplify-cli-utils');
-		const { search } = require('../pm');
+		const { search }      = require('../pm');
+
 		const results = await search(argv);
 
 		if (argv.json) {

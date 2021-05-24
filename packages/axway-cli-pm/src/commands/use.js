@@ -23,13 +23,14 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const npa = require('npm-package-arg');
-		const semver = require('semver');
+		const npa                    = require('npm-package-arg');
+		const semver                 = require('semver');
 		const { default: snooplogg } = require('snooplogg');
-		const { find } = require('../pm');
-		const { loadConfig } = require('@axway/amplify-cli-utils');
+		const { find }               = require('../pm');
+		const { loadConfig }         = require('@axway/amplify-cli-utils');
+
 		const { highlight } = snooplogg.styles;
-		let { type, name, fetchSpec } = npa(argv.package);
+		let { fetchSpec, name, type } = npa(argv.package);
 		const installed = find(name);
 
 		if (!installed) {

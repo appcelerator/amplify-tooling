@@ -16,29 +16,23 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const [
-			{ getInstalledPackages, packagesDir, removePackageFromConfig },
-			{ default: Listr },
-			fs,
-			{ dirname },
-			semver,
-			{ default: npa },
-			{ default: snooplogg },
-			{ uninstallPackage }
-		] = await Promise.all([
-			import('@axway/amplify-registry-sdk'),
-			import('listr'),
-			import('fs-extra'),
-			import('path'),
-			import('semver'),
-			import('npm-package-arg'),
-			import('snooplogg'),
-			import('../utils')
-		]);
+		const fs                     = require('fs-extra');
+		const Listr                  = require('listr');
+		const npa                    = require('npm-package-arg');
+		const semver                 = require('semver');
+		const { default: snooplogg } = require('snooplogg');
+		const { dirname }            = require('path');
+		const { ListrTextRenderer }  = require('../utils');
+		const { loadConfig }         = require('@axway/amplify-cli-utils');
+		const {
+			find,
+			packagesDir,
+			uninstallPackage
+		}  = require('../pm');
 
 		const { highlight, note } = snooplogg.styles;
-		const { type, name, fetchSpec } = npa(argv.package);
-		const installed = getInstalledPackages().find(pkg => pkg.name === name);
+		const { fetchSpec, name, type } = npa(argv.package);
+		const installed = find(name);
 
 		if (!installed) {
 			const err = new Error(`Package "${name}" is not installed`);
@@ -54,12 +48,14 @@ export default {
 			for (const ver of installedVersions) {
 				if (semver.satisfies(ver, fetchSpec)) {
 					versions.push({ version: ver, ...installed.versions[ver] });
+					delete installed.versions[ver];
 				}
 			}
 		} else if (type === 'version') {
 			const info = installed.versions[fetchSpec];
 			if (info) {
 				versions.push({ version: fetchSpec, ...info });
+				delete installed.versions[fetchSpec];
 			}
 		} else if (type === 'tag' && fetchSpec === 'latest') {
 			let version;
@@ -70,6 +66,7 @@ export default {
 			}
 			if (version) {
 				versions.push({ version, ...installed.versions[version] });
+				delete installed.versions[version];
 			}
 		}
 
@@ -97,7 +94,15 @@ export default {
 		const tasks = [
 			{
 				title: `Unregistering ${highlight(name)} extension`,
-				task: () => removePackageFromConfig(name, replacement.path)
+				task: () => {
+					const cfg = loadConfig();
+					if (replacement.path) {
+						cfg.set(`extensions.${name}`, replacement.path);
+					} else {
+						cfg.delete(`extensions.${name}`);
+					}
+					cfg.save();
+				}
 			}
 		];
 
@@ -123,9 +128,10 @@ export default {
 			try {
 				await (new Listr(tasks, {
 					concurrent: 10,
+					console,
 					dateFormat: false,
 					exitOnError: false,
-					renderer: argv.json ? 'silent' : 'default'
+					renderer: argv.json ? 'silent' : process.stdout.isTTY === true ? 'default' : ListrTextRenderer
 				})).run();
 
 				if (!argv.json && replacement.path) {
@@ -136,10 +142,16 @@ export default {
 			}
 		}
 
+		const results = {
+			installed,
+			replacement,
+			uninstalled: versions
+		};
+
 		if (argv.json) {
-			console.log(JSON.stringify(versions, null, 2));
+			console.log(JSON.stringify(results, null, 2));
 		}
 
-		await cli.emitAction('axway:pm:uninstall', versions);
+		await cli.emitAction('axway:pm:uninstall', results);
 	}
 };

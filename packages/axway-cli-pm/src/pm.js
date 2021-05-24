@@ -5,15 +5,15 @@ import pacote from 'pacote';
 import path from 'path';
 import promiseLimit from 'promise-limit';
 import snooplogg from 'snooplogg';
+import spawn from 'cross-spawn';
 import which from 'which';
 import { createNPMRequestArgs, createRequestOptions, loadConfig, locations } from '@axway/amplify-cli-utils';
 import { EventEmitter } from 'events';
 import { isDir, isFile } from 'appcd-fs';
-import { spawn, spawnSync } from 'child_process';
 
 const scopedPackageRegex = /^@[a-z0-9][\w-.]+\/?/;
-const { log } = snooplogg('pm');
-const { highlight } = snooplogg.styles;
+const { error, log } = snooplogg('pm');
+const { alert, highlight } = snooplogg.styles;
 
 /**
  * The path to the Axway CLI packages directory.
@@ -87,9 +87,9 @@ export function install(pkgName) {
 			try {
 				npm = await which('npm');
 			} catch (e) {
-				const error = new Error('Unable to find the "npm" executable. Please ensure you have "npm" installed on your machine');
-				error.code = 'ENONPM';
-				throw error;
+				const err = new Error('Unable to find the "npm" executable. Please ensure you have "npm" installed on your machine');
+				err.code = 'ENONPM';
+				throw err;
 			}
 
 			previousActivePackage = cfg.get(`extensions.${info.name}`);
@@ -111,7 +111,7 @@ export function install(pkgName) {
 				env: Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env),
 				windowsHide: true
 			};
-			log(`node ${highlight(process.version)} npm ${highlight(spawnSync('npm', [ '-v' ], opts).stdout.toString().trim())}`);
+			log(`node ${highlight(process.version)} npm ${highlight(spawn.sync('npm', [ '-v' ], opts).stdout.toString().trim())}`);
 			log(`Running PWD=${info.path} ${highlight(`${npm} ${args.join(' ')}`)}`);
 			await new Promise((resolve, reject) => {
 				let stderr = '';
@@ -255,6 +255,30 @@ function loadPackageData(name, extensions, pkgDir) {
 	}
 
 	return packageData;
+}
+
+/**
+ * Uninstalls a package.
+ *
+ * @param {String} dir - Path to the package to delete.
+ * @returns {Promise}
+ */
+export async function uninstallPackage(dir) {
+	try {
+		const pkgJson = await fs.readJson(path.join(dir, 'package.json'));
+		if (pkgJson.scripts.uninstall) {
+			log(`Running npm uninstall script: ${highlight(pkgJson.scripts.uninstall)}`);
+			const { status, stderr } = spawn.sync('npm', [ 'run', 'uninstall' ], { cwd: dir });
+			if (status) {
+				error(alert('Failed to run npm uninstall script:'));
+				error(stderr);
+			}
+		}
+	} catch (e) {
+		// squelch
+	}
+
+	await fs.remove(dir);
 }
 
 /**
