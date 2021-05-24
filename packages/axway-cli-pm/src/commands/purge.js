@@ -13,44 +13,34 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const [
-			{ getInstalledPackages, packagesDir },
-			{ default: Listr },
-			semver,
-			{ default: snooplogg },
-			{ uninstallPackage }
-		] = await Promise.all([
-			import('@axway/amplify-registry-sdk'),
-			import('listr'),
-			import('semver'),
-			import('snooplogg'),
-			import('../utils')
-		]);
+		const semver                 = require('semver');
+		const { default: snooplogg } = require('snooplogg');
+		const { runListr }           = require('../utils');
+		const { find, list, packagesDir, uninstallPackage } = require('../pm');
 
 		const { highlight } = snooplogg.styles;
-		const packages = getInstalledPackages({ packageName: argv.package });
-
-		if (!Object.keys(packages).length) {
-			const message = argv.package ? `Package "${argv.package}" is not installed` : 'There are no packages to purge';
-			if (argv.json) {
-				console.log(JSON.stringify({ message }, null, 2));
-			} else {
-				console.log(message);
-			}
-			return;
-		}
-
-		const tasks = new Listr({
-			concurrent: 10,
-			renderer: argv.json ? 'silent' : 'default'
-		});
+		let packages = [];
 		let packagesRemoved = 0;
 		const removedPackages = {};
+		const tasks = [];
 
+		// get installed packages
+		if (argv.package) {
+			const pkg = await find(argv.package);
+			if (!pkg) {
+				throw new Error(`Package "${argv.package}" is not installed`);
+			}
+			packages.push(pkg);
+		} else {
+			packages = await list();
+		}
+
+		// determine packages to remove
 		for (const { name, version, versions } of packages) {
 			for (const [ ver, versionData ] of Object.entries(versions)) {
+				// if managed and not in use
 				if (versionData.managed && versionData.path.startsWith(packagesDir) && semver.neq(ver, version)) {
-					tasks.add({
+					tasks.push({
 						title: `Purging ${highlight(`${name}@${ver}`)}`,
 						task: () => uninstallPackage(versionData.path)
 					});
@@ -64,27 +54,31 @@ export default {
 		}
 
 		if (!packagesRemoved) {
-			const message = 'All packages installed are currently active.';
 			if (argv.json) {
-				console.log(JSON.stringify({ message }, null, 2));
+				console.log(JSON.stringify(removedPackages, null, 2));
 			} else {
-				console.log(`${message}\n`);
+				console.log('There are no packages to purge.');
 			}
 			return;
 		}
 
 		try {
-			await tasks.run();
+			await runListr({ console, json: argv.json, tasks });
 		} catch (err) {
 			// errors are stored in the results
 		}
 
-		await cli.emitAction('axway:pm:purge', removedPackages);
-
 		if (argv.json) {
 			console.log(JSON.stringify(removedPackages, null, 2));
 		} else {
-			console.log(`\nRemoved ${packagesRemoved} package${packagesRemoved !== 1 ? 's' : ''}`);
+			console.log(`\nRemoved ${packagesRemoved} package${packagesRemoved !== 1 ? 's' : ''}:`);
+			for (const name of Object.keys(removedPackages).sort()) {
+				for (const ver of removedPackages[name].sort(semver.compare)) {
+					console.log(`  ${highlight(`${name}@${ver}`)}`);
+				}
+			}
 		}
+
+		await cli.emitAction('axway:pm:purge', removedPackages);
 	}
 };

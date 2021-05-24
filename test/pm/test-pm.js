@@ -245,22 +245,133 @@ describe('axway pm', () => {
 		});
 	});
 
-	describe('update', () => {
+	describe.only('update', () => {
 		afterEach(resetHomeDir);
 
-		// update a package
-		// no updates
-		// invalid package
+		it('should handle update a package', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
+
+			let { status, stdout } = await runAxwaySync([ 'pm', 'update' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('update/updated-acs'));
+
+			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
+			expect(status).to.equal(0);
+			let results = JSON.parse(stdout);
+			expect(results).to.have.lengthOf(1);
+			expect(results[0].name).to.equal('acs');
+			const versions = Object.keys(results[0].versions);
+			expect(versions).to.have.lengthOf(2);
+			expect(versions).to.include('2.1.9');
+		});
+
+		it('should handle no packages to update', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			let { status, stdout } = await runAxwaySync([ 'pm', 'update' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('update/nothing-to-update'));
+
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.10' ]);
+
+			( { status, stdout } = await runAxwaySync([ 'pm', 'update' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('update/no-updates'));
+		});
+
+		it('should error updating a package that is not installed', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			const { status, stderr } = await runAxwaySync([ 'pm', 'update', 'acs' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('update/not-installed'));
+		});
 
 		it('should output update help', async () => {
-			const { status, stdout } = await runAxwaySync([ 'pm', 'use', '--help' ]);
+			const { status, stdout } = await runAxwaySync([ 'pm', 'update', '--help' ]);
 			expect(status).to.equal(2);
-			expect(stdout).to.match(renderRegexFromFile('use/help'));
+			expect(stdout).to.match(renderRegexFromFile('update/help'));
 		});
 	});
 
 	describe('purge', () => {
 		afterEach(resetHomeDir);
+
+		it('should purge old versions with latest in use', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.10' ]);
+
+			let { status, stdout } = await runAxwaySync([ 'pm', 'purge' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('purge/purged-219'));
+
+			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
+			expect(status).to.equal(0);
+			let results = JSON.parse(stdout);
+			expect(results).to.have.lengthOf(1);
+			expect(results[0].name).to.equal('acs');
+			expect(results[0].versions).to.have.property('2.1.10');
+		});
+
+		it('should purge old versions with older version in use', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.8' ]);
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.10' ]);
+			await runAxwaySync([ 'pm', 'use', 'acs@2.1.9' ]);
+
+			let { status, stdout } = await runAxwaySync([ 'pm', 'purge' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('purge/purged-non-selected'));
+
+			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
+			expect(status).to.equal(0);
+			let results = JSON.parse(stdout);
+			expect(results).to.have.lengthOf(1);
+			expect(results[0].name).to.equal('acs');
+			expect(results[0].versions).to.have.property('2.1.9');
+			expect(results[0].versions).to.have.property('2.1.10');
+		});
+
+		it('should handle no packages to purge', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			let { status, stdout } = await runAxwaySync([ 'pm', 'purge' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('purge/nothing-to-purge'));
+
+			await runAxwaySync([ 'pm', 'install', 'acs@2.1.10' ]);
+
+			( { status, stdout } = await runAxwaySync([ 'pm', 'purge' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('purge/nothing-to-purge'));
+		});
+
+		it('should error purging a package that is not installed', async function () {
+			this.timeout(120000);
+			this.slow(30000);
+
+			const { status, stderr } = await runAxwaySync([ 'pm', 'purge', 'acs' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('purge/not-installed'));
+		});
+
+		it('should output purge help', async () => {
+			const { status, stdout } = await runAxwaySync([ 'pm', 'purge', '--help' ]);
+			expect(status).to.equal(2);
+			expect(stdout).to.match(renderRegexFromFile('purge/help'));
+		});
 	});
 
 	describe('view', () => {

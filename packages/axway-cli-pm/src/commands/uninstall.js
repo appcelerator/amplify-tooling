@@ -17,12 +17,11 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const fs                     = require('fs-extra');
-		const Listr                  = require('listr');
 		const npa                    = require('npm-package-arg');
 		const semver                 = require('semver');
 		const { default: snooplogg } = require('snooplogg');
 		const { dirname }            = require('path');
-		const { ListrTextRenderer }  = require('../utils');
+		const { runListr }           = require('../utils');
 		const { loadConfig }         = require('@axway/amplify-cli-utils');
 		const {
 			find,
@@ -126,13 +125,7 @@ export default {
 		// run the tasks
 		if (tasks.length) {
 			try {
-				await (new Listr(tasks, {
-					concurrent: 10,
-					console,
-					dateFormat: false,
-					exitOnError: false,
-					renderer: argv.json ? 'silent' : process.stdout.isTTY === true ? 'default' : ListrTextRenderer
-				})).run();
+				await runListr({ console, json: argv.json, tasks });
 
 				if (!argv.json && replacement.path) {
 					console.log(`\n${highlight(`${name}@${replacement.version}`)} is now the active version`);

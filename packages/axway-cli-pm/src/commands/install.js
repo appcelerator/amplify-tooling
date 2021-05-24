@@ -16,11 +16,10 @@ export default {
 		}
 	},
 	async action({ argv, cli, console, exitCode }) {
-		const Listr                  = require('listr');
 		const { default: snooplogg } = require('snooplogg');
 		const { Extension }          = require('cli-kit');
 		const { install }            = require('../pm');
-		const { ListrTextRenderer }  = require('../utils');
+		const { runListr }           = require('../utils');
 
 		const { alert, highlight } = snooplogg.styles;
 		const tasks = [];
@@ -72,13 +71,7 @@ export default {
 		}
 
 		try {
-			await new Listr(tasks, {
-				concurrent: 10,
-				console,
-				dateFormat: false,
-				exitOnError: false,
-				renderer: argv.json ? 'silent' : process.stdout.isTTY === true ? 'default' : ListrTextRenderer
-			}).run();
+			await runListr({ console, json: argv.json, tasks });
 		} catch (err) {
 			// errors are stored in the results
 		}
