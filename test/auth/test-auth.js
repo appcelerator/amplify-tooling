@@ -110,7 +110,7 @@ describe('axway auth', () => {
 
 			expect(stdout).to.match(renderRegexFromFile('login/manual-open-browser'));
 
-			const m = stdout.match(/(http[^\s]+)/);
+			const m = stdout.match(/Please open following link in your browser:\s+.*?(http[^\s]+)/);
 			if (!m) {
 				throw new Error('No URL!');
 			}
