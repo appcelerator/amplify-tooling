@@ -138,8 +138,6 @@ async function runTests(cover, all) {
 			slow: 15000,
 			timeout: 20000
 		});
-	} catch (err) {
-		//
 	} finally {
 		// restore home directory so that we can delete the temp one
 		if (tmpHomeDir) {

@@ -34,6 +34,8 @@ export function initHomeDir(templateDir) {
 
 const defaultVars = {
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
+	nodeDeprecationWarning: '(?:\n*\u001b\\[33m ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\u001b\\[39m\n\u001b\\[33m ┃ deprecated and is unsupported by the Axway CLI v3\\. Please upgrade Node\\.js to\u001b\\[39m\n\u001b\\[33m ┃ the latest LTS release: https://nodejs\\.org/\u001b\\[39m)?',
+	nodeDeprecationWarningNoColor: '(?:\n* ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\n ┃ deprecated and is unsupported by the Axway CLI v3\\. Please upgrade Node\\.js to\n ┃ the latest LTS release: https://nodejs\\.org/)?',
 	startRed: '(?:\u001b\\[31m)?',
 	string: '[^\\s]+',
 	url: 'http[^\\s]+',
