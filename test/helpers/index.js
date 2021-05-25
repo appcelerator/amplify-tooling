@@ -70,6 +70,8 @@ export function renderRegexFromFile(file, vars) {
 }
 
 export function resetHomeDir() {
+	this.timeout(30000);
+
 	// sanity check that we're not nuking the real home directory
 	const homedir = os.homedir();
 	if (homedir.startsWith(os.tmpdir())) {

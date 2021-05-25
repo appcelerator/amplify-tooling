@@ -5,7 +5,7 @@
    ([CLI-111](https://jira.axway.com/browse/CLI-111))
  * fix(install): Show package name and version during install steps.
    ([CLI-126](https://jira.axway.com/browse/CLI-126))
- * fix(view): Return `null` instead of `undefined` if package not found.
+ * fix(view): Return `null` instead of `undefined` when specifying `--json` if package not found.
 
 # v2.5.4 (May 11, 2021)
 

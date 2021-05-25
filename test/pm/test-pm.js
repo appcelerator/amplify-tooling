@@ -245,7 +245,7 @@ describe('axway pm', () => {
 		});
 	});
 
-	describe.only('update', () => {
+	describe('update', () => {
 		afterEach(resetHomeDir);
 
 		it('should handle update a package', async function () {
@@ -340,7 +340,6 @@ describe('axway pm', () => {
 			expect(results).to.have.lengthOf(1);
 			expect(results[0].name).to.equal('acs');
 			expect(results[0].versions).to.have.property('2.1.9');
-			expect(results[0].versions).to.have.property('2.1.10');
 		});
 
 		it('should handle no packages to purge', async function () {
