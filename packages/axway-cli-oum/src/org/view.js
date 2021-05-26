@@ -62,7 +62,7 @@ export default {
 		console.log('\nSUBSCRIPTIONS');
 		console.log(subs.toString());
 
-		if (org.childOrgs) {
+		if (Array.isArray(org.childOrgs) && org.childOrgs.length) {
 			const children = createTable([ '  Name', 'GUID', 'Date Created', 'Status', 'Users' ]);
 			for (const o of org.childOrgs) {
 				children.push([

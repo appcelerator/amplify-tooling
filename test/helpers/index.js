@@ -145,18 +145,6 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
 	}));
 }
 
-// export function runAxwaySync(args = [], opts = {},  cfg) {
-// 	const result = _runAxway(spawnSync, args, opts, cfg);
-// 	logger('stdout').log(result.stdout.toString());
-// 	logger('stderr').log(result.stderr.toString());
-// 	if (process.env.ECHO_CHILD) {
-// 		process.stdout.write(result.stdout.toString());
-// 		process.stderr.write(result.stderr.toString());
-// 	}
-// 	log(`Process exited (code ${result.status})`);
-// 	return result;
-// }
-
 function createServer({ port }) {
 	return new Promise((resolve, reject) => {
 		const app = new Koa();
