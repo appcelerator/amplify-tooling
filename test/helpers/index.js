@@ -33,6 +33,7 @@ export function initHomeDir(templateDir) {
 }
 
 const defaultVars = {
+	check: process.platform === 'win32' ? '√' : '✔',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
 	nodeDeprecationWarning: '(?:\n*\u001b\\[33m ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\u001b\\[39m\n\u001b\\[33m ┃ deprecated and is unsupported by the Axway CLI v3\\. Please upgrade Node\\.js to\u001b\\[39m\n\u001b\\[33m ┃ the latest LTS release: https://nodejs\\.org/\u001b\\[39m)?',
 	nodeDeprecationWarningNoColor: '(?:\n* ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\n ┃ deprecated and is unsupported by the Axway CLI v3\\. Please upgrade Node\\.js to\n ┃ the latest LTS release: https://nodejs\\.org/)?',
@@ -72,7 +73,7 @@ export function renderRegexFromFile(file, vars) {
 }
 
 export function resetHomeDir() {
-	this.timeout(30000);
+	this.timeout(60000);
 
 	// sanity check that we're not nuking the real home directory
 	const homedir = os.homedir();

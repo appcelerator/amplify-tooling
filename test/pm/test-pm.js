@@ -173,7 +173,7 @@ describe('axway pm', () => {
 			({ status, stdout } = await runAxwaySync([ 'pm', 'uninstall', 'acs' ]));
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('uninstall/acs-uninstalled', {
-				packagePath: results[0].versions[results[0].version].path
+				packagePath: results[0].versions[results[0].version].path.replace(/\\/g, '\\\\')
 			}));
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
