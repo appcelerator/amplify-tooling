@@ -12,7 +12,7 @@ import {
 } from '../helpers';
 import { isHeadless } from '@axway/amplify-cli-utils';
 
-const itHeadless = isHeadless() ? it : it.skip;
+const itSkipHeadless = isHeadless() ? it.skip : it;
 
 describe('axway auth', () => {
 	describe('help', () => {
@@ -72,7 +72,7 @@ describe('axway auth', () => {
 			expect(stderr).to.match(renderRegexFromFile('login/headless'));
 		});
 
-		itHeadless('should log into platform account using PKCE, list account, and login again', async function () {
+		itSkipHeadless('should log into platform account using PKCE, list account, and login again', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -89,7 +89,7 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('login/already-authenticated'));
 		});
 
-		itHeadless('should log into platform account using PKCE and return result as JSON', async function () {
+		itSkipHeadless('should log into platform account using PKCE and return result as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -141,7 +141,7 @@ describe('axway auth', () => {
 			}
 		});
 
-		itHeadless('should log into platform account using client secret', async function () {
+		itSkipHeadless('should log into platform account using client secret', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -206,7 +206,7 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
 		});
 
-		itHeadless('should log into both a platform and service account', async function () {
+		itSkipHeadless('should log into both a platform and service account', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -227,7 +227,7 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('list/platform-service-accounts'));
 		});
 
-		itHeadless('should error if browser times out', async function () {
+		itSkipHeadless('should error if browser times out', async function () {
 			initHomeDir('home-timeout');
 			this.servers = await startServers();
 
@@ -251,7 +251,7 @@ describe('axway auth', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
-		itHeadless('should logout of platform account', async function () {
+		itSkipHeadless('should logout of platform account', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -275,7 +275,7 @@ describe('axway auth', () => {
 			expect(accounts).to.have.lengthOf(0);
 		});
 
-		itHeadless('should logout of platform account and return result as JSON', async function () {
+		itSkipHeadless('should logout of platform account and return result as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -344,7 +344,7 @@ describe('axway auth', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
-		itHeadless('should log into platform account and display whoami for all accounts', async function () {
+		itSkipHeadless('should log into platform account and display whoami for all accounts', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -364,7 +364,7 @@ describe('axway auth', () => {
 			// TODO
 		});
 
-		itHeadless('should login and display whoami for specific account', async function () {
+		itSkipHeadless('should login and display whoami for specific account', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -377,7 +377,7 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('whoami/foo-bar-account'));
 		});
 
-		itHeadless('should login and display whoami and output result as JSON', async function () {
+		itSkipHeadless('should login and display whoami and output result as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
