@@ -112,7 +112,7 @@ describe('axway auth', () => {
 			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
-		it.only('should log into platform account using PKCE without launching the browser', async function () {
+		it('should log into platform account using PKCE without launching the browser', async function () {
 			initHomeDir('home-manual');
 			this.servers = await startServers();
 
