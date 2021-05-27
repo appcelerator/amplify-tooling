@@ -117,17 +117,20 @@ describe('axway auth', () => {
 			this.servers = await startServers();
 
 			let stdout = '';
+			let waiting = false;
 			const child = await runAxway([ 'auth', 'login', '--no-launch-browser' ]);
-			child.stdout.on('data', data => {
-				console.log('stdout>>>', data.toString());
-				stdout += data.toString();
-			});
-			child.stderr.on('data', data => {
-				console.log('stderr>>>', data.toString());
-			});
 
-			// wait for the auth to initialize
-			await new Promise(resolve => setTimeout(resolve, 3000));
+			await new Promise(resolve => {
+				child.stdout.on('data', data => {
+					stdout += data.toString();
+
+					if (!waiting) {
+						waiting = true;
+						// wait for the auth to initialize
+						setTimeout(resolve, 2000);
+					}
+				});
+			});
 
 			expect(stdout).to.match(renderRegexFromFile('login/manual-open-browser'));
 
