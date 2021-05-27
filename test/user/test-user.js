@@ -37,7 +37,6 @@ describe('axway user', () => {
 		it('should display user activity for a specific date range', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-
 			await runAxwaySync([ 'auth', 'login' ]);
 
 			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28' ]);
@@ -48,7 +47,6 @@ describe('axway user', () => {
 		it('should display no user activity for specific date range', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-
 			await runAxwaySync([ 'auth', 'login' ]);
 
 			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-05-15', '--to', '2021-05-16' ]);
@@ -59,7 +57,6 @@ describe('axway user', () => {
 		it('should return user activity as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-
 			await runAxwaySync([ 'auth', 'login' ]);
 
 			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28', '--json' ]);
@@ -67,8 +64,8 @@ describe('axway user', () => {
 			const result = JSON.parse(stdout);
 			expect(result).to.deep.equal({
 				"account": "test_client:foo@bar.com",
-				"from": "2021-02-01T06:00:00.000Z",
-				"to": "2021-03-01T05:59:59.000Z",
+				"from": "2021-02-01T00:00:00.000Z",
+				"to": "2021-02-28T23:59:59.000Z",
 				"events": [
 					{
 						"ts": 1612530918676,

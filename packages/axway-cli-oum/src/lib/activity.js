@@ -17,13 +17,18 @@ export async function renderActivity({ account, console, json, results }) {
 	const { createTable } = require('@axway/amplify-cli-utils');
 	const { default: snooplogg } = require('snooplogg');
 	const { highlight, note } = snooplogg.styles;
-	const { from, to, events } = results;
+	let { from, to, events } = results;
+
+	const formatDate = d => {
+		const dt = d ? new Date(d) : new Date();
+		return `${dt.getUTCMonth() + 1}/${dt.getUTCDate()}/${dt.getUTCFullYear()}`;
+	};
 
 	console.log(`Account:      ${highlight(account.name)}`);
 	if (results.org) {
 		console.log(`Organization: ${highlight(results.org.name)} ${note(`(${results.org.guid})`)}`);
 	}
-	console.log(`Date Range:   ${highlight(new Date(from).toLocaleDateString())} - ${highlight((to ? new Date(to) : new Date()).toLocaleDateString())}\n`);
+	console.log(`Date Range:   ${highlight(formatDate(from))} - ${highlight(formatDate(to))}\n`);
 
 	if (!events.length) {
 		console.log('No activity found');

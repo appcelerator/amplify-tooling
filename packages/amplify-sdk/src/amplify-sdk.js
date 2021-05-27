@@ -378,13 +378,11 @@ export default class AmplifySDK {
 			}
 
 			if (from) {
-				from = from.toISOString();
-				url += `&from=${from}`;
+				url += `&from=${from.toISOString()}`;
 			}
 
 			if (to) {
-				to = to.toISOString();
-				url += `&to=${to}`;
+				url += `&to=${to.toISOString()}`;
 			}
 
 			return {
@@ -1419,7 +1417,7 @@ function resolveDateRange(from, to) {
 	let ts;
 
 	if (from) {
-		if (!tsRE.test(from) || isNaN(ts = Date.parse(`${from} 00:00:00`))) {
+		if (!tsRE.test(from) || isNaN(ts = Date.parse(`${from} 00:00:00 GMT`))) {
 			throw new Error('Expected "from" date to be in the format YYYY-MM-DD');
 		}
 		r.from = new Date(ts);
@@ -1428,7 +1426,7 @@ function resolveDateRange(from, to) {
 	}
 
 	if (to) {
-		if (!tsRE.test(to) || isNaN(ts = Date.parse(`${to} 23:59:59`))) {
+		if (!tsRE.test(to) || isNaN(ts = Date.parse(`${to} 23:59:59 GMT`))) {
 			throw new Error('Expected "to" date to be in the format YYYY-MM-DD');
 		}
 		r.to = new Date(ts);
