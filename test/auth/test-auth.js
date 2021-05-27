@@ -112,17 +112,25 @@ describe('axway auth', () => {
 			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
-		it('should log into platform account using PKCE without launching the browser', async function () {
+		it.only('should log into platform account using PKCE without launching the browser', async function () {
 			initHomeDir('home-manual');
 			this.servers = await startServers();
 
 			let stdout = '';
+			let stderr = '';
 			const child = await runAxway([ 'auth', 'login', '--no-launch-browser' ]);
 			child.stdout.on('data', data => {
 				stdout += data.toString();
 			});
+			child.stderr.on('data', data => {
+				stderr += data.toString();
+			});
 
+			// wait for the auth to initialize
 			await new Promise(resolve => setTimeout(resolve, 3000));
+
+			console.log(stdout);
+			console.log(stderr);
 
 			expect(stdout).to.match(renderRegexFromFile('login/manual-open-browser'));
 
