@@ -29,8 +29,8 @@
   },
   "dependencies": {
     "@axway/amplify-cli-auth": "^2.6.4",
-    "@axway/amplify-cli-pm": "^2.5.4",
     "@axway/amplify-cli-utils": "^4.3.4",
+    "@axway/axway-cli-pm": "^3.0.0",
     "@axway/axway-cli-oum": "^1.1.3",
     "cli-kit": "^1.13.0",
     "snooplogg": "^3.0.2",

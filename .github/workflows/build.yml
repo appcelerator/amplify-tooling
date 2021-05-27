@@ -24,7 +24,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      matrix: 
+      matrix:
         nodeVersion: [ '10.19.0', '12.18.0', '14.15.1' ]
         os: [ macos-latest, ubuntu-latest, windows-latest ]
     steps:

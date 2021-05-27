@@ -10,6 +10,9 @@ import {
 	startServers,
 	stopServers
 } from '../helpers';
+import { isHeadless } from '@axway/amplify-cli-utils';
+
+const itSkipHeadless = isHeadless() ? it.skip : it;
 
 describe('axway auth', () => {
 	describe('help', () => {
@@ -56,7 +59,20 @@ describe('axway auth', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
-		it('should log into platform account using PKCE, list account, and login again', async function () {
+		// Windows is never headless, so we can't force headless to test it
+		(process.platform === 'win32' ? it.skip : it)('should error if env is headless', async function () {
+			initHomeDir('home-local');
+
+			let { status, stderr } = await runAxwaySync([ 'auth', 'login' ], {
+				env: {
+					SSH_TTY: '1'
+				}
+			});
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('login/headless'));
+		});
+
+		itSkipHeadless('should log into platform account using PKCE, list account, and login again', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -73,7 +89,7 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('login/already-authenticated'));
 		});
 
-		it('should log into platform account using PKCE and return result as JSON', async function () {
+		itSkipHeadless('should log into platform account using PKCE and return result as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -101,16 +117,24 @@ describe('axway auth', () => {
 			this.servers = await startServers();
 
 			let stdout = '';
+			let waiting = false;
 			const child = await runAxway([ 'auth', 'login', '--no-launch-browser' ]);
-			child.stdout.on('data', data => {
-				stdout += data.toString();
-			});
 
-			await new Promise(resolve => setTimeout(resolve, 3000));
+			await new Promise(resolve => {
+				child.stdout.on('data', data => {
+					stdout += data.toString();
+
+					if (!waiting) {
+						waiting = true;
+						// wait for the auth to initialize
+						setTimeout(resolve, 2000);
+					}
+				});
+			});
 
 			expect(stdout).to.match(renderRegexFromFile('login/manual-open-browser'));
 
-			const m = stdout.match(/(http[^\s]+)/);
+			const m = stdout.match(/Please open following link in your browser:\s+.*?(http[^\s]+)/);
 			if (!m) {
 				throw new Error('No URL!');
 			}
@@ -125,7 +149,7 @@ describe('axway auth', () => {
 			}
 		});
 
-		it('should log into platform account using client secret', async function () {
+		itSkipHeadless('should log into platform account using client secret', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -190,7 +214,7 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
 		});
 
-		it('should log into both a platform and service account', async function () {
+		itSkipHeadless('should log into both a platform and service account', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -211,7 +235,7 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('list/platform-service-accounts'));
 		});
 
-		it('should error if browser times out', async function () {
+		itSkipHeadless('should error if browser times out', async function () {
 			initHomeDir('home-timeout');
 			this.servers = await startServers();
 
@@ -235,7 +259,7 @@ describe('axway auth', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
-		it('should logout of platform account', async function () {
+		itSkipHeadless('should logout of platform account', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -259,7 +283,7 @@ describe('axway auth', () => {
 			expect(accounts).to.have.lengthOf(0);
 		});
 
-		it('should logout of platform account and return result as JSON', async function () {
+		itSkipHeadless('should logout of platform account and return result as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -328,7 +352,7 @@ describe('axway auth', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
-		it('should log into platform account and display whoami for all accounts', async function () {
+		itSkipHeadless('should log into platform account and display whoami for all accounts', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -348,7 +372,7 @@ describe('axway auth', () => {
 			// TODO
 		});
 
-		it('should login and display whoami for specific account', async function () {
+		itSkipHeadless('should login and display whoami for specific account', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -361,7 +385,7 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('whoami/foo-bar-account'));
 		});
 
-		it('should login and display whoami and output result as JSON', async function () {
+		itSkipHeadless('should login and display whoami and output result as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 

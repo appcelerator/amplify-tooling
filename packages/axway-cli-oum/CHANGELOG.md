@@ -1,3 +1,7 @@
+# v1.1.4
+
+ * fix(org:view): Don't show child org section if there are no child orgs.
+
 # v1.1.3 (May 11, 2021)
 
  * chore: Updated dependencies.

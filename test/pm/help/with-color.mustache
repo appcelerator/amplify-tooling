@@ -1,0 +1,25 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Package manager for Axway products
+
+USAGE: {{#cyan}}axway pm <command> [options]{{/cyan}}
+
+PM COMMANDS:
+  {{#cyan}}i, install   {{/cyan}}  Install a package
+  {{#cyan}}ls, list     {{/cyan}}  List all installed packages
+  {{#cyan}}purge        {{/cyan}}  Removes all non-active, managed packages
+  {{#cyan}}s, search    {{/cyan}}  Searches registry for packages
+  {{#cyan}}rm, uninstall{{/cyan}}  Removes the specified package
+  {{#cyan}}up, update   {{/cyan}}  Download updates for installed packages
+  {{#cyan}}use          {{/cyan}}  Activates a specific package version
+  {{#cyan}}v, view      {{/cyan}}  Displays info for a specific package
+
+PM OPTIONS:
+  {{#cyan}}--env [env]  {{/cyan}}  The environment to use
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color   {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version{{/cyan}}  Outputs the version

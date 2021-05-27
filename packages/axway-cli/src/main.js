@@ -19,8 +19,8 @@ import { readFileSync } from 'fs';
 	const extensions = [
 		...Object.values(cfg.get('extensions', {})),
 		dirname(require.resolve('@axway/amplify-cli-auth')),
-		dirname(require.resolve('@axway/amplify-cli-pm')),
-		dirname(require.resolve('@axway/axway-cli-oum'))
+		dirname(require.resolve('@axway/axway-cli-oum')),
+		dirname(require.resolve('@axway/axway-cli-pm'))
 	];
 
 	let checkWait;
@@ -29,9 +29,7 @@ import { readFileSync } from 'fs';
 Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 	if (process.versions.node.split('.')[0] < 12) {
-		banner += chalk.yellow(`
-
- ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
+		banner += '\n\n' + chalk.yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
  ┃ deprecated and is unsupported by the Axway CLI v3. Please upgrade Node.js to
  ┃ the latest LTS release: https://nodejs.org/`);
 	}
@@ -82,8 +80,9 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 				console.error(chalk.red(`  ${line}`));
 			}
 			if (err.detail) {
+				console.error();
 				for (const line of String(err.detail).split(/\r\n|\n/)) {
-					console.error(chalk.red(`    ${line}`));
+					console.error(chalk.red(`  ${line}`));
 				}
 			}
 		}

@@ -10,7 +10,7 @@ import Router from '@koa/router';
 import snooplogg from 'snooplogg';
 import { createAuthRoutes } from './auth-routes';
 import { createPlatformRoutes } from './platform-routes';
-import { spawn, spawnSync } from 'child_process';
+import { spawn } from 'child_process';
 
 const logger = snooplogg.config({
 	minBrightness: 80,
@@ -33,9 +33,15 @@ export function initHomeDir(templateDir) {
 }
 
 const defaultVars = {
+	check: process.platform === 'win32' ? '√' : '✔',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
+	nodeDeprecationWarning: '(?:\n*\u001b\\[33m ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\u001b\\[39m\n\u001b\\[33m ┃ deprecated and is unsupported by the Axway CLI v3\\. Please upgrade Node\\.js to\u001b\\[39m\n\u001b\\[33m ┃ the latest LTS release: https://nodejs\\.org/\u001b\\[39m)?',
+	nodeDeprecationWarningNoColor: '(?:\n* ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\n ┃ deprecated and is unsupported by the Axway CLI v3\\. Please upgrade Node\\.js to\n ┃ the latest LTS release: https://nodejs\\.org/)?',
+	startRed: '(?:\u001b\\[31m)?',
+	string: '[^\\s]+',
 	url: 'http[^\\s]+',
-	version: '(?:\\d\\.\\d\\.\\d(?:-[^\\s]*)?)',
+	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
+	versionList: '(?:\u001b\\[36m(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)*\\s*\u001b\\[39m\n+)+',
 	x: process.platform === 'win32' ? 'x' : '✖',
 	year: (new Date()).getFullYear()
 };
@@ -52,20 +58,23 @@ for (const fn of [ 'blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'yellow' ]
 export function renderRegex(str, vars) {
 	str = str.replace(/([()[\]?])/g, '\\$1');
 	str = Mustache.render(str, Object.assign({}, defaultVars, vars));
+	// console.log(JSON.stringify(str));
 	return new RegExp(str);
 }
 
-export function renderRegexFromFile(file) {
+export function renderRegexFromFile(file, vars) {
 	if (!fs.existsSync(file) && !/\.mustache$/.test(file)) {
 		file += '.mustache';
 	}
 	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
 		file = path.resolve(path.dirname(callerPath()), file);
 	}
-	return renderRegex(fs.readFileSync(file, 'utf8').trim());
+	return renderRegex(fs.readFileSync(file, 'utf8').trim(), vars);
 }
 
 export function resetHomeDir() {
+	this.timeout(60000);
+
 	// sanity check that we're not nuking the real home directory
 	const homedir = os.homedir();
 	if (homedir.startsWith(os.tmpdir())) {
@@ -135,18 +144,6 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
 		resolve({ status, stdout, stderr });
 	}));
 }
-
-// export function runAxwaySync(args = [], opts = {},  cfg) {
-// 	const result = _runAxway(spawnSync, args, opts, cfg);
-// 	logger('stdout').log(result.stdout.toString());
-// 	logger('stderr').log(result.stderr.toString());
-// 	if (process.env.ECHO_CHILD) {
-// 		process.stdout.write(result.stdout.toString());
-// 		process.stderr.write(result.stderr.toString());
-// 	}
-// 	log(`Process exited (code ${result.status})`);
-// 	return result;
-// }
 
 function createServer({ port }) {
 	return new Promise((resolve, reject) => {
