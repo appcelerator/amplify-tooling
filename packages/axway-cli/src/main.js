@@ -76,11 +76,12 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 			}, null, 2));
 		} else {
 			const msg = `${process.platform === 'win32' ? 'x' : '✖'} ${err}`;
-			for (const line of msg.split(/\r\n|\n/)) {
-				console.error(chalk.red(`  ${line}`));
+			for (let line of msg.split(/\r\n|\n/)) {
+				line = line.trim();
+				console.error(line ? chalk.red(`  ${line}`) : '');
 			}
 			if (err.detail) {
-				console.error();
+				console.error('');
 				for (const line of String(err.detail).split(/\r\n|\n/)) {
 					console.error(chalk.red(`  ${line}`));
 				}

@@ -150,8 +150,9 @@ async function runTests(cover, all) {
 	}
 }
 
-exports.integration = series(nodeInfo, build, function test()     { return runTests(true); });
-exports.test        = series(nodeInfo, build, function coverage() { return runTests(true, true); });
+exports.integration         = series(nodeInfo, build, function test()     { return runTests(true); });
+exports['integration-only'] = series(nodeInfo,        function test()     { return runTests(true); });
+exports.test                = series(nodeInfo, build, function coverage() { return runTests(true, true); });
 
 /*
  * watch task

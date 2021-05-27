@@ -1,0 +1,29 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Display your activity.
+
+USAGE: {{#cyan}}axway user activity [options]{{/cyan}}
+
+ACTIVITY OPTIONS:
+  {{#cyan}}--account [name]   {{/cyan}}  The platform account to use
+  {{#cyan}}--from [yyyy-mm-dd]{{/cyan}}  The start date
+  {{#cyan}}--json             {{/cyan}}  Outputs the user activity as JSON
+  {{#cyan}}--to [yyyy-mm-dd]  {{/cyan}}  The end date
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner        {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color         {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help         {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version      {{/cyan}}  Outputs the version
+
+EXAMPLE:
+
+  You must be authenticated into an Amplify Platform account to view or manage
+  organizations. Run {{#cyan}}"axway auth login"{{/cyan}} to authenticate.
+
+  Display your user activity for the past 14 days:
+    {{#cyan}}axway user activity{{/cyan}}
+
+  Display your activity for a specific date range:
+    {{#cyan}}axway user activity --from 2021-04-01 --to 2021-04-30{{/cyan}}

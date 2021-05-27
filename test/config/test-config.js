@@ -29,7 +29,7 @@ describe('axway config', () => {
 			initHomeDir('home-simple');
 			const { status, stdout } = await runAxwaySync([ 'config', 'list' ]);
 			expect(status).to.equal(0);
-			expect(stdout.toString()).to.match(renderRegexFromFile('home-simple/output'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('list/foo-bar'));
 		});
 
 		it('should list simple config as JSON', async () => {
@@ -62,7 +62,7 @@ describe('axway config', () => {
 			initHomeDir('home-simple');
 			const { status, stdout } = await runAxwaySync([ 'config', 'get' ]);
 			expect(status).to.equal(0);
-			expect(stdout.toString()).to.match(renderRegexFromFile('home-simple/output'));
+			expect(stdout.toString()).to.match(renderRegexFromFile('list/foo-bar'));
 		});
 
 		it('should get simple config as JSON', async () => {
