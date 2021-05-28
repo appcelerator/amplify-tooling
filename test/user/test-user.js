@@ -37,19 +37,31 @@ describe('axway user', () => {
 		it('should display user activity for a specific date range', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-			await runAxwaySync([ 'auth', 'login' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ]);
+			console.log(status);
+			console.log(stdout);
+			console.log(stderr);
 
-			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28' ]);
+			({ status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28' ]));
 			// expect(status).to.equal(0);
+			console.log(status);
+			console.log(stdout);
+			console.log(stderr);
 			expect(stdout.toString()).to.match(renderRegexFromFile('activity/activity-report'));
 		});
 
 		it('should display no user activity for specific date range', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-			await runAxwaySync([ 'auth', 'login' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ]);
+			console.log(status);
+			console.log(stdout);
+			console.log(stderr);
 
-			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-05-15', '--to', '2021-05-16' ]);
+			({ status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-05-15', '--to', '2021-05-16' ]));
+			console.log(status);
+			console.log(stdout);
+			console.log(stderr);
 			// expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('activity/no-activity'));
 		});
@@ -57,9 +69,16 @@ describe('axway user', () => {
 		it('should return user activity as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-			await runAxwaySync([ 'auth', 'login' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ]);
+			console.log(status);
+			console.log(stdout);
+			console.log(stderr);
 
-			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28', '--json' ]);
+			({ status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28', '--json' ]));
+			console.log(status);
+			console.log(stdout);
+			console.log(stderr);
+
 			// expect(status).to.equal(0);
 			const result = JSON.parse(stdout);
 			expect(result).to.deep.equal({
@@ -130,9 +149,15 @@ describe('axway user', () => {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
-			await runAxwaySync([ 'auth', 'login' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ]);
+			console.log(status);
+			console.log(stdout);
+			console.log(stderr);
 
-			let { status, stderr } = await runAxwaySync([ 'user', 'activity', '--from', 'foo' ]);
+			({ status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', 'foo' ]));
+			console.log(status);
+			console.log(stdout);
+			console.log(stderr);
 			// expect(status).to.equal(1);
 			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-from-date'));
 
