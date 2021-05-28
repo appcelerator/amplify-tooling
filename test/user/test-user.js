@@ -37,7 +37,7 @@ describe('axway user', () => {
 		it('should display user activity for a specific date range', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 			console.log(status);
 			console.log(stdout);
 			console.log(stderr);
@@ -53,7 +53,7 @@ describe('axway user', () => {
 		it('should display no user activity for specific date range', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 			console.log(status);
 			console.log(stdout);
 			console.log(stderr);
@@ -69,7 +69,7 @@ describe('axway user', () => {
 		it('should return user activity as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
-			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 			console.log(status);
 			console.log(stdout);
 			console.log(stderr);
@@ -149,7 +149,7 @@ describe('axway user', () => {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
-			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 			console.log(status);
 			console.log(stdout);
 			console.log(stderr);
