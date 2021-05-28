@@ -86,7 +86,7 @@ export async function renderActivity({ account, console, json, results }) {
 		}
 
 		table.push([
-			new Date(event.ts).toLocaleDateString(),
+			formatDate(event.ts),
 			event.message.replace(/__s__(.*?)__\/s__/g, (s, m) => highlight(m)),
 			event.event,
 			event.data?.org_name || note('n/a')
