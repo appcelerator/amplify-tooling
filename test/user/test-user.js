@@ -24,7 +24,7 @@ describe('axway user', () => {
 		});
 	});
 
-	describe.only('activity', () => {
+	describe('activity', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
@@ -40,10 +40,7 @@ describe('axway user', () => {
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
 			const { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28' ]);
-			// expect(status).to.equal(0);
-			console.log(status);
-			console.log(stdout);
-			console.log(stderr);
+			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('activity/activity-report'));
 		});
 
@@ -53,10 +50,7 @@ describe('axway user', () => {
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
 			const { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-05-15', '--to', '2021-05-16' ]);
-			console.log(status);
-			console.log(stdout);
-			console.log(stderr);
-			// expect(status).to.equal(0);
+			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('activity/no-activity'));
 		});
 
@@ -66,11 +60,7 @@ describe('axway user', () => {
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
 			const { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28', '--json' ]);
-			console.log(status);
-			console.log(stdout);
-			console.log(stderr);
-
-			// expect(status).to.equal(0);
+			expect(status).to.equal(0);
 			const result = JSON.parse(stdout);
 			expect(result).to.deep.equal({
 				"account": "test_client:foo@bar.com",
@@ -141,15 +131,12 @@ describe('axway user', () => {
 			this.servers = await startServers();
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
-			const { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', 'foo' ]);
-			console.log(status);
-			console.log(stdout);
-			console.log(stderr);
-			// expect(status).to.equal(1);
+			let { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', 'foo' ]);
+			expect(status).to.equal(1);
 			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-from-date'));
 
 			({ status, stderr } = await runAxwaySync([ 'user', 'activity', '--to', 'bar' ]));
-			// expect(status).to.equal(1);
+			expect(status).to.equal(1);
 			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-to-date'));
 		});
 
