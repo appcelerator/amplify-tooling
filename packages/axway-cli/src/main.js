@@ -30,8 +30,17 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 	if (process.versions.node.split('.')[0] < 12) {
 		banner += '\n\n' + chalk.yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
- ┃ deprecated and is unsupported by the Axway CLI v3. Please upgrade Node.js to
- ┃ the latest LTS release: https://nodejs.org/`);
+ ┃ deprecated and is unsupported in Axway CLI v3 and newer. Please upgrade
+ ┃ Node.js to the latest LTS release: https://nodejs.org/`);
+	}
+
+	const { arch } = process;
+	if (arch === 'ia32' || arch === 'x32') {
+		// TODO: remove this in 3.0.0
+		banner += '\n\n' + chalk.yellow(` ┃ ATTENTION! Your current architecture "${arch}" has been deprecated and is unsupported
+ ┃ in Axway CLI v3 and newer.`);
+	} else if (arch !== 'x64') {
+		banner += '\n\n' + chalk.yellow(` ┃ ATTENTION! Your current architecture "${arch}" is not supported.`);
 	}
 
 	const cli = new CLI({

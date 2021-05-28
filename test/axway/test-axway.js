@@ -54,6 +54,18 @@ describe('axway', () => {
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color-no-banner'));
 		});
+
+		it('should show 32-bit deprecation warning', async () => {
+			const { status, stdout } = await runAxwaySync([], { shim: 'arch-shim-ia32' });
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/32-bit-deprecation'));
+		});
+
+		it('should show unsupported architecture warning', async () => {
+			const { status, stdout } = await runAxwaySync([], { shim: 'arch-shim-arm' });
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/unsupported-arch'));
+		});
 	});
 
 	describe('version', () => {

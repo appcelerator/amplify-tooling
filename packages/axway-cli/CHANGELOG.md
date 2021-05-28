@@ -1,5 +1,7 @@
 # v2.2.0
 
+ * chore: Added unsupported architecture and 32-bit architecture deprecation warning to banner.
+   ([CLI-130](https://jira.axway.com/browse/CLI-130))
  * style: Adjusted error rendering.
 
 # v2.1.0 (May 11, 2021)
