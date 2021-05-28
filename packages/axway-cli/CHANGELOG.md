@@ -1,3 +1,7 @@
+# v2.2.0
+
+ * style: Adjusted error rendering.
+
 # v2.1.0 (May 11, 2021)
 
  * feat: Added post install welcome message.

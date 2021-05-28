@@ -1,3 +1,9 @@
+# v2.1.6
+
+ * fix: Validate team argument for user add, list, and update commands.
+   ([CLI-134](https://jira.axway.com/browse/CLI-134))
+ * fix: Parse activity and usage dates using current locale.
+
 # v2.1.5 (May 11, 2021)
 
  * fix: Set correct user agent for platform calls.

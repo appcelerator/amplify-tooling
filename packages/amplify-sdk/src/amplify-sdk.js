@@ -378,13 +378,11 @@ export default class AmplifySDK {
 			}
 
 			if (from) {
-				from = from.toISOString();
-				url += `&from=${from}`;
+				url += `&from=${from.toISOString()}`;
 			}
 
 			if (to) {
-				to = to.toISOString();
-				url += `&to=${to}`;
+				url += `&to=${to.toISOString()}`;
 			}
 
 			return {
@@ -828,7 +826,7 @@ export default class AmplifySDK {
 			 * Find a team by name or guid.
 			 * @param {Object} account - The account object.
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {String} team - The team or guid.
+			 * @param {String} team - The team name or guid.
 			 * @returns {Promise<Object>}
 			 */
 			find: async (account, org, team) => {
@@ -887,9 +885,13 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				add: async (account, org, team, user, roles) => {
+					const origTeam = team;
 					({ org, team } = await this.team.find(account, org, team));
-					const found  = await this.user.find(account, user);
+					if (!team) {
+						throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
+					}
 
+					const found  = await this.user.find(account, user);
 					if (!found) {
 						throw new Error(`Unable to find the user "${user}"`);
 					}
@@ -933,7 +935,12 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				list: async (account, org, team) => {
+					const origTeam = team;
 					({ team } = await this.team.find(account, org, team));
+					if (!team) {
+						throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
+					}
+
 					const { users: allUsers } = await this.org.user.list(account, org.guid);
 					return {
 						org,
@@ -989,7 +996,11 @@ export default class AmplifySDK {
 				 */
 				update: async (account, org, team, user, roles) => {
 					let found;
+					const origTeam = team;
 					({ user: found, team } = await this.team.user.find(account, org, team, user));
+					if (!team) {
+						throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
+					}
 
 					if (!found) {
 						throw new Error(`Unable to find the user "${user}"`);

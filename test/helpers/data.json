@@ -17,23 +17,58 @@
 		},
 		{
 			"ts": 1612530918676,
-			"message": "Feb 5 sample",
-			"user_guid": "50000"
+			"event": "platform.team.user.remove",
+			"message": "User __s__test1@domain.com__/s__ removed from team __s__Default Team__/s__",
+			"user_guid": "50000",
+			"data": {
+				"org_name": "Foo org"
+			}
 		},
 		{
 			"ts": 1612574686163,
-			"message": "Feb 6 sample",
-			"user_guid": "50000"
+			"event": "platform.team.user.add",
+			"message": "User __s__test1@domain.com__/s__ added to team __s__Default Team__/s__",
+			"user_guid": "50000",
+			"data": {
+				"org_name": "Foo org"
+			}
 		},
 		{
 			"ts": 1612906169927,
-			"message": "Feb 9 sample",
-			"user_guid": "50000"
+			"message": "Roles changed for user __s__test1@domain.com__/s__ in organization __s__Foo org__/s__",
+			"event": "platform.org.user.role.update",
+			"user_guid": "50000",
+			"data": {
+				"changes": [
+					{
+						"k": "roles",
+						"o": "developer"
+					},
+					{
+						"k": "roles",
+						"v": "administrator"
+					}
+				],
+				"org_name": "Foo org"
+			}
 		},
 		{
 			"ts": 1613408276641,
-			"message": "Feb 16 sample",
-			"user_guid": "50000"
+			"message": "User updated",
+			"event": "platform.user.update",
+			"user_guid": "50000",
+			"data": {
+				"user_guid": "5000",
+				"user_email": "test1@domain.com",
+				"changes": [
+					{
+						"k": "firstname",
+						"v": "Foo",
+						"o": "Bar"
+					}
+				],
+				"org_name": "Foo org"
+			}
 		}
 	],
 	"orgs": [

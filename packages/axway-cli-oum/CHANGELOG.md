@@ -1,6 +1,9 @@
 # v1.1.4
 
+ * fix(activity): Render activity changes correctly.
+   ([CLI-132](https://jira.axway.com/browse/CLI-132))
  * fix(org:view): Don't show child org section if there are no child orgs.
+ * fix(util): Fixed typo in platform account assertion.
 
 # v1.1.3 (May 11, 2021)
 

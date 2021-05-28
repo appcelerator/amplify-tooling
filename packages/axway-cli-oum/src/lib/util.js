@@ -12,7 +12,7 @@ export async function initPlatformAccount(accountName, org) {
 	const account = await sdk.auth.find(accountName || config.get('auth.defaultAccount'));
 
 	if (!account || !account.isPlatform) {
-		throw new Error('You must me logged into a platform account\n\nTo login, run: axway auth login');
+		throw new Error('You must be logged into a platform account\n\nTo login, run: axway auth login');
 	}
 
 	if (org) {

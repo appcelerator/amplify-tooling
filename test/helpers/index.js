@@ -24,7 +24,7 @@ const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env
 
 export function initHomeDir(templateDir) {
 	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
-		templateDir = path.resolve(path.dirname(callerPath()), templateDir);
+		templateDir = path.resolve(__dirname, templateDir);
 	}
 
 	const homeDir = path.join(os.homedir(), '.axway', 'axway-cli');
@@ -42,6 +42,7 @@ const defaultVars = {
 	url: 'http[^\\s]+',
 	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
 	versionList: '(?:\u001b\\[36m(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)*\\s*\u001b\\[39m\n+)+',
+	whitespace: ' *',
 	x: process.platform === 'win32' ? 'x' : '✖',
 	year: (new Date()).getFullYear()
 };
@@ -58,6 +59,7 @@ for (const fn of [ 'blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'yellow' ]
 export function renderRegex(str, vars) {
 	str = str.replace(/([()[\]?])/g, '\\$1');
 	str = Mustache.render(str, Object.assign({}, defaultVars, vars));
+	str = str.replace(/\n/g, '\\s*\n');
 	// console.log(JSON.stringify(str));
 	return new RegExp(str);
 }

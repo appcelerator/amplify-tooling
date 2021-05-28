@@ -230,6 +230,8 @@ describe('axway auth', () => {
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success-service-not-default'));
 
+			await new Promise(resolve => setTimeout(resolve, 1000));
+
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/platform-service-accounts'));
