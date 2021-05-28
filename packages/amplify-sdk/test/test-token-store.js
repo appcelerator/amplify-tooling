@@ -372,7 +372,7 @@ describe('Token Store', () => {
 			throw new Error('Expected error');
 		});
 
-		(isCI && process.platform === 'linux' ? it.skip : it)('should securely store the token', async function () {
+		(isCI ? it.skip : it)('should securely store the token', async function () {
 			this.timeout(60000);
 			this.slow(10000);
 
@@ -413,7 +413,7 @@ describe('Token Store', () => {
 			expect(tokens).to.have.lengthOf(0);
 		});
 
-		(isCI && process.platform === 'linux' ? it.skip : it)('should clear all tokens and delete secure store', async function () {
+		(isCI ? it.skip : it)('should clear all tokens and delete secure store', async function () {
 			this.timeout(60000);
 			this.slow(10000);
 
