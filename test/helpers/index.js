@@ -35,8 +35,8 @@ export function initHomeDir(templateDir) {
 const defaultVars = {
 	check: process.platform === 'win32' ? '√' : '✔',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
-	nodeDeprecationWarning: '(?:\n*\u001b\\[33m ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\u001b\\[39m\n\u001b\\[33m ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\u001b\\[39m\n\u001b\\[33m ┃  Node\\.js to the latest LTS release: https://nodejs\\.org/\u001b\\[39m)?',
-	nodeDeprecationWarningNoColor: '(?:\n* ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\n ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\n ┃  Node\\.js to the latest LTS release: https://nodejs\\.org/)?',
+	nodeDeprecationWarning: '(?:\n*\u001b\\[33m ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\u001b\\[39m\n\u001b\\[33m ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\u001b\\[39m\n\u001b\\[33m ┃ Node\\.js to the latest LTS release: https://nodejs\\.org/\u001b\\[39m)?',
+	nodeDeprecationWarningNoColor: '(?:\n* ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\n ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\n ┃ Node\\.js to the latest LTS release: https://nodejs\\.org/)?',
 	startRed: '(?:\u001b\\[31m)?',
 	string: '[^\\s]+',
 	url: 'http[^\\s]+',
