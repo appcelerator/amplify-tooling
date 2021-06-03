@@ -48,6 +48,10 @@ ORGANIZATION, USER, AND TEAM MANAGEMENT:
 
 NEXT STEPS:
 
+  Install Axway Central CLI:
+
+    ${cyan('axway pm i @axway/axway-central-cli')}
+
   Install Amplify Runtime Services:
 
     ${cyan('axway pm i acs')}
