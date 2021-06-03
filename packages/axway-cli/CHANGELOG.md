@@ -2,6 +2,8 @@
 
  * chore: Added unsupported architecture and 32-bit architecture deprecation warning to banner.
    ([CLI-130](https://jira.axway.com/browse/CLI-130))
+ * doc: Added "install Axway Central CLI" to post install next steps verbiage.
+   ([CLI-128](https://jira.axway.com/browse/CLI-128))
  * style: Adjusted error rendering.
 
 # v2.1.0 (May 11, 2021)
