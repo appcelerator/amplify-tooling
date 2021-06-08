@@ -71,7 +71,7 @@ export default {
 				let i = 0;
 				const table = createTable();
 				for (const major of Object.keys(majors).sort().reverse()) {
-					const versions = majors[major].sort(semver.compare);
+					const versions = majors[major].sort(semver.rcompare);
 					if (i++) {
 						table.push([ '' ]);
 					}
