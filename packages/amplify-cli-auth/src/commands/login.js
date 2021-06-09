@@ -39,8 +39,14 @@ export default {
 		'-c, --client-secret [key]': 'A secret key used to authenticate',
 		'-s, --secret-file [path]':  'Path to the PEM key used to authenticate',
 		'--service':                 'Authenticates client secret for non-platform service account',
-		'-u, --username [user]':     'Username to authenticate with',
-		'-p, --password [pass]':     'Password to authenticate with'
+		'-u, --username [user]': {
+			desc: 'Username to authenticate with',
+			hidden: true
+		},
+		'-p, --password [pass]': {
+			desc: 'Password to authenticate with',
+			hidden: true
+		}
 	},
 	async action({ argv, cli, console }) {
 		const { default: snooplogg } = require('snooplogg');
