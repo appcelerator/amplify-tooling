@@ -42,15 +42,19 @@ export default {
 		const urlRE = /^.*\/\//;
 		const check = process.platform === 'win32' ? '√' : '✔';
 
+		console.log(`${accounts.length} accounts found`);
+
 		for (const { default: def, auth, isPlatform, name, org } of accounts) {
 			const { access, refresh } = auth.expires;
-			table.push([
+			const x = [
 				def ? green(`${check} ${name}`) : `  ${name}`,
 				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
 				isPlatform ? 'Platform' : 'Service',
 				pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
 				`${auth.env} (${auth.baseUrl.replace(urlRE, '')})`
-			]);
+			];
+			console.log(x);
+			table.push(x);
 		}
 
 		console.log(table.toString());
