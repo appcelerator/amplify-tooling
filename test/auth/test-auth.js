@@ -231,6 +231,8 @@ describe('axway auth', () => {
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success-service-not-default'));
 
+			({ status, stdout } = await runAxwaySync([ 'auth', 'list', '--json' ]));
+
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/platform-service-accounts'));
