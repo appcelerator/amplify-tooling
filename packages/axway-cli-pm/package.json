@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^4.3.4",
-    "appcd-fs": "^2.1.0",
+    "appcd-fs": "^2.1.2",
     "cli-kit": "^1.13.0",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^9.1.0",
