@@ -35,8 +35,8 @@ export function createAuthRoutes(server, opts = {}) {
 		ctx.body = {
 			access_token:       state.accessToken,
 			refresh_token:      state.refreshToken,
-			expires_in:         60,
-			refresh_expires_in: 120
+			expires_in:         10,
+			refresh_expires_in: 10
 		};
 	});
 
