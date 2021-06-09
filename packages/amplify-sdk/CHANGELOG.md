@@ -1,7 +1,5 @@
-# v2.2.0
+# v2.1.6
 
- * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being
-   executed as sudo. ([APIGOV-19102](https://jira.axway.com/browse/APIGOV-19102))
  * fix: Validate team argument for user add, list, and update commands.
    ([CLI-134](https://jira.axway.com/browse/CLI-134))
  * fix: Parse activity and usage dates using current locale.

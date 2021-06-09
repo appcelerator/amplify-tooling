@@ -8,7 +8,7 @@ import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { expandPath } from 'appcd-path';
-import { isFile, writeFileSync } from 'appcd-fs';
+import { isFile } from 'appcd-fs';
 
 const axwayHome = path.join(os.homedir(), '.axway');
 
@@ -40,7 +40,7 @@ export function loadConfig(opts = {}) {
 	if (!isFile(configFile) && isFile(legacyConfigFile)) {
 		const json = fs.readJsonSync(legacyConfigFile);
 		json.extensions = {};
-		writeFileSync(configFile, JSON.stringify(json, null, 2));
+		fs.outputJsonSync(configFile, json);
 	}
 
 	const cfg = new Config({

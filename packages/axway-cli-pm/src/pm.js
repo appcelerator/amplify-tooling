@@ -9,7 +9,7 @@ import spawn from 'cross-spawn';
 import which from 'which';
 import { createNPMRequestArgs, createRequestOptions, loadConfig, locations } from '@axway/amplify-cli-utils';
 import { EventEmitter } from 'events';
-import { isDir, isFile, mkdirpSync } from 'appcd-fs';
+import { isDir, isFile } from 'appcd-fs';
 
 const scopedPackageRegex = /^@[a-z0-9][\w-.]+\/?/;
 const { error, log } = snooplogg('pm');
@@ -95,7 +95,7 @@ export function install(pkgName) {
 			previousActivePackage = cfg.get(`extensions.${info.name}`);
 
 			info.path = path.join(packagesDir, info.name, info.version);
-			mkdirpSync(info.path);
+			await fs.mkdirp(info.path);
 
 			emitter.emit('download', info);
 			await pacote.extract(`${info.name}@${info.version}`, info.path, createRequestOptions());
@@ -109,11 +109,8 @@ export function install(pkgName) {
 			const opts = {
 				cwd: info.path,
 				env: Object.assign({ NO_UPDATE_NOTIFIER: 1 }, process.env),
-				gid: process.env.SUDO_GID ? parseInt(process.env.SUDO_GID) : undefined,
-				uid: process.env.SUDO_UID ? parseInt(process.env.SUDO_UID) : undefined,
 				windowsHide: true
 			};
-
 			log(`node ${highlight(process.version)} npm ${highlight(spawn.sync('npm', [ '-v' ], opts).stdout.toString().trim())}`);
 			log(`Running PWD=${info.path} ${highlight(`${npm} ${args.join(' ')}`)}`);
 			await new Promise((resolve, reject) => {
