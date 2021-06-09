@@ -214,7 +214,8 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
 		});
 
-		itSkipHeadless('should log into both a platform and service account', async function () {
+		// itSkipHeadless('should log into both a platform and service account', async function () {
+		it.only('should log into both a platform and service account', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -229,8 +230,6 @@ describe('axway auth', () => {
 			({ status, stdout } = await runAxwaySync([ 'auth', 'login', '--secret-file', path.join(__dirname, 'login/secret.pem') ]));
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success-service-not-default'));
-
-			await new Promise(resolve => setTimeout(resolve, 1000));
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
