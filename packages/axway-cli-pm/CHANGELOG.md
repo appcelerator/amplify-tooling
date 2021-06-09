@@ -1,5 +1,7 @@
 # v3.0.0
 
+ * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being
+   executed as sudo. ([APIGOV-19102](https://jira.axway.com/browse/APIGOV-19102))
  * refactor: Renamed package from `@axway/amplify-cli-pm` to `@axway/axway-cli-pm`.
  * refactor: Removed registry server integration in favor of querying npm directly.
    ([CLI-111](https://jira.axway.com/browse/CLI-111))
