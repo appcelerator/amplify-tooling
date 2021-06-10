@@ -41,12 +41,6 @@ axway auth login
 
 axway auth login --json
 
-axway auth login --username
-
-axway auth login --username <username>
-
-axway auth login --username <username> --password <password>
-
 axway auth login --secret <CLIENT_SECRET>
 
 axway auth login --secret-file <path/to/pem/file>

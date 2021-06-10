@@ -1,3 +1,8 @@
+# v2.6.5
+
+ * chore: Hid the `--username` and `--password` login options since username/password flow does not
+   work and confuses users. ([APIGOV-19103](https://jira.axway.com/browse/APIGOV-19103))
+
 # v2.6.4 (May 11, 2021)
 
  * fix: Added environment name to `axway auth list`.
