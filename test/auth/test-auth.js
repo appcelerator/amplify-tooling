@@ -82,7 +82,7 @@ describe('axway auth', () => {
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-account'));
+			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'login' ]));
 			expect(status).to.equal(0);
@@ -159,7 +159,7 @@ describe('axway auth', () => {
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-account'));
+			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
 		});
 
 		it('should log into service account using client secret', async function () {
@@ -224,13 +224,11 @@ describe('axway auth', () => {
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-account'));
+			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'login', '--secret-file', path.join(__dirname, 'login/secret.pem') ]));
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success-service-not-default'));
-
-			await new Promise(resolve => setTimeout(resolve, 1000));
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
