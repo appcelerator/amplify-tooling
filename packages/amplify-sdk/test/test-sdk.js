@@ -886,7 +886,13 @@ describe('amplify-sdk', () => {
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
 
-				const { team } = await sdk.team.find(account, '1000', 'A Team');
+				let { team } = await sdk.team.find(account, '1000', 'A Team');
+				expect(team.name).to.equal('A Team');
+
+				({ team } = await sdk.team.find(account, '1000', 'a team'));
+				expect(team.name).to.equal('A Team');
+
+				({ team } = await sdk.team.find(account, '1000', 'A TEAM'));
 				expect(team.name).to.equal('A Team');
 			});
 
@@ -911,25 +917,14 @@ describe('amplify-sdk', () => {
 				await expect(sdk.team.find(account, 100, 123)).to.eventually.be.rejectedWith(TypeError, 'Expected team to be a name or guid');
 			});
 
-			it('should return empty array if team is not found', async function () {
+			it('should error if team not found', async function () {
 				this.timeout(10000);
 				this.server = await createServer();
 
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
 
-				const { team } = await sdk.team.find(account, 100, 'foo');
-				expect(team).to.be.undefined;
-			});
-
-			it('should error if more than one team is found', async function () {
-				this.timeout(10000);
-				this.server = await createServer();
-
-				const { account, tokenStore } = this.server.createTokenStore();
-				const sdk = createSDK({ tokenStore });
-
-				await expect(sdk.team.find(account, '2000', 'B Team')).to.eventually.be.rejectedWith(Error, 'More than one team matches the name "B Team"');
+				await expect(sdk.team.find(account, 100, 'foo')).to.eventually.be.rejectedWith(Error, 'Unable to find team "foo" in the "Foo org" organization');
 			});
 		});
 

@@ -1,0 +1,32 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Display organization activity report.
+
+USAGE: {{#cyan}}axway org activity [options] [<org>]{{/cyan}}
+
+ACTIVITY ARGUMENTS:
+  {{#cyan}}org                {{/cyan}}  The organization name, id, or guid; defaults to the current org
+
+ACTIVITY OPTIONS:
+  {{#cyan}}--account [name]   {{/cyan}}  The platform account to use
+  {{#cyan}}--from [yyyy-mm-dd]{{/cyan}}  The start date
+  {{#cyan}}--json             {{/cyan}}  Outputs the org activity as JSON
+  {{#cyan}}--to [yyyy-mm-dd]  {{/cyan}}  The end date
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner        {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color         {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help         {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version      {{/cyan}}  Outputs the version
+
+EXAMPLE:
+
+  You must be authenticated into an Amplify Platform account to view or manage
+  organizations. Run {{#cyan}}"axway auth login"{{/cyan}} to authenticate.
+
+  Display organization activity for the past 14 days:
+    {{#cyan}}axway org activity <org>{{/cyan}}
+
+  Display organization activity for a specific date range:
+    {{#cyan}}axway org activity <org> --from 2021-04-01 --to 2021-04-30{{/cyan}}

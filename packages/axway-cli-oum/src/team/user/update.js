@@ -7,7 +7,7 @@ export default {
 		},
 		{
 			name: 'team',
-			desc: 'The team identifier',
+			desc: 'The team name or guid',
 			required: true
 		},
 		{
