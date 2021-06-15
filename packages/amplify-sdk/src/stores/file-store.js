@@ -213,7 +213,7 @@ export default class FileStore extends TokenStore {
 						...acct.org,
 						org_id: acct.org?.id
 					},
-					orgs: acct.orgs.map(org => {
+					orgs: !Array.isArray(acct.orgs) ? [] : acct.orgs.map(org => {
 						const o = { ...org, org_id: org.id };
 						delete o.id;
 						return o;
