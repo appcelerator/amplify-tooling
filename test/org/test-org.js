@@ -184,7 +184,10 @@ describe('axway org', () => {
 
 			const { status, stdout } = await runAxwaySync([ 'org', 'list' ]);
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('list/foo-bar'));
+			const re = renderRegexFromFile('list/foo-bar');
+			console.log(JSON.stringify(stdout));
+			console.log(re.toString());
+			expect(stdout).to.match(re);
 		});
 
 		it('should list all orgs as JSON', async function() {

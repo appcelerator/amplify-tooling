@@ -6,4 +6,5 @@ runNPMPackage {
   packageJsonPath = 'packages/axway-cli/package.json'
   // platforms = [ 'osx' ]
   publish = false
+  successThreshold = 50
 }
