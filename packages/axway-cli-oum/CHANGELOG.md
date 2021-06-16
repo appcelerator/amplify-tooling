@@ -1,7 +1,8 @@
-# v1.1.4
+# v1.2.0
 
+ * feat(org:view): Show list of org teams.
  * fix(activity): Render activity changes correctly.
-   ([CLI-132](https://jira.axway.com/browse/CLI-132))
+   ([APIGOV-19215](https://jira.axway.com/browse/APIGOV-19215))
  * fix(org:view): Don't show child org section if there are no child orgs.
  * fix(util): Fixed typo in platform account assertion.
 

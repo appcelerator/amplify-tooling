@@ -1,0 +1,36 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Add a user to a team.
+
+USAGE: {{#cyan}}axway team user add <org> <team> <user> --role <role> [options]{{/cyan}}
+
+ADD ARGUMENTS:
+  {{#cyan}}org             {{/cyan}}  The organization name, id, or guid
+  {{#cyan}}team            {{/cyan}}  The team name or guid
+  {{#cyan}}user            {{/cyan}}  The user guid or email address
+
+ADD OPTIONS:
+  {{#cyan}}--account [name]{{/cyan}}  The platform account to use
+  {{#cyan}}--json          {{/cyan}}  Outputs the result as JSON
+  {{#cyan}}--role <role>   {{/cyan}}  Assign one or more team roles to a user
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner     {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color      {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help      {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version   {{/cyan}}  Outputs the version
+
+EXAMPLES:
+
+  You may specify an organization by name, id, or guid.
+
+  The user must already be a platform user.
+
+  An team user must be assigned a platform role and optionally a product
+  specific role. You may specify the roles with multiple {{#cyan}}--role "role"{{/cyan}} options
+  or a single {{#cyan}}--role "role1,role2,role3"{{/cyan}} option with a comma-separated list of
+  roles. To view available user roles, run: {{#cyan}}axway team user roles{{/cyan}}
+
+  Add a user to an organization with administrator privileges.
+    {{#cyan}}axway team user add <org> <email> --role administrator{{/cyan}}

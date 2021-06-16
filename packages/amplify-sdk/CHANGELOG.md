@@ -2,8 +2,12 @@
 
  * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being
    executed as sudo. ([APIGOV-19102](https://jira.axway.com/browse/APIGOV-19102))
+ * feat: Added list of teams to find org info.
  * fix: Validate team argument for user add, list, and update commands.
-   ([CLI-134](https://jira.axway.com/browse/CLI-134))
+   ([APIGOV-19216](https://jira.axway.com/browse/APIGOV-19216))
+ * fix(teams): Allow team user management commands to case insensitive match team name or guid and
+   match user by email address or guid.
+   ([APIGOV-19105](https://jira.axway.com/browse/APIGOV-19105))
  * fix: Parse activity and usage dates using current locale.
 
 # v2.1.5 (May 11, 2021)
