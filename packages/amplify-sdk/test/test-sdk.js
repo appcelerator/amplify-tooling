@@ -139,6 +139,78 @@ describe('amplify-sdk', () => {
 				await sdk.auth.logout({ accounts: [] });
 				await sdk.auth.logout({ all: true });
 			});
+
+			it('should error if authenticating with username and password without client secret or secret file', async function () {
+				this.timeout(10000);
+				this.server = await createServer();
+
+				const sdk = createSDK();
+
+				await expect(sdk.auth.login({
+					username: 'foo',
+					password: 'bar'
+				})).to.eventually.be.rejectedWith(Error, 'Username/password can only be specified when using client secret or secret file');
+			});
+
+			it('should error if authenticating with invalid username', async function () {
+				this.timeout(10000);
+				this.server = await createServer();
+
+				const sdk = createSDK();
+
+				await expect(sdk.auth.login({
+					username: 123,
+					clientSecret: '###',
+					serviceAccount: true
+				})).to.eventually.be.rejectedWith(TypeError, 'Expected username to be an email address');
+			});
+
+			it('should error if authenticating with missing password', async function () {
+				this.timeout(10000);
+				this.server = await createServer();
+
+				const sdk = createSDK();
+
+				await expect(sdk.auth.login({
+					username: 'foo',
+					clientSecret: '###',
+					serviceAccount: true
+				})).to.eventually.be.rejectedWith(TypeError, 'Expected password to be a non-empty string');
+			});
+
+			it('should login with client secret, username and password', async function () {
+				this.timeout(10000);
+				this.server = await createServer();
+
+				const sdk = createSDK();
+
+				const account = await sdk.auth.login({
+					username: 'test1@domain.com',
+					password: 'bar',
+					clientSecret: '###',
+					serviceAccount: true
+				});
+
+				expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
+				expect(account.isPlatform).to.equal(true);
+				expect(account.org.guid).to.equal('1000');
+				expect(account.orgs).to.have.lengthOf(2);
+				expect(account.user.email).to.equal('test1@domain.com');
+			});
+
+			it('should error logging in with client secret and bad credentials', async function () {
+				this.timeout(10000);
+				this.server = await createServer();
+
+				const sdk = createSDK();
+
+				await expect(sdk.auth.login({
+					username: 'test1@domain.com',
+					password: 'baz',
+					clientSecret: '###',
+					serviceAccount: true
+				})).to.eventually.be.rejectedWith(Error, 'Failed to authenticate: Response code 401 (Unauthorized) (401)');
+			});
 		});
 
 		describe('switchOrg()', () => {

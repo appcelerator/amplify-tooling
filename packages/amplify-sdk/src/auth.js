@@ -55,7 +55,8 @@ export default class Auth {
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {Object} [opts.requestOptions] - An options object to pass into Amplify CLI Utils to
 	 * create the `got` HTTP client.
-	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
+	 * @param {String} [opts.secretFile] - The path to the PEM formatted private key used to sign
+	 * the JWT.
 	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
 	 * using this library when using the "secure" token store.
 	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being

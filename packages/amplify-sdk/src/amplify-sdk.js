@@ -10,6 +10,7 @@ import snooplogg from 'snooplogg';
 import * as environments from './environments';
 import * as request from '@axway/amplify-request';
 import { createURL } from './util';
+import { redact } from 'appcd-util';
 
 const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;
@@ -196,6 +197,12 @@ export default class AmplifySDK {
 			 * org info, and returns it.
 			 * @param {Object} opts - Various authentication options to override the defaults set
 			 * via the `Auth` constructor.
+			 * @param {String} [opts.password] - The platform tooling password used to
+			 * authenticate. Requires a `username` and `clientSecret` or `secretFile`.
+			 * @param {String} [opts.secretFile] - The path to the PEM formatted private key used
+			 * to sign the JWT.
+			 * @param {String} [opts.username] - The platform tooling username used to
+			 * authenticate. Requires a `password` and `clientSecret` or `secretFile`.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
 			login: async (opts = {}) => {
@@ -207,7 +214,7 @@ export default class AmplifySDK {
 					const clientSecret = opts.clientSecret || this.opts.clientSecret;
 					const secretFile   = opts.secretFile || this.opts.secretFile;
 					if (!clientSecret && !secretFile) {
-						throw new Error('Username/password can only be specified when using clientSecret or secretFile');
+						throw new Error('Username/password can only be specified when using client secret or secret file');
 					}
 					if (!username || typeof username !== 'string') {
 						throw new TypeError('Expected username to be an email address');
@@ -247,15 +254,24 @@ export default class AmplifySDK {
 
 				// upgrade the service account with the platform tooling account
 				if (username && password) {
-					await this.request('/api/v1/auth/login', account, {
-						errorMsg: 'Failed to authenticate',
-						isToolingAuth: true,
-						json: {
-							from: 'cli',
-							username,
-							password
-						}
-					});
+					try {
+						await this.request('/api/v1/auth/login', account, {
+							errorMsg: 'Failed to authenticate',
+							isToolingAuth: true,
+							json: {
+								from: 'cli',
+								username,
+								password
+							}
+						});
+					} catch (err) {
+						// something happened, revoke the access tokens we just got and rethrow
+						await this.client.logout({
+							accounts: [ account.name ],
+							baseUrl: this.baseUrl
+						});
+						throw err;
+					}
 				}
 
 				return await this.auth.loadSession(account);
@@ -1339,7 +1355,7 @@ export default class AmplifySDK {
 			try {
 				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
 				if (opts.json) {
-					log(opts.json);
+					log(redact(opts.json, { clone: true }));
 				}
 				response = await this.got[method](url, opts);
 			} catch (e) {

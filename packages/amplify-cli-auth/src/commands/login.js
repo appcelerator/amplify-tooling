@@ -23,10 +23,12 @@ export default {
     ${style.highlight('axway auth login --client-id <id> --secret-file <path>')}
 
   Log into a service account using a client secret:
-    ${style.highlight('axway auth login --client-id <id> --client-secret <token> --service')}
+    ${style.highlight('axway auth login --client-id <id> --client-secret <token>')}
 
   Log into a service account with platform tooling credentials:
-    ${style.highlight('axway auth login --client-id <id> --secret-file <path> --username <user>')}`;
+    ${style.highlight('axway auth login --client-id <id> --secret-file <path> --username <user>')}
+  or
+    ${style.highlight('axway auth login --client-id <id> --client-secret <key> --username <user>')}`;
 		}
 	},
 	options: [
@@ -42,13 +44,12 @@ export default {
 			},
 			'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser'
 		},
-		'Service Accounts',
+		'Service Account',
 		{
 			'-c, --client-secret [key]': 'A secret key used to authenticate',
 			'-s, --secret-file [path]':  'Path to the PEM formatted private key used to sign JWT',
-			'--service':                 'Authenticates client secret for non-platform service account',
-			'-u, --username [user]':     'Platform tooling username when logging in with a service account',
-			'-p, --password [pass]':     'Platform tooling password when logging in with a service account'
+			'-u, --username [user]':     'Platform tooling username to use with --client-secret or --secret-file',
+			'-p, --password [pass]':     'Platform tooling password to use with --client-secret or --secret-file'
 		}
 	],
 	async action({ argv, cli, console }) {
@@ -104,7 +105,7 @@ export default {
 			env:            argv.env,
 			realm:          argv.realm,
 			secretFile:     argv.secretFile,
-			serviceAccount: argv.service
+			serviceAccount: !!argv.clientSecret
 		});
 		let account;
 		const { highlight } = snooplogg.styles;

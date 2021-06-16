@@ -1,7 +1,9 @@
-# v2.6.5
+# v2.7.0
 
- * chore: Hid the `--username` and `--password` login options since username/password flow does not
-   work and confuses users. ([APIGOV-19103](https://jira.axway.com/browse/APIGOV-19103))
+ * feat: Add support for authenticating into a service account, then upgrade to a platform account
+   using the platform tooling credentials.
+   ([APIGOV-19229](https://jira.axway.com/browse/APIGOV-19229))
+ * fix: Remove `--service` flag and treat `--client-secret` auth flows to be headless.
 
 # v2.6.4 (May 11, 2021)
 
