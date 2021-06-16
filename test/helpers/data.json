@@ -2,18 +2,34 @@
 	"activity": [
 		{
 			"ts": 1612281933000,
-			"message": "Feb 2 sample",
-			"org_id": 100
+			"event": "platform.team.user.add",
+			"message": "User __s__test1@domain.com__/s__ added to team __s__Default Team__/s__",
+			"org_id": 100,
+			"data": {
+				"org_name": "Foo org"
+			}
 		},
 		{
 			"ts": 1612728620000,
-			"message": "Feb 7 sample",
-			"org_id": 100
+			"message": "Team __s__B Team__/s__ created",
+			"event": "platform.team.create",
+			"org_id": 100,
+			"data": {
+				"team": {
+					"guid": "60001",
+					"name": "B Team",
+					"default": false
+				},
+				"org_name": "Foo org"
+			}
 		},
 		{
 			"ts": 1613253008000,
-			"message": "Feb 13 sample",
-			"org_id": 100
+			"message": "Session created for user __s__foo@bar.com__/s__",
+  			"event": "platform.session.create",
+			"org_id": 100,
+			"data": {
+			}
 		},
 		{
 			"ts": 1612530918676,

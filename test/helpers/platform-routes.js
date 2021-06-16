@@ -226,6 +226,8 @@ export function createPlatformRoutes(server, opts = {}) {
 					if (user) {
 						users.push({
 							...user,
+							name: `${user.firstname} ${user.lastname}`.trim(),
+							teams: data.teams.filter(t => t.users.find(u => u.guid === user.guid)).length,
 							...ou
 						});
 					}
@@ -409,7 +411,7 @@ export function createPlatformRoutes(server, opts = {}) {
 
 			ctx.body = {
 				success: true,
-				result: { guid: user.guid }
+				result: team
 			};
 		}
 	});

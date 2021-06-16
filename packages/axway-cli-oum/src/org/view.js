@@ -28,7 +28,7 @@ export default {
 		}
 
 		const { default: snooplogg } = require('snooplogg');
-		const { highlight, note } = snooplogg.styles;
+		const { green, highlight, note } = snooplogg.styles;
 
 		console.log(`Account: ${highlight(account.name)}\n`);
 
@@ -46,21 +46,39 @@ export default {
 		if (org.insightUserCount) {
 			console.log(`  Insight Users: ${highlight(`${org.insightUserCount} user${org.insightUserCount !== 1 ? 's' : ''}`)}`);
 		}
-		console.log(`  Teams:         ${highlight(org.teamCount)}`);
 
-		const subs = createTable([ '  Category', 'Edition', 'Tier', 'Governance', 'Date', 'Status' ]);
-		for (const s of org.subscriptions) {
-			subs.push([
-				`  ${s.category}`,
-				s.edition,
-				s.tier.charAt(0).toUpperCase() + s.tier.slice(1),
-				s.governance,
-				`${new Date(s.startDate).toLocaleDateString()} - ${new Date(s.endDate).toLocaleDateString()}`,
-				s.expired ? 'Terminated' : 'Active'
-			]);
+		if (org.teams.length) {
+			const table = createTable([ '  Name', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
+			const check = process.platform === 'win32' ? '√' : '✔';
+			for (const { apps, created, default: def, desc, guid, name, users } of org.teams) {
+				table.push([
+					def ? green(`  ${check} ${name}`) : `    ${name}`,
+					desc || note('n/a'),
+					guid,
+					users.length,
+					apps.length,
+					new Date(created).toLocaleDateString()
+				]);
+			}
+			console.log('\nTEAMS');
+			console.log(table.toString());
 		}
-		console.log('\nSUBSCRIPTIONS');
-		console.log(subs.toString());
+
+		if (Array.isArray(org.subscriptions) && org.subscriptions.length) {
+			const subs = createTable([ '  Category', 'Edition', 'Tier', 'Governance', 'Date', 'Status' ]);
+			for (const s of org.subscriptions) {
+				subs.push([
+					`  ${s.category}`,
+					s.edition,
+					s.tier.charAt(0).toUpperCase() + s.tier.slice(1),
+					s.governance,
+					`${new Date(s.startDate).toLocaleDateString()} - ${new Date(s.endDate).toLocaleDateString()}`,
+					s.expired ? 'Terminated' : 'Active'
+				]);
+			}
+			console.log('\nSUBSCRIPTIONS');
+			console.log(subs.toString());
+		}
 
 		if (Array.isArray(org.childOrgs) && org.childOrgs.length) {
 			const children = createTable([ '  Name', 'GUID', 'Date Created', 'Status', 'Users' ]);

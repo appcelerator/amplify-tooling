@@ -39,7 +39,7 @@ describe('axway user', () => {
 			this.servers = await startServers();
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
-			const { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28' ]);
+			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28' ]);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('activity/activity-report'));
 		});
@@ -49,7 +49,7 @@ describe('axway user', () => {
 			this.servers = await startServers();
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
-			const { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-05-15', '--to', '2021-05-16' ]);
+			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-05-15', '--to', '2021-05-16' ]);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('activity/no-activity'));
 		});
@@ -59,7 +59,7 @@ describe('axway user', () => {
 			this.servers = await startServers();
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
-			const { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28', '--json' ]);
+			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--from', '2021-02-01', '--to', '2021-02-28', '--json' ]);
 			expect(status).to.equal(0);
 			const result = JSON.parse(stdout);
 			expect(result).to.deep.equal({
@@ -126,7 +126,7 @@ describe('axway user', () => {
 			});
 		});
 
-		it('should error if dates are invlid', async function () {
+		it('should error if dates are invalid', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
@@ -145,5 +145,17 @@ describe('axway user', () => {
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('activity/help'));
 		});
+	});
+
+	describe('credentials', () => {
+		//
+	});
+
+	describe('update', () => {
+		//
+	});
+
+	describe('view', () => {
+		//
 	});
 });

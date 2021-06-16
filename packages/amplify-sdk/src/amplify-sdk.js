@@ -483,6 +483,8 @@ export default class AmplifySDK {
 					tier:       s.tier
 				}));
 
+				const { teams } = await this.team.list(account, id);
+
 				const result = {
 					active:           org.active,
 					created:          org.created,
@@ -496,7 +498,8 @@ export default class AmplifySDK {
 					insightUserCount: ~~org.entitlements.limit_read_only_users,
 					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
 					subscriptions,
-					teamCount:        (await this.team.list(account, id)).teams.length,
+					teams,
+					teamCount:        teams.length,
 					userCount:        org.users.length,
 					userRoles:        org.users.find(u => u.guid === account.user.guid)?.roles || []
 				};
@@ -890,23 +893,16 @@ export default class AmplifySDK {
 					throw E.INVALID_ARGUMENT('Expected team to be a name or guid');
 				}
 
-				try {
-					return {
-						org,
-						team: await this.request(`/api/v1/team/${team}`, account, {
-							errorMsg: 'Failed to get team'
-						})
-					};
-				} catch (e) {
-					// maybe `team` is a name?
-					const matches = await this.request(`/api/v1/team?name=${team}&org_id=${org.id}`, account, {
-						errorMsg: 'Failed to get team'
-					});
-					if (matches.length > 1) {
-						throw new Error(`More than one team matches the name "${team}"`);
-					}
-					return { org, team: matches[0] };
+				const origTeam = team;
+				const { teams } = await this.team.list(account, org);
+				team = team.toLowerCase();
+				team = teams.find(t => t.name.toLowerCase() === team || t.guid === team);
+
+				if (!team) {
+					throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
 				}
+
+				return { org, team };
 			},
 
 			/**
@@ -943,7 +939,7 @@ export default class AmplifySDK {
 						throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
 					}
 
-					const found  = await this.user.find(account, user);
+					const found = await this.org.user.find(account, org.guid, user);
 					if (!found) {
 						throw new Error(`Unable to find the user "${user}"`);
 					}
