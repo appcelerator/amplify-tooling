@@ -20,7 +20,7 @@ export function createPlatformRoutes(server, opts = {}) {
 		const p = authorization ? authorization.indexOf(' ') : -1;
 		const token = p !== -1 ? authorization.substring(p + 1) : null;
 
-		log(`Finding session using token "${token}"`);
+		log(`Finding session using token "${token}" or cookie "${ctx.cookies.get('connect.sid')}"`);
 
 		if (!state.isServiceAccount && token === state.accessToken) {
 			const user = data.users.find(u => u.guid === '50000');
@@ -39,9 +39,37 @@ export function createPlatformRoutes(server, opts = {}) {
 				success: true,
 				result: null
 			};
+		} else if (ctx.session?.userGuid) {
+			const user = data.users.find(u => u.guid === ctx.session.userGuid);
+			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
+
+			ctx.body = {
+				success: true,
+				result: {
+					org: orgs[0],
+					orgs,
+					user
+				}
+			};
 		} else {
 			await next();
 		}
+	});
+
+	router.post('/v1/auth/login', async ctx => {
+		const { username, password } = ctx.request.body;
+
+		const user = data.users.find(u => u.email === username);
+		if (user && password === 'bar') {
+			ctx.session.userGuid = user.guid;
+			ctx.body = {
+				success: true,
+				result: user
+			};
+			return;
+		}
+
+		ctx.throw(401);
 	});
 
 	router.get('/v1/auth/logout', async ctx => {

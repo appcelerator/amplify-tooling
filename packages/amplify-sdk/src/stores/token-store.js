@@ -201,7 +201,7 @@ export default class TokenStore {
 		// NOTE: this code intentionally checkes `entries.length` each loop instead of caching the
 		// length since splice() shrinks the array length
 		for (let i = 0; i < entries.length; i++) {
-			const { expires } = entries[i].auth;
+			const expires = entries[i].auth?.expires;
 			const now = Date.now();
 			if (expires && ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh && expires.refresh > now))) {
 				// not expired

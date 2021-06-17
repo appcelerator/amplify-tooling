@@ -41,9 +41,13 @@ axway auth login
 
 axway auth login --json
 
-axway auth login --secret <CLIENT_SECRET>
+axway auth login --client-secret <CLIENT_SECRET>
+
+axway auth login --client-secret <CLIENT_SECRET> --username my@email.com
 
 axway auth login --secret-file <path/to/pem/file>
+
+axway auth login --secret-file <path/to/pem/file> --username my@email.com
 ```
 
 ### `logout`

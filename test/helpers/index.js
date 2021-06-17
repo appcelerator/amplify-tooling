@@ -7,6 +7,7 @@ import Mustache from 'mustache';
 import os from 'os';
 import path from 'path';
 import Router from '@koa/router';
+import session from 'koa-session';
 import snooplogg from 'snooplogg';
 import { createAuthRoutes } from './auth-routes';
 import { createPlatformRoutes } from './platform-routes';
@@ -155,8 +156,24 @@ function createServer({ port }) {
 	return new Promise((resolve, reject) => {
 		const app = new Koa();
 		const router = new Router();
+		const sessions = {};
 
 		app.use(bodyParser());
+		app.use(session({
+			key: 'connect.sid',
+			signed: false,
+			store: {
+				get(key) {
+					return sessions[key];
+				},
+				set(key, value) {
+					sessions[key] = value;
+				},
+				destroy(key) {
+					sessions[key] = undefined;
+				}
+			}
+		}, app));
 		app.use(async (ctx, next) => {
 			log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
 			await next();

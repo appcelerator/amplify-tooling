@@ -23,31 +23,35 @@ export default {
     ${style.highlight('axway auth login --client-id <id> --secret-file <path>')}
 
   Log into a service account using a client secret:
-    ${style.highlight('axway auth login --client-id <id> --client-secret <token> --service')}`;
+    ${style.highlight('axway auth login --client-id <id> --client-secret <token>')}
+
+  Log into a service account with platform tooling credentials:
+    ${style.highlight('axway auth login --client-id <id> --secret-file <path> --username <user>')}
+  or
+    ${style.highlight('axway auth login --client-id <id> --client-secret <key> --username <user>')}`;
 		}
 	},
-	options: {
-		'--base-url [url]':          { hidden: true },
-		'--client-id [id]':          'The CLI specific client ID',
-		'--realm [name]':            { hidden: true },
-		'--force':                   'Re-authenticate even if the account is already authenticated',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs authenticated account as JSON'
+	options: [
+		'General',
+		{
+			'--base-url [url]':          { hidden: true },
+			'--client-id [id]':          'The CLI specific client ID',
+			'--realm [name]':            { hidden: true },
+			'--force':                   'Re-authenticate even if the account is already authenticated',
+			'--json': {
+				callback: ({ ctx, value }) => ctx.jsonMode = value,
+				desc: 'Outputs authenticated account as JSON'
+			},
+			'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser'
 		},
-		'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser',
-		'-c, --client-secret [key]': 'A secret key used to authenticate',
-		'-s, --secret-file [path]':  'Path to the PEM key used to authenticate',
-		'--service':                 'Authenticates client secret for non-platform service account',
-		'-u, --username [user]': {
-			desc: 'Username to authenticate with',
-			hidden: true
-		},
-		'-p, --password [pass]': {
-			desc: 'Password to authenticate with',
-			hidden: true
+		'Service Account',
+		{
+			'-c, --client-secret [key]': 'A secret key used to authenticate',
+			'-s, --secret-file [path]':  'Path to the PEM formatted private key used to sign JWT',
+			'-u, --username [user]':     'Platform tooling username to use with --client-secret or --secret-file',
+			'-p, --password [pass]':     'Platform tooling password to use with --client-secret or --secret-file'
 		}
-	},
+	],
 	async action({ argv, cli, console }) {
 		const { default: snooplogg } = require('snooplogg');
 		const { initSDK, isHeadless } = require('@axway/amplify-cli-utils');
@@ -55,6 +59,10 @@ export default {
 
 		// prompt for the username and password
 		if (argv.username !== undefined) {
+			if (!argv.clientSecret && !argv.secretFile) {
+				throw new Error('Username/password can only be specified when using --client-secret or --secret-file');
+			}
+
 			const questions = [];
 
 			if (!argv.username || typeof argv.username !== 'string') {
@@ -95,11 +103,9 @@ export default {
 			clientId:       argv.clientId,
 			clientSecret:   argv.clientSecret,
 			env:            argv.env,
-			password:       argv.password,
 			realm:          argv.realm,
 			secretFile:     argv.secretFile,
-			serviceAccount: argv.service,
-			username:       argv.username
+			serviceAccount: !!argv.clientSecret
 		});
 		let account;
 		const { highlight } = snooplogg.styles;
@@ -133,7 +139,9 @@ export default {
 						} else if (!argv.json) {
 							console.log('Launching web browser to login...');
 						}
-					}
+					},
+					password: argv.password,
+					username: argv.username
 				});
 			}
 		} catch (err) {

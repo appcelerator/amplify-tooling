@@ -6,13 +6,16 @@ Log in to the Axway Amplify Platform.
 USAGE: {{#cyan}}axway auth login [options]{{/cyan}}
 
 LOGIN OPTIONS:
+{{#gray}}General:{{/gray}}
   {{#cyan}}--client-id [id]         {{/cyan}}  The CLI specific client ID
-  {{#cyan}}-c, --client-secret [key]{{/cyan}}  A secret key used to authenticate
   {{#cyan}}--force                  {{/cyan}}  Re-authenticate even if the account is already authenticated
   {{#cyan}}--json                   {{/cyan}}  Outputs authenticated account as JSON
   {{#cyan}}--no-launch-browser      {{/cyan}}  Display the authentication URL instead of opening it in the default web browser
-  {{#cyan}}-s, --secret-file [path] {{/cyan}}  Path to the PEM key used to authenticate
-  {{#cyan}}--service                {{/cyan}}  Authenticates client secret for non-platform service account
+{{#gray}}Service Account:{{/gray}}
+  {{#cyan}}-c, --client-secret [key]{{/cyan}}  A secret key used to authenticate
+  {{#cyan}}-p, --password [pass]    {{/cyan}}  Platform tooling password to use with --client-secret or --secret-file
+  {{#cyan}}-s, --secret-file [path] {{/cyan}}  Path to the PEM formatted private key used to sign JWT
+  {{#cyan}}-u, --username [user]    {{/cyan}}  Platform tooling username to use with --client-secret or --secret-file
 
 AUTH OPTIONS:
   {{#cyan}}--env [name]             {{/cyan}}  The environment to use
@@ -32,4 +35,9 @@ EXAMPLES:
     {{#cyan}}axway auth login --client-id <id> --secret-file <path>{{/cyan}}
 
   Log into a service account using a client secret:
-    {{#cyan}}axway auth login --client-id <id> --client-secret <token> --service{{/cyan}}
+    {{#cyan}}axway auth login --client-id <id> --client-secret <token>{{/cyan}}
+
+  Log into a service account with platform tooling credentials:
+    {{#cyan}}axway auth login --client-id <id> --secret-file <path> --username <user>{{/cyan}}
+  or
+    {{#cyan}}axway auth login --client-id <id> --client-secret <key> --username <user>{{/cyan}}

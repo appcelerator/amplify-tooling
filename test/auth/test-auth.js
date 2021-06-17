@@ -14,7 +14,7 @@ import { isHeadless } from '@axway/amplify-cli-utils';
 
 const itSkipHeadless = isHeadless() ? it.skip : it;
 
-describe('axway auth', () => {
+describe.only('axway auth', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
@@ -149,24 +149,11 @@ describe('axway auth', () => {
 			}
 		});
 
-		itSkipHeadless('should log into platform account using client secret', async function () {
-			initHomeDir('home-local');
-			this.servers = await startServers();
-
-			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-secret', 'shhhh' ]);
-			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('login/success'));
-
-			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
-			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
-		});
-
 		it('should log into service account using client secret', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
-			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-secret', 'shhhh', '--service' ]);
+			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-secret', 'shhhh' ]);
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success-service'));
 
@@ -201,17 +188,55 @@ describe('axway auth', () => {
 			expect(stdout).to.match(renderRegexFromFile('list/service-bar-account'));
 		});
 
-		it('should log into platform account using username and password', async function () {
+		it('should log into platform account using client secret, username and password', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
-			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--username', 'foo', '--password', 'bar' ]);
+			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-secret', 'shhhh', '--username', 'test1@domain.com', '--password', 'bar' ]);
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success-headless'));
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
+			expect(stdout).to.match(renderRegexFromFile('list/service-bar-platform-account'));
+		});
+
+		it('should log into platform account using secret file, username and password', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+
+			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--secret-file', path.join(__dirname, 'login/secret.pem'), '--username', 'test1@domain.com', '--password', 'bar' ]);
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('login/success-headless'));
+
+			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
+			expect(status).to.equal(0);
+			expect(stdout).to.match(renderRegexFromFile('list/service-bar-platform-account'));
+		});
+
+		it('should error logging into platform account using username and password and no client secret or secret file', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+
+			const { status, stderr } = await runAxwaySync([ 'auth', 'login', '--username', 'test1@domain.com', '--password', 'bar' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('login/missing-client-secret'));
+		});
+
+		it('should error logging into platform account using invalid username and password credentials', async function () {
+			this.timeout(60000);
+			this.slow(30000);
+
+			initHomeDir('home-local');
+			this.servers = await startServers();
+
+			let { status, stderr } = await runAxwaySync([ 'auth', 'login', '--client-secret', 'shhh', '--username', 'bad_user', '--password', 'bar' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('login/bad-credentials'));
+
+			({ status, stderr } = await runAxwaySync([ 'auth', 'login', '--client-secret', 'shhh', '--username', 'test1@domain.com', '--password', 'bad_password' ]));
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('login/bad-credentials'))
 		});
 
 		itSkipHeadless('should log into both a platform and service account', async function () {

@@ -10,6 +10,7 @@ import snooplogg from 'snooplogg';
 import * as environments from './environments';
 import * as request from '@axway/amplify-request';
 import { createURL } from './util';
+import { redact } from 'appcd-util';
 
 const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;
@@ -36,7 +37,9 @@ export default class AmplifySDK {
 		 * Authentication options including baseURL, clientID, env, realm, and token store settings.
 		 * @type {Object}
 		 */
-		this.opts = opts;
+		this.opts = { ...opts };
+		delete this.opts.username;
+		delete this.opts.password;
 
 		/**
 		 * Resolved environment-specific settings.
@@ -145,7 +148,7 @@ export default class AmplifySDK {
 				account.role = role;
 				account.roles = roles;
 
-				Object.assign(account.user, {
+				account.user = Object.assign({}, account.user, {
 					axwayId:      user.axway_id,
 					dateJoined:   user.date_activated,
 					email:        user.email,
@@ -194,11 +197,36 @@ export default class AmplifySDK {
 			 * org info, and returns it.
 			 * @param {Object} opts - Various authentication options to override the defaults set
 			 * via the `Auth` constructor.
+			 * @param {String} [opts.password] - The platform tooling password used to
+			 * authenticate. Requires a `username` and `clientSecret` or `secretFile`.
+			 * @param {String} [opts.secretFile] - The path to the PEM formatted private key used
+			 * to sign the JWT.
+			 * @param {String} [opts.username] - The platform tooling username used to
+			 * authenticate. Requires a `password` and `clientSecret` or `secretFile`.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
 			login: async (opts = {}) => {
 				let account;
 
+				// validate the username/password
+				const { password, username } = opts;
+				if (username || password) {
+					const clientSecret = opts.clientSecret || this.opts.clientSecret;
+					const secretFile   = opts.secretFile || this.opts.secretFile;
+					if (!clientSecret && !secretFile) {
+						throw new Error('Username/password can only be specified when using client secret or secret file');
+					}
+					if (!username || typeof username !== 'string') {
+						throw new TypeError('Expected username to be an email address');
+					}
+					if (!password || typeof password !== 'string') {
+						throw new TypeError('Expected password to be a non-empty string');
+					}
+					delete opts.username;
+					delete opts.password;
+				}
+
+				// check if already logged in
 				if (!opts?.force) {
 					account = await this.client.find(opts);
 					if (account && !account.auth.expired) {
@@ -215,11 +243,35 @@ export default class AmplifySDK {
 					}
 				}
 
+				// do the login
 				account = await this.client.login(opts);
 
+				// if we're in manual mode (e.g. --no-launch-browser), then return now
 				if (opts.manual) {
 					// account is actually an object containing `cancel`, `promise`, and `url`
 					return account;
+				}
+
+				// upgrade the service account with the platform tooling account
+				if (username && password) {
+					try {
+						await this.request('/api/v1/auth/login', account, {
+							errorMsg: 'Failed to authenticate',
+							isToolingAuth: true,
+							json: {
+								from: 'cli',
+								username,
+								password
+							}
+						});
+					} catch (err) {
+						// something happened, revoke the access tokens we just got and rethrow
+						await this.client.logout({
+							accounts: [ account.name ],
+							baseUrl: this.baseUrl
+						});
+						throw err;
+					}
 				}
 
 				return await this.auth.loadSession(account);
@@ -1251,14 +1303,15 @@ export default class AmplifySDK {
 	 * @param {String} path - The path to append to the URL.
 	 * @param {Object} account - The account object.
 	 * @param {Object} [opts] - Various options.
-	 * @param {String} [opts.resultKey='result'] - The name of the property return from the response.
+	 * @param {Boolean} [opts.isToolingAuth] - When `true`, bypasses the the no sid/token check.
 	 * @param {Object} [opts.json] - A JSON payload to send.
 	 * @param {String} [opts.method] - The HTTP method to use. If not set, then uses `post` if
 	 * `opts.json` is set, otherwise `get`.
+	 * @param {String} [opts.resultKey='result'] - The name of the property return from the response.
 	 * @returns {Promise} Resolves the JSON-parsed result.
 	 * @access private
 	 */
-	async request(path, account, { errorMsg, json, method, resultKey = 'result' } = {}) {
+	async request(path, account, { errorMsg, isToolingAuth, json, method, resultKey = 'result' } = {}) {
 		try {
 			if (!account || typeof account !== 'object') {
 				throw new TypeError('Account required');
@@ -1266,7 +1319,7 @@ export default class AmplifySDK {
 
 			const { sid } = account;
 			const token = account.auth?.tokens?.access_token;
-			if (!sid && !token) {
+			if (!sid && !token && !isToolingAuth) {
 				throw new Error('Invalid/expired account');
 			}
 
@@ -1278,7 +1331,7 @@ export default class AmplifySDK {
 
 			if (account.sid) {
 				headers.Cookie = `connect.sid=${account.sid}`;
-			} else {
+			} else if (token) {
 				headers.Authorization = `Bearer ${token}`;
 			}
 
@@ -1298,7 +1351,7 @@ export default class AmplifySDK {
 			try {
 				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
 				if (opts.json) {
-					log(opts.json);
+					log(redact(opts.json, { clone: true }));
 				}
 				response = await this.got[method](url, opts);
 			} catch (e) {

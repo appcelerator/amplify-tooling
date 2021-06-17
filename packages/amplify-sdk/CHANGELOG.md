@@ -1,5 +1,8 @@
 # v2.2.0
 
+ * feat: Add support for authenticating into a service account, then upgrade to a platform account
+   using the platform tooling credentials.
+   ([APIGOV-19229](https://jira.axway.com/browse/APIGOV-19229))
  * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being
    executed as sudo. ([APIGOV-19102](https://jira.axway.com/browse/APIGOV-19102))
  * feat: Added list of teams to find org info.

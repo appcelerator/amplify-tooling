@@ -5,12 +5,13 @@ import jws from 'jws';
 import Koa from 'koa';
 import path from 'path';
 import Router from '@koa/router';
+import session from 'koa-session';
 import snooplogg from 'snooplogg';
 import { MemoryStore } from '../dist/index';
 import { v4 as uuidv4 } from 'uuid';
 
 const { log } = snooplogg('test:amplify-auth:common');
-const { highlight } = snooplogg.styles;
+const { highlight, note } = snooplogg.styles;
 
 function createAPIRoutes(server, data) {
 	const router = new Router();
@@ -20,7 +21,7 @@ function createAPIRoutes(server, data) {
 		const p = authorization ? authorization.indexOf(' ') : -1;
 		const token = p !== -1 ? authorization.substring(p + 1) : null;
 
-		log(`Finding session using token "${token}"`);
+		log(`Finding session using token "${token}" or cookie "${ctx.cookies.get('connect.sid')}"`);
 
 		if (token === 'platform_access_token') {
 			const user = data.users.find(u => u.guid === '50000');
@@ -39,9 +40,37 @@ function createAPIRoutes(server, data) {
 				success: true,
 				result: null
 			};
+		} else if (ctx.session?.userGuid) {
+			const user = data.users.find(u => u.guid === ctx.session.userGuid);
+			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
+
+			ctx.body = {
+				success: true,
+				result: {
+					org: orgs[0],
+					orgs,
+					user
+				}
+			};
 		} else {
 			await next();
 		}
+	});
+
+	router.post('/v1/auth/login', async ctx => {
+		const { username, password } = ctx.request.body;
+
+		const user = data.users.find(u => u.email === username);
+		if (user && password === 'bar') {
+			ctx.session.userGuid = user.guid;
+			ctx.body = {
+				success: true,
+				result: user
+			};
+			return;
+		}
+
+		ctx.throw(401);
 	});
 
 	router.get('/v1/activity', ctx => {
@@ -598,13 +627,34 @@ export function createServer(opts = {}) {
 		const connections = {};
 		const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json')));
 		const router = new Router();
-		const server = new Koa()
-			.use(bodyParser())
-			.use(async (ctx, next) => {
-				log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
-				await next();
-			})
-			.use(router.routes())
+		const app = new Koa();
+		const sessions = {};
+
+		app.keys = [ 'a', 'b' ];
+		app.use(bodyParser());
+		app.use(session({
+			key: 'connect.sid',
+			signed: false,
+			store: {
+				get(key) {
+					return sessions[key];
+				},
+				set(key, value) {
+					sessions[key] = value;
+				},
+				destroy(key) {
+					sessions[key] = undefined;
+				}
+			}
+		}, app));
+		app.use(async (ctx, next) => {
+			const sid = ctx.cookies.get('connect.sid');
+			log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)} ${note(`(sid: ${sid || 'n/a'})`)}`);
+			await next();
+		});
+		app.use(router.routes());
+
+		const server = app
 			.listen(1337, '127.0.0.1')
 			.on('connection', conn => {
 				const key = conn.remoteAddress + ':' + conn.remotePort;

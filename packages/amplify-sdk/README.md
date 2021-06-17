@@ -26,10 +26,30 @@ const accounts = await sdk.auth.list();
 // find an authenticated account by name and refresh access token if needed
 let account = await.sdk.auth.find('<client_id>:<email>');
 
-// login using pkce browser-based flow
+// log into a platform account using pkce browser-based flow
 account = await sdk.auth.login();
 console.log(account.org);
 console.log(account.user);
+
+// log into a service account using client secret
+account = await sdk.auth.login({ clientSecret: 'mysecret' });
+
+// log into a service account using PEM formatted private key to sign JWT
+account = await sdk.auth.login({ secretFile: '/path/to/pem/file' });
+
+// log into a platform account using service account and platform tooling credentials
+account = await sdk.auth.login({
+	clientSecret: 'mysecret',
+	username: 'my@email.com',
+	password: '123456'
+});
+
+// or
+account = await sdk.auth.login({
+	secretFile: '/path/to/pem/file'
+	username: 'my@email.com',
+	password: '123456'
+});
 
 // switch active org, assuming you belong to more than one
 await sdk.auth.switchOrg(account, orgGuid);
