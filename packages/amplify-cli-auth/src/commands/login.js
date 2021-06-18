@@ -26,9 +26,11 @@ export default {
     ${style.highlight('axway auth login --client-id <id> --client-secret <token>')}
 
   Log into a service account with platform tooling credentials:
-    ${style.highlight('axway auth login --client-id <id> --secret-file <path> --username <user>')}
+    ${style.highlight('axway auth login --client-id <id> --secret-file <path> --username <email>')}
   or
-    ${style.highlight('axway auth login --client-id <id> --client-secret <key> --username <user>')}`;
+    ${style.highlight('axway auth login --client-id <id> --client-secret <key> --username <email>')}
+
+  To set your Platform Tooling password, visit https://platform.axway.com/#/user/credentials`;
 		}
 	},
 	options: [
@@ -44,12 +46,12 @@ export default {
 			},
 			'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser'
 		},
-		'Service Account',
+		'Service Accounts',
 		{
-			'-c, --client-secret [key]': 'A secret key used to authenticate',
-			'-s, --secret-file [path]':  'Path to the PEM formatted private key used to sign JWT',
-			'-u, --username [user]':     'Platform tooling username to use with --client-secret or --secret-file',
-			'-p, --password [pass]':     'Platform tooling password to use with --client-secret or --secret-file'
+			'-c, --client-secret [key]': 'The service account\'s client secret key',
+			'-p, --password [pass]':     'Your Platform Tooling password; requires --client-secret or --secret-file',
+			'-s, --secret-file [path]':  'Path to the PEM formatted private key',
+			'-u, --username [email]':    'Your email address used to log into the Amplify Platform; requires --client-secret or --secret-file'
 		}
 	],
 	async action({ argv, cli, console }) {

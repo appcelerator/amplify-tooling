@@ -11,11 +11,11 @@ LOGIN OPTIONS:
   {{#cyan}}--force                  {{/cyan}}  Re-authenticate even if the account is already authenticated
   {{#cyan}}--json                   {{/cyan}}  Outputs authenticated account as JSON
   {{#cyan}}--no-launch-browser      {{/cyan}}  Display the authentication URL instead of opening it in the default web browser
-{{#gray}}Service Account:{{/gray}}
-  {{#cyan}}-c, --client-secret [key]{{/cyan}}  A secret key used to authenticate
-  {{#cyan}}-p, --password [pass]    {{/cyan}}  Platform tooling password to use with --client-secret or --secret-file
-  {{#cyan}}-s, --secret-file [path] {{/cyan}}  Path to the PEM formatted private key used to sign JWT
-  {{#cyan}}-u, --username [user]    {{/cyan}}  Platform tooling username to use with --client-secret or --secret-file
+{{#gray}}Service Accounts:{{/gray}}
+  {{#cyan}}-c, --client-secret [key]{{/cyan}}  The service account's client secret key
+  {{#cyan}}-p, --password [pass]    {{/cyan}}  Your Platform Tooling password; requires --client-secret or --secret-file
+  {{#cyan}}-s, --secret-file [path] {{/cyan}}  Path to the PEM formatted private key
+  {{#cyan}}-u, --username [email]   {{/cyan}}  Your email address used to log into the Amplify Platform; requires --client-secret or --secret-file
 
 AUTH OPTIONS:
   {{#cyan}}--env [name]             {{/cyan}}  The environment to use
@@ -38,6 +38,8 @@ EXAMPLES:
     {{#cyan}}axway auth login --client-id <id> --client-secret <token>{{/cyan}}
 
   Log into a service account with platform tooling credentials:
-    {{#cyan}}axway auth login --client-id <id> --secret-file <path> --username <user>{{/cyan}}
+    {{#cyan}}axway auth login --client-id <id> --secret-file <path> --username <email>{{/cyan}}
   or
-    {{#cyan}}axway auth login --client-id <id> --client-secret <key> --username <user>{{/cyan}}
+    {{#cyan}}axway auth login --client-id <id> --client-secret <key> --username <email>{{/cyan}}
+
+  To set your Platform Tooling password, visit https://platform.axway.com/#/user/credentials

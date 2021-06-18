@@ -22,7 +22,7 @@ export default new CLI({
     ${style.highlight('axway auth login --client-id <id> --secret-file <path>')}
 
   Log into a service account using a client secret:
-    ${style.highlight('axway auth login --client-id <id> --client-secret <token> --service')}
+    ${style.highlight('axway auth login --client-id <id> --client-secret <token>')}
 
   List all authenticated accounts:
     ${style.highlight('axway auth list')}

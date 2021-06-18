@@ -14,7 +14,7 @@ import { isHeadless } from '@axway/amplify-cli-utils';
 
 const itSkipHeadless = isHeadless() ? it.skip : it;
 
-describe.only('axway auth', () => {
+describe('axway auth', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
