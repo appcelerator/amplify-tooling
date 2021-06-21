@@ -5,6 +5,7 @@
    ([APIGOV-19215](https://jira.axway.com/browse/APIGOV-19215))
  * fix(org:view): Don't show child org section if there are no child orgs.
  * fix(util): Fixed typo in platform account assertion.
+ * chore(org:view): Removed child organizations from `org view`.
 
 # v1.1.3 (May 11, 2021)
 

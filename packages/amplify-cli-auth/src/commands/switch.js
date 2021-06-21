@@ -78,26 +78,72 @@ export default {
 		if (account.isPlatform) {
 			// determine the org
 			let org = argv.org || (account?.hash && config.get(`auth.defaultOrg.${account.hash}`));
-			let orgId;
+			let orgId = org && account.orgs.find(o => o.guid === org || o.id === org || o.name === org)?.id;
 
-			if (org) {
-				for (const o of account.orgs) {
-					if (o.guid === org || o.id === org || o.name === org) {
-						orgId = o.id;
-						break;
-					}
+			if (account.isPlatformTooling) {
+				if (argv.org && !orgId) {
+					// if there was an explicit --org that wasn't found, then we error for tooling users as web doesn't care
+					const err = `Unable to find organization "${argv.org}"`;
+					err.code = 'ERR_NOT_FOUND';
+					err.details = `Available organizations:\n${account.orgs.map(a => `  ${highlight(a.name)}`).join('\n')}`;
+					throw err;
 				}
+
+				if (account.orgs.length === 1) {
+					account.org = accounts.orgs[0];
+				} else if (account.orgs.length > 1) {
+					if (argv.json) {
+						throw new Error('Must specify --org when --json is set and the selected account has multiple organizations');
+					}
+
+					const defaultOrg = config.get(`auth.defaultOrg.${account.hash}`);
+					const choices = account.orgs
+						.map(org => {
+							org.toString = () => org.name;
+							return {
+								guid:    org.guid,
+								message: `${org.name} (${org.guid} : ${org.id})`,
+								value:   org
+							};
+						})
+						.sort((a, b) => a.message.localeCompare(b.message));
+					const initial = choices.findIndex(org => org.guid === defaultOrg);
+					const { prompt } = require('enquirer');
+
+					account.org = (await prompt({
+						choices,
+						format: function () {
+							// for some reason, enquirer doesn't print the selected value using the primary
+							// (green) color for select prompts, so we just force it for all prompts
+							return this.style(this.value);
+						},
+						initial,
+						message: 'Select an organization to switch to',
+						name: 'org',
+						styles: {
+							em(msg) {
+								// stylize emphasised text with just the primary color, no underline
+								return this.primary(msg);
+							}
+						},
+						type: 'select'
+					})).org;
+
+					console.log();
+				}
+
+				await sdk.client.updateAccount(account);
+			} else {
+				account = await sdk.auth.switchOrg(account, orgId, {
+					onOpenBrowser() {
+						if (isHeadless()) {
+							throw new Error('Switching default account and organization requires a web browser and is unsupported in headless environments');
+						} else if (!argv.json) {
+							console.log('Launching web browser to switch organization...');
+						}
+					}
+				});
 			}
-
-			account = await sdk.auth.switchOrg(account, orgId, {
-				onOpenBrowser() {
-					if (isHeadless()) {
-						throw new Error('Switching default account and organization requires a web browser and is unsupported in headless environments');
-					} else if (!argv.json) {
-						console.log('Launching web browser to switch organization...');
-					}
-				}
-			});
 
 			config.set(`auth.defaultOrg.${account.hash}`, account.org.guid);
 			config.save();
