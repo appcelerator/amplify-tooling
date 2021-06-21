@@ -370,18 +370,6 @@ describe('amplify-sdk', () => {
 
 				await expect(sdk.org.find(account, 'wiz')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "wiz"');
 			});
-
-			it('should find an org with a parent org', async function () {
-				this.timeout(10000);
-				this.server = await createServer();
-
-				const { account, tokenStore } = this.server.createTokenStore();
-				const sdk = createSDK({ tokenStore });
-
-				let org = await sdk.org.find(account, 200);
-				expect(org.guid).to.equal('2000');
-				expect(org.parentOrg.guid).to.equal('1000');
-			});
 		});
 
 		describe('environments()', () => {
