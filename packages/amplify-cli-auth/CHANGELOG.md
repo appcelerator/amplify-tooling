@@ -3,6 +3,8 @@
  * feat: Add support for authenticating into a service account, then upgrade to a platform account
    using the platform tooling credentials.
    ([APIGOV-19229](https://jira.axway.com/browse/APIGOV-19229))
+ * fix(switch): Add support for switching org for platform tooling accounts.
+   ([APIGOV-19370](https://jira.axway.com/browse/APIGOV-19370))
  * fix: Remove `--service` flag and treat `--client-secret` auth flows to be headless.
 
 # v2.6.4 (May 11, 2021)

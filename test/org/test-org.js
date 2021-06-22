@@ -66,14 +66,7 @@ describe('axway org', () => {
 				"account": "test_client:foo@bar.com",
 					"org": {
 						"active": true,
-						"childOrgs": [
-							{
-								"active": true,
-								"guid": "2000",
-								"name": "Bar org",
-								"userCount": 1
-							}
-						],
+						"childOrgs": null,
 						"guid": "1000",
 						"id": 100,
 						"name": "Foo org",

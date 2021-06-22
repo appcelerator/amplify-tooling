@@ -264,6 +264,7 @@ export default class AmplifySDK {
 								password
 							}
 						});
+						account.isPlatformTooling = true;
 					} catch (err) {
 						// something happened, revoke the access tokens we just got and rethrow
 						await this.client.logout({
@@ -302,7 +303,7 @@ export default class AmplifySDK {
 				}
 
 				for (const account of accounts) {
-					if (account.isPlatform) {
+					if (account.isPlatform && !account.isPlatformTooling) {
 						// note: there should only be 1 platform account in the accounts list
 						const { logout } = getEndpoints({ baseUrl: this.baseUrl, realm: this.realm });
 						const redirect = `${logout}?redirect_uri=${this.platformUrl}/signed.out?msg=signin`;
@@ -358,15 +359,15 @@ export default class AmplifySDK {
 
 					const server = new Server();
 					const { start, url: redirect } = await server.createCallback((req, res) => {
-						log(`Telling browser to redirect to ${highlight(this.opts.platformUrl)}`);
+						log(`Telling browser to redirect to ${highlight(this.platformUrl)}`);
 						res.writeHead(302, {
-							Location: this.opts.platformUrl
+							Location: this.platformUrl
 						});
 						res.end();
 					});
 
 					try {
-						const url = createURL(`${this.opts.platformUrl}/#/auth/org.select`, {
+						const url = createURL(`${this.platformUrl}/#/auth/org.select`, {
 							org_id: org?.id,
 							redirect
 						});
@@ -485,15 +486,15 @@ export default class AmplifySDK {
 
 				const { teams } = await this.team.list(account, id);
 
-				const result = {
+				return {
 					active:           org.active,
 					created:          org.created,
-					childOrgs:        null,
+					childOrgs:        null, // deprecated
 					guid:             org.guid,
 					id:               id,
 					name:             org.name,
 					entitlements:     org.entitlements,
-					parentOrg:        null,
+					parentOrg:        null, // deprecated
 					region:           org.region,
 					insightUserCount: ~~org.entitlements.limit_read_only_users,
 					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
@@ -503,31 +504,6 @@ export default class AmplifySDK {
 					userCount:        org.users.length,
 					userRoles:        org.users.find(u => u.guid === account.user.guid)?.roles || []
 				};
-
-				if (org.parent_org_guid) {
-					// get the parent org info
-					const parent = await this.request(`/api/v1/org/${org.parent_org_guid}`, account, {
-						errorMsg: 'Failed to get organization'
-					});
-					result.parentOrg = {
-						guid: parent.guid,
-						id:   parent.org_id,
-						name: parent.name
-					};
-				} else if (result.userRoles.includes('administrator')) {
-					// check for children
-					const { children } = await this.org.family(account, id);
-					result.childOrgs = children.map(o => ({
-						active:    o.active,
-						created:   o.created,
-						guid:      o.guid,
-						id:        o.id,
-						name:      o.name,
-						userCount: o.users.length
-					}));
-				}
-
-				return result;
 			},
 
 			/**

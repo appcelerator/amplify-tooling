@@ -37,9 +37,6 @@ export default {
 		console.log(`  Org ID:        ${highlight(org.id)}`);
 		console.log(`  Org GUID:      ${highlight(org.guid)}`);
 		console.log(`  Date Created:  ${highlight(new Date(org.created).toLocaleString())}`);
-		if (org.parentOrg) {
-			console.log(`  Parent Org:    ${highlight(org.parentOrg.name)} ${note(`(${org.parentOrg.id})`)}`);
-		}
 		console.log(`  Active:        ${highlight(org.active ? 'Yes' : 'No')}`);
 		console.log(`  Region:        ${highlight(org.region === 'US' ? 'United States' : org.region)}`);
 		console.log(`  Users:         ${highlight(`${org.userCount} user${org.userCount !== 1 ? 's' : ''}${org.seats ? ` / ${org.seats} seat${org.seats !== 1 ? 's' : ''}` : ''}`)}`);
@@ -78,21 +75,6 @@ export default {
 			}
 			console.log('\nSUBSCRIPTIONS');
 			console.log(subs.toString());
-		}
-
-		if (Array.isArray(org.childOrgs) && org.childOrgs.length) {
-			const children = createTable([ '  Name', 'GUID', 'Date Created', 'Status', 'Users' ]);
-			for (const o of org.childOrgs) {
-				children.push([
-					`  ${o.name}`,
-					o.guid,
-					new Date(o.created).toLocaleDateString(),
-					o.active ? 'Active' : 'Inactive',
-					o.userCount
-				]);
-			}
-			console.log('\nCHILD ORGS');
-			console.log(children.toString());
 		}
 	}
 };
