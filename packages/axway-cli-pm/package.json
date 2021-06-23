@@ -52,7 +52,8 @@
     "name": "pm"
   },
   "publishConfig": {
+    "access": "public",
     "tag": "next"
   },
-  "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
+  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
 }
