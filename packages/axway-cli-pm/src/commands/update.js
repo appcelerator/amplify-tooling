@@ -11,24 +11,29 @@ export default {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs updated packages as JSON'
+		},
+		'-y, --yes': {
+			aliases: [ '--no-prompt' ],
+			desc: 'Automatic yes to prompts and run non-interactively'
 		}
 	},
-	async action({ argv, cli, console, exitCode }) {
-		const { default: snooplogg }        = require('snooplogg');
-		const { loadConfig }                = require('@axway/amplify-cli-utils');
-		const { runListr }                  = require('../utils');
-		const { find, install, list, view } = require('../pm');
+	async action({ argv, cli, console, exitCode, terminal }) {
+		const { default: snooplogg }                      = require('snooplogg');
+		const { hlVer, runListr }                         = require('../utils');
+		const { createTable, loadConfig }                 = require('@axway/amplify-cli-utils');
+		const { find, install, list, listPurgable, view } = require('../pm');
+		const ora                                         = require('ora');
+		const promiseLimit                                = require('promise-limit');
+		const semver                                      = require('semver');
 
-		const { alert, highlight } = snooplogg.styles;
-		const cfg = loadConfig();
-		let packages = [];
+		const { alert, bold, highlight } = snooplogg.styles;
 		const results = {
 			alreadyActive: [],
 			selected: [],
 			installed: [],
 			failures: []
 		};
-		const tasks = [];
+		let packages = [];
 
 		// get installed packages
 		if (argv.package) {
@@ -50,34 +55,73 @@ export default {
 			return;
 		}
 
-		for (const pkg of packages) {
-			tasks.push({
-				title: `Checking ${highlight(pkg.name)}`,
-				async task(ctx, task) {
-					const info = await view(pkg.name);
+		// step 1: check for updates
+		const plimit = promiseLimit(10);
+		const spinner = ora({ stream: terminal.stderr }).start('Checking packages for updates');
+		await Promise.all(packages.map(pkg => {
+			return plimit(async () => {
+				pkg.current = Object.keys(pkg.versions).sort(semver.rcompare)[0];
+				pkg.latest = (await view(pkg.name)).version;
+			});
+		}));
+		spinner.stop();
 
-					if (pkg.version === info.version) {
-						task._task.title = `${highlight(`${pkg.name}@${info.version}`)} is already up-to-date`;
-						results.alreadyActive.push(`${pkg.name}@${info.version}`);
-						return;
+		// step 2: confirm updates
+		const updateTable = createTable();
+		for (let i = 0; i < packages.length; i++) {
+			const pkg = packages[i];
+			if (semver.gt(pkg.latest, pkg.version)) {
+				updateTable.push([ bold(`  ${pkg.name}`), pkg.version, '→', hlVer(pkg.latest, pkg.version) ]);
+			} else {
+				results.alreadyActive.push(`${pkg.name}@${pkg.version}`);
+				packages.splice(i--, 1);
+			}
+		}
+		if (!packages.length) {
+			console.log('All packages are up-to-date');
+			return;
+		}
+		console.log('The following packages have updates available:');
+		console.log(updateTable.toString());
+		console.log();
+
+		if (terminal.stdout.isTTY && !argv.yes) {
+			await new Promise(resolve => {
+				terminal.once('keypress', str => {
+					terminal.stderr.cursorTo(0);
+					terminal.stderr.clearLine();
+					if (str === 'y' || str === 'Y') {
+						return resolve();
 					}
+					process.exit(0);
+				});
+				terminal.stderr.write('Do you want to update? (y/N) ');
+			});
+		}
 
-					if (Object.keys(pkg.versions).includes(info.version)) {
-						const versionData = pkg.versions[info.version];
-						task.title = `${highlight(`${pkg.name}@${info.version}`)} is installed, setting it as active`;
-						results.selected.push(`${pkg.name}@${info.version}`);
+		// step 3: create the tasks
+		const tasks = packages.map(pkg => {
+			const versionData = pkg.versions[pkg.latest];
+			if (versionData) {
+				// select it
+				return {
+					title: `${highlight(`${pkg.name}@${pkg.latest}`)} is installed, setting it as active`,
+					async task(ctx, task) {
+						results.selected.push(`${pkg.name}@${pkg.latest}`);
+						const cfg = loadConfig();
 						cfg.set(`extensions.${pkg.name}`, versionData.path);
 						cfg.save();
-						task._task.title = `${highlight(`${pkg.name}@${info.version}`)} set as active version`;
-						return;
+						task._task.title = `${highlight(`${pkg.name}@${pkg.latest}`)} set as active version`;
 					}
+				};
+			}
 
-					task.title = `Downloading and installing ${highlight(`${pkg.name}@${info.version}`)}`;
-					results.installed.push(`${pkg.name}@${info.version}`);
-
+			return {
+				title: `Downloading and installing ${highlight(`${pkg.name}@${pkg.latest}`)}`,
+				async task(ctx, task) {
 					try {
 						await new Promise((resolve, reject) => {
-							install(`${pkg.name}@${info.version}`)
+							install(`${pkg.name}@${pkg.latest}`)
 								.on('download', ({ name, version }) => {
 									task.title = `Downloading ${highlight(`${name}@${version}`)}`;
 								})
@@ -88,14 +132,12 @@ export default {
 									task.title = `Registering ${highlight(`${name}@${version}`)}`;
 								})
 								.on('end', info => {
-									task._task.title = `Installed ${highlight(`${info.name}@${info.version}`)}`;
+									task._task.title = `${highlight(`${info.name}@${info.version}`)} installed and set as active version`;
 									results.installed.push(info);
 									resolve();
 								})
 								.on('error', reject);
 						});
-
-						task._task.title = `${highlight(`${pkg.name}@${info.version}`)} updated and set as active version`;
 					} catch (err) {
 						results.failures.push({
 							error: err.toString(),
@@ -107,9 +149,10 @@ export default {
 						throw err;
 					}
 				}
-			});
-		}
+			};
+		});
 
+		// step 4: run the tasks
 		try {
 			await runListr({ console, json: argv.json, tasks });
 		} catch (err) {
@@ -118,6 +161,16 @@ export default {
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
+		} else {
+			const purgable = await listPurgable(argv.package);
+			if (Object.keys(purgable).length) {
+				console.log(`\nThe following package versions can be purged by running: ${highlight('"axway pm purge"')}`);
+				const purgeTable = createTable();
+				for (const [ name, versions ] of Object.entries(purgable)) {
+					purgeTable.push([ `  ${bold(name)}`, highlight(versions.map(v => v.version).join(', ')) ]);
+				}
+				console.log(purgeTable.toString());
+			}
 		}
 
 		await cli.emitAction('axway:pm:update', results);

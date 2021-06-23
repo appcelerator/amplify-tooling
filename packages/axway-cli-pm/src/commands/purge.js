@@ -16,40 +16,26 @@ export default {
 		const semver                 = require('semver');
 		const { default: snooplogg } = require('snooplogg');
 		const { runListr }           = require('../utils');
-		const { find, list, packagesDir, uninstallPackage } = require('../pm');
+		const { listPurgable, uninstallPackage } = require('../pm');
 
 		const { highlight } = snooplogg.styles;
-		let packages = [];
 		let packagesRemoved = 0;
 		const removedPackages = {};
 		const tasks = [];
-
-		// get installed packages
-		if (argv.package) {
-			const pkg = await find(argv.package);
-			if (!pkg) {
-				throw new Error(`Package "${argv.package}" is not installed`);
-			}
-			packages.push(pkg);
-		} else {
-			packages = await list();
-		}
+		const purgable = await listPurgable(argv.package);
 
 		// determine packages to remove
-		for (const { name, version, versions } of packages) {
-			for (const [ ver, versionData ] of Object.entries(versions)) {
-				// if managed and not in use
-				if (versionData.managed && versionData.path.startsWith(packagesDir) && semver.neq(ver, version)) {
-					tasks.push({
-						title: `Purging ${highlight(`${name}@${ver}`)}`,
-						task: () => uninstallPackage(versionData.path)
-					});
-					packagesRemoved++;
-					if (!removedPackages[name]) {
-						removedPackages[name] = [];
-					}
-					removedPackages[name].push(ver);
+		for (const [ name, versions ] of Object.entries(purgable)) {
+			for (const ver of versions) {
+				tasks.push({
+					title: `Purging ${highlight(`${name}@${ver}`)}`,
+					task: () => uninstallPackage(ver.path)
+				});
+				packagesRemoved++;
+				if (!removedPackages[name]) {
+					removedPackages[name] = [];
 				}
+				removedPackages[name].push(ver);
 			}
 		}
 
