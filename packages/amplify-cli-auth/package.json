@@ -44,5 +44,8 @@
     "main": "./dist/cli",
     "name": "auth"
   },
+  "publishConfig": {
+    "tag": "next"
+  },
   "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
 }

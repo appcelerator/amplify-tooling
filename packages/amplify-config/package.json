@@ -2,7 +2,8 @@
   "name": "@axway/amplify-config",
   "version": "3.0.10",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "next"
   },
   "description": "Configuration helper for the Axway CLI.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",

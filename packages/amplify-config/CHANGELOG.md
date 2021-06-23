@@ -1,4 +1,4 @@
-# v3.1.0
+# v3.1.0-beta1 (Jun 23, 2021)
 
  * feat: Updated `config-kit` and `appcd-fs` to add support for applying parent directory
    ownership when being executed as sudo.
