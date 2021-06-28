@@ -15,6 +15,7 @@ export default {
 			desc: 'Outputs removed packages as JSON'
 		}
 	},
+	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console }) {
 		const fs                     = require('fs-extra');
 		const npa                    = require('npm-package-arg');

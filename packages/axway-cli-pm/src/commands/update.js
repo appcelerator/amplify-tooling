@@ -17,10 +17,11 @@ export default {
 			desc: 'Automatic yes to prompts and run non-interactively'
 		}
 	},
+	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console, exitCode, terminal }) {
 		const { default: snooplogg }                      = require('snooplogg');
-		const { hlVer, runListr }                         = require('../utils');
-		const { createTable, loadConfig }                 = require('@axway/amplify-cli-utils');
+		const { runListr }                                = require('../utils');
+		const { createTable, hlVer, loadConfig }          = require('@axway/amplify-cli-utils');
 		const { find, install, list, listPurgable, view } = require('../pm');
 		const ora                                         = require('ora');
 		const promiseLimit                                = require('promise-limit');
@@ -66,12 +67,11 @@ export default {
 		}));
 		spinner.stop();
 
-		// step 2: confirm updates
 		const updateTable = createTable();
 		for (let i = 0; i < packages.length; i++) {
 			const pkg = packages[i];
 			if (semver.gt(pkg.latest, pkg.version)) {
-				updateTable.push([ bold(`  ${pkg.name}`), pkg.version, '→', hlVer(pkg.latest, pkg.version) ]);
+				updateTable.push([ `  ${bold(pkg.name)}`, pkg.version, '→', hlVer(pkg.latest, pkg.version) ]);
 			} else {
 				results.alreadyActive.push(`${pkg.name}@${pkg.version}`);
 				packages.splice(i--, 1);
@@ -81,9 +81,9 @@ export default {
 			console.log('All packages are up-to-date');
 			return;
 		}
-		console.log('The following packages have updates available:');
-		console.log(updateTable.toString());
-		console.log();
+
+		// step 2: confirm updates
+		console.log(`The following packages have updates available:\n\n${updateTable.toString()}\n`);
 
 		if (terminal.stdout.isTTY && !argv.yes) {
 			await new Promise(resolve => {
@@ -162,14 +162,14 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
+			// step 5: show packages that can be purged
 			const purgable = await listPurgable(argv.package);
 			if (Object.keys(purgable).length) {
-				console.log(`\nThe following package versions can be purged by running: ${highlight('"axway pm purge"')}`);
 				const purgeTable = createTable();
 				for (const [ name, versions ] of Object.entries(purgable)) {
-					purgeTable.push([ `  ${bold(name)}`, highlight(versions.map(v => v.version).join(', ')) ]);
+					purgeTable.push([ `  ${bold(name)}`, versions.map(v => v.version).sort(semver.rcompare).join(', ') ]);
 				}
-				console.log(purgeTable.toString());
+				console.log(`\nThe following package versions can be purged:\n\n${purgeTable.toString()}\n\nTo purge these unused packages, run: ${highlight('axway pm purge')}`);
 			}
 		}
 

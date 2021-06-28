@@ -10,36 +10,46 @@ export default {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs the purged packages as JSON'
+		},
+		'-y, --yes': {
+			aliases: [ '--no-prompt' ],
+			desc: 'Automatic yes to prompts and run non-interactively'
 		}
 	},
-	async action({ argv, cli, console }) {
-		const semver                 = require('semver');
+	skipExtensionUpdateCheck: true,
+	async action({ argv, cli, console, terminal }) {
+		const { createTable }        = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
-		const { runListr }           = require('../utils');
 		const { listPurgable, uninstallPackage } = require('../pm');
+		const { runListr }           = require('../utils');
 
-		const { highlight } = snooplogg.styles;
-		let packagesRemoved = 0;
+		const { bold, highlight } = snooplogg.styles;
+		const purgeTable = createTable();
+		const purgable = await listPurgable(argv.package);
 		const removedPackages = {};
 		const tasks = [];
-		const purgable = await listPurgable(argv.package);
 
-		// determine packages to remove
+		// step 1: determine packages to remove
 		for (const [ name, versions ] of Object.entries(purgable)) {
-			for (const ver of versions) {
+			for (const pkg of versions) {
 				tasks.push({
-					title: `Purging ${highlight(`${name}@${ver}`)}`,
-					task: () => uninstallPackage(ver.path)
+					title: `Purging ${highlight(`${name}@${pkg.version}`)}`,
+					task: async (ctx, task) => {
+						await uninstallPackage(pkg.path);
+						task._task.title = `Purged ${highlight(`${name}@${pkg.version}`)}`;
+					}
 				});
-				packagesRemoved++;
+
+				purgeTable.push([ `  ${bold(name)}`, pkg.version ]);
+
 				if (!removedPackages[name]) {
 					removedPackages[name] = [];
 				}
-				removedPackages[name].push(ver);
+				removedPackages[name].push(pkg);
 			}
 		}
 
-		if (!packagesRemoved) {
+		if (!purgeTable.length) {
 			if (argv.json) {
 				console.log(JSON.stringify(removedPackages, null, 2));
 			} else {
@@ -48,6 +58,24 @@ export default {
 			return;
 		}
 
+		// step 2: confirm purge
+		console.log(`The following packages can be purged:\n\n${purgeTable.toString()}\n`);
+
+		if (terminal.stdout.isTTY && !argv.yes) {
+			await new Promise(resolve => {
+				terminal.once('keypress', str => {
+					terminal.stderr.cursorTo(0);
+					terminal.stderr.clearLine();
+					if (str === 'y' || str === 'Y') {
+						return resolve();
+					}
+					process.exit(0);
+				});
+				terminal.stderr.write('Do you want to update? (y/N) ');
+			});
+		}
+
+		// step 3: run the tasks
 		try {
 			await runListr({ console, json: argv.json, tasks });
 		} catch (err) {
@@ -56,13 +84,6 @@ export default {
 
 		if (argv.json) {
 			console.log(JSON.stringify(removedPackages, null, 2));
-		} else {
-			console.log(`\nRemoved ${packagesRemoved} package${packagesRemoved !== 1 ? 's' : ''}:`);
-			for (const name of Object.keys(removedPackages).sort()) {
-				for (const ver of removedPackages[name].sort(semver.compare)) {
-					console.log(`  ${highlight(`${name}@${ver}`)}`);
-				}
-			}
 		}
 
 		await cli.emitAction('axway:pm:purge', removedPackages);
