@@ -61,7 +61,7 @@ export default {
 		// step 2: confirm purge
 		console.log(`The following packages can be purged:\n\n${purgeTable.toString()}\n`);
 
-		if (terminal.stdout.isTTY && !argv.yes) {
+		if (terminal.stdout.isTTY && !argv.yes && !argv.json) {
 			await new Promise(resolve => {
 				terminal.once('keypress', str => {
 					terminal.stderr.cursorTo(0);

@@ -85,7 +85,7 @@ export default {
 		// step 2: confirm updates
 		console.log(`The following packages have updates available:\n\n${updateTable.toString()}\n`);
 
-		if (terminal.stdout.isTTY && !argv.yes) {
+		if (terminal.stdout.isTTY && !argv.yes && !argv.json) {
 			await new Promise(resolve => {
 				terminal.once('keypress', str => {
 					terminal.stderr.cursorTo(0);
