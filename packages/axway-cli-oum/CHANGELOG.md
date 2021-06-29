@@ -1,4 +1,4 @@
-# v1.2.0
+# v1.2.0-beta1 (Jun 23, 2021)
 
  * feat(org:view): Show list of org teams.
  * fix(activity): Render activity changes correctly.

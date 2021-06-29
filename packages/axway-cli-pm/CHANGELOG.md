@@ -1,4 +1,4 @@
-# v3.0.0
+# v3.0.0-beta1 (Jun 23, 2021)
 
  * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being
    executed as sudo. ([APIGOV-19102](https://jira.axway.com/browse/APIGOV-19102))

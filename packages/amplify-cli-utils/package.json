@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli-utils",
-  "version": "4.3.4",
+  "version": "4.3.5-beta1",
   "description": "Common utils for Axway CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -21,9 +21,9 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-config": "^3.0.10",
+    "@axway/amplify-config": "^3.1.0-beta1",
     "@axway/amplify-request": "^2.1.4",
-    "@axway/amplify-sdk": "^2.1.5",
+    "@axway/amplify-sdk": "^2.2.0-beta1",
     "appcd-fs": "^2.1.2",
     "boxen": "^5.0.1",
     "check-kit": "^1.2.1",
@@ -42,5 +42,8 @@
   "engines": {
     "node": ">=10.19.0"
   },
-  "gitHead": "eefa21264fb5f89697020e22db1087ce0f8116e3"
+  "publishConfig": {
+    "tag": "next"
+  },
+  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
 }
