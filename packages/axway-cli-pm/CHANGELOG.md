@@ -1,13 +1,18 @@
-# v3.0.0-beta1 (Jun 23, 2021)
+# v3.0.0
 
  * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being
    executed as sudo. ([APIGOV-19102](https://jira.axway.com/browse/APIGOV-19102))
+ * feat: `purge` and `update` commands will show the affected packages and prompt to continue. Also
+   added the `-y, --yes` flag to bypass the prompt.
  * refactor: Renamed package from `@axway/amplify-cli-pm` to `@axway/axway-cli-pm`.
  * refactor: Removed registry server integration in favor of querying npm directly.
    ([CLI-111](https://jira.axway.com/browse/CLI-111))
  * fix(install): Show package name and version during install steps.
    ([CLI-126](https://jira.axway.com/browse/CLI-126))
  * fix(view): Return `null` instead of `undefined` when specifying `--json` if package not found.
+ * fix(install): Fixed bug where race condition would overwrite a registerd CLI extensions when
+   installing multiple packages.
+ * chore: Updated dependencies.
 
 # v2.5.4 (May 11, 2021)
 

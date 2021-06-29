@@ -92,17 +92,6 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		// if there is one
 		if (checkWait && cmd.prop('banner')) {
 			const results = (await checkWait).filter(p => p.updateAvailable);
-
-			// results.splice(0, results.length);
-			// results.unshift({
-			// 	latest: '2.2.0',
-			// 	lastCheck: 1624895248480,
-			// 	current: '2.1.0',
-			// 	updateAvailable: true,
-			// 	distTag: 'latest',
-			// 	name: 'axway'
-			// });
-
 			if (results.length) {
 				const boxen = require('boxen');
 				let msg = '';
