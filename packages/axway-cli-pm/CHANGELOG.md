@@ -10,7 +10,7 @@
  * fix(install): Show package name and version during install steps.
    ([CLI-126](https://jira.axway.com/browse/CLI-126))
  * fix(view): Return `null` instead of `undefined` when specifying `--json` if package not found.
- * fix(install): Fixed bug where race condition would overwrite a registerd CLI extensions when
+ * fix(install): Fixed bug where race condition would overwrite a registered CLI extensions when
    installing multiple packages.
  * chore: Updated dependencies.
 
