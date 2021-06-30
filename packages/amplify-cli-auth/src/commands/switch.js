@@ -77,11 +77,11 @@ export default {
 
 		if (account.isPlatform) {
 			// determine the org
-			let org = argv.org || (account?.hash && config.get(`auth.defaultOrg.${account.hash}`));
-			let orgId = org && account.orgs.find(o => o.guid === org || o.id === org || o.name === org)?.id;
+			const selectedOrg = argv.org || (account?.hash && config.get(`auth.defaultOrg.${account.hash}`));
+			const org = selectedOrg && account.orgs.find(o => o.guid === selectedOrg || o.id === selectedOrg || o.name === selectedOrg);
 
 			if (account.isPlatformTooling) {
-				if (argv.org && !orgId) {
+				if (argv.org && !org) {
 					// if there was an explicit --org that wasn't found, then we error for tooling users as web doesn't care
 					const err = `Unable to find organization "${argv.org}"`;
 					err.code = 'ERR_NOT_FOUND';
@@ -89,7 +89,9 @@ export default {
 					throw err;
 				}
 
-				if (account.orgs.length === 1) {
+				if (org) {
+					account.org = org;
+				} else if (account.orgs.length === 1) {
 					account.org = accounts.orgs[0];
 				} else if (account.orgs.length > 1) {
 					if (argv.json) {
@@ -134,7 +136,7 @@ export default {
 
 				await sdk.client.updateAccount(account);
 			} else {
-				account = await sdk.auth.switchOrg(account, orgId, {
+				account = await sdk.auth.switchOrg(account, org?.id, {
 					onOpenBrowser() {
 						if (isHeadless()) {
 							throw new Error('Switching default account and organization requires a web browser and is unsupported in headless environments');
