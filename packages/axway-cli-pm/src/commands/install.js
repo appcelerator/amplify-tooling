@@ -15,6 +15,7 @@ export default {
 			desc: 'Output installed package as JSON'
 		}
 	},
+	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console, exitCode }) {
 		const { default: snooplogg } = require('snooplogg');
 		const { Extension }          = require('cli-kit');
@@ -32,6 +33,8 @@ export default {
 		if (!packages.length) {
 			throw new TypeError('Expected one or more package names');
 		}
+
+		this.skipExtensionUpdateCheck = true;
 
 		for (const pkg of packages) {
 			tasks.push({

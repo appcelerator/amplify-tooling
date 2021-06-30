@@ -4,6 +4,7 @@ import npmsearch from 'libnpmsearch';
 import pacote from 'pacote';
 import path from 'path';
 import promiseLimit from 'promise-limit';
+import semver from 'semver';
 import snooplogg from 'snooplogg';
 import spawn from 'cross-spawn';
 import which from 'which';
@@ -76,7 +77,7 @@ export function install(pkgName) {
 	const emitter = new EventEmitter();
 
 	setImmediate(async () => {
-		const cfg = loadConfig();
+		let cfg = loadConfig();
 		let previousActivePackage;
 		let info;
 
@@ -137,6 +138,7 @@ export function install(pkgName) {
 			});
 
 			emitter.emit('register', info);
+			cfg = loadConfig();
 			cfg.set(`extensions.${info.name}`, info.path);
 			cfg.save();
 
@@ -145,10 +147,12 @@ export function install(pkgName) {
 			if (info) {
 				if (previousActivePackage === info.path) {
 					// package was reinstalled, but failed and directory is in an unknown state
+					cfg = loadConfig();
 					cfg.delete(`extensions.${info.name}`);
 					cfg.save();
 				} else if (previousActivePackage) {
 					// restore the previous value
+					cfg = loadConfig();
 					cfg.set(`extensions.${info.name}`, previousActivePackage);
 					cfg.save();
 				}
@@ -204,6 +208,46 @@ export async function list() {
 	}
 
 	return packages;
+}
+
+/**
+ * Determines if there are any older versions of packages installed that could be purged.
+ *
+ * @param {String} [pkgName] - A specific package to check if purgable, otherwise checks all
+ * packages.
+ * @returns {Object}
+ */
+export async function listPurgable(pkgName) {
+	let packages = [];
+
+	if (pkgName) {
+		const pkg = await find(pkgName);
+		if (!pkg) {
+			throw new Error(`Package "${pkgName}" is not installed`);
+		}
+		packages.push(pkg);
+	} else {
+		packages = await list();
+	}
+
+	const purgable = {};
+
+	for (const { name, version, versions } of packages) {
+		for (const [ ver, versionData ] of Object.entries(versions)) {
+			// if managed and not in use
+			if (versionData.managed && versionData.path.startsWith(packagesDir) && semver.neq(ver, version)) {
+				if (!purgable[name]) {
+					purgable[name] = [];
+				}
+				purgable[name].push({
+					...versionData,
+					version: ver
+				});
+			}
+		}
+	}
+
+	return purgable;
 }
 
 /**

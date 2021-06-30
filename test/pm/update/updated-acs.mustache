@@ -1,9 +1,18 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
 
-Checking {{#cyan}}acs{{/cyan}} [started]
-Downloading and installing {{#cyan}}acs@2.1.10{{/cyan}}
+The following packages have updates available:
+
+  {{#bold}}acs{{/bold}}  2.1.9  →  {{versionWithColor}}
+
+Downloading and installing {{#cyan}}acs@2.1.10{{/cyan}} [started]
 Downloading {{#cyan}}acs@2.1.10{{/cyan}}
 Installing {{#cyan}}acs@2.1.10{{/cyan}}
 Registering {{#cyan}}acs@2.1.10{{/cyan}}
-{{#cyan}}acs@2.1.10{{/cyan}} updated and set as active version [completed]
+{{#cyan}}acs@2.1.10{{/cyan}} installed and set as active version [completed]
+
+The following package versions can be purged:
+
+  {{#bold}}acs{{/bold}}  2.1.9
+
+To purge these unused packages, run: {{#cyan}}axway pm purge{{/cyan}}
