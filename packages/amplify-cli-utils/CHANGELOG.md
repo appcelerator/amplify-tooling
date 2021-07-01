@@ -1,4 +1,4 @@
-# v4.4.0
+# v4.4.0-beta2 (Jul 1, 2021)
 
  * feat: Added `hlVer()` function to render version difference.
  * chore: Updated dependencies.

@@ -1,4 +1,4 @@
-# v2.2.0-beta1 (Jun 23, 2021)
+# v2.2.0-beta2 (Jul 1, 2021)
 
  * feat: Add support for authenticating into a service account, then upgrade to a platform account
    using the platform tooling credentials.
