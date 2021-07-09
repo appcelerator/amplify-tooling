@@ -3,6 +3,8 @@
  * feat(org:view): Show list of org teams.
  * fix(activity): Render activity changes correctly.
    ([APIGOV-19215](https://jira.axway.com/browse/APIGOV-19215))
+ * fix(org:usage): Support for package bundles and unlimited SaaS.
+   ([APIGOV-19513](https://jira.axway.com/browse/APIGOV-19513))
  * fix(org:view): Don't show child org section if there are no child orgs.
  * fix(util): Fixed typo in platform account assertion.
  * chore(org:view): Removed child organizations from `org view`.

@@ -1,3 +1,5 @@
+/* eslint-disable no-loop-func */
+
 export default {
 	args: [
 		{
@@ -33,15 +35,61 @@ export default {
 		'--to [yyyy-mm-dd]': 'The end date'
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount } = require('../lib/util');
+		const { initPlatformAccount, formatDate } = require('../lib/util');
 		const { createTable } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const { from, to, usage } = await sdk.org.usage(account, org, argv);
+		const { bundle, from, to, usage } = await sdk.org.usage(account, org, argv);
+		const orgEnvs = await sdk.org.environments(account);
+		const maxEntitlement = 9999999999999;
+		const { format } = new Intl.NumberFormat();
+		let bundleValuePadding = 0;
+		let saasPercentPadding = 0;
+		let saasValuePadding = 0;
+
+		// pre-determine the bundle metric environments
+		if (bundle) {
+			for (const metric of Object.values(bundle.metrics)) {
+				metric.envs = Object.entries(metric.envs).map(([ guid, stats ]) => {
+					bundleValuePadding = Math.max(bundleValuePadding, String(format(stats.value)).length);
+					return {
+						guid,
+						name: orgEnvs.find(e => e.guid === guid)?.name || guid,
+						...stats
+					};
+				});
+			}
+		}
+
+		// pre-determine the saas metric environments
+		if (usage.SaaS) {
+			for (const info of Object.values(usage.SaaS)) {
+				// info.quota = maxEntitlement;
+				info.unlimited = info.quota === maxEntitlement;
+				info.formatted = `${format(info.value)} of ${info.unlimited ? 'Unlimited' : format(info.quota)}`;
+
+				if (typeof info.percent === 'number') {
+					saasPercentPadding = Math.max(saasPercentPadding, String(info.percent).length);
+				}
+				saasValuePadding = Math.max(saasValuePadding, info.formatted.length);
+
+				info.envs = Object.entries(info.envs || {}).map(([ name, stats ]) => {
+					stats.formatted = format(stats.value);
+					stats.percent = stats.quota && Math.floor(Math.min(stats.value / stats.quota * 100, 100));
+
+					saasPercentPadding = Math.max(saasPercentPadding, String(stats.percent).length);
+					saasValuePadding = Math.max(saasValuePadding, stats.formatted.length);
+
+					return { name, ...stats };
+				});
+			}
+		}
+
 		const results = {
 			account: account.name,
 			org,
 			from,
 			to,
+			bundle,
 			usage
 		};
 
@@ -51,41 +99,87 @@ export default {
 		}
 
 		const { default: snooplogg } = require('snooplogg');
-		const { gray, green, highlight, note, red, yellow } = snooplogg.styles;
+		const { bold, gray, green, highlight, note, red, yellow } = snooplogg.styles;
 
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
-		console.log(`Date Range:   ${highlight(new Date(from).toLocaleDateString())} and ${highlight((to ? new Date(to) : new Date()).toLocaleDateString())}\n`);
+		console.log(`Date Range:   ${highlight(formatDate(from))} and ${highlight(formatDate(to))}\n`);
 
-		if (!usage.SaaS) {
-			console.log('No usage found');
-			return;
+		const renderBar = (percent, width) => {
+			const used = Math.ceil(width * Math.min(percent, 100) / 100);
+			const color = percent > 85 ? red : percent > 65 ? yellow : green;
+			return `${color('\u25A0'.repeat(used))}${gray('⠂'.repeat(width - used))} ${renderPercent(percent)}`;
+		};
+
+		const renderPercent = percent => {
+			let label = `${percent}%`.padStart(saasPercentPadding + 1);
+			return (percent > 85 ? red(label) : percent > 65 ? yellow(label) : label);
+		};
+
+		// API Management Platform Usage
+		if (bundle) {
+			console.log(`${bold(bundle.name)} - ${highlight(bundle.edition)}`);
+			console.log(
+				`  ${highlight(`${format(bundle.value)} / ${format(bundle.quota)}`)} ${bundle.units}`
+				+ `  ${renderBar(bundle.percent, 40)}\n`
+			);
+
+			const table = createTable();
+			for (const [ name, metric ] of Object.entries(bundle.metrics)) {
+				table.push([
+					`  ${bold(metric.name || name)}`,
+					'',
+					{ content: `${highlight(format(metric.value))} ${bundle.units}`, hAlign: 'right' }
+				]);
+
+				const ratio = bundle.ratios[name];
+
+				// render the envs
+				for (let i = 0, len = metric.envs.length; i < len; i++) {
+					const env = metric.envs[i];
+					table.push([
+						`  ${i + 1 === len ? '└─' : '├─'} ${env.name} ${env.production ? gray('Production') : ''}`,
+						`${highlight(format(env.value).padStart(bundleValuePadding))} Transactions${env.tokens && ratio !== 1 ? highlight(` x ${(ratio / 100).toFixed(1)}`) : ''}`,
+						env.tokens ? { content: `${highlight(format(env.tokens))} ${bundle.units}`, hAlign: 'right' } : ''
+					]);
+				}
+			}
+			if (table.length) {
+				console.log(table.toString());
+				console.log();
+			}
 		}
 
-		let pad = 0;
-		const width = 20;
-		const table = createTable();
-		const { format } = new Intl.NumberFormat();
-		const metrics = Object.values(usage.SaaS).sort((a, b) => a.name.localeCompare(b.name));
+		// SaaS Usage
+		console.log(bold('SaaS'));
+		if (usage.SaaS) {
+			const table = createTable();
+			const metrics = Object.values(usage.SaaS);
 
-		// loop through once to compute the usage bars
-		for (const info of metrics) {
-			const pct = info.quota ? (info.value / info.quota) : 0;
-			info.color = pct > 85 ? red : pct > 65 ? yellow : green;
-			info.pct = String(Math.round(pct * 100));
-			info.used = Math.ceil(width * pct);
-			pad = Math.max(pad, info.pct.length);
+			// print the usage
+			for (const { envs, formatted, name, percent, unit, unlimited } of metrics) {
+				table.push([
+					`  ${bold(name)}`,
+					`${highlight(formatted.padStart(saasValuePadding))} ${unit}`,
+					unlimited || typeof percent !== 'number' ? '' : `${renderBar(percent, 20)}`
+				]);
+
+				// render the envs
+				for (let i = 0, len = envs.length; i < len; i++) {
+					const { formatted, name, production } = envs[i];
+					if (name !== 'default') {
+						table.push([
+							`  ${i + 1 === len ? '└─' : '├─'} ${name} ${production ? gray('Production') : ''}`,
+							`${highlight(formatted.padStart(saasValuePadding))} ${unit}`,
+							''
+						]);
+					}
+				}
+			}
+
+			console.log(table.toString());
+		} else {
+			console.log('  No usage found');
 		}
-
-		// print the usage
-		for (const { color, name, pct, quota, unit, used, value } of metrics) {
-			table.push([
-				name,
-				highlight(`${format(value)} / ${format(quota)} ${unit}`),
-				`${color('\u25A0'.repeat(used))}${gray('⠂'.repeat(width - used))} ${pct.padStart(pad)}%`
-			]);
-		}
-
-		console.log(table.toString());
 	}
 };
