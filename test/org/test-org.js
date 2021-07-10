@@ -7,7 +7,7 @@ import {
 	stopServers
 } from '../helpers';
 
-describe('axway org', () => {
+describe.only('axway org', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
@@ -196,6 +196,12 @@ describe('axway org', () => {
 						"guid": "2000",
 						"id": 200,
 						"name": "Bar org"
+					},
+					{
+						"default": false,
+						"guid": "3000",
+						"id": 300,
+						"name": "Baz org"
 					},
 					{
 						"default": true,
