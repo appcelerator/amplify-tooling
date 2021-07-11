@@ -7,7 +7,7 @@ import {
 	stopServers
 } from '../helpers';
 
-describe.only('axway org', () => {
+describe('axway org', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
