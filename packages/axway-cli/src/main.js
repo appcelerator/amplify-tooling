@@ -61,6 +61,10 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 	});
 
 	cli.on('banner', () => {
+		if (cfg.get('update.check') === false) {
+			return;
+		}
+
 		const opts = createRequestOptions({
 			metaDir: resolve(locations.axwayHome, 'axway-cli', 'update'),
 			timeout: 4000
@@ -97,6 +101,14 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 				let msg = '';
 				let axway = '';
 				const exts = createTable();
+				const ts = cfg.get('update.notified');
+
+				// only show update notifications once every half hour
+				if (ts && (Date.now() - ts) < (30 * 60 * 1000)) {
+					return;
+				}
+
+				loadConfig().set('update.notified', Date.now()).save();
 
 				// remove axway package and treat it special
 				for (let i = 0; i < results.length; i++) {
