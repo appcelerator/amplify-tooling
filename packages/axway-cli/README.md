@@ -122,7 +122,19 @@ Set a config setting:
 		<td><code>true</code></td>
 		<td>Enforces valid TLS certificates on all outbound HTTPS requests. Set this to <code>false</code> if you are behind a proxy server with a self signed certificate.</td>
 	</tr>
+	<tr>
+		<td><code>update.check</code></td>
+		<td>bool</td>
+		<td><code>true</code></td>
+		<td>Enables automatic Axway CLI and package update checks.</td>
+	</tr>
 </tbody></table>
+
+## Update Checks
+
+The Axway CLI checks for package updates for the Axway CLI and all installed CLI extensions every
+hour. If there are any available updates, a message is displayed every 30 minutes. The update
+checks can be disabled by running: `axway config set update.check false`.
 
 ## Extensions
 
