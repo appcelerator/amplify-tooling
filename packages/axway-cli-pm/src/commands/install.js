@@ -20,6 +20,7 @@ export default {
 		const { default: snooplogg } = require('snooplogg');
 		const { Extension }          = require('cli-kit');
 		const { install }            = require('../pm');
+		const { loadConfig }         = require('@axway/amplify-cli-utils');
 		const { runListr }           = require('../utils');
 
 		const { alert, highlight } = snooplogg.styles;
@@ -78,6 +79,10 @@ export default {
 		} catch (err) {
 			// errors are stored in the results
 		}
+
+		const cfg = loadConfig();
+		cfg.delete('update.notified');
+		cfg.save();
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));

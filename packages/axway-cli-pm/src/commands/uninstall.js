@@ -136,6 +136,10 @@ export default {
 			}
 		}
 
+		const cfg = loadConfig();
+		cfg.delete('update.notified');
+		cfg.save();
+
 		const results = {
 			installed,
 			replacement,
