@@ -217,6 +217,7 @@ export function createPlatformRoutes(server, opts = {}) {
 				const SaaS = {};
 
 				for (const [ type, meta ] of Object.entries(types)) {
+					// force "Baz org" to have an unlimited subscription
 					const quota = org.guid === '3000' ? maxEntitlement : usage.quotas[type];
 					SaaS[type] = {
 						name: meta.name,
