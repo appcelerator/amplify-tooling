@@ -52,9 +52,9 @@ export default {
 				metric.envs = Object.entries(metric.envs).map(([ guid, stats ]) => {
 					bundleValuePadding = Math.max(bundleValuePadding, String(format(stats.value)).length);
 					return {
+						...stats,
 						guid,
-						name: orgEnvs.find(e => e.guid === guid)?.name || guid,
-						...stats
+						name: orgEnvs.find(e => e.guid === guid)?.name || guid
 					};
 				});
 			}
