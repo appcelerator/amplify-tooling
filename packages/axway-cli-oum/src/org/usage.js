@@ -121,7 +121,7 @@ export default {
 			console.log(`\n${bold(bundle.name)} - ${highlight(bundle.edition)}`);
 			console.log(
 				`  ${highlight(`${format(bundle.value)} / ${format(bundle.quota)}`)} ${bundle.units}`
-				+ `  ${renderBar(bundle.percent, 40)}\n`
+				+ `  ${renderBar(bundle.percent, 40)}`
 			);
 
 			const table = createTable();
@@ -145,6 +145,7 @@ export default {
 				}
 			}
 			if (table.length) {
+				console.log();
 				console.log(table.toString());
 			}
 		}
