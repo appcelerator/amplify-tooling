@@ -61,8 +61,8 @@ export default {
 		}
 
 		// pre-determine the saas metric environments
-		if (usage.SaaS) {
-			for (const info of Object.values(usage.SaaS)) {
+		for (const data of Object.values(usage)) {
+			for (const info of Object.values(data)) {
 				// info.quota = maxEntitlement;
 				info.unlimited = info.quota === maxEntitlement;
 				info.formatted = `${format(info.value)} of ${info.unlimited ? 'Unlimited' : format(info.quota)}`;
@@ -103,7 +103,7 @@ export default {
 
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
-		console.log(`Date Range:   ${highlight(formatDate(from))} and ${highlight(formatDate(to))}\n`);
+		console.log(`Date Range:   ${highlight(formatDate(from))} and ${highlight(formatDate(to))}`);
 
 		const renderBar = (percent, width) => {
 			const used = Math.ceil(width * Math.min(percent, 100) / 100);
@@ -118,7 +118,7 @@ export default {
 
 		// API Management Platform Usage
 		if (bundle) {
-			console.log(`${bold(bundle.name)} - ${highlight(bundle.edition)}`);
+			console.log(`\n${bold(bundle.name)} - ${highlight(bundle.edition)}`);
 			console.log(
 				`  ${highlight(`${format(bundle.value)} / ${format(bundle.quota)}`)} ${bundle.units}`
 				+ `  ${renderBar(bundle.percent, 40)}\n`
@@ -146,15 +146,18 @@ export default {
 			}
 			if (table.length) {
 				console.log(table.toString());
-				console.log();
 			}
 		}
 
-		// SaaS Usage
-		console.log(bold('SaaS'));
-		if (usage.SaaS) {
-			const table = createTable();
-			const metrics = Object.values(usage.SaaS);
+		// Project usage
+		const table = createTable();
+		for (const [ label, data ] of Object.entries(usage)) {
+			const metrics = Object.values(data);
+			if (!metrics.length) {
+				continue;
+			}
+
+			table.push([ `\n${bold(label)}` ]);
 
 			// print the usage
 			for (const { envs, formatted, name, percent, unit, unlimited } of metrics) {
@@ -176,10 +179,9 @@ export default {
 					}
 				}
 			}
-
+		}
+		if (table.length) {
 			console.log(table.toString());
-		} else {
-			console.log('  No usage found');
 		}
 	}
 };
