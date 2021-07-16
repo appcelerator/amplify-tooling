@@ -198,6 +198,12 @@ describe('axway org', () => {
 						"name": "Bar org"
 					},
 					{
+						"default": false,
+						"guid": "3000",
+						"id": 300,
+						"name": "Baz org"
+					},
+					{
 						"default": true,
 						"guid": "1000",
 						"id": 100,
@@ -219,7 +225,62 @@ describe('axway org', () => {
 	});
 
 	describe('usage', () => {
-		//
+		afterEach(stopServers);
+		afterEach(resetHomeDir);
+
+		it('should error if not logged in', async function() {
+			initHomeDir('home-local');
+
+			const { status, stderr } = await runAxwaySync([ 'org', 'list' ]);
+			expect(stderr).to.match(renderRegexFromFile('list/not-authenticated'));
+			expect(status).to.equal(1);
+		});
+
+		it('should error if org is not found', async function() {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			const { status, stderr } = await runAxwaySync([ 'org', 'usage', '--org', 'does_not_exist' ]);
+			expect(stderr).to.match(renderRegexFromFile('usage/bad-org'));
+			expect(status).to.equal(1);
+		});
+
+		it('should get org usage with SaaS only', async function() {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			const { status, stdout } = await runAxwaySync([ 'org', 'usage', '--from', '2021-02-01', '--to', '2021-02-28', '--org', '200' ]);
+			expect(stdout).to.match(renderRegexFromFile('usage/saas-only'));
+			expect(status).to.equal(0);
+		});
+
+		it('should get org usage with bundle and SaaS', async function() {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			const { status, stdout } = await runAxwaySync([ 'org', 'usage', '--from', '2021-02-01', '--to', '2021-02-28', '--org', '100' ]);
+			expect(stdout).to.match(renderRegexFromFile('usage/bundle-saas'));
+			expect(status).to.equal(0);
+		});
+
+		it('should get org usage with bundle and unlimited SaaS', async function() {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			const { status, stdout } = await runAxwaySync([ 'org', 'usage', '--from', '2021-02-01', '--to', '2021-02-28', '--org', '300' ]);
+			expect(stdout).to.match(renderRegexFromFile('usage/unlimited-saas'));
+			expect(status).to.equal(0);
+		});
+
+		it('should output usage help', async () => {
+			const { status, stdout } = await runAxwaySync([ 'org', 'usage', '--help' ]);
+			expect(stdout).to.match(renderRegexFromFile('usage/help'));
+			expect(status).to.equal(2);
+		});
 	});
 
 	describe('user', () => {

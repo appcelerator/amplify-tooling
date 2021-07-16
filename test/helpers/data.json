@@ -132,6 +132,25 @@
 				"bc": 20
 			},
 			"subscriptions": []
+		},
+		{
+			"name": "Baz org",
+			"guid": "3000",
+			"org_id": 300,
+			"active": true,
+			"apps": [],
+			"users": [
+				{
+					"guid": "50000",
+					"roles": [ "administrator" ],
+					"primary": true
+				}
+			],
+			"entitlements": {
+				"_a": 10,
+				"bc": 20
+			},
+			"subscriptions": []
 		}
 	],
 	"roles": [
@@ -207,6 +226,77 @@
 				"containerPoints": 1000,
 				"eventRateMonth": 10000000
 			},
+			"bundle": {
+				"name": "Amplify API Management Platform",
+				"edition": "Standard",
+				"quota": 1000000,
+				"units": "Tokens",
+				"value": 280234,
+				"percent": 28,
+				"metrics": {
+					"APIM.Transactions": {
+						"envs": {
+							"1111111111": {
+								"quota": 1,
+								"value": 39321,
+								"production": false
+							},
+							"2222222222": {
+								"quota": 1,
+								"value": 511,
+								"production": true,
+								"tokens": 511
+							},
+							"3333333333": {
+								"quota": 1,
+								"value": 288,
+								"production": false,
+								"tokens": 288
+							}
+						},
+						"value": 799,
+						"tokens": 799
+					},
+					"AWS.Transactions": {
+						"envs": {
+							"4444444444": {
+								"quota": 10,
+								"value": 12,
+								"production": true,
+								"tokens": 2
+							}
+						},
+						"value": 2,
+						"tokens": 2
+					},
+					"Azure.Transactions": {
+						"envs": {
+							"5555555555": {
+								"quota": 10,
+								"value": 214,
+								"production": false,
+								"tokens": 27
+							}
+						},
+						"value": 27,
+						"tokens": 27
+					}
+				},
+				"ratios": {
+					"APIM.Transactions": 1,
+					"Streams.Transactions": 1,
+					"AgentSDK.Transactions": 10,
+					"APIMAgent.Transactions": 10,
+					"APIMG.Transactions": 10,
+					"AWS.Transactions": 10,
+					"Azure.Transactions": 10,
+					"APIB.Transactions": 3
+				},
+				"product": "Bundle",
+				"plan": "standard",
+				"start_date": "",
+				"end_date": ""
+			},
 			"events": [
 				{ "type": "apiRateMonth", "value": 320, "ts": 1613357858107 },
 				{ "type": "apiRateMonth", "value": 190, "ts": 1613221986688 },
@@ -216,6 +306,80 @@
 				{ "type": "pushRateMonth", "value": 441, "ts": 1613440023678 },
 				{ "type": "pushRateMonth", "value": 603, "ts": 1612163480008 },
 				{ "type": "pushRateMonth", "value": 167, "ts": 1612863508686 },
+
+				{ "type": "storageFilesGB", "value": 0.0006, "ts": 1613170253964 },
+				{ "type": "storageFilesGB", "value": 0.0007, "ts": 1612316015732 },
+
+				{ "type": "storageDatabaseGB", "value": 0.11, "ts": 1613012955562 },
+				{ "type": "storageDatabaseGB", "value": 0.07, "ts": 1612973401134 },
+				{ "type": "storageDatabaseGB", "value": 0.14, "ts": 1612965589282 },
+
+				{ "type": "containerPoints", "value": 1360, "ts": 1613299780069 },
+				{ "type": "containerPoints", "value": 906, "ts": 1612624474909 },
+
+				{ "type": "eventRateMonth", "value": 51223, "ts": 1613335853098 },
+				{ "type": "eventRateMonth", "value": 92300, "ts": 1612221829903 },
+				{ "type": "eventRateMonth", "value": 131010, "ts": 1612465519471 },
+				{ "type": "eventRateMonth", "value": 88921, "ts": 1613036061516 },
+				{ "type": "eventRateMonth", "value": 59656, "ts": 1612420508993 }
+			]
+		},
+		{
+			"org_guid": "2000",
+			"quotas": {
+				"apiRateMonth": 5000,
+				"pushRateMonth": 2000,
+				"storageFilesGB": 100,
+				"storageDatabaseGB": 100,
+				"containerPoints": 1000,
+				"eventRateMonth": 10000000
+			},
+			"events": [
+				{ "type": "apiRateMonth", "value": 320, "ts": 1613357858107 },
+				{ "type": "apiRateMonth", "value": 190, "ts": 1613221986688 },
+				{ "type": "apiRateMonth", "value": 538, "ts": 1612734903031 },
+				{ "type": "apiRateMonth", "value": 246, "ts": 1612550581993 },
+
+				{ "type": "pushRateMonth", "value": 541, "ts": 1613440023678 },
+				{ "type": "pushRateMonth", "value": 703, "ts": 1612163480008 },
+				{ "type": "pushRateMonth", "value": 267, "ts": 1612863508686 },
+
+				{ "type": "storageFilesGB", "value": 0.0006, "ts": 1613170253964 },
+				{ "type": "storageFilesGB", "value": 0.0007, "ts": 1612316015732 },
+
+				{ "type": "storageDatabaseGB", "value": 0.11, "ts": 1613012955562 },
+				{ "type": "storageDatabaseGB", "value": 0.07, "ts": 1612973401134 },
+				{ "type": "storageDatabaseGB", "value": 0.14, "ts": 1612965589282 },
+
+				{ "type": "containerPoints", "value": 1360, "ts": 1613299780069 },
+				{ "type": "containerPoints", "value": 906, "ts": 1612624474909 },
+
+				{ "type": "eventRateMonth", "value": 51223, "ts": 1613335853098 },
+				{ "type": "eventRateMonth", "value": 92300, "ts": 1612221829903 },
+				{ "type": "eventRateMonth", "value": 131010, "ts": 1612465519471 },
+				{ "type": "eventRateMonth", "value": 88921, "ts": 1613036061516 },
+				{ "type": "eventRateMonth", "value": 59656, "ts": 1612420508993 }
+			]
+		},
+		{
+			"org_guid": "3000",
+			"quotas": {
+				"apiRateMonth": 5000,
+				"pushRateMonth": 2000,
+				"storageFilesGB": 100,
+				"storageDatabaseGB": 100,
+				"containerPoints": 1000,
+				"eventRateMonth": 10000000
+			},
+			"events": [
+				{ "type": "apiRateMonth", "value": 320, "ts": 1613357858107 },
+				{ "type": "apiRateMonth", "value": 190, "ts": 1613221986688 },
+				{ "type": "apiRateMonth", "value": 538, "ts": 1612734903031 },
+				{ "type": "apiRateMonth", "value": 246, "ts": 1612550581993 },
+
+				{ "type": "pushRateMonth", "value": 541, "ts": 1613440023678 },
+				{ "type": "pushRateMonth", "value": 703, "ts": 1612163480008 },
+				{ "type": "pushRateMonth", "value": 267, "ts": 1612863508686 },
 
 				{ "type": "storageFilesGB", "value": 0.0006, "ts": 1613170253964 },
 				{ "type": "storageFilesGB", "value": 0.0007, "ts": 1612316015732 },

@@ -131,6 +131,26 @@ export function createPlatformRoutes(server, opts = {}) {
 				{
 					name: 'development',
 					isProduction: false
+				},
+				{
+					name: 'Foo',
+					isProduction: true,
+					guid: '2222222222'
+				},
+				{
+					name: 'Bar',
+					isProduction: false,
+					guid: '3333333333'
+				},
+				{
+					name: 'Baz',
+					isProduction: true,
+					guid: '4444444444'
+				},
+				{
+					name: 'Pow',
+					isProduction: true,
+					guid: '5555555555'
 				}
 			]
 		};
@@ -189,29 +209,48 @@ export function createPlatformRoutes(server, opts = {}) {
 				eventRateMonth:    { name: 'Analytics Events', unit: 'Events' }
 			};
 			const usage = data.usage.find(u => u.org_guid === org.guid);
-			const SaaS = {};
+			const maxEntitlement = 9999999999999;
+			let result = null;
 
-			for (const [ type, meta ] of Object.entries(types)) {
-				SaaS[type] = {
-					name: meta.name,
-					quota: usage.quotas[type],
-					value: 0,
-					unit: meta.unit
-				};
-			}
+			if (usage) {
+				// SaaS
+				const SaaS = {};
 
-			for (const evt of usage.events) {
-				if (SaaS[evt.type] && evt.ts >= from && evt.ts <= to) {
-					SaaS[evt.type].value += evt.value;
+				for (const [ type, meta ] of Object.entries(types)) {
+					// force "Baz org" to have an unlimited subscription
+					const quota = org.guid === '3000' ? maxEntitlement : usage.quotas[type];
+					SaaS[type] = {
+						name: meta.name,
+						quota,
+						value: 0,
+						unit: meta.unit
+					};
 				}
+
+				for (const evt of usage.events) {
+					if (SaaS[evt.type] && evt.ts >= from && evt.ts <= to) {
+						SaaS[evt.type].value += evt.value;
+						if (SaaS[evt.type].quota) {
+							SaaS[evt.type].percent = Math.floor(SaaS[evt.type].value / SaaS[evt.type].quota * 100);
+						}
+					}
+				}
+
+
+				result = {
+					...org,
+					bundle:  usage.bundle,
+					from:    new Date(from).toISOString(),
+					from_ts: from,
+					to:      new Date(to).toISOString(),
+					to_ts:   to,
+					usage: { SaaS }
+				};
 			}
 
 			ctx.body = {
 				success: true,
-				result: usage ? {
-					...org,
-					usage: { SaaS }
-				} : null
+				result
 			};
 		}
 	});
