@@ -108,9 +108,7 @@ export default {
 					title: `${highlight(`${pkg.name}@${pkg.latest}`)} is installed, setting it as active`,
 					async task(ctx, task) {
 						results.selected.push(`${pkg.name}@${pkg.latest}`);
-						const cfg = loadConfig();
-						cfg.set(`extensions.${pkg.name}`, versionData.path);
-						cfg.save();
+						loadConfig().set(`extensions.${pkg.name}`, versionData.path).save();
 						task._task.title = `${highlight(`${pkg.name}@${pkg.latest}`)} set as active version`;
 					}
 				};
@@ -158,6 +156,10 @@ export default {
 		} catch (err) {
 			// errors are stored in the results
 		}
+
+		const cfg = loadConfig();
+		cfg.delete('update.notified');
+		cfg.save();
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
