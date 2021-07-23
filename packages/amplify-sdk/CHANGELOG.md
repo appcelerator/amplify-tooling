@@ -1,4 +1,4 @@
-# v2.2.0-beta2 (Jul 1, 2021)
+# v3.0.0-beta1
 
  * feat: Add support for authenticating into a service account, then upgrade to a platform account
    using the platform tooling credentials.
@@ -6,6 +6,8 @@
  * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being
    executed as sudo. ([APIGOV-19102](https://jira.axway.com/browse/APIGOV-19102))
  * feat: Added list of teams to find org info.
+ * feat: Added `telemetry` to help improve Axway products.
+   ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
  * fix(switch): Added `isPlatformTooling` flag to properly handle logging out of a platform tooling
    account. ([APIGOV-19370](https://jira.axway.com/browse/APIGOV-19370))
  * fix: Validate team argument for user add, list, and update commands.

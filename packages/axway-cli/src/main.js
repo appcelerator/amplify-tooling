@@ -5,7 +5,14 @@ if (!Error.prepareStackTrace) {
 
 import check from 'check-kit';
 import CLI, { chalk } from 'cli-kit';
-import { createRequestOptions, createTable, hlVer, loadConfig, locations } from '@axway/amplify-cli-utils';
+import {
+	createRequestOptions,
+	createTable,
+	hlVer,
+	loadConfig,
+	locations,
+	telemetry
+} from '@axway/amplify-cli-utils';
 import { dirname, join, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 
@@ -19,9 +26,9 @@ const { bold, cyan, gray, red, yellow } = chalk;
 
 	const cfg = loadConfig();
 
-	const externalExtensions = Object.values(cfg.get('extensions', {}));
+	const externalExtensions = Object.entries(cfg.get('extensions', {}));
 	const extensions = [
-		...externalExtensions,
+		...(externalExtensions.map(ext => ext[1])),
 		dirname(require.resolve('@axway/amplify-cli-auth')),
 		dirname(require.resolve('@axway/axway-cli-oum')),
 		dirname(require.resolve('@axway/axway-cli-pm'))
@@ -80,7 +87,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 			// check all CLI extensions for updates
 			...(externalExtensions
-				.map(ext => join(ext, 'package.json'))
+				.map(ext => join(ext[1], 'package.json'))
 				.filter(ext => ext.startsWith(packagesDir) && existsSync(ext))
 				.map(pkg => check({
 					...opts,
@@ -89,13 +96,47 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		]);
 	});
 
+	let state;
+
+	cli.on('exec', async (_state, next) => {
+		state = _state;
+		state.startTime = Date.now();
+
+		const longRunning = state.cmd.prop('longRunning');
+		if (!longRunning) {
+			await next();
+		}
+
+		telemetry.addEvent({
+			argv: state._argv.slice(0),
+			contexts: state.contexts.map(ctx => ctx.name),
+			duration: longRunning ? 0 : Date.now() - state.startTime,
+			event: 'cli.exec',
+			extensions: externalExtensions
+				.map(([ name, ext ]) => {
+					const info = { name };
+					try {
+						const json = JSON.parse(readFileSync(join(ext, 'package.json')));
+						if (ext.startsWith(packagesDir)) {
+							info.managed = true;
+						}
+						info.version = json.version;
+					} catch (err) {
+						//
+					}
+					return info;
+				}),
+			version
+		});
+	});
+
 	try {
 		const { cmd, console } = await cli.exec();
 
 		// now that the command is done, wait for the check to finish and display it's message,
 		// if there is one
 		if (checkWait && cmd.prop('banner')) {
-			const results = (await checkWait).filter(p => p.updateAvailable);
+			const results = (await checkWait).filter(p => p?.updateAvailable);
 			if (results.length) {
 				const boxen = require('boxen');
 				let msg = '';
@@ -142,6 +183,15 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		}
 	} catch (err) {
 		const exitCode = err.exitCode || 1;
+
+		telemetry.addCrash({
+			message: err.toString(),
+			stack: err.stack,
+			argv: state?._argv.slice(0),
+			contexts: state?.contexts.map(ctx => ctx.name),
+			duration: state ? Date.now() - state.startTime : 0,
+			version
+		});
 
 		if (err.json) {
 			console.log(JSON.stringify({

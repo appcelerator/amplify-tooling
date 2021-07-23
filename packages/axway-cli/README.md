@@ -136,6 +136,20 @@ The Axway CLI checks for package updates for the Axway CLI and all installed CLI
 hour. If there are any available updates, a message is displayed every 30 minutes. The update
 checks can be disabled by running: `axway config set update.check false`.
 
+## Telemetry
+
+The Axway CLI has a telemetry system that collects anonymous data which is used to improve Axway
+products. We use this data to determine product roadmaps, feature deprecations, and crash
+reporting.
+
+Data collected includes your operating system, CPU architecture, Node.js version, Axway CLI
+version, installed CLI extensions, command invoked, and randomly generated machine and session ids.
+
+Sensitive information including your username, email address, directories, and environment
+variables are stripped from telemetry payloads.
+
+You can disable telemetry by running: `axway telemetry --disable`.
+
 ## Extensions
 
 Axway CLI is a unified CLI and provides a main entry point for invoking other local CLI programs.

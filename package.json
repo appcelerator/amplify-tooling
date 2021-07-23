@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@koa/router": "^10.0.0",
+    "@koa/router": "^10.1.0",
     "ansi-colors": "^4.1.1",
     "appcd-gulp": "^3.2.0",
     "caller-path": "^3.0.1",

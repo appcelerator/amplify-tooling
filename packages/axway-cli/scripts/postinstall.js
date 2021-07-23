@@ -1,4 +1,6 @@
-const { cyan, green } = require('snooplogg').default.chalk;
+const { cyan, green, red } = require('snooplogg').default.chalk;
+const { telemetry } = require('@axway/amplify-cli-utils');
+const telemetryEnabled = telemetry.isEnabled();
 
 console.log(`
 ${green('Axway CLI successfully installed!')}
@@ -45,6 +47,19 @@ ORGANIZATION, USER, AND TEAM MANAGEMENT:
     ${cyan('axway org')}
     ${cyan('axway team')}
     ${cyan('axway user')}
+
+TELEMETRY:
+
+  The Axway CLI collects data which is used to improve our products. Telemetry
+  is currently ${telemetryEnabled ? green('enabled') : red('disabled')}.
+
+  ${telemetryEnabled ?
+  `You can opt-out of telemetry by running:
+
+     ${cyan('axway telemetry --disable')}` :
+
+  `You can change your telemetry preference by running:
+     ${cyan('axway telemetry --enable')}`}
 
 NEXT STEPS:
 

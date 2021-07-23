@@ -23,6 +23,7 @@
     "@axway/amplify-request": "^2.1.4",
     "appcd-fs": "^2.1.2",
     "appcd-util": "^3.1.6",
+    "ci-info": "^3.2.0",
     "ejs": "^3.1.6",
     "fs-extra": "^9.1.0",
     "get-port": "^5.1.1",
@@ -37,7 +38,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@koa/router": "^10.0.0",
+    "@koa/router": "^10.1.0",
     "appcd-gulp": "^3.2.0",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
