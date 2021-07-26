@@ -116,10 +116,15 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 			await next();
 		}
 
+		const contexts = state.contexts.map(ctx => ctx.name).reverse().slice(1);
+		if (!contexts.length) {
+			contexts.push('exec');
+		}
+
 		telemetry.addEvent({
 			argv: state._argv.slice(0),
 			duration: longRunning ? undefined : Date.now() - state.startTime,
-			event: [ 'cli', ...state.contexts.map(ctx => ctx.name).reverse().slice(1) ].join('.'),
+			event: [ 'cli', ...contexts ].join('.'),
 			extensions: allExtensions
 				.map(([ name, ext ]) => {
 					const info = { name };
