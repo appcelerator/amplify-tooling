@@ -18,7 +18,7 @@ environment variables are stripped from telemetry payloads.`,
 			return `${this.extendedDesc}
 
 You may opt-out of telemetry by running ${style.highlight('axway telemetry --disable')} or setting
-the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${style.highlight('1')}.`;
+the environment variable ${style.highlight('TELEMETRY_DISABLED')} to ${style.highlight('1')}.`;
 		}
 	},
 	options: {

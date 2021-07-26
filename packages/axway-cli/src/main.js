@@ -27,12 +27,11 @@ const { bold, cyan, gray, red, yellow } = chalk;
 	const cfg = loadConfig();
 
 	const externalExtensions = Object.entries(cfg.get('extensions', {}));
-	const extensions = [
-		...(externalExtensions.map(ext => ext[1])),
-		dirname(require.resolve('@axway/amplify-cli-auth')),
-		dirname(require.resolve('@axway/axway-cli-oum')),
-		dirname(require.resolve('@axway/axway-cli-pm'))
-	];
+	const allExtensions = [ ...externalExtensions ];
+	for (const name of [ '@axway/amplify-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
+		allExtensions.push([ name, dirname(dirname(require.resolve(name))) ]);
+	}
+
 	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
 
 	let checkWait;
@@ -59,7 +58,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		banner,
 		commands:         `${__dirname}/commands`,
 		desc:             'The Axway CLI is a unified command line interface for the Axway Amplify Platform.',
-		extensions,
+		extensions:       allExtensions.map(ext => ext[1]),
 		help:             true,
 		helpExitCode:     2,
 		helpTemplateFile: resolve(__dirname, '../templates/help.tpl'),
@@ -96,12 +95,22 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		]);
 	});
 
+	// initialize the telemetry instance in amplify-cli-utils
+	telemetry.init({
+		appGuid: '1d99561b-8770-428c-84b2-5bef95ce263d',
+		appVersion: version
+	});
+
+	// local ref so we can include argv and the context chain in the crash report
 	let state;
 
+	// add the hook to record the telemetry event after the command finishes running
 	cli.on('exec', async (_state, next) => {
 		state = _state;
 		state.startTime = Date.now();
 
+		// if the command is running, then don't wait for it to finish, just send the telemetry
+		// data now
 		const longRunning = state.cmd.prop('longRunning');
 		if (!longRunning) {
 			await next();
@@ -109,10 +118,9 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 		telemetry.addEvent({
 			argv: state._argv.slice(0),
-			contexts: state.contexts.map(ctx => ctx.name),
-			duration: longRunning ? 0 : Date.now() - state.startTime,
-			event: 'cli.exec',
-			extensions: externalExtensions
+			duration: longRunning ? undefined : Date.now() - state.startTime,
+			event: [ 'cli', ...state.contexts.map(ctx => ctx.name).reverse().slice(1) ].join('.'),
+			extensions: allExtensions
 				.map(([ name, ext ]) => {
 					const info = { name };
 					try {
@@ -125,12 +133,12 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 						//
 					}
 					return info;
-				}),
-			version
+				})
 		});
 	});
 
 	try {
+		// execute the command
 		const { cmd, console } = await cli.exec();
 
 		// now that the command is done, wait for the check to finish and display it's message,
@@ -184,13 +192,13 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 	} catch (err) {
 		const exitCode = err.exitCode || 1;
 
+		// record the crash
 		telemetry.addCrash({
 			message: err.toString(),
 			stack: err.stack,
 			argv: state?._argv.slice(0),
 			contexts: state?.contexts.map(ctx => ctx.name),
-			duration: state ? Date.now() - state.startTime : 0,
-			version
+			duration: state ? Date.now() - state.startTime : 0
 		});
 
 		if (err.json) {

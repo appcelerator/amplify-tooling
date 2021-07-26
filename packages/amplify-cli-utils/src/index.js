@@ -3,7 +3,7 @@ if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
-import AmplifySDK from '@axway/amplify-sdk';
+import AmplifySDK, { Telemetry } from '@axway/amplify-sdk';
 import boxen from 'boxen';
 import check from 'check-kit';
 import fs from 'fs';
@@ -26,6 +26,7 @@ export {
 	loadConfig,
 	locations,
 	request,
+	Telemetry,
 	telemetry
 };
 

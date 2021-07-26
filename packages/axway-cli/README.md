@@ -150,6 +150,9 @@ variables are stripped from telemetry payloads.
 
 You can disable telemetry by running: `axway telemetry --disable`.
 
+Telemetry is always disabled when the `TELEMETRY_DISABLED` environment variable is set or when
+running from a known continuous integration environment.
+
 ## Extensions
 
 Axway CLI is a unified CLI and provides a main entry point for invoking other local CLI programs.
