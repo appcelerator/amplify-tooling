@@ -98,7 +98,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 	// initialize the telemetry instance in amplify-cli-utils
 	telemetry.init({
-		appGuid: '1d99561b-8770-428c-84b2-5bef95ce263d',
+		appGuid: '0049ef76-0557-4b83-985c-a1d29c280227',
 		appVersion: version
 	});
 
