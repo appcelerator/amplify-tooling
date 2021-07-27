@@ -133,8 +133,8 @@ Set a config setting:
 ## Update Checks
 
 The Axway CLI checks for package updates for the Axway CLI and all installed CLI extensions every
-hour. If there are any available updates, a message is displayed every 30 minutes. The update
-checks can be disabled by running: `axway config set update.check false`.
+hour. If there are any available updates, a message is displayed once per hour. The update checks
+can be disabled by running: `axway config set update.check false`.
 
 ## Telemetry
 

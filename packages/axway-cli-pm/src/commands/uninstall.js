@@ -5,6 +5,7 @@ export default {
 			name: 'package',
 			hint: 'package[@version]',
 			desc: 'The package name and version to uninstall',
+			redact: false,
 			required: true
 		}
 	],

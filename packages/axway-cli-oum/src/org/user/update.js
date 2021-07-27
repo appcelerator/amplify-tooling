@@ -20,7 +20,8 @@ export default {
 		},
 		'--role [role]': {
 			desc: 'Assign one or more organization roles to a user',
-			multiple: true
+			multiple: true,
+			redact: false
 		}
 	},
 	async action({ argv, cli, console }) {

@@ -15,6 +15,7 @@ import {
 } from '@axway/amplify-cli-utils';
 import { dirname, join, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
+import { redact } from 'appcd-util';
 
 const { bold, cyan, gray, red, yellow } = chalk;
 
@@ -116,30 +117,42 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 			await next();
 		}
 
-		const contexts = state.contexts.map(ctx => ctx.name).reverse().slice(1);
-		if (!contexts.length) {
-			contexts.push('exec');
-		}
+		const contexts = state.contexts.map(ctx => ctx.name).reverse();
 
-		telemetry.addEvent({
-			argv: state._argv.slice(0),
-			duration: longRunning ? undefined : Date.now() - state.startTime,
-			event: [ 'cli', ...contexts ].join('.'),
-			extensions: allExtensions
-				.map(([ name, ext ]) => {
-					const info = { name };
-					try {
-						const json = JSON.parse(readFileSync(join(ext, 'package.json')));
-						if (ext.startsWith(packagesDir)) {
-							info.managed = true;
+		if (state?.err) {
+			telemetry.addCrash({
+				argv:     scrubArgv(state.__argv),
+				contexts,
+				duration: Date.now() - state.startTime,
+				exitCode: state.exitCode() || 0,
+				message:  state.err.toString(),
+				stack:    state.err.stack,
+				warnings: state.warnings
+			});
+		} else {
+			telemetry.addEvent({
+				argv:       scrubArgv(state.__argv),
+				contexts,
+				duration:   longRunning ? undefined : Date.now() - state.startTime,
+				event:      contexts.length ? [ 'cli', ...contexts.slice(1) ].join('.') : 'cli.exec',
+				exitCode:   state?.exitCode() || 0,
+				extensions: allExtensions
+					.map(([ name, ext ]) => {
+						const info = { name };
+						try {
+							const json = JSON.parse(readFileSync(join(ext, 'package.json')));
+							if (ext.startsWith(packagesDir)) {
+								info.managed = true;
+							}
+							info.version = json.version;
+						} catch (err) {
+							info.err = err.toString();
 						}
-						info.version = json.version;
-					} catch (err) {
-						//
-					}
-					return info;
-				})
-		});
+						return info;
+					}),
+				warnings: state.warnings
+			});
+		}
 	});
 
 	try {
@@ -157,8 +170,8 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 				const exts = createTable();
 				const ts = cfg.get('update.notified');
 
-				// only show update notifications once every half hour
-				if (ts && (Date.now() - ts) < (30 * 60 * 1000)) {
+				// only show update notifications once every hour
+				if (ts && (Date.now() - ts) < 3600000) {
 					return;
 				}
 
@@ -199,11 +212,13 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 		// record the crash
 		telemetry.addCrash({
-			message: err.toString(),
-			stack: err.stack,
-			argv: state?._argv.slice(0),
-			contexts: state?.contexts.map(ctx => ctx.name),
-			duration: state ? Date.now() - state.startTime : 0
+			argv:     state ? scrubArgv(state.__argv) : undefined,
+			contexts: state ? state.contexts.map(ctx => ctx.name).reverse() : undefined,
+			duration: state ? Date.now() - state.startTime : undefined,
+			exitCode: state?.exitCode() || 0,
+			message:  err.toString(),
+			stack:    err.stack,
+			warnings: state?.warnings
 		});
 
 		if (err.json) {
@@ -229,3 +244,32 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		process.exit(exitCode);
 	}
 })();
+
+/**
+ * Redacts potentially sensitive command line args.
+ *
+ * @param {Array<Object>} argv - The parsed arguments.
+ * @returns {Array<String>}
+ */
+function scrubArgv(argv) {
+	return argv.flatMap(arg => {
+		const { type } = arg;
+		if (type === 'command' || type === 'extension' || (type === 'option' && arg.option.isFlag)) {
+			return arg.input;
+		}
+		if (type === 'option') {
+			return arg.input.slice(0, 1).concat(arg.input.slice(1).map(s => {
+				return arg.option.redact === false ? redact(s) : '<VALUE>';
+			}));
+		}
+		if (type === 'extra') {
+			return arg.input.slice(0, 1).concat(arg.input.slice(1).map(() => '<VALUE>'));
+		}
+		if (arg.type === 'argument') {
+			return arg.input.map(s => {
+				return arg.arg && arg.arg.redact === false ? redact(s) : '<ARG>';
+			});
+		}
+		return '<UNKNOWN>';
+	});
+}

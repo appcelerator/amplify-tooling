@@ -36,9 +36,6 @@ export default {
 	options: [
 		'General',
 		{
-			'--base-url [url]':          { hidden: true },
-			'--client-id [id]':          'The CLI specific client ID',
-			'--realm [name]':            { hidden: true },
 			'--force':                   'Re-authenticate even if the account is already authenticated',
 			'--json': {
 				callback: ({ ctx, value }) => ctx.jsonMode = value,

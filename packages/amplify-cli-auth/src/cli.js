@@ -40,10 +40,10 @@ export default new CLI({
 	helpExitCode: 2,
 	name: 'amplify-cli-auth',
 	options: {
-		'--base-url [url]': { hidden: true },
-		'--client-id [id]': { hidden: true },
-		'--env [name]':     'The environment to use',
-		'--realm [realm]':  { hidden: true }
+		'--base-url [url]': { hidden: true, redact: false },
+		'--client-id [id]': { desc: 'The CLI specific client ID', redact: false },
+		'--env [name]':     { hidden: true, redact: false },
+		'--realm [realm]':  { hidden: true, redact: false }
 	},
 	version
 });

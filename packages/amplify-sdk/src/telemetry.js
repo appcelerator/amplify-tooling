@@ -10,6 +10,7 @@ import { fork } from 'child_process';
 import { isDir, isFile, writeFileSync } from 'appcd-fs';
 
 const { log } = snooplogg('amplify-sdk:telemetry');
+const { highlight } = snooplogg.styles;
 
 /**
  * Pre-determine if telemetry is enabled. Also checks the config file at runtime.
@@ -135,12 +136,45 @@ export default class Telemetry {
 			return;
 		}
 
+		if (!payload || typeof payload !== 'object') {
+			throw new TypeError('Expected telemetry payload to be an object');
+		}
+
 		if (!payload.message || typeof payload.message !== 'string') {
 			throw new TypeError('Expected crash payload to have a message');
 		}
 
-		payload.event = 'crash.report';
-		this.addEvent(payload);
+		const homeDir = os.homedir();
+
+		payload.stack = payload.stack.split(/\r\n|\n/).map((line, i) => {
+			if (!i) {
+				return line;
+			}
+
+			let m = line.match(/\(([^:)]*)/);
+			if (!m) {
+				m = line.match(/at ([^:]*)/);
+				if (!m) {
+					return redact(line);
+				}
+			}
+
+			const filename = path.basename(m[1]);
+			let pkgDir = findDir(m[1], 'package.json');
+
+			if (!pkgDir) {
+				// no package.json
+				return `${m[1].startsWith(homeDir) ? '<HOME>' : ''}/<REDACTED>/${filename}`;
+			}
+
+			// we have an node package
+			const parent = path.dirname(pkgDir);
+			const clean = parent.replace(homeDir, '<HOME>').replace(/\/.*$/, '/<REDACTED>');
+			const scrubbed = pkgDir.replace(parent, clean);
+			return line.replace(pkgDir, scrubbed);
+		}).join('\n');
+
+		this.writeEvent('crash.report', payload);
 	}
 
 	/**
@@ -165,11 +199,28 @@ export default class Telemetry {
 			throw new TypeError('Expected telemetry payload to have an event name');
 		}
 
+		// write the event to disk
+		this.writeEvent(event, redact(payload, {
+			props: [ 'clientSecret', 'password', 'username' ],
+			replacements: [
+				[ /\/.+\//, '/<REDACTED>/' ]
+			]
+		}));
+	}
+
+	/**
+	 * Writes the event to disk.
+	 *
+	 * @param {String} event - The event name.
+	 * @param {Object} data - The event data payload.
+	 * @access private
+	 */
+	writeEvent(event, data) {
 		const id = uuid.v4();
 		const file = path.join(this.cacheDir, this.common.app, `${id}.json`);
 		const evt = {
 			...this.common,
-			data: scrub(event, payload),
+			data,
 			event,
 			id,
 			session: {
@@ -178,7 +229,9 @@ export default class Telemetry {
 			timestamp: Date.now()
 		};
 
-		// write the event to disk
+		log(`Writing event: ${highlight(file)}`);
+		log(evt);
+
 		writeFileSync(file, JSON.stringify(evt));
 	}
 
@@ -247,6 +300,8 @@ process.on('message', async msg => {
 		// no directory, no events to send
 		return;
 	}
+
+	const startTime = Date.now();
 
 	// check if there's a lock file and if its stale
 	const lockFile = path.join(appDir, '.lock');
@@ -334,6 +389,7 @@ process.on('message', async msg => {
 		error(err);
 	} finally {
 		fs.unlinkSync(lockFile);
+		log(`Finished in ${((Date.now() - startTime) / 1000).toFixed(1)} seconds`);
 		logFile.close();
 	}
 });
@@ -357,74 +413,4 @@ function findDir(dir, file) {
 		}
 		cur = path.dirname(cur);
 	} while (cur !== root);
-}
-
-/**
- * Attempts to redact any sensitive information in the telemetry payload.
- *
- * @param {String} event - The event name.
- * @param {Object} payload - The data payload to scrub.
- * @returns {Object}
- */
-function scrub(event, payload) {
-	const data = {};
-	for (const [ key, value ] of Object.entries(payload)) {
-		if (key === 'argv') {
-			data[key] = [];
-			for (let i = 0; i < value.length; i++) {
-				const m = value[i].match(/^(--(?:username|password|client-secret))(?:=(.*))?$/i);
-				if (m && m[2]) {
-					data[key].push(`${m[1]}=<REDACTED>`);
-				} else if (m) {
-					data[key].push(m[1]);
-					data[key].push('<REDACTED>');
-					i++;
-				} else {
-					data[key].push(redact(value[i]));
-				}
-			}
-			continue;
-		}
-
-		if (event === 'crash.report') {
-			if (key === 'message') {
-				data[key] = value;
-				continue;
-			}
-
-			if (key === 'stack') {
-				const homeDir = os.homedir();
-				data[key] = value.split(/\r\n|\n/).map((line, i) => {
-					if (!i) {
-						return line;
-					}
-
-					let m = line.match(/\(([^:)]*)/);
-					if (!m) {
-						m = line.match(/at ([^:]*)/);
-						if (!m) {
-							return redact(line);
-						}
-					}
-
-					const filename = path.basename(m[1]);
-					let pkgDir = findDir(m[1], 'package.json');
-
-					if (!pkgDir) {
-						return `${m[1].startsWith(homeDir) ? '<HOME>' : ''}/.../${filename}`;
-					}
-
-					const parent = path.dirname(pkgDir);
-					const clean = parent.replace(homeDir, '<HOME>').replace(/\/.*$/, '/...');
-					const scrubbed = pkgDir.replace(parent, clean);
-
-					return line.replace(pkgDir, scrubbed);
-				}).join('\n');
-				continue;
-			}
-		}
-
-		data[key] = redact(value, { props: [ 'clientSecret', 'password', 'username' ] });
-	}
-	return data;
 }

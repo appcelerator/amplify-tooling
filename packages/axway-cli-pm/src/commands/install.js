@@ -5,6 +5,7 @@ export default {
 			name: 'packages...',
 			hint: 'package[@version]',
 			desc: 'One or more packages by name and version to install',
+			redact: false,
 			required: true
 		}
 	],
