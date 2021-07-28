@@ -901,6 +901,67 @@ export async function createLoginServer(opts = {}) {
 	return server;
 }
 
+export async function createTelemetryServer(opts = {}) {
+	const server = http.createServer(async (req, res) => {
+		try {
+			const url = new URL(req.url, 'http://127.0.0.1:13372');
+			log(`Incoming request: ${req.method} ${highlight(url.pathname)}`);
+
+			if (req.method === 'POST') {
+				const post = await new Promise((resolve, reject) => {
+					const body = [];
+					req.on('data', chunk => body.push(chunk));
+					req.on('error', reject);
+					req.on('end', () => resolve(JSON.parse(Buffer.concat(body).toString())));
+				});
+
+				switch (url.pathname) {
+					case '/v4/event':
+						if (typeof opts.onEvent === 'function') {
+							opts.onEvent(post, req, res);
+						}
+						res.writeHead(201);
+						res.end();
+						break;
+				}
+			}
+		} catch (e) {
+			res.writeHead(400, { 'Content-Type': 'text/plain' });
+			res.end(e.toString());
+		}
+	});
+	const connections = {};
+
+	server.destroy = () => {
+		return Promise.all([
+			new Promise(resolve => server.close(resolve)),
+			new Promise(resolve => {
+				for (const conn of Object.values(connections)) {
+					conn.destroy();
+				}
+				resolve();
+			})
+		]);
+	};
+
+	await new Promise((resolve, reject) => {
+		server
+			.on('listening', resolve)
+			.on('connection', conn => {
+				const key = `${conn.remoteAddress}:${conn.remotePort}`;
+				connections[key] = conn;
+				conn.on('close', () => {
+					delete connections[key];
+				});
+			})
+			.on('error', reject)
+			.listen(13372, '127.0.0.1');
+	});
+
+	log('Started test telemetry server: http://127.0.0.1:13372');
+	return server;
+}
+
 export async function stopServer() {
 	this.timeout(5000);
 

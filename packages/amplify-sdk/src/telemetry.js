@@ -60,7 +60,7 @@ export default class Telemetry {
 			throw new TypeError('Expected telemetry options to be an object');
 		}
 
-		if (opts.appGuid && typeof opts.appGuid !== 'string') {
+		if (!opts.appGuid || typeof opts.appGuid !== 'string') {
 			throw new TypeError('Expected app guid to be a non-empty string');
 		}
 
@@ -68,8 +68,8 @@ export default class Telemetry {
 			throw new TypeError('Expected app version to be a non-empty string');
 		}
 
-		if (opts.cacheDir && typeof opts.cacheDir !== 'string') {
-			throw new TypeError('Expected telemetry cache dir to be a string');
+		if (!opts.cacheDir || typeof opts.cacheDir !== 'string') {
+			throw new TypeError('Expected telemetry cache dir to be a non-empty string');
 		}
 
 		if (!opts.environment || typeof opts.environment !== 'string') {
@@ -137,7 +137,7 @@ export default class Telemetry {
 		}
 
 		if (!payload || typeof payload !== 'object') {
-			throw new TypeError('Expected telemetry payload to be an object');
+			throw new TypeError('Expected crash payload to be an object');
 		}
 
 		if (!payload.message || typeof payload.message !== 'string') {
@@ -217,7 +217,9 @@ export default class Telemetry {
 	 */
 	writeEvent(event, data) {
 		const id = uuid.v4();
-		const file = path.join(this.cacheDir, this.common.app, `${id}.json`);
+		const now = new Date();
+		const ts = now.toISOString().replace(/[\WZ]*/ig, '').replace('T', '-') + '-' + Math.floor(1000 + Math.random() * 9000);
+		const file = path.join(this.cacheDir, this.common.app, `${ts}.json`);
 		const evt = {
 			...this.common,
 			data,
@@ -226,7 +228,7 @@ export default class Telemetry {
 			session: {
 				id: this.sessionId
 			},
-			timestamp: Date.now()
+			timestamp: now.getTime()
 		};
 
 		log(`Writing event: ${highlight(file)}`);
@@ -277,7 +279,8 @@ export default class Telemetry {
 		const child = fork(module.filename);
 		child.send({
 			appDir: path.join(this.cacheDir, this.common.app),
-			requestOptions: this.requestOptions
+			requestOptions: this.requestOptions,
+			url: this.url
 		});
 		child.unref();
 	}
@@ -295,7 +298,7 @@ process.on('message', async msg => {
 		return;
 	}
 
-	const { appDir, requestOptions } = msg;
+	const { appDir, requestOptions, url } = msg;
 	if (!isDir(appDir)) {
 		// no directory, no events to send
 		return;
@@ -327,10 +330,14 @@ process.on('message', async msg => {
 	const logFile = fs.createWriteStream(path.join(appDir, 'debug.log'));
 	const formatter = new StripColors();
 	formatter.pipe(logFile);
-	const { error, log, warn } = createInstanceWithDefaults()
-		.enable('*')
+	const logger = createInstanceWithDefaults()
 		.config({ theme: 'detailed' })
-		.pipe(formatter, { flush: true });
+		.enable('*')
+		.pipe(formatter, { flush: true })
+		.snoop()
+		.ns('amplify-sdk:telemetry:send');
+
+	const { error, log, warn } = logger;
 
 	log(`PID: ${process.pid}`);
 	log(`Batch size: ${sendBatchSize}`);
@@ -341,7 +348,7 @@ process.on('message', async msg => {
 
 		// loop until all events are sent
 		for (let batchCounter = 1; true; batchCounter++) {
-			const events = fs.readdirSync(appDir).filter(filename => filename.endsWith('.json'));
+			const events = fs.readdirSync(appDir).filter(filename => filename.endsWith('.json')).sort();
 			if (!events.length || events.length === last) {
 				break;
 			}
@@ -353,7 +360,9 @@ process.on('message', async msg => {
 			for (const filename of events) {
 				const file = path.join(appDir, filename);
 				try {
-					batch.push({ event: fs.readJsonSync(file), file });
+					const event = fs.readJsonSync(file);
+					log(`Batch ${batchCounter}: Adding event ${event.timestamp} "${event.event}"`);
+					batch.push({ event, file });
 					if (batch.length >= sendBatchSize) {
 						break;
 					}
@@ -372,7 +381,7 @@ process.on('message', async msg => {
 				json: batch.map(b => b.event),
 				retry: 0,
 				timeout: 10000,
-				url: telemetryUrl
+				url
 			});
 			log(`Batch ${batchCounter}: Successfully sent ${batch.length} event${batch.length !== 1 ? 's' : ''}`);
 

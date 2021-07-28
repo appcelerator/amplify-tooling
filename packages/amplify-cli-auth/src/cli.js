@@ -41,7 +41,7 @@ export default new CLI({
 	name: 'amplify-cli-auth',
 	options: {
 		'--base-url [url]': { hidden: true, redact: false },
-		'--client-id [id]': { desc: 'The CLI specific client ID', redact: false },
+		'--client-id [id]': 'The CLI specific client ID',
 		'--env [name]':     { hidden: true, redact: false },
 		'--realm [realm]':  { hidden: true, redact: false }
 	},

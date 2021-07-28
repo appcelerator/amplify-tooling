@@ -6,10 +6,12 @@ feature deprecations, and crash reporting.
 
 Data collected includes your operating system, CPU architecture, Node.js
 version, Axway CLI version, installed CLI extensions, command invoked, and
-randomly generated machine and session ids.
+randomly generated machine and session ids. Sensitive information including
+your username, email address, and paths are redacted.
 
-Sensitive information including your username, email address, directories, and
-environment variables are stripped from telemetry payloads.`,
+Axway does not collect your personal information, link your activity to your
+Axway account, capture environment variables, or unique machine identifiers
+such as the MAC address or serial number.`,
 	help: {
 		header() {
 			return `${this.desc}.`;

@@ -143,15 +143,18 @@ products. We use this data to determine product roadmaps, feature deprecations, 
 reporting.
 
 Data collected includes your operating system, CPU architecture, Node.js version, Axway CLI
-version, installed CLI extensions, command invoked, and randomly generated machine and session ids.
+version, installed CLI extensions, command invoked, and randomly generated machine and session
+ids. Sensitive information including your username, email address, and paths are redacted.
 
-Sensitive information including your username, email address, directories, and environment
-variables are stripped from telemetry payloads.
+Axway does __not__ collect your personal information, link your activity to your Axway account,
+capture environment variables, or unique machine identifiers such as the MAC address or serial
+number.
 
-You can disable telemetry by running: `axway telemetry --disable`.
+Telemetry is __disabled__ by default. You can enable telemetry by running
+`axway telemetry --enable` or disable it by running `axway telemetry --disable`.
 
-Telemetry is always disabled when the `TELEMETRY_DISABLED` environment variable is set or when
-running from a known continuous integration environment.
+Telemetry is always disabled if the environment variable `TELEMETRY_DISABLED=1` is set or when
+running from a well known continuous integration environment.
 
 ## Extensions
 

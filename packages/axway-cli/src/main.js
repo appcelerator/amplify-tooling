@@ -252,24 +252,23 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
  * @returns {Array<String>}
  */
 function scrubArgv(argv) {
-	return argv.flatMap(arg => {
-		const { type } = arg;
+	const scrubbed = [];
+	for (const { arg, input, option, type } of argv) {
 		if (type === 'command' || type === 'extension' || (type === 'option' && arg.option.isFlag)) {
-			return arg.input;
-		}
-		if (type === 'option') {
-			return arg.input.slice(0, 1).concat(arg.input.slice(1).map(s => {
-				return arg.option.redact === false ? redact(s) : '<VALUE>';
+			scrubbed.push(input);
+		} else if (type === 'option') {
+			scrubbed.push(input.slice(0, 1).concat(input.slice(1).map(s => {
+				return option.redact === false ? redact(s) : '<VALUE>';
+			})));
+		} else if (type === 'extra') {
+			scrubbed.push(input.slice(0, 1).concat(input.slice(1).map(() => '<VALUE>')));
+		} else if (type === 'argument') {
+			scrubbed.push(input.map(s => {
+				return arg && arg.redact === false ? redact(s) : '<ARG>';
 			}));
+		} else {
+			scrubbed.push('<UNKNOWN>');
 		}
-		if (type === 'extra') {
-			return arg.input.slice(0, 1).concat(arg.input.slice(1).map(() => '<VALUE>'));
-		}
-		if (arg.type === 'argument') {
-			return arg.input.map(s => {
-				return arg.arg && arg.arg.redact === false ? redact(s) : '<ARG>';
-			});
-		}
-		return '<UNKNOWN>';
-	});
+	}
+	return scrubbed;
 }
