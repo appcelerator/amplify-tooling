@@ -13,17 +13,7 @@ const cacheDir = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 
 describe.only('Telemetry', () => {
 	describe('Error handling', () => {
-		beforeEach(function () {
-			this.env = { ...process.env };
-			delete process.env.BUILD_NUMBER;
-			delete process.env.CI;
-			delete process.env.CONTINUOUS_INTEGRATION;
-			delete process.env.RUN_ID;
-		});
-		afterEach(function () {
-			fs.removeSync(cacheDir);
-			Object.assign(process.env, this.env);
-		});
+		afterEach(() => fs.removeSync(cacheDir));
 
 		it('should error if options are invalid', () => {
 			expect(() => {
@@ -184,18 +174,10 @@ describe.only('Telemetry', () => {
 	});
 
 	describe('Send events', () => {
-		beforeEach(function () {
-			this.env = { ...process.env };
-			delete process.env.BUILD_NUMBER;
-			delete process.env.CI;
-			delete process.env.CONTINUOUS_INTEGRATION;
-			delete process.env.RUN_ID;
-		});
 		afterEach(stopServer);
-		afterEach(function () {
-			fs.removeSync(cacheDir);
-			Object.assign(process.env, this.env);
+		afterEach(() => {
 			delete process.env.TELEMETRY_DISABLED;
+			fs.removeSync(cacheDir);
 		});
 
 		it('should not send if no events', async function () {

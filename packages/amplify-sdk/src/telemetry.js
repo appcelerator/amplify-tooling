@@ -130,7 +130,7 @@ export default class Telemetry {
 	 * @access public
 	 */
 	addCrash(payload) {
-		if (process.env.TELEMETRY_DISABLED === '1' || ci.isCI || this.common.distribution.environment !== 'production') {
+		if (isTelemetryDisabled() || this.common.distribution.environment !== 'production') {
 			return;
 		}
 
@@ -191,7 +191,7 @@ export default class Telemetry {
 	 * @access public
 	 */
 	addEvent(payload) {
-		if (process.env.TELEMETRY_DISABLED === '1' || ci.isCI) {
+		if (isTelemetryDisabled()) {
 			return;
 		}
 
@@ -249,7 +249,7 @@ export default class Telemetry {
 	 * @access public
 	 */
 	send() {
-		if (process.env.TELEMETRY_DISABLED === '1' || ci.isCI) {
+		if (isTelemetryDisabled()) {
 			return;
 		}
 
@@ -448,4 +448,13 @@ function findDir(dir, file) {
 		}
 		cur = path.dirname(cur);
 	} while (cur !== root);
+}
+
+/**
+ * Checks the environment variables to see if telemetry should be disabled.
+ *
+ * @returns {Boolean}
+ */
+function isTelemetryDisabled() {
+	return process.env.TELEMETRY_DISABLED === '1' || (!process.env.AXWAY_TEST && ci.isCI);
 }
