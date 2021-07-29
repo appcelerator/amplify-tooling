@@ -36,6 +36,7 @@
     "boxen": "^5.0.1",
     "check-kit": "^1.2.1",
     "cli-kit": "^1.14.0",
+    "serialize-error": "^8.1.0",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19",
     "v8-compile-cache": "^2.3.0"

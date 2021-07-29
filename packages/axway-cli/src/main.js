@@ -16,6 +16,7 @@ import {
 import { dirname, join, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { redact } from 'appcd-util';
+import { serializeError } from 'serialize-error';
 
 const { bold, cyan, gray, red, yellow } = chalk;
 
@@ -121,12 +122,11 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 		if (state?.err) {
 			telemetry.addCrash({
+				...serializeError(state.err),
 				argv:     scrubArgv(state.__argv),
 				contexts,
 				duration: Date.now() - state.startTime,
 				exitCode: state.exitCode() || 0,
-				message:  state.err.toString(),
-				stack:    state.err.stack,
 				warnings: state.warnings
 			});
 		} else {
@@ -212,12 +212,11 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 		// record the crash
 		telemetry.addCrash({
+			...serializeError(err),
 			argv:     state ? scrubArgv(state.__argv) : undefined,
 			contexts: state ? state.contexts.map(ctx => ctx.name).reverse() : undefined,
 			duration: state ? Date.now() - state.startTime : undefined,
 			exitCode: state?.exitCode() || 0,
-			message:  err.toString(),
-			stack:    err.stack,
 			warnings: state?.warnings
 		});
 
@@ -254,7 +253,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 function scrubArgv(argv) {
 	const scrubbed = [];
 	for (const { arg, input, option, type } of argv) {
-		if (type === 'command' || type === 'extension' || (type === 'option' && arg.option.isFlag)) {
+		if (type === 'command' || type === 'extension' || (type === 'option' && option.isFlag)) {
 			scrubbed.push(input);
 		} else if (type === 'option') {
 			scrubbed.push(input.slice(0, 1).concat(input.slice(1).map(s => {
