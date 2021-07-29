@@ -15,6 +15,10 @@ describe.only('Telemetry', () => {
 	describe('Error handling', () => {
 		beforeEach(function () {
 			this.env = { ...process.env };
+			delete process.env.BUILD_NUMBER;
+			delete process.env.CI;
+			delete process.env.CONTINUOUS_INTEGRATION;
+			delete process.env.RUN_ID;
 		});
 		afterEach(function () {
 			fs.removeSync(cacheDir);
@@ -182,6 +186,10 @@ describe.only('Telemetry', () => {
 	describe('Send events', () => {
 		beforeEach(function () {
 			this.env = { ...process.env };
+			delete process.env.BUILD_NUMBER;
+			delete process.env.CI;
+			delete process.env.CONTINUOUS_INTEGRATION;
+			delete process.env.RUN_ID;
 		});
 		afterEach(stopServer);
 		afterEach(function () {
