@@ -170,7 +170,7 @@ describe('Telemetry', () => {
 		});
 	});
 
-	describe.only('Send events', () => {
+	describe('Send events', () => {
 		afterEach(stopServer);
 		afterEach(() => {
 			delete process.env.AXWAY_CLI;
