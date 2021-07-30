@@ -405,6 +405,18 @@ export default class AmplifySDK {
 			}
 		};
 
+		this.entitlement = {
+			/**
+			 * Retrieves entitlement information for a specific entitlement metric.
+			 * @param {Object} account - The account object.
+			 * @param {String} metric - The entitlement metric name.
+			 * @returns {Promise<Object>}
+			 */
+			find: (account, metric) => this.request(`/api/v1/entitlement/${metric}`, account, {
+				errorMsg: 'Failed to get entitlement info'
+			})
+		};
+
 		/**
 		 * Retrieves activity for an organization or user.
 		 * @param {Object} account - The account object.
@@ -746,9 +758,19 @@ export default class AmplifySDK {
 					url += `${from ? '&' : '?'}to=${to.toISOString()}`;
 				}
 
-				return await this.request(url, account, {
+				const results = await this.request(url, account, {
 					errorMsg: 'Failed to get organization usage'
 				});
+
+				if (results.bundle?.metrics) {
+					for (const [ metric, info ] of Object.entries(results.bundle.metrics)) {
+						if (!info.name) {
+							info.name = (await this.entitlement.find(account, metric)).title;
+						}
+					}
+				}
+
+				return results;
 			}
 		};
 

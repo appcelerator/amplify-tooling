@@ -8,6 +8,8 @@
  * feat: Added list of teams to find org info.
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+ * feat: Added new function to get entitlement info which is used by the org usage report to
+   populate bundle metric names. ([APIGOV-19513](https://jira.axway.com/browse/APIGOV-19513))
  * fix(switch): Added `isPlatformTooling` flag to properly handle logging out of a platform tooling
    account. ([APIGOV-19370](https://jira.axway.com/browse/APIGOV-19370))
  * fix: Validate team argument for user add, list, and update commands.
