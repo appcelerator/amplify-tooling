@@ -170,7 +170,7 @@ describe('Telemetry', () => {
 		});
 	});
 
-	describe('Send events', () => {
+	describe.only('Send events', () => {
 		afterEach(stopServer);
 		afterEach(() => {
 			delete process.env.AXWAY_CLI;
@@ -235,7 +235,7 @@ describe('Telemetry', () => {
 			expect(posts).to.have.lengthOf(1);
 			const events = posts[0].sort((a, b) => {
 				const d = a.timestamp - b.timestamp;
-				return d !== 0 ? d : a.event === 'session.start' ? -1 : 1;
+				return a.event === 'session.start' ? -1 : d;
 			});
 
 			expect(events[0].event).to.equal('session.start');
@@ -343,7 +343,7 @@ describe('Telemetry', () => {
 			expect(posts).to.have.lengthOf(1);
 			const events = posts[0].sort((a, b) => {
 				const d = a.timestamp - b.timestamp;
-				return d !== 0 ? d : a.event === 'session.start' ? -1 : 1;
+				return a.event === 'session.start' ? -1 : d;
 			});
 			expect(events).to.have.lengthOf(4);
 			expect(events[0].event).to.equal('session.start');
@@ -402,7 +402,7 @@ describe('Telemetry', () => {
 			expect(posts).to.have.lengthOf(1);
 			const events = posts[0].sort((a, b) => {
 				const d = a.timestamp - b.timestamp;
-				return d !== 0 ? d : a.event === 'session.start' ? -1 : 1;
+				return a.event === 'session.start' ? -1 : d;
 			});
 			expect(events[0].event).to.equal('session.start');
 			expect(events[1].event).to.equal('foo.bar');
@@ -442,7 +442,7 @@ describe('Telemetry', () => {
 			expect(posts).to.have.lengthOf(1);
 			const events = posts[0].sort((a, b) => {
 				const d = a.timestamp - b.timestamp;
-				return d !== 0 ? d : a.event === 'session.start' ? -1 : 1;
+				return a.event === 'session.start' ? -1 : d;
 			});
 			expect(events[0].event).to.equal('session.start');
 			expect(events[1].event).to.equal('foo.bar');
@@ -542,7 +542,7 @@ describe('Telemetry', () => {
 			expect(posts).to.have.lengthOf(2);
 			const events = posts[1].sort((a, b) => {
 				const d = a.timestamp - b.timestamp;
-				return d !== 0 ? d : a.event === 'session.start' ? -1 : 1;
+				return a.event === 'session.start' ? -1 : d;
 			});
 			expect(events[0].event).to.equal('session.end');
 			expect(events[0].session.id).to.equal(id);
