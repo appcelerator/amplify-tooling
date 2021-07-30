@@ -375,35 +375,42 @@ process.on('message', async msg => {
 
 		// this function writes the lock file with the current pid to prevent another send process
 		// from sending duplicate events
-		const acquireLock = () => {
-			try {
-				log(`Writing lock file: ${lockFile}`);
-				writeFileSync(lockFile, String(process.pid), { flag: 'wx' });
-				log('Successfully acquired lock');
-			} catch (e) {
-				const contents = fs.readFileSync(lockFile, 'utf-8').trim();
-				const pid = parseInt(contents, 10);
-				// istanbul ignore next
-				if (isNaN(pid)) {
-					log(`Lock file exists, but has bad pid: "${contents}"`);
-				} else {
-					try {
-						// check if pid is still running
-						process.kill(pid, 0);
-						log(`Another send process (pid: ${pid}) is currently running`);
-						return false;
-					} catch (e2) {
-						log('Lock file exists, but has stale pid, continuing...');
+		const acquireLock = async () => {
+			for (let i = 1; i < 4; i++) {
+				try {
+					log(`Attempt ${i}: Writing lock file: ${lockFile}`);
+					writeFileSync(lockFile, String(process.pid), { flag: 'wx' });
+					log(`Attempt ${i}: Successfully acquired lock`);
+					return true;
+				} catch (e) {
+					const contents = fs.readFileSync(lockFile, 'utf-8').trim();
+					const pid = parseInt(contents, 10);
+
+					// istanbul ignore next
+					if (isNaN(pid)) {
+						log(`Attempt ${i}: Lock file exists, but has bad pid: "${contents}"`);
+						fs.removeSync(lockFile);
+					} else {
+						try {
+							// check if pid is still running
+							process.kill(pid, 0);
+							log(`Attempt ${i}: Another send process (pid: ${pid}) is currently running`);
+							return false;
+						} catch (e2) {
+							log(`Attempt ${i}: Lock file exists, but has stale pid, continuing...`);
+							fs.removeSync(lockFile);
+						}
 					}
+
+					// wait before retrying
+					await new Promise(resolve => setTimeout(resolve, 50));
 				}
-				log(`Writing lock file: ${lockFile}`);
-				writeFileSync(lockFile, String(process.pid));
-				log('Successfully acquired lock');
 			}
-			return true;
+			log('Giving up after 3 attempts');
+			return false;
 		};
 
-		if (!acquireLock()) {
+		if (!await acquireLock()) {
 			process.exitCode = exitCodes.ALREADY_RUNNING;
 			return;
 		}
