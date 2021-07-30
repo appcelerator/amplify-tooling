@@ -326,7 +326,7 @@ describe('Telemetry', () => {
 			expect(events[2].data).to.be.an('object');
 			expect(events[2].data.name).to.equal('Error');
 			expect(events[2].data.message).to.equal('This is an error');
-			expect(events[2].data.stack).to.match(/^Error: This is an error/);
+			expect(events[2].data.stack[0]).to.match(/^Error: This is an error/);
 
 			expect(events[3].event).to.equal('crash.report');
 			expect(events[3].data).to.be.an('object');
@@ -334,7 +334,7 @@ describe('Telemetry', () => {
 			expect(events[3].data.data).to.deep.equal({ foo: 'bar' });
 			expect(events[3].data.name).to.equal('CustomError');
 			expect(events[3].data.message).to.equal('This is a custom error');
-			expect(events[3].data.stack).to.match(/^CustomError: This is a custom error/);
+			expect(events[3].data.stack[0]).to.match(/^CustomError: This is a custom error/);
 		});
 
 		it('should not add a crash event when not production', async function () {

@@ -163,34 +163,38 @@ export default class Telemetry {
 		const homeDir = os.homedir();
 
 		if (typeof payload.stack === 'string') {
-			payload.stack = payload.stack.split(/\r\n|\n/).map((line, i) => {
-				if (!i) {
-					return line;
-				}
-
-				let m = line.match(/\(([^:)]*)/);
-				// istanbul ignore if
-				if (!m) {
-					m = line.match(/at ([^:]*)/);
-					if (!m) {
-						return redact(line);
+			payload.stack = [
+				payload.stack.split(/\r\n|\n/).map((line, i) => {
+					if (!i) {
+						return line;
 					}
-				}
 
-				const filename = path.basename(m[1]);
-				let pkgDir = findDir(m[1], 'package.json');
+					let m = line.match(/\(([^:)]*)/);
+					// istanbul ignore if
+					if (!m) {
+						m = line.match(/at ([^:]*)/);
+						if (!m) {
+							return redact(line);
+						}
+					}
 
-				if (!pkgDir) {
-					// no package.json
-					return `${m[1].startsWith(homeDir) ? '<HOME>' : ''}/<REDACTED>/${filename}`;
-				}
+					const filename = path.basename(m[1]);
+					let pkgDir = findDir(m[1], 'package.json');
 
-				// we have an node package
-				const parent = path.dirname(pkgDir);
-				const clean = parent.replace(homeDir, '<HOME>').replace(/\/.*$/, '/<REDACTED>');
-				const scrubbed = pkgDir.replace(parent, clean);
-				return line.replace(pkgDir, scrubbed);
-			}).join('\n');
+					if (!pkgDir) {
+						// no package.json
+						return `${m[1].startsWith(homeDir) ? '<HOME>' : ''}/<REDACTED>/${filename}`;
+					}
+
+					// we have an node package
+					const parent = path.dirname(pkgDir);
+					const clean = parent.replace(homeDir, '<HOME>').replace(/\/.*$/, '/<REDACTED>');
+					const scrubbed = pkgDir.replace(parent, clean);
+					return line.replace(pkgDir, scrubbed);
+				}).join('\n')
+			];
+		} else if (payload.stack && !Array.isArray(payload.stack)) {
+			payload.stack = [ payload.stack ];
 		}
 
 		this.writeEvent('crash.report', payload);
