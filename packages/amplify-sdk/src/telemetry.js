@@ -381,10 +381,11 @@ process.on('message', async msg => {
 				writeFileSync(lockFile, String(process.pid), { flag: 'wx' });
 				log('Successfully acquired lock');
 			} catch (e) {
-				const pid = parseInt(fs.readFileSync(lockFile, 'utf-8').split(/\r\n|\n/)[0], 10);
+				const contents = fs.readFileSync(lockFile, 'utf-8').trim();
+				const pid = parseInt(contents, 10);
 				// istanbul ignore next
 				if (isNaN(pid)) {
-					log('Lock file exists, but has bad pid, continuing...');
+					log(`Lock file exists, but has bad pid: "${contents}"`);
 				} else {
 					try {
 						// check if pid is still running
