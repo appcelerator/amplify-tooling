@@ -254,15 +254,15 @@ function scrubArgv(argv) {
 	const scrubbed = [];
 	for (const { arg, input, option, type } of argv) {
 		if (type === 'command' || type === 'extension' || (type === 'option' && option.isFlag)) {
-			scrubbed.push(input);
+			scrubbed.push(...input);
 		} else if (type === 'option') {
-			scrubbed.push(input.slice(0, 1).concat(input.slice(1).map(s => {
+			scrubbed.push(...input.slice(0, 1).concat(input.slice(1).map(s => {
 				return option.redact === false ? redact(s) : '<VALUE>';
 			})));
 		} else if (type === 'extra') {
-			scrubbed.push(input.slice(0, 1).concat(input.slice(1).map(() => '<VALUE>')));
+			scrubbed.push(...input.slice(0, 1).concat(input.slice(1).map(() => '<VALUE>')));
 		} else if (type === 'argument') {
-			scrubbed.push(input.map(s => {
+			scrubbed.push(...input.map(s => {
 				return arg && arg.redact === false ? redact(s) : '<ARG>';
 			}));
 		} else {

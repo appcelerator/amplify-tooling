@@ -153,8 +153,8 @@ number.
 Telemetry is __disabled__ by default. You can enable telemetry by running
 `axway telemetry --enable` or disable it by running `axway telemetry --disable`.
 
-Telemetry is always disabled if the environment variable `TELEMETRY_DISABLED=1` is set or when
-running from a well known continuous integration environment.
+Telemetry is always disabled if the environment variable `AXWAY_TELEMETRY_DISABLED=1` is set or
+when running from a well known continuous integration environment.
 
 ## Extensions
 

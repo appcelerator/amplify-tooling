@@ -19,9 +19,8 @@ let telemetryInst = null;
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
 export function addEvent(payload, opts) {
-	init(opts);
 	// eslint-disable-next-line no-unused-expressions
-	telemetryInst?.addEvent(payload);
+	init(opts)?.addEvent(payload);
 }
 
 /**
@@ -32,9 +31,8 @@ export function addEvent(payload, opts) {
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
 export function addCrash(payload, opts) {
-	init(opts);
 	// eslint-disable-next-line no-unused-expressions
-	telemetryInst?.addCrash(payload);
+	init(opts)?.addCrash(payload);
 }
 
 /**
@@ -52,7 +50,7 @@ export function addCrash(payload, opts) {
 export function init(opts = {}) {
 	try {
 		if (telemetryInst) {
-			return;
+			return telemetryInst;
 		}
 
 		const config = opts.config || loadConfig();

@@ -174,7 +174,7 @@ describe('Telemetry', () => {
 		afterEach(stopServer);
 		afterEach(() => {
 			delete process.env.AXWAY_CLI;
-			delete process.env.TELEMETRY_DISABLED;
+			delete process.env.AXWAY_TELEMETRY_DISABLED;
 			fs.removeSync(cacheDir);
 		});
 
@@ -538,7 +538,7 @@ describe('Telemetry', () => {
 			this.timeout(5000);
 			this.slow(4000);
 
-			process.env.TELEMETRY_DISABLED = '1';
+			process.env.AXWAY_TELEMETRY_DISABLED = '1';
 
 			let { appDir, telemetry } = createTelemetry();
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(2);
