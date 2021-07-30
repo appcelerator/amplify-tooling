@@ -38,10 +38,6 @@
   "engines": {
     "node": ">=10.19.0"
   },
-  "publishConfig": {
-    "access": "public",
-    "tag": "next"
-  },
   "cli-kit": {
     "exports": {
       "org": {

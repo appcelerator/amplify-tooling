@@ -42,8 +42,5 @@
   "engines": {
     "node": ">=10.19.0"
   },
-  "publishConfig": {
-    "tag": "next"
-  },
   "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
 }
