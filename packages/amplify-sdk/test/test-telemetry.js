@@ -206,8 +206,8 @@ describe('Telemetry', () => {
 		});
 
 		it('should add an event and send', async function () {
-			this.timeout(5000);
-			this.slow(4000);
+			this.timeout(10000);
+			this.slow(8000);
 
 			const posts = [];
 			this.server = await createTelemetryServer({
@@ -229,7 +229,7 @@ describe('Telemetry', () => {
 			expect(files).to.have.lengthOf(4);
 
 			telemetry.send();
-			await new Promise(resolve => setTimeout(() => resolve(), 2000));
+			await new Promise(resolve => setTimeout(() => resolve(), 5000));
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
 			expect(posts).to.have.lengthOf(1);
