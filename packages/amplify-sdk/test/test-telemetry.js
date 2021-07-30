@@ -412,8 +412,8 @@ describe('Telemetry', () => {
 		});
 
 		it('should not send bad events', async function () {
-			this.timeout(5000);
-			this.slow(4000);
+			this.timeout(10000);
+			this.slow(8000);
 
 			const posts = [];
 			this.server = await createTelemetryServer({
