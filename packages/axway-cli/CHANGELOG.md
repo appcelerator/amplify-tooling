@@ -1,4 +1,4 @@
-# v2.2.2-beta2 (Jul 1, 2021)
+# v2.2.0 (Jul 30, 2021)
 
  * feat: Checks if any installed CLI extension packages have updates available and prints them
    at the end of a command whenever the banner is rendered.
