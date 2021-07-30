@@ -233,11 +233,7 @@ describe('Telemetry', () => {
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
 			expect(posts).to.have.lengthOf(1);
-			const events = posts[0].sort((a, b) => {
-				const d = a.timestamp - b.timestamp;
-				return a.event === 'session.start' ? -1 : d;
-			});
-
+			const events = posts[0];
 			expect(events[0].event).to.equal('session.start');
 			expect(events[1].event).to.equal('foo.bar');
 			expect(events[1].data).to.deep.equal({ meaningOfLife: 42 });
@@ -267,19 +263,7 @@ describe('Telemetry', () => {
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 			expect(posts).to.have.lengthOf(2);
 
-			let events = posts[0].sort((a, b) => {
-				const d = a.timestamp - b.timestamp;
-				if (d !== 0) {
-					return d;
-				}
-				if (a.event === 'session.start') {
-					return -1;
-				}
-				if (b.event === 'session.start') {
-					return 1;
-				}
-				return parseInt(a.event.match(/\d+/)[0]) - parseInt(b.event.match(/\d+/)[0]);
-			});
+			let events = posts[0];
 			expect(events).to.have.lengthOf(10);
 			expect(events[0].event).to.equal('session.start');
 			let counter = 1;
@@ -287,19 +271,7 @@ describe('Telemetry', () => {
 				expect(events[i].event).to.equal(`test${counter++}`);
 			}
 
-			events = posts[1].sort((a, b) => {
-				const d = a.timestamp - b.timestamp;
-				if (d !== 0) {
-					return d;
-				}
-				if (a.event === 'session.start') {
-					return -1;
-				}
-				if (b.event === 'session.start') {
-					return 1;
-				}
-				return parseInt(a.event.match(/\d+/)[0]) - parseInt(b.event.match(/\d+/)[0]);
-			});
+			events = posts[1];
 			expect(events).to.have.lengthOf(6);
 			for (let i = 0; i < events.length; i++) {
 				expect(events[i].event).to.equal(`test${counter++}`);
@@ -341,10 +313,7 @@ describe('Telemetry', () => {
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
 			expect(posts).to.have.lengthOf(1);
-			const events = posts[0].sort((a, b) => {
-				const d = a.timestamp - b.timestamp;
-				return a.event === 'session.start' ? -1 : d;
-			});
+			const events = posts[0];
 			expect(events).to.have.lengthOf(4);
 			expect(events[0].event).to.equal('session.start');
 
@@ -400,10 +369,7 @@ describe('Telemetry', () => {
 			]);
 
 			expect(posts).to.have.lengthOf(1);
-			const events = posts[0].sort((a, b) => {
-				const d = a.timestamp - b.timestamp;
-				return a.event === 'session.start' ? -1 : d;
-			});
+			const events = posts[0];
 			expect(events[0].event).to.equal('session.start');
 			expect(events[1].event).to.equal('foo.bar');
 		});
@@ -440,10 +406,7 @@ describe('Telemetry', () => {
 			await telemetry.send({ wait: true });
 
 			expect(posts).to.have.lengthOf(1);
-			const events = posts[0].sort((a, b) => {
-				const d = a.timestamp - b.timestamp;
-				return a.event === 'session.start' ? -1 : d;
-			});
+			const events = posts[0];
 			expect(events[0].event).to.equal('session.start');
 			expect(events[1].event).to.equal('foo.bar');
 		});
@@ -540,10 +503,7 @@ describe('Telemetry', () => {
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
 			expect(posts).to.have.lengthOf(2);
-			const events = posts[1].sort((a, b) => {
-				const d = a.timestamp - b.timestamp;
-				return a.event === 'session.start' ? -1 : d;
-			});
+			const events = posts[1];
 			expect(events[0].event).to.equal('session.end');
 			expect(events[0].session.id).to.equal(id);
 			expect(events[1].event).to.equal('session.start');
