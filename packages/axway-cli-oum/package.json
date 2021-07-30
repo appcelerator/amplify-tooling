@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-oum",
-  "version": "1.2.0-beta2",
+  "version": "1.2.0",
   "description": "Axway Amplify platform organization and user management CLI",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -23,7 +23,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^4.3.5-beta2",
+    "@axway/amplify-cli-utils": "^4.4.0",
     "cli-kit": "^1.14.0",
     "open": "^7.4.2",
     "snooplogg": "^3.0.2",
@@ -37,10 +37,6 @@
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-oum",
   "engines": {
     "node": ">=10.19.0"
-  },
-  "publishConfig": {
-    "access": "public",
-    "tag": "next"
   },
   "cli-kit": {
     "exports": {

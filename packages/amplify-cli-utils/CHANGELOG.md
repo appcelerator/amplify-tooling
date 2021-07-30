@@ -1,8 +1,11 @@
-# v5.0.0-beta1
+# v5.0.0
 
- * feat: Added `hlVer()` function to render version difference.
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+
+# v4.4.0 (Jul 30, 2021)
+
+ * feat: Added `hlVer()` function to render version difference.
  * chore: Updated dependencies.
 
 # v4.3.4 (May 11, 2021)

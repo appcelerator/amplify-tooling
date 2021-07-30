@@ -1,4 +1,9 @@
-# v3.0.0-beta1
+# v3.0.0
+
+ * feat: Added `telemetry` to help improve Axway products.
+   ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+
+# v2.2.0 (Jul 30, 2021)
 
  * feat: Add support for authenticating into a service account, then upgrade to a platform account
    using the platform tooling credentials.
@@ -6,8 +11,6 @@
  * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being
    executed as sudo. ([APIGOV-19102](https://jira.axway.com/browse/APIGOV-19102))
  * feat: Added list of teams to find org info.
- * feat: Added `telemetry` to help improve Axway products.
-   ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
  * feat: Added new function to get entitlement info which is used by the org usage report to
    populate bundle metric names. ([APIGOV-19513](https://jira.axway.com/browse/APIGOV-19513))
  * fix(switch): Added `isPlatformTooling` flag to properly handle logging out of a platform tooling

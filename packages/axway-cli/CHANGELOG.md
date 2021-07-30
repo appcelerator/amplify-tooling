@@ -1,10 +1,13 @@
-# v3.0.0-beta1
+# v3.0.0
+
+ * feat: Added `telemetry` to help improve Axway products.
+   ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+
+# v2.2.0 (Jul 30, 2021)
 
  * feat: Checks if any installed CLI extension packages have updates available and prints them
    at the end of a command whenever the banner is rendered.
    ([APIGOV-19210](https://jira.axway.com/browse/APIGOV-19210))
- * feat: Added `telemetry` to help improve Axway products.
-   ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
  * chore: Added unsupported architecture and 32-bit architecture deprecation warning to banner.
    ([CLI-130](https://jira.axway.com/browse/CLI-130))
  * doc: Added "install Axway Central CLI" to post install next steps verbiage.

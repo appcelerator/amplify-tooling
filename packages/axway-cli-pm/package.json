@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-pm",
-  "version": "3.0.0-beta2",
+  "version": "3.0.0",
   "description": "Package manager for Axway products",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -23,7 +23,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^4.3.5-beta2",
+    "@axway/amplify-cli-utils": "^4.4.0",
     "appcd-fs": "^2.1.2",
     "cli-kit": "^1.14.0",
     "cross-spawn": "^7.0.3",
@@ -51,10 +51,6 @@
   "cli-kit": {
     "main": "./dist/cli",
     "name": "pm"
-  },
-  "publishConfig": {
-    "access": "public",
-    "tag": "next"
   },
   "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
 }
