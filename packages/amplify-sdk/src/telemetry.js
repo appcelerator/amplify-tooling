@@ -10,8 +10,21 @@ import { fork } from 'child_process';
 import { isDir, writeFileSync } from 'appcd-fs';
 import { serializeError } from 'serialize-error';
 
-const { log } = snooplogg('amplify-sdk:telemetry');
+const logger = snooplogg('amplify-sdk:telemetry');
+const { log } = logger;
 const { highlight } = snooplogg.styles;
+
+/**
+ * A map of known send process exit codes.
+ * @type {Object}
+ */
+const exitCodes = {
+	0: 'Success',
+	1: 'Error',
+	2: 'Already running',
+	ALREADY_RUNNING: 2,
+	ERROR: 1
+};
 
 /**
  * The number of milliseconds since the last execution before starting a new session.
@@ -246,21 +259,43 @@ export default class Telemetry {
 	/**
 	 * Spawns a child process to send any pending telemetry events.
 	 *
+	 * @param {Object} [opts] - Various options.
+	 * @param {Boolean} [opts.wait] - When `true`, blocks until the send process exits.
+	 * @returns {Promise}
 	 * @access public
 	 */
-	send() {
+	async send(opts) {
 		if (isTelemetryDisabled()) {
 			return;
 		}
 
-		log('Forking telemetry send process...');
 		const child = fork(module.filename);
+		const { pid } = child;
+
 		child.send({
 			appDir: this.appDir,
 			requestOptions: this.requestOptions,
-			url: this.url
+			url: this.url,
+			wait: opts?.wait
 		});
-		child.unref();
+
+		if (opts?.wait) {
+			log(`Forked send process (pid: ${pid}), waiting for exit... `);
+			await new Promise(resolve => {
+				child.on('close', code => {
+					const debugLog = path.join(this.appDir, `debug-${pid}.log`);
+					if (fs.existsSync(debugLog)) {
+						logger(`send-${pid}`).log(fs.readFileSync(debugLog, 'utf-8').trim());
+						fs.renameSync(debugLog, path.join(this.appDir, 'debug.log'));
+					}
+					log(`Send process ${pid} exited with code ${code} (${exitCodes[code] || 'Unknown'})`);
+					resolve();
+				});
+			});
+		} else {
+			log(`Forked send process (pid: ${pid}), unreferencing child process... `);
+			child.unref();
+		}
 	}
 
 	/**
@@ -294,59 +329,25 @@ export default class Telemetry {
 }
 
 /**
- * When Telemetry.send() is called, it spawns this file using `fork()` which conveniently creates
- * an IPC tunnel which is used to send the .
- * @param {Object} msg - Send arguments
+ * When Telemetry::send() is called, it spawns this file using `fork()` which conveniently creates
+ * an IPC tunnel. The parent then immediately sends this child process a message with the app dir
+ * and other info so that it can send the actual messages without blocking the parent.
+ *
+ * This child process will not exit until the IPC tunnel has been closed via process.disconnect().
+ * The only way to get output from this child process is to either set SNOOPLOGG=* and call
+ * Telemetry::send({ wait: true }) -or- look in the app's telemetry data dir for the debug.log file.
  */
 process.on('message', async msg => {
-	process.disconnect();
-
 	// istanbul ignore if
-	if (!msg || !msg.appDir) {
+	if (!msg || !msg.appDir || !isDir(msg.appDir)) {
+		process.disconnect();
 		return;
 	}
 
-	const { appDir, requestOptions, url } = msg;
-	if (!isDir(appDir)) {
-		// no directory, no events to send
-		return;
-	}
-
-	const startTime = Date.now();
-
-	// check if there's a lock file and if its stale
+	const { appDir, requestOptions, url, wait } = msg;
 	const lockFile = path.join(appDir, '.lock');
-	try {
-		// check if it's stale
-		const pid = parseInt(fs.readFileSync(lockFile, 'utf-8').split(/\r\n|\n/)[0], 10);
-		// istanbul ignore next
-		if (!isNaN(pid)) {
-			// check if pid is still running
-			try {
-				process.kill(pid, 0);
-				// another send process is running, exit
-				process.exit(0);
-			} catch (e) {
-				// stale pid file
-			}
-		}
-	} catch (e) {
-		// lock file does not exist
-	}
-
-	// we need to mitigate a possible race condition that occurs during the time it takes to write
-	// the lock file, so write a new lock file to a process specific file, then sanity check that
-	// the lock file does not exist, then rename the process specific lock file to the correct name
-	writeFileSync(`${lockFile}-${process.pid}`, String(process.pid));
-	// istanbul ignore if
-	if (fs.existsSync(lockFile)) {
-		fs.removeSync(`${lockFile}-${process.pid}`);
-		process.exit(0);
-	}
-	fs.renameSync(`${lockFile}-${process.pid}`, lockFile);
-
-	// init the debug log
-	const logFile = fs.createWriteStream(path.join(appDir, 'debug.log'));
+	const startTime = Date.now();
+	const logFile = fs.createWriteStream(path.join(appDir, wait ? `debug-${process.pid}.log` : 'debug.log'));
 	const formatter = new StripColors();
 	formatter.pipe(logFile);
 	const logger = createInstanceWithDefaults()
@@ -355,13 +356,57 @@ process.on('message', async msg => {
 		.pipe(formatter, { flush: true })
 		.snoop()
 		.ns('amplify-sdk:telemetry:send');
-
 	const { error, log, warn } = logger;
 
-	log(`PID: ${process.pid}`);
-	log(`Batch size: ${sendBatchSize}`);
-
 	try {
+		// if the parent isn't waiting for us, disconnect so the IPC tunnel will be closed and this
+		// process can exit gracefully
+		if (!wait) {
+			process.disconnect();
+		}
+
+		log('Telemetry Send Debug Log');
+		if (process.env.AXWAY_CLI) {
+			log(`Axway CLI, version ${process.env.AXWAY_CLI}`);
+		}
+		log(`Amplify SDK, version ${fs.readJsonSync(path.resolve(__dirname, '..', 'package.json')).version}`);
+		log(`PID: ${process.pid}`);
+		log(`Batch size: ${sendBatchSize}`);
+
+		// this function writes the lock file with the current pid to prevent another send process
+		// from sending duplicate events
+		const acquireLock = () => {
+			try {
+				log(`Writing lock file: ${lockFile}`);
+				writeFileSync(lockFile, String(process.pid), { flag: 'wx' });
+				log('Successfully acquired lock');
+			} catch (e) {
+				const pid = parseInt(fs.readFileSync(lockFile, 'utf-8').split(/\r\n|\n/)[0], 10);
+				// istanbul ignore next
+				if (isNaN(pid)) {
+					log('Lock file exists, but has bad pid, continuing...');
+				} else {
+					try {
+						// check if pid is still running
+						process.kill(pid, 0);
+						log(`Another send process (pid: ${pid}) is currently running`);
+						return false;
+					} catch (e2) {
+						log('Lock file exists, but has stale pid, continuing...');
+					}
+				}
+				log(`Writing lock file: ${lockFile}`);
+				writeFileSync(lockFile, String(process.pid));
+				log('Successfully acquired lock');
+			}
+			return true;
+		};
+
+		if (!acquireLock()) {
+			process.exitCode = exitCodes.ALREADY_RUNNING;
+			return;
+		}
+
 		const got = request.init(requestOptions);
 		let last = 0;
 
@@ -422,10 +467,14 @@ process.on('message', async msg => {
 		}
 	} catch (err) {
 		error(err);
+		process.exitCode = exitCodes.ERROR;
 	} finally {
 		fs.removeSync(lockFile);
 		log(`Finished in ${((Date.now() - startTime) / 1000).toFixed(1)} seconds`);
 		logFile.close();
+		if (wait) {
+			process.disconnect();
+		}
 	}
 });
 

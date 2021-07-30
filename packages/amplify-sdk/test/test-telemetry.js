@@ -1,17 +1,14 @@
 import fs from 'fs-extra';
 import path from 'path';
-import snooplogg from 'snooplogg';
 import tmp from 'tmp';
 import { createTelemetryServer, stopServer } from './common';
 import { Telemetry } from '../dist/index';
-
-const logger = snooplogg('test:amplify-sdk:telemetry');
 
 tmp.setGracefulCleanup();
 
 const cacheDir = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 
-describe.only('Telemetry', () => {
+describe('Telemetry', () => {
 	describe('Error handling', () => {
 		afterEach(() => fs.removeSync(cacheDir));
 
@@ -176,6 +173,7 @@ describe.only('Telemetry', () => {
 	describe('Send events', () => {
 		afterEach(stopServer);
 		afterEach(() => {
+			delete process.env.AXWAY_CLI;
 			delete process.env.TELEMETRY_DISABLED;
 			fs.removeSync(cacheDir);
 		});
@@ -195,8 +193,7 @@ describe.only('Telemetry', () => {
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid, session.start
 
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 			expect(posts).to.have.lengthOf(1);
 			expect(posts[0]).to.have.lengthOf(1);
 			expect(posts[0][0].event).to.equal('session.start');
@@ -204,8 +201,7 @@ describe.only('Telemetry', () => {
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid, debug.log
 			fs.removeSync(path.join(appDir, 'debug.log'));
 
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid, debug.log
 		});
 
@@ -220,6 +216,8 @@ describe.only('Telemetry', () => {
 				}
 			});
 
+			process.env.AXWAY_CLI = 'x.y.z';
+
 			const { appDir, telemetry } = createTelemetry();
 
 			telemetry.addEvent({
@@ -231,9 +229,8 @@ describe.only('Telemetry', () => {
 			expect(files).to.have.lengthOf(4);
 
 			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await new Promise(resolve => setTimeout(() => resolve(), 2000));
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
-			printDebugLog(appDir);
 
 			expect(posts).to.have.lengthOf(1);
 			const events = posts[0].sort((a, b) => a.timestamp - b.timestamp);
@@ -263,11 +260,8 @@ describe.only('Telemetry', () => {
 			const files = fs.readdirSync(appDir);
 			expect(files).to.have.lengthOf(18);
 
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
-			printDebugLog(appDir);
-
 			expect(posts).to.have.lengthOf(2);
 
 			let events = posts[0].sort((a, b) => {
@@ -322,10 +316,8 @@ describe.only('Telemetry', () => {
 			const files = fs.readdirSync(appDir);
 			expect(files).to.have.lengthOf(6);
 
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
-			printDebugLog(appDir);
 
 			expect(posts).to.have.lengthOf(1);
 			const events = posts[0].sort((a, b) => {
@@ -365,8 +357,8 @@ describe.only('Telemetry', () => {
 		});
 
 		it('should not send if already sending', async function () {
-			this.timeout(5000);
-			this.slow(4000);
+			this.timeout(10000);
+			this.slow(8000);
 
 			const posts = [];
 			this.server = await createTelemetryServer({
@@ -381,15 +373,50 @@ describe.only('Telemetry', () => {
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(4);
 
-			telemetry.send();
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
-			printDebugLog(appDir);
+			await Promise.all([
+				telemetry.send({ wait: true }),
+				telemetry.send({ wait: true })
+			]);
 
 			expect(posts).to.have.lengthOf(1);
 			const events = posts[0].sort((a, b) => a.timestamp - b.timestamp);
+			expect(events[0].event).to.equal('session.start');
+			expect(events[1].event).to.equal('foo.bar');
+		});
 
+		it('should override a stale pid', async function () {
+			this.timeout(10000);
+			this.slow(8000);
+
+			const posts = [];
+			this.server = await createTelemetryServer({
+				onEvent(payload) {
+					posts.push(payload);
+				}
+			});
+
+			const { appDir, telemetry } = createTelemetry();
+
+			telemetry.addEvent({ event: 'foo.bar' });
+
+			// we need to find a pid that doesn't actually exist
+			let luckyPid;
+			while (true) {
+				luckyPid = Math.floor(10000 + Math.random() * 50000);
+				try {
+					process.kill(luckyPid, 0);
+					// try again :(
+				} catch (e) {
+					// bingo!
+					fs.writeFileSync(path.join(appDir, '.lock'), String(luckyPid));
+					break;
+				}
+			}
+
+			await telemetry.send({ wait: true });
+
+			expect(posts).to.have.lengthOf(1);
+			const events = posts[0].sort((a, b) => a.timestamp - b.timestamp);
 			expect(events[0].event).to.equal('session.start');
 			expect(events[1].event).to.equal('foo.bar');
 		});
@@ -407,8 +434,8 @@ describe.only('Telemetry', () => {
 
 			const { appDir, telemetry } = createTelemetry();
 
-			telemetry.send(); // send session.start
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			// send session.start
+			await telemetry.send({ wait: true });
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
@@ -417,10 +444,10 @@ describe.only('Telemetry', () => {
 			fs.writeFileSync(path.join(appDir, 'b.json'), '{{{{');
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(5);
 
-			telemetry.send(); // nothing to send
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			// nothing to send
+			await telemetry.send({ wait: true });
+
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
-			printDebugLog(appDir);
 
 			expect(posts).to.have.lengthOf(1);
 		});
@@ -439,8 +466,7 @@ describe.only('Telemetry', () => {
 			const { appDir, telemetry } = createTelemetry();
 			fs.removeSync(appDir);
 
-			telemetry.send(); // send session.start
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 
 			expect(fs.existsSync(appDir)).to.equal(false);
 		});
@@ -456,10 +482,8 @@ describe.only('Telemetry', () => {
 			telemetry.addEvent({ event: 'foo.bar' });
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(4);
 
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(5);
-			printDebugLog(appDir);
 		});
 
 		it('should end an old session and start a new one', async function () {
@@ -474,8 +498,7 @@ describe.only('Telemetry', () => {
 			});
 
 			let { appDir, telemetry } = createTelemetry();
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 
 			// rewrite the .sid to be expired
 			const json = fs.readJsonSync(path.join(appDir, '.sid'));
@@ -486,10 +509,8 @@ describe.only('Telemetry', () => {
 			({ appDir, telemetry } = createTelemetry());
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(5);
 
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
-			printDebugLog(appDir);
 
 			expect(posts).to.have.lengthOf(2);
 			const events = posts[1].sort((a, b) => a.timestamp - b.timestamp);
@@ -503,6 +524,7 @@ describe.only('Telemetry', () => {
 			this.timeout(5000);
 			this.slow(4000);
 
+			// eslint-disable-next-line no-unused-vars
 			let { appDir, telemetry } = createTelemetry();
 
 			for (const filename of fs.readdirSync(appDir)) {
@@ -533,8 +555,7 @@ describe.only('Telemetry', () => {
 
 			telemetry.addEvent({ event: 'foo.bar' });
 			telemetry.addCrash(new Error('This is an error'));
-			telemetry.send();
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await telemetry.send({ wait: true });
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(2);
 		});
@@ -558,14 +579,4 @@ function createTelemetry(opts = {}) {
 		appDir,
 		telemetry
 	};
-}
-
-function printDebugLog(appDir) {
-	const debugLogFile = path.join(appDir, 'debug.log');
-	const { log } = logger('send-debug-log');
-	if (fs.existsSync(debugLogFile)) {
-		log(fs.readFileSync(debugLogFile, 'utf-8'));
-	} else {
-		log(`No debug log file: ${debugLogFile}`);
-	}
 }
