@@ -120,6 +120,36 @@ export function createPlatformRoutes(server, opts = {}) {
 		};
 	});
 
+	router.get('/v1/entitlement/:metric', ctx => {
+		const entitlements = {
+			'APIM.Transactions': {
+				title: 'API Gateway Transactions'
+			},
+			'AWS.Transactions': {
+				title: 'AWS API Gateway Traceability Agent Transactions'
+			},
+			'Azure.Transactions': {
+				title: 'Azure API Gateway Traceability Agent Transactions'
+			}
+		};
+
+		const result = entitlements[ctx.params.metric];
+		if (!result) {
+			ctx.status = 404;
+			ctx.body = {
+				success: false,
+				description: 'Resource not found',
+				code: 404
+			};
+			return;
+		}
+
+		ctx.body = {
+			success: true,
+			result
+		};
+	});
+
 	router.get('/v1/org/env', ctx => {
 		ctx.body = {
 			success: true,
