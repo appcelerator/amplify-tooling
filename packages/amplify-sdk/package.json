@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-sdk",
-  "version": "2.2.0-beta2",
+  "version": "2.2.0",
   "description": "Axway Amplify SDK for Node.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
