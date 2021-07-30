@@ -517,5 +517,5 @@ function findDir(dir, file) {
  * @returns {Boolean}
  */
 function isTelemetryDisabled() {
-	return process.env.AXWAY_TELEMETRY_DISABLEDD === '1' || (!process.env.AXWAY_TEST && ci.isCI);
+	return process.env.AXWAY_TELEMETRY_DISABLED === '1' || (!process.env.AXWAY_TEST && ci.isCI);
 }
