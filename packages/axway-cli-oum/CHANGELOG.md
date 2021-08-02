@@ -1,3 +1,8 @@
+# v1.2.1
+
+ * fix: Properly validate account name and error when a service account is specified.
+   ([APIGOV-19678](https://jira.axway.com/browse/APIGOV-19678))
+
 # v1.2.0 (Jul 30, 2021)
 
  * feat(org:view): Show list of org teams.
