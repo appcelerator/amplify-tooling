@@ -1,3 +1,8 @@
+# v3.0.0
+
+ * feat: Added `telemetry` to help improve Axway products.
+   ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+
 # v2.2.0 (Jul 30, 2021)
 
  * feat: Checks if any installed CLI extension packages have updates available and prints them

@@ -3,7 +3,8 @@ export default {
 	args: [
 		{
 			name: 'keyword',
-			desc: 'The package name or keywords'
+			desc: 'The package name or keywords',
+			redact: false
 		}
 	],
 	desc: 'Searches registry for packages',
@@ -12,8 +13,8 @@ export default {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs packages as JSON'
 		},
-		'--limit [count]': 'The maximum number of packages to return (default: 50)',
-		'--type [type]': 'Type of package to search'
+		'--limit [count]': { desc: 'The maximum number of packages to return (default: 50)', redact: false },
+		'--type [type]': { desc: 'Type of package to search', redact: false }
 	},
 	async action({ argv, console }) {
 		const { createTable } = require('@axway/amplify-cli-utils');

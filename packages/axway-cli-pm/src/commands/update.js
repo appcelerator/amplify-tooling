@@ -3,7 +3,8 @@ export default {
 	args: [
 		{
 			name: 'package',
-			desc: 'The package name to update'
+			desc: 'The package name to update',
+			redact: false
 		}
 	],
 	desc: 'Download updates for installed packages',

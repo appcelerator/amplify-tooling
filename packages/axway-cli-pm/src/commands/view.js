@@ -5,12 +5,14 @@ export default {
 			name: 'package',
 			hint: 'package[@version]',
 			desc: 'The package name and version to view',
+			redact: false,
 			required: true
 		},
 		{
 			name: 'filter',
 			hint: 'field[.subfield]',
-			desc: 'Display specific package fields'
+			desc: 'Display specific package fields',
+			redact: false
 		}
 	],
 	desc: 'Displays info for a specific package',

@@ -111,6 +111,9 @@ async function runTests(cover, all) {
 		await fs.remove(path.join(__dirname, '.nyc_output'));
 		await fs.remove(path.join(__dirname, 'coverage'));
 
+		if (all) {
+			process.env.AXWAY_TEST = '1'; // allow telemetry tests to run
+		}
 		process.env.APPCD_TEST_GLOBAL_PACKAGE_DIR = path.join(__dirname, 'packages');
 		process.env.SPAWN_WRAP_SHIM_ROOT = origHomeDir;
 		process.env.NODE_ENV = 'test'; // disables the update check

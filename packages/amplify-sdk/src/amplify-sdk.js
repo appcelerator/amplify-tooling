@@ -24,8 +24,8 @@ export default class AmplifySDK {
 	 *
 	 * @param {Object} opts - Authentication options.
 	 * @param {Object} [opts.env=prod] - The environment name.
-	 * @param {Object} [opts.requestOptions] - An options object to pass into Amplify CLI Utils to
-	 * create the `got` HTTP client.
+	 * @param {Object} [opts.requestOptions] - HTTP request options with proxy settings and such to
+	 * create a `got` HTTP client.
 	 * @access public
 	 */
 	constructor(opts = {}) {

@@ -5,6 +5,7 @@ if (!Error.prepareStackTrace) {
 
 import AmplifySDK from './amplify-sdk';
 import Auth from './auth';
+import Telemetry from './telemetry';
 
 import Authenticator from './authenticators/authenticator';
 import ClientSecret from './authenticators/client-secret';
@@ -25,6 +26,7 @@ export default AmplifySDK;
 export {
 	AmplifySDK,
 	Auth,
+	Telemetry,
 
 	Authenticator,
 	ClientSecret,

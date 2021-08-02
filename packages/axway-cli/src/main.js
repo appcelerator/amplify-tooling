@@ -5,9 +5,18 @@ if (!Error.prepareStackTrace) {
 
 import check from 'check-kit';
 import CLI, { chalk } from 'cli-kit';
-import { createRequestOptions, createTable, hlVer, loadConfig, locations } from '@axway/amplify-cli-utils';
+import {
+	createRequestOptions,
+	createTable,
+	hlVer,
+	loadConfig,
+	locations,
+	telemetry
+} from '@axway/amplify-cli-utils';
 import { dirname, join, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
+import { redact } from 'appcd-util';
+import { serializeError } from 'serialize-error';
 
 const { bold, cyan, gray, red, yellow } = chalk;
 
@@ -19,13 +28,12 @@ const { bold, cyan, gray, red, yellow } = chalk;
 
 	const cfg = loadConfig();
 
-	const externalExtensions = Object.values(cfg.get('extensions', {}));
-	const extensions = [
-		...externalExtensions,
-		dirname(require.resolve('@axway/amplify-cli-auth')),
-		dirname(require.resolve('@axway/axway-cli-oum')),
-		dirname(require.resolve('@axway/axway-cli-pm'))
-	];
+	const externalExtensions = Object.entries(cfg.get('extensions', {}));
+	const allExtensions = [ ...externalExtensions ];
+	for (const name of [ '@axway/amplify-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
+		allExtensions.push([ name, dirname(dirname(require.resolve(name))) ]);
+	}
+
 	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
 
 	let checkWait;
@@ -52,7 +60,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		banner,
 		commands:         `${__dirname}/commands`,
 		desc:             'The Axway CLI is a unified command line interface for the Axway Amplify Platform.',
-		extensions,
+		extensions:       allExtensions.map(ext => ext[1]),
 		help:             true,
 		helpExitCode:     2,
 		helpTemplateFile: resolve(__dirname, '../templates/help.tpl'),
@@ -80,7 +88,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 			// check all CLI extensions for updates
 			...(externalExtensions
-				.map(ext => join(ext, 'package.json'))
+				.map(ext => join(ext[1], 'package.json'))
 				.filter(ext => ext.startsWith(packagesDir) && existsSync(ext))
 				.map(pkg => check({
 					...opts,
@@ -89,13 +97,72 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		]);
 	});
 
+	// initialize the telemetry instance in amplify-cli-utils
+	telemetry.init({
+		appGuid: '0049ef76-0557-4b83-985c-a1d29c280227',
+		appVersion: version
+	});
+
+	// local ref so we can include argv and the context chain in the crash report
+	let state;
+
+	// add the hook to record the telemetry event after the command finishes running
+	cli.on('exec', async (_state, next) => {
+		state = _state;
+		state.startTime = Date.now();
+
+		// if the command is running, then don't wait for it to finish, just send the telemetry
+		// data now
+		const longRunning = state.cmd.prop('longRunning');
+		if (!longRunning) {
+			await next();
+		}
+
+		const contexts = state.contexts.map(ctx => ctx.name).reverse();
+
+		if (state?.err) {
+			telemetry.addCrash({
+				...serializeError(state.err),
+				argv:     scrubArgv(state.__argv),
+				contexts,
+				duration: Date.now() - state.startTime,
+				exitCode: state.exitCode() || 0,
+				warnings: state.warnings
+			});
+		} else {
+			telemetry.addEvent({
+				argv:       scrubArgv(state.__argv),
+				contexts,
+				duration:   longRunning ? undefined : Date.now() - state.startTime,
+				event:      contexts.length ? [ 'cli', ...contexts.slice(1) ].join('.') : 'cli.exec',
+				exitCode:   state?.exitCode() || 0,
+				extensions: allExtensions
+					.map(([ name, ext ]) => {
+						const info = { name };
+						try {
+							const json = JSON.parse(readFileSync(join(ext, 'package.json')));
+							if (ext.startsWith(packagesDir)) {
+								info.managed = true;
+							}
+							info.version = json.version;
+						} catch (err) {
+							info.err = err.toString();
+						}
+						return info;
+					}),
+				warnings: state.warnings
+			});
+		}
+	});
+
 	try {
+		// execute the command
 		const { cmd, console } = await cli.exec();
 
 		// now that the command is done, wait for the check to finish and display it's message,
 		// if there is one
 		if (checkWait && cmd.prop('banner')) {
-			const results = (await checkWait).filter(p => p.updateAvailable);
+			const results = (await checkWait).filter(p => p?.updateAvailable);
 			if (results.length) {
 				const boxen = require('boxen');
 				let msg = '';
@@ -103,8 +170,8 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 				const exts = createTable();
 				const ts = cfg.get('update.notified');
 
-				// only show update notifications once every half hour
-				if (ts && (Date.now() - ts) < (30 * 60 * 1000)) {
+				// only show update notifications once every hour
+				if (ts && (Date.now() - ts) < 3600000) {
 					return;
 				}
 
@@ -143,6 +210,16 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 	} catch (err) {
 		const exitCode = err.exitCode || 1;
 
+		// record the crash
+		telemetry.addCrash({
+			...serializeError(err),
+			argv:     state ? scrubArgv(state.__argv) : undefined,
+			contexts: state ? state.contexts.map(ctx => ctx.name).reverse() : undefined,
+			duration: state ? Date.now() - state.startTime : undefined,
+			exitCode: state?.exitCode() || 0,
+			warnings: state?.warnings
+		});
+
 		if (err.json) {
 			console.log(JSON.stringify({
 				code: exitCode,
@@ -166,3 +243,31 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		process.exit(exitCode);
 	}
 })();
+
+/**
+ * Redacts potentially sensitive command line args.
+ *
+ * @param {Array<Object>} argv - The parsed arguments.
+ * @returns {Array<String>}
+ */
+function scrubArgv(argv) {
+	const scrubbed = [];
+	for (const { arg, input, option, type } of argv) {
+		if (type === 'command' || type === 'extension' || (type === 'option' && option.isFlag)) {
+			scrubbed.push(...input);
+		} else if (type === 'option') {
+			scrubbed.push(...input.slice(0, 1).concat(input.slice(1).map(s => {
+				return option.redact === false ? redact(s) : '<VALUE>';
+			})));
+		} else if (type === 'extra') {
+			scrubbed.push(...input.slice(0, 1).concat(input.slice(1).map(() => '<VALUE>')));
+		} else if (type === 'argument') {
+			scrubbed.push(...input.map(s => {
+				return arg && arg.redact === false ? redact(s) : '<ARG>';
+			}));
+		} else {
+			scrubbed.push('<UNKNOWN>');
+		}
+	}
+	return scrubbed;
+}

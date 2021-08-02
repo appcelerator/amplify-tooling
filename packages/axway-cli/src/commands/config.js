@@ -6,31 +6,31 @@ export default {
 			desc: 'Display all config settings',
 			action: ctx => runConfig('get', ctx)
 		},
-		'get [key]': {
+		'get [~key]': {
 			desc: 'Display a specific config setting',
 			action: ctx => runConfig('get', ctx)
 		},
-		'set <key> <value>': {
+		'set <~key> <value>': {
 			desc: 'Change a config setting',
 			action: ctx => runConfig('set', ctx)
 		},
-		'@rm, delete, !remove, !unset <key>': {
+		'@rm, delete, !remove, !unset <~key>': {
 			desc: 'Remove a config setting',
 			action: ctx => runConfig('delete', ctx)
 		},
-		'push <key> <value>': {
+		'push <~key> <value>': {
 			desc: 'Add a value to the end of a list',
 			action: ctx => runConfig('push', ctx)
 		},
-		'pop <key>': {
+		'pop <~key>': {
 			desc: 'Remove the last value in a list',
 			action: ctx => runConfig('pop', ctx)
 		},
-		'shift <key>': {
+		'shift <~key>': {
 			desc: 'Remove the first value in a list',
 			action: ctx => runConfig('shift', ctx)
 		},
-		'unshift <key> <value>': {
+		'unshift <~key> <value>': {
 			desc: 'Add a value to the beginning of a list',
 			action: ctx => runConfig('unshift', ctx)
 		}

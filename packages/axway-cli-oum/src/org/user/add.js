@@ -42,6 +42,7 @@ export default {
 		'--role [role]': {
 			desc: 'Assign one or more organization roles to a user',
 			multiple: true,
+			redact: false,
 			required: true
 		}
 	},

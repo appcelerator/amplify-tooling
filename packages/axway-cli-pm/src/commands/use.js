@@ -12,6 +12,7 @@ export default {
 			name: 'package',
 			hint: 'package[@version]',
 			desc: 'The package version or latest to activate',
+			redact: false,
 			required: true
 		}
 	],

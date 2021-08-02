@@ -19,8 +19,9 @@ if (suggestions.length) {
 
 if (Array.isArray(warnings) && warnings.length) {
 	for (const warning of warnings) {
-		>>> ${warning.message}
+		>> ${style.warn(warning.message)}
 	}
+	>>> ${style.warn('Please verify your Axway CLI configuration: axway config list')}
 }
 
 if (header) {

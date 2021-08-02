@@ -183,6 +183,59 @@ const config = loadConfig();
 console.log(config);
 ```
 
+## Telemetry
+
+If you'd like to add telemetry to an Axway CLI extension, then you will need to create an app in
+the platform to generate an app guid. Then you'll need to copy and paste the following boilerplate.
+The API is designed to be flexible at the cost of being more work to integrate.
+
+```js
+import {
+	createRequestOptions,
+	environments,
+	loadConfig,
+	locations,
+	Telemetry
+} from '@axway/amplify-cli-utils';
+
+const appGuid = '<GUID>';
+const appVersion = 'x.y.z';
+const telemetryCacheDir = path.join(locations.axwayHome, '<PRODUCT_NAME>', 'telemetry');
+
+function initTelemetry(opts = {}) {
+	const config = opts.config || loadConfig();
+	if (!config.get('telemetry.enabled')) {
+		return;
+	}
+
+	const env = environments.resolve(opts.env || config.get('env'));
+
+	const telemetryInst = new Telemetry({
+		appGuid,
+		appVersion,
+		cacheDir,
+		environment: env === 'preprod' ? 'preproduction' : 'production',
+		requestOptions: createRequestOptions(opts, config)
+	});
+
+	process.on('exit', () => {
+		try {
+			telemetryInst.send();
+		} catch (err) {
+			warn(err);
+		}
+	});
+
+	return telemetryInst;
+}
+
+const telemetry = initTelemetry();
+telemetry.addEvent({
+	event: 'my.event',
+	some: 'data'
+});
+```
+
 ## Upgrading from version 1.x
 
 In v2, the entire `auth` API was removed to take advantage of the new Amplify SDK, which now

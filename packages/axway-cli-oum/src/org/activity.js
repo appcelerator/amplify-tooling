@@ -25,12 +25,18 @@ export default {
 	},
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--from [yyyy-mm-dd]': 'The start date',
+		'--from [yyyy-mm-dd]': {
+			desc: 'The start date',
+			redact: false
+		},
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs the org activity as JSON'
 		},
-		'--to [yyyy-mm-dd]': 'The end date'
+		'--to [yyyy-mm-dd]': {
+			desc: 'The end date',
+			redact: false
+		}
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('../lib/util');

@@ -2,7 +2,8 @@ export default {
 	args: [
 		{
 			name: 'package',
-			desc: 'Name of the package to purge old versions for'
+			desc: 'Name of the package to purge old versions for',
+			redact: false
 		}
 	],
 	desc: 'Removes all non-active, managed packages',
