@@ -1,5 +1,12 @@
 export default {
-	commands: `${__dirname}/team`,
+	commands: [
+		`${__dirname}/add.js`,
+		`${__dirname}/list.js`,
+		`${__dirname}/remove.js`,
+		`${__dirname}/update.js`,
+		`${__dirname}/user.js`,
+		`${__dirname}/view.js`
+	],
 	desc: 'Manage Amplify organization teams',
 	help: {
 		header() {

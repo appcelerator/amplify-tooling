@@ -1,5 +1,10 @@
 export default {
-	commands: `${__dirname}/user`,
+	commands: [
+		`${__dirname}/activity.js`,
+		`${__dirname}/credentials.js`,
+		`${__dirname}/update.js`,
+		`${__dirname}/view.js`
+	],
 	desc: 'Manage your user settings',
 	help: {
 		header() {

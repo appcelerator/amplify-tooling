@@ -1,5 +1,5 @@
 {
-  "name": "@axway/amplify-cli-auth",
+  "name": "@axway/axway-cli-auth",
   "version": "2.7.0",
   "description": "Authenticate machines with the Axway Amplify platform",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
@@ -12,10 +12,6 @@
     "axway",
     "amplify"
   ],
-  "bin": {
-    "amplify-cli-auth": "./bin/amplify-cli-auth"
-  },
-  "main": "./dist/main",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -36,13 +32,22 @@
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
-  "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-auth",
+  "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-auth",
   "engines": {
     "node": ">=10.19.0"
   },
   "cli-kit": {
-    "main": "./dist/cli",
-    "name": "auth"
+    "exports": {
+      "auth": {
+        "desc": "Authenticate with the Axway Platform",
+        "main": "./dist/auth/index.js"
+      },
+      "service-account": {
+        "aliases": [ "!serviceaccount" ],
+        "desc": "Create and manage service accounts",
+        "main": "./dist/service-account/index.js"
+      }
+    }
   },
   "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
 }

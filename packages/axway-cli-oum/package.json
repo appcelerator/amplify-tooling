@@ -11,10 +11,6 @@
     "axway",
     "amplify"
   ],
-  "bin": {
-    "amplify-cli-auth": "./bin/axway-cli-oum"
-  },
-  "main": "./dist/main",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -42,15 +38,15 @@
     "exports": {
       "org": {
         "desc": "Manage Amplify platform organizations",
-        "main": "./dist/org"
+        "main": "./dist/org/index.js"
       },
       "team": {
         "desc": "Manage Amplify organization teams",
-        "main": "./dist/team"
+        "main": "./dist/team/index.js"
       },
       "user": {
         "desc": "Manage your user settings",
-        "main": "./dist/user"
+        "main": "./dist/user/index.js"
       }
     }
   },

@@ -1,3 +1,7 @@
+# v3.0.0
+
+ * refactor: Renamed package from `@axway/amplify-cli-auth` to `@axway/axway-cli-auth`.
+
 # v2.7.0 (Jul 30, 2021)
 
  * feat: Add support for authenticating into a service account, then upgrade to a platform account

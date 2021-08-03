@@ -1,6 +1,7 @@
 export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all authenticated accounts',
+	name: 'list',
 	options: {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,

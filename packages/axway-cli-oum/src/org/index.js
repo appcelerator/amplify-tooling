@@ -1,5 +1,13 @@
 export default {
-	commands: `${__dirname}/org`,
+	commands: [
+		`${__dirname}/activity.js`,
+		`${__dirname}/idp.js`,
+		`${__dirname}/list.js`,
+		`${__dirname}/rename.js`,
+		`${__dirname}/usage.js`,
+		`${__dirname}/user.js`,
+		`${__dirname}/view.js`
+	],
 	desc: 'Manage Amplify Platform organizations',
 	help: {
 		header() {

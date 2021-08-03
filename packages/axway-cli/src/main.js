@@ -13,7 +13,7 @@ import {
 	locations,
 	telemetry
 } from '@axway/amplify-cli-utils';
-import { dirname, join, resolve } from 'path';
+import { dirname, join, parse, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { redact } from 'appcd-util';
 import { serializeError } from 'serialize-error';
@@ -30,8 +30,17 @@ const { bold, cyan, gray, red, yellow } = chalk;
 
 	const externalExtensions = Object.entries(cfg.get('extensions', {}));
 	const allExtensions = [ ...externalExtensions ];
-	for (const name of [ '@axway/amplify-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
-		allExtensions.push([ name, dirname(dirname(require.resolve(name))) ]);
+	for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
+		let { dir, root } = parse(__dirname);
+		while (dir !== root) {
+			const packageDir = resolve(dir, 'node_modules', name);
+			const pkgJson = join(packageDir, 'package.json');
+			if (existsSync(pkgJson)) {
+				allExtensions.push([ name, packageDir ]);
+				break;
+			}
+			dir = dirname(dir);
+		}
 	}
 
 	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
