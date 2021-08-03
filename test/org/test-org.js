@@ -170,6 +170,24 @@ describe('axway org', () => {
 			expect(stderr).to.match(renderRegexFromFile('list/not-authenticated'));
 		});
 
+		it('should error if account is not found', async function() {
+			initHomeDir('home-local');
+
+			const { status, stderr } = await runAxwaySync([ 'org', 'list', '--account', 'foo' ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('list/non-existent-account'));
+		});
+
+		it('should error if account is not a platform account', async function() {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			const { name } = JSON.parse((await runAxwaySync([ 'auth', 'login', '--client-secret', 'shhhh', '--json' ])).stdout);
+
+			const { status, stderr } = await runAxwaySync([ 'org', 'list', '--account', name ]);
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('list/not-platform-account'));
+		});
+
 		it('should list all orgs', async function() {
 			initHomeDir('home-local');
 			this.servers = await startServers();
