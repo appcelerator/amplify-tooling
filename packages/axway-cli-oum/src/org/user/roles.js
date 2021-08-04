@@ -8,8 +8,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { createTable } = require('@axway/amplify-cli-utils');
-		const { initPlatformAccount } = require('../../lib/util');
+		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, sdk } = await initPlatformAccount(argv.account);
 		const roles = (await sdk.role.list(account)).filter(r => r.org);
 

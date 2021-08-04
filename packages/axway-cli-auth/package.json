@@ -39,7 +39,7 @@
   "cli-kit": {
     "exports": {
       "auth": {
-        "desc": "Authenticate with the Axway Platform",
+        "desc": "Authenticate with the Axway Amplify platform",
         "main": "./dist/auth/index.js"
       },
       "service-account": {

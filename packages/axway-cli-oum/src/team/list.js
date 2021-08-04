@@ -15,7 +15,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount } = require('../lib/util');
+		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 		const { teams } = await sdk.team.list(account, org);
 

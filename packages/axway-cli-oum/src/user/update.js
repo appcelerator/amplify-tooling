@@ -1,4 +1,5 @@
 export default {
+	aliases: [ '!up' ],
 	desc: 'Change your information',
 	help: {
 		header() {
@@ -31,7 +32,7 @@ export default {
 		'--phone [value]': 'Your phone number'
 	},
 	async action({ argv, cli, console, help }) {
-		const { initPlatformAccount } = require('../lib/util');
+		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 
 		const { changes, user } = await sdk.user.update(account, {

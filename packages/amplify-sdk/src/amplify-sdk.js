@@ -789,6 +789,51 @@ export default class AmplifySDK {
 			)
 		};
 
+		this.serviceAccount = {
+			create: async (account, name) => {
+				// org = this.resolveOrg(account, org);
+
+				// if (!name || typeof name !== 'string') {
+				// 	throw E.INVALID_ARGUMENT('Expected name to be a non-empty string');
+				// }
+
+				// const { data } = prepareTeamInfo(info);
+				// data.name = name;
+				// data.org_guid = org.guid;
+
+				// return {
+				// 	org,
+				// 	team: await this.request('/api/v1/team', account, {
+				// 		errorMsg: 'Failed to add team to organization',
+				// 		json: data
+				// 	})
+				// };
+			},
+
+			find: async (account) => {
+				//
+			},
+
+			list: async (account, org) => {
+				org = this.resolveOrg(account, org);
+				const serviceAccounts = await this.request(`/api/v1/client?org_id=${org.id}`, account, {
+					errorMsg: 'Failed to get service accounts'
+				});
+				return {
+					org,
+					serviceAccounts: serviceAccounts.sort((a, b) => a.name.localeCompare(b.name))
+				};
+			},
+
+			remove: async (account) => {
+				//
+			},
+
+			update: async (account) => {
+				//
+			}
+		};
+
 		/**
 		 * Determines team info changes and prepares the team info to be sent.
 		 * @param {Object} [info] - The new team info.

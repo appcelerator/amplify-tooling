@@ -1,0 +1,30 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Create and manage service accounts.
+
+USAGE: {{#cyan}}axway service-account <command> [options]{{/cyan}}
+
+SERVICE-ACCOUNT COMMANDS:
+  {{#cyan}}create          {{/cyan}}  Creates a service account
+  {{#cyan}}ls, list        {{/cyan}}  Lists all service accounts
+  {{#cyan}}rm, remove      {{/cyan}}  Removes a service account
+  {{#cyan}}update          {{/cyan}}  Updates a service account
+  {{#cyan}}v, view         {{/cyan}}  View service account details
+
+SERVICE-ACCOUNT OPTIONS:
+  {{#cyan}}--client-id [id]{{/cyan}}  The CLI specific client ID
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner     {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color      {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help      {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version   {{/cyan}}  Outputs the version
+
+EXAMPLES:
+
+  Create a service account:
+    {{#cyan}}axway service-account create{{/cyan}}
+
+  List all service accounts:
+    {{#cyan}}axway service-account list{{/cyan}}

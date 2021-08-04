@@ -45,6 +45,7 @@ export default {
 		},
 		'Service Accounts',
 		{
+			'--client-id [id]':          'The CLI specific client ID',
 			'-c, --client-secret [key]': 'The service account\'s client secret key',
 			'-p, --password [pass]':     'Your Platform Tooling password; requires --client-secret or --secret-file',
 			'-s, --secret-file [path]':  'Path to the PEM formatted private key',

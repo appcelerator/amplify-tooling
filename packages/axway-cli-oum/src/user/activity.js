@@ -33,7 +33,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount } = require('../lib/util');
+		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { renderActivity } = require('../lib/activity');
 		const { account, sdk } = await initPlatformAccount(argv.account, argv.org);
 

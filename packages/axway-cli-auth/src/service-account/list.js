@@ -1,29 +1,23 @@
 export default {
 	aliases: [ 'ls' ],
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org'
-		}
-	],
-	desc: 'List users in an organization',
+	desc: 'Lists all service accounts',
 	options: {
-		'--account [name]': 'The platform account to use',
+		'--account [name]': 'The account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the list of users as JSON'
+			desc: 'Outputs service accounts as JSON'
 		}
 	},
 	async action({ argv, console }) {
 		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const { users } = await sdk.org.user.list(account, org);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { serviceAccounts } = await sdk.serviceAccount.list(account, org);
 
 		if (argv.json) {
 			console.log(JSON.stringify({
 				account: account.name,
 				org,
-				users
+				serviceAccounts
 			}, null, 2));
 			return;
 		}
@@ -34,20 +28,20 @@ export default {
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-		if (!users.length) {
-			console.log('No users found');
+		if (!serviceAccounts.length) {
+			console.log('No service accounts found');
 			return;
 		}
 
-		const table = createTable([ 'User', 'Email', 'GUID', 'Teams', 'Roles' ]);
+		const table = createTable([ 'Name', 'Client ID', 'Teams', 'Roles', 'Date Created' ]);
 
-		for (const { email, guid, name, roles, teams } of users) {
+		for (const { client_id, created, name, roles, teams } of serviceAccounts) {
 			table.push([
 				name,
-				email,
-				guid,
+				client_id,
 				teams,
-				roles.length ? roles.join(', ') : note('n/a')
+				roles?.join(', ') || 'n/a',
+				new Date(created).toLocaleDateString()
 			]);
 		}
 		console.log(table.toString());
