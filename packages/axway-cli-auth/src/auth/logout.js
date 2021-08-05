@@ -30,7 +30,6 @@ export default {
 
 		const { sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
-			clientId: argv.clientId,
 			env:      argv.env,
 			realm:    argv.realm
 		});

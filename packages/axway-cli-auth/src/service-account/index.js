@@ -3,6 +3,7 @@ export default {
 		`${__dirname}/create.js`,
 		`${__dirname}/list.js`,
 		`${__dirname}/remove.js`,
+		`${__dirname}/roles.js`,
 		`${__dirname}/update.js`,
 		`${__dirname}/view.js`
 	],

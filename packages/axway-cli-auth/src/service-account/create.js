@@ -2,7 +2,7 @@ export default {
 	aliases: [ '!new' ],
 	desc: 'Creates a service account',
 	options: {
-		'--account [name]': 'The account to use',
+		'--account [name]': 'The platform account to use',
 		'--desc [value]': 'The description of the service account',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,

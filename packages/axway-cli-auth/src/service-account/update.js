@@ -2,7 +2,7 @@ export default {
 	aliases: [ '!up' ],
 	desc: 'Updates a service account',
 	options: {
-		'--account [name]': 'The account to use',
+		'--account [name]': 'The platform account to use',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs service account as JSON'

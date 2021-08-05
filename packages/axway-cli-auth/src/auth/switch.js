@@ -15,7 +15,6 @@ export default {
 		const { highlight } = snooplogg.styles;
 		const { config, sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
-			clientId: argv.clientId,
 			env:      argv.env,
 			realm:    argv.realm
 		});

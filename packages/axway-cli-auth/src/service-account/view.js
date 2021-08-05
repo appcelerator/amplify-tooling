@@ -2,60 +2,53 @@ export default {
 	aliases: [ 'v', '!info', '!show' ],
 	desc: 'View service account details',
 	options: {
-		'--account [name]': 'The account to use',
+		'--account [name]': 'The platform account to use',
+		'--client-id <id>': 'The CLI specific client ID',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs service account as JSON'
 		}
 	},
 	async action({ argv, console }) {
-		const { createTable, initSDK } = require('@axway/amplify-cli-utils');
+		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
+		let { account, sdk } = await initPlatformAccount(argv.account);
+		const result = await sdk.serviceAccount.find(account, argv.clientId);
+
+		if (argv.json) {
+			console.log(JSON.stringify(result, null, 2));
+			return;
+		}
+
 		const { default: snooplogg } = require('snooplogg');
+		const { highlight, note } = snooplogg.styles;
+		const { org, serviceAccount } = result;
 
-		const { config, sdk } = initSDK({
-			baseUrl:  argv.baseUrl,
-			clientId: argv.clientId,
-			env:      argv.env,
-			realm:    argv.realm
-		});
+		console.log(`Account:      ${highlight(account.name)}\n`);
 
-		console.log('VIEW SERVICE ACCOUNT');
+		if (!serviceAccount) {
+			console.log(`Service account "${argv.clientId}" not found`);
+			return;
+		}
 
-		// const accounts = await sdk.auth.list();
-		// const defaultAccount = config.get('auth.defaultAccount');
+		console.log('SERVICE ACCOUNT');
+		console.log(`  Name:         ${highlight(serviceAccount.name)}`);
+		console.log(`  Client ID:    ${highlight(serviceAccount.client_id)}`);
+		console.log(`  Description:  ${serviceAccount.description ? highlight(serviceAccount.description) : note('n/a')}`);
+		console.log(`  Org Guid:     ${highlight(org.name)} ${note(`(${org.guid})`)}`);
+		console.log(`  Date Created: ${highlight(new Date(serviceAccount.created).toLocaleString())}`);
 
-		// for (const account of accounts) {
-		// 	account.default = account.name === defaultAccount;
-		// }
+		console.log('\nAUTHENTICATION');
+		console.log(`  Method:       ${highlight(serviceAccount.method)}`);
 
-		// if (argv.json) {
-		// 	console.log(JSON.stringify(accounts, null, 2));
-		// 	return;
-		// }
+		console.log('\nORG ROLES');
+		if (serviceAccount.roles.length) {
+			for (const role of serviceAccount.roles) {
+				console.log(`  ${role}`);
+			}
+		} else {
+			console.log('  No roles found');
+		}
 
-		// if (!accounts.length) {
-		// 	console.log('No authenticated accounts.');
-		// 	return;
-		// }
-
-		// const { green } = snooplogg.styles;
-		// const table = createTable([ 'Account Name', 'Organization', 'Type', 'Expires', 'Environment' ]);
-		// const now = Date.now();
-		// const pretty = require('pretty-ms');
-		// const urlRE = /^.*\/\//;
-		// const check = process.platform === 'win32' ? '√' : '✔';
-
-		// for (const { default: def, auth, isPlatform, name, org } of accounts) {
-		// 	const { access, refresh } = auth.expires;
-		// 	table.push([
-		// 		def ? green(`${check} ${name}`) : `  ${name}`,
-		// 		!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
-		// 		isPlatform ? 'Platform' : 'Service',
-		// 		pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
-		// 		`${auth.env} (${auth.baseUrl.replace(urlRE, '')})`
-		// 	]);
-		// }
-
-		// console.log(table.toString());
+		console.log('\nTEAMS');
 	}
 };
