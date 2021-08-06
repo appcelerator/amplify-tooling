@@ -3,7 +3,7 @@ export default {
 	desc: 'View service account details',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--client-id <id>': 'The CLI specific client ID',
+		'--client-id <id>': 'The service account client ID',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs service account as JSON'
@@ -49,6 +49,23 @@ export default {
 			console.log('  No roles found');
 		}
 
+		const table = createTable([ '  Name', 'Role', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
+		for (const { apps, created, desc, guid, name, roles, users } of serviceAccount.teams) {
+			table.push([
+				`  ${name}`,
+				roles.join(', '),
+				desc || note('n/a'),
+				guid,
+				users.length,
+				apps.length,
+				new Date(created).toLocaleDateString()
+			]);
+		}
 		console.log('\nTEAMS');
+		if (serviceAccount.teams.length) {
+			console.log(table.toString());
+		} else {
+			console.log('  No teams found');
+		}
 	}
 };

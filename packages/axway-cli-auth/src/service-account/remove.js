@@ -3,59 +3,38 @@ export default {
 	desc: 'Removes a service account',
 	options: {
 		'--account [name]': 'The platform account to use',
+		'--client-id <id>': 'The service account client ID',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs result as JSON'
+			desc: 'Outputs the result as JSON'
 		}
 	},
-	async action({ argv, console }) {
-		const { createTable, initSDK } = require('@axway/amplify-cli-utils');
-		const { default: snooplogg } = require('snooplogg');
+	async action({ argv, cli, console }) {
+		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 
-		const { config, sdk } = initSDK({
-			baseUrl:  argv.baseUrl,
-			clientId: argv.clientId,
-			env:      argv.env,
-			realm:    argv.realm
-		});
+		if (!org.userRoles.includes('administrator')) {
+			throw new Error(`You do not have administrative access to remove a service account in the "${org.name}" organization`);
+		}
 
-		console.log('REMOVE SERVICE ACCOUNT');
+		const serviceAccount = await sdk.serviceAccount.remove(account, argv.clientId);
+		const results = {
+			account: account.name,
+			org,
+			serviceAccount
+		};
 
-		// const accounts = await sdk.auth.list();
-		// const defaultAccount = config.get('auth.defaultAccount');
+		if (argv.json) {
+			console.log(JSON.stringify(results, null, 2));
+		} else {
+			const { default: snooplogg } = require('snooplogg');
+			const { highlight, note } = snooplogg.styles;
 
-		// for (const account of accounts) {
-		// 	account.default = account.name === defaultAccount;
-		// }
+			console.log(`Account:      ${highlight(account.name)}`);
+			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+			console.log(`Successfully removed service account ${highlight(`"${serviceAccount.name}"`)}`);
+		}
 
-		// if (argv.json) {
-		// 	console.log(JSON.stringify(accounts, null, 2));
-		// 	return;
-		// }
-
-		// if (!accounts.length) {
-		// 	console.log('No authenticated accounts.');
-		// 	return;
-		// }
-
-		// const { green } = snooplogg.styles;
-		// const table = createTable([ 'Account Name', 'Organization', 'Type', 'Expires', 'Environment' ]);
-		// const now = Date.now();
-		// const pretty = require('pretty-ms');
-		// const urlRE = /^.*\/\//;
-		// const check = process.platform === 'win32' ? '√' : '✔';
-
-		// for (const { default: def, auth, isPlatform, name, org } of accounts) {
-		// 	const { access, refresh } = auth.expires;
-		// 	table.push([
-		// 		def ? green(`${check} ${name}`) : `  ${name}`,
-		// 		!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
-		// 		isPlatform ? 'Platform' : 'Service',
-		// 		pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
-		// 		`${auth.env} (${auth.baseUrl.replace(urlRE, '')})`
-		// 	]);
-		// }
-
-		// console.log(table.toString());
+		await cli.emitAction('axway:auth:service-account:remove', results);
 	}
 };

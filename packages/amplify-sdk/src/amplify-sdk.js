@@ -825,8 +825,12 @@ export default class AmplifySDK {
 			}
 		};
 
+		const resolveServiceAccountType = type => {
+			return type === 'secret' ? 'Client Secret' : type === 'certificate' ? 'Client Certificate' : 'Other';
+		};
+
 		this.serviceAccount = {
-			create: async (account, name) => {
+			create: async (account, name, type) => {
 				// org = this.resolveOrg(account, org);
 
 				// if (!name || typeof name !== 'string') {
@@ -846,6 +850,12 @@ export default class AmplifySDK {
 				// };
 			},
 
+			/**
+			 * Finds a service account by client id.
+			 * @param {Object} account - The account object.
+			 * @param {String} clientId - The service account's client id.
+			 * @returns {Promise<Object>}
+			 */
 			find: async (account, clientId) => {
 				assertPlatformAccount(account);
 
@@ -853,12 +863,19 @@ export default class AmplifySDK {
 					errorMsg: 'Failed to get service account'
 				});
 
-				const types = {
-					secret: 'Client Secret',
-					certificate: 'Client Certificate'
-				};
+				serviceAccount.method = resolveServiceAccountType(serviceAccount.type);
 
-				serviceAccount.method = types[serviceAccount.type] || 'Other';
+				const { teams } = await this.team.list(account, serviceAccount.org_guid);
+				serviceAccount.teams = [];
+				for (const team of teams) {
+					const user = team.users.find(u => u.type === 'client' && u.guid === serviceAccount.guid);
+					if (user) {
+						serviceAccount.teams.push({
+							...team,
+							roles: user.roles
+						});
+					}
+				}
 
 				return {
 					org: await this.org.find(account, serviceAccount.org_guid),
@@ -866,6 +883,12 @@ export default class AmplifySDK {
 				};
 			},
 
+			/**
+			 * Retrieves a list of all service accounts for the given org.
+			 * @param {Object} account - The account object.
+			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+			 * @returns {Promise<Object>} Resolves the service account that was removed.
+			 */
 			list: async (account, org) => {
 				org = this.resolveOrg(account, org);
 				const serviceAccounts = await this.request(`/api/v1/client?org_id=${org.id}`, account, {
@@ -874,12 +897,30 @@ export default class AmplifySDK {
 
 				return {
 					org,
-					serviceAccounts: serviceAccounts.sort((a, b) => a.name.localeCompare(b.name))
+					serviceAccounts: serviceAccounts
+						.map(sa => {
+							sa.method = resolveServiceAccountType(sa.type);
+							return sa;
+						})
+						.sort((a, b) => a.name.localeCompare(b.name))
 				};
 			},
 
-			remove: async (account) => {
-				//
+			/**
+			 * Removes a service account.
+			 * @param {Object} account - The account object.
+			 * @param {String} clientId - The service account's client id.
+			 * @returns {Promise<Object>} Resolves the service account that was removed.
+			 */
+			remove: async (account, clientId) => {
+				const { serviceAccount } = await this.serviceAccount.find(account, clientId);
+
+				await this.request(`/api/v1/client/${clientId}`, account, {
+					errorMsg: 'Failed to remove service account',
+					method: 'delete'
+				});
+
+				return serviceAccount;
 			},
 
 			update: async (account) => {

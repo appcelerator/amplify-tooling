@@ -15,7 +15,7 @@ function createSDK(opts = {}) {
 	});
 }
 
-describe.only('amplify-sdk', () => {
+describe('amplify-sdk', () => {
 	describe('Service Account', () => {
 		describe('find()', () => {
 			afterEach(stopServer);

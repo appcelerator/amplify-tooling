@@ -33,12 +33,13 @@ export default {
 			return;
 		}
 
-		const table = createTable([ 'Name', 'Client ID', 'Teams', 'Roles', 'Date Created' ]);
+		const table = createTable([ 'Client ID', 'Name', 'Auth Method', 'Teams', 'Roles', 'Date Created' ]);
 
-		for (const { client_id, created, name, roles, teams } of serviceAccounts) {
+		for (const { client_id, created, method, name, roles, teams } of serviceAccounts) {
 			table.push([
+				highlight(client_id),
 				name,
-				client_id,
+				method,
 				teams,
 				roles?.join(', ') || 'n/a',
 				new Date(created).toLocaleDateString()
