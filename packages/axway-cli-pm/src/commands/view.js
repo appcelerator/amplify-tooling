@@ -11,6 +11,11 @@ export default {
 		{
 			name: 'filter',
 			hint: 'field[.subfield]',
+			callback: ({ ctx, value }) => {
+				if (value) {
+					ctx.banner = false;
+				}
+			},
 			desc: 'Display specific package fields',
 			redact: false
 		}
@@ -27,7 +32,7 @@ export default {
 			desc: 'Outputs package info as JSON'
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, cli, console }) {
 		const { view } = require('../pm');
 		let info = await view(argv.package);
 
@@ -40,8 +45,9 @@ export default {
 			}
 		}
 
-		if (argv.json) {
-			console.log(info ? JSON.stringify(info, null, 2) : null);
+		if (argv.json || argv.filter) {
+			cli.banner = false;
+			console.log(!info ? null : argv.filter ? info : JSON.stringify(info, null, 2));
 			return;
 		}
 

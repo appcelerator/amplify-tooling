@@ -11,7 +11,7 @@ export default {
 	async action({ argv, console }) {
 		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const roles = (await sdk.role.list(account, { org, team: true })).filter(r => r.default);
+		const roles = (await sdk.role.list(account, { default: true, org, team: true }));
 
 		if (argv.json) {
 			console.log(JSON.stringify({

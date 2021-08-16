@@ -1,4 +1,5 @@
 import Auth from './auth';
+import crypto from 'crypto';
 import E from './errors';
 import fs from 'fs-extra';
 import getEndpoints from './endpoints';
@@ -10,6 +11,7 @@ import snooplogg from 'snooplogg';
 import * as environments from './environments';
 import * as request from '@axway/amplify-request';
 import { createURL } from './util';
+import { promisify } from 'util';
 import { redact } from 'appcd-util';
 
 const { log, warn } = snooplogg('amplify-sdk');
@@ -575,7 +577,7 @@ export default class AmplifySDK {
 						errorMsg: 'Failed to add user to organization',
 						json: {
 							email,
-							roles: await this.org.resolveRoles(account, org, roles)
+							roles: await this.role.resolve(account, roles, { org, requireDefaultRole: true })
 						}
 					});
 					log(`User "${guid}" added to org ${org.name} (${org.guid})`);
@@ -659,7 +661,7 @@ export default class AmplifySDK {
 						throw new Error(`Unable to find the user "${user}"`);
 					}
 
-					roles = await this.org.resolveRoles(account, org, roles);
+					roles = await this.role.resolve(account, roles, { org, requireDefaultRole: true });
 
 					return {
 						org: await this.request(`/api/v1/org/${org.id}/user/${found.guid}`, account, {
@@ -697,45 +699,6 @@ export default class AmplifySDK {
 					})),
 					oldName
 				};
-			},
-
-			/**
-			 * Fetches the organization roles and validates the list of roles.
-			 * @param {Object} account - The account object.
-			 * @param {Object} org - The organization object.
-			 * @param {Array.<String>} roles - One or more roles to assign. Must include a "default" role.
-			 * @returns {Promise<Object>}
-			 */
-			resolveRoles: async (account, org, roles) => {
-				if (!Array.isArray(roles)) {
-					throw new TypeError('Expected roles to be an array');
-				}
-
-				const allowedRoles = await this.role.list(account, { org });
-				const defaultRoles = allowedRoles.filter(r => r.default).map(r => r.id);
-
-				if (!roles.length) {
-					throw new Error(`Expected at least one of the following roles: ${defaultRoles.join(', ')}`);
-				}
-
-				roles = roles
-					.reduce((arr, role) => arr.concat(role.split(',')), [])
-					.map(role => {
-						const lr = role.toLowerCase().trim();
-						const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
-						if (!found) {
-							throw new Error(`Invalid role "${role}", expected one of the following: ${allowedRoles.map(r => r.id).join(', ')}`);
-						}
-						return found.id;
-					});
-
-				log(`Resolved roles: ${highlight(roles.join(', '))}`);
-
-				if (!roles.some(r => defaultRoles.includes(r))) {
-					throw new Error(`You must specify a default role: ${defaultRoles.join(', ')}`);
-				}
-
-				return roles;
 			},
 
 			/**
@@ -781,13 +744,14 @@ export default class AmplifySDK {
 			 * @param {Object} account - The account object.
 			 * @param {Object} [params] - Various parameters.
 			 * @param {Boolean} [params.client] - When `true`, returns client specific roles.
+			 * @param {Boolean} [params.default] - When `true`, returns default roles only.
 			 * @param {Object|String|Number} [params.org] - The organization object, name, id, or guid.
 			 * @param {Boolean} [params.team] - When `true`, returns team specific roles.
 			 * @returns {Promise<Object>}
 			 */
 			list: async (account, params = {}) => {
 				let roles = await this.request(
-					`/api/v1/role${params ? `?${new URLSearchParams(params).toString()}` : ''}`,
+					`/api/v1/role${params.team ? '?team=true' : ''}`,
 					account,
 					{ errorMsg: 'Failed to get roles' }
 				);
@@ -817,53 +781,192 @@ export default class AmplifySDK {
 					roles = roles.filter(r => r.client);
 				}
 
+				if (params.default) {
+					roles = roles.filter(r => r.default);
+				}
+
 				if (params.team) {
 					roles = roles.filter(r => r.team);
+				}
+
+				return roles;
+			},
+
+			/**
+			 * Fetches roles for the given params, then validates the supplied list of roles.
+			 * @param {Object} account - The account object.
+			 * @param {Array.<String>} roles - One or more roles to assign.
+			 * @param {Object} [opts] - Various options.
+			 * @param {Boolean} [opts.client] - When `true`, returns client specific roles.
+			 * @param {Boolean} [opts.default] - When `true`, returns default roles only.
+			 * @param {Object|String|Number} [opts.org] - The organization object, name, id, or guid.
+			 * @param {Boolean} [opts.requireRoles] - When `true`, throws an error if roles is empty.
+			 * @param {Boolean} [opts.requireDefaultRole] - When `true`, throws an error if roles is empty or if there are no default roles.
+			 * @param {Boolean} [opts.team] - When `true`, validates team specific roles.
+			 * @returns {Promise<Object>}
+			 */
+			resolve: async (account, roles, opts) => {
+				if (!Array.isArray(roles)) {
+					throw E.INVALID_ARGUMENT('Expected roles to be an array');
+				}
+
+				if (!roles.length && !opts.requireRoles && !opts.requireDefaultRole) {
+					return;
+				}
+
+				const allowedRoles = await this.role.list(account, {
+					client:  opts.client,
+					default: opts.default,
+					org:     opts.org,
+					team:    opts.team
+				});
+				const defaultRoles = allowedRoles.filter(r => r.default).map(r => r.id);
+
+				if (!roles.length && opts.requireDefaultRole) {
+					throw new Error(`Expected at least one of the following roles: ${defaultRoles.join(', ')}`);
+				}
+				if (!roles.length && opts.requireRoles) {
+					throw new Error(`Expected at least one of the following roles: ${allowedRoles.join(', ')}`);
+				}
+
+				roles = roles
+					.reduce((arr, role) => arr.concat(role.split(',')), [])
+					.map(role => {
+						const lr = role.toLowerCase().trim();
+						const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
+						if (!found) {
+							throw new Error(`Invalid role "${role}", expected one of the following: ${allowedRoles.map(r => r.id).join(', ')}`);
+						}
+						return found.id;
+					});
+
+				log(`Resolved roles: ${highlight(roles.join(', '))}`);
+
+				if (opts.requireDefaultRole && !roles.some(r => defaultRoles.includes(r))) {
+					throw new Error(`You must specify a default role: ${defaultRoles.join(', ')}`);
 				}
 
 				return roles;
 			}
 		};
 
-		const resolveServiceAccountType = type => {
-			return type === 'secret' ? 'Client Secret' : type === 'certificate' ? 'Client Certificate' : 'Other';
-		};
-
 		this.serviceAccount = {
-			create: async (account, name, type) => {
-				// org = this.resolveOrg(account, org);
+			/**
+			 * Creates a new service account.
+			 * @param {Object} account - The account object.
+			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+			 * @param {Object} opts - Various options.
+			 * @param {String} opts.clientId - A unique client id.
+			 * @param {String} [opts.desc] - The service account description.
+			 * @param {String} opts.name - The display name.
+			 * @param {String} [opts.publicKey] - A PEM formatted public key.
+			 * @param {Array<String>} [opts.roles] - A list of roles to assign to the service account.
+			 * @param {String} [opts.secret] - A client secret key.
+			 * @param {Array<String>} [opts.teams] - A list of teams to assign to the service account.
+			 * @returns {Promise<Object>}
+			 */
+			create: async (account, org, opts = {}) => {
+				org = this.resolveOrg(account, org);
 
-				// if (!name || typeof name !== 'string') {
-				// 	throw E.INVALID_ARGUMENT('Expected name to be a non-empty string');
-				// }
+				if (!opts || typeof opts !== 'object') {
+					throw E.INVALID_ARGUMENT('Expected options to be an object');
+				}
 
-				// const { data } = prepareTeamInfo(info);
-				// data.name = name;
-				// data.org_guid = org.guid;
+				const { clientId, desc, name, publicKey, secret } = opts;
+
+				if (!name || typeof name !== 'string') {
+					throw E.INVALID_ARGUMENT('Expected name to be a non-empty string');
+				}
+
+				if (!clientId || typeof clientId !== 'string') {
+					throw E.INVALID_ARGUMENT('Expected client id to be a non-empty string');
+				}
+
+				if (desc && typeof desc !== 'string') {
+					throw E.INVALID_ARGUMENT('Expected description to be a string');
+				}
+
+				const data = {
+					name,
+					description: desc || '',
+					client_id: clientId,
+					org_guid: org.guid
+				};
+
+				if (opts.publicKey) {
+					if (typeof opts.publicKey !== 'string') {
+						throw E.INVALID_ARGUMENT('Expected public key to be a string');
+					}
+					if (!opts.publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
+						throw E.INVALID_ARGUMENT('Expecdted public key to be PEM formatted');
+					}
+					data.type = 'certificate';
+					data.publicKey = opts.publicKey;
+				} else if (opts.secret) {
+					if (typeof opts.secret !== 'string') {
+						throw E.INVALID_ARGUMENT('Expected secret to be a string');
+					}
+					data.type = 'secret';
+					data.secret = opts.secret;
+				} else {
+					throw new Error('Expected public key or secret');
+				}
+
+				if (opts.roles) {
+					data.roles = await this.role.resolve(account, opts.roles, { client: true, org });
+				}
+
+				if (opts.teams) {
+					data.teams = await this.serviceAccount.resolveTeams(account, org, opts.teams);
+				}
+
+				console.log(data);
 
 				// return {
 				// 	org,
-				// 	team: await this.request('/api/v1/team', account, {
-				// 		errorMsg: 'Failed to add team to organization',
+				// 	team: await this.request('/api/v1/client', account, {
+				// 		errorMsg: 'Failed to create service account',
 				// 		json: data
 				// 	})
 				// };
+
+				return {
+					org
+				};
 			},
 
 			/**
 			 * Finds a service account by client id.
 			 * @param {Object} account - The account object.
+			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 			 * @param {String} clientId - The service account's client id.
 			 * @returns {Promise<Object>}
 			 */
-			find: async (account, clientId) => {
+			find: async (account, org, clientId) => {
 				assertPlatformAccount(account);
 
-				const serviceAccount = await this.request(`/api/v1/client/${clientId}`, account, {
+				const { serviceAccounts } = await this.serviceAccount.list(account, org);
+				const keyword = clientId.trim().toLowerCase();
+
+				// first try to find the service account by client id
+				let serviceAccount = serviceAccounts.find(sa => sa.client_id.toLowerCase() === keyword);
+
+				// if not found by client id, then try by name
+				if (!serviceAccount) {
+					serviceAccount = serviceAccounts.find(sa => sa.name.toLowerCase() === keyword);
+				}
+
+				// if still not found, error
+				if (!serviceAccount) {
+					throw new Error(`Service account "${clientId}" not found`);
+				}
+
+				// get service account description
+				const { description } = await this.request(`/api/v1/client/${serviceAccount.client_id}`, account, {
 					errorMsg: 'Failed to get service account'
 				});
 
-				serviceAccount.method = resolveServiceAccountType(serviceAccount.type);
+				serviceAccount.description = description;
 
 				const { teams } = await this.team.list(account, serviceAccount.org_guid);
 				serviceAccount.teams = [];
@@ -884,6 +987,18 @@ export default class AmplifySDK {
 			},
 
 			/**
+			 * Generates a new public/private key pair.
+			 * @returns {Promise<Object>} Resolves an object with `publicKey` and `privateKey` properties.
+			 */
+			async generateKeyPair() {
+				return await promisify(crypto.generateKeyPair)('rsa', {
+					modulusLength: 2048,
+					publicKeyEncoding: { type: 'spki', format: 'pem' },
+					privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+				});
+			},
+
+			/**
 			 * Retrieves a list of all service accounts for the given org.
 			 * @param {Object} account - The account object.
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
@@ -899,7 +1014,7 @@ export default class AmplifySDK {
 					org,
 					serviceAccounts: serviceAccounts
 						.map(sa => {
-							sa.method = resolveServiceAccountType(sa.type);
+							sa.method = this.serviceAccount.resolveType(sa.type);
 							return sa;
 						})
 						.sort((a, b) => a.name.localeCompare(b.name))
@@ -921,6 +1036,45 @@ export default class AmplifySDK {
 				});
 
 				return serviceAccount;
+			},
+
+			/**
+			 * Returns the service account auth type label.
+			 * @param {String} type - The auth type.
+			 * @returns {String}
+			 */
+			resolveType(type) {
+				return type === 'secret' ? 'Client Secret' : type === 'certificate' ? 'Client Certificate' : 'Other';
+			},
+
+			/**
+			 * Validates a list of teams for the given org.
+			 * @param {Object} account - The account object.
+			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+			 * @param {Array<String>} teams - One or more team names or team guids.
+			 * @returns {Array<String>} An aray of team guids.
+			 */
+			resolveTeams: async (account, org, teams) => {
+				if (!Array.isArray(teams)) {
+					throw E.INVALID_ARGUMENT('Expected teams to be an array');
+				}
+
+				if (!teams.length) {
+					return;
+				}
+
+				const { teams: availableTeams } = await this.team.list(account, org);
+
+				return teams
+					.reduce((arr, team) => arr.concat(team.split(',')), [])
+					.map(team => {
+						const lt = team.toLowerCase().trim();
+						const found = availableTeams.find(t => t.guid === lt || t.name.toLowerCase() === lt);
+						if (!found) {
+							throw new Error(`Invalid team "${team}"`);
+						}
+						return found.guid;
+					});
 			},
 
 			update: async (account) => {
@@ -1008,7 +1162,7 @@ export default class AmplifySDK {
 				return {
 					org,
 					team: await this.request('/api/v1/team', account, {
-						errorMsg: 'Failed to add team to organization',
+						errorMsg: 'Failed to create team',
 						json: data
 					})
 				};
@@ -1084,7 +1238,7 @@ export default class AmplifySDK {
 						team: await this.request(`/api/v1/team/${team.guid}/user/${found.guid}`, account, {
 							errorMsg: 'Failed to add user to organization',
 							json: {
-								roles: await this.team.resolveRoles(account, org, roles)
+								roles: await this.role.resolve(account, roles, { org, requireRoles: true, team: true })
 							}
 						}),
 						user: found
@@ -1189,7 +1343,7 @@ export default class AmplifySDK {
 						throw new Error(`Unable to find the user "${user}"`);
 					}
 
-					roles = await this.team.resolveRoles(account, org, roles);
+					roles = await this.role.resolve(account, roles, { org, requireRoles: true, team: true });
 
 					team = await this.request(`/api/v1/team/${team.guid}/user/${found.guid}`, account, {
 						errorMsg: 'Failed to update user\'s organization roles',
@@ -1210,38 +1364,6 @@ export default class AmplifySDK {
 						roles
 					};
 				}
-			},
-
-			/**
-			 * Fetches the team roles and validates the list of roles.
-			 * @param {Object} account - The account object.
-			 * @param {Object} org - The organization object.
-			 * @param {Array.<String>} roles - One or more roles to assign. Must include a "default" role.
-			 * @returns {Promise<Object>}
-			 */
-			resolveRoles: async (account, org, roles) => {
-				if (!Array.isArray(roles)) {
-					throw new TypeError('Expected roles to be an array');
-				}
-
-				const allowedRoles = await this.role.list(account, { org, team: true });
-
-				if (!roles.length) {
-					throw new Error(`Expected at least one of the following roles: ${allowedRoles.map(r => r.id).join(', ')}`);
-				}
-
-				roles = roles
-					.reduce((arr, role) => arr.concat(role.split(',')), [])
-					.map(role => {
-						const lr = role.toLowerCase().trim();
-						const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
-						if (!found) {
-							throw new Error(`Invalid role "${role}", expected one of the following: ${allowedRoles.map(r => r.id).join(', ')}`);
-						}
-						return found.id;
-					});
-
-				return roles;
 			},
 
 			/**

@@ -6,56 +6,19 @@ export default {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs service account as JSON'
-		}
+		},
+		'--org [name|id|guid]': 'The organization name, id, or guid'
 	},
-	async action({ argv, console }) {
-		const { createTable, initSDK } = require('@axway/amplify-cli-utils');
+	async action({ argv, cli, console }) {
+		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+
+		if (!org.userRoles.includes('administrator')) {
+			throw new Error(`You do not have administrative access to update a service account in the "${org.name}" organization`);
+		}
+
 		const { default: snooplogg } = require('snooplogg');
 
-		const { config, sdk } = initSDK({
-			baseUrl:  argv.baseUrl,
-			clientId: argv.clientId,
-			env:      argv.env,
-			realm:    argv.realm
-		});
-
 		console.log('UPDATE SERVICE ACCOUNT');
-
-		// const accounts = await sdk.auth.list();
-		// const defaultAccount = config.get('auth.defaultAccount');
-
-		// for (const account of accounts) {
-		// 	account.default = account.name === defaultAccount;
-		// }
-
-		// if (argv.json) {
-		// 	console.log(JSON.stringify(accounts, null, 2));
-		// 	return;
-		// }
-
-		// if (!accounts.length) {
-		// 	console.log('No authenticated accounts.');
-		// 	return;
-		// }
-
-		// const { green } = snooplogg.styles;
-		// const table = createTable([ 'Account Name', 'Organization', 'Type', 'Expires', 'Environment' ]);
-		// const now = Date.now();
-		// const pretty = require('pretty-ms');
-		// const urlRE = /^.*\/\//;
-		// const check = process.platform === 'win32' ? '√' : '✔';
-
-		// for (const { default: def, auth, isPlatform, name, org } of accounts) {
-		// 	const { access, refresh } = auth.expires;
-		// 	table.push([
-		// 		def ? green(`${check} ${name}`) : `  ${name}`,
-		// 		!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
-		// 		isPlatform ? 'Platform' : 'Service',
-		// 		pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
-		// 		`${auth.env} (${auth.baseUrl.replace(urlRE, '')})`
-		// 	]);
-		// }
-
-		// console.log(table.toString());
 	}
 };

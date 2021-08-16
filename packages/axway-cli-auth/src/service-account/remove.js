@@ -7,7 +7,8 @@ export default {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs the result as JSON'
-		}
+		},
+		'--org [name|id|guid]': 'The organization name, id, or guid'
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');

@@ -1,6 +1,6 @@
 export default {
 	commands: [
-		`${__dirname}/add.js`,
+		`${__dirname}/create.js`,
 		`${__dirname}/list.js`,
 		`${__dirname}/remove.js`,
 		`${__dirname}/update.js`,

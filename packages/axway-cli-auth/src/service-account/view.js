@@ -3,16 +3,22 @@ export default {
 	desc: 'View service account details',
 	options: {
 		'--account [name]': 'The platform account to use',
-		'--client-id <id>': 'The service account client ID',
+		'--client-id [id]': 'The service account client ID',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs service account as JSON'
-		}
+		},
+		'--org [name|id|guid]': 'The organization name, id, or guid'
 	},
-	async action({ argv, console }) {
+	async action({ _, argv, console }) {
 		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
-		let { account, sdk } = await initPlatformAccount(argv.account);
-		const result = await sdk.serviceAccount.find(account, argv.clientId);
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+
+		const keyword = argv.clientId || _[0];
+		if (!keyword) {
+			throw new Error('Missing required --client-id option');
+		}
+		const result = await sdk.serviceAccount.find(account, org, keyword);
 
 		if (argv.json) {
 			console.log(JSON.stringify(result, null, 2));
@@ -21,7 +27,7 @@ export default {
 
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
-		const { org, serviceAccount } = result;
+		const { serviceAccount } = result;
 
 		console.log(`Account:      ${highlight(account.name)}\n`);
 

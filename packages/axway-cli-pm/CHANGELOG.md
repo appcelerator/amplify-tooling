@@ -1,3 +1,7 @@
+# v3.0.1
+
+ * fix: Fixed filtering package properties when outputting as JSON.
+
 # v3.0.0 (Jul 30, 2021)
 
  * feat: Updated `appcd-fs` to add support for applying parent directory ownership when being

@@ -1,4 +1,5 @@
 export default {
+	aliases: [ '!add', '!new' ],
 	args: [
 		{
 			name: 'org',
@@ -29,8 +30,6 @@ export default {
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const { default: snooplogg } = require('snooplogg');
-		const { highlight, note } = snooplogg.styles;
 
 		if (!org.userRoles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to add a new team to the "${org.name}" organization`);
@@ -50,11 +49,14 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
+			const { default: snooplogg } = require('snooplogg');
+			const { highlight, note } = snooplogg.styles;
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 			console.log(`Successfully created team ${highlight(team.name)} ${note(`(${team.guid})`)}`);
 		}
 
-		await cli.emitAction('axway:oum:team:add', results);
+		await cli.emitAction('axway:oum:team:add', results); // legacy 2.x
+		await cli.emitAction('axway:oum:team:create', results);
 	}
 };

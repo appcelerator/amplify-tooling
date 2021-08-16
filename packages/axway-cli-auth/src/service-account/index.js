@@ -1,6 +1,7 @@
 export default {
 	commands: [
 		`${__dirname}/create.js`,
+		`${__dirname}/generate-keypair.js`,
 		`${__dirname}/list.js`,
 		`${__dirname}/remove.js`,
 		`${__dirname}/roles.js`,
