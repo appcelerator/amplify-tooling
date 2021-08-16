@@ -43,9 +43,10 @@ export default {
 			redact: false
 		}
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, console, terminal }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { existsSync, isFile } = require('appcd-fs');
+		const { generateKeypair } = require('../lib/keypair');
 		const { prompt } = require('enquirer');
 		const { readFileSync } = require('fs');
 		const uuid = require('uuid');
@@ -145,7 +146,12 @@ export default {
 						}
 					}));
 				} else if (type === 'generate') {
-					//
+					const certs = await generateKeypair({
+						console,
+						silent: argv.json || !terminal.stdout.isTTY
+					});
+
+					publicKey = certs.publicKey.file;
 				}
 			}
 
