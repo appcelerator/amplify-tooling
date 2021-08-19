@@ -37,13 +37,9 @@ export default {
 			multiple: true,
 			redact: false
 		},
-		'--team [guid|name]': {
-			desc: 'Assign one or more teams to the service account',
-			multiple: true,
-			redact: false
-		}
+		'--secret [key]':       'A custom client secret key'
 	},
-	async action({ argv, console, terminal }) {
+	async action({ argv, cli, console, terminal }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { existsSync, isFile } = require('appcd-fs');
 		const { generateKeypair } = require('../lib/keypair');
@@ -63,12 +59,16 @@ export default {
 			name,
 			publicKey,
 			role: roles,
-			secret,
-			team: teams
+			secret
 		} = argv;
+		let prompted = false;
+		const doPrompt = opts => {
+			prompted = true;
+			return prompt(opts);
+		};
 
 		if (!name) {
-			({ name } = await prompt({
+			({ name } = await doPrompt({
 				hint: 'A friendly name used for display',
 				message: 'Display name',
 				name: 'name',
@@ -79,12 +79,13 @@ export default {
 			}));
 		}
 
-		// if --name is not present, then we assume we are prompting for all fields
-		if (!argv.name) {
-			if (!clientId) {
-				({ clientId } = await prompt({
+		if (!clientId) {
+			clientId = `${name}_${uuid.v4()}`;
+
+			if (!argv.name) {
+				({ clientId } = await doPrompt({
 					hint: 'A unique id for this service account',
-					initial: `${name}_${uuid.v4()}`,
+					initial: clientId,
 					message: 'Client ID',
 					name: 'clientId',
 					type: 'input',
@@ -93,89 +94,78 @@ export default {
 					}
 				}));
 			}
+		}
 
-			if (!desc) {
-				({ desc } = await prompt({
-					hint: 'Press enter to skip',
-					message: 'Description',
-					name: 'desc',
-					type: 'input'
+		if (!desc && !argv.name) {
+			({ desc } = await doPrompt({
+				hint: 'Press enter to skip',
+				message: 'Description',
+				name: 'desc',
+				type: 'input'
+			}));
+		}
+
+		if (!secret && !publicKey) {
+			const { type } = await doPrompt({
+				choices: [
+					{ message: 'Auto-generated client secret key', value: 'auto' },
+					{ message: 'Custom client secret key', value: 'secret' },
+					{ message: 'Specify PEM formatted public key file', value: 'publicKey' },
+					{ message: 'Generate a new public/private key pair', value: 'generate' }
+				],
+				message: 'Authentication method',
+				name: 'type',
+				type: 'select'
+			});
+
+			if (type === 'auto') {
+				secret = uuid.v4();
+			} else if (type === 'secret') {
+				({ secret } = await doPrompt({
+					message: 'Secret key',
+					name: 'secret',
+					type: 'password',
+					validate(s) {
+						return s ? true : 'Please enter a client secret key';
+					}
 				}));
-			}
-
-			if (!secret && !publicKey) {
-				const { type } = await prompt({
-					choices: [
-						{ message: 'Auto-generated client secret key', value: 'auto' },
-						{ message: 'Custom client secret key', value: 'secret' },
-						{ message: 'Specify PEM formatted public key file', value: 'publicKey' },
-						{ message: 'Generate a new public/private key pair', value: 'generate' }
-					],
-					message: 'Authentication method',
-					name: 'type',
-					type: 'select'
+			} else if (type === 'publicKey') {
+				({ publicKey } = await doPrompt({
+					message: 'Public key file path',
+					name: 'publicKey',
+					type: 'input',
+					validate(s) {
+						if (!s) {
+							return 'Please enter the path to the PEM formatted public key file';
+						}
+						if (!isFile(s)) {
+							return 'Specified file does not exist';
+						}
+						if (!readFileSync(s, 'utf-8').startsWith('-----BEGIN PUBLIC KEY-----')) {
+							return 'Specified file is not in the PEM format';
+						}
+						return true;
+					}
+				}));
+			} else if (type === 'generate') {
+				const certs = await generateKeypair({
+					console,
+					silent: argv.json || !terminal.stdout.isTTY
 				});
 
-				if (type === 'auto') {
-					secret = uuid.v4();
-				} else if (type === 'secret') {
-					({ secret } = await prompt({
-						message: 'Secret key',
-						name: 'secret',
-						type: 'password',
-						validate(s) {
-							return s ? true : 'Please enter a client secret key';
-						}
-					}));
-				} else if (type === 'publicKey') {
-					({ publicKey } = await prompt({
-						message: 'Public key file path',
-						name: 'publicKey',
-						type: 'input',
-						validate(s) {
-							if (!s) {
-								return 'Please enter the path to the PEM formatted public key file';
-							}
-							if (!isFile(s)) {
-								return 'Specified file does not exist';
-							}
-							if (!readFileSync(s, 'utf-8').startsWith('-----BEGIN PUBLIC KEY-----')) {
-								return 'Specified file is not in the PEM format';
-							}
-							return true;
-						}
-					}));
-				} else if (type === 'generate') {
-					const certs = await generateKeypair({
-						console,
-						silent: argv.json || !terminal.stdout.isTTY
-					});
-
-					publicKey = certs.publicKey.file;
-				}
+				publicKey = certs.publicKey.file;
 			}
+		}
 
-			if (!roles.length) {
-				const availableRoles = await sdk.role.list(account, { client: true, org });
-				({ roles } = await prompt({
-					choices: availableRoles.map(role => ({ name: role.name })),
-					hint: 'Use ↑ and ↓ then \'space\' to select one or more roles',
-					message: 'Roles',
-					name: 'roles',
-					type: 'multiselect'
-				}));
-			}
-
-			if (!teams.length) {
-				const { teams: availableTeams } = await sdk.team.list(account, org);
-				({ teams } = await prompt({
-					choices: availableTeams.map(team => ({ name: team.name, value: team.guid })),
-					hint: 'Use ↑ and ↓ then \'space\' to select one or more teams',
-					message: 'Teams',
-					name: 'teams',
-					type: 'multiselect'
-				}));
-			}
+		if (!roles.length && !argv.name) {
+			const availableRoles = await sdk.role.list(account, { client: true, org });
+			({ roles } = await doPrompt({
+				choices: availableRoles.map(role => ({ name: role.name })),
+				hint: 'Use ↑ and ↓ then \'space\' to select one or more roles',
+				message: 'Roles',
+				name: 'roles',
+				type: 'multiselect'
+			}));
 		}
 
 		// validate the public key
@@ -200,25 +190,25 @@ export default {
 			name,
 			publicKey,
 			secret,
-			roles,
-			teams
+			roles
 		});
-
 		results.account = account.name;
 
-		/*
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
 			const { default: snooplogg } = require('snooplogg');
 			const { highlight, note } = snooplogg.styles;
+			if (prompted) {
+				console.log();
+			}
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-			// console.log(`Successfully created service account ${highlight(serviceAccount.name)} ${note(`(${serviceAccount.client_id})`)}`);
+			const { client_id, name } = results.serviceAccount;
+			console.log(`Successfully created service account ${highlight(name)} ${note(`(${client_id})`)}`);
 		}
 
 		await cli.emitAction('axway:auth:service-account:create', results);
-		*/
 	}
 };

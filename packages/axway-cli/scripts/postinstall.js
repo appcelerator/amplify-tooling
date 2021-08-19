@@ -14,7 +14,7 @@ GETTING HELP:
 
   Visit the documentation for configuration and troubleshooting help:
 
-    ${cyan('https://docs.axway.com/bundle/Axway_CLI_allOS_en/page/axway_cli.html')}
+    ${cyan('https://docs.axway.com/bundle/axwaycli-open-docs/page/docs/index.html')}
 
 AUTHENTICATION:
 

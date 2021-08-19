@@ -1,14 +1,19 @@
 export default {
-	aliases: [ 'rm' ],
 	args: [
 		{
 			desc: 'The service account client id or name',
 			hint: 'client-id/name',
 			name: 'id',
 			required: true
+		},
+		{
+			desc: 'The team name or guid',
+			hint: 'team-guid/name',
+			name: 'guid',
+			required: true
 		}
 	],
-	desc: 'Removes a service account',
+	desc: 'Remove a team from a service account',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
@@ -22,15 +27,24 @@ export default {
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 
 		if (!org.userRoles.includes('administrator')) {
-			throw new Error(`You do not have administrative access to remove a service account in the "${org.name}" organization`);
+			throw new Error(`You do not have administrative access to modify a service account in the "${org.name}" organization`);
 		}
 
-		const serviceAccount = await sdk.serviceAccount.remove(account, org, argv.id);
-		const results = {
-			account: account.name,
-			org,
-			serviceAccount
-		};
+		// get the service account and team
+		const { serviceAccount: existing } = await sdk.serviceAccount.find(account, org, argv.id);
+		const { team } = await sdk.team.find(account, org, argv.guid);
+
+		// add the team to the existing list of teams
+		const teams = (existing.teams || [])
+			.map(({ guid, roles }) => ({ guid, roles }))
+			.filter(t => t.guid !== team.guid);
+
+		// update the service account
+		const results = await sdk.serviceAccount.update(account, org, {
+			client: existing,
+			teams
+		});
+		results.account = account;
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
@@ -42,9 +56,9 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 			const { client_id, name } = results.serviceAccount;
-			console.log(`Successfully removed service account ${highlight(name)} ${note(`(${client_id})`)}`);
+			console.log(`Successfully removed team ${highlight(team.name)} from service account ${highlight(name)} ${note(`(${client_id})`)}`);
 		}
 
-		await cli.emitAction('axway:auth:service-account:remove', results);
+		await cli.emitAction('axway:auth:service-account:remove-team', results);
 	}
 };

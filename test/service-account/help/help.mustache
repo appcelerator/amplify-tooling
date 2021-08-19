@@ -6,23 +6,44 @@ Create and manage service accounts.
 USAGE: {{#cyan}}axway service-account <command> [options]{{/cyan}}
 
 SERVICE-ACCOUNT COMMANDS:
-  {{#cyan}}create       {{/cyan}}  Creates a service account
-  {{#cyan}}ls, list     {{/cyan}}  Lists all service accounts
-  {{#cyan}}rm, remove   {{/cyan}}  Removes a service account
-  {{#cyan}}roles        {{/cyan}}  View available service account roles
-  {{#cyan}}update       {{/cyan}}  Updates a service account
-  {{#cyan}}v, view      {{/cyan}}  View service account details
+  {{#cyan}}add-team        {{/cyan}}  Add a team to a service account
+  {{#cyan}}create          {{/cyan}}  Creates a service account
+  {{#cyan}}generate-keypair{{/cyan}}  Create a pem formatted public/private key pair
+  {{#cyan}}ls, list        {{/cyan}}  Lists all service accounts
+  {{#cyan}}rm, remove      {{/cyan}}  Removes a service account
+  {{#cyan}}remove-team     {{/cyan}}  Remove a team from a service account
+  {{#cyan}}roles           {{/cyan}}  View available service account roles
+  {{#cyan}}update          {{/cyan}}  Updates a service account
+  {{#cyan}}v, view         {{/cyan}}  View service account details
 
 GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+  {{#cyan}}--no-banner     {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color      {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help      {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version   {{/cyan}}  Outputs the version
 
 EXAMPLES:
 
-  Create a service account:
-    {{#cyan}}axway service-account create{{/cyan}}
-
   List all service accounts:
     {{#cyan}}axway service-account list{{/cyan}}
+
+  Create a service account with interactive prompting:
+    {{#cyan}}axway service-account create{{/cyan}}
+
+  Create a service account with minimum non-interactive arguments:
+    {{#cyan}}axway service-account create --name foo --secret bar{{/cyan}}
+
+  Change a service account name, description, and role:
+    {{#cyan}}axway service-account update <name/client-id> --name <new_name> --desc <desc> --role <role>{{/cyan}}
+
+  Add a team to an existing service account:
+    {{#cyan}}axway service-account add-team <client-id/name> <team_guid> <team_role>{{/cyan}}
+
+  Remove a team from a service account:
+    {{#cyan}}axway service-account remove-team <client-id/name> <team_guid>{{/cyan}}
+
+  Remove a service account:
+    {{#cyan}}axway service-account remove <client-id/name>{{/cyan}}
+
+  View available team roles:
+    {{#cyan}}axway service-account roles{{/cyan}}

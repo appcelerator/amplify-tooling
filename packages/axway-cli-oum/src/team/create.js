@@ -12,7 +12,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Add a team to an organization',
+	desc: 'Create a new team for an organization',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--default':        'Set the team as the default team',

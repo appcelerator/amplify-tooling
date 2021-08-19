@@ -11,29 +11,37 @@ export default {
 	async action({ argv, console }) {
 		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const roles = await sdk.role.list(account, { client: true, org });
+		const orgRoles = await sdk.role.list(account, { client: true, org });
+		const teamRoles = await sdk.role.list(account, { team: true, org });
 
 		if (argv.json) {
 			console.log(JSON.stringify({
 				account: account.name,
 				org,
-				roles
+				orgRoles,
+				teamRoles
 			}, null, 2));
 			return;
 		}
 
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
-		const table = createTable([ '  Role', 'Description' ]);
-
-		for (const role of roles) {
-			table.push([ `  ${highlight(role.id)}`, role.name ]);
-		}
 
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-		console.log('PLATFORM ROLES');
+		const table = createTable();
+		table.push([ { colSpan: 2, content: 'ORGANIZATION ROLES' } ]);
+		for (const role of orgRoles) {
+			table.push([ `  ${highlight(role.id)}`, role.name ]);
+		}
+		table.push([ '', '' ]);
+
+		table.push([ { colSpan: 2, content: 'TEAM ROLES' } ]);
+		for (const role of teamRoles) {
+			table.push([ `  ${highlight(role.id)}`, role.name ]);
+		}
+
 		console.log(table.toString());
 	}
 };
