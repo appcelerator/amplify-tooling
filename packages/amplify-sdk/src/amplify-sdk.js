@@ -756,8 +756,9 @@ export default class AmplifySDK {
 					{ errorMsg: 'Failed to get roles' }
 				);
 
-				if (params.org) {
-					const org = this.resolveOrg(account, params.org);
+				let org = params.org || account.org?.guid;
+				if (org) {
+					org = this.resolveOrg(account, params.org);
 					const { entitlements, subscriptions } = org;
 
 					roles = roles.filter(role => {
@@ -881,7 +882,7 @@ export default class AmplifySDK {
 				const data = {
 					name:        opts.name,
 					description: opts.desc || '',
-					client_id:   opts.clientId,
+					clientId:    opts.clientId,
 					org_guid:    org.guid
 				};
 
@@ -1329,11 +1330,7 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				add: async (account, org, team, user, roles) => {
-					const origTeam = team;
 					({ org, team } = await this.team.find(account, org, team));
-					if (!team) {
-						throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
-					}
 
 					const found = await this.org.user.find(account, org.guid, user);
 					if (!found) {
@@ -1379,11 +1376,7 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				list: async (account, org, team) => {
-					const origTeam = team;
 					({ team } = await this.team.find(account, org, team));
-					if (!team) {
-						throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
-					}
 
 					const { users: allUsers } = await this.org.user.list(account, org.guid);
 					return {
@@ -1440,11 +1433,7 @@ export default class AmplifySDK {
 				 */
 				update: async (account, org, team, user, roles) => {
 					let found;
-					const origTeam = team;
 					({ user: found, team } = await this.team.user.find(account, org, team, user));
-					if (!team) {
-						throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
-					}
 
 					if (!found) {
 						throw new Error(`Unable to find the user "${user}"`);
@@ -1481,12 +1470,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			remove: async (account, org, team) => {
-				const origTeam = team;
 				({ org, team } = await this.team.find(account, org, team));
-
-				if (!team) {
-					throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
-				}
 
 				await this.request(`/api/v1/team/${team.guid}`, account, {
 					errorMsg: 'Failed to remove team',
@@ -1508,12 +1492,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			update: async (account, org, team, info) => {
-				const origTeam = team;
 				({ org, team } = await this.team.find(account, org, team));
-
-				if (!team) {
-					throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
-				}
 
 				const { changes, data } = prepareTeamInfo(info, team);
 

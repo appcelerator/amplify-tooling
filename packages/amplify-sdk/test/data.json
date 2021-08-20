@@ -36,6 +36,7 @@
 			"user_guid": "50000"
 		}
 	],
+	"clients": {},
 	"orgs": [
 		{
 			"name": "Foo org",
@@ -60,7 +61,12 @@
 				"_a": 10,
 				"bc": 20
 			},
-			"subscriptions": []
+			"subscriptions": [
+				{
+					"end_date": "2017-01-01T00:00:00.000Z",
+					"product": "some_subcription"
+				}
+			]
 		},
 		{
 			"name": "Bar org",
@@ -101,7 +107,14 @@
 		{
 			"id": "some_admin",
 			"name": "Some Admin",
-			"org": true
+			"org": true,
+			"client": true
+		},
+		{
+			"id": "some_sub",
+			"name": "Some Sub",
+			"org": true,
+			"subscription": "some_subcription"
 		}
 	],
 	"teams": [

@@ -109,6 +109,36 @@ function createAPIRoutes(server, data) {
 		};
 	});
 
+	router.post('/v1/client', ctx => {
+		const { clientId, description, name, roles, teams, type } = ctx.request.body;
+		const sa = {
+			client_id: clientId,
+			guid: uuidv4(),
+			name,
+			description,
+			type
+		};
+		data.clients[sa.guid] = sa;
+
+		// TODO: roles, teams
+
+		ctx.body = {
+			success: true,
+			result: sa
+		};
+	});
+
+	router.get('/v1/entitlement/:name', ctx => {
+		if (ctx.params.name === 'foo') {
+			ctx.body = {
+				success: true,
+				result: {
+					title: 'Foo'
+				}
+			};
+		}
+	});
+
 	router.get('/v1/org/env', ctx => {
 		ctx.body = {
 			success: true,
@@ -199,6 +229,11 @@ function createAPIRoutes(server, data) {
 				success: true,
 				result: usage ? {
 					...org,
+					bundle: {
+						metrics: {
+							foo: {}
+						}
+					},
 					usage: { SaaS }
 				} : null
 			};
