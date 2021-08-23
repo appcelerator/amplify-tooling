@@ -31,7 +31,7 @@ export default {
 		}
 
 		// get the service account and team
-		const { serviceAccount: existing } = await sdk.serviceAccount.find(account, org, argv.id);
+		const { client: existing } = await sdk.client.find(account, org, argv.id);
 		const { team } = await sdk.team.find(account, org, argv.guid);
 
 		// add the team to the existing list of teams
@@ -40,7 +40,7 @@ export default {
 			.filter(t => t.guid !== team.guid);
 
 		// update the service account
-		const results = await sdk.serviceAccount.update(account, org, {
+		const results = await sdk.client.update(account, org, {
 			client: existing,
 			teams
 		});
@@ -55,7 +55,7 @@ export default {
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-			const { client_id, name } = results.serviceAccount;
+			const { client_id, name } = results.client;
 			console.log(`Successfully removed team ${highlight(team.name)} from service account ${highlight(name)} ${note(`(${client_id})`)}`);
 		}
 

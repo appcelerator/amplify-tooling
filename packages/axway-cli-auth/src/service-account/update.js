@@ -88,7 +88,7 @@ from client secret to public key and vice versa.`;
 			data.secret = argv.secret;
 		}
 
-		const results = await sdk.serviceAccount.update(account, org, data);
+		const results = await sdk.client.update(account, org, data);
 		results.account = account.name;
 
 		if (argv.json) {
@@ -99,7 +99,7 @@ from client secret to public key and vice versa.`;
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-			const { client_id, name } = results.serviceAccount;
+			const { client_id, name } = results.client;
 			console.log(`Successfully updated service account ${highlight(name)} ${note(`(${client_id})`)}`);
 		}
 

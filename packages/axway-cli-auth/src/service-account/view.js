@@ -20,7 +20,7 @@ export default {
 	async action({ argv, console }) {
 		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const result = await sdk.serviceAccount.find(account, org, argv.id);
+		const result = await sdk.client.find(account, org, argv.id);
 
 		if (argv.json) {
 			console.log(JSON.stringify(result, null, 2));
@@ -29,28 +29,28 @@ export default {
 
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
-		const { serviceAccount } = result;
+		const { client } = result;
 
 		console.log(`Account:      ${highlight(account.name)}\n`);
 
-		if (!serviceAccount) {
+		if (!client) {
 			console.log(`Service account "${argv.clientId}" not found`);
 			return;
 		}
 
 		console.log('SERVICE ACCOUNT');
-		console.log(`  Name:         ${highlight(serviceAccount.name)}`);
-		console.log(`  Client ID:    ${highlight(serviceAccount.client_id)}`);
-		console.log(`  Description:  ${serviceAccount.description ? highlight(serviceAccount.description) : note('n/a')}`);
+		console.log(`  Name:         ${highlight(client.name)}`);
+		console.log(`  Client ID:    ${highlight(client.client_id)}`);
+		console.log(`  Description:  ${client.description ? highlight(client.description) : note('n/a')}`);
 		console.log(`  Org Guid:     ${highlight(org.name)} ${note(`(${org.guid})`)}`);
-		console.log(`  Date Created: ${highlight(new Date(serviceAccount.created).toLocaleString())}`);
+		console.log(`  Date Created: ${highlight(new Date(client.created).toLocaleString())}`);
 
 		console.log('\nAUTHENTICATION');
-		console.log(`  Method:       ${highlight(serviceAccount.method)}`);
+		console.log(`  Method:       ${highlight(client.method)}`);
 
 		console.log('\nORG ROLES');
-		if (serviceAccount.roles.length) {
-			for (const role of serviceAccount.roles) {
+		if (client.roles.length) {
+			for (const role of client.roles) {
 				console.log(`  ${role}`);
 			}
 		} else {
@@ -58,7 +58,7 @@ export default {
 		}
 
 		const table = createTable([ '  Name', 'Role', 'Description', 'Team GUID', 'User', 'Apps', 'Date Created' ]);
-		for (const { apps, created, desc, guid, name, roles, users } of serviceAccount.teams) {
+		for (const { apps, created, desc, guid, name, roles, users } of client.teams) {
 			table.push([
 				`  ${name}`,
 				roles.join(', '),
@@ -70,7 +70,7 @@ export default {
 			]);
 		}
 		console.log('\nTEAMS');
-		if (serviceAccount.teams.length) {
+		if (client.teams.length) {
 			console.log(table.toString());
 		} else {
 			console.log('  No teams found');

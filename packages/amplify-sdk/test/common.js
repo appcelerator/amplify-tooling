@@ -109,22 +109,84 @@ function createAPIRoutes(server, data) {
 		};
 	});
 
+	router.get('/v1/client', ctx => {
+		const { org_id } = ctx.query;
+		const orgGuid = org_id && data.orgs.find(o => String(o.org_id) === org_id)?.guid || null;
+
+		ctx.body = {
+			success: true,
+			result: data.clients
+				.filter(c => {
+					return !orgGuid || c.org_guid === orgGuid;
+				})
+				.map(c => ({
+					client_id: c.client_id,
+					guid:      c.guid,
+					name:      c.name,
+					org_guid:  c.org_guid,
+					type:      c.type
+				}))
+		};
+	});
+
+	router.get('/v1/client/:id', ctx => {
+		const result = data.clients.find(c => c.client_id === ctx.params.id);
+		if (result) {
+			ctx.body = {
+				success: true,
+				result
+			};
+		}
+	});
+
+	router.put('/v1/client/:guid', ctx => {
+		const idx = data.clients.findIndex(c => c.guid === ctx.params.guid);
+		if (idx !== -1) {
+			const result = data.clients[idx];
+			for (const key of [ 'name', 'description', 'publicKey', 'secret' ]) {
+				if (ctx.request.body[key] !== undefined) {
+					result[key] = ctx.request.body[key];
+				}
+			}
+
+			// TODO: teams and roles
+
+			ctx.body = {
+				success: true,
+				result
+			};
+		}
+	});
+
+	router.delete('/v1/client/:id', ctx => {
+		const idx = data.clients.findIndex(c => c.client_id === ctx.params.id);
+		if (idx !== -1) {
+			const result = data.clients[idx];
+			data.clients.splice(idx, 1);
+			ctx.body = {
+				success: true,
+				result
+			};
+		}
+	});
+
 	router.post('/v1/client', ctx => {
-		const { clientId, description, name, roles, teams, type } = ctx.request.body;
-		const sa = {
+		const { clientId, description, name, org_guid, roles, teams, type } = ctx.request.body;
+		const result = {
 			client_id: clientId,
 			guid: uuidv4(),
 			name,
 			description,
+			org_guid,
 			type
 		};
-		data.clients[sa.guid] = sa;
+		data.clients.push(result);
 
 		// TODO: roles, teams
 
 		ctx.body = {
 			success: true,
-			result: sa
+			result
 		};
 	});
 

@@ -25,11 +25,11 @@ export default {
 			throw new Error(`You do not have administrative access to remove a service account in the "${org.name}" organization`);
 		}
 
-		const serviceAccount = await sdk.serviceAccount.remove(account, org, argv.id);
+		const { client } = await sdk.client.remove(account, org, argv.id);
 		const results = {
 			account: account.name,
 			org,
-			serviceAccount
+			client
 		};
 
 		if (argv.json) {
@@ -41,7 +41,7 @@ export default {
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-			const { client_id, name } = results.serviceAccount;
+			const { client_id, name } = results.client;
 			console.log(`Successfully removed service account ${highlight(name)} ${note(`(${client_id})`)}`);
 		}
 

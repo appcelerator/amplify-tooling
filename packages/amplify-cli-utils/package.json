@@ -27,7 +27,7 @@
     "appcd-fs": "^2.1.2",
     "boxen": "^5.0.1",
     "check-kit": "^1.2.1",
-    "cli-kit": "^1.14.0",
+    "cli-kit": "^1.14.1",
     "cli-table3": "^0.6.0",
     "fs-extra": "^9.1.0",
     "snooplogg": "^3.0.2",

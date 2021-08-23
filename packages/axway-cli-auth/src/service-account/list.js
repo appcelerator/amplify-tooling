@@ -12,13 +12,13 @@ export default {
 	async action({ argv, console }) {
 		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
-		const { serviceAccounts } = await sdk.serviceAccount.list(account, org);
+		const { clients } = await sdk.client.list(account, org);
 
 		if (argv.json) {
 			console.log(JSON.stringify({
 				account: account.name,
 				org,
-				serviceAccounts
+				clients
 			}, null, 2));
 			return;
 		}
@@ -29,14 +29,14 @@ export default {
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-		if (!serviceAccounts.length) {
+		if (!clients.length) {
 			console.log('No service accounts found');
 			return;
 		}
 
 		const table = createTable([ 'Client ID', 'Name', 'Auth Method', 'Teams', 'Roles', 'Date Created' ]);
 
-		for (const { client_id, created, method, name, roles, teams } of serviceAccounts) {
+		for (const { client_id, created, method, name, roles, teams } of clients) {
 			table.push([
 				highlight(client_id),
 				name,

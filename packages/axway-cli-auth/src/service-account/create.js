@@ -184,7 +184,7 @@ export default {
 			throw new Error('Must specify a --secret or --public-key');
 		}
 
-		const results = await sdk.serviceAccount.create(account, org, {
+		const results = await sdk.client.create(account, org, {
 			clientId,
 			desc,
 			name,
@@ -205,7 +205,7 @@ export default {
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-			const { client_id, name } = results.serviceAccount;
+			const { client_id, name } = results.client;
 			console.log(`Successfully created service account ${highlight(name)} ${note(`(${client_id})`)}`);
 		}
 

@@ -21,7 +21,7 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^4.4.0",
     "appcd-fs": "^2.1.2",
-    "cli-kit": "^1.14.0",
+    "cli-kit": "^1.14.1",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^9.1.0",
     "libnpmsearch": "^3.1.2",
