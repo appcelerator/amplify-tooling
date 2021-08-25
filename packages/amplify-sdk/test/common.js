@@ -143,13 +143,25 @@ function createAPIRoutes(server, data) {
 		const idx = data.clients.findIndex(c => c.guid === ctx.params.guid);
 		if (idx !== -1) {
 			const result = data.clients[idx];
-			for (const key of [ 'name', 'description', 'publicKey', 'secret' ]) {
+			for (const key of [ 'name', 'description', 'publicKey', 'roles', 'secret' ]) {
 				if (ctx.request.body[key] !== undefined) {
 					result[key] = ctx.request.body[key];
 				}
 			}
 
-			// TODO: teams and roles
+			// TODO: get current teams, remove all teams from client, add new and existing, remove unused
+			// if (ctx.request.body.teams) {
+			// 	for (const team of ctx.request.body.teams) {
+			// 		const info = data.teams.find(t => t.guid === team.guid);
+			// 		if (info) {
+			// 			info.users.push({
+			// 				guid: user.guid,
+			// 				type: 'client',
+			// 				roles: team.roles
+			// 			});
+			// 		}
+			// 	}
+			// }
 
 			ctx.body = {
 				success: true,
@@ -162,7 +174,23 @@ function createAPIRoutes(server, data) {
 		const idx = data.clients.findIndex(c => c.client_id === ctx.params.id);
 		if (idx !== -1) {
 			const result = data.clients[idx];
+
+			for (let i = 0; i < data.users.length; i++) {
+				if (data.users[i].guid === result.guid) {
+					data.users.splice(i--, 1);
+				}
+			}
+
+			for (const team of data.teams) {
+				for (let i = 0; i < team.users.length; i++) {
+					if (team.users[i].guid === result.guid) {
+						team.users.splice(i--, 1);
+					}
+				}
+			}
+
 			data.clients.splice(idx, 1);
+
 			ctx.body = {
 				success: true,
 				result
@@ -178,11 +206,24 @@ function createAPIRoutes(server, data) {
 			name,
 			description,
 			org_guid,
+			roles,
 			type
 		};
 		data.clients.push(result);
 
-		// TODO: roles, teams
+		// add the user
+		data.users.push({ guid: result.guid });
+
+		if (teams) {
+			for (const team of teams) {
+				const info = data.teams.find(t => t.guid === team.guid);
+				info.users.push({
+					guid: result.guid,
+					type: 'client',
+					roles: team.roles
+				});
+			}
+		}
 
 		ctx.body = {
 			success: true,

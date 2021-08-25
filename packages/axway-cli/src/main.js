@@ -239,12 +239,12 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 			const msg = `${process.platform === 'win32' ? 'x' : '✖'} ${err}`;
 			for (let line of msg.split(/\r\n|\n/)) {
 				line = line.trim();
-				console.error(line ? red(`  ${line}`) : '');
+				console.error(line ? red(line) : '');
 			}
 			if (err.detail) {
 				console.error('');
 				for (const line of String(err.detail).split(/\r\n|\n/)) {
-					console.error(red(`  ${line}`));
+					console.error(red(line));
 				}
 			}
 		}

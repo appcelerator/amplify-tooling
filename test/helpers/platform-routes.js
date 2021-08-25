@@ -120,6 +120,130 @@ export function createPlatformRoutes(server, opts = {}) {
 		};
 	});
 
+	router.get('/v1/client', ctx => {
+		const { org_id } = ctx.query;
+		const orgGuid = org_id && data.orgs.find(o => String(o.org_id) === org_id)?.guid || null;
+
+		ctx.body = {
+			success: true,
+			result: data.clients
+				.filter(c => {
+					return !orgGuid || c.org_guid === orgGuid;
+				})
+				.map(c => ({
+					client_id: c.client_id,
+					created:   c.created,
+					guid:      c.guid,
+					name:      c.name,
+					org_guid:  c.org_guid,
+					roles:     c.roles,
+					type:      c.type
+				}))
+		};
+	});
+
+	router.get('/v1/client/:id', ctx => {
+		const result = data.clients.find(c => c.client_id === ctx.params.id);
+		if (result) {
+			ctx.body = {
+				success: true,
+				result
+			};
+		}
+	});
+
+	router.put('/v1/client/:guid', ctx => {
+		const idx = data.clients.findIndex(c => c.guid === ctx.params.guid);
+		if (idx !== -1) {
+			const result = data.clients[idx];
+			for (const key of [ 'name', 'description', 'publicKey', 'roles', 'secret' ]) {
+				if (ctx.request.body[key] !== undefined) {
+					result[key] = ctx.request.body[key];
+				}
+			}
+
+			// TODO: get current teams, remove all teams from client, add new and existing, remove unused
+			// if (ctx.request.body.teams) {
+			// 	for (const team of ctx.request.body.teams) {
+			// 		const info = data.teams.find(t => t.guid === team.guid);
+			// 		if (info) {
+			// 			info.users.push({
+			// 				guid: user.guid,
+			// 				type: 'client',
+			// 				roles: team.roles
+			// 			});
+			// 		}
+			// 	}
+			// }
+
+			ctx.body = {
+				success: true,
+				result
+			};
+		}
+	});
+
+	router.delete('/v1/client/:id', ctx => {
+		const idx = data.clients.findIndex(c => c.client_id === ctx.params.id);
+		if (idx !== -1) {
+			const result = data.clients[idx];
+
+			for (let i = 0; i < data.users.length; i++) {
+				if (data.users[i].guid === result.guid) {
+					data.users.splice(i--, 1);
+				}
+			}
+
+			for (const team of data.teams) {
+				for (let i = 0; i < team.users.length; i++) {
+					if (team.users[i].guid === result.guid) {
+						team.users.splice(i--, 1);
+					}
+				}
+			}
+
+			data.clients.splice(idx, 1);
+
+			ctx.body = {
+				success: true,
+				result
+			};
+		}
+	});
+
+	router.post('/v1/client', ctx => {
+		const { clientId, description, name, org_guid, roles, teams, type } = ctx.request.body;
+		const result = {
+			client_id: clientId,
+			guid: uuidv4(),
+			name,
+			description,
+			org_guid,
+			roles,
+			type
+		};
+		data.clients.push(result);
+
+		// add the user
+		data.users.push({ guid: result.guid });
+
+		if (teams) {
+			for (const team of teams) {
+				const info = data.teams.find(t => t.guid === team.guid);
+				info.users.push({
+					guid: result.guid,
+					type: 'client',
+					roles: team.roles
+				});
+			}
+		}
+
+		ctx.body = {
+			success: true,
+			result
+		};
+	});
+
 	router.get('/v1/entitlement/:metric', ctx => {
 		const entitlements = {
 			'APIM.Transactions': {
@@ -474,8 +598,9 @@ export function createPlatformRoutes(server, opts = {}) {
 
 			team.users.push({
 				guid: user.guid,
+				primary: true,
 				roles: ctx.request.body.roles,
-				primary: true
+				type: 'user'
 			})
 
 			ctx.body = {

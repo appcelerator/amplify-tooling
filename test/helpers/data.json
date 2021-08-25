@@ -87,6 +87,18 @@
 			}
 		}
 	],
+	"clients": [
+		{
+			"client_id": "test_629e1705-9cd7-4db7-9dfe-08aa47b0f3ad",
+			"created": "2021-03-24T13:13:11.567Z",
+			"description": "Test service account",
+			"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad",
+			"name": "Test",
+			"org_guid": "1000",
+			"roles": [ "some_admin" ],
+			"type": "secret"
+		}
+	],
 	"orgs": [
 		{
 			"name": "Foo org",
@@ -171,12 +183,14 @@
 		{
 			"id": "some_admin",
 			"name": "Some Admin",
-			"org": true
+			"org": true,
+			"client": true
 		}
 	],
 	"teams": [
 		{
 			"name": "A Team",
+			"created": "2021-02-14T15:30:00.000Z",
 			"guid": "60000",
 			"default": true,
 			"tags": [],
@@ -184,7 +198,13 @@
 			"users": [
 				{
 					"guid": "50000",
-					"roles": [ "administrator" ]
+					"roles": [ "administrator" ],
+					"type": "user"
+				},
+				{
+					"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad",
+					"type": "client",
+					"roles": [ "developer" ]
 				}
 			]
 		},
@@ -420,6 +440,9 @@
 			"firstname": "Test3",
 			"lastname": "Tester3",
 			"phone": "555-5003"
+		},
+		{
+			"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad"
 		}
 	]
 }

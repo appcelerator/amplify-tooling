@@ -31,7 +31,8 @@ export default {
 		const { highlight, note } = snooplogg.styles;
 		const { client } = result;
 
-		console.log(`Account:      ${highlight(account.name)}\n`);
+		console.log(`Account:      ${highlight(account.name)}`);
+		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		if (!client) {
 			console.log(`Service account "${argv.clientId}" not found`);
@@ -42,7 +43,6 @@ export default {
 		console.log(`  Name:         ${highlight(client.name)}`);
 		console.log(`  Client ID:    ${highlight(client.client_id)}`);
 		console.log(`  Description:  ${client.description ? highlight(client.description) : note('n/a')}`);
-		console.log(`  Org Guid:     ${highlight(org.name)} ${note(`(${org.guid})`)}`);
 		console.log(`  Date Created: ${highlight(new Date(client.created).toLocaleString())}`);
 
 		console.log('\nAUTHENTICATION');
@@ -57,20 +57,20 @@ export default {
 			console.log('  No roles found');
 		}
 
-		const table = createTable([ '  Name', 'Role', 'Description', 'Team GUID', 'User', 'Apps', 'Date Created' ]);
-		for (const { apps, created, desc, guid, name, roles, users } of client.teams) {
-			table.push([
-				`  ${name}`,
-				roles.join(', '),
-				desc || note('n/a'),
-				guid,
-				users.length,
-				apps.length,
-				new Date(created).toLocaleDateString()
-			]);
-		}
 		console.log('\nTEAMS');
 		if (client.teams.length) {
+			const table = createTable([ '  Name', 'Role', 'Description', 'Team GUID', 'User', 'Apps', 'Date Created' ]);
+			for (const { apps, created, desc, guid, name, roles, users } of client.teams) {
+				table.push([
+					`  ${name}`,
+					roles.join(', '),
+					desc || note('n/a'),
+					guid,
+					users?.length || 0,
+					apps?.length || 0,
+					new Date(created).toLocaleDateString()
+				]);
+			}
 			console.log(table.toString());
 		} else {
 			console.log('  No teams found');

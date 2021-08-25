@@ -496,14 +496,14 @@ export default class AmplifySDK {
 				assertPlatformAccount(account);
 
 				const { clients } = await this.client.list(account, org);
-				const keyword = clientId.trim().toLowerCase();
 
-				// first try to find the service account by client id
-				let client = clients.find(c => c.client_id.toLowerCase() === keyword);
-
-				// if not found by client id, then try by name
+				// first try to find the service account by guid, then client id, then name
+				let client = clients.find(c => c.guid === clientId);
 				if (!client) {
-					client = clients.find(c => c.name.toLowerCase() === keyword);
+					client = clients.find(c => c.client_id === clientId);
+				}
+				if (!client) {
+					client = clients.find(c => c.name === clientId);
 				}
 
 				// if still not found, error
@@ -1376,20 +1376,42 @@ export default class AmplifySDK {
 				 */
 				list: async (account, org, team) => {
 					({ team } = await this.team.find(account, org, team));
+					const { users: orgUsers } = await this.org.user.list(account, org.guid);
+					const users = [];
 
-					const { users: allUsers } = await this.org.user.list(account, org.guid);
+					for (const user of team.users) {
+						if (user.type === 'client') {
+							const { client } = await this.client.find(account, org, user.guid);
+							users.push({
+								...client,
+								roles: user.roles,
+								teams: client.teams.length,
+								type: user.type
+							});
+						} else {
+							const orgUser = orgUsers.find(v => v.guid === user.guid);
+							if (orgUser) {
+								users.push({
+									...orgUser,
+									name: `${orgUser.firstname} ${orgUser.lastname}`.trim(),
+									roles: user.roles,
+									type: user.type
+								});
+							} else {
+								warn(`Unknown team user "${user.guid}"`);
+							}
+						}
+					}
+
 					return {
 						org,
 						team,
-						users: team.users
-							.map(u => ({
-								...(allUsers.find(v => v.guid === u.guid) || {}),
-								roles: u.roles
-							}))
-							.sort((a, b) => {
-								const r = (a.firstname || '').localeCompare(b.firstname || '');
-								return r !== 0 ? r : (a.lastname || '').localeCompare(b.lastname || '');
-							})
+						users: users.sort((a, b) => {
+							if (a.type !== b.type) {
+								return a.type === 'user' ? -1 : a.type === 'client' ? 1 : 0;
+							}
+							return a.name.localeCompare(b.name);
+						})
 					};
 				},
 

@@ -44,7 +44,7 @@ export default {
 		});
 
 		if (argv.json) {
-			console.log(certs);
+			console.log(JSON.stringify(certs, null, 2));
 		} else {
 			const { default: snooplogg } = require('snooplogg');
 			const { highlight } = snooplogg.styles;

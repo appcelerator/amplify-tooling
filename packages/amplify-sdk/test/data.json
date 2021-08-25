@@ -129,6 +129,7 @@
 	"teams": [
 		{
 			"name": "A Team",
+			"created": "2021-03-24T1:30:00.000Z",
 			"guid": "60000",
 			"default": true,
 			"tags": [],

@@ -371,16 +371,48 @@ describe('amplify-sdk', () => {
 				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 'abc' } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
 				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 'abc', roles: 123 } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
 				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 'abc', roles: [] } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
+
+				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 'abc', roles: [ 'def' ] } ] })).to.eventually.be.rejectedWith(Error, 'Invalid team "abc"');
+				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: '60000', roles: [ 'def' ] } ] })).to.eventually.be.rejectedWith(Error, 'Invalid team role "def"');
 			});
 
 			it('should create a service account with a client secret', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
-				const { client } = await sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz' });
+				const { client } = await sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', roles: [], teams: [] });
 				expect(client.name).to.equal('foo');
 				expect(client.client_id).to.equal('bar');
 				expect(client.type).to.equal('secret');
+			});
+
+			it('should create a service account with a client secret and a team', async function () {
+				this.server = await createServer();
+				const { account, tokenStore } = this.server.createTokenStore();
+				const sdk = createSDK({ tokenStore });
+
+				const { team } = await sdk.team.create(account, 100, 'C Team', { desc: 'The C Team' });
+
+				let { client } = await sdk.client.create(account, 100, {
+					name: 'foo',
+					clientId: 'bar',
+					secret: 'baz',
+					roles: [ 'some_admin' ],
+					teams: [
+						{ guid: team.guid, roles: [ 'developer' ] },
+						{ guid: team.guid, roles: [ 'developer' ] } // test dedupe
+					]
+				});
+				expect(client.name).to.equal('foo');
+				expect(client.client_id).to.equal('bar');
+				expect(client.type).to.equal('secret');
+
+				({ client } = await sdk.client.find(account, 100, client.client_id));
+				expect(client.name).to.equal('foo');
+				expect(client.client_id).to.equal('bar');
+				expect(client.type).to.equal('secret');
+				expect(client.teams).to.have.lengthOf(1);
+				expect(client.teams[0].name).to.equal('C Team');
 			});
 
 			it('should create a service account with a public key', async function () {
@@ -463,6 +495,13 @@ describe('amplify-sdk', () => {
 		describe('remove()', () => {
 			afterEach(stopServer);
 
+			it('should error removing a service account if client id is invalid', async function () {
+				this.server = await createServer();
+				const { account, tokenStore } = this.server.createTokenStore();
+				const sdk = createSDK({ tokenStore });
+				await expect(sdk.client.remove(account, 100, {})).to.eventually.be.rejectedWith(TypeError, 'Expected client to be an object or client id');
+			});
+
 			it('should error removing a service account if not found', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
@@ -500,6 +539,20 @@ describe('amplify-sdk', () => {
 		describe('update()', () => {
 			afterEach(stopServer);
 
+			it('should error updaing a service account if options are invalid', async function () {
+				this.server = await createServer();
+				const { account, tokenStore } = this.server.createTokenStore();
+				const sdk = createSDK({ tokenStore });
+				await expect(sdk.client.update(account, 100, 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected options to be an object');
+			});
+
+			it('should error updaing a service account if client id is invalid', async function () {
+				this.server = await createServer();
+				const { account, tokenStore } = this.server.createTokenStore();
+				const sdk = createSDK({ tokenStore });
+				await expect(sdk.client.update(account, 100, { client: {} })).to.eventually.be.rejectedWith(TypeError, 'Expected client to be an object or client id');
+			});
+
 			it('should error updating a service account if not found', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
@@ -507,7 +560,7 @@ describe('amplify-sdk', () => {
 				await expect(sdk.client.update(account, 100, { client: 'does_not_exist' })).to.eventually.be.rejectedWith(Error, 'Service account "does_not_exist" not found');
 			});
 
-			it('should remove a service account by name', async function () {
+			it('should update a service account by name', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
@@ -515,7 +568,8 @@ describe('amplify-sdk', () => {
 				let { client } = await sdk.client.update(account, 100, {
 					client: 'Test',
 					name: 'Test2',
-					desc: 'This is test 2 now'
+					desc: 'This is test 2 now',
+					secret: 'abc123'
 				});
 				expect(client.name).to.equal('Test2');
 				expect(client.client_id).to.equal('test_629e1705-9cd7-4db7-9dfe-08aa47b0f3ad');
@@ -527,7 +581,7 @@ describe('amplify-sdk', () => {
 				expect(client.description).to.equal('This is test 2 now');
 			});
 
-			it('should remove a service account by id', async function () {
+			it('should update a service account by id', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
