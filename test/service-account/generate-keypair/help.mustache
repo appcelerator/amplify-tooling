@@ -1,0 +1,35 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Create a pem formatted public/private key pair.
+
+USAGE: {{#cyan}}axway service-account generate-keypair [options]{{/cyan}}
+
+GENERATE-KEYPAIR OPTIONS:
+  {{#cyan}}--force             {{/cyan}}  Overwrite existing output files
+  {{#cyan}}--json              {{/cyan}}  Outputs result as JSON
+  {{#cyan}}--private-key [path]{{/cyan}}  The file to output the private key to
+  {{#cyan}}--public-key [path] {{/cyan}}  The file to output the public key to
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color          {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version
+
+EXAMPLES:
+
+  Create a keypair and be prompted for the output filenames:
+    {{#cyan}}axway service-account generate-keypair{{/cyan}}
+
+  Create a keypair and use the default output filenames and overwrite existing files:
+    {{#cyan}}axway service-account generate-keypair --yes{{/cyan}}
+
+  Create a keypair and write the files using specific names:
+    {{#cyan}}axway service-account generate-keypair --public-key public.pem --private-key private.pem{{/cyan}}
+
+  Create a keypair and output to screen as JSON instead of writing to files:
+    {{#cyan}}axway service-account generate-keypair --json{{/cyan}}
+
+  Create a keypair and output to screen as JSON and write them to files:
+    {{#cyan}}axway service-account generate-keypair --json --yes{{/cyan}}

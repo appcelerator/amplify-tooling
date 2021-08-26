@@ -1,0 +1,40 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Update service account information. Multiple values may be changed in a single
+call.
+
+You cannot change a service account's authentication method from client secret
+to public key and vice versa.
+
+USAGE: {{#cyan}}axway service-account update <client-id/name> [options]{{/cyan}}
+
+UPDATE ARGUMENTS:
+  {{#cyan}}id                  {{/cyan}}  The service account client id or name
+
+UPDATE OPTIONS:
+  {{#cyan}}--account [name]    {{/cyan}}  The platform account to use
+  {{#cyan}}--desc [value]      {{/cyan}}  The description of the service account
+  {{#cyan}}--json              {{/cyan}}  Outputs service account as JSON
+  {{#cyan}}--name [value]      {{/cyan}}  Friendly name to use for display
+  {{#cyan}}--org [name|id|guid]{{/cyan}}  The organization name, id, or guid
+  {{#cyan}}--public-key [path] {{/cyan}}  The path to the public key
+  {{#cyan}}--role [role]       {{/cyan}}  Assign one or more organization roles to the service account
+  {{#cyan}}--secret [key]      {{/cyan}}  A custom client secret key
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color          {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version
+
+EXAMPLES:
+
+  Change a service account name, description, and role:
+    {{#cyan}}axway service-account update <name/client-id> --name <new_name> --desc <desc> --role administrator{{/cyan}}
+
+  Update a service account's client secret key:
+    {{#cyan}}axway service-account update <name/client-id> --secret <new_secret>{{/cyan}}
+
+  Update a service account's public key:
+    {{#cyan}}axway service-account update <name/client-id> --public-key /path/to/public_key.pem{{/cyan}}

@@ -9,6 +9,11 @@ export default {
 		}
 	],
 	desc: 'Removes a service account',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {

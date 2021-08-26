@@ -40,6 +40,6 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-request",
   "engines": {
-    "node": ">=10.19.0"
+    "node": ">=12.13.0"
   }
 }

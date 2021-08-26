@@ -14,6 +14,11 @@ export default {
 		}
 	],
 	desc: 'Remove a team from a service account',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {

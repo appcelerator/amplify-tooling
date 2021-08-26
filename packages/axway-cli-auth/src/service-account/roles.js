@@ -1,5 +1,10 @@
 export default {
 	desc: 'View available service account roles',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {

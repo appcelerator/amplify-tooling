@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import Router from '@koa/router';
 import snooplogg from 'snooplogg';
+import { v4 as uuidv4 } from 'uuid';
 
 const logger = snooplogg.config({
 	minBrightness: 80,
@@ -162,19 +163,20 @@ export function createPlatformRoutes(server, opts = {}) {
 				}
 			}
 
-			// TODO: get current teams, remove all teams from client, add new and existing, remove unused
-			// if (ctx.request.body.teams) {
-			// 	for (const team of ctx.request.body.teams) {
-			// 		const info = data.teams.find(t => t.guid === team.guid);
-			// 		if (info) {
-			// 			info.users.push({
-			// 				guid: user.guid,
-			// 				type: 'client',
-			// 				roles: team.roles
-			// 			});
-			// 		}
-			// 	}
-			// }
+			if (ctx.request.body.teams) {
+				for (const team of ctx.request.body.teams) {
+					const info = data.teams.find(t => t.guid === team.guid);
+					if (info) {
+						if (!info.users.find(u => u.guid === result.guid)) {
+							info.users.push({
+								guid: result.guid,
+								type: 'client',
+								roles: team.roles
+							});
+						}
+					}
+				}
+			}
 
 			ctx.body = {
 				success: true,
@@ -215,6 +217,7 @@ export function createPlatformRoutes(server, opts = {}) {
 		const { clientId, description, name, org_guid, roles, teams, type } = ctx.request.body;
 		const result = {
 			client_id: clientId,
+			created: new Date().toISOString(),
 			guid: uuidv4(),
 			name,
 			description,

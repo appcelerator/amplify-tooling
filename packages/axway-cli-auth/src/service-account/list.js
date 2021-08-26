@@ -1,6 +1,11 @@
 export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all service accounts',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {

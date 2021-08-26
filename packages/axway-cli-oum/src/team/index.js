@@ -27,8 +27,8 @@ export default {
   View team details:
     ${style.highlight('axway team view <org> <team>')}
 
-  Add a new team to an organization:
-    ${style.highlight('axway team add <org> <team name>')}
+  Create a new team in an organization:
+    ${style.highlight('axway team create <org> <team name>')}
 
   Update team information:
     ${style.highlight('axway team update <org> <team> [options]')}

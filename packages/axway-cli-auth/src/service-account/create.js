@@ -3,7 +3,13 @@ export default {
 	desc: 'Creates a service account',
 	help: {
 		header() {
-			return `${this.desc}.`;
+			return `
+Creates a service account. A service account requires a name and either a
+client secret key or a PEM formatted public key.
+
+If the service account name is not specified, then the command will
+interactively prompt for all values. If prompting is not available, then all
+required options must passed in at execution.`;
 		},
 		footer({ style }) {
 			return `${style.heading('Examples:')}
@@ -39,7 +45,7 @@ export default {
 		},
 		'--secret [key]':       'A custom client secret key'
 	},
-	async action({ argv, cli, console, terminal }) {
+	async action({ argv, cli, console, help, terminal }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { existsSync, isFile } = require('appcd-fs');
 		const { generateKeypair } = require('../lib/keypair');
@@ -68,6 +74,12 @@ export default {
 		};
 
 		if (!name) {
+			// if we do not have a TTY, then we can't prompt, so show the help
+			if (!terminal.stdout.isTTY) {
+				console.log(await help());
+				return;
+			}
+
 			({ name } = await doPrompt({
 				hint: 'A friendly name used for display',
 				message: 'Display name',
@@ -106,6 +118,10 @@ export default {
 		}
 
 		if (!secret && !publicKey) {
+			if (!terminal.stdout.isTTY) {
+				throw new Error('Missing required --secret <key> or --public-key <path>');
+			}
+
 			const { type } = await doPrompt({
 				choices: [
 					{ message: 'Auto-generated client secret key', value: 'auto' },
@@ -171,17 +187,16 @@ export default {
 		// validate the public key
 		if (publicKey) {
 			if (!existsSync(publicKey)) {
-				throw new Error(`Public key file "${publicKey} does not exist`);
+				throw new Error(`Public key ${publicKey} does not exist`);
 			}
 			if (!isFile(publicKey)) {
-				throw new Error(`Public key file "${publicKey}" is not a file`);
+				throw new Error(`Public key ${publicKey} is not a file`);
 			}
-			publicKey = readFileSync(publicKey, 'utf-8');
+			const publicKeyFile = publicKey;
+			publicKey = readFileSync(publicKeyFile, 'utf-8');
 			if (!publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
-				throw new Error(`Public key file "${publicKey}" is not a PEM formatted file`);
+				throw new Error(`Public key ${publicKeyFile} is not a PEM formatted file`);
 			}
-		} else if (!secret) {
-			throw new Error('Must specify a --secret or --public-key');
 		}
 
 		const results = await sdk.client.create(account, org, {

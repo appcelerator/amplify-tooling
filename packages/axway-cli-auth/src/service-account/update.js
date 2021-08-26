@@ -10,9 +10,12 @@ export default {
 	desc: 'Updates a service account',
 	help: {
 		header() {
-			return `Update service account information. Multiple values may be changed in a single
-call. Note that you cannot change a service account's authentication method
-from client secret to public key and vice versa.`;
+			return `
+Update service account information. Multiple values may be changed in a single
+call.
+
+You cannot change a service account's authentication method from client secret
+to public key and vice versa.`;
 		},
 		footer({ style }) {
 			return `${style.heading('Examples:')}

@@ -49,7 +49,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-sdk",
   "engines": {
-    "node": ">=10.19.0"
+    "node": ">=12.13.0"
   },
   "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
 }

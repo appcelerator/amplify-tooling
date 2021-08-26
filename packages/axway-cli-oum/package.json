@@ -32,7 +32,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-oum",
   "engines": {
-    "node": ">=10.19.0"
+    "node": ">=12.13.0"
   },
   "cli-kit": {
     "exports": {

@@ -1,0 +1,42 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Creates a service account. A service account requires a name and either a
+client secret key or a PEM formatted public key.
+
+If the service account name is not specified, then the command will
+interactively prompt for all values. If prompting is not available, then all
+required options must passed in at execution.
+
+USAGE: {{#cyan}}axway service-account create [options]{{/cyan}}
+
+CREATE OPTIONS:
+  {{#cyan}}--account [name]    {{/cyan}}  The platform account to use
+  {{#cyan}}--client-id [id]    {{/cyan}}  The service account client id
+  {{#cyan}}--desc [value]      {{/cyan}}  The description of the service account
+  {{#cyan}}--json              {{/cyan}}  Outputs result as JSON
+  {{#cyan}}--name [value]      {{/cyan}}  Friendly name to use for display
+  {{#cyan}}--org [name|id|guid]{{/cyan}}  The organization name, id, or guid
+  {{#cyan}}--public-key [path] {{/cyan}}  The path to the public key
+  {{#cyan}}--role [role]       {{/cyan}}  Assign one or more organization roles to the service account
+  {{#cyan}}--secret [key]      {{/cyan}}  A custom client secret key
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color          {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version
+
+EXAMPLES:
+
+  Create a service account and prompt for name, type, etc:
+    {{#cyan}}axway service-account create{{/cyan}}
+
+  Create a service account with a auto-generated client secret key:
+    {{#cyan}}axway service-account create --name foo{{/cyan}}
+
+  Create a service account with a custom client secret key:
+    {{#cyan}}axway service-account create --name foo --secret bar{{/cyan}}
+
+  Create a service account with a PEM formatted public key:
+    {{#cyan}}axway service-account create --name foo --public-key /path/to/public_key.pem{{/cyan}}

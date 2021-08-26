@@ -9,6 +9,11 @@ export default {
 	],
 	aliases: [ 'v', '!info', '!show' ],
 	desc: 'View service account details',
+	help: {
+		header() {
+			return `${this.desc}.`;
+		}
+	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
@@ -43,7 +48,7 @@ export default {
 		console.log(`  Name:         ${highlight(client.name)}`);
 		console.log(`  Client ID:    ${highlight(client.client_id)}`);
 		console.log(`  Description:  ${client.description ? highlight(client.description) : note('n/a')}`);
-		console.log(`  Date Created: ${highlight(new Date(client.created).toLocaleString())}`);
+		console.log(`  Date Created: ${client.created ? highlight(new Date(client.created).toLocaleString()) : note('n/a')}`);
 
 		console.log('\nAUTHENTICATION');
 		console.log(`  Method:       ${highlight(client.method)}`);
@@ -64,7 +69,7 @@ export default {
 				table.push([
 					`  ${name}`,
 					roles.join(', '),
-					desc || note('n/a'),
+					desc || '',
 					guid,
 					users?.length || 0,
 					apps?.length || 0,
