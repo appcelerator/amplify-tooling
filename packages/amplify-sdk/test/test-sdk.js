@@ -636,7 +636,7 @@ describe('amplify-sdk', () => {
 				await expect(sdk.client.update(account, 100, {
 					client: 'test_629e1705-9cd7-4db7-9dfe-08aa47b0f3ad',
 					publicKey: 'foo'
-				})).to.eventually.be.rejectedWith(TypeError, 'Expected public key to be PEM formatted');
+				})).to.eventually.be.rejectedWith(Error, 'Expected public key to be PEM formatted');
 			});
 
 			it('should error if secret is invalid', async function () {
