@@ -1,6 +1,10 @@
 # v3.0.0
 
+ * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
+   ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * refactor: Renamed package from `@axway/amplify-cli-auth` to `@axway/axway-cli-auth`.
+ * feat: Added `service-account` command with ability to create, update, and remove service
+   accounts.
 
 # v2.7.0 (Jul 30, 2021)
 

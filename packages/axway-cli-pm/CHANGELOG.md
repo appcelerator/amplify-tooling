@@ -1,5 +1,7 @@
-# v3.0.1
+# v4.0.0
 
+ * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
+   ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * fix: Fixed filtering package properties when outputting as JSON.
 
 # v3.0.0 (Jul 30, 2021)

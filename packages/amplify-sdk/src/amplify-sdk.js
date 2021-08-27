@@ -454,7 +454,7 @@ export default class AmplifySDK {
 						throw E.INVALID_ARGUMENT('Expected public key to be a string');
 					}
 					if (!opts.publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
-						throw E.INVALID_ARGUMENT('Expected public key to be PEM formatted');
+						throw new Error('Expected public key to be PEM formatted');
 					}
 					data.type = 'certificate';
 					data.publicKey = opts.publicKey;

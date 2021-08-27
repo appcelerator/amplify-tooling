@@ -1,0 +1,5 @@
+{
+	"rules": {
+		"node/no-unsupported-features/node-builtins": [ "warn", { "version": ">=12.13.0" } ]
+	}
+}

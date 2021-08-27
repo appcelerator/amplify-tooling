@@ -1,5 +1,8 @@
-# v1.2.1
+# v2.0.0
 
+ * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
+   ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
+ * refactor: Renamed `axway team add` command to `axway team create` and added `add` as an alias.
  * fix: Properly validate account name and error when a service account is specified.
    ([APIGOV-19678](https://jira.axway.com/browse/APIGOV-19678))
 

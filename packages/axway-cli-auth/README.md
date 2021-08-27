@@ -18,7 +18,7 @@ Log out of the Axway platform:
 
 	axway auth logout
 
-## Commands
+## Authentication Commands
 
 ### `list`
 
@@ -62,6 +62,70 @@ axway auth logout --all
 axway auth logout --all --json
 
 axway auth logout <ACCOUNT_NAME_1> <ACCOUNT_NAME_2>
+```
+
+## Service Account Commands
+
+### `list`
+
+List all service accounts for an organization:
+
+```
+axway service-account list
+
+axway service-account list --org <org-guid/name/id>
+```
+
+### `create`
+
+Create a service account with interactive prompting:
+
+```
+axway service-account create
+```
+
+Create a service account with minimum non-interactive arguments:
+
+```
+axway service-account create --name foo --secret bar
+```
+
+### `update`
+
+Change a service account name, description, and role:
+
+```
+axway service-account update <name/client-id> --name <new_name> --desc <desc> --role <role>
+```
+
+### `add-team` and `remove-team`
+
+Add a team to an existing service account:
+
+```
+axway service-account add-team <client-id/name> <team_guid> <team_role>
+```
+
+Remove a team from a service account:
+
+```
+axway service-account remove-team <client-id/name> <team_guid>
+```
+
+### `remove`
+
+Remove a service account:
+
+```
+axway service-account remove <client-id/name>
+```
+
+### `roles`
+
+View available team roles:
+
+```
+axway service-account roles
 ```
 
 ## Legal

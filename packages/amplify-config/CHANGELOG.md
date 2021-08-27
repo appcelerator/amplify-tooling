@@ -1,3 +1,8 @@
+# v4.0.0
+
+ * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
+   ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
+
 # v3.1.0 (Jul 30, 2021)
 
  * feat: Updated `config-kit` and `appcd-fs` to add support for applying parent directory
