@@ -24,7 +24,7 @@ export default {
 		}
 	},
 	options: {
-		'--force': 'Overwrite existing output files',
+		'--yes': 'Automatic yes to overwrite existing output files and run non-interactively',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs result as JSON'
@@ -37,7 +37,7 @@ export default {
 
 		const certs = await generateKeypair({
 			console,
-			force:      argv.force,
+			force:      argv.yes,
 			publicKey:  argv.publicKey,
 			privateKey: argv.privateKey,
 			silent:     argv.json || !terminal.stdout.isTTY
