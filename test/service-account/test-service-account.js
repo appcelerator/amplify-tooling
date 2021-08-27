@@ -12,7 +12,7 @@ import tmp from 'tmp';
 
 tmp.setGracefulCleanup();
 
-describe.only('axway service-account', () => {
+describe('axway service-account', () => {
 	describe('help', () => {
 		it('should output the help screen with color', async () => {
 			const { status, stdout } = await runAxwaySync([ 'service-account' ]);
@@ -460,7 +460,7 @@ describe.only('axway service-account', () => {
 		});
 	});
 
-	describe.only('add-team', () => {
+	describe('add-team', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
@@ -568,7 +568,7 @@ describe.only('axway service-account', () => {
 		afterEach(resetHomeDir);
 
 		it('should error if not authenticated', async () => {
-			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team', 'Test' ]);
+			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team', 'a', 'b' ]);
 			expect(status).to.equal(1);
 			expect(stderr.toString()).to.match(renderRegexFromFile('remove-team/not-authenticated'));
 		});
@@ -578,9 +578,29 @@ describe.only('axway service-account', () => {
 			this.servers = await startServers();
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
-			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team', 'Test', '--org', 'does_not_exist' ]);
+			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team', 'a', 'b', '--org', 'does_not_exist' ]);
 			expect(status).to.equal(1);
 			expect(stderr.toString()).to.match(renderRegexFromFile('remove-team/bad-org'));
+		});
+
+		it('should error if service account name not specified', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('remove-team/missing-id'));
+		});
+
+		it('should error if team not specified', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team', 'foo' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('remove-team/missing-team'));
 		});
 
 		it('should error if service account is not found', async function () {
@@ -588,13 +608,33 @@ describe.only('axway service-account', () => {
 			this.servers = await startServers();
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
-			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team', 'does_not_exist' ]);
+			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team', 'does_not_exist', 'foo' ]);
 			expect(status).to.equal(1);
-			expect(stderr.toString()).to.match(renderRegexFromFile('remove-team/not-found'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('remove-team/service-account-not-found'));
 		});
 
-		it('?', async function () {
-			//
+		it('should error if team not found', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			const { status, stderr } = await runAxwaySync([ 'service-account', 'remove-team', 'Test', 'foo' ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('remove-team/team-not-found'));
+		});
+
+		it('should remove a service account', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			let { status, stdout } = await runAxwaySync([ 'service-account', 'remove-team', 'Test', 'A Team' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(renderRegexFromFile('remove-team/success'));
+
+			({ stdout } = await runAxwaySync([ 'service-account', 'view', 'Test', '--json' ]));
+			const result = JSON.parse(stdout.toString());
+			expect(result.client.teams).to.have.lengthOf(0);
 		});
 
 		it('should output remove-team help', async () => {
@@ -634,7 +674,52 @@ describe.only('axway service-account', () => {
 			expect(stderr.toString()).to.match(renderRegexFromFile('update/not-found'));
 		});
 
-		// ????
+		it('should error if public key is invalid', async function () {
+			this.timeout(30000);
+			this.slow(15000);
+
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			let { status, stderr } = await runAxwaySync([ 'service-account', 'update', 'Test', '--public-key', path.join(__dirname, 'does_not_exist.pem') ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('update/public-key-not-found'));
+
+			({ status, stderr } = await runAxwaySync([ 'service-account', 'update', 'Test', '--public-key', __dirname ]));
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('update/public-key-not-a-file'));
+
+			({ status, stderr } = await runAxwaySync([ 'service-account', 'update', 'Test', '--public-key', path.join(__dirname, 'bad_key.pem') ]));
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('update/bad-public-key'));
+		});
+
+		it('should error if auth method is changed', async function () {
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			const { status, stderr } = await runAxwaySync([ 'service-account', 'update', 'Test', '--public-key', path.join(__dirname, 'public_key.pem') ]);
+			expect(status).to.equal(1);
+			expect(stderr.toString()).to.match(renderRegexFromFile('update/change-auth-method'));
+		});
+
+		it('should update a service account', async function () {
+			this.timeout(60000);
+			this.slow(30000);
+
+			initHomeDir('home-local');
+			this.servers = await startServers();
+			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+
+			let { status, stdout } = await runAxwaySync([ 'service-account', 'update', 'Test', '--name', 'Test2', '--desc', 'Test 2 is cool', '--role', '--secret', '123abc' ]);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(renderRegexFromFile('update/success'));
+
+			({ stdout } = await runAxwaySync([ 'service-account', 'view', 'Test2' ]));
+			expect(stdout.toString()).to.match(renderRegexFromFile('update/view-after'));
+		});
 
 		it('should output update help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'service-account', 'update', '--help' ]);

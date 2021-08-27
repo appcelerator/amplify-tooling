@@ -717,10 +717,10 @@ export default class AmplifySDK {
 						throw E.INVALID_ARGUMENT('Expected public key to be a string');
 					}
 					if (!opts.publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
-						throw E.INVALID_ARGUMENT('Expected public key to be PEM formatted');
+						throw new Error('Expected public key to be PEM formatted');
 					}
 					if (client.type !== 'certificate') {
-						throw E.INVALID_ARGUMENT(`Service account "${client.name}" uses auth type "${this.client.resolveType(client.type)}" and cannot be changed to "${this.client.resolveType('certificate')}"`);
+						throw new Error(`Service account "${client.name}" uses auth method "${this.client.resolveType(client.type)}" and cannot be changed to "${this.client.resolveType('certificate')}"`);
 					}
 					data.publicKey = opts.publicKey;
 				} else if (opts.secret) {
@@ -728,7 +728,7 @@ export default class AmplifySDK {
 						throw E.INVALID_ARGUMENT('Expected secret to be a string');
 					}
 					if (client.type !== 'secret') {
-						throw E.INVALID_ARGUMENT(`Service account "${client.name}" uses auth type "${this.client.resolveType(client.type)}" and cannot be changed to "${this.client.resolveType('secret')}"`);
+						throw new Error(`Service account "${client.name}" uses auth method "${this.client.resolveType(client.type)}" and cannot be changed to "${this.client.resolveType('secret')}"`);
 					}
 					data.secret = opts.secret;
 				}
@@ -1150,7 +1150,7 @@ export default class AmplifySDK {
 				}
 
 				if (!roles.length && !opts.requireRoles && !opts.requireDefaultRole) {
-					return;
+					return [];
 				}
 
 				const allowedRoles = await this.role.list(account, {
@@ -1395,7 +1395,7 @@ export default class AmplifySDK {
 									...orgUser,
 									name: `${orgUser.firstname} ${orgUser.lastname}`.trim(),
 									roles: user.roles,
-									type: user.type
+									type: user.type || 'user'
 								});
 							} else {
 								warn(`Unknown team user "${user.guid}"`);

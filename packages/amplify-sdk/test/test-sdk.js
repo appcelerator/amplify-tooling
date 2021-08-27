@@ -332,7 +332,7 @@ describe('amplify-sdk', () => {
 				const sdk = createSDK({ tokenStore });
 				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', publicKey: [] })).to.eventually.be.rejectedWith(TypeError, 'Expected public key to be a string');
 				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', publicKey: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected public key to be a string');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', publicKey: 'baz' })).to.eventually.be.rejectedWith(TypeError, 'Expected public key to be PEM formatted');
+				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', publicKey: 'baz' })).to.eventually.be.rejectedWith(Error, 'Expected public key to be PEM formatted');
 			});
 
 			it('should error if secret is invalid', async function () {
@@ -650,7 +650,7 @@ describe('amplify-sdk', () => {
 				})).to.eventually.be.rejectedWith(TypeError, 'Expected secret to be a string');
 			});
 
-			it('should error trying to change auth type', async function () {
+			it('should error trying to change auth method', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
@@ -658,7 +658,7 @@ describe('amplify-sdk', () => {
 				await expect(sdk.client.update(account, 100, {
 					client: 'test_629e1705-9cd7-4db7-9dfe-08aa47b0f3ad',
 					publicKey: fs.readFileSync(path.join(__dirname, 'resources', 'public_key.pem'), 'utf-8')
-				})).to.eventually.be.rejectedWith(Error, 'Service account "Test" uses auth type "Client Secret" and cannot be changed to "Client Certificate"');
+				})).to.eventually.be.rejectedWith(Error, 'Service account "Test" uses auth method "Client Secret" and cannot be changed to "Client Certificate"');
 			});
 		});
 	});
@@ -1599,9 +1599,11 @@ describe('amplify-sdk', () => {
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
+						name: 'Test1 Tester1',
 						phone: '555-5001',
 						roles: [ 'administrator' ],
-						primary: true
+						primary: true,
+						type: 'user'
 					});
 				});
 
@@ -1618,9 +1620,11 @@ describe('amplify-sdk', () => {
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
+						name: 'Test1 Tester1',
 						phone: '555-5001',
 						roles: [ 'administrator' ],
-						primary: true
+						primary: true,
+						type: 'user'
 					});
 				});
 
@@ -1656,9 +1660,11 @@ describe('amplify-sdk', () => {
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
+						name: 'Test2 Tester2',
 						phone: '555-5002',
 						roles: [ 'developer' ],
-						primary: true
+						primary: true,
+						type: 'user'
 					});
 
 					await expect(sdk.team.user.add(account, 100, '60000', 'test2@domain.com', [ 'developer' ])).to.eventually.be
@@ -1682,9 +1688,11 @@ describe('amplify-sdk', () => {
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
+						name: 'Test2 Tester2',
 						phone: '555-5002',
 						roles: [ 'developer' ],
-						primary: true
+						primary: true,
+						type: 'user'
 					});
 
 					await expect(sdk.team.user.add(account, 100, '60000', '50001', [ 'developer' ])).to.eventually.be
@@ -1731,9 +1739,11 @@ describe('amplify-sdk', () => {
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
+						name: 'Test1 Tester1',
 						phone: '555-5001',
 						roles: [ 'developer' ],
-						primary: true
+						primary: true,
+						type: 'user'
 					});
 				});
 

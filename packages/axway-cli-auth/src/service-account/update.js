@@ -72,19 +72,21 @@ to public key and vice versa.`;
 
 		if (argv.publicKey !== undefined) {
 			if (!existsSync(argv.publicKey)) {
-				throw new Error(`Public key file "${argv.publicKey} does not exist`);
+				throw new Error(`Public key ${argv.publicKey} does not exist`);
 			}
 			if (!isFile(argv.publicKey)) {
-				throw new Error(`Public key file "${argv.publicKey}" is not a file`);
+				throw new Error(`Public key ${argv.publicKey} is not a file`);
 			}
-			data.publicKey = readFileSync(argv.publicKey, 'utf-8');
+			const publicKeyFile = argv.publicKey;
+			data.publicKey = readFileSync(publicKeyFile, 'utf-8');
 			if (!data.publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
-				throw new Error(`Public key file "${argv.publicKey}" is not a PEM formatted file`);
+				throw new Error(`Public key ${publicKeyFile} is not a PEM formatted file`);
 			}
 		}
 
 		if (argv.role !== undefined) {
-			data.roles = argv.role;
+			// filter out all falsey/empty roles or `true`
+			data.roles = argv.role.filter(r => r && r !== true);
 		}
 
 		if (argv.secret !== undefined) {

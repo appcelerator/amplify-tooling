@@ -3,13 +3,13 @@ export default {
 		{
 			desc: 'The service account client id or name',
 			hint: 'client-id/name',
-			name: 'id',
+			name: 'client-id',
 			required: true
 		},
 		{
 			desc: 'The team name or guid',
 			hint: 'team-guid/name',
-			name: 'guid',
+			name: 'team-guid',
 			required: true
 		}
 	],
@@ -36,8 +36,8 @@ export default {
 		}
 
 		// get the service account and team
-		const { client: existing } = await sdk.client.find(account, org, argv.id);
-		const { team } = await sdk.team.find(account, org, argv.guid);
+		const { client: existing } = await sdk.client.find(account, org, argv.clientId);
+		const { team } = await sdk.team.find(account, org, argv.teamGuid);
 
 		// add the team to the existing list of teams
 		const teams = (existing.teams || [])

@@ -164,15 +164,36 @@ export function createPlatformRoutes(server, opts = {}) {
 			}
 
 			if (ctx.request.body.teams) {
+				const existingTeams = data.teams.filter(t => t.users.find(u => u.guid === result.guid))
+
 				for (const team of ctx.request.body.teams) {
-					const info = data.teams.find(t => t.guid === team.guid);
-					if (info) {
-						if (!info.users.find(u => u.guid === result.guid)) {
-							info.users.push({
-								guid: result.guid,
-								type: 'client',
-								roles: team.roles
-							});
+					const existingTeam = data.teams.find(t => t.guid === team.guid);
+					if (!existingTeam) {
+						// this should never happen
+						continue;
+					}
+
+					let existingUser = existingTeam.users.find(u => u.guid === result.guid);
+					if (!existingUser) {
+						// add team
+						existingTeam.users.push({
+							guid: result.guid,
+							type: 'client',
+							roles: team.roles
+						});
+					} else {
+						// team already added, remove from existingTeams
+						const idx = existingTeams.findIndex(t => t.guid === team.guid);
+						if (idx !== -1) {
+							existingTeams.splice(idx, 1);
+						}
+					}
+				}
+
+				for (const team of existingTeams) {
+					for (let i = 0; i < team.users.length; i++) {
+						if (team.users[i].guid === result.guid) {
+							team.users.splice(i--, 1);
 						}
 					}
 				}
@@ -190,17 +211,17 @@ export function createPlatformRoutes(server, opts = {}) {
 		if (idx !== -1) {
 			const result = data.clients[idx];
 
-			for (let i = 0; i < data.users.length; i++) {
-				if (data.users[i].guid === result.guid) {
-					data.users.splice(i--, 1);
-				}
-			}
-
 			for (const team of data.teams) {
 				for (let i = 0; i < team.users.length; i++) {
 					if (team.users[i].guid === result.guid) {
 						team.users.splice(i--, 1);
 					}
+				}
+			}
+
+			for (let i = 0; i < data.users.length; i++) {
+				if (data.users[i].guid === result.guid) {
+					data.users.splice(i--, 1);
 				}
 			}
 
