@@ -22,6 +22,10 @@ AUTHENTICATION:
 
     ${cyan('axway auth login')}
 
+  To create a service account, run:
+
+    ${cyan('axway service-account create')}
+
 PACKAGES:
 
   The Axway CLI package manager allows you to search, view, install, update,

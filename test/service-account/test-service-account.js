@@ -166,7 +166,7 @@ describe('axway service-account', () => {
 				'--public-key', publicKeyFile,
 				'--private-key', privateKeyFile,
 				'--json',
-				'--force'
+				'--yes'
 			]));
 
 			expect(status).to.equal(0);

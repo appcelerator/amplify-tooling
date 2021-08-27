@@ -4,6 +4,9 @@
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+ * fix: Only error out when config file is bad when running a config command.
+ * style: Fixed indentation of error messages.
+ * doc: Fixed Axway CLI documentation URL in post install message.
 
 # v2.2.0 (Jul 30, 2021)
 

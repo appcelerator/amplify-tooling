@@ -24,7 +24,7 @@
     "prepare": "gulp build",
     "test": "gulp test"
   },
-  "todo": {
+  "move this to dependencies once it's been published, then publish THIS package": {
     "@axway/axway-cli-auth": "^3.0.0"
   },
   "dependencies": {

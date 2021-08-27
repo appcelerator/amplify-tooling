@@ -8,7 +8,6 @@ import boxen from 'boxen';
 import check from 'check-kit';
 import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
-import path from 'path';
 import snooplogg from 'snooplogg';
 import { ansi } from 'cli-kit';
 import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request';

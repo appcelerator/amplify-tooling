@@ -144,7 +144,8 @@ export default class TokenStore {
 	 * @param {Object} params - Various parameters.
 	 * @param {String} params.accountName - The account name to get.
 	 * @param {String} [params.baseUrl] - The base URL used to filter accounts.
-	 * @param {string} params.hash - ?
+	 * @param {string} params.hash - The authenticator hash derived from the client id, base url,
+	 * realm, and authentication parameters.
 	 * @returns {Promise} Resolves the token or `undefined` if not set.
 	 * @access public
 	 */

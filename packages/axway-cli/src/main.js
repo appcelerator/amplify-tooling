@@ -4,8 +4,9 @@ if (!Error.prepareStackTrace) {
 }
 
 import check from 'check-kit';
-import CLI, { chalk } from 'cli-kit';
+import CLI from 'cli-kit';
 import {
+	Config,
 	createRequestOptions,
 	createTable,
 	hlVer,
@@ -13,12 +14,14 @@ import {
 	locations,
 	telemetry
 } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
 import { dirname, join, parse, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { redact } from 'appcd-util';
 import { serializeError } from 'serialize-error';
 
-const { bold, cyan, gray, red, yellow } = chalk;
+const { bold, cyan, gray, red, yellow } = snooplogg.styles;
+const { warn } = snooplogg('axway');
 
 (async () => {
 	const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
@@ -26,7 +29,14 @@ const { bold, cyan, gray, red, yellow } = chalk;
 	process.env.AMPLIFY_CLI = version;
 	process.env.AXWAY_CLI = version;
 
-	const cfg = loadConfig();
+	let cfg;
+	try {
+		cfg = loadConfig();
+	} catch (err) {
+		// config failed to load, reset to defaults
+		warn(err);
+		cfg = new Config();
+	}
 
 	const externalExtensions = Object.entries(cfg.get('extensions', {}));
 	const allExtensions = [ ...externalExtensions ];

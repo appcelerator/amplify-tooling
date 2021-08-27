@@ -4,6 +4,9 @@
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+ * feat: Added options to filter available roles by `client`, `default`, and `org`.
+ * fix: Removed redundant platform account and team assertions.
+ * chore: Updated dependencies.
 
 # v2.2.0 (Jul 30, 2021)
 

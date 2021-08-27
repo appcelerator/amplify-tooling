@@ -2,7 +2,10 @@
 
  * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
- * fix: Fixed filtering package properties when outputting as JSON.
+ * refactor: Removed `bin` from package.
+ * fix(view): Fixed filtering package properties when outputting as JSON.
+ * doc: Added additional information to `axway pm` help output.
+ * chore: Updated dependencies.
 
 # v3.0.0 (Jul 30, 2021)
 
