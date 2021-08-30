@@ -41,8 +41,8 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount, formatDate } = require('../lib/util');
-		const { createTable } = require('@axway/amplify-cli-utils');
+		const { formatDate } = require('../lib/util');
+		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 		const { bundle, from, to, usage } = await sdk.org.usage(account, org, argv);
 		const orgEnvs = await sdk.org.environments(account);

@@ -5,24 +5,25 @@ export default {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs roles as JSON'
-		}
+		},
+		'--org [name|id|guid]': 'The organization name, id, or guid; roles vary by org'
 	},
 	async action({ argv, console }) {
-		const { createTable } = require('@axway/amplify-cli-utils');
-		const { initPlatformAccount } = require('../../lib/util');
-		let { account, sdk } = await initPlatformAccount(argv.account);
-		const roles = (await sdk.role.list(account)).filter(r => r.org);
+		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const roles = (await sdk.role.list(account, { org }));
 
 		if (argv.json) {
 			console.log(JSON.stringify({
 				account: account.name,
+				org,
 				roles
 			}, null, 2));
 			return;
 		}
 
 		const { default: snooplogg } = require('snooplogg');
-		const { highlight } = snooplogg.styles;
+		const { highlight, note } = snooplogg.styles;
 		const platformRoles = createTable([ '  Role', 'Description' ]);
 		const additionalRoles = createTable([ '  Role', 'Description', 'Product' ]);
 
@@ -34,12 +35,15 @@ export default {
 			}
 		}
 
-		console.log(`Account: ${highlight(account.name)}\n`);
+		console.log(`Account:      ${highlight(account.name)}`);
+		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		console.log('PLATFORM ROLES');
 		console.log(platformRoles.toString());
 
-		console.log('\nPRODUCT SPECIFIC ROLES');
-		console.log(additionalRoles.toString());
+		if (additionalRoles.length) {
+			console.log('\nPRODUCT SPECIFIC ROLES');
+			console.log(additionalRoles.toString());
+		}
 	}
 };

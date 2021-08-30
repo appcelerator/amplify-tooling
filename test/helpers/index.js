@@ -46,6 +46,7 @@ const defaultVars = {
 	versionWithColor: '(?:(?:\u001b\\[\\d\\dm)?\\d+(?:\\.(?:\u001b\\[\\d\\dm)?\\d+){2}(?:-[^\\s]*)?(?:\u001b\\[39m)?\\s*)',
 	whitespace: ' *',
 	x: process.platform === 'win32' ? 'x' : '✖',
+	uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
 	year: (new Date()).getFullYear()
 };
 for (const fn of [ 'bold', 'blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'yellow' ]) {

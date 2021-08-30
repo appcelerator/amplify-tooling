@@ -15,8 +15,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { createTable } = require('@axway/amplify-cli-utils');
-		const { initPlatformAccount } = require('../lib/util');
+		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, org } = await initPlatformAccount(argv.account, argv.org);
 
 		if (argv.json) {
@@ -44,21 +43,23 @@ export default {
 			console.log(`  Insight Users: ${highlight(`${org.insightUserCount} user${org.insightUserCount !== 1 ? 's' : ''}`)}`);
 		}
 
-		if (org.teams.length) {
-			const table = createTable([ '  Name', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
-			const check = process.platform === 'win32' ? '√' : '✔';
-			for (const { apps, created, default: def, desc, guid, name, users } of org.teams) {
-				table.push([
-					def ? green(`  ${check} ${name}`) : `    ${name}`,
-					desc || note('n/a'),
-					guid,
-					users.length,
-					apps.length,
-					new Date(created).toLocaleDateString()
-				]);
-			}
-			console.log('\nTEAMS');
-			console.log(table.toString());
+		const teams = createTable([ '  Name', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
+		const check = process.platform === 'win32' ? '√' : '✔';
+		for (const { apps, created, default: def, desc, guid, name, users } of org.teams) {
+			teams.push([
+				def ? green(`  ${check} ${name}`) : `    ${name}`,
+				desc || note('n/a'),
+				guid,
+				users.length,
+				apps.length,
+				new Date(created).toLocaleDateString()
+			]);
+		}
+		console.log('\nTEAMS');
+		if (teams.length) {
+			console.log(teams.toString());
+		} else {
+			console.log('  No teams found');
 		}
 
 		if (Array.isArray(org.subscriptions) && org.subscriptions.length) {

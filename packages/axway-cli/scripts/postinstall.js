@@ -14,13 +14,17 @@ GETTING HELP:
 
   Visit the documentation for configuration and troubleshooting help:
 
-    ${cyan('https://docs.axway.com/bundle/Axway_CLI_allOS_en/page/axway_cli.html')}
+    ${cyan('https://docs.axway.com/bundle/axwaycli-open-docs/page/docs/index.html')}
 
 AUTHENTICATION:
 
   To log into the AMPLIFY Platform, run:
 
     ${cyan('axway auth login')}
+
+  To create a service account, run:
+
+    ${cyan('axway service-account create')}
 
 PACKAGES:
 

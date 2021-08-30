@@ -80,6 +80,7 @@ describe('axway org', () => {
 						"teams": [
 							{
 								"name": "A Team",
+								"created": "2021-02-14T15:30:00.000Z",
 								"guid": "60000",
 								"default": true,
 								"tags": [],
@@ -89,7 +90,15 @@ describe('axway org', () => {
 										"guid": "50000",
 										"roles": [
 											"administrator"
-										]
+										],
+										"type": "user"
+									},
+									{
+										"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad",
+										"roles": [
+											"developer"
+										],
+										"type": "client"
 									}
 								]
 							}

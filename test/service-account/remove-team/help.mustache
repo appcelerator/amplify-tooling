@@ -1,0 +1,21 @@
+{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+
+Remove a team from a service account.
+
+USAGE: {{#cyan}}axway service-account remove-team <client-id/name> <team-guid/name> [options]{{/cyan}}
+
+REMOVE-TEAM ARGUMENTS:
+  {{#cyan}}id                  {{/cyan}}  The service account client id or name
+  {{#cyan}}guid                {{/cyan}}  The team name or guid
+
+REMOVE-TEAM OPTIONS:
+  {{#cyan}}--account [name]    {{/cyan}}  The platform account to use
+  {{#cyan}}--json              {{/cyan}}  Outputs the result as JSON
+  {{#cyan}}--org [name|id|guid]{{/cyan}}  The organization name, id, or guid
+
+GLOBAL OPTIONS:
+  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
+  {{#cyan}}--no-color          {{/cyan}}  Disable colors
+  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
+  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version

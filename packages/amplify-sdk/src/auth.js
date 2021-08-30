@@ -178,7 +178,7 @@ export default class Auth {
 	}
 
 	/**
-	 * Creates an authetnicator based on the supplied options.
+	 * Creates an authenticator based on the supplied options.
 	 *
 	 * @param {Object} [opts] - Various options.
 	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
@@ -221,8 +221,20 @@ export default class Auth {
 	}
 
 	/**
-	 * Retrieves the access token. If the authenticator is interactive and the authenticator has not
-	 * yet authenticated with the server, an error is thrown.
+	 * Finds an authenticated account using either the account name or the authentication
+	 * parameters used to authenticate.
+	 *
+	 * This method is called by the AmplifySDK's `auth.login()` which uses the auth params
+	 * (baseUrl, clientId, realm, plus authenticator specific data) to generate a unique hash which
+	 * is then used to find an authenticated account. This is helpful to detect if you've already
+	 * authenticated.
+	 *
+	 * It's important to note that the login command's `--client-id` takes on a different meaning
+	 * compared to other commands. The login command will use the client id to generate the unique
+	 * authenticator hash. This means that any command other, specifically ones like the
+	 * `service-account` command, that have also have a `--client-id`, must operate against a known
+	 * account name and NOT use their `--client-id` for the auth params that generates the unique
+	 * authenticator hash.
 	 *
 	 * @param {Object|String} opts - Required options or a string containing the hash or account
 	 * name.

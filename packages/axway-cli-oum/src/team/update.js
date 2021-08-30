@@ -1,4 +1,5 @@
 export default {
+	aliases: [ '!up' ],
 	args: [
 		{
 			name: 'org',
@@ -51,7 +52,7 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const { initPlatformAccount } = require('../lib/util');
+		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 
 		if (!org.userRoles.includes('administrator')) {

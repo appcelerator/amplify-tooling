@@ -24,15 +24,17 @@
     "prepare": "gulp build",
     "test": "gulp test"
   },
+  "move this to dependencies once it's been published, then publish THIS package": {
+    "@axway/axway-cli-auth": "^3.0.0"
+  },
   "dependencies": {
-    "@axway/amplify-cli-auth": "^2.7.0",
     "@axway/amplify-cli-utils": "^4.4.0",
     "@axway/axway-cli-oum": "^1.2.0",
     "@axway/axway-cli-pm": "^3.0.0",
     "appcd-util": "^3.1.6",
     "boxen": "^5.0.1",
     "check-kit": "^1.2.1",
-    "cli-kit": "^1.14.0",
+    "cli-kit": "^1.14.1",
     "serialize-error": "^8.1.0",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19",
@@ -45,7 +47,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli",
   "engines": {
-    "node": ">=10.19.0"
+    "node": ">=12.13.0"
   },
   "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
 }

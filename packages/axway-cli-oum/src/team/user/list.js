@@ -21,7 +21,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount } = require('../../lib/util');
+		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
 		const { team } = await sdk.team.find(account, org, argv.team);
 
@@ -54,11 +54,12 @@ export default {
 		}
 
 		const { createTable } = require('@axway/amplify-cli-utils');
-		const table = createTable([ 'User', 'Email', 'GUID', 'Teams', 'Roles' ]);
+		const table = createTable([ 'Name', 'Type', 'Email', 'GUID', 'Teams', 'Roles' ]);
 
-		for (const { email, guid, name, roles, teams } of users) {
+		for (const { email, guid, name, roles, teams, type } of users) {
 			table.push([
 				name,
+				type === 'client' ? 'Service' : type === 'user' ? 'User' : type,
 				email,
 				guid,
 				teams,

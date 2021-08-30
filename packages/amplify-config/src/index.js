@@ -43,12 +43,10 @@ export function loadConfig(opts = {}) {
 		writeFileSync(configFile, JSON.stringify(json, null, 2));
 	}
 
-	const cfg = new Config({
+	return new Config({
 		data: opts.config,
 		file: expandPath(opts.configFile || configFile)
 	});
-
-	return cfg;
 }
 
 export default loadConfig;

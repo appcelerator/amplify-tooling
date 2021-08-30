@@ -39,7 +39,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@koa/router": "^10.1.0",
+    "@koa/router": "^10.1.1",
     "appcd-gulp": "^3.2.0",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
@@ -49,7 +49,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-sdk",
   "engines": {
-    "node": ">=10.19.0"
+    "node": ">=12.13.0"
   },
   "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
 }

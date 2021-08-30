@@ -11,10 +11,6 @@
     "axway",
     "amplify"
   ],
-  "bin": {
-    "amplify-cli-auth": "./bin/axway-cli-oum"
-  },
-  "main": "./dist/main",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -24,7 +20,7 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^4.4.0",
-    "cli-kit": "^1.14.0",
+    "cli-kit": "^1.14.1",
     "open": "^7.4.2",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.19"
@@ -36,21 +32,21 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-oum",
   "engines": {
-    "node": ">=10.19.0"
+    "node": ">=12.13.0"
   },
   "cli-kit": {
     "exports": {
       "org": {
         "desc": "Manage Amplify platform organizations",
-        "main": "./dist/org"
+        "main": "./dist/org/index.js"
       },
       "team": {
         "desc": "Manage Amplify organization teams",
-        "main": "./dist/team"
+        "main": "./dist/team/index.js"
       },
       "user": {
         "desc": "Manage your user settings",
-        "main": "./dist/user"
+        "main": "./dist/user/index.js"
       }
     }
   },

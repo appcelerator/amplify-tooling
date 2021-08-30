@@ -4,8 +4,9 @@ if (!Error.prepareStackTrace) {
 }
 
 import check from 'check-kit';
-import CLI, { chalk } from 'cli-kit';
+import CLI from 'cli-kit';
 import {
+	Config,
 	createRequestOptions,
 	createTable,
 	hlVer,
@@ -13,12 +14,14 @@ import {
 	locations,
 	telemetry
 } from '@axway/amplify-cli-utils';
-import { dirname, join, resolve } from 'path';
+import snooplogg from 'snooplogg';
+import { dirname, join, parse, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { redact } from 'appcd-util';
 import { serializeError } from 'serialize-error';
 
-const { bold, cyan, gray, red, yellow } = chalk;
+const { bold, cyan, gray, red, yellow } = snooplogg.styles;
+const { warn } = snooplogg('axway');
 
 (async () => {
 	const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
@@ -26,12 +29,28 @@ const { bold, cyan, gray, red, yellow } = chalk;
 	process.env.AMPLIFY_CLI = version;
 	process.env.AXWAY_CLI = version;
 
-	const cfg = loadConfig();
+	let cfg;
+	try {
+		cfg = loadConfig();
+	} catch (err) {
+		// config failed to load, reset to defaults
+		warn(err);
+		cfg = new Config();
+	}
 
 	const externalExtensions = Object.entries(cfg.get('extensions', {}));
 	const allExtensions = [ ...externalExtensions ];
-	for (const name of [ '@axway/amplify-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
-		allExtensions.push([ name, dirname(dirname(require.resolve(name))) ]);
+	for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
+		let { dir, root } = parse(__dirname);
+		while (dir !== root) {
+			const packageDir = resolve(dir, 'node_modules', name);
+			const pkgJson = join(packageDir, 'package.json');
+			if (existsSync(pkgJson)) {
+				allExtensions.push([ name, packageDir ]);
+				break;
+			}
+			dir = dirname(dir);
+		}
 	}
 
 	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
@@ -230,12 +249,12 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 			const msg = `${process.platform === 'win32' ? 'x' : '✖'} ${err}`;
 			for (let line of msg.split(/\r\n|\n/)) {
 				line = line.trim();
-				console.error(line ? red(`  ${line}`) : '');
+				console.error(line ? red(line) : '');
 			}
 			if (err.detail) {
 				console.error('');
 				for (const line of String(err.detail).split(/\r\n|\n/)) {
-					console.error(red(`  ${line}`));
+					console.error(red(line));
 				}
 			}
 		}

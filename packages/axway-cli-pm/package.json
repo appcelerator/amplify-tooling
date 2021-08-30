@@ -11,10 +11,6 @@
     "axway",
     "amplify"
   ],
-  "bin": {
-    "axway-cli-pm": "./bin/axway-cli-pm"
-  },
-  "main": "./dist/main",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -25,7 +21,7 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^4.4.0",
     "appcd-fs": "^2.1.2",
-    "cli-kit": "^1.14.0",
+    "cli-kit": "^1.14.1",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^9.1.0",
     "libnpmsearch": "^3.1.2",
@@ -46,10 +42,10 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-pm",
   "engines": {
-    "node": ">=10.19.0"
+    "node": ">=12.13.0"
   },
   "cli-kit": {
-    "main": "./dist/cli",
+    "main": "./dist/index.js",
     "name": "pm"
   },
   "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"

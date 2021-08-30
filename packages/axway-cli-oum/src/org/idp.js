@@ -10,8 +10,7 @@ export default {
 		'--account [name]': 'The account to use'
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount } = require('../lib/util');
-		const { isHeadless } = require('@axway/amplify-cli-utils');
+		const { initPlatformAccount, isHeadless } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight } = snooplogg.styles;
 		const { org, sdk } = await initPlatformAccount(argv.account, argv.org);
