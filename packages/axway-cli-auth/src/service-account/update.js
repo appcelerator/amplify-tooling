@@ -7,7 +7,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Updates a service account',
+	desc: 'Update a service account',
 	help: {
 		header() {
 			return `

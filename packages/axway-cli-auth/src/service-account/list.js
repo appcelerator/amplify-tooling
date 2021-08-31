@@ -1,6 +1,6 @@
 export default {
 	aliases: [ 'ls' ],
-	desc: 'Lists all service accounts',
+	desc: 'List all service accounts',
 	help: {
 		header() {
 			return `${this.desc}.`;

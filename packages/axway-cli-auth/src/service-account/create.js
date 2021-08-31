@@ -1,15 +1,19 @@
 export default {
 	aliases: [ '!add', '!new' ],
-	desc: 'Creates a service account',
+	desc: 'Create a service account',
 	help: {
 		header() {
 			return `
 Creates a service account. A service account requires a name and either a
 client secret key or a PEM formatted public key.
 
+The client id defaults to the specified service account name plus a uuid. You
+can override this and specify your own client id, however the client id cannot
+begin with "AASA", "CASA", "DOSA", or "MASA".
+
 If the service account name is not specified, then the command will
 interactively prompt for all values. If prompting is not available, then all
-required options must passed in at execution.`;
+required options must be passed in at execution.`;
 		},
 		footer({ style }) {
 			return `${style.heading('Examples:')}

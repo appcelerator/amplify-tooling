@@ -8,7 +8,7 @@ export default {
 			required: true
 		}
 	],
-	desc: 'Removes a service account',
+	desc: 'Remove a service account',
 	help: {
 		header() {
 			return `${this.desc}.`;
