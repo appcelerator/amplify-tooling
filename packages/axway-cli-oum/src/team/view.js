@@ -22,7 +22,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const { team } = await sdk.team.find(account, org, argv.team);
 
 		if (argv.json) {

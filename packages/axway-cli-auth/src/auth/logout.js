@@ -35,10 +35,13 @@ export default {
 		});
 		const revoked = await sdk.auth.logout({
 			...argv,
-			onOpenBrowser() {
-				if (isHeadless()) {
-					console.log(warning(' ┃ Logging out of a platform account requires a web browser and is unsupported'));
-					console.log(warning(' ┃ in headless environments.\n'));
+			onOpenBrowser({ url }) {
+				if (!argv.json) {
+					console.log(`Launching default web browser: ${highlight(url)}`);
+					if (isHeadless()) {
+						console.log(warning(' ┃ Logging out of a platform account requires a web browser and is unsupported'));
+						console.log(warning(' ┃ in headless environments.\n'));
+					}
 				}
 			}
 		});

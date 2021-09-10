@@ -308,7 +308,7 @@ describe('axway auth', () => {
 			expect(accounts).to.have.lengthOf(0);
 		});
 
-		itSkipHeadless('should logout of platform account and return result as JSON', async function () {
+		it('should logout of platform account and return result as JSON', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 

@@ -47,7 +47,6 @@ export default {
 	name: 'axway-cli-auth',
 	options: {
 		'--base-url [url]': { hidden: true, redact: false },
-		'--env [name]':     { hidden: true, redact: false },
 		'--realm [realm]':  { hidden: true, redact: false }
 	}
 };

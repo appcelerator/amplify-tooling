@@ -180,7 +180,7 @@ export function createTable(head, indent = 0) {
  *   config.get(`${getAuthConfigEnvDefaultSpecifier(sdk.env.name)}.defaultAccount`);
  */
 export function getAuthConfigEnvDefaultSpecifier(env) {
-	return !env || env === 'production' ? 'auth.' : `auth.env.${env}`;
+	return !env || env === 'prod' ? 'auth' : `auth.environment.${env}`;
 }
 
 /**
@@ -233,10 +233,11 @@ export function hlVer(toVer, fromVer) {
  *
  * @param {String} [accountName] - The name of the platform account to use.
  * @param {String} [org] - The name, id, or guid of the default organization.
+ * @param {String} [env] - The environment name.
  * @returns {Promise<Object>}
  */
-export async function initPlatformAccount(accountName, org) {
-	const { config, sdk } = initSDK();
+export async function initPlatformAccount(accountName, org, env) {
+	const { config, sdk } = initSDK({ env });
 	const authConfigEnvDefaultSpecifier = getAuthConfigEnvDefaultSpecifier(sdk.env.name);
 	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvDefaultSpecifier}.defaultAccount`));
 
