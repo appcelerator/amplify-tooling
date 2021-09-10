@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-auth",
-  "version": "2.7.0",
+  "version": "3.0.0-beta3",
   "description": "Authenticate machines with the Axway Amplify platform",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -20,7 +20,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^4.4.0",
+    "@axway/amplify-cli-utils": "^5.0.0-beta3",
     "appcd-fs": "^2.1.2",
     "cli-kit": "^1.14.1",
     "enquirer": "^2.3.6",
@@ -45,7 +45,9 @@
         "main": "./dist/auth/index.js"
       },
       "service-account": {
-        "aliases": [ "!serviceaccount" ],
+        "aliases": [
+          "!serviceaccount"
+        ],
         "desc": "Create and manage service accounts",
         "main": "./dist/service-account/index.js"
       }
