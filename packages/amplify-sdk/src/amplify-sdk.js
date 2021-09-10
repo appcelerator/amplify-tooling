@@ -1052,11 +1052,33 @@ export default class AmplifySDK {
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 			 * @param {Object} [params] - Various parameters.
 			 * @param {String} [params.from] - The start date in ISO format.
+			 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
+			 * `from`. If `true`, uses current month.
 			 * @param {String} [params.to] - The end date in ISO format.
 			 * @returns {Promise<Object>}
 			 */
 			usage: async (account, org, params = {}) => {
 				const { id } = this.resolveOrg(account, org);
+
+				if (params.month) {
+					const now = new Date();
+					const year = now.getUTCFullYear();
+					const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+					if (params.month === true) {
+						params.from = `${year}-${month}-01`;
+						params.to = `${year}-${month}-xx`;
+					} else {
+						if (typeof params.month !== 'string') {
+							throw E.INVALID_ARGUMENT('Expected month to be in the format YYYY-MM or MM');
+						}
+						const m = params.month.match(/^(?:(\d{4})-)?(\d{2})$/);
+						if (!m) {
+							throw E.INVALID_ARGUMENT('Expected month to be in the format YYYY-MM or MM');
+						}
+						// yyyy-mm or mm?
+					}
+				}
+
 				const { from, to } = resolveDateRange(params.from, params.to);
 
 				let url = `/api/v1/org/${id}/usage`;

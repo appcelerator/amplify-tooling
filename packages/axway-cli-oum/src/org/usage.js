@@ -35,6 +35,10 @@ export default {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs the usage as JSON'
 		},
+		'--month [mm|yyyy-mm]': {
+			desc: 'A month date range; overrides --to and --from',
+			redact: false
+		},
 		'--to [yyyy-mm-dd]': {
 			desc: 'The end date',
 			redact: false
