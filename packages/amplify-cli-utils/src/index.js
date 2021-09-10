@@ -177,9 +177,9 @@ export function createTable(head, indent = 0) {
  * @returns {String}
  *
  * @example
- *   config.get(`${getAuthConfigEnvDefaultSpecifier(sdk.env.name)}.defaultAccount`);
+ *   config.get(`${getAuthConfigEnvSpecifier(sdk.env.name)}.defaultAccount`);
  */
-export function getAuthConfigEnvDefaultSpecifier(env) {
+export function getAuthConfigEnvSpecifier(env) {
 	return !env || env === 'prod' ? 'auth' : `auth.environment.${env}`;
 }
 
@@ -238,8 +238,8 @@ export function hlVer(toVer, fromVer) {
  */
 export async function initPlatformAccount(accountName, org, env) {
 	const { config, sdk } = initSDK({ env });
-	const authConfigEnvDefaultSpecifier = getAuthConfigEnvDefaultSpecifier(sdk.env.name);
-	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvDefaultSpecifier}.defaultAccount`));
+	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
+	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvSpecifier}.defaultAccount`));
 
 	if (accountName) {
 		if (!account) {
@@ -256,7 +256,7 @@ export async function initPlatformAccount(accountName, org, env) {
 	} else {
 		try {
 			// check the config for a default org for this account
-			org = await sdk.org.find(account, config.get(`${authConfigEnvDefaultSpecifier}.defaultOrg.${account.hash}`));
+			org = await sdk.org.find(account, config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
 		} catch (err) {
 			// default org was stale, auto detect the default from the account orgs
 			org = await sdk.org.find(account);

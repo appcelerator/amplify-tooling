@@ -9,7 +9,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { createTable, getAuthConfigEnvDefaultSpecifier, initSDK } = require('@axway/amplify-cli-utils');
+		const { createTable, getAuthConfigEnvSpecifier, initSDK } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 
 		const { config, sdk } = initSDK({
@@ -21,7 +21,7 @@ export default {
 		const accounts = await sdk.auth.list();
 		for (const account of accounts) {
 			if (account.auth.env === sdk.env.name) {
-				account.default = account.name === config.get(`${getAuthConfigEnvDefaultSpecifier(account.auth.env)}.defaultAccount`);
+				account.default = account.name === config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultAccount`);
 			}
 		}
 
@@ -43,7 +43,6 @@ export default {
 
 		for (const { default: def, auth, isPlatform, name, org } of accounts) {
 			const { access, refresh } = auth.expires;
-
 			table.push([
 				`${def ? green(`${check} ${name}`) : `  ${name}`}`,
 				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,

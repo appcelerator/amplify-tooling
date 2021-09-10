@@ -54,7 +54,7 @@ export default {
 	],
 	async action({ argv, cli, console }) {
 		const { default: snooplogg } = require('snooplogg');
-		const { getAuthConfigEnvDefaultSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
+		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
 		const { prompt } = require('enquirer');
 
 		// prompt for the username and password
@@ -108,7 +108,7 @@ export default {
 			serviceAccount: !!argv.clientSecret
 		});
 		let account;
-		const authConfigEnvDefaultSpecifier = getAuthConfigEnvDefaultSpecifier(sdk.env.name);
+		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		const { highlight } = snooplogg.styles;
 
 		// perform the login
@@ -149,7 +149,7 @@ export default {
 			if (err.code === 'EAUTHENTICATED') {
 				({ account } = err);
 				if (argv.json) {
-					account.default = config.get(`${authConfigEnvDefaultSpecifier}.defaultAccount`) === account.name;
+					account.default = config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name;
 					console.log(JSON.stringify(account, null, 2));
 				} else if (account.isPlatform && account.org?.name) {
 					console.log(`You are already logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
@@ -165,11 +165,11 @@ export default {
 		// determine if the account is the default
 		const accounts = await sdk.auth.list();
 		if (accounts.length === 1) {
-			config.set(`${authConfigEnvDefaultSpecifier}.defaultAccount`, account.name);
-			config.set(`${authConfigEnvDefaultSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
+			config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
+			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
 			config.save();
 			account.default = true;
-		} else if (config.get(`${authConfigEnvDefaultSpecifier}.defaultAccount`) === account.name) {
+		} else if (config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name) {
 			account.default = true;
 		} else {
 			account.default = false;
@@ -193,7 +193,7 @@ export default {
 			console.log('This account has been set as the default.');
 		} else {
 			console.log('\nTo make this account the default, run:');
-			console.log(`  ${highlight(`axway config set ${authConfigEnvDefaultSpecifier}.defaultAccount ${account.name}`)}`);
+			console.log(`  ${highlight(`axway config set ${authConfigEnvSpecifier}.defaultAccount ${account.name}`)}`);
 		}
 	}
 };
