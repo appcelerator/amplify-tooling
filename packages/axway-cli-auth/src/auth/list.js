@@ -20,9 +20,7 @@ export default {
 
 		const accounts = await sdk.auth.list();
 		for (const account of accounts) {
-			if (account.auth.env === sdk.env.name) {
-				account.default = account.name === config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultAccount`);
-			}
+			account.default = account.name === config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultAccount`);
 		}
 
 		if (argv.json) {

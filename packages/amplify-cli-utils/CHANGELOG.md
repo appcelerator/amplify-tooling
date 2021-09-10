@@ -5,6 +5,9 @@
  * refactor: Added `initPlatformAccount()` from `@axway/axway-cli-oum`.
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+ * feat: Added environment titles.
+ * feat: Added helper function to resolve the environment specific auth config key.
+ * feat: Added environment argument to platform account initialization.
  * chore: Updated dependencies.
 
 # v4.4.0 (Jul 30, 2021)

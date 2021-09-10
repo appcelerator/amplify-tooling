@@ -7,6 +7,9 @@
  * feat: Added `service-account` command with ability to create, update, and remove service
    accounts.
  * fix: Removed incorrectly defined `--client-id` from all auth commands except `login`.
+ * fix: Correctly filter accounts by the current environment.
+   ([APIGOV-19744](https://jira.axway.com/browse/APIGOV-19744))
+ * fix(logout): Suppress opening web browser message when `--json` is set.
  * chore: Updated dependencies.
 
 # v2.7.0 (Jul 30, 2021)

@@ -4,6 +4,7 @@
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * refactor: Removed `bin` from package.
  * fix(view): Fixed filtering package properties when outputting as JSON.
+ * fix(view): Improve error handling when package name is invalid.
  * doc: Added additional information to `axway pm` help output.
  * chore: Updated dependencies.
 
