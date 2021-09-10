@@ -24,7 +24,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const result = await sdk.client.find(account, org, argv.id);
 
 		if (argv.json) {

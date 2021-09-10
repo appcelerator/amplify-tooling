@@ -128,7 +128,7 @@ export default class TokenStore {
 		}
 
 		for (let i = 0; i < entries.length; i++) {
-			if (accounts.includes(entries[i].name) && (!baseUrl || entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl)) {
+			if ((accounts.includes(entries[i].hash) || accounts.includes(entries[i].name)) && (!baseUrl || entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl)) {
 				const entry = entries.splice(i--, 1)[0];
 				Object.defineProperty(entry.auth, 'expired', { value: true });
 				removed.push(entry);

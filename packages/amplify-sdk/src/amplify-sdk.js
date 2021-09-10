@@ -307,10 +307,10 @@ export default class AmplifySDK {
 				for (const account of accounts) {
 					if (account.isPlatform && !account.isPlatformTooling) {
 						// note: there should only be 1 platform account in the accounts list
-						const { logout } = getEndpoints({ baseUrl: this.baseUrl, realm: this.realm });
-						const redirect = `${logout}?redirect_uri=${this.platformUrl}/signed.out?msg=signin`;
-						const url = `${this.platformUrl}/api/v1/auth/logout?redirect=${encodeURIComponent(redirect)}`;
-						log(`Launching default web browser: ${highlight(url)}`);
+						const { platformUrl } = environments.resolve(account.auth.env);
+						const { logout } = getEndpoints({ baseUrl: account.auth.baseUrl, realm: account.auth.realm });
+						const redirect = `${logout}?redirect_uri=${platformUrl}/signed.out?msg=signin`;
+						const url = `${platformUrl}/api/v1/auth/logout?redirect=${encodeURIComponent(redirect)}`;
 						if (typeof opts.onOpenBrowser === 'function') {
 							await opts.onOpenBrowser({ url });
 						}
@@ -323,7 +323,7 @@ export default class AmplifySDK {
 					}
 				}
 
-				return await this.authClient.logout({ accounts: accounts.map(account => account.name), baseUrl });
+				return await this.authClient.logout({ accounts: accounts.map(account => account.hash), baseUrl });
 			},
 
 			/**
@@ -959,8 +959,8 @@ export default class AmplifySDK {
 					return {
 						org,
 						users: users.sort((a, b) => {
-							const r = a.firstname.localeCompare(b.firstname);
-							return r !== 0 ? r : a.lastname.localeCompare(b.lastname);
+							const r = (a.firstname || '').localeCompare(b.firstname || '');
+							return r !== 0 ? r : (a.lastname || '').localeCompare(b.lastname || '');
 						})
 					};
 				},

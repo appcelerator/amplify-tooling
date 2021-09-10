@@ -82,7 +82,6 @@ export default class Auth {
 			baseUrl:        { value: opts.baseUrl },
 			clientId:       { value: opts.clientId },
 			clientSecret:   { value: opts.clientSecret },
-			env:            { value: opts.env },
 			got:            { value: opts.got || request.init(opts.requestOptions) },
 			interactiveLoginTimeout: { value: opts.interactiveLoginTimeout },
 			messages:       { value: opts.messages },
@@ -93,6 +92,8 @@ export default class Auth {
 			serviceAccount: { value: opts.serviceAccount },
 			username:       { value: opts.username }
 		});
+
+		this.env = environments.resolve(opts.env).name;
 
 		if (opts.tokenStore) {
 			if (!(opts.tokenStore instanceof TokenStore)) {
@@ -163,7 +164,7 @@ export default class Auth {
 			baseUrl:        opts.baseUrl || this.baseUrl || env.baseUrl,
 			clientId:       opts.clientId || this.clientId,
 			clientSecret:   opts.clientSecret || this.clientSecret,
-			env:            name,
+			env:            env.name,
 			got:            opts.got || this.got,
 			messages:       opts.messages || this.messages,
 			password:       opts.password || this.password,
@@ -320,7 +321,8 @@ export default class Auth {
 	 */
 	async list() {
 		if (this.tokenStore) {
-			return await this.tokenStore.list();
+			return (await this.tokenStore.list())
+				.filter(account => (account.auth.env || 'prod') === this.env);
 		}
 		return [];
 	}
@@ -358,7 +360,7 @@ export default class Auth {
 	 * Revokes all or specific authenticated accounts.
 	 *
 	 * @param {Object} opts - Required options.
-	 * @param {Array.<String>} opts.accounts - A list of accounts names.
+	 * @param {Array.<String>} opts.accounts - A list of accounts names or hashes.
 	 * @param {Boolean} opts.all - When `true`, revokes all accounts.
 	 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>} Resolves a list of revoked credentials.

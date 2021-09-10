@@ -9,6 +9,7 @@ import {
 	Config,
 	createRequestOptions,
 	createTable,
+	environments,
 	hlVer,
 	loadConfig,
 	locations,
@@ -54,29 +55,30 @@ const { warn } = snooplogg('axway');
 	}
 
 	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
-
 	let checkWait;
 
-	let banner = `${cyan('AXWAY CLI')}, version ${version}
+	const cli = new CLI({
+		banner() {
+			const env = process.env.AXWAY_ENV;
+			const title = process.env.AXWAY_ENV_TITLE;
+			let str = `${cyan('AXWAY CLI')}, version ${version}${!env || env === 'prod' ? '' : ` ${yellow(title.toUpperCase())}`}
 Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
-	if (process.versions.node.split('.')[0] < 12) {
-		banner += '\n\n' + yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
+			if (process.versions.node.split('.')[0] < 12) {
+				str += '\n\n' + yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
  ┃ deprecated and is unsupported in Axway CLI v3 and newer. Please upgrade
  ┃ Node.js to the latest LTS release: https://nodejs.org/`);
-	}
+			}
 
-	const { arch } = process;
-	if (arch === 'ia32' || arch === 'x32') {
-		// TODO: remove this in 3.0.0
-		banner += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" has been deprecated and is unsupported
+			const { arch } = process;
+			if (arch === 'ia32' || arch === 'x32') {
+				str += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" has been deprecated and is unsupported
  ┃ in Axway CLI v3 and newer.`);
-	} else if (arch !== 'x64') {
-		banner += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" is not supported.`);
-	}
-
-	const cli = new CLI({
-		banner,
+			} else if (arch !== 'x64') {
+				str += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" is not supported.`);
+			}
+			return str;
+		},
 		commands:         `${__dirname}/commands`,
 		desc:             'The Axway CLI is a unified command line interface for the Axway Amplify Platform.',
 		extensions:       allExtensions.map(ext => ext[1]),
@@ -84,6 +86,9 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		helpExitCode:     2,
 		helpTemplateFile: resolve(__dirname, '../templates/help.tpl'),
 		name:             'axway',
+		options: {
+			'--env [name]': { hidden: true, redact: false }
+		},
 		version
 	});
 
@@ -124,6 +129,14 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 	// local ref so we can include argv and the context chain in the crash report
 	let state;
+
+	// after the args have been parsed, determine the environment before the banner is rendered
+	cli.on('parse', async (state, next) => {
+		const { result } = await next();
+		const env = environments.resolve(result.argv.env || cfg.get('env'));
+		process.env.AXWAY_ENV = env.name;
+		process.env.AXWAY_ENV_TITLE = env.title;
+	});
 
 	// add the hook to record the telemetry event after the command finishes running
 	cli.on('exec', async (_state, next) => {

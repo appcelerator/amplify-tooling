@@ -11,7 +11,8 @@ export const environments = {
 		},
 		registry: {
 			url: 'http://localhost:8082'
-		}
+		},
+		title: 'Development'
 	},
 	preprod: {
 		auth: {
@@ -20,7 +21,8 @@ export const environments = {
 		},
 		registry: {
 			url: 'https://registry.axwaytest.net'
-		}
+		},
+		title: 'Pre-Production'
 	},
 	prod: {
 		auth: {
@@ -29,7 +31,8 @@ export const environments = {
 		},
 		registry: {
 			url: 'https://registry.platform.axway.com'
-		}
+		},
+		title: 'Production'
 	}
 };
 

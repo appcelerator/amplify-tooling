@@ -9,7 +9,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { createTable, initSDK } = require('@axway/amplify-cli-utils');
+		const { createTable, getAuthConfigEnvSpecifier, initSDK } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 
 		const { config, sdk } = initSDK({
@@ -19,10 +19,8 @@ export default {
 		});
 
 		const accounts = await sdk.auth.list();
-		const defaultAccount = config.get('auth.defaultAccount');
-
 		for (const account of accounts) {
-			account.default = account.name === defaultAccount;
+			account.default = account.name === config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultAccount`);
 		}
 
 		if (argv.json) {
@@ -36,20 +34,18 @@ export default {
 		}
 
 		const { green } = snooplogg.styles;
-		const table = createTable([ 'Account Name', 'Organization', 'Type', 'Expires', 'Environment' ]);
+		const check = process.platform === 'win32' ? '√' : '✔';
 		const now = Date.now();
 		const pretty = require('pretty-ms');
-		const urlRE = /^.*\/\//;
-		const check = process.platform === 'win32' ? '√' : '✔';
+		const table = createTable([ 'Account Name', 'Organization', 'Type', 'Expires' ]);
 
 		for (const { default: def, auth, isPlatform, name, org } of accounts) {
 			const { access, refresh } = auth.expires;
 			table.push([
-				def ? green(`${check} ${name}`) : `  ${name}`,
+				`${def ? green(`${check} ${name}`) : `  ${name}`}`,
 				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
 				isPlatform ? 'Platform' : 'Service',
-				pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 }),
-				`${auth.env} (${auth.baseUrl.replace(urlRE, '')})`
+				pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 })
 			]);
 		}
 

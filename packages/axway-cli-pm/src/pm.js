@@ -385,6 +385,10 @@ export async function view(pkgName, { requestOpts = createRequestOptions(), type
 	const { name, fetchSpec } = npa(pkgName);
 	let info;
 
+	if (!name) {
+		throw new Error(`Invalid package name "${pkgName}"`);
+	}
+
 	try {
 		info = await pacote.packument(name, {
 			...requestOpts,
