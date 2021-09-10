@@ -130,6 +130,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 	// local ref so we can include argv and the context chain in the crash report
 	let state;
 
+	// after the args have been parsed, determine the environment before the banner is rendered
 	cli.on('parse', async (state, next) => {
 		const { result } = await next();
 		const env = environments.resolve(result.argv.env || cfg.get('env'));
