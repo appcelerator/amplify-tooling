@@ -57,7 +57,7 @@ required options must be passed in at execution.`;
 		const { readFileSync } = require('fs');
 		const uuid = require('uuid');
 
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (!org.userRoles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to create a service account in the "${org.name}" organization`);

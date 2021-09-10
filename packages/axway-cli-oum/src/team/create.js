@@ -29,7 +29,7 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (!org.userRoles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to add a new team to the "${org.name}" organization`);

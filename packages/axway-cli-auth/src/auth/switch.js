@@ -10,7 +10,7 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { default: snooplogg } = require('snooplogg');
-		const { initSDK, isHeadless } = require('@axway/amplify-cli-utils');
+		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
 		const { prompt } = require('enquirer');
 		const { highlight } = snooplogg.styles;
 		const { config, sdk } = initSDK({
@@ -18,6 +18,7 @@ export default {
 			env:      argv.env,
 			realm:    argv.realm
 		});
+		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		const accounts = await sdk.auth.list();
 		let account;
 
@@ -47,7 +48,7 @@ export default {
 
 			if (accounts.length > 1 && !argv.json) {
 				// we have more than one authenticated account, so we must prompt for which account
-				const defaultAccount = config.get('auth.defaultAccount');
+				const defaultAccount = config.get(`${authConfigEnvSpecifier}.defaultAccount`);
 				const choices = accounts
 					.map(acct => ({ value: acct.name }))
 					.sort((a, b) => a.value.localeCompare(b.value));
@@ -70,13 +71,13 @@ export default {
 		}
 
 		account.default = true;
-		config.set('auth.defaultAccount', account.name);
-		config.delete(`auth.defaultOrg.${account.hash}`);
+		config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
+		config.delete(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
 		config.save();
 
 		if (account.isPlatform) {
 			// determine the org
-			const selectedOrg = argv.org || (account?.hash && config.get(`auth.defaultOrg.${account.hash}`));
+			const selectedOrg = argv.org || (account?.hash && config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
 			const org = selectedOrg && account.orgs.find(o => o.guid === selectedOrg || o.id === selectedOrg || o.name === selectedOrg);
 
 			if (account.isPlatformTooling) {
@@ -97,7 +98,7 @@ export default {
 						throw new Error('Must specify --org when --json is set and the selected account has multiple organizations');
 					}
 
-					const defaultOrg = config.get(`auth.defaultOrg.${account.hash}`);
+					const defaultOrg = config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
 					const choices = account.orgs
 						.map(org => {
 							org.toString = () => org.name;
@@ -146,7 +147,7 @@ export default {
 				});
 			}
 
-			config.set(`auth.defaultOrg.${account.hash}`, account.org.guid);
+			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
 			config.save();
 		}
 

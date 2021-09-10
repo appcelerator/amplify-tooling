@@ -34,7 +34,7 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (!org.userRoles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to modify a service account in the "${org.name}" organization`);

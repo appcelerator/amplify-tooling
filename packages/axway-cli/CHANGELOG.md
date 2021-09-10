@@ -4,7 +4,9 @@
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
+ * feat: Add non-production environment title to banner.
  * fix: Only error out when config file is bad when running a config command.
+ * refactor: Move `--env` from auth and oum CLI's to the Axway CLI.
  * style: Fixed indentation of error messages.
  * doc: Fixed Axway CLI documentation URL in post install message.
 

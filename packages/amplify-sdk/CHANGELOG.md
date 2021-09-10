@@ -6,6 +6,9 @@
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
  * feat: Added options to filter available roles by `client`, `default`, and `org`.
  * fix: Removed redundant platform account and team assertions.
+ * fix(auth): Use authenticated account's baseUrl and realm when logging out.
+ * fix(auth): Add ability to find an authenticated account by name or hash.
+ * fix(auth): Resolve environment name when creating an auth client.
  * chore: Updated dependencies.
 
 # v2.2.0 (Jul 30, 2021)

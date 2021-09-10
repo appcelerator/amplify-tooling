@@ -170,6 +170,20 @@ export function createTable(head, indent = 0) {
 }
 
 /**
+ * Resovles the "auth.*" config key based on your environment. This is used to get or set the
+ * default account and org.
+ *
+ * @param {String} env - The resolved environment name.
+ * @returns {String}
+ *
+ * @example
+ *   config.get(`${getAuthConfigEnvSpecifier(sdk.env.name)}.defaultAccount`);
+ */
+export function getAuthConfigEnvSpecifier(env) {
+	return !env || env === 'prod' ? 'auth' : `auth.environment.${env}`;
+}
+
+/**
  * Highlights the difference between two versions.
  *
  * @param {String} toVer - The latest version.
@@ -219,11 +233,13 @@ export function hlVer(toVer, fromVer) {
  *
  * @param {String} [accountName] - The name of the platform account to use.
  * @param {String} [org] - The name, id, or guid of the default organization.
+ * @param {String} [env] - The environment name.
  * @returns {Promise<Object>}
  */
-export async function initPlatformAccount(accountName, org) {
-	const { config, sdk } = initSDK();
-	const account = await sdk.auth.find(accountName || config.get('auth.defaultAccount'));
+export async function initPlatformAccount(accountName, org, env) {
+	const { config, sdk } = initSDK({ env });
+	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
+	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvSpecifier}.defaultAccount`));
 
 	if (accountName) {
 		if (!account) {
@@ -240,7 +256,7 @@ export async function initPlatformAccount(accountName, org) {
 	} else {
 		try {
 			// check the config for a default org for this account
-			org = await sdk.org.find(account, config.get(`auth.defaultOrg.${account.hash}`));
+			org = await sdk.org.find(account, config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
 		} catch (err) {
 			// default org was stale, auto detect the default from the account orgs
 			org = await sdk.org.find(account);

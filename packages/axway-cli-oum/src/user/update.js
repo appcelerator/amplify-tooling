@@ -33,7 +33,7 @@ export default {
 	},
 	async action({ argv, cli, console, help }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		const { changes, user } = await sdk.user.update(account, {
 			firstname: argv.firstname,

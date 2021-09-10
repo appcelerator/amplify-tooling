@@ -13,7 +13,7 @@ export default {
 		const { initPlatformAccount, isHeadless } = require('@axway/amplify-cli-utils');
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight } = snooplogg.styles;
-		const { org, sdk } = await initPlatformAccount(argv.account, argv.org);
+		const { org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const open = require('open');
 
 		if (!org.userRoles.includes('administrator')) {
