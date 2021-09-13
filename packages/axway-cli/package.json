@@ -1,6 +1,6 @@
 {
   "name": "axway",
-  "version": "2.2.0",
+  "version": "3.0.0-beta4",
   "description": "A unified CLI for the Axway Amplify platform.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -24,13 +24,11 @@
     "prepare": "gulp build",
     "test": "gulp test"
   },
-  "move this to dependencies once it's been published, then publish THIS package": {
-    "@axway/axway-cli-auth": "^3.0.0"
-  },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^4.4.0",
-    "@axway/axway-cli-oum": "^1.2.0",
-    "@axway/axway-cli-pm": "^3.0.0",
+    "@axway/amplify-cli-utils": "^5.0.0-beta3",
+    "@axway/axway-cli-auth": "^3.0.0-beta3",
+    "@axway/axway-cli-oum": "^2.0.0-beta3",
+    "@axway/axway-cli-pm": "^4.0.0-beta3",
     "appcd-util": "^3.1.6",
     "boxen": "^5.0.1",
     "check-kit": "^1.2.1",
