@@ -2,6 +2,19 @@
 # yarn lockfile v1
 
 
+"@axway/amplify-request@^2.1.4":
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/@axway/amplify-request/-/amplify-request-2.1.4.tgz#b1ac20bfad0fe9e8fac32af83af98672c3dbb460"
+  integrity sha512-AfpeGvb5f4MvrxIbMoUbpj18ybkDzqy7sPu45RK6Af4KEerjWjsNXcE+LKxszawdoIMgcaNhkQL7sHGKMlFxog==
+  dependencies:
+    appcd-util "^3.1.6"
+    got "^11.8.2"
+    http-proxy-agent "^4.0.1"
+    https-proxy-agent "^5.0.0"
+    pretty-bytes "^5.6.0"
+    snooplogg "^3.0.2"
+    source-map-support "^0.5.19"
+
 "@babel/code-frame@7.12.11":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"

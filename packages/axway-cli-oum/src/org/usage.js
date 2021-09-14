@@ -22,7 +22,10 @@ export default {
     ${style.highlight('axway org usage <org>')}
 
   Display organization usage for a specific date range:
-    ${style.highlight('axway org usage <org> --from 2021-04-01 --to 2021-04-30')}`;
+    ${style.highlight('axway org usage <org> --from 2021-04-01 --to 2021-04-30')}
+
+  Display organization usage for the current month:
+    ${style.highlight('axway org usage <org> --month')}`;
 		}
 	},
 	options: {
@@ -193,6 +196,8 @@ export default {
 		}
 		if (table.length) {
 			console.log(table.toString());
+		} else if (!bundle) {
+			console.log('\nNo usage data');
 		}
 	}
 };
