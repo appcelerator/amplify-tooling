@@ -1,8 +1,8 @@
 'use strict';
 
-require('appcd-gulp')({
+require('@axway/gulp-tasks')({
 	exports,
 	pkgJson:  require('./package.json'),
 	template: 'standard',
-	babel:    'node10'
+	babel:    'node12'
 });

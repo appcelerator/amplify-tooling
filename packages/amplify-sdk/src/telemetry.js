@@ -5,9 +5,8 @@ import os from 'os';
 import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
 import * as request from '@axway/amplify-request';
 import * as uuid from 'uuid';
-import { arch as _arch, osInfo, redact } from 'appcd-util';
+import { arch as _arch, isDir, osInfo, redact, writeFileSync } from '@axway/amplify-utils';
 import { fork } from 'child_process';
-import { isDir, writeFileSync } from 'appcd-fs';
 import { serializeError } from 'serialize-error';
 
 const logger = snooplogg('amplify-sdk:telemetry');

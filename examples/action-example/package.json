@@ -22,16 +22,16 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "cli-kit": "^1.9.3"
+    "cli-kit": "^1.14.1"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.1.1"
+    "@axway/gulp-tasks": "^4.0.3"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/examples/action-example",
   "engines": {
-    "node": ">=10.19.0"
+    "node": ">=12.13.0"
   },
   "amplify": {
     "type": "amplify-cli-plugin"

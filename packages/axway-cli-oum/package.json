@@ -21,12 +21,12 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^5.0.0-beta3",
     "cli-kit": "^1.14.1",
-    "open": "^7.4.2",
+    "open": "^8.2.1",
     "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.20"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.2.0"
+    "@axway/gulp-tasks": "^4.0.3"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
