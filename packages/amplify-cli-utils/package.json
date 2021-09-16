@@ -24,13 +24,13 @@
     "@axway/amplify-config": "^4.0.0-beta3",
     "@axway/amplify-request": "^3.0.0-beta3",
     "@axway/amplify-sdk": "^3.0.0-beta3",
-    "boxen": "^5.0.1",
+    "boxen": "^5.1.1",
     "check-kit": "^1.2.1",
     "cli-kit": "^1.14.1",
     "cli-table3": "^0.6.0",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.20"
   },
   "devDependencies": {
     "@axway/gulp-tasks": "^4.0.3"
