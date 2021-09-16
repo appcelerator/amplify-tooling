@@ -1,5 +1,5 @@
 import path from 'path';
-import { existsSync, writeFileSync } from 'appcd-fs';
+import { existsSync, writeFileSync } from '@axway/amplify-utils';
 import { initSDK } from '@axway/amplify-cli-utils';
 import { prompt } from 'enquirer';
 

@@ -49,7 +49,7 @@ to public key and vice versa.`;
 	},
 	async action({ argv, cli, console }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { existsSync, isFile } = require('appcd-fs');
+		const { existsSync, isFile } = require('@axway/amplify-utils');
 		const { readFileSync } = require('fs');
 
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);

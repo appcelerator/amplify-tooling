@@ -12,7 +12,7 @@ import * as environments from './environments';
 import * as request from '@axway/amplify-request';
 import { createURL } from './util';
 import { promisify } from 'util';
-import { redact } from 'appcd-util';
+import { redact } from '@axway/amplify-utils';
 
 const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;

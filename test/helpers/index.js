@@ -21,7 +21,7 @@ const logger = snooplogg.config({
 const { log } = logger;
 const { highlight } = snooplogg.styles;
 
-const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.APPCD_COVERAGE ? 'src' : 'dist'}/main.js`);
+const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);
 
 export function initHomeDir(templateDir) {
 	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
@@ -94,7 +94,7 @@ export function resetHomeDir() {
 
 function _runAxway(fn, args = [], opts = {},  cfg) {
 	const env = Object.assign({}, process.env, opts.env);
-	if (env.APPCD_TEST) {
+	if (env.AXWAY_TEST) {
 		if (args.includes('--no-color') || args.includes('--no-colors')) {
 			delete env.FORCE_COLOR;
 		}

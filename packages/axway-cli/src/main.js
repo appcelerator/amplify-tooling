@@ -18,7 +18,7 @@ import {
 import snooplogg from 'snooplogg';
 import { dirname, join, parse, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
-import { redact } from 'appcd-util';
+import { redact } from '@axway/amplify-utils';
 import { serializeError } from 'serialize-error';
 
 const { bold, cyan, gray, red, yellow } = snooplogg.styles;

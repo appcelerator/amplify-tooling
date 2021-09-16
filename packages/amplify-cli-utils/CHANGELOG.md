@@ -3,6 +3,8 @@
  * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * refactor: Added `initPlatformAccount()` from `@axway/axway-cli-oum`.
+ * refactor: Replaced `appcd-*` libraries with `@axway/amplify-utils`.
+   ([APIGOV-20264](https://jira.axway.com/browse/APIGOV-20264))
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
  * feat: Added environment titles.

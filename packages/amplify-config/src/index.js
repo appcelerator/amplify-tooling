@@ -7,8 +7,7 @@ import Config from 'config-kit';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { expandPath } from 'appcd-path';
-import { isFile, writeFileSync } from 'appcd-fs';
+import { expandPath, isFile, writeFileSync } from '@axway/amplify-utils';
 
 const axwayHome = path.join(os.homedir(), '.axway');
 

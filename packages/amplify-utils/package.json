@@ -1,0 +1,43 @@
+{
+  "name": "@axway/amplify-utils",
+  "version": "1.0.0",
+  "description": "Axway Amplify utility library",
+  "author": "Axway, Inc. <npmjs@appcelerator.com>",
+  "maintainers": [
+    "Chris Barber <cbarber@axway.com>"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "axway",
+    "amplify"
+  ],
+  "main": "./dist/index",
+  "scripts": {
+    "build": "gulp build",
+    "coverage": "gulp coverage",
+    "docs": "gulp docs",
+    "prepare": "gulp build",
+    "test": "gulp test"
+  },
+  "dependencies": {
+    "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2",
+    "semver": "^7.3.5",
+    "source-map-support": "^0.5.20",
+    "tmp": "^0.2.1"
+  },
+  "devDependencies": {
+    "@axway/gulp-tasks": "^4.0.3",
+    "fs-extra": "^10.0.0",
+    "tmp": "^0.2.1"
+  },
+  "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
+  "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
+  "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-utils",
+  "engines": {
+    "node": ">=12.13.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

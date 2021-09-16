@@ -3,6 +3,8 @@
  * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * refactor: Removed `bin` from package.
+ * refactor: Replaced `appcd-*` libraries with `@axway/amplify-utils`.
+   ([APIGOV-20264](https://jira.axway.com/browse/APIGOV-20264))
  * fix(view): Fixed filtering package properties when outputting as JSON.
  * fix(view): Improve error handling when package name is invalid.
  * doc: Added additional information to `axway pm` help output.
