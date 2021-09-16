@@ -7,6 +7,8 @@
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
  * feat: Added options to filter available roles by `client`, `default`, and `org`.
+ * feat: Added support to activity and usage methods for selecting a date range by month.
+   ([APIGOV-19922](https://jira.axway.com/browse/APIGOV-19922))
  * fix: Removed redundant platform account and team assertions.
  * fix(auth): Use authenticated account's baseUrl and realm when logging out.
  * fix(auth): Add ability to find an authenticated account by name or hash.
