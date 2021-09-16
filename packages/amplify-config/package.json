@@ -21,14 +21,13 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "appcd-fs": "^2.1.2",
-    "appcd-path": "^2.0.8",
+    "@axway/amplify-utils": "^1.0.0",
     "config-kit": "^1.7.1",
-    "fs-extra": "^9.1.0",
-    "source-map-support": "^0.5.19"
+    "fs-extra": "^10.0.0",
+    "source-map-support": "^0.5.20"
   },
   "devDependencies": {
-    "appcd-gulp": "^3.2.0"
+    "@axway/gulp-tasks": "^4.0.3"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

@@ -4,6 +4,8 @@
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
  * refactor: Renamed package from `@axway/amplify-cli-auth` to `@axway/axway-cli-auth`.
  * refactor: Removed `bin` from package.
+ * refactor: Replaced `appcd-*` libraries with `@axway/amplify-utils`.
+   ([APIGOV-20264](https://jira.axway.com/browse/APIGOV-20264))
  * feat: Added `service-account` command with ability to create, update, and remove service
    accounts.
  * fix: Removed incorrectly defined `--client-id` from all auth commands except `login`.

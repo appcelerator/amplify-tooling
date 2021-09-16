@@ -49,7 +49,7 @@ required options must be passed in at execution.`;
 	},
 	async action({ argv, cli, console, help, terminal }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { existsSync, isFile } = require('appcd-fs');
+		const { existsSync, isFile } = require('@axway/amplify-utils');
 		const { generateKeypair } = require('../lib/keypair');
 		const { prompt } = require('enquirer');
 		const { readFileSync } = require('fs');

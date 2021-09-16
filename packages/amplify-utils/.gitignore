@@ -1,0 +1,9 @@
+.DS_Store
+.nyc_output
+/coverage
+/dist
+/docs
+gulpfile.tmp.*
+junit.xml
+node_modules
+npm-debug.log

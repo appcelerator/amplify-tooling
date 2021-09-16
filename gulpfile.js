@@ -114,7 +114,7 @@ async function runTests(cover, all) {
 		if (all) {
 			process.env.AXWAY_TEST = '1'; // allow telemetry tests to run
 		}
-		process.env.APPCD_TEST_GLOBAL_PACKAGE_DIR = path.join(__dirname, 'packages');
+		process.env.AXWAY_TEST_GLOBAL_PACKAGE_DIR = path.join(__dirname, 'packages');
 		process.env.SPAWN_WRAP_SHIM_ROOT = origHomeDir;
 		process.env.NODE_ENV = 'test'; // disables the update check
 		// process.env.SNOOPLOGG = '*';
@@ -132,7 +132,7 @@ async function runTests(cover, all) {
 			process.env.HOMEPATH = tmpHomeDir.replace(process.env.HOMEDRIVE, '');
 		}
 
-		const runner = require('appcd-gulp/src/test-runner');
+		const runner = require('@axway/gulp-tasks/src/test-runner');
 		await runner.runTests({
 			all,
 			cover,

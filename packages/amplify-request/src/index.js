@@ -9,7 +9,7 @@ import HttpProxyAgent from 'http-proxy-agent';
 import HttpsProxyAgent from 'https-proxy-agent';
 import prettyBytes from 'pretty-bytes';
 import snooplogg from 'snooplogg';
-import { mergeDeep } from 'appcd-util';
+import { mergeDeep } from '@axway/amplify-utils';
 
 const { log } = snooplogg('amplify-request');
 const { alert, highlight, magenta, ok, note } = snooplogg.styles;

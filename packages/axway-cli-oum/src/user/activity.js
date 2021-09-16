@@ -14,7 +14,10 @@ export default {
     ${style.highlight('axway user activity')}
 
   Display your activity for a specific date range:
-    ${style.highlight('axway user activity --from 2021-04-01 --to 2021-04-30')}`;
+    ${style.highlight('axway user activity --from 2021-04-01 --to 2021-04-30')}
+
+  Display your activity for the current month:
+    ${style.highlight('axway user activity <org> --month')}`;
 		}
 	},
 	options: {
@@ -26,6 +29,10 @@ export default {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs the user activity as JSON'
+		},
+		'--month [mm|yyyy-mm]': {
+			desc: 'A month date range; overrides --to and --from',
+			redact: false
 		},
 		'--to [yyyy-mm-dd]': {
 			desc: 'The end date',

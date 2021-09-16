@@ -12,7 +12,7 @@ import * as environments from './environments';
 import * as request from '@axway/amplify-request';
 import { createURL } from './util';
 import { promisify } from 'util';
-import { redact } from 'appcd-util';
+import { redact } from '@axway/amplify-utils';
 
 const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;
@@ -763,6 +763,8 @@ export default class AmplifySDK {
 		 * @param {Object} account - The account object.
 		 * @param {Object} [params] - Various parameters.
 		 * @param {String} [params.from] - The start date in ISO format.
+		 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and `from`.
+		 * If `true`, uses current month.
 		 * @param {Object|String|Number} [params.org] - The organization object, name, guid, or id.
 		 * @param {String} [params.to] - The end date in ISO format.
 		 * @param {String} [params.userGuid] - The user guid.
@@ -770,6 +772,10 @@ export default class AmplifySDK {
 		 */
 		const getActivity = async (account, params = {}) => {
 			assertPlatformAccount(account);
+
+			if (params.month !== undefined) {
+				Object.assign(params, resovleMonthRange(params.month));
+			}
 
 			let { from, to } = resolveDateRange(params.from, params.to);
 			let url = '/api/v1/activity?data=true';
@@ -807,6 +813,8 @@ export default class AmplifySDK {
 			 * @param {Object|String|Number} org - The organization object, name, guid, or id.
 			 * @param {Object} [params] - Various parameters.
 			 * @param {String} [params.from] - The start date in ISO format.
+			 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
+			 * `from`. If `true`, uses current month.
 			 * @param {String} [params.to] - The end date in ISO format.
 			 * @returns {Promise<Object>}
 			 */
@@ -1046,11 +1054,18 @@ export default class AmplifySDK {
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 			 * @param {Object} [params] - Various parameters.
 			 * @param {String} [params.from] - The start date in ISO format.
+			 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
+			 * `from`. If `true`, uses current month.
 			 * @param {String} [params.to] - The end date in ISO format.
 			 * @returns {Promise<Object>}
 			 */
 			usage: async (account, org, params = {}) => {
 				const { id } = this.resolveOrg(account, org);
+
+				if (params.month !== undefined) {
+					Object.assign(params, resovleMonthRange(params.month));
+				}
+
 				const { from, to } = resolveDateRange(params.from, params.to);
 
 				let url = `/api/v1/org/${id}/usage`;
@@ -1073,7 +1088,11 @@ export default class AmplifySDK {
 					}
 				}
 
-				return results;
+				return {
+					...results,
+					from,
+					to
+				};
 			}
 		};
 
@@ -1533,6 +1552,8 @@ export default class AmplifySDK {
 			 * @param {Object} account - The account object.
 			 * @param {Object} [params] - Various parameters.
 			 * @param {String} [params.from] - The start date in ISO format.
+			 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
+			 * `from`. If `true`, uses current month.
 			 * @param {String} [params.to] - The end date in ISO format.
 			 * @returns {Promise<Object>}
 			 */
@@ -1843,4 +1864,49 @@ function resolveDateRange(from, to) {
 	}
 
 	return r;
+}
+
+/**
+ * Determines the from and to date range for the specified month or month/year.
+ *
+ * @param {String|Number|Boolean} month - The month, year and month, or `""`/`true` for current
+ * month, to create a date range from.
+ * @return {Object}
+ */
+export function resovleMonthRange(month) {
+	const now = new Date();
+	let year = now.getUTCFullYear();
+	let monthIdx = now.getUTCMonth();
+	let monthInt = monthIdx + 1;
+
+	if (typeof month === 'number') {
+		monthIdx = month - 1;
+		monthInt = month;
+	} else if (month !== true && month !== '') {
+		if (typeof month !== 'string') {
+			throw E.INVALID_ARGUMENT('Expected month to be in the format YYYY-MM or MM');
+		}
+
+		const m = month.match(/^(?:(\d{4})-)?(\d\d?)$/);
+		if (!m || !m[2]) {
+			throw E.INVALID_ARGUMENT('Expected month to be in the format YYYY-MM or MM');
+		}
+
+		if (m[1]) {
+			year = parseInt(m[1]);
+		}
+		monthInt = parseInt(m[2]);
+		monthIdx = monthInt - 1;
+	}
+
+	const days = [ 31, year % 4 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+	if (!days[monthIdx]) {
+		throw new RangeError(`Invalid month "${monthInt}"`);
+	}
+
+	const monthStr = String(monthIdx + 1).padStart(2, '0');
+	return {
+		from: `${year}-${monthStr}-01`,
+		to: `${year}-${monthStr}-${days[monthIdx]}`
+	};
 }

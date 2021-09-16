@@ -2,6 +2,7 @@ import AmplifySDK from '../dist/index';
 import fs from 'fs';
 import path from 'path';
 import { createServer, stopServer } from './common';
+import { resovleMonthRange } from '../dist/amplify-sdk';
 
 const baseUrl = 'http://127.0.0.1:1337';
 const isCI = process.env.CI || process.env.JENKINS;
@@ -2006,6 +2007,64 @@ describe('amplify-sdk', () => {
 				await expect(sdk.user.activity(account, { from: 'foo' })).to.eventually.be.rejectedWith(Error, 'Expected "from" date to be in the format YYYY-MM-DD');
 				await expect(sdk.user.activity(account, { to: 'foo' })).to.eventually.be.rejectedWith(Error, 'Expected "to" date to be in the format YYYY-MM-D');
 			});
+		});
+	});
+
+	describe('resovleMonthRange', () => {
+		it('should error if month is invalid', () => {
+			expect(() => {
+				resovleMonthRange();
+			}).to.throw(TypeError, 'Expected month to be in the format YYYY-MM or MM');
+
+			expect(() => {
+				resovleMonthRange({});
+			}).to.throw(TypeError, 'Expected month to be in the format YYYY-MM or MM');
+
+			expect(() => {
+				resovleMonthRange('foo');
+			}).to.throw(TypeError, 'Expected month to be in the format YYYY-MM or MM');
+		});
+
+		it('should return current month', () => {
+			const r = resovleMonthRange(true);
+			expect(r.from).to.match(/^\d{4}-\d{2}-01$/);
+			expect(r.to).to.match(/^\d{4}-\d{2}-\d{2}$/);
+		});
+
+		it('should return range from single digit month', () => {
+			const r = resovleMonthRange('3');
+			expect(r.from).to.match(/^\d{4}-03-01$/);
+			expect(r.to).to.match(/^\d{4}-03-31$/);
+		});
+
+		it('should return range from single numeric digit month', () => {
+			const r = resovleMonthRange(6);
+			expect(r.from).to.match(/^\d{4}-06-01$/);
+			expect(r.to).to.match(/^\d{4}-06-30$/);
+		});
+
+		it('should return range from leading zero single digit month', () => {
+			const r = resovleMonthRange('04');
+			expect(r.from).to.match(/^\d{4}-04-01$/);
+			expect(r.to).to.match(/^\d{4}-04-30$/);
+		});
+
+		it('should return range from year and month', () => {
+			const r = resovleMonthRange('2020-05');
+			expect(r.from).to.equal('2020-05-01');
+			expect(r.to).to.equal('2020-05-31');
+		});
+
+		it('should error if month is out of range', () => {
+			expect(() => {
+				resovleMonthRange('13');
+			}).to.throw(RangeError, 'Invalid month "13"');
+		});
+
+		it('should handle leap year', () => {
+			const r = resovleMonthRange('2020-02');
+			expect(r.from).to.equal('2020-02-01');
+			expect(r.to).to.equal('2020-02-29');
 		});
 	});
 });

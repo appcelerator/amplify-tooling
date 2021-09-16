@@ -10,7 +10,7 @@ import spawn from 'cross-spawn';
 import which from 'which';
 import { createNPMRequestArgs, createRequestOptions, loadConfig, locations } from '@axway/amplify-cli-utils';
 import { EventEmitter } from 'events';
-import { isDir, isFile, mkdirpSync } from 'appcd-fs';
+import { isDir, isFile, mkdirpSync } from '@axway/amplify-utils';
 
 const scopedPackageRegex = /^@[a-z0-9][\w-.]+\/?/;
 const { error, log } = snooplogg('pm');

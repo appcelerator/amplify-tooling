@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import TokenStore from './token-store';
-import { writeFileSync } from 'appcd-fs';
+import { writeFileSync } from '@axway/amplify-utils';
 
 const { log, warn } = snooplogg('amplify-auth:file-store');
 const { highlight } = snooplogg.styles;

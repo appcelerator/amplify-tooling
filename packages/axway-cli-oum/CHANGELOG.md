@@ -5,6 +5,10 @@
  * refactor: Renamed `axway team add` command to `axway team create` and added `add` as an alias.
  * refactor: Removed `bin` from package.
  * refactor: Moved `initPlatformAccount()` to `@axway/amplify-cli-utils`.
+ * refactor: Replaced `appcd-*` libraries with `@axway/amplify-utils`.
+   ([APIGOV-20264](https://jira.axway.com/browse/APIGOV-20264))
+ * feat: Added support to activity and usage methods for selecting a date range by month.
+   ([APIGOV-19922](https://jira.axway.com/browse/APIGOV-19922))
  * fix(org:view): Always show teams section even if there are no teams.
  * fix: Properly validate account name and error when a service account is specified.
    ([APIGOV-19678](https://jira.axway.com/browse/APIGOV-19678))

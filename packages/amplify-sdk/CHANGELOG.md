@@ -2,9 +2,13 @@
 
  * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
+ * refactor: Replaced `appcd-*` libraries with `@axway/amplify-utils`.
+   ([APIGOV-20264](https://jira.axway.com/browse/APIGOV-20264))
  * feat: Added `telemetry` to help improve Axway products.
    ([APIGOV-19209](https://jira.axway.com/browse/APIGOV-19209))
  * feat: Added options to filter available roles by `client`, `default`, and `org`.
+ * feat: Added support to activity and usage methods for selecting a date range by month.
+   ([APIGOV-19922](https://jira.axway.com/browse/APIGOV-19922))
  * fix: Removed redundant platform account and team assertions.
  * fix(auth): Use authenticated account's baseUrl and realm when logging out.
  * fix(auth): Add ability to find an authenticated account by name or hash.

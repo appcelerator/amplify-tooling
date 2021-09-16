@@ -1,9 +1,9 @@
 /**
  * Examples:
- * 	amplify pm use appcd
- * 	amplify pm use appcd@1.0.1
- * 	amplify pm use appcd@latest
- * 	amplify pm use appcd@1.x
+ * 	amplify pm use <pkg>
+ * 	amplify pm use <pkg>@1.0.1
+ * 	amplify pm use <pkg>@latest
+ * 	amplify pm use <pkg>@1.x
  */
 
 export default {
