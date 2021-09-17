@@ -6,7 +6,7 @@ import * as path from '../dist/index';
 
 const isWin = /^win/.test(process.platform);
 
-describe.only('path', () => {
+describe('path', () => {
 	describe('expandPath()', () => {
 		beforeEach(function () {
 			this.HOME        = process.env.HOME;
