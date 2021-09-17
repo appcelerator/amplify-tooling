@@ -1,6 +1,10 @@
 {
   "name": "@axway/axway-cli-oum",
   "version": "2.0.0-beta5",
+  "publishConfig": {
+    "access": "public",
+    "tag": "next"
+  },
   "description": "Axway Amplify platform organization and user management CLI",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [

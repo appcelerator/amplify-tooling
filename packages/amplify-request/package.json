@@ -1,6 +1,10 @@
 {
   "name": "@axway/amplify-request",
-  "version": "3.0.0-beta3",
+  "version": "3.0.0-beta5",
+  "publishConfig": {
+    "access": "public",
+    "tag": "next"
+  },
   "description": "HTTP request library for Axway CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [

@@ -1,6 +1,10 @@
 {
   "name": "@axway/amplify-utils",
   "version": "1.0.0-beta5",
+  "publishConfig": {
+    "access": "public",
+    "tag": "next"
+  },
   "description": "Axway Amplify utility library",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -36,8 +40,5 @@
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-utils",
   "engines": {
     "node": ">=12.13.0"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }
