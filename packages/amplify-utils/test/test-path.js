@@ -5,7 +5,6 @@ import _path from 'path';
 import * as path from '../dist/index';
 
 const isWin = /^win/.test(process.platform);
-const itSkipWindows = process.env.CI && isWin ? it.skip : it;
 
 describe.only('path', () => {
 	describe('expandPath()', () => {
@@ -65,25 +64,18 @@ describe.only('path', () => {
 			const filename = _path.join(tmpObj.name, 'foo.txt');
 			const symFilename = _path.join(tmpObj.name, 'bar', 'foo.txt');
 
-			console.log(`writeFile ${filename}`);
 			fs.writeFileSync(filename, 'foo!');
-			console.log(`mkdir ${dir}`);
 			fs.mkdirSync(dir);
-			console.log(`symlink ${filename} -> ${symFilename}`);
 			fs.symlinkSync(filename, symFilename);
 
 			try {
-				console.log(`realpath ${fs.realpathSync(filename)}`);
-				console.log(`path.real ${path.real(symFilename)}`);
 				expect(path.real(symFilename)).to.equal(fs.realpathSync(filename));
 			} finally {
-				console.log(`cleaning up ${tmpObj.name}`);
 				fs.removeSync(tmpObj.name);
-				console.log('done!');
 			}
 		});
 
-		itSkipWindows('should figure out the real path for a non-symlinked non-existent file', () => {
+		it('should figure out the real path for a non-symlinked non-existent file', () => {
 			const tmpObj = tmp.dirSync({
 				mode: '755',
 				prefix: 'amplify-utils-path-test-'
@@ -97,7 +89,7 @@ describe.only('path', () => {
 			}
 		});
 
-		itSkipWindows('should figure out the real path for a symlinked nested non-existent directory', () => {
+		it('should figure out the real path for a symlinked nested non-existent directory', () => {
 			const dir = tmp.dirSync({
 				mode: '755',
 				prefix: 'amplify-utils-path-test-'
