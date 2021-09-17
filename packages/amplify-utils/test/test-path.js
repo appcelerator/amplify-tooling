@@ -4,7 +4,8 @@ import _path from 'path';
 
 import * as path from '../dist/index';
 
-const itSkipWindows = process.env.CI && process.platform === 'win32' ? it.skip : it;
+const isWin = /^win/.test(process.platform);
+const itSkipWindows = process.env.CI && isWin ? it.skip : it;
 
 describe.only('path', () => {
 	describe('expandPath()', () => {
@@ -20,8 +21,6 @@ describe.only('path', () => {
 			this.SystemRoot  && (process.env.SystemRoot = this.SystemRoot);
 			delete process.env.AXWAY_TEST_PLATFORM;
 		});
-
-		const isWin = /^win/.test(process.platform);
 
 		it('should resolve the home directory using HOME', () => {
 			process.env.HOME = isWin ? 'C:\\Users\\username' : '/Users/username';
@@ -41,7 +40,7 @@ describe.only('path', () => {
 
 		it('should collapse relative segments', () => {
 			const p = path.expandPath('/path/./to/../foo');
-			expect(p).to.equal(isWin ? 'C:\\path\\foo' : '/path/foo');
+			expect(p).to.match(isWin ? /^\w:\\path\\foo$/ : /^\/path\/foo$/);
 		});
 
 		it('should resolve environment paths (Windows)', () => {
@@ -57,7 +56,7 @@ describe.only('path', () => {
 			expect(path.real(__filename)).to.equal(__filename);
 		});
 
-		itSkipWindows('should figure out the real path for a symlinked existing file', () => {
+		it('should figure out the real path for a symlinked existing file', () => {
 			const tmpObj = tmp.dirSync({
 				mode: '755',
 				prefix: 'amplify-utils-path-test-'
@@ -66,14 +65,21 @@ describe.only('path', () => {
 			const filename = _path.join(tmpObj.name, 'foo.txt');
 			const symFilename = _path.join(tmpObj.name, 'bar', 'foo.txt');
 
+			console.log(`writeFile ${filename}`);
 			fs.writeFileSync(filename, 'foo!');
+			console.log(`mkdir ${dir}`);
 			fs.mkdirSync(dir);
+			console.log(`symlink ${filename} -> ${symFilename}`);
 			fs.symlinkSync(filename, symFilename);
 
 			try {
+				console.log(`realpath ${fs.realpathSync(filename)}`);
+				console.log(`path.real ${path.real(symFilename)}`);
 				expect(path.real(symFilename)).to.equal(fs.realpathSync(filename));
 			} finally {
+				console.log(`cleaning up ${tmpObj.name}`);
 				fs.removeSync(tmpObj.name);
+				console.log('done!');
 			}
 		});
 
