@@ -4,7 +4,7 @@ import _path from 'path';
 
 import * as path from '../dist/index';
 
-describe('path', () => {
+describe.only('path', () => {
 	describe('expandPath()', () => {
 		beforeEach(function () {
 			this.HOME        = process.env.HOME;
