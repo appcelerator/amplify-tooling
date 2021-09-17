@@ -4,6 +4,8 @@ import _path from 'path';
 
 import * as path from '../dist/index';
 
+const isWin = /^win/.test(process.platform);
+
 describe('path', () => {
 	describe('expandPath()', () => {
 		beforeEach(function () {
@@ -18,8 +20,6 @@ describe('path', () => {
 			this.SystemRoot  && (process.env.SystemRoot = this.SystemRoot);
 			delete process.env.AXWAY_TEST_PLATFORM;
 		});
-
-		const isWin = /^win/.test(process.platform);
 
 		it('should resolve the home directory using HOME', () => {
 			process.env.HOME = isWin ? 'C:\\Users\\username' : '/Users/username';
@@ -39,7 +39,7 @@ describe('path', () => {
 
 		it('should collapse relative segments', () => {
 			const p = path.expandPath('/path/./to/../foo');
-			expect(p).to.equal(isWin ? 'C:\\path\\foo' : '/path/foo');
+			expect(p).to.match(isWin ? /^\w:\\path\\foo$/ : /^\/path\/foo$/);
 		});
 
 		it('should resolve environment paths (Windows)', () => {

@@ -413,7 +413,6 @@ export default class AmplifySDK {
 			 * @param {Object} account - The account object.
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 			 * @param {Object} opts - Various options.
-			 * @param {String} opts.clientId - A unique client id.
 			 * @param {String} [opts.desc] - The service account description.
 			 * @param {String} opts.name - The display name.
 			 * @param {String} [opts.publicKey] - A PEM formatted public key.
@@ -434,10 +433,6 @@ export default class AmplifySDK {
 					throw E.INVALID_ARGUMENT('Expected name to be a non-empty string');
 				}
 
-				if (!opts.clientId || typeof opts.clientId !== 'string') {
-					throw E.INVALID_ARGUMENT('Expected client id to be a non-empty string');
-				}
-
 				if (opts.desc && typeof opts.desc !== 'string') {
 					throw E.INVALID_ARGUMENT('Expected description to be a string');
 				}
@@ -445,7 +440,6 @@ export default class AmplifySDK {
 				const data = {
 					name:        opts.name,
 					description: opts.desc || '',
-					clientId:    opts.clientId,
 					org_guid:    org.guid
 				};
 

@@ -311,79 +311,71 @@ describe('amplify-sdk', () => {
 				await expect(sdk.client.create(account, 100, { name: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected name to be a non-empty string');
 			});
 
-			it('should error if client id is invalid', async function () {
-				this.server = await createServer();
-				const { account, tokenStore } = this.server.createTokenStore();
-				const sdk = createSDK({ tokenStore });
-				await expect(sdk.client.create(account, 100, { name: 'foo' })).to.eventually.be.rejectedWith(TypeError, 'Expected client id to be a non-empty string');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected client id to be a non-empty string');
-			});
-
 			it('should error if description is invalid', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', desc: [] })).to.eventually.be.rejectedWith(TypeError, 'Expected description to be a string');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', desc: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected description to be a string');
+				await expect(sdk.client.create(account, 100, { name: 'foo', desc: [] })).to.eventually.be.rejectedWith(TypeError, 'Expected description to be a string');
+				await expect(sdk.client.create(account, 100, { name: 'foo', desc: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected description to be a string');
 			});
 
 			it('should error if public key is invalid', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', publicKey: [] })).to.eventually.be.rejectedWith(TypeError, 'Expected public key to be a string');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', publicKey: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected public key to be a string');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', publicKey: 'baz' })).to.eventually.be.rejectedWith(Error, 'Expected public key to be PEM formatted');
+				await expect(sdk.client.create(account, 100, { name: 'foo', publicKey: [] })).to.eventually.be.rejectedWith(TypeError, 'Expected public key to be a string');
+				await expect(sdk.client.create(account, 100, { name: 'foo', publicKey: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected public key to be a string');
+				await expect(sdk.client.create(account, 100, { name: 'foo', publicKey: 'baz' })).to.eventually.be.rejectedWith(Error, 'Expected public key to be PEM formatted');
 			});
 
 			it('should error if secret is invalid', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: [] })).to.eventually.be.rejectedWith(TypeError, 'Expected secret to be a string');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected secret to be a string');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: [] })).to.eventually.be.rejectedWith(TypeError, 'Expected secret to be a string');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected secret to be a string');
 			});
 
 			it('should error if no public key or secret', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar' })).to.eventually.be.rejectedWith(Error, 'Expected public key or secret');
+				await expect(sdk.client.create(account, 100, { name: 'foo' })).to.eventually.be.rejectedWith(Error, 'Expected public key or secret');
 			});
 
 			it('should error if roles are invalid', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', roles: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', roles: 'pow' })).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', roles: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', roles: 'pow' })).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
 			});
 
 			it('should error if teams are invalid', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected teams to be an array');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: 'pow' })).to.eventually.be.rejectedWith(TypeError, 'Expected teams to be an array');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: 123 })).to.eventually.be.rejectedWith(TypeError, 'Expected teams to be an array');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: 'pow' })).to.eventually.be.rejectedWith(TypeError, 'Expected teams to be an array');
 
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ 'pow' ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ {} ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 123 } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 'abc' } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 'abc', roles: 123 } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 'abc', roles: [] } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: [ 'pow' ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: [ {} ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: [ { guid: 123 } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: [ { guid: 'abc' } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: [ { guid: 'abc', roles: 123 } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: [ { guid: 'abc', roles: [] } ] })).to.eventually.be.rejectedWith(TypeError, 'Expected team to be an object containing a guid and array of roles');
 
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: 'abc', roles: [ 'def' ] } ] })).to.eventually.be.rejectedWith(Error, 'Invalid team "abc"');
-				await expect(sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', teams: [ { guid: '60000', roles: [ 'def' ] } ] })).to.eventually.be.rejectedWith(Error, 'Invalid team role "def"');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: [ { guid: 'abc', roles: [ 'def' ] } ] })).to.eventually.be.rejectedWith(Error, 'Invalid team "abc"');
+				await expect(sdk.client.create(account, 100, { name: 'foo', secret: 'baz', teams: [ { guid: '60000', roles: [ 'def' ] } ] })).to.eventually.be.rejectedWith(Error, 'Invalid team role "def"');
 			});
 
 			it('should create a service account with a client secret', async function () {
 				this.server = await createServer();
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
-				const { client } = await sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', secret: 'baz', roles: [], teams: [] });
+				const { client } = await sdk.client.create(account, 100, { name: 'foo', secret: 'baz', roles: [], teams: [] });
 				expect(client.name).to.equal('foo');
-				expect(client.client_id).to.equal('bar');
+				expect(client.client_id).to.equal(`foo_${client.guid}`);
 				expect(client.type).to.equal('secret');
 			});
 
@@ -396,7 +388,6 @@ describe('amplify-sdk', () => {
 
 				let { client } = await sdk.client.create(account, 100, {
 					name: 'foo',
-					clientId: 'bar',
 					secret: 'baz',
 					roles: [ 'some_admin' ],
 					teams: [
@@ -405,12 +396,12 @@ describe('amplify-sdk', () => {
 					]
 				});
 				expect(client.name).to.equal('foo');
-				expect(client.client_id).to.equal('bar');
+				expect(client.client_id).to.equal(`foo_${client.guid}`);
 				expect(client.type).to.equal('secret');
 
 				({ client } = await sdk.client.find(account, 100, client.client_id));
 				expect(client.name).to.equal('foo');
-				expect(client.client_id).to.equal('bar');
+				expect(client.client_id).to.equal(`foo_${client.guid}`);
 				expect(client.type).to.equal('secret');
 				expect(client.teams).to.have.lengthOf(1);
 				expect(client.teams[0].name).to.equal('C Team');
@@ -421,9 +412,9 @@ describe('amplify-sdk', () => {
 				const { account, tokenStore } = this.server.createTokenStore();
 				const sdk = createSDK({ tokenStore });
 				const publicKey = fs.readFileSync(path.join(__dirname, 'resources', 'public_key.pem'), 'utf-8');
-				const { client } = await sdk.client.create(account, 100, { name: 'foo', clientId: 'bar', publicKey });
+				const { client } = await sdk.client.create(account, 100, { name: 'foo', publicKey });
 				expect(client.name).to.equal('foo');
-				expect(client.client_id).to.equal('bar');
+				expect(client.client_id).to.equal(`foo_${client.guid}`);
 				expect(client.type).to.equal('certificate');
 
 				const { clients } = await sdk.client.list(account, 100);

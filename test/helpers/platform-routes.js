@@ -235,11 +235,12 @@ export function createPlatformRoutes(server, opts = {}) {
 	});
 
 	router.post('/v1/client', ctx => {
-		const { clientId, description, name, org_guid, roles, teams, type } = ctx.request.body;
+		const { description, name, org_guid, roles, teams, type } = ctx.request.body;
+		const guid = uuidv4();
 		const result = {
-			client_id: clientId,
+			client_id: `${name}_${guid}`,
 			created: new Date().toISOString(),
-			guid: uuidv4(),
+			guid,
 			name,
 			description,
 			org_guid,

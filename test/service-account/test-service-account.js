@@ -400,14 +400,16 @@ describe('axway service-account', () => {
 				'create',
 				'--name', 'bar',
 				'--desc', 'Bar works',
-				'--client-id', 'bar-bar-bar',
 				'--role', 'some_admin',
 				'--secret', 'shhh'
 			]);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('create/bar-success'));
 
-			({ status, stdout } = await runAxwaySync([ 'service-account', 'view', 'bar-bar-bar' ]));
+			const m = stdout.toString().match(/Successfully created service account \u001b\[36mbar\u001b\[39m \u001b\[90m\((bar_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\)\u001b\[39m/);
+			const clientId = m[1];
+
+			({ status, stdout } = await runAxwaySync([ 'service-account', 'view', clientId ]));
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('create/view-bar'));
 		});

@@ -32,7 +32,7 @@ export function expandPath(...segments) {
 export function real(path) {
 	path = expandPath(path);
 
-	const root = _path.resolve('/');
+	const { root } = _path.parse(path);
 	const dirs = [];
 	let dir;
 
