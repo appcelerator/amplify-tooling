@@ -55,7 +55,7 @@ describe.only('path', () => {
 			expect(path.real(__filename)).to.equal(__filename);
 		});
 
-		it('should figure out the real path for a symlinked existing file', () => {
+		it.skip('should figure out the real path for a symlinked existing file', () => {
 			const tmpObj = tmp.dirSync({
 				mode: '755',
 				prefix: 'amplify-utils-path-test-'
