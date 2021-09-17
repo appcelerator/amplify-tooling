@@ -4,6 +4,8 @@ import _path from 'path';
 
 import * as path from '../dist/index';
 
+const itSkipWindows = process.env.CI && process.platform === 'win32' ? it.skip : it;
+
 describe.only('path', () => {
 	describe('expandPath()', () => {
 		beforeEach(function () {
@@ -55,7 +57,7 @@ describe.only('path', () => {
 			expect(path.real(__filename)).to.equal(__filename);
 		});
 
-		it.skip('should figure out the real path for a symlinked existing file', () => {
+		itSkipWindows('should figure out the real path for a symlinked existing file', () => {
 			const tmpObj = tmp.dirSync({
 				mode: '755',
 				prefix: 'amplify-utils-path-test-'
@@ -75,7 +77,7 @@ describe.only('path', () => {
 			}
 		});
 
-		it('should figure out the real path for a non-symlinked non-existent file', () => {
+		itSkipWindows('should figure out the real path for a non-symlinked non-existent file', () => {
 			const tmpObj = tmp.dirSync({
 				mode: '755',
 				prefix: 'amplify-utils-path-test-'
@@ -89,7 +91,7 @@ describe.only('path', () => {
 			}
 		});
 
-		it('should figure out the real path for a symlinked nested non-existent directory', () => {
+		itSkipWindows('should figure out the real path for a symlinked nested non-existent directory', () => {
 			const dir = tmp.dirSync({
 				mode: '755',
 				prefix: 'amplify-utils-path-test-'
