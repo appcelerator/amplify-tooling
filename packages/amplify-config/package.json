@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-config",
-  "version": "4.0.0-beta3",
+  "version": "4.0.0-beta5",
   "description": "Configuration helper for the Axway CLI.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -21,7 +21,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-utils": "^1.0.0",
+    "@axway/amplify-utils": "^1.0.0-beta5",
     "config-kit": "^1.7.1",
     "fs-extra": "^10.0.0",
     "source-map-support": "^0.5.20"

@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-utils",
-  "version": "1.0.0",
+  "version": "1.0.0-beta5",
   "description": "Axway Amplify utility library",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [

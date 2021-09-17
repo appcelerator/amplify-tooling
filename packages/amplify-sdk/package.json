@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-sdk",
-  "version": "3.0.0-beta3",
+  "version": "3.0.0-beta5",
   "description": "Axway Amplify SDK for Node.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@axway/amplify-request": "^3.0.0-beta3",
-    "@axway/amplify-utils": "^1.0.0",
+    "@axway/amplify-utils": "^1.0.0-beta5",
     "ci-info": "^3.2.0",
     "ejs": "^3.1.6",
     "fs-extra": "^10.0.0",

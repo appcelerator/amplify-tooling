@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-oum",
-  "version": "2.0.0-beta3",
+  "version": "2.0.0-beta5",
   "description": "Axway Amplify platform organization and user management CLI",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -19,7 +19,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.0-beta3",
+    "@axway/amplify-cli-utils": "^5.0.0-beta5",
     "cli-kit": "^1.14.1",
     "open": "^8.2.1",
     "snooplogg": "^3.0.2",

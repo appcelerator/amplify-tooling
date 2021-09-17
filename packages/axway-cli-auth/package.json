@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-auth",
-  "version": "3.0.0-beta3",
+  "version": "3.0.0-beta5",
   "description": "Authenticate machines with the Axway Amplify platform",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -20,8 +20,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.0-beta3",
-    "@axway/amplify-utils": "^1.0.0",
+    "@axway/amplify-cli-utils": "^5.0.0-beta5",
+    "@axway/amplify-utils": "^1.0.0-beta5",
     "cli-kit": "^1.14.1",
     "enquirer": "^2.3.6",
     "pretty-ms": "^7.0.1",
