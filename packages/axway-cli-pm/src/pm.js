@@ -105,6 +105,7 @@ export function install(pkgName) {
 			const args = [
 				'install',
 				'--production',
+				'--force', // needed for npm 7
 				...createNPMRequestArgs()
 			];
 			const opts = {
