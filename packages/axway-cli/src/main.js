@@ -74,7 +74,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 			if (arch === 'ia32' || arch === 'x32') {
 				str += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" has been deprecated and is unsupported
  ┃ in Axway CLI v3 and newer.`);
-			} else if (arch !== 'x64') {
+			} else if (arch !== 'x64' && arch !== 'arm64') {
 				str += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" is not supported.`);
 			}
 			return str;
