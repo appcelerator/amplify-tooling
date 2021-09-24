@@ -2,8 +2,7 @@
   "name": "@axway/axway-cli-pm",
   "version": "4.0.0-rc2",
   "publishConfig": {
-    "access": "public",
-    "tag": "next"
+    "access": "public"
   },
   "description": "Package manager for Axway products",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",

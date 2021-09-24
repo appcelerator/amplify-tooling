@@ -2,8 +2,7 @@
   "name": "@axway/amplify-sdk",
   "version": "3.0.0-rc1",
   "publishConfig": {
-    "access": "public",
-    "tag": "next"
+    "access": "public"
   },
   "description": "Axway Amplify SDK for Node.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",

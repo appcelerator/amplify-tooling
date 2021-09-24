@@ -2,8 +2,7 @@
   "name": "axway",
   "version": "3.0.0-rc3",
   "publishConfig": {
-    "access": "public",
-    "tag": "next"
+    "access": "public"
   },
   "description": "A unified CLI for the Axway Amplify platform.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",

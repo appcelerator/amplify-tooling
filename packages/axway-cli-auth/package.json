@@ -2,8 +2,7 @@
   "name": "@axway/axway-cli-auth",
   "version": "3.0.0-rc1",
   "publishConfig": {
-    "access": "public",
-    "tag": "next"
+    "access": "public"
   },
   "description": "Authenticate machines with the Axway Amplify platform",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
