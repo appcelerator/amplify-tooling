@@ -1,4 +1,4 @@
-# v5.0.0
+# v5.0.0 (Sep 24, 2021)
 
  * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
    ([APIGOV-19220](https://jira.axway.com/browse/APIGOV-19220))
