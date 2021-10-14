@@ -1,3 +1,8 @@
+# v3.0.1
+
+ * fix(auth): Only include the env in the authenticated account hash when the env is not
+   production. ([APIGOV-20704](https://jira.axway.com/browse/APIGOV-20704))
+
 # v3.0.0 (Sep 24, 2021)
 
  * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.
