@@ -250,7 +250,7 @@ describe('axway pm', () => {
 
 		it('should handle update a package', async function () {
 			this.timeout(120000);
-			this.slow(30000);
+			this.slow(60000);
 
 			await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
 
@@ -270,13 +270,13 @@ describe('axway pm', () => {
 
 		it('should handle no packages to update', async function () {
 			this.timeout(120000);
-			this.slow(30000);
+			this.slow(60000);
 
 			let { status, stdout } = await runAxwaySync([ 'pm', 'update' ]);
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('update/nothing-to-update'));
 
-			await runAxwaySync([ 'pm', 'install', 'acs@2.1.10' ]);
+			await runAxwaySync([ 'pm', 'install', 'acs' ]);
 
 			( { status, stdout } = await runAxwaySync([ 'pm', 'update' ]));
 			expect(status).to.equal(0);
@@ -285,7 +285,7 @@ describe('axway pm', () => {
 
 		it('should error updating a package that is not installed', async function () {
 			this.timeout(120000);
-			this.slow(30000);
+			this.slow(60000);
 
 			const { status, stderr } = await runAxwaySync([ 'pm', 'update', 'acs' ]);
 			expect(status).to.equal(1);
