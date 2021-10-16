@@ -106,7 +106,7 @@ describe('auth', () => {
 					access_token: 'foo'
 				}
 			},
-			hash: 'test:e68e2ebbfd6a18595992efddf4f7b288',
+			hash: 'test:85e0419f4473118bf2bc8a8bba9f6abc',
 			name: 'bar'
 		};
 
@@ -121,7 +121,7 @@ describe('auth', () => {
 			platformUrl:  'http://127.0.0.1:1337/',
 			realm:        'baz',
 			tokenStore
-		}, new Config());
+		}, new Config({ env: 'preprod' }));
 
 		const account = await sdk.auth.find();
 		expect(account).to.deep.equal(token);

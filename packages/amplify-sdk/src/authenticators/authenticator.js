@@ -398,7 +398,7 @@ export default class Authenticator {
 	get hash() {
 		return this.clientId.replace(/\s/g, '_').replace(/_+/g, '_') + ':' + md5(Object.assign({
 			baseUrl:  this.baseUrl,
-			env:      this.env.name,
+			env:      this.env.name === 'prod' ? undefined : this.env.name,
 			realm:    this.realm
 		}, this.hashParams));
 	}
