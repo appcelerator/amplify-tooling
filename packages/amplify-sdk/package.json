@@ -31,7 +31,7 @@
     "get-port": "^5.1.1",
     "jws": "^4.0.0",
     "keytar": "7.7.0",
-    "open": "^8.2.1",
+    "open": "^8.3.0",
     "pluralize": "^8.0.0",
     "serialize-error": "^8.1.0",
     "set-cookie-parser": "^2.4.8",
@@ -43,7 +43,7 @@
   "devDependencies": {
     "@axway/gulp-tasks": "^4.0.3",
     "@koa/router": "^10.1.1",
-    "koa": "^2.13.1",
+    "koa": "^2.13.3",
     "koa-bodyparser": "^4.3.0",
     "koa-session": "^6.2.0"
   },

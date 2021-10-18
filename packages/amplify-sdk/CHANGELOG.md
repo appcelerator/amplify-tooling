@@ -1,7 +1,8 @@
-# v3.0.1
+# v3.0.1 (Oct 18, 2021)
 
  * fix(auth): Only include the env in the authenticated account hash when the env is not
    production. ([APIGOV-20704](https://jira.axway.com/browse/APIGOV-20704))
+ * chore: Updated dependencies.
 
 # v3.0.0 (Sep 24, 2021)
 

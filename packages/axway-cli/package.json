@@ -33,7 +33,7 @@
     "@axway/axway-cli-auth": "^3.0.0",
     "@axway/axway-cli-oum": "^2.0.0",
     "@axway/axway-cli-pm": "^4.0.0",
-    "boxen": "^5.1.1",
+    "boxen": "^5.1.2",
     "check-kit": "^1.2.1",
     "cli-kit": "^1.14.1",
     "serialize-error": "^8.1.0",

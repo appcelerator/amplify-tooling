@@ -1,3 +1,7 @@
+# v3.0.1 (Oct 18, 2021)
+
+ * chore: Updated dependencies.
+
 # v3.0.0 (Sep 24, 2021)
 
  * BREAKING CHANGE: Require Node.js 12.13.0 LTS or newer.

@@ -24,7 +24,7 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^5.0.0",
     "cli-kit": "^1.14.1",
-    "open": "^8.2.1",
+    "open": "^8.3.0",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.20"
   },
