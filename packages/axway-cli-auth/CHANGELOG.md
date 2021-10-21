@@ -1,3 +1,8 @@
+# v3.1.0
+
+ * feat: Display region after logging in and on auth list and whoami commands.
+   ([APIGOV-16634](https://jira.axway.com/browse/APIGOV-16634))
+
 # v3.0.1 (Oct 18, 2021)
 
  * chore: Updated dependencies.

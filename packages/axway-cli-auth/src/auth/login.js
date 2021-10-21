@@ -188,6 +188,8 @@ export default {
 			console.log(`You are logged in as ${highlight(account.user.email || account.name)}.`);
 		}
 
+		console.log(`The current region is set to ${highlight(config.get('region', account.org?.region || 'US'))}.`);
+
 		// set the current
 		if (accounts.length === 1 || account.default) {
 			console.log('This account has been set as the default.');

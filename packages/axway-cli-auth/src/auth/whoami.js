@@ -14,7 +14,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { initSDK } = await import('@axway/amplify-cli-utils');
-		const { sdk } = initSDK({
+		const { config, sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm
@@ -33,13 +33,18 @@ export default {
 			const { default: snooplogg } = require('snooplogg');
 			const { highlight } = snooplogg.styles;
 			if (accounts.length) {
+				let region = config.get('region');
 				for (const account of accounts) {
 					if (account.isPlatform && account.org?.name) {
 						console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
 					} else {
 						console.log(`You are logged in as ${highlight(account.user.email || account.name)}.`);
 					}
+					if (!region && account.default) {
+						region = account.org?.region;
+					}
 				}
+				console.log(`The current region is set to ${highlight(region || 'US')}.`);
 			} else if (argv.accountName) {
 				console.log(`The account ${highlight(argv.accountName)} is not logged in.`);
 			} else {
