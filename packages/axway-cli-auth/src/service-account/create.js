@@ -207,7 +207,7 @@ required options must be passed in at execution.`;
 				console.log();
 			}
 
-			const { client_id, name } = results.client;
+			const { client_id } = results.client;
 			console.log('Successfully created service account\n');
 
 			if (secret) {

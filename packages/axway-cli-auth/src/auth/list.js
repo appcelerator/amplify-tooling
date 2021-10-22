@@ -37,13 +37,14 @@ export default {
 		const check = process.platform === 'win32' ? '√' : '✔';
 		const now = Date.now();
 		const pretty = require('pretty-ms');
-		const table = createTable([ 'Account Name', 'Organization', 'Type', 'Expires' ]);
+		const table = createTable([ 'Account Name', 'Organization', 'Region', 'Type', 'Expires' ]);
 
 		for (const { default: def, auth, isPlatform, name, org } of accounts) {
 			const { access, refresh } = auth.expires;
 			table.push([
 				`${def ? green(`${check} ${name}`) : `  ${name}`}`,
 				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
+				org?.region || 'US',
 				isPlatform ? 'Platform' : 'Service',
 				pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 })
 			]);
