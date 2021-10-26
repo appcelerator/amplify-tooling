@@ -2,6 +2,8 @@
 
  * feat: Display region after logging in and on auth list and whoami commands.
    ([APIGOV-16634](https://jira.axway.com/browse/APIGOV-16634))
+ * fix(switch): Fixed function reference when saving switched org when using a service account that
+   uses a platform tooling account. ([APIGOV-20757](https://jira.axway.com/browse/APIGOV-20757))
 
 # v3.0.1 (Oct 18, 2021)
 
