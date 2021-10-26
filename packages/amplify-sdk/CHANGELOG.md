@@ -1,3 +1,9 @@
+# v3.0.2
+
+ * fix(telemetry): Switched from `fork()` to `spawn()` when sending telemetry to fix issue with
+   arrow key ansi escape sequences from being printed instead of cycling through the shell history.
+   ([APIGOV-20863](https://jira.axway.com/browse/APIGOV-20863))
+
 # v3.0.1 (Oct 18, 2021)
 
  * fix(auth): Only include the env in the authenticated account hash when the env is not

@@ -6,8 +6,8 @@ import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
 import * as request from '@axway/amplify-request';
 import * as uuid from 'uuid';
 import { arch as _arch, isDir, osInfo, redact, writeFileSync } from '@axway/amplify-utils';
-import { fork } from 'child_process';
 import { serializeError } from 'serialize-error';
+import { spawn } from 'child_process';
 
 const logger = snooplogg('amplify-sdk:telemetry');
 const { log } = logger;
@@ -272,7 +272,10 @@ export default class Telemetry {
 			return;
 		}
 
-		const child = fork(module.filename);
+		const child = spawn(process.execPath, [ module.filename ], {
+			stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ],
+			windowsHide: true
+		});
 		const { pid } = child;
 
 		child.send({
