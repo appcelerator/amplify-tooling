@@ -134,7 +134,7 @@ export default {
 					console.log();
 				}
 
-				await sdk.client.updateAccount(account);
+				await sdk.authClient.updateAccount(account);
 			} else {
 				account = await sdk.auth.switchOrg(account, org?.id, {
 					onOpenBrowser() {
