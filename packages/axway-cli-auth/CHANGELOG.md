@@ -2,6 +2,8 @@
 
  * feat: Display region after logging in and on auth list and whoami commands.
    ([APIGOV-16634](https://jira.axway.com/browse/APIGOV-16634))
+ * fix: Validate that accounts have not been invalidated when listing authenticated accounts.
+   ([APIGOV-20857](https://jira.axway.com/browse/APIGOV-20857))
  * fix(switch): Fixed function reference when saving switched org when using a service account that
    uses a platform tooling account. ([APIGOV-20757](https://jira.axway.com/browse/APIGOV-20757))
 

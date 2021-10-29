@@ -19,7 +19,7 @@ export default {
 			env:      argv.env,
 			realm:    argv.realm
 		});
-		let accounts = await sdk.auth.list();
+		let accounts = await sdk.auth.list({ validate: true });
 
 		if (argv.accountName) {
 			// eslint-disable-next-line security/detect-non-literal-regexp

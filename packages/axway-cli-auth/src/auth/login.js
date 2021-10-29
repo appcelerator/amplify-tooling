@@ -163,7 +163,7 @@ export default {
 		}
 
 		// determine if the account is the default
-		const accounts = await sdk.auth.list();
+		const accounts = await sdk.auth.list({ validate: true });
 		if (accounts.length === 1) {
 			config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
 			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
