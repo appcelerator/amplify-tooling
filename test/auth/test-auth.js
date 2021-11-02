@@ -244,20 +244,20 @@ describe('axway auth', () => {
 			this.servers = await startServers();
 
 			let { status, stdout } = await runAxwaySync([ 'auth', 'login' ]);
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'login', '--secret-file', path.join(__dirname, 'login/secret.pem') ]));
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success-service-not-default'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/platform-service-accounts'));
+			expect(status).to.equal(0);
 		});
 
 		itSkipHeadless('should error if browser times out', async function () {

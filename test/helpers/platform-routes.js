@@ -20,10 +20,11 @@ export function createPlatformRoutes(server, opts = {}) {
 		const { authorization } = ctx.req.headers;
 		const p = authorization ? authorization.indexOf(' ') : -1;
 		const token = p !== -1 ? authorization.substring(p + 1) : null;
+		const tokens = state.sessions?.find(t => t.accessToken === token);
 
 		log(`Finding session using token "${token}" or cookie "${ctx.cookies.get('connect.sid')}"`);
 
-		if (!state.isServiceAccount && token === state.accessToken) {
+		if (tokens && !tokens.isServiceAccount) {
 			const user = data.users.find(u => u.guid === '50000');
 			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
 
@@ -35,7 +36,7 @@ export function createPlatformRoutes(server, opts = {}) {
 					user
 				}
 			};
-		} else if (state.isServiceAccount && token === state.accessToken) {
+		} else if (tokens && tokens.isServiceAccount) {
 			ctx.body = {
 				success: true,
 				result: null

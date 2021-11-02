@@ -183,6 +183,7 @@ export default class AmplifySDK {
 						try {
 							accounts[i] = await this.auth.loadSession(accounts[i]);
 						} catch (e) {
+							warn(`Failed to load session for account "${accounts[i].name}": ${e.toString()}`);
 							accounts.splice(i--, 1);
 						}
 					}
