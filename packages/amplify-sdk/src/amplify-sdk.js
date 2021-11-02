@@ -166,10 +166,29 @@ export default class AmplifySDK {
 
 			/**
 			 * Returns a list of all authenticated accounts.
+			 * @param {Object} [opts] - Various options.
+			 * @param {Boolean} [opts.validate] - When `true`, checks to see if each account has an
+			 * active access token and session.
 			 * @returns {Promise<Array>}
 			 */
-			list: async () => {
+			list: async (opts = {}) => {
+				if (!opts || typeof opts !== 'object') {
+					throw E.INVALID_ARGUMENT('Expected options to be an object');
+				}
+
 				const accounts = await this.authClient.list();
+
+				if (opts.validate) {
+					for (let i = 0; i < accounts.length; i++) {
+						try {
+							accounts[i] = await this.auth.loadSession(accounts[i]);
+						} catch (e) {
+							warn(`Failed to load session for account "${accounts[i].name}": ${e.toString()}`);
+							accounts.splice(i--, 1);
+						}
+					}
+				}
+
 				return accounts.sort((a, b) => a.name.localeCompare(b.name));
 			},
 
@@ -180,7 +199,19 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>} Resolves the original account info object.
 			 */
 			loadSession: async account => {
-				account = await this.auth.findSession(account);
+				try {
+					account = await this.auth.findSession(account);
+				} catch (err) {
+					if (err.code === 'ERR_SESSION_INVALIDATED') {
+						warn(`Detected invalidated session, purging account ${highlight(account.name)}`);
+						await this.authClient.logout({
+							accounts: [ account.name ],
+							baseUrl: this.baseUrl
+						});
+					}
+					throw err;
+				}
+
 				await this.authClient.updateAccount(account);
 
 				if (account.isPlatform) {
@@ -1745,7 +1776,12 @@ export default class AmplifySDK {
 					headers.Authorization = `Bearer ${token}`;
 					delete headers.Cookie;
 					log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
-					response = await this.got[method](url, opts);
+					try {
+						response = await this.got[method](url, opts);
+					} catch (err) {
+						// access token is invalid
+						throw E.SESSION_INVALIDATED('Platform session has been invalidated');
+					}
 				} else if (error) {
 					throw error;
 				}

@@ -25,13 +25,13 @@ export default {
 		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 		const platformRoles = createTable([ '  Role', 'Description' ]);
-		const additionalRoles = createTable([ '  Role', 'Description', 'Product' ]);
+		const serviceRoles = createTable([ '  Role', 'Description', 'Product' ]);
 
 		for (const role of roles) {
 			if (role.default) {
 				platformRoles.push([ `  ${highlight(role.id)}`, role.name ]);
 			} else {
-				additionalRoles.push([ `  ${highlight(role.id)}`, role.name, role.product || '' ]);
+				serviceRoles.push([ `  ${highlight(role.id)}`, role.name, role.product || '' ]);
 			}
 		}
 
@@ -41,9 +41,9 @@ export default {
 		console.log('PLATFORM ROLES');
 		console.log(platformRoles.toString());
 
-		if (additionalRoles.length) {
-			console.log('\nPRODUCT SPECIFIC ROLES');
-			console.log(additionalRoles.toString());
+		if (serviceRoles.length) {
+			console.log('\nSERVICE ROLES');
+			console.log(serviceRoles.toString());
 		}
 	}
 };

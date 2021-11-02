@@ -18,7 +18,7 @@ export default {
 			realm:    argv.realm
 		});
 
-		const accounts = await sdk.auth.list();
+		const accounts = await sdk.auth.list({ validate: true });
 		for (const account of accounts) {
 			account.default = account.name === config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultAccount`);
 		}

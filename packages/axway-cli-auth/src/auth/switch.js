@@ -19,7 +19,7 @@ export default {
 			realm:    argv.realm
 		});
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
-		const accounts = await sdk.auth.list();
+		const accounts = await sdk.auth.list({ validate: true });
 		let account;
 
 		if (!accounts.length) {

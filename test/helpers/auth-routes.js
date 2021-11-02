@@ -17,19 +17,32 @@ export function createAuthRoutes(server, opts = {}) {
 
 	router.post('/realms/test_realm/protocol/openid-connect/token', ctx => {
 		const body = ctx.request.body || {};
-		state.isServiceAccount = body.client_assertion_type?.includes('jwt-bearer') || (body.grant_type === 'client_credentials' && !!ctx.request.body?.client_secret);
-		state.email = state.isServiceAccount ? 'service@bar.com' : 'foo@bar.com';
+		const isServiceAccount = body.client_assertion_type?.includes('jwt-bearer') || (body.grant_type === 'client_credentials' && !!ctx.request.body?.client_secret);
+		const email = isServiceAccount ? 'service@bar.com' : 'foo@bar.com';
+
+		// this is gross, but we set this for the userinfo call
+		state.email = email;
 
 		state.accessToken = jws.sign({
 			header: { alg: 'HS256' },
-			payload: { email: state.email },
+			payload: { email },
 			secret: `access_secret`
 		});
 
 		state.refreshToken = jws.sign({
 			header: { alg: 'HS256' },
-			payload: { email: state.email },
+			payload: { email },
 			secret: `refresh_secret`
+		});
+
+		if (!Array.isArray(state.sessions)) {
+			state.sessions = [];
+		}
+		state.sessions.push({
+			email,
+			isServiceAccount,
+			accessToken: state.accessToken,
+			refreshToken: state.refreshToken
 		});
 
 		ctx.body = {

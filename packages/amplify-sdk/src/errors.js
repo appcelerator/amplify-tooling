@@ -20,6 +20,7 @@ createError('ORG_SWITCH_FAILED',          Error,      'Failed to switch the curr
 createError('REQUEST_FAILED',             Error,      'An HTTP request has errored or returned an invalid response');
 createError('SECURE_STORE_UNAVAILABLE',   Error,      'The secure store is not available, probably because "keytar" is not built or compatible with the current Node.js version');
 createError('SEND_AUTH_CODE_FAILED',      Error,      'The submit device authorization code request has errored or returned an invalid response');
+createError('SESSION_INVALIDATED',        Error,      'The session associated with the access token has been invalidated on the server-side');
 createError('TOKEN_EXPIRED',              Error,      'The access token is expired');
 
 /**

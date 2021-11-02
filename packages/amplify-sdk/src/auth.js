@@ -361,7 +361,7 @@ export default class Auth {
 	 *
 	 * @param {Object} opts - Required options.
 	 * @param {Array.<String>} opts.accounts - A list of accounts names or hashes.
-	 * @param {Boolean} opts.all - When `true`, revokes all accounts.
+	 * @param {Boolean} [opts.all] - When `true`, revokes all accounts.
 	 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>} Resolves a list of revoked credentials.
 	 * @access public

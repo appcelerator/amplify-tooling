@@ -145,7 +145,11 @@ async function runTests(cover, all) {
 		// restore home directory so that we can delete the temp one
 		if (tmpHomeDir) {
 			log(`Removing temp home directory: ${cyan(tmpHomeDir)}`);
-			fs.removeSync(tmpHomeDir);
+			try {
+				fs.removeSync(tmpHomeDir);
+			} catch (err) {
+				log(`Failed to remove temp home directory: ${err.toString()}`);
+			}
 		}
 
 		log(`Restoring home directory: ${cyan(origHomeDir)}`);
