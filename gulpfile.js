@@ -139,7 +139,7 @@ async function runTests(cover, all) {
 			projectDir: __dirname,
 			root: __dirname,
 			slow: 15000,
-			timeout: 20000
+			timeout: 40000
 		});
 	} finally {
 		// restore home directory so that we can delete the temp one

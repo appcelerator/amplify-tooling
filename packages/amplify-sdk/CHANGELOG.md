@@ -1,10 +1,11 @@
-# v3.0.2
+# v3.0.2 (Nov 5, 2021)
 
  * feat(auth): Add flag to validate and refresh accounts before returning the list of accounts.
    ([APIGOV-20857](https://jira.axway.com/browse/APIGOV-20857))
  * fix(telemetry): Switched from `fork()` to `spawn()` when sending telemetry to fix issue with
    arrow key ansi escape sequences from being printed instead of cycling through the shell history.
    ([APIGOV-20863](https://jira.axway.com/browse/APIGOV-20863))
+ * chore: Updated dependencies.
 
 # v3.0.1 (Oct 18, 2021)
 
