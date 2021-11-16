@@ -1,3 +1,9 @@
+# v3.2.0
+
+ * feat: Added current team to `list`, `login`, and `whoami` commands as well as org and team roles
+   to `login` and `whoami` commands.
+   ([APIGOV-20937](https://jira.axway.com/browse/APIGOV-20937))
+
 # v3.1.0 (Nov 5, 2021)
 
  * feat: Display region after logging in and on auth list and whoami commands.

@@ -13,13 +13,16 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { initSDK } = await import('@axway/amplify-cli-utils');
+		const { createTable, getAuthConfigEnvSpecifier, initSDK } = await import('@axway/amplify-cli-utils');
 		const { config, sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm
 		});
 		let accounts = await sdk.auth.list({ validate: true });
+		for (const account of accounts) {
+			account.default = account.name === config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultAccount`);
+		}
 
 		if (argv.accountName) {
 			// eslint-disable-next-line security/detect-non-literal-regexp
@@ -31,20 +34,39 @@ export default {
 			console.log(JSON.stringify(accounts, null, 2));
 		} else {
 			const { default: snooplogg } = require('snooplogg');
-			const { highlight } = snooplogg.styles;
+			const { highlight, note } = snooplogg.styles;
+
 			if (accounts.length) {
-				let region = config.get('region');
+				let acct;
+
 				for (const account of accounts) {
 					if (account.isPlatform && account.org?.name) {
-						console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
+						console.log(`You are logged into ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}`);
 					} else {
-						console.log(`You are logged in as ${highlight(account.user.email || account.name)}.`);
+						console.log(`You are logged in as ${highlight(account.user.email || account.name)}`);
 					}
-					if (!region && account.default) {
-						region = account.org?.region;
+					if (account.default) {
+						acct = account;
 					}
 				}
-				console.log(`The current region is set to ${highlight(region || 'US')}.`);
+
+				const table = createTable();
+
+				if (acct.roles.length) {
+					const roles = await sdk.role.list(acct);
+					table.push([ 'Org Roles:', highlight(acct.roles.map(role => roles.find(r => r.id === role)?.name || role).join(', ')) ]);
+				}
+
+				if (acct.team) {
+					table.push([ 'Team:', `${highlight(acct.team.name)} ${note(`(${acct.team.guid})`)}` ]);
+					if (acct.team.roles.length) {
+						const roles = await sdk.role.list(acct, { team: true });
+						table.push([ 'Team Roles:', highlight(acct.team.roles.map(role => roles.find(r => r.id === role)?.name || role).join(', ')) ]);
+					}
+				}
+
+				table.push([ 'Region:', highlight(config.get('region', acct.org?.region || 'US')) ]);
+				console.log(table.toString());
 			} else if (argv.accountName) {
 				console.log(`The account ${highlight(argv.accountName)} is not logged in.`);
 			} else {

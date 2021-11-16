@@ -54,7 +54,7 @@ export default {
 	],
 	async action({ argv, cli, console }) {
 		const { default: snooplogg } = require('snooplogg');
-		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
+		const { createTable, getAuthConfigEnvSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
 		const { prompt } = require('enquirer');
 
 		// prompt for the username and password
@@ -109,7 +109,27 @@ export default {
 		});
 		let account;
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
-		const { highlight } = snooplogg.styles;
+		const { highlight, note } = snooplogg.styles;
+
+		const printDetails = async account => {
+			const table = createTable();
+
+			if (account.roles?.length) {
+				const roles = await sdk.role.list(account);
+				table.push([ 'Org Roles:', highlight(account.roles.map(role => roles.find(r => r.id === role)?.name || role).join(', ')) ]);
+			}
+
+			if (account.team) {
+				table.push([ 'Team:', `${highlight(account.team.name)} ${note(`(${account.team.guid})`)}` ]);
+				if (account.team.roles.length) {
+					const roles = await sdk.role.list(account, { team: true });
+					table.push([ 'Team Roles:', highlight(account.team.roles.map(role => roles.find(r => r.id === role)?.name || role).join(', ')) ]);
+				}
+			}
+
+			table.push([ 'Region:', highlight(config.get('region', account.org?.region || 'US')) ]);
+			console.log(`${table.toString()}\n`);
+		};
 
 		// perform the login
 		const manual = !argv.launchBrowser;
@@ -151,11 +171,15 @@ export default {
 				if (argv.json) {
 					account.default = config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name;
 					console.log(JSON.stringify(account, null, 2));
-				} else if (account.isPlatform && account.org?.name) {
-					console.log(`You are already logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
+					return;
+				}
+
+				if (account.isPlatform && account.org?.name) {
+					console.log(`You are already logged into ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
 				} else {
 					console.log(`You are already logged in as ${highlight(account.user.email || account.name)}.`);
 				}
+				await printDetails(account);
 				return;
 			}
 
@@ -183,12 +207,12 @@ export default {
 		}
 
 		if (account.isPlatform && account.org?.name) {
-			console.log(`You are logged into ${highlight(account.org.name)} as ${highlight(account.user.email || account.name)}.`);
+			console.log(`You are logged into ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}`);
 		} else {
-			console.log(`You are logged in as ${highlight(account.user.email || account.name)}.`);
+			console.log(`You are logged in as ${highlight(account.user.email || account.name)}`);
 		}
 
-		console.log(`The current region is set to ${highlight(config.get('region', account.org?.region || 'US'))}.`);
+		await printDetails(account);
 
 		// set the current
 		if (accounts.length === 1 || account.default) {

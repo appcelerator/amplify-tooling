@@ -1,3 +1,8 @@
+# v3.1.0
+
+ * feat: Added current `team` to authenticated platform account object.
+ * fix: Fixed retrieving list of roles implicitly using the org from the account object.
+
 # v3.0.2 (Nov 5, 2021)
 
  * feat(auth): Add flag to validate and refresh accounts before returning the list of accounts.

@@ -31,10 +31,12 @@ describe('auth', () => {
 							},
 							orgs: [
 								{
+									guid: '123',
 									org_id: 123,
 									name: 'foo org'
 								},
 								{
+									guid: '123',
 									org_id: 456,
 									name: 'bar org'
 								}
@@ -48,6 +50,18 @@ describe('auth', () => {
 								organization: 'foo org'
 							}
 						}
+					}));
+					break;
+
+				case '/api/v1/team':
+					res.writeHead(200, { 'Content-Type': 'application/json' });
+					res.end(JSON.stringify({
+						result: [
+							{
+								guid: '112233',
+								name: 'Default Team'
+							}
+						]
 					}));
 					break;
 
