@@ -59,7 +59,10 @@ describe('auth', () => {
 						result: [
 							{
 								guid: '112233',
-								name: 'Default Team'
+								name: 'Default Team',
+								users: [
+									{ guid: 'def456' }
+								]
 							}
 						]
 					}));

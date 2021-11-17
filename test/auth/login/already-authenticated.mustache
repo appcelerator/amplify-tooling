@@ -2,7 +2,18 @@
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
 
 You are already logged into {{#cyan}}Foo org{{/cyan}} {{#gray}}(1000){{/gray}} as {{#cyan}}test1@domain.com{{/cyan}}.
-Org Roles:   {{#cyan}}Administrator{{/cyan}}
-Team:        {{#cyan}}A Team{{/cyan}} {{#gray}}(60000){{/gray}}
-Team Roles:  {{#cyan}}Administrator{{/cyan}}
-Region:      {{#cyan}}US{{/cyan}}
+The current region is set to {{#cyan}}US{{/cyan}}.
+
+ORGANIZATION  GUID  ID
+{{#green}}✔ Foo org{{/green}}     1000  100
+  Bar org     2000  200
+  Baz org     3000  300
+
+ROLES            DESCRIPTION    TYPE
+  {{#cyan}}administrator{{/cyan}}  Administrator  Platform
+
+"Foo org" TEAMS
+{{#green}}✔ A Team{{/green}}  60000
+
+TEAM ROLES       DESCRIPTION
+  {{#cyan}}administrator{{/cyan}}  Administrator

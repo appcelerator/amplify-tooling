@@ -13,7 +13,8 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { createTable, getAuthConfigEnvSpecifier, initSDK } = await import('@axway/amplify-cli-utils');
+		const { getAuthConfigEnvSpecifier, initSDK } = require('@axway/amplify-cli-utils');
+		const { renderAccountInfo } = require('../lib/info');
 		const { config, sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
@@ -41,32 +42,19 @@ export default {
 
 				for (const account of accounts) {
 					if (account.isPlatform && account.org?.name) {
-						console.log(`You are logged into ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}`);
+						console.log(`You are logged into ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
 					} else {
-						console.log(`You are logged in as ${highlight(account.user.email || account.name)}`);
+						console.log(`You are logged in as ${highlight(account.user.email || account.name)}.`);
 					}
 					if (account.default) {
 						acct = account;
 					}
 				}
 
-				const table = createTable();
-
-				if (acct.roles.length) {
-					const roles = await sdk.role.list(acct);
-					table.push([ 'Org Roles:', highlight(acct.roles.map(role => roles.find(r => r.id === role)?.name || role).join(', ')) ]);
+				if (acct) {
+					acct = await sdk.auth.selectTeam(acct, config.get(`${getAuthConfigEnvSpecifier(acct.auth.env)}.defaultTeam.${acct.hash}`));
+					console.log(await renderAccountInfo(acct, config, sdk));
 				}
-
-				if (acct.team) {
-					table.push([ 'Team:', `${highlight(acct.team.name)} ${note(`(${acct.team.guid})`)}` ]);
-					if (acct.team.roles.length) {
-						const roles = await sdk.role.list(acct, { team: true });
-						table.push([ 'Team Roles:', highlight(acct.team.roles.map(role => roles.find(r => r.id === role)?.name || role).join(', ')) ]);
-					}
-				}
-
-				table.push([ 'Region:', highlight(config.get('region', acct.org?.region || 'US')) ]);
-				console.log(table.toString());
 			} else if (argv.accountName) {
 				console.log(`The account ${highlight(argv.accountName)} is not logged in.`);
 			} else {
