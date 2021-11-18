@@ -36,7 +36,7 @@ describe('auth', () => {
 									name: 'foo org'
 								},
 								{
-									guid: '123',
+									guid: '456',
 									org_id: 456,
 									name: 'bar org'
 								}
