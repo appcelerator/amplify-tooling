@@ -5,6 +5,7 @@
    ([APIGOV-20937](https://jira.axway.com/browse/APIGOV-20937))
  * feat(switch): Added ability to select a team when running `axway auth switch`.
    ([APIGOV-20941](https://jira.axway.com/browse/APIGOV-20941))
+ * chore: Updated dependencies.
 
 # v3.1.0 (Nov 5, 2021)
 
