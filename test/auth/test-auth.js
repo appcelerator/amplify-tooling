@@ -77,16 +77,16 @@ describe('axway auth', () => {
 			this.servers = await startServers();
 
 			let { status, stdout } = await runAxwaySync([ 'auth', 'login' ]);
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/foo-bar-platform-account'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'login' ]));
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/already-authenticated'));
+			expect(status).to.equal(0);
 		});
 
 		itSkipHeadless('should log into platform account using PKCE and return result as JSON', async function () {
@@ -154,12 +154,12 @@ describe('axway auth', () => {
 			this.servers = await startServers();
 
 			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-secret', 'shhhh' ]);
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('login/success-service'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/service-bar-account'));
+			expect(status).to.equal(0);
 		});
 
 		it('should error if secret file is invalid', async function () {
@@ -335,9 +335,9 @@ describe('axway auth', () => {
 			expect(accounts).to.have.lengthOf(0);
 		});
 
-		it.skip('should logout of service account', async function () {
-			//
-		});
+		// it('should logout of service account', async function () {
+		//
+		// });
 
 		it('should error if no authenticated accounts', async () => {
 			const { status, stderr } = await runAxwaySync([ 'auth', 'logout' ]);

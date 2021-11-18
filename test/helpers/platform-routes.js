@@ -27,12 +27,15 @@ export function createPlatformRoutes(server, opts = {}) {
 		if (tokens && !tokens.isServiceAccount) {
 			const user = data.users.find(u => u.guid === '50000');
 			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
+			const roles = orgs[0].users.find(u => u.guid === '50000')?.roles || [];
 
 			ctx.body = {
 				success: true,
 				result: {
 					org: orgs[0],
 					orgs,
+					role: roles[0],
+					roles,
 					user
 				}
 			};
@@ -44,12 +47,15 @@ export function createPlatformRoutes(server, opts = {}) {
 		} else if (ctx.session?.userGuid) {
 			const user = data.users.find(u => u.guid === ctx.session.userGuid);
 			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
+			const roles = orgs[0].users.find(u => u.guid === user.guid)?.roles || [];
 
 			ctx.body = {
 				success: true,
 				result: {
 					org: orgs[0],
 					orgs,
+					role: roles[0],
+					roles,
 					user
 				}
 			};

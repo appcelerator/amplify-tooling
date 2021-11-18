@@ -161,6 +161,22 @@ export default class AmplifySDK {
 					phone:        user.phone
 				});
 
+				const { teams } = await this.team.list(account, org.org_id, account.user.guid);
+				account.org.teams = teams;
+
+				if (teams.length) {
+					const team = teams.find(t => t.default) || teams[0];
+					account.team = {
+						default: team.default,
+						guid:    team.guid,
+						name:    team.name,
+						roles:   team.users?.find(u => u.guid === user.guid)?.roles || [],
+						tags:    team.tags
+					};
+				} else {
+					account.team = null;
+				}
+
 				return account;
 			},
 
@@ -355,6 +371,41 @@ export default class AmplifySDK {
 				}
 
 				return await this.authClient.logout({ accounts: accounts.map(account => account.hash), baseUrl });
+			},
+
+			/**
+			 * Sets the current team for the given account. If team is not found,
+			 *
+			 * @param {Object} account - The account object.
+			 * @param {String} [team] - The team name or guid to select. If not specified, then selects the default team.
+			 * @returns {Promise} Resolves the original account object with the team selected.
+			 */
+			selectTeam: async (account, team) => {
+				if (!account.org.teams) {
+					return account;
+				}
+
+				// find the team
+				const info = account.org.teams.find(t => (team && t.guid.toLowerCase() === team || t.name.toLowerCase() === team) || (!team && t.default));
+
+				if (!info && account.team) {
+					// team not found, unset the team
+					account.team = null;
+					await this.authClient.updateAccount(account);
+
+				} else if (info && (!account.team || account.team.guid !== info.guid)) {
+					// set the new team
+					account.team = {
+						default: info.default,
+						guid:    info.guid,
+						name:    info.name,
+						roles:   info.users?.find(u => u.guid === account.user.guid)?.roles || [],
+						tags:    info.tags
+					};
+					await this.authClient.updateAccount(account);
+				}
+
+				return account;
 			},
 
 			/**
@@ -855,6 +906,31 @@ export default class AmplifySDK {
 			}),
 
 			/**
+			 * Retrieves the list of environments associated to the user's org.
+			 * @param {Object} account - The account object.
+			 * @returns {Promise<Array>}
+			 */
+			environments: async account => {
+				assertPlatformAccount(account);
+				return await this.request('/api/v1/org/env', account, {
+					errorMsg: 'Failed to get organization environments'
+				});
+			},
+
+			/**
+			 * Retrieves the organization family used to determine the child orgs.
+			 * @param {Object} account - The account object.
+			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+			 * @returns {Promise<Object>}
+			 */
+			family: async (account, org) => {
+				const { id } = this.resolveOrg(account, org);
+				return await this.request(`/api/v1/org/${id}/family`, account, {
+					errorMsg: 'Failed to get organization family'
+				});
+			},
+
+			/**
 			 * Retrieves organization details for an account.
 			 * @param {Object} account - The account object.
 			 * @param {String} org - The organization object, name, id, or guid.
@@ -878,7 +954,7 @@ export default class AmplifySDK {
 
 				const { teams } = await this.team.list(account, id);
 
-				return {
+				const result = {
 					active:           org.active,
 					created:          org.created,
 					childOrgs:        null, // deprecated
@@ -896,31 +972,14 @@ export default class AmplifySDK {
 					userCount:        org.users.length,
 					userRoles:        org.users.find(u => u.guid === account.user.guid)?.roles || []
 				};
-			},
 
-			/**
-			 * Retrieves the list of environments associated to the user's org.
-			 * @param {Object} account - The account object.
-			 * @returns {Promise<Array>}
-			 */
-			environments: async account => {
-				assertPlatformAccount(account);
-				return await this.request('/api/v1/org/env', account, {
-					errorMsg: 'Failed to get organization environments'
-				});
-			},
+				if (org.entitlements?.partners) {
+					for (const partner of org.entitlements.partners) {
+						result[partner] = org[partner];
+					}
+				}
 
-			/**
-			 * Retrieves the organization family used to determine the child orgs.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @returns {Promise<Object>}
-			 */
-			family: async (account, org) => {
-				const { id } = this.resolveOrg(account, org);
-				return await this.request(`/api/v1/org/${id}/family`, account, {
-					errorMsg: 'Failed to get organization family'
-				});
+				return result;
 			},
 
 			/**
@@ -1147,12 +1206,12 @@ export default class AmplifySDK {
 
 				let org = params.org || account.org?.guid;
 				if (org) {
-					org = this.resolveOrg(account, params.org);
+					org = await this.org.find(account, org);
 					const { entitlements, subscriptions } = org;
 
 					roles = roles.filter(role => {
 						return role.org
-							&& (!role.partner || (entitlements.partners || []).includes(role.partner) && org[`${role.partner}.provisioned`])
+							&& (!role.partner || (entitlements.partners || []).includes(role.partner) && org[role.partner]?.provisioned)
 							&& (!role.entitlement || entitlements[role.entitlement])
 							&& (!role.subscription || subscriptions.find(sub => {
 								return new Date(sub.end_date) >= new Date() && role.subscription.includes(sub.product);
@@ -1349,13 +1408,21 @@ export default class AmplifySDK {
 			 * List all teams in an org.
 			 * @param {Object} account - The account object.
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+			 * @param {String} [user] - A user guid to filter teams
 			 * @returns {Promise<Object>}
 			 */
-			list: async (account, org) => {
+			list: async (account, org, user) => {
 				org = this.resolveOrg(account, org);
-				const teams = await this.request(`/api/v1/team?org_id=${org.id}`, account, {
+				let teams = await this.request(`/api/v1/team?org_id=${org.id}`, account, {
 					errorMsg: 'Failed to get organization teams'
 				});
+
+				if (user) {
+					teams = teams.filter(team => {
+						return team.users?.find(u => u.guid === user);
+					});
+				}
+
 				return {
 					org,
 					teams: teams.sort((a, b) => a.name.localeCompare(b.name))
