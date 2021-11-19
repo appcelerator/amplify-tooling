@@ -12,7 +12,7 @@ const check = process.platform === 'win32' ? '√' : '✔';
  * @param {AmplifySDK} sdk - The Amplify SDK instance.
  */
 export async function renderAccountInfo(account, config, sdk) {
-	let s = `The current region is set to ${highlight(config.get('region', account.org?.region || 'US'))}.\n`;
+	let s = `The current region is set to ${highlight(config.get('region', account.org?.region || 'US'))}.`;
 
 	if (account.isPlatform && account.orgs?.length) {
 		const table = createTable([ 'Organization', 'GUID', 'ORG ID' ]);
@@ -23,7 +23,7 @@ export async function renderAccountInfo(account, config, sdk) {
 				id
 			]);
 		}
-		s += `\n${table.toString()}\n`;
+		s += `\n\n${table.toString()}`;
 	}
 
 	if (account.roles?.length) {
@@ -37,24 +37,23 @@ export async function renderAccountInfo(account, config, sdk) {
 				!info ? note('n/a') : info?.default ? 'Platform' : 'Service'
 			]);
 		}
-		s += `\n${table.toString()}\n`;
+		s += `\n\n${table.toString()}\n`;
 	}
 
 	if (account.team) {
 		const teams = account.org.teams.sort((a, b) => {
 			return a.guid === account.guid ? 1 : a.name.localeCompare(b.guid);
 		});
-		const table = createTable([ `"${account.org.name}" Teams`, 'GUID', 'Role' ]);
+		const table = createTable([ account.org.name ? `"${account.org.name}" Teams` : 'Teams', 'GUID', 'Role' ]);
 		for (let i = 0; i < teams.length; i++) {
 			const current = teams[i].guid === account.team.guid;
-			// const role = roles.find(r => r.id === teams[i].role);
 			table.push([
 				current ? green(`${check} ${teams[i].name}`) : `  ${teams[i].name}`,
 				teams[i].guid,
-				teams[i].users.find(u => u.guid === account.user.guid)?.roles.join(', ') || note('n/a')
+				account.user.guid && teams[i].users.find(u => u.guid === account.user.guid)?.roles.join(', ') || note('n/a')
 			]);
 		}
-		s += `\n${table.toString()}\n`;
+		s += `\n\n${table.toString()}`;
 	}
 
 	return s;

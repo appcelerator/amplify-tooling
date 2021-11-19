@@ -17,10 +17,14 @@ export default {
 			env:      argv.env,
 			realm:    argv.realm
 		});
+		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 
-		const accounts = await sdk.auth.list({ validate: true });
+		const accounts = await sdk.auth.list({
+			defaultTeams: config.get(`${authConfigEnvSpecifier}.defaultTeam`),
+			validate: true
+		});
 		for (const account of accounts) {
-			account.default = account.name === config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultAccount`);
+			account.default = account.name === config.get(`${authConfigEnvSpecifier}.defaultAccount`);
 		}
 
 		if (argv.json) {

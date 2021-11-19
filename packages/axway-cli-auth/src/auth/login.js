@@ -205,9 +205,9 @@ export default {
 
 		// set the current
 		if (accounts.length === 1 || account.default) {
-			console.log('This account has been set as the default.');
+			console.log('\nThis account has been set as the default.');
 		} else {
-			console.log('To make this account the default, run:');
+			console.log('\nTo make this account the default, run:');
 			console.log(`  ${highlight(`axway config set ${authConfigEnvSpecifier}.defaultAccount ${account.name}`)}`);
 		}
 	}

@@ -24,7 +24,7 @@ const sdk = new AmplifySDK({ ...opts });
 const accounts = await sdk.auth.list();
 
 // find an authenticated account by name and refresh access token if needed
-let account = await.sdk.auth.find('<client_id>:<email>');
+let account = await sdk.auth.find('<client_id>:<email>');
 
 // log into a platform account using pkce browser-based flow
 account = await sdk.auth.login();
@@ -62,6 +62,29 @@ await sdk.auth.logout({ accounts: [ account ] });
 // show auth server info
 const info = await sdk.auth.serverInfo();
 console.log(info);
+```
+
+#### Selected Team
+
+When calling `sdk.auth.find()` or `sdk.auth.list()`, the returned account object(s) will contain a
+`team` property that contains the selected team. By default, the selected team will be the default
+team for the current org. However, you may pass in an object of account hashes to team guids for
+selecting a specific team.
+
+The idea is you can pass in the entire `auth.defaultTeam` object from the Axway CLI config:
+
+```js
+// no strictly required, but handy if you want to support preprod
+const { getAuthConfigEnvSpecifier } = require('@axway/amplify-cli-utils');
+const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
+const defaultTeams = config.get(`${authConfigEnvSpecifier}.defaultTeam`);
+
+const account = await sdk.auth.find('<client_id>:<email>', defaultTeams);
+
+const accounts = await sdk.auth.list({
+	defaultTeams,
+	validate: true
+});
 ```
 
 ### Orgs

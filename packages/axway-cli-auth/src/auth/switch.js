@@ -149,81 +149,85 @@ export default {
 					}
 				});
 			}
+		}
 
-			if (account.org?.teams) {
-				// determine the team
-				const defaultTeam = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
-				const selectedTeam = String(argv.team || defaultTeam || '');
-				let team = selectedTeam && account.org.teams.find(t => t.guid.toLowerCase() === selectedTeam.toLowerCase() || t.name.toLowerCase() === selectedTeam.toLowerCase());
+		if (account.org?.teams) {
+			// determine the team
+			const defaultTeam = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
+			const selectedTeam = String(argv.team || defaultTeam || '');
+			let team = selectedTeam && account.org.teams.find(t => t.guid.toLowerCase() === selectedTeam.toLowerCase() || t.name.toLowerCase() === selectedTeam.toLowerCase());
 
-				if (!team) {
-					if (argv.team) {
-						// if there was an explicit --org that wasn't found, then we error for tooling users as web doesn't care
-						const err = `Unable to find team "${argv.team}"`;
-						err.code = 'ERR_NOT_FOUND';
-						err.details = `Available teams:\n${account.org.teams.map(t => `  ${highlight(t.name)} ${note(`(${t.guid})`)}`).join('\n')}`;
-						throw err;
-					}
-
-					if (account.org.teams.length === 1) {
-						team = account.org.teams[0];
-					} else if (account.org.teams.length > 1) {
-						if (argv.json) {
-							throw new Error('Must specify --team when --json is set and the selected account has multiple teams');
-						}
-
-						const choices = account.org.teams
-							.map(team => {
-								team.toString = () => team.name;
-								return {
-									guid:    team.guid,
-									message: `${team.name} (${team.guid})`,
-									value:   team
-								};
-							})
-							.sort((a, b) => a.message.localeCompare(b.message));
-						const initial = choices.findIndex(team => team.guid === defaultTeam);
-						const { prompt } = require('enquirer');
-
-						team = (await prompt({
-							choices,
-							format: function () {
-								// for some reason, enquirer doesn't print the selected value using the primary
-								// (green) color for select prompts, so we just force it for all prompts
-								return this.style(this.value);
-							},
-							initial,
-							message: 'Select an team to use',
-							name: 'team',
-							styles: {
-								em(msg) {
-									// stylize emphasised text with just the primary color, no underline
-									return this.primary(msg);
-								}
-							},
-							type: 'select'
-						})).team;
-
-						console.log();
-					}
+			if (!team) {
+				if (argv.team) {
+					// if there was an explicit --org that wasn't found, then we error for tooling users as web doesn't care
+					const err = `Unable to find team "${argv.team}"`;
+					err.code = 'ERR_NOT_FOUND';
+					err.details = `Available teams:\n${account.org.teams.map(t => `  ${highlight(t.name)} ${note(`(${t.guid})`)}`).join('\n')}`;
+					throw err;
 				}
 
-				if (team) {
-					account.team = {
-						default: team.default,
-						guid:    team.guid,
-						name:    team.name,
-						roles:   team.users?.find(u => u.guid === account.user.guid)?.roles || [],
-						tags:    team.tags
-					};
-					await sdk.authClient.updateAccount(account);
+				if (account.org.teams.length === 1) {
+					team = account.org.teams[0];
+				} else if (account.org.teams.length > 1) {
+					if (argv.json) {
+						throw new Error('Must specify --team when --json is set and the selected account has multiple teams');
+					}
+
+					const choices = account.org.teams
+						.map(team => {
+							team.toString = () => team.name;
+							return {
+								guid:    team.guid,
+								message: `${team.name} (${team.guid})`,
+								value:   team
+							};
+						})
+						.sort((a, b) => a.message.localeCompare(b.message));
+					const initial = choices.findIndex(team => team.guid === defaultTeam);
+					const { prompt } = require('enquirer');
+
+					team = (await prompt({
+						choices,
+						format: function () {
+							// for some reason, enquirer doesn't print the selected value using the primary
+							// (green) color for select prompts, so we just force it for all prompts
+							return this.style(this.value);
+						},
+						initial,
+						message: 'Select an team to use',
+						name: 'team',
+						styles: {
+							em(msg) {
+								// stylize emphasised text with just the primary color, no underline
+								return this.primary(msg);
+							}
+						},
+						type: 'select'
+					})).team;
+
+					console.log();
 				}
 			}
 
+			if (team) {
+				account.team = {
+					default: team.default,
+					guid:    team.guid,
+					name:    team.name,
+					roles:   team.users?.find(u => u.guid === account.user.guid)?.roles || [],
+					tags:    team.tags
+				};
+				await sdk.authClient.updateAccount(account);
+			}
+		}
+
+		if (account.org) {
 			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
-			if (account.team) {
-				config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
-			}
+		}
+		if (account.team) {
+			config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
+		}
+		if (account.org || account.team) {
 			config.save();
 		}
 
