@@ -103,7 +103,7 @@ export default class AmplifySDK {
 			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
-			find: async accountName => {
+			find: async (accountName, defaultTeams) => {
 				const account = await this.authClient.find(accountName);
 				return account ? await this.auth.loadSession(account, defaultTeams) : null;
 			},
