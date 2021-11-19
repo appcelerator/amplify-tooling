@@ -35,7 +35,7 @@
     "@axway/axway-cli-pm": "^4.0.2",
     "boxen": "^5.1.2",
     "check-kit": "^1.2.1",
-    "cli-kit": "^1.14.1",
+    "cli-kit": "^1.15.0",
     "serialize-error": "^8.1.0",
     "snooplogg": "^3.0.2",
     "source-map-support": "^0.5.20",
