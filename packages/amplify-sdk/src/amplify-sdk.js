@@ -1875,7 +1875,7 @@ export default class AmplifySDK {
 
 		const found = account.orgs.find(o => {
 			return o.guid?.toLowerCase() === String(org).toLowerCase()
-				|| o.id === parseInt(org, 10)
+				|| String(o.id) === String(org)
 				|| o.name?.toLowerCase() === String(org).toLowerCase();
 		});
 
