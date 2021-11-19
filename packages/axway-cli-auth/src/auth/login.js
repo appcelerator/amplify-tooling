@@ -156,10 +156,11 @@ export default {
 				}
 
 				if (account.isPlatform && account.org?.name) {
-					console.log(`You are already logged into ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
+					console.log(`You are already logged into a ${highlight('platform')} account in organization ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
 				} else {
-					console.log(`You are already logged in as ${highlight(account.user.email || account.name)}.`);
+					console.log(`You are already logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
 				}
+
 				console.log(await renderAccountInfo(account, config, sdk));
 				return;
 			}
@@ -172,6 +173,13 @@ export default {
 		if (accounts.length === 1) {
 			config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
 			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
+
+			if (account.team) {
+				config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
+			} else {
+				config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
+			}
+
 			config.save();
 			account.default = true;
 		} else if (config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name) {
@@ -188,9 +196,9 @@ export default {
 		}
 
 		if (account.isPlatform && account.org?.name) {
-			console.log(`You are logged into ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
+			console.log(`You are logged into a ${highlight('platform')} account in organization ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
 		} else {
-			console.log(`You are logged in as ${highlight(account.user.email || account.name)}.`);
+			console.log(`You are logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
 		}
 
 		console.log(await renderAccountInfo(account, config, sdk));
@@ -199,7 +207,7 @@ export default {
 		if (accounts.length === 1 || account.default) {
 			console.log('This account has been set as the default.');
 		} else {
-			console.log('\nTo make this account the default, run:');
+			console.log('To make this account the default, run:');
 			console.log(`  ${highlight(`axway config set ${authConfigEnvSpecifier}.defaultAccount ${account.name}`)}`);
 		}
 	}

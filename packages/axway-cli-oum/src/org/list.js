@@ -30,7 +30,7 @@ export default {
 			return;
 		}
 
-		const table = createTable([ 'Organization', 'GUID', 'ID' ]);
+		const table = createTable([ 'Organization', 'GUID', 'ORG ID' ]);
 		const check = process.platform === 'win32' ? '√' : '✔';
 
 		for (const { default: def, guid, id, name } of orgs) {

@@ -38,23 +38,19 @@ export default {
 			const { highlight, note } = snooplogg.styles;
 
 			if (accounts.length) {
-				let acct;
-
-				for (const account of accounts) {
-					if (account.isPlatform && account.org?.name) {
-						console.log(`You are logged into ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
-					} else {
-						console.log(`You are logged in as ${highlight(account.user.email || account.name)}.`);
-					}
-					if (account.default) {
-						acct = account;
-					}
+				let account = accounts.find(a => a.default);
+				if (!account) {
+					account = accounts[0];
 				}
 
-				if (acct) {
-					acct = await sdk.auth.selectTeam(acct, config.get(`${getAuthConfigEnvSpecifier(acct.auth.env)}.defaultTeam.${acct.hash}`));
-					console.log(await renderAccountInfo(acct, config, sdk));
+				if (account.isPlatform && account.org?.name) {
+					console.log(`You are logged into a ${highlight('platform')} account in organization ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
+				} else {
+					console.log(`You are logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
 				}
+
+				account = await sdk.auth.selectTeam(account, config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultTeam.${account.hash}`));
+				console.log(await renderAccountInfo(account, config, sdk));
 			} else if (argv.accountName) {
 				console.log(`The account ${highlight(argv.accountName)} is not logged in.`);
 			} else {
