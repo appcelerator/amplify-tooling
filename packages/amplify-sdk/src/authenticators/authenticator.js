@@ -190,14 +190,14 @@ export default class Authenticator {
 				responseType: 'json',
 				retry: 0
 			});
-			const { email, family_name, given_name, org_guid, org_name, user_guid } = body;
+			const { email, family_name, given_name, guid, org_guid, org_name } = body;
 
 			if (!account.user || typeof account.user !== 'object') {
 				account.user = {};
 			}
 			account.user.email     = email;
 			account.user.firstName = given_name;
-			account.user.guid      = user_guid;
+			account.user.guid      = guid || account.user.guid;
 			account.user.lastName  = family_name;
 
 			if (!account.org || typeof account.org !== 'object') {
@@ -318,8 +318,9 @@ export default class Authenticator {
 		log(`Authentication successful ${note(`(${response.headers['content-type']})`)}`);
 		log(tokens);
 
-		let email = null;
-		let org = null;
+		let email;
+		let guid;
+		let org;
 		let name = this.hash;
 
 		try {
@@ -329,12 +330,13 @@ export default class Authenticator {
 			}
 			log(info);
 			email = (info.payload.email || '').trim();
+			guid = info.payload.guid;
 			if (email) {
 				name = `${this.clientId}:${email}`;
 			}
 			const { orgId } = info.payload;
 			if (orgId) {
-				org = { name: orgId, org_id: orgId };
+				org = { name: orgId, id: orgId };
 			}
 		} catch (e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
@@ -362,12 +364,12 @@ export default class Authenticator {
 			org,
 			orgs:              org ? [ org ] : [],
 			user: {
-				axwayId:       null,
+				axwayId:       undefined,
 				email,
-				firstName:     null,
-				guid:          null,
-				lastName:      null,
-				organization:  null
+				firstName:     undefined,
+				guid,
+				lastName:      undefined,
+				organization:  undefined
 			}
 		});
 

@@ -20,9 +20,13 @@ export default {
 			env:      argv.env,
 			realm:    argv.realm
 		});
-		let accounts = await sdk.auth.list({ validate: true });
+		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
+		let accounts = await sdk.auth.list({
+			defaultTeams: config.get(`${authConfigEnvSpecifier}.defaultTeam`),
+			validate: true
+		});
 		for (const account of accounts) {
-			account.default = account.name === config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultAccount`);
+			account.default = account.name === config.get(`${authConfigEnvSpecifier}.defaultAccount`);
 		}
 
 		if (argv.accountName) {
@@ -49,7 +53,6 @@ export default {
 					console.log(`You are logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
 				}
 
-				account = await sdk.auth.selectTeam(account, config.get(`${getAuthConfigEnvSpecifier(account.auth.env)}.defaultTeam.${account.hash}`));
 				console.log(await renderAccountInfo(account, config, sdk));
 			} else if (argv.accountName) {
 				console.log(`The account ${highlight(argv.accountName)} is not logged in.`);
