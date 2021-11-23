@@ -10,8 +10,22 @@ export default {
 	},
 	desc: 'Log in to the Axway Amplify Platform',
 	help: {
-		header() {
-			return `${this.desc}.`;
+		header({ style }) {
+			return `Log in to the Axway Amplify Platform using your platform account as well as one
+or more service accounts at the same time.
+
+To log in using a platform account, a desktop web browser is required. Headless
+environments, such as a SSH terminal, are not supported when authenticating
+into platform accounts.
+
+A service account can be used for both desktop and headless environments.
+However, if authenticating in a headless environment, you must set the token
+store type to “file”:
+
+  ${style.highlight('axway config set auth.tokenStoreType file')}
+
+Once authenticated, the account's current team is set to its configured default
+team to use for "axway" commands.`;
 		},
 		footer({ style }) {
 			return `${style.heading('Examples:')}

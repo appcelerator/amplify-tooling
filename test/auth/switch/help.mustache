@@ -1,14 +1,25 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
 
-Select default account and organization
+Once authenticated, the "switch" command allows you to change the default
+account, organization, and current team to use for "axway" commands.
+
+Only platform accounts have an organizations. If the selected account is a
+service account, then the organization selection is skipped.
+
+Changing the current team will only affect your local machine and does not
+change the actual default team.
+
+The --org and --team options are required when --json flag is set and there are
+more than one of org or team.
 
 USAGE: {{#cyan}}axway auth switch [options]{{/cyan}}
 
 SWITCH OPTIONS:
   {{#cyan}}--account [name]    {{/cyan}}  The account to switch to
   {{#cyan}}--json              {{/cyan}}  Disables prompting and outputs selected account and org as JSON
-  {{#cyan}}--org [guid|id|name]{{/cyan}}  The organization to switch to
+  {{#cyan}}--org [guid|id|name]{{/cyan}}  The platform organization to switch to
+  {{#cyan}}--team [guid|name]  {{/cyan}}  The team to use for the selected account
 
 GLOBAL OPTIONS:
   {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
