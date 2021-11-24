@@ -57,7 +57,11 @@ export default {
 ${style.heading('Settings:')}
 
   ${style.highlight('auth.tokenStoreType')} ${style.note('[string] (default: "secure")')}
-    The type of store to persist the access token after authenticating.
+    After authenticating, access tokens are encrypted and stored in a file
+    called the token store. Access to this file is restricted to only the owner
+    (the current user). By default, the encryption key is stored in the
+    system's keychain, however this feature is unavailable in headless
+    environments such as SSH terminals and this setting must be set to "file".
 
     Allowed values:
       ${style.magenta('"auto"')}    Attempts to use the "secure" store, but falls back to "file" if
@@ -72,9 +76,6 @@ ${style.heading('Settings:')}
                 access token. Subsequent calls to login in the same process
                 will force the authentication flow. This is intended for
                 migration scripts and testing purposes only.
-
-  ${style.highlight('env')} ${style.note('[string] (default: "prod")')}
-    The name of the environment to use for all commands.
 
   ${style.highlight('network.caFile')} ${style.note('[string]')}
     The path to a PEM formatted certificate authority bundle used to validate

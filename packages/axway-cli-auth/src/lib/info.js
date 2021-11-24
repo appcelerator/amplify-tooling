@@ -37,7 +37,7 @@ export async function renderAccountInfo(account, config, sdk) {
 				!info ? note('n/a') : info?.default ? 'Platform' : 'Service'
 			]);
 		}
-		s += `\n\n${table.toString()}\n`;
+		s += `\n\n${table.toString()}`;
 	}
 
 	if (account.team) {

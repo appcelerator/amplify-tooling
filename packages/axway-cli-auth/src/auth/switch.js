@@ -1,13 +1,24 @@
 export default {
-	desc: 'Select default account and organization',
+	desc: 'Select default account, organization, and team',
+	help: `Once authenticated, the "switch" command allows you to change the default
+account, organization, and current team to use for "axway" commands.
+
+Only platform accounts have organizations. If the selected account is a service
+account, then the organization selection is skipped.
+
+Changing the current team will only affect your local machine and does not
+change the actual default team.
+
+The --org and --team options are required when --json flag is set and there are
+more than one of org or team.`,
 	options: {
 		'--account [name]':     'The account to switch to',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Disables prompting and outputs selected account and org as JSON'
 		},
-		'--org [guid|id|name]': 'The org to switch to; required when --json and user belongs to more than one org',
-		'--team [guid|name]': 'The org team to select; required when --json and selected org has more than one team'
+		'--org [guid|id|name]': 'The platform organization to switch to',
+		'--team [guid|name]': 'The team to use for the selected account'
 	},
 	async action({ argv, cli, console }) {
 		const { default: snooplogg } = require('snooplogg');

@@ -1,6 +1,8 @@
 export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all authenticated accounts',
+	help: `Displays a list of all authenticated accounts, their selected platform
+organization, and the current team.`,
 	name: 'list',
 	options: {
 		'--json': {
@@ -41,7 +43,7 @@ export default {
 		const check = process.platform === 'win32' ? '√' : '✔';
 		const now = Date.now();
 		const pretty = require('pretty-ms');
-		const table = createTable([ 'Account Name', 'Organization', 'Team', 'Region', 'Type', 'Expires' ]);
+		const table = createTable([ 'Account Name', 'Organization', 'Current Team', 'Region', 'Type', 'Expires' ]);
 
 		for (const { default: def, auth, isPlatform, name, org, team } of accounts) {
 			const { access, refresh } = auth.expires;

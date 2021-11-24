@@ -6,6 +6,7 @@ export default {
 		}
 	],
 	desc: 'Display info for an authenticated account',
+	help: 'Display the currently selected account, organizations, roles, and teams.',
 	options: {
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
