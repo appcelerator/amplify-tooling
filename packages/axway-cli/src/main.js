@@ -22,7 +22,7 @@ import { redact } from '@axway/amplify-utils';
 import { serializeError } from 'serialize-error';
 
 const { bold, cyan, gray, red, yellow } = snooplogg.styles;
-const { warn } = snooplogg('axway');
+const { log, warn } = snooplogg('axway');
 
 (async () => {
 	const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
@@ -92,8 +92,9 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		version
 	});
 
-	cli.on('banner', () => {
-		if (cfg.get('update.check') === false) {
+	cli.on('banner', ({ argv }) => {
+		if (cfg.get('update.check') === false || argv.json) {
+			log('Skipping update check');
 			return;
 		}
 
