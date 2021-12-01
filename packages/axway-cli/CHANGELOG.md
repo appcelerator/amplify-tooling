@@ -1,4 +1,4 @@
-# v3.0.3
+# v3.1.0
 
  * fix: Don't show available updates when `--json` flag is set.
  * chore: Updated dependencies.
