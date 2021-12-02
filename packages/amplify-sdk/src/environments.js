@@ -5,15 +5,15 @@
  */
 export const environments = {
 	preprod: {
-		baseUrl:     'https://login.awxwaytest.net',
+		baseUrl: 'https://login.axwaytest.net',
 		platformUrl: 'https://platform.axwaytest.net',
-		realm:       'Broker'
+		realm: 'Broker',
 	},
 	prod: {
-		baseUrl:     'https://login.axway.com',
+		baseUrl: 'https://login.axway.com',
 		platformUrl: 'https://platform.axway.com',
-		realm:       'Broker'
-	}
+		realm: 'Broker',
+	},
 };
 
 const mapping = {
@@ -23,7 +23,7 @@ const mapping = {
 	'pre-production': 'preprod',
 	production: 'prod',
 	staging: 'preprod',
-	test: 'preprod'
+	test: 'preprod',
 };
 
 export function resolve(env) {
@@ -41,6 +41,6 @@ export function resolve(env) {
 
 	return {
 		name: environment,
-		...environments[environment]
+		...environments[environment],
 	};
 }
