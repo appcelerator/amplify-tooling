@@ -1,4 +1,4 @@
-# v3.2.0
+# v3.2.0 (Dec 2, 2021)
 
  * feat: Added current team to `list`, `login`, and `whoami` commands as well as org and team roles
    to `login` and `whoami` commands.

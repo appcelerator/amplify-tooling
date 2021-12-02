@@ -1,4 +1,4 @@
-# v3.1.0
+# v3.1.0 (Dec 2, 2021)
 
  * fix: Don't show available updates when `--json` flag is set.
  * chore: Updated dependencies.

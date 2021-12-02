@@ -1,4 +1,4 @@
-# v3.1.0
+# v3.1.0 (Dec 2, 2021)
 
  * feat: Added current `team` to authenticated platform account object.
  * fix: Fixed retrieving list of roles implicitly using the org from the account object.
