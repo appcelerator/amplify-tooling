@@ -5,7 +5,7 @@
  */
 export const environments = {
 	preprod: {
-		baseUrl:     'https://login.awxwaytest.net',
+		baseUrl:     'https://login.axwaytest.net',
 		platformUrl: 'https://platform.axwaytest.net',
 		realm:       'Broker'
 	},
