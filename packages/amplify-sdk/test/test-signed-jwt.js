@@ -10,25 +10,45 @@ describe('Signed JWT', () => {
 			}).to.throw(TypeError, 'Expected options to be an object');
 		});
 
-		it('should error if JWT file is invalid', () => {
+		it('should error if secret is invalid', () => {
 			expect(() => {
 				new SignedJWT({});
-			}).to.throw(TypeError, 'Expected JWT secret key file to be a non-empty string');
+			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
+
+			expect(() => {
+				new SignedJWT({ secret: null });
+			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
+
+			expect(() => {
+				new SignedJWT({ secret: '' });
+			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
+
+			expect(() => {
+				new SignedJWT({ secret: 123 });
+			}).to.throw(TypeError, 'Expected private key to be a string');
 
 			expect(() => {
 				new SignedJWT({ secretFile: null });
-			}).to.throw(TypeError, 'Expected JWT secret key file to be a non-empty string');
+			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
 
 			expect(() => {
 				new SignedJWT({ secretFile: '' });
-			}).to.throw(TypeError, 'Expected JWT secret key file to be a non-empty string');
+			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
+
+			expect(() => {
+				new SignedJWT({ secretFile: 123 });
+			}).to.throw(Error, 'Invalid private key file');
+
+			expect(() => {
+				new SignedJWT({ secretFile: __dirname });
+			}).to.throw(Error, /^Specified private key is not a file:/);
 		});
 	});
 
 	describe('Login', () => {
 		afterEach(stopLoginServer);
 
-		it('should error if JWT file does not exist', async function () {
+		it('should error if private key file does not exist', async function () {
 			const secretFile = path.join(__dirname, 'does_not_exist');
 
 			const auth = new Auth({
@@ -43,7 +63,7 @@ describe('Signed JWT', () => {
 				await auth.login();
 			} catch (err) {
 				expect(err).to.be.instanceof(Error);
-				expect(err.message).to.equal(`JWT secret key file does not exist: ${secretFile}`);
+				expect(err.message).to.equal(`Specified private key file does not exist: ${secretFile}`);
 				return;
 			}
 

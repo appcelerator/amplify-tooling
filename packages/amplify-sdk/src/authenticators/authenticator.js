@@ -222,10 +222,12 @@ export default class Authenticator {
 	 * URL.
 	 * @param {String} [redirectUri] - The redirect URI that was passed in when first retrieving
 	 * the code.
+	 * @param {Boolean} [force] - When `true`, bypasses an existing valid token and gets a new
+	 * token using the existing token.
 	 * @returns {Promise<Object>} Resolves the account object.
 	 * @access private
 	 */
-	async getToken(code, redirectUri) {
+	async getToken(code, redirectUri, force) {
 		let now = Date.now();
 		let expires;
 		let tokens;
@@ -241,11 +243,10 @@ export default class Authenticator {
 					log(entry);
 
 					({ expires, tokens } = entry.auth);
-					if (tokens.access_token && expires.access > now) {
+					if (!force && tokens.access_token && expires.access > now) {
 						return entry;
 					}
 
-					log('Access token is expired, but the refresh token is still good');
 					break;
 				}
 			}
@@ -289,12 +290,13 @@ export default class Authenticator {
 		};
 
 		if (tokens?.refresh_token && expires.refresh && expires.refresh > now) {
-			// get new token using the refresh token
+			log('Refreshing token using refresh token');
 			response = await fetchTokens(Object.assign({
 				clientId:     this.clientId,
 				grantType:    Authenticator.GrantTypes.RefreshToken,
 				refreshToken: tokens.refresh_token
 			}, this.refreshTokenParams));
+
 		} else {
 			// get new token using the code
 			const params = Object.assign({
@@ -357,7 +359,8 @@ export default class Authenticator {
 					refresh
 				},
 				realm:         this.realm,
-				tokens
+				tokens,
+				...this.authenticatorParams
 			},
 			hash:              this.hash,
 			name,
@@ -416,6 +419,10 @@ export default class Authenticator {
 		return null;
 	}
 
+	get authenticatorParams() {
+		return null;
+	}
+
 	/**
 	 * Orchestrates an interactive login flow or retrieves the access token non-interactively.
 	 *
@@ -440,6 +447,8 @@ export default class Authenticator {
 		if (!this.interactive || opts.code !== undefined) {
 			if (this.interactive) {
 				log('Retrieving tokens using auth code');
+			} else if (opts.manual) {
+				throw new Error('Manual mode is only supported with PKCE interactive authentication');
 			} else {
 				log('Retrieving tokens non-interactively');
 			}

@@ -33,6 +33,20 @@ export default class OwnerPassword extends Authenticator {
 	}
 
 	/**
+	 * Parameters to include in the authenticated account object. Note that these values are
+	 * stripped when the Amplify SDK returns the account object.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get authenticatorParams() {
+		return {
+			username: this.username,
+			password: this.password
+		};
+	}
+
+	/**
 	 * Parameters to base the authenticator hash on.
 	 *
 	 * @type {Object}
@@ -40,8 +54,7 @@ export default class OwnerPassword extends Authenticator {
 	 */
 	get hashParams() {
 		return {
-			username: this.username,
-			password: this.password
+			username: this.username
 		};
 	}
 

@@ -1,3 +1,9 @@
+# v3.3.0
+
+ * feat: Implemented token refresh based on configurable threshold in the Amplify SDK.
+   ([APIGOV-20729](https://jira.axway.com/browse/APIGOV-20729))
+ * chore: Updated dependencies.
+
 # v3.2.0 (Dec 2, 2021)
 
  * feat: Added current team to `list`, `login`, and `whoami` commands as well as org and team roles

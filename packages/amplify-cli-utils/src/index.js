@@ -67,7 +67,7 @@ export function buildAuthParams(opts = {}, config) {
 		serverHost:              undefined,
 		serverPort:              undefined,
 		serviceAccount:          undefined,
-		tokenRefreshThreshold:   undefined,
+		tokenRefreshThreshold:   25 * 60, // 15 minutes
 		tokenStore:              undefined,
 		tokenStoreDir:           locations.axwayHome,
 		tokenStoreType:          undefined,

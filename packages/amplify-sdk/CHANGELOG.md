@@ -1,3 +1,11 @@
+# v3.2.0
+
+ * feat: Implemented token refresh based on configurable threshold.
+   ([APIGOV-20729](https://jira.axway.com/browse/APIGOV-20729))
+ * fix: Added org subscriptions to authenticated account object.
+ * fix: Removed interactive login for client secret auth since it has been disabled.
+ * chore: Updated dependencies.
+
 # v3.1.0 (Dec 2, 2021)
 
  * feat: Added current `team` to authenticated platform account object.

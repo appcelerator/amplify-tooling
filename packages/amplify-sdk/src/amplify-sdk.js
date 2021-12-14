@@ -1,3 +1,5 @@
+/* eslint-disable promise/no-nesting */
+
 import Auth from './auth';
 import crypto from 'crypto';
 import E from './errors';
@@ -137,10 +139,11 @@ export default class AmplifySDK {
 								}
 								return obj;
 							}, {}),
-						guid:         org.guid,
-						id:           org.org_id,
-						name:         org.name,
-						region:       org.region
+						guid:          org.guid,
+						id:            org.org_id,
+						name:          org.name,
+						region:        org.region,
+						subscriptions: org.subscriptions
 					};
 
 					account.orgs = orgs.map(({ guid, name, org_id }) => ({
@@ -201,20 +204,23 @@ export default class AmplifySDK {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
 				}
 
-				const accounts = await this.authClient.list();
-
-				if (opts.validate) {
-					for (let i = 0; i < accounts.length; i++) {
-						try {
-							accounts[i] = await this.auth.loadSession(accounts[i], opts.defaultTeams);
-						} catch (e) {
-							warn(`Failed to load session for account "${accounts[i].name}": ${e.toString()}`);
-							accounts.splice(i--, 1);
-						}
-					}
-				}
-
-				return accounts.sort((a, b) => a.name.localeCompare(b.name));
+				return this.authClient.list()
+					.then(accounts => accounts.reduce((promise, account) => {
+						return promise.then(async list => {
+							try {
+								const acct = opts.validate ? (await this.auth.find(account.name, opts.defaultTeams)) : account;
+								delete acct.auth.clientSecret;
+								delete acct.auth.password;
+								delete acct.auth.secret;
+								delete acct.auth.username;
+								list.push(acct);
+							} catch (err) {
+								warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
+							}
+							return list;
+						});
+					}, Promise.resolve([])))
+					.then(list => list.sort((a, b) => a.name.localeCompare(b.name)));
 			},
 
 			/**
@@ -247,6 +253,11 @@ export default class AmplifySDK {
 						log(`  ${highlight(org.name)} ${note(`(${org.guid})`)}`);
 					}
 				}
+
+				delete account.auth.clientSecret;
+				delete account.auth.password;
+				delete account.auth.secret;
+				delete account.auth.username;
 
 				return account;
 			},
@@ -1883,7 +1894,7 @@ export default class AmplifySDK {
 			throw new Error(`Unable to find the organization "${org}"`);
 		}
 
-		log(`Resolved org "${org}" as ${found.name} (${found.id}) ${found.guid}`);
+		log(`Resolved org "${org}"${found.name ? ` as ${found.name}` : ''} (${found.id}) ${found.guid}`);
 
 		return found;
 	}

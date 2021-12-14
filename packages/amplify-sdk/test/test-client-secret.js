@@ -31,7 +31,7 @@ describe('Client Secret', () => {
 	describe('Login', () => {
 		afterEach(stopLoginServer);
 
-		it('should retrieve a URL for an interactive manual flow', async function () {
+		it('should error attempting manual flow', async function () {
 			const auth = new Auth({
 				clientSecret:   '###',
 				serviceAccount: false,
@@ -41,23 +41,7 @@ describe('Client Secret', () => {
 				tokenStoreType: null
 			});
 
-			const { cancel, url } = await auth.login({ manual: true });
-			await cancel();
-			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A\d+%2Fcallback%2F.+&response_type=code&scope=openid$/);
-		});
-
-		it('should error if getting token without a code', async function () {
-			const auth = new Auth({
-				clientSecret:   '###',
-				serviceAccount: false,
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreType: null
-			});
-
-			await expect(auth.login({ code: '' }))
-				.to.eventually.be.rejectedWith(TypeError, 'Expected code for interactive authentication to be a non-empty string');
+			await expect(auth.login({ manual: true })).to.eventually.be.rejectedWith(Error, 'Manual mode is only supported with PKCE interactive authentication');
 		});
 
 		it('should error if code is incorrect', async function () {
@@ -79,58 +63,6 @@ describe('Client Secret', () => {
 
 			await expect(auth.login({ code: 'foo' }))
 				.to.eventually.be.rejectedWith(Error, 'Authentication failed: Response code 401 (Unauthorized)');
-		});
-
-		it('should timeout during interactive login', async function () {
-			this.server = await createLoginServer();
-
-			const auth = new Auth({
-				clientSecret:   '###',
-				serviceAccount: false,
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreType: null
-			});
-
-			await expect(auth.login({ app: [ 'echo', 'hi' ], timeout: 100 }))
-				.to.eventually.be.rejectedWith(Error, 'Authentication failed: Timed out');
-		});
-
-		it('should authenticate using code', async function () {
-			let counter = 0;
-
-			this.server = await createLoginServer({
-				token(post) {
-					switch (++counter) {
-						case 1:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
-							expect(post.client_secret).to.equal('###');
-							break;
-
-						case 2:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
-							expect(post.refresh_token).to.equal(this.server.refreshToken);
-							break;
-					}
-				},
-				logout(post) {
-					expect(post.refresh_token).to.equal('bar2');
-				}
-			});
-
-			const auth = new Auth({
-				clientSecret:   '###',
-				serviceAccount: false,
-				baseUrl:        'http://127.0.0.1:1337',
-				clientId:       'test_client',
-				realm:          'test_realm',
-				tokenStoreType: null
-			});
-
-			const account = await auth.login({ code: 'foo' });
-			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
-			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
 
 		it('should error if server is unreachable', async function () {
@@ -175,7 +107,7 @@ describe('Client Secret', () => {
 				.to.eventually.be.rejectedWith(Error, 'Authentication failed: Invalid server response');
 		});
 
-		(isCI ? it.skip : it)('should do interactive login', async function () {
+		(isCI ? it.skip : it)('should do login', async function () {
 			this.timeout(10000);
 
 			this.server = await createLoginServer();
@@ -199,30 +131,42 @@ describe('Client Secret', () => {
 			this.slow(4000);
 			this.timeout(5000);
 
+			let counter = 0;
+
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token(post) {
-					expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
-					expect(post.client_secret).to.equal('###');
+				token: post => {
+					switch (++counter) {
+						case 1:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
+							expect(post.client_secret).to.equal('###');
+							break;
+
+						case 2:
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.RefreshToken);
+							expect(post.refresh_token).to.equal(this.server.refreshToken);
+							break;
+					}
 				}
 			});
 
 			const auth = new Auth({
-				clientSecret:   '###',
-				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
+				clientSecret:   '###',
+				platformUrl:    'http://127.0.0.1:1337/success',
 				realm:          'test_realm',
+				serviceAccount: false,
 				tokenStoreType: 'memory'
 			});
 
-			let results = await auth.login({ code: 'foo' });
-			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
+			let account = await auth.login();
+			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			results = await auth.login({ code: 'foo' });
-			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
+			account = await auth.login();
+			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 	});
 
@@ -285,7 +229,7 @@ describe('Client Secret', () => {
 				.to.eventually.be.rejectedWith(Error, 'Authentication failed: Invalid server response');
 		});
 
-		it('should login in non-interactively and ignore manual flag', async function () {
+		it('should error logging in with manual mode', async function () {
 			this.server = await createLoginServer();
 
 			const auth = new Auth({
@@ -297,8 +241,7 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login({ manual: true });
-			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
+			await expect(auth.login({ manual: true })).to.eventually.be.rejectedWith(Error, 'Manual mode is only supported with PKCE interactive authentication');
 		});
 
 		it('should login without a code', async function () {
@@ -367,10 +310,10 @@ describe('Client Secret', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				token(post) {
+				token: post => {
 					switch (++counter) {
 						case 1:
-							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
+							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
 							expect(post.client_secret).to.equal('###');
 							break;
 
@@ -383,15 +326,16 @@ describe('Client Secret', () => {
 			});
 
 			const auth = new Auth({
-				clientSecret:   '###',
-				serviceAccount: false,
 				baseUrl:        'http://127.0.0.1:1337',
 				clientId:       'test_client',
+				clientSecret:   '###',
+				platformUrl:    'http://127.0.0.1:1337/success',
 				realm:          'test_realm',
+				serviceAccount: false,
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login({ code: 'foo' });
+			const account = await auth.login();
 			expect(account.name).to.equal('test_client:foo@bar.com');
 
 			const revoked = await auth.logout({ accounts: account.name });

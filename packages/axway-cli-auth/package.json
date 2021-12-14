@@ -29,7 +29,7 @@
     "enquirer": "^2.3.6",
     "pretty-ms": "^7.0.1",
     "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.20",
+    "source-map-support": "^0.5.21",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

@@ -28,10 +28,22 @@ export default class ClientSecret extends Authenticator {
 
 		super(opts);
 
-		this.interactive     = !opts.serviceAccount;
 		this.shouldFetchOrgs = !opts.serviceAccount;
 
 		Object.defineProperty(this, 'clientSecret', { value: opts.clientSecret });
+	}
+
+	/**
+	 * Parameters to include in the authenticated account object. Note that these values are
+	 * stripped when the Amplify SDK returns the account object.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get authenticatorParams() {
+		return {
+			clientSecret: this.clientSecret
+		};
 	}
 
 	/**

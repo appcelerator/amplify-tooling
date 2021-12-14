@@ -18,37 +18,14 @@ const protoRegExp = /^.*\/\//;
  */
 export default class TokenStore {
 	/**
-	 * The age in milliseconds before the access token expires and should be refreshed.
-	 *
-	 * @type {Number}
-	 * @access private
-	 */
-	tokenRefreshThreshold = 0;
-
-	/**
 	 * Initializes the file store.
 	 *
 	 * @param {Object} [opts] - Various options.
-	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
-	 * token expires and should be refreshed.
 	 * @access public
 	 */
 	constructor(opts = {}) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
-		}
-
-		if (opts.tokenRefreshThreshold !== undefined) {
-			const threshold = parseInt(opts.tokenRefreshThreshold, 10);
-			if (isNaN(threshold)) {
-				throw E.INVALID_PARAMETER('Expected token refresh threshold to be a number of seconds');
-			}
-
-			if (threshold < 0) {
-				throw E.INVALID_RANGE('Token refresh threshold must be greater than or equal to zero');
-			}
-
-			this.tokenRefreshThreshold = threshold * 1000;
 		}
 	}
 
@@ -205,7 +182,7 @@ export default class TokenStore {
 		for (let i = 0; i < entries.length; i++) {
 			const expires = entries[i].auth?.expires;
 			const now = Date.now();
-			if (expires && ((expires.access > (now + this.tokenRefreshThreshold)) || (expires.refresh && expires.refresh > now))) {
+			if (expires && ((expires.access > now) || (expires.refresh && expires.refresh > now))) {
 				// not expired
 				if (!Object.getOwnPropertyDescriptor(entries[i].auth, 'expired')) {
 					Object.defineProperty(entries[i].auth, 'expired', {
