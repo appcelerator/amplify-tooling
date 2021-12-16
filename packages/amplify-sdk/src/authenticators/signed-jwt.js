@@ -33,13 +33,13 @@ export default class SignedJWT extends Authenticator {
 			throw E.INVALID_ARGUMENT('Expected private key to be a string');
 		} else if (secretFile !== undefined) {
 			if (typeof secretFile !== 'string') {
-				throw E.INVALID_ARGUMENT('Invalid private key file');
+				throw E.INVALID_ARGUMENT('Expected private key file path to be a string');
 			}
 			if (!fs.existsSync(secretFile)) {
-				throw E.INVALID_ARGUMENT(`Specified private key file does not exist: ${secretFile}`);
+				throw new Error(`Specified private key file does not exist: ${secretFile}`);
 			}
 			if (!isFile(secretFile)) {
-				throw E.INVALID_ARGUMENT(`Specified private key is not a file: ${secretFile}`);
+				throw new Error(`Specified private key is not a file: ${secretFile}`);
 			}
 			secret = fs.readFileSync(secretFile, 'utf-8');
 		}

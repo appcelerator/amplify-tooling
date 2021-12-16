@@ -143,7 +143,8 @@ export default class AmplifySDK {
 						id:            org.org_id,
 						name:          org.name,
 						region:        org.region,
-						subscriptions: org.subscriptions
+						subscriptions: org.subscriptions,
+						teams:         []
 					};
 
 					account.orgs = orgs.map(({ guid, name, org_id }) => ({
@@ -195,6 +196,7 @@ export default class AmplifySDK {
 			 * Returns a list of all authenticated accounts.
 			 * @param {Object} [opts] - Various options.
 			 * @param {Object} [opts.defaultTeams] - A map of account hashes to their selected team guid.
+			 * @param {Array.<String>} [opts.skip] - A list of accounts to skip validation for.
 			 * @param {Boolean} [opts.validate] - When `true`, checks to see if each account has an
 			 * active access token and session.
 			 * @returns {Promise<Array>}
@@ -207,16 +209,18 @@ export default class AmplifySDK {
 				return this.authClient.list()
 					.then(accounts => accounts.reduce((promise, account) => {
 						return promise.then(async list => {
-							try {
-								const acct = opts.validate ? (await this.auth.find(account.name, opts.defaultTeams)) : account;
-								delete acct.auth.clientSecret;
-								delete acct.auth.password;
-								delete acct.auth.secret;
-								delete acct.auth.username;
-								list.push(acct);
-							} catch (err) {
-								warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
+							if (opts.validate && (!opts.skip || !opts.skip.includes(account.name))) {
+								try {
+									account = await this.auth.find(account.name, opts.defaultTeams);
+								} catch (err) {
+									warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
+								}
 							}
+							delete account.auth.clientSecret;
+							delete account.auth.password;
+							delete account.auth.secret;
+							delete account.auth.username;
+							list.push(account);
 							return list;
 						});
 					}, Promise.resolve([])))

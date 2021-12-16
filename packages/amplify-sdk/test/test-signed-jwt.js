@@ -37,7 +37,7 @@ describe('Signed JWT', () => {
 
 			expect(() => {
 				new SignedJWT({ secretFile: 123 });
-			}).to.throw(Error, 'Invalid private key file');
+			}).to.throw(Error, 'Expected private key file path to be a string');
 
 			expect(() => {
 				new SignedJWT({ secretFile: __dirname });

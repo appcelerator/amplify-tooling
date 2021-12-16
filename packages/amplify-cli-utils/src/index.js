@@ -75,7 +75,7 @@ export function buildAuthParams(opts = {}, config) {
 	};
 
 	for (const prop of Object.keys(props)) {
-		params[prop] = opts[prop] || config.get(`auth.${prop}`, props[prop]);
+		params[prop] = opts[prop] !== undefined ? opts[prop] : config.get(`auth.${prop}`, props[prop]);
 	}
 
 	// detect if we're headless and default token store type to `file`

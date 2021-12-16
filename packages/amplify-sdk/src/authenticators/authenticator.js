@@ -244,6 +244,7 @@ export default class Authenticator {
 
 					({ expires, tokens } = entry.auth);
 					if (!force && tokens.access_token && expires.access > now) {
+						log('Token is still valid');
 						return entry;
 					}
 

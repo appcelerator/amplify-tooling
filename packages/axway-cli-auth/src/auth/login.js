@@ -183,7 +183,8 @@ team to use for "axway" commands.`;
 		}
 
 		// determine if the account is the default
-		const accounts = await sdk.auth.list({ validate: true });
+		// note: do not validate the account we just logged in as
+		const accounts = await sdk.auth.list({ validate: true, skip: [ account.name ] });
 		if (accounts.length === 1) {
 			config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
 			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);

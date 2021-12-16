@@ -20,9 +20,9 @@ export function createPlatformRoutes(server, opts = {}) {
 		const { authorization } = ctx.req.headers;
 		const p = authorization ? authorization.indexOf(' ') : -1;
 		const token = p !== -1 ? authorization.substring(p + 1) : null;
-		const tokens = state.sessions?.find(t => t.accessToken === token);
 
 		log(`Finding session using token "${token}" or cookie "${ctx.cookies.get('connect.sid')}"`);
+		const tokens = state.sessions?.find(t => t.accessToken === token);
 
 		if (tokens && !tokens.isServiceAccount) {
 			const user = data.users.find(u => u.guid === '50000');
