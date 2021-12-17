@@ -141,7 +141,7 @@ export default class AmplifySDK {
 						id:            org.org_id,
 						name:          org.name,
 						region:        org.region,
-						subscriptions: org.subscriptions,
+						subscriptions: org.subscriptions || [],
 						teams:         []
 					};
 
