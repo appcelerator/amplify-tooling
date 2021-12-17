@@ -4,6 +4,7 @@
    ([APIGOV-20729](https://jira.axway.com/browse/APIGOV-20729))
  * fix: Added org subscriptions to authenticated account object.
  * fix: Removed interactive login for client secret auth since it has been disabled.
+ * fix: Update org name for service accounts.
  * chore: Updated dependencies.
 
 # v3.1.0 (Dec 2, 2021)

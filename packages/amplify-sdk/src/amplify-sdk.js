@@ -127,9 +127,7 @@ export default class AmplifySDK {
 				});
 				account.isPlatform = !!result;
 
-				if (result) {
-					const { org, orgs, role, roles, user } = result;
-
+				const populateOrgs = (org, orgs) => {
 					account.org = {
 						entitlements: Object
 							.entries(org.entitlements || {})
@@ -153,6 +151,11 @@ export default class AmplifySDK {
 						id: org_id,
 						name
 					}));
+				};
+
+				if (result) {
+					const { org, orgs, role, roles, user } = result;
+					populateOrgs(org, orgs);
 
 					account.role = role;
 					account.roles = roles;
@@ -167,6 +170,10 @@ export default class AmplifySDK {
 						organization: user.organization,
 						phone:        user.phone
 					});
+				} else if (account.org?.id) {
+					const org = await this.org.find(account, account.org.guid);
+					org.org_id = org.org_id || org.id;
+					populateOrgs(org, [ org ]);
 				}
 
 				account.team = undefined;
@@ -927,7 +934,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Array>}
 			 */
 			find: async (account, org) => {
-				const { id } = this.resolvePlatformOrg(account, org);
+				const { id } = this.resolveOrg(account, org);
 				org = await this.request(`/api/v1/org/${id}`, account, {
 					errorMsg: 'Failed to get organization'
 				});
