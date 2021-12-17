@@ -308,7 +308,7 @@ export default class Auth {
 			}
 		} else {
 			const expiresIn = (refresh || access) - Date.now();
-			if (this.tokenRefreshThreshold && (refresh || access) - Date.now() < this.tokenRefreshThreshold * 1000) {
+			if (this.tokenRefreshThreshold && expiresIn < this.tokenRefreshThreshold * 1000) {
 				log(`Access token is valid, but will expire in ${expiresIn}ms (threshold ${this.tokenRefreshThreshold * 1000}ms), refreshing now`);
 				doRefresh = true;
 			} else {
