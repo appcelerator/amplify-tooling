@@ -38,7 +38,7 @@
     "cli-kit": "^1.15.0",
     "serialize-error": "^8.1.0",
     "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.20",
+    "source-map-support": "^0.5.21",
     "v8-compile-cache": "^2.3.0"
   },
   "devDependencies": {

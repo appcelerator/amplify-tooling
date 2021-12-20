@@ -18,20 +18,6 @@ describe('Token Store', () => {
 				new TokenStore('foo');
 			}).to.throw(TypeError, 'Expected options to be an object');
 		});
-
-		it('should error if token refresh threshold is invalid', () => {
-			expect(() => {
-				new TokenStore({
-					tokenRefreshThreshold: 'foo'
-				});
-			}).to.throw(TypeError, 'Expected token refresh threshold to be a number of seconds');
-
-			expect(() => {
-				new TokenStore({
-					tokenRefreshThreshold: -123
-				});
-			}).to.throw(RangeError, 'Token refresh threshold must be greater than or equal to zero');
-		});
 	});
 
 	describe('Null Token Store', () => {

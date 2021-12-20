@@ -3,6 +3,7 @@ import E from '../errors';
 import fs from 'fs';
 import jws from 'jws';
 
+import { isFile } from '@axway/amplify-utils';
 import { v4 as uuidv4 } from 'uuid';
 
 const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;
@@ -15,7 +16,8 @@ export default class SignedJWT extends Authenticator {
 	 * Initializes an PKCE authentication instance.
 	 *
 	 * @param {Object} opts - Various options.
-	 * @param {String} opts.secretFile - The path to the jwt secret file.
+	 * @param {String} [opts.secret] - The private key when `secretFile` is not set.
+	 * @param {String} [opts.secretFile] - The path to the private key file when `secret` is not set.
 	 * @access public
 	 */
 	constructor(opts) {
@@ -23,15 +25,33 @@ export default class SignedJWT extends Authenticator {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		if (!opts.secretFile || typeof opts.secretFile !== 'string') {
-			throw E.INVALID_ARGUMENT('Expected JWT secret key file to be a non-empty string');
+		let { secret, secretFile } = opts;
+
+		if (!secret && !secretFile) {
+			throw E.INVALID_ARGUMENT('Expected either a private key or private key file to be an object');
+		} else if (secret !== undefined && typeof secret !== 'string') {
+			throw E.INVALID_ARGUMENT('Expected private key to be a string');
+		} else if (secretFile !== undefined) {
+			if (typeof secretFile !== 'string') {
+				throw E.INVALID_ARGUMENT('Expected private key file path to be a string');
+			}
+			if (!fs.existsSync(secretFile)) {
+				throw new Error(`Specified private key file does not exist: ${secretFile}`);
+			}
+			if (!isFile(secretFile)) {
+				throw new Error(`Specified private key is not a file: ${secretFile}`);
+			}
+			secret = fs.readFileSync(secretFile, 'utf-8');
 		}
 
 		super(opts);
 
 		this.shouldFetchOrgs = false;
 
-		Object.defineProperty(this, 'secretFile', { value: opts.secretFile });
+		if (!/^-----BEGIN (RSA )?PRIVATE KEY-----/.test(secret)) {
+			throw new Error(`Private key file ${opts.secretFile} is not a PEM formatted file`);
+		}
+		Object.defineProperty(this, 'secret', { value: secret });
 	}
 
 	/**
@@ -43,12 +63,6 @@ export default class SignedJWT extends Authenticator {
 	getSignedJWT() {
 		if (this.signedJWT) {
 			return this.signedJWT;
-		}
-
-		try {
-			fs.statSync(this.secretFile).isFile();
-		} catch (e) {
-			throw E.INVALID_FILE(`JWT secret key file does not exist: ${this.secretFile}`);
 		}
 
 		const issuedAt = Math.floor(Date.now() / 1000);
@@ -64,12 +78,25 @@ export default class SignedJWT extends Authenticator {
 					jti: uuidv4(),
 					sub: this.clientId
 				},
-				secret:  fs.readFileSync(this.secretFile, 'utf8')
+				secret:  this.secret
 			});
 		} catch (err) {
 			err.message = `Bad secret file "${this.secretFile}" (${err.message})`;
 			throw err;
 		}
+	}
+
+	/**
+	 * Parameters to include in the authenticated account object. Note that these values are
+	 * stripped when the Amplify SDK returns the account object.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	get authenticatorParams() {
+		return {
+			secret: this.secret
+		};
 	}
 
 	/**
@@ -79,15 +106,9 @@ export default class SignedJWT extends Authenticator {
 	 * @access private
 	 */
 	get hashParams() {
-		let secret = null;
-
-		try {
-			secret = fs.readFileSync(this.secretFile, 'utf8');
-		} catch (e) {
-			// squelch
-		}
-
-		return { secret };
+		return {
+			secret: this.secret
+		};
 	}
 
 	/**

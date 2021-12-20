@@ -10,7 +10,7 @@ import snooplogg from 'snooplogg';
 import { MemoryStore } from '../dist/index';
 import { v4 as uuidv4 } from 'uuid';
 
-const { log } = snooplogg('test:amplify-auth:common');
+const { error, log } = snooplogg('test:amplify-auth:common');
 const { highlight, note } = snooplogg.styles;
 
 function createAPIRoutes(server, data) {
@@ -1001,6 +1001,7 @@ export async function createLoginServer(opts = {}) {
 					break;
 			}
 		} catch (e) {
+			error(e);
 			res.writeHead(400, { 'Content-Type': 'text/plain' });
 			res.end(e.toString());
 		}

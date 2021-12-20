@@ -26,7 +26,7 @@
     "cli-kit": "^1.15.0",
     "open": "^8.4.0",
     "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.20"
+    "source-map-support": "^0.5.21"
   },
   "devDependencies": {
     "@axway/gulp-tasks": "^4.0.3"

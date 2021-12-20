@@ -14,7 +14,7 @@ const check = process.platform === 'win32' ? '√' : '✔';
 export async function renderAccountInfo(account, config, sdk) {
 	let s = `The current region is set to ${highlight(config.get('region', account.org?.region || 'US'))}.`;
 
-	if (account.isPlatform && account.orgs?.length) {
+	if (account.orgs?.length) {
 		const table = createTable([ 'Organization', 'GUID', 'ORG ID' ]);
 		for (const { default: def, guid, id, name } of account.orgs) {
 			table.push([

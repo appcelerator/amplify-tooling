@@ -1,3 +1,5 @@
+/* eslint-disable promise/no-nesting */
+
 import Auth from './auth';
 import crypto from 'crypto';
 import E from './errors';
@@ -125,9 +127,7 @@ export default class AmplifySDK {
 				});
 				account.isPlatform = !!result;
 
-				if (result) {
-					const { org, orgs, role, roles, user } = result;
-
+				const populateOrgs = (org, orgs) => {
 					account.org = {
 						entitlements: Object
 							.entries(org.entitlements || {})
@@ -137,10 +137,12 @@ export default class AmplifySDK {
 								}
 								return obj;
 							}, {}),
-						guid:         org.guid,
-						id:           org.org_id,
-						name:         org.name,
-						region:       org.region
+						guid:          org.guid,
+						id:            org.org_id,
+						name:          org.name,
+						region:        org.region,
+						subscriptions: org.subscriptions || [],
+						teams:         []
 					};
 
 					account.orgs = orgs.map(({ guid, name, org_id }) => ({
@@ -149,6 +151,11 @@ export default class AmplifySDK {
 						id: org_id,
 						name
 					}));
+				};
+
+				if (result) {
+					const { org, orgs, role, roles, user } = result;
+					populateOrgs(org, orgs);
 
 					account.role = role;
 					account.roles = roles;
@@ -163,6 +170,10 @@ export default class AmplifySDK {
 						organization: user.organization,
 						phone:        user.phone
 					});
+				} else if (account.org?.id) {
+					const org = await this.org.find(account, account.org.guid);
+					org.org_id = org.org_id || org.id;
+					populateOrgs(org, [ org ]);
 				}
 
 				account.team = undefined;
@@ -192,6 +203,7 @@ export default class AmplifySDK {
 			 * Returns a list of all authenticated accounts.
 			 * @param {Object} [opts] - Various options.
 			 * @param {Object} [opts.defaultTeams] - A map of account hashes to their selected team guid.
+			 * @param {Array.<String>} [opts.skip] - A list of accounts to skip validation for.
 			 * @param {Boolean} [opts.validate] - When `true`, checks to see if each account has an
 			 * active access token and session.
 			 * @returns {Promise<Array>}
@@ -201,20 +213,25 @@ export default class AmplifySDK {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
 				}
 
-				const accounts = await this.authClient.list();
-
-				if (opts.validate) {
-					for (let i = 0; i < accounts.length; i++) {
-						try {
-							accounts[i] = await this.auth.loadSession(accounts[i], opts.defaultTeams);
-						} catch (e) {
-							warn(`Failed to load session for account "${accounts[i].name}": ${e.toString()}`);
-							accounts.splice(i--, 1);
-						}
-					}
-				}
-
-				return accounts.sort((a, b) => a.name.localeCompare(b.name));
+				return this.authClient.list()
+					.then(accounts => accounts.reduce((promise, account) => {
+						return promise.then(async list => {
+							if (opts.validate && (!opts.skip || !opts.skip.includes(account.name))) {
+								try {
+									account = await this.auth.find(account.name, opts.defaultTeams);
+								} catch (err) {
+									warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
+								}
+							}
+							delete account.auth.clientSecret;
+							delete account.auth.password;
+							delete account.auth.secret;
+							delete account.auth.username;
+							list.push(account);
+							return list;
+						});
+					}, Promise.resolve([])))
+					.then(list => list.sort((a, b) => a.name.localeCompare(b.name)));
 			},
 
 			/**
@@ -247,6 +264,11 @@ export default class AmplifySDK {
 						log(`  ${highlight(org.name)} ${note(`(${org.guid})`)}`);
 					}
 				}
+
+				delete account.auth.clientSecret;
+				delete account.auth.password;
+				delete account.auth.secret;
+				delete account.auth.username;
 
 				return account;
 			},
@@ -912,7 +934,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Array>}
 			 */
 			find: async (account, org) => {
-				const { id } = this.resolvePlatformOrg(account, org);
+				const { id } = this.resolveOrg(account, org);
 				org = await this.request(`/api/v1/org/${id}`, account, {
 					errorMsg: 'Failed to get organization'
 				});
@@ -1883,7 +1905,7 @@ export default class AmplifySDK {
 			throw new Error(`Unable to find the organization "${org}"`);
 		}
 
-		log(`Resolved org "${org}" as ${found.name} (${found.id}) ${found.guid}`);
+		log(`Resolved org "${org}"${found.name ? ` as ${found.name}` : ''} (${found.id}) ${found.guid}`);
 
 		return found;
 	}

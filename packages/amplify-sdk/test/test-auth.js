@@ -44,7 +44,7 @@ describe('Auth', () => {
 				tokenRefreshThreshold: 10
 			});
 
-			expect(auth.tokenStore.tokenRefreshThreshold).to.equal(10000);
+			expect(auth.tokenRefreshThreshold).to.equal(10);
 		});
 
 		it('should error if token store is invalid', () => {

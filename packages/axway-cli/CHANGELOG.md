@@ -1,3 +1,8 @@
+# v3.2.0
+
+ * fix: Fixed unhandled exception when sending crash error.
+ * chore: Updated dependencies.
+
 # v3.1.0 (Dec 2, 2021)
 
  * fix: Don't show available updates when `--json` flag is set.

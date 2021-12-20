@@ -148,7 +148,7 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
 		}
 		log(s.toString().trim());
 	});
-	return new Promise((resolve, reject) => child.on('close', status => {
+	return new Promise(resolve => child.on('close', status => {
 		log(`Process exited (code ${status})`);
 		resolve({ status, stdout, stderr });
 	}));

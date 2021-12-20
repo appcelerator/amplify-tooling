@@ -154,7 +154,9 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 		const contexts = state.contexts.map(ctx => ctx.name).reverse();
 
 		if (state?.err) {
+			// an error occurred and the help screen was displayed instead of being thrown
 			telemetry.addCrash({
+				message: 'Unknown error',
 				...serializeError(state.err),
 				argv:     scrubArgv(state.__argv),
 				contexts,
@@ -245,6 +247,7 @@ Copyright (c) 2018-2021, Axway, Inc. All Rights Reserved.`;
 
 		// record the crash
 		telemetry.addCrash({
+			message: 'Unknown error',
 			...serializeError(err),
 			argv:     state ? scrubArgv(state.__argv) : undefined,
 			contexts: state ? state.contexts.map(ctx => ctx.name).reverse() : undefined,

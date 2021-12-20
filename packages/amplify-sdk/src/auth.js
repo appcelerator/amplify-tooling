@@ -25,6 +25,14 @@ const { alert, highlight, magenta, note } = snooplogg.styles;
  */
 export default class Auth {
 	/**
+	 * The number of seconds before the access token expires and should be refreshed.
+	 *
+	 * @type {Number}
+	 * @access private
+	 */
+	tokenRefreshThreshold = 0;
+
+	/**
 	 * The store to persist the token.
 	 *
 	 * @type {TokenStore}
@@ -76,6 +84,19 @@ export default class Auth {
 	constructor(opts = {}) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
+		}
+
+		if (opts.tokenRefreshThreshold !== undefined) {
+			const threshold = parseInt(opts.tokenRefreshThreshold, 10);
+			if (isNaN(threshold)) {
+				throw E.INVALID_PARAMETER('Expected token refresh threshold to be a number of seconds');
+			}
+
+			if (threshold < 0) {
+				throw E.INVALID_RANGE('Token refresh threshold must be greater than or equal to zero');
+			}
+
+			this.tokenRefreshThreshold = threshold;
 		}
 
 		Object.defineProperties(this, {
@@ -269,7 +290,7 @@ export default class Auth {
 		}
 
 		// copy over the correct auth params
-		for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env' ]) {
+		for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env', 'clientSecret', 'username', 'password', 'secret' ]) {
 			if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
 				log(`Overriding "${prop}" auth param with account's: ${opts[prop]} -> ${account.auth[prop]}`);
 				opts[prop] = account.auth[prop];
@@ -277,27 +298,40 @@ export default class Auth {
 		}
 		authenticator = this.createAuthenticator(opts);
 
-		if (account.auth.expired) {
-			// refresh the access token if the refresh token is valid
+		const { access, refresh } = account.auth.expires;
+		let doRefresh = account.auth.expired;
+		if (doRefresh) {
 			log(`Access token for account ${highlight(account.name || account.hash)} has expired`);
-
-			const { access, refresh } = account.auth.expires;
 			if ((refresh || access) < Date.now()) {
 				log(`Unable to refresh access token for account ${highlight(account.name || account.hash)} because refresh token is also expired`);
 				return;
 			}
+		} else {
+			const expiresIn = (refresh || access) - Date.now();
+			if (this.tokenRefreshThreshold && expiresIn < this.tokenRefreshThreshold * 1000) {
+				log(`Access token is valid, but will expire in ${expiresIn}ms (threshold ${this.tokenRefreshThreshold * 1000}ms), refreshing now`);
+				doRefresh = true;
+			} else {
+				log(`Access token is valid and does not need to be refreshed, but will expire in ${expiresIn}ms (threshold ${this.tokenRefreshThreshold * 1000}ms)`);
+			}
+		}
 
+		if (doRefresh) {
 			try {
 				log(`Refreshing access token for account ${highlight(account.name || account.hash)}`);
-				return await authenticator.getToken();
+				return await authenticator.getToken(null, null, true);
 			} catch (err) {
-				if (err.code === 'EINVALIDGRANT') {
-					warn(err.message);
+				if (err.code !== 'EINVALIDGRANT') {
+					throw err;
+				}
+				if (account.auth.expired) {
 					log(`Removing invalid account ${highlight(account.name || account.hash)} due to invalid refresh token`);
+					warn(err.toString());
 					await this.tokenStore.delete(account.name, opts.baseUrl);
 					return null;
+				} else {
+					log(`Couldn't refresh account ${highlight(account.name || account.hash)}: ${err.toString()}`);
 				}
-				throw err;
 			}
 		}
 
@@ -308,6 +342,10 @@ export default class Auth {
 				warn(`Removing invalid account ${highlight(account.name || account.hash)} due to stale token`);
 				await this.tokenStore.delete(account.name, opts.baseUrl);
 				return null;
+			}
+			if (!account.auth.expired) {
+				log(`Couldn't refresh account ${highlight(account.name || account.hash)} info, skipping: ${err.toString()}`);
+				return account;
 			}
 			throw err;
 		}

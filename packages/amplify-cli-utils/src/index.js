@@ -67,7 +67,7 @@ export function buildAuthParams(opts = {}, config) {
 		serverHost:              undefined,
 		serverPort:              undefined,
 		serviceAccount:          undefined,
-		tokenRefreshThreshold:   undefined,
+		tokenRefreshThreshold:   15 * 60, // 15 minutes
 		tokenStore:              undefined,
 		tokenStoreDir:           locations.axwayHome,
 		tokenStoreType:          undefined,
@@ -75,7 +75,7 @@ export function buildAuthParams(opts = {}, config) {
 	};
 
 	for (const prop of Object.keys(props)) {
-		params[prop] = opts[prop] || config.get(`auth.${prop}`, props[prop]);
+		params[prop] = opts[prop] !== undefined ? opts[prop] : config.get(`auth.${prop}`, props[prop]);
 	}
 
 	// detect if we're headless and default token store type to `file`
