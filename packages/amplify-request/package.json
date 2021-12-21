@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-request",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },
@@ -28,7 +28,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-utils": "^1.0.3",
+    "@axway/amplify-utils": "^1.0.4",
     "got": "^11.8.3",
     "http-proxy-agent": "^4.0.1",
     "https-proxy-agent": "^5.0.0",
