@@ -1,4 +1,4 @@
-# v3.2.0
+# v3.2.0 (Dec 21, 2021)
 
  * fix: Fixed unhandled exception when sending crash error.
  * chore: Updated dependencies.

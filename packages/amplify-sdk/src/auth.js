@@ -58,6 +58,9 @@ export default class Auth {
 	 * @param {Number} [opts.interactiveLoginTimeout] - The number of milliseconds to wait before
 	 * timing out.
 	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
+	 * @param {Boolean} [opts.persistSecrets] - When `true`, adds the authenticator params
+	 * (client secret, private key, username/password) to the authenticated account object so that
+	 * the access token can be refreshed when a refresh token is not available.
 	 * @param {String} [opts.platformUrl] - The URL to redirect the browser to after a
 	 * successful login.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
@@ -108,6 +111,7 @@ export default class Auth {
 			messages:       { value: opts.messages },
 			password:       { value: opts.password },
 			realm:          { value: opts.realm },
+			persistSecrets: { writable: true, value: opts.persistSecrets },
 			platformUrl:    { value: opts.platformUrl },
 			secretFile:     { value: opts.secretFile },
 			serviceAccount: { value: opts.serviceAccount },
@@ -128,6 +132,11 @@ export default class Auth {
 				case 'secure':
 					try {
 						this.tokenStore = new SecureStore(opts);
+
+						// we know we're secure, so force persist secrets
+						if (this.persistSecrets === undefined) {
+							this.persistSecrets = true;
+						}
 						break;
 					} catch (e) {
 						/* istanbul ignore if */
@@ -157,6 +166,11 @@ export default class Auth {
 					this.tokenStore = new MemoryStore(opts);
 					break;
 			}
+		}
+
+		if (this.persistSecrets && !(this.tokenStore instanceof SecureStore)) {
+			warn('Persist secrets has been enabled for non-secure token store');
+			warn('Run "axway config rm auth.persistSecrets" to disable');
 		}
 	}
 
@@ -189,6 +203,7 @@ export default class Auth {
 			got:            opts.got || this.got,
 			messages:       opts.messages || this.messages,
 			password:       opts.password || this.password,
+			persistSecrets: opts.persistSecrets !== undefined ? opts.persistSecrets : this.persistSecrets,
 			platformUrl:    opts.platformUrl || this.platformUrl,
 			realm:          opts.realm || this.realm,
 			secretFile:     opts.secretFile || this.secretFile,
@@ -221,6 +236,10 @@ export default class Auth {
 			}
 			log(`Using existing ${highlight(opts.authenticator.constructor.name)} authenticator`);
 			return opts.authenticator;
+		}
+
+		if (opts.persistSecrets === undefined) {
+			opts.persistSecrets = this.persistSecrets;
 		}
 
 		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {

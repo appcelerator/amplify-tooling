@@ -1,4 +1,4 @@
-# v5.0.4
+# v5.0.4 (Dec 21, 2021)
 
  * fix: Initialize default token refresh threshold to 15 minutes.
    ([APIGOV-20729](https://jira.axway.com/browse/APIGOV-20729))

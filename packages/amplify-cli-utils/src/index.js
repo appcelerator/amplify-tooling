@@ -61,6 +61,7 @@ export function buildAuthParams(opts = {}, config) {
 		interactiveLoginTimeout: undefined,
 		homeDir:                 locations.axwayHome,
 		password:                undefined,
+		persistSecrets:          undefined,
 		platformUrl:             undefined,
 		realm,
 		secretFile:              undefined,
