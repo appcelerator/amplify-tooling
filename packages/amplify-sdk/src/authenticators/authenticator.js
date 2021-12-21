@@ -53,6 +53,15 @@ export default class Authenticator {
 	interactive = false;
 
 	/**
+	 * When `true`, adds the authenticator params (client secret, private key, username/password)
+	 * to the authenticated account object so that the access token can be refreshed when a
+	 * refresh token is not available.
+	 * @type {Boolean}
+	 * @access private
+	 */
+	persistSecrets = false;
+
+	/**
 	 * The authorize URL.
 	 *
 	 * @type {String}
@@ -87,6 +96,9 @@ export default class Authenticator {
 	 * endpoints are: `auth`, `certs`, `logout`, `token`, `userinfo`, and `wellKnown`.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {Boolean} [opts.persistSecrets] - When `true`, adds the authenticator params
+	 * (client secret, private key, username/password) to the authenticated account object so that
+	 * the access token can be refreshed when a refresh token is not available.
 	 * @param {Function} [opts.got] - A reference to a `got` HTTP client. If not defined, the
 	 * default `got` instance will be used.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
@@ -112,6 +124,8 @@ export default class Authenticator {
 		}
 
 		this.platformUrl = opts.platformUrl || this.env.platformUrl;
+
+		this.persistSecrets = opts.persistSecrets;
 
 		// validate the required string properties
 		for (const prop of [ 'clientId', 'realm' ]) {
@@ -360,8 +374,7 @@ export default class Authenticator {
 					refresh
 				},
 				realm:         this.realm,
-				tokens,
-				...this.authenticatorParams
+				tokens
 			},
 			hash:              this.hash,
 			name,
@@ -376,6 +389,15 @@ export default class Authenticator {
 				organization:  undefined
 			}
 		});
+
+		if (this.persistSecrets) {
+			// add the secrets to the acount object so that they can be used to refresh the access
+			// token when there's no refresh token.
+			log('Persisting secrets in token store');
+			Object.assign(account.auth, this.authenticatorParams);
+		} else {
+			log('Not persisting secrets in token store');
+		}
 
 		// persist the tokens
 		if (this.tokenStore) {

@@ -1,4 +1,4 @@
-# v3.2.0
+# v3.2.0 (Dec 21, 2021)
 
  * feat: Implemented token refresh based on configurable threshold.
    ([APIGOV-20729](https://jira.axway.com/browse/APIGOV-20729))
