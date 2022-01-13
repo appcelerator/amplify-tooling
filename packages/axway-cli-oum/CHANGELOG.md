@@ -1,3 +1,8 @@
+# v2.0.5
+
+ * fix: Added user "type" to org user list command to match team user list.
+ * chore: Updated dependencies.
+
 # v2.0.4 (Dec 21, 2021)
 
  * chore: Updated dependencies.

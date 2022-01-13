@@ -505,6 +505,7 @@ export default class Authenticator {
 			log(`Getting token using code: ${highlight(code)}`);
 			const account = await this.getToken(code, codeCallback.url);
 
+			log(`Waiting for platform org select to finish and redirect to ${highlight(orgSelectedCallback.url)}`);
 			res.writeHead(302, {
 				Location: createURL(`${this.platformUrl}/#/auth/org.select`, {
 					redirect: orgSelectedCallback.url

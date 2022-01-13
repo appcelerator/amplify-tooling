@@ -37,10 +37,13 @@ export default {
 			throw new Error(`You do not have administrative access to update a user's team roles in the "${org.name}" organization`);
 		}
 
+		const { team, user } = await sdk.team.user.update(account, org, argv.team, argv.user, argv.role);
+
 		const results = {
 			account: account.name,
 			org,
-			...(await sdk.team.user.update(account, org, argv.team, argv.user, argv.role))
+			team,
+			user
 		};
 
 		if (argv.json) {

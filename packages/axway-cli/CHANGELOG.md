@@ -1,3 +1,8 @@
+# v3.2.1
+
+ * chore: Bumped copyright to 2022.
+ * chore: Updated dependencies.
+
 # v3.2.0 (Dec 21, 2021)
 
  * fix: Fixed unhandled exception when sending crash error.

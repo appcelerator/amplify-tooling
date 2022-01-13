@@ -47,11 +47,16 @@ export default {
 		} else {
 			const { default: snooplogg } = require('snooplogg');
 			const { highlight, note } = snooplogg.styles;
-			const name = `${user.firstname} ${user.lastname}`.trim();
 
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-			console.log(`Successfully removed user ${highlight(name)} from the ${highlight(team.name)} team`);
+
+			if (user.client_id) {
+				console.log(`Successfully removed service account ${highlight(user.name)} from the ${highlight(team.name)} team`);
+			} else {
+				const name = `${user.firstname} ${user.lastname}`.trim();
+				console.log(`Successfully removed user ${highlight(name)} from the ${highlight(team.name)} team`);
+			}
 		}
 
 		await cli.emitAction('axway:oum:team:user:remove', results);

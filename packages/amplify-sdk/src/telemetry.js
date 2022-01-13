@@ -168,10 +168,10 @@ export default class Telemetry {
 						return line;
 					}
 
-					let m = line.match(/\(([^:)]*)/);
+					let m = line.match(/\(([^:)]*:)/);
 					// istanbul ignore if
 					if (!m) {
-						m = line.match(/at ([^:]*)/);
+						m = line.match(/at ([^:]*:)/);
 						if (!m) {
 							return redact(line);
 						}
