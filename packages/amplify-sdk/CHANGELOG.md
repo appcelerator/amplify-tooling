@@ -1,4 +1,4 @@
-# v3.2.1
+# v3.2.1 (Jan 14, 2022)
 
  * fix: Have org user list return both users and service accounts.
    ([APIGOV-21373](https://jira.axway.com/browse/APIGOV-21373))

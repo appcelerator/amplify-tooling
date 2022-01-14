@@ -1,4 +1,4 @@
-# v5.0.5
+# v5.0.5 (Jan 14, 2022)
 
  * chore: Updated dependencies.
 
