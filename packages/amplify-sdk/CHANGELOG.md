@@ -1,3 +1,14 @@
+# v3.2.1
+
+ * fix: Have org user list return both users and service accounts.
+   ([APIGOV-21373](https://jira.axway.com/browse/APIGOV-21373))
+ * fix: Set correct `type` flag when adding a service account to a team.
+ * fix: Fixed bug where invalidated accounts were being returned despite being removed.
+ * fix: Improved invalidated session detection.
+ * fix: Fixed regex in stacktrace redaction.
+   ([APIGOV-21359](https://jira.axway.com/browse/APIGOV-21359))
+ * chore: Updated dependencies.
+
 # v3.2.0 (Dec 21, 2021)
 
  * feat: Implemented token refresh based on configurable threshold.

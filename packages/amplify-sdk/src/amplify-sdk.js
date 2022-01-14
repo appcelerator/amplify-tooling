@@ -223,11 +223,13 @@ export default class AmplifySDK {
 									warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
 								}
 							}
-							delete account.auth.clientSecret;
-							delete account.auth.password;
-							delete account.auth.secret;
-							delete account.auth.username;
-							list.push(account);
+							if (account) {
+								delete account.auth.clientSecret;
+								delete account.auth.password;
+								delete account.auth.secret;
+								delete account.auth.username;
+								list.push(account);
+							}
 							return list;
 						});
 					}, Promise.resolve([])))
@@ -251,6 +253,7 @@ export default class AmplifySDK {
 							accounts: [ account.name ],
 							baseUrl: this.baseUrl
 						});
+						return null;
 					}
 					throw err;
 				}
@@ -1042,14 +1045,18 @@ export default class AmplifySDK {
 				 */
 				list: async (account, org) => {
 					org = this.resolvePlatformOrg(account, org);
-					const users = await this.request(`/api/v1/org/${org.id}/user`, account, {
+					const users = await this.request(`/api/v1/org/${org.id}/user?clients=1`, account, {
 						errorMsg: 'Failed to get organization users'
 					});
 					return {
 						org,
 						users: users.sort((a, b) => {
-							const r = (a.firstname || '').localeCompare(b.firstname || '');
-							return r !== 0 ? r : (a.lastname || '').localeCompare(b.lastname || '');
+							if ((a.client_id && !b.client_id) || (!a.client_id && b.client_id)) {
+								return !a.client_id ? -1 : a.client_id ? 1 : 0;
+							}
+							const aname = a.name || `${a.firstname} ${a.lastname}`.trim();
+							const bname = b.name || `${b.firstname} ${b.lastname}`.trim();
+							return aname.localeCompare(bname);
 						})
 					};
 				},
@@ -1449,7 +1456,8 @@ export default class AmplifySDK {
 						team: await this.request(`/api/v1/team/${team.guid}/user/${found.guid}`, account, {
 							errorMsg: 'Failed to add user to organization',
 							json: {
-								roles: await this.role.resolve(account, roles, { org, requireRoles: true, team: true })
+								roles: await this.role.resolve(account, roles, { org, requireRoles: true, team: true }),
+								type: found.client_id ? 'client' : 'user'
 							}
 						}),
 						user: found
@@ -1829,10 +1837,14 @@ export default class AmplifySDK {
 				response = await this.got[method](url, opts);
 			} catch (e) {
 				error = e;
+				warn(error);
+				if (error.response?.body) {
+					warn(error.response.body);
+				}
 			}
 
 			if (error || (path === '/api/v1/auth/findSession' && response.body?.[resultKey] === null)) {
-				if (account.sid) {
+				if ((!error || (error.code && error.code > 400)) && account.sid) {
 					// sid is probably bad, try again with the token
 					warn('Platform session was invalidated, trying again to reinitialize session with token');
 					headers.Authorization = `Bearer ${token}`;

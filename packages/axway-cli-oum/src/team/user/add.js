@@ -57,9 +57,13 @@ export default {
 			throw new Error(`You do not have administrative access to add a user to a team in the "${org.name}" organization`);
 		}
 
+		const { team, user } = await sdk.team.user.add(account, org, argv.team, argv.user, argv.role);
+
 		const results = {
 			account: account.name,
-			...(await sdk.team.user.add(account, org, argv.team, argv.user, argv.role))
+			org,
+			team,
+			user
 		};
 
 		if (argv.json) {
@@ -67,11 +71,16 @@ export default {
 		} else {
 			const { default: snooplogg } = require('snooplogg');
 			const { highlight, note } = snooplogg.styles;
-			const name = `${results.user.firstname} ${results.user.lastname}`.trim();
 
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-			console.log(`Successfully added ${highlight(name)} to the ${highlight(results.team.name)} team`);
+
+			if (user.client_id) {
+				console.log(`Successfully added service account ${highlight(user.name)} to the ${highlight(team.name)} team`);
+			} else {
+				const name = `${user.firstname} ${user.lastname}`.trim();
+				console.log(`Successfully added user ${highlight(name)} to the ${highlight(team.name)} team`);
+			}
 		}
 
 		await cli.emitAction('axway:oum:team:user:add', results);
