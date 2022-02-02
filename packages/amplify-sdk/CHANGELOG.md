@@ -1,3 +1,8 @@
+# v3.2.2 (Feb 2, 2022)
+
+ * fix: Use "staging" name instead of "preprod".
+ * chore: Updated dependencies.
+
 # v3.2.1 (Jan 14, 2022)
 
  * fix: Have org user list return both users and service accounts.

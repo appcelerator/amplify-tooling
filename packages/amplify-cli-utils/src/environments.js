@@ -14,7 +14,7 @@ export const environments = {
 		},
 		title: 'Development'
 	},
-	preprod: {
+	staging: {
 		auth: {
 			clientId: 'amplify-cli',
 			realm: 'Broker'
@@ -22,7 +22,7 @@ export const environments = {
 		registry: {
 			url: 'https://registry.axwaytest.net'
 		},
-		title: 'Pre-Production'
+		title: 'Staging'
 	},
 	prod: {
 		auth: {
@@ -38,11 +38,11 @@ export const environments = {
 
 const mapping = {
 	development: 'dev',
-	preproduction: 'preprod',
-	'pre-production': 'preprod',
+	preprod: 'staging',
+	preproduction: 'staging',
+	'pre-production': 'staging',
 	production: 'prod',
-	staging: 'preprod',
-	test: 'preprod'
+	test: 'staging'
 };
 
 export function resolve(env) {

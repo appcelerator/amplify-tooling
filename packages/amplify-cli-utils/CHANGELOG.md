@@ -1,3 +1,8 @@
+# v5.0.6 (Feb 2, 2022)
+
+ * fix: Use "staging" name instead of "preprod".
+ * chore: Updated dependencies.
+
 # v5.0.5 (Jan 14, 2022)
 
  * chore: Updated dependencies.

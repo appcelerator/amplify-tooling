@@ -223,7 +223,7 @@ export default class AmplifySDK {
 									warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
 								}
 							}
-							if (account) {
+							if (account?.auth) {
 								delete account.auth.clientSecret;
 								delete account.auth.password;
 								delete account.auth.secret;

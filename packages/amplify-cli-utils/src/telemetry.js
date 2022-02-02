@@ -68,7 +68,7 @@ export function init(opts = {}) {
 			appGuid:        opts.appGuid,
 			appVersion:     opts.appVersion,
 			cacheDir:       telemetryCacheDir,
-			environment:    env === 'preprod' ? 'preproduction' : 'production',
+			environment:    env === 'staging' ? 'preproduction' : 'production',
 			requestOptions: createRequestOptions(config),
 			url:            opts.url
 		});
