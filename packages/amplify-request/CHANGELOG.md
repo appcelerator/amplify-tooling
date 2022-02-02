@@ -1,3 +1,7 @@
+# v3.0.6 (Feb 2, 2022)
+
+ * chore: Updated dependencies.
+
 # v3.0.5 (Jan 14, 2022)
 
  * chore: Updated dependencies.

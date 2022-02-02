@@ -94,7 +94,7 @@ export default class Authenticator {
 	 * @param {String} opts.clientId - The client id to specify when authenticating.
 	 * @param {Object} [opts.endpoints] - A map of endpoint names to endpoint URLs. Possible
 	 * endpoints are: `auth`, `certs`, `logout`, `token`, `userinfo`, and `wellKnown`.
-	 * @param {String} [opts.env=prod] - The environment name. Must be `dev`, `preprod`, or `prod`.
+	 * @param {String} [opts.env=prod] - The environment name. Must be `staging` or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Boolean} [opts.persistSecrets] - When `true`, adds the authenticator params
 	 * (client secret, private key, username/password) to the authenticated account object so that

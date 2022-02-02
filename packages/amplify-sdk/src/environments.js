@@ -4,7 +4,7 @@
  * @type {Object}
  */
 export const environments = {
-	preprod: {
+	staging: {
 		baseUrl:     'https://login.axwaytest.net',
 		platformUrl: 'https://platform.axwaytest.net',
 		realm:       'Broker'
@@ -17,13 +17,13 @@ export const environments = {
 };
 
 const mapping = {
-	dev: 'preprod',
-	development: 'preprod',
-	preproduction: 'preprod',
-	'pre-production': 'preprod',
+	dev: 'staging',
+	development: 'staging',
+	preprod: 'staging',
+	preproduction: 'staging',
+	'pre-production': 'staging',
 	production: 'prod',
-	staging: 'preprod',
-	test: 'preprod'
+	test: 'staging'
 };
 
 export function resolve(env) {

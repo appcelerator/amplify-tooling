@@ -1,3 +1,7 @@
+# v3.2.2 (Feb 2, 2022)
+
+ * chore: Updated dependencies.
+
 # v3.2.1 (Jan 14, 2022)
 
  * chore: Bumped copyright to 2022.
