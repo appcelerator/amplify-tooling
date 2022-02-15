@@ -37,7 +37,7 @@ export default {
 					title: `Purging ${highlight(`${name}@${pkg.version}`)}`,
 					task: async (ctx, task) => {
 						await uninstallPackage(pkg.path);
-						task._task.title = `Purged ${highlight(`${name}@${pkg.version}`)}`;
+						task.title = `Purged ${highlight(`${name}@${pkg.version}`)}`;
 					}
 				});
 
