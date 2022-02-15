@@ -1,4 +1,4 @@
-import Listr from 'listr';
+import { Listr } from 'listr2';
 import { ansi } from 'cli-kit';
 
 /**
@@ -49,7 +49,6 @@ export class ListrTextRenderer {
 export async function runListr({ console, json, tasks }) {
 	await (new Listr(tasks, {
 		concurrent: 10,
-		console,
 		dateFormat: false,
 		exitOnError: false,
 		renderer: json ? 'silent' : process.stdout.isTTY === true ? 'default' : ListrTextRenderer
