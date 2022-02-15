@@ -55,7 +55,7 @@ export default {
 									task.title = `Registering ${highlight(`${name}@${version}`)}`;
 								})
 								.on('end', info => {
-									task._task.title = `Installed ${highlight(`${info.name}@${info.version}`)}`;
+									task.title = `Installed ${highlight(`${info.name}@${info.version}`)}`;
 									results.installed.push(info);
 									resolve();
 								})
@@ -66,7 +66,7 @@ export default {
 							error: err.toString(),
 							package: pkg
 						});
-						task._task.title = alert(err.toString());
+						task.title = alert(err.toString());
 						err.message = undefined; // prevent the error from rendering twice
 						exitCode(1);
 						throw err;
