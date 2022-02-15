@@ -22,10 +22,10 @@
     snooplogg "^3.0.2"
     source-map-support "^0.5.19"
 
-"@axway/gulp-tasks@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@axway/gulp-tasks/-/gulp-tasks-4.1.1.tgz#755c6d5637f6ed40388f16b9c1596ab61d983473"
-  integrity sha512-ktFW2oP88k2m1dDynDL5FpU9rOhXsUidZZcmQxiYaxjxfe6UmI2xYXZus+3xyop1pCPv/U2mURFF++VpBfZvqA==
+"@axway/gulp-tasks@^4.1.2":
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/@axway/gulp-tasks/-/gulp-tasks-4.1.2.tgz#04b3a41a8b427d5571ebcb22d2dea20254922263"
+  integrity sha512-XWJueXBcFT3SghlvlrfYb40ms7kEznPR25YRuLvZ91GKmIGNXDdCfo9gAsxORbOPWi+xUZSUFIBWLmJHpELccg==
   dependencies:
     "@babel/core" "^7.17.2"
     "@babel/eslint-parser" "^7.17.0"
@@ -44,7 +44,7 @@
     eslint "^8.8.0"
     eslint-config-axway "^7.0.0"
     eslint-plugin-chai-friendly "^0.7.2"
-    eslint-plugin-mocha "^10.0.3"
+    eslint-plugin-mocha "^9.0.0"
     eslint-plugin-node "^11.1.0"
     fancy-log "^2.0.0"
     fs-extra "^10.0.0"
@@ -3906,10 +3906,10 @@ eslint-plugin-import@^2.25.4:
     resolve "^1.20.0"
     tsconfig-paths "^3.12.0"
 
-eslint-plugin-mocha@^10.0.3:
-  version "10.0.3"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-mocha/-/eslint-plugin-mocha-10.0.3.tgz#a4ecf2351828e852156316b7e936e7336fc0ff5e"
-  integrity sha512-9mM7PZGxfejpjey+MrG0Cu3Lc8MyA5E2s7eUCdHXgS4SY/H9zLuwa7wVAjnEaoDjbBilA+0bPEB+iMO7lBUPcg==
+eslint-plugin-mocha@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-mocha/-/eslint-plugin-mocha-9.0.0.tgz#b4457d066941eecb070dc06ed301c527d9c61b60"
+  integrity sha512-d7knAcQj1jPCzZf3caeBIn3BnW6ikcvfz0kSqQpwPYcVGLoJV5sz0l0OJB2LR8I7dvTDbqq1oV6ylhSgzA10zg==
   dependencies:
     eslint-utils "^3.0.0"
     ramda "^0.27.1"
