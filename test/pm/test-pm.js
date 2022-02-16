@@ -92,7 +92,7 @@ describe('axway pm', () => {
 		afterEach(resetHomeDir);
 
 		it('should install the acs extension', async function () {
-			this.timeout(120000);
+			this.timeout(240000);
 			this.slow(60000);
 
 			let { status, stdout } = await runAxwaySync([ 'pm', 'install', 'acs' ]);
@@ -111,7 +111,7 @@ describe('axway pm', () => {
 		});
 
 		it('should install a specific acs extension version', async function () {
-			this.timeout(60000);
+			this.timeout(240000);
 			this.slow(30000);
 
 			let { status, stdout } = await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
