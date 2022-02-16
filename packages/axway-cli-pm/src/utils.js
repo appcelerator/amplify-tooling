@@ -21,10 +21,10 @@ export class ListrTextRenderer {
 			task.subscribe(
 				event => {
 					if (event.type === 'STATE') {
-						const message = task.isPending() ? 'started' : task.state;
+						const message = task.isPending() ? 'started' : task.state.toLowerCase();
 						this._console.log(`${task.title} [${message}]`);
 					} else if (event.type === 'TITLE') {
-						this._console.log(`${task.title}`);
+						this._console.log(task.title);
 					}
 				},
 				err => this._console.error(err)
