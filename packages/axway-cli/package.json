@@ -1,6 +1,6 @@
 {
   "name": "axway",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "publishConfig": {
     "access": "public"
   },
@@ -28,11 +28,11 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.6",
-    "@axway/amplify-utils": "^1.0.6",
-    "@axway/axway-cli-auth": "^3.3.2",
-    "@axway/axway-cli-oum": "^2.0.6",
-    "@axway/axway-cli-pm": "^4.0.6",
+    "@axway/amplify-cli-utils": "^5.0.7",
+    "@axway/amplify-utils": "^1.0.7",
+    "@axway/axway-cli-auth": "^3.3.3",
+    "@axway/axway-cli-oum": "^2.0.7",
+    "@axway/axway-cli-pm": "^4.0.7",
     "boxen": "^5.1.2",
     "check-kit": "^2.0.0",
     "cli-kit": "^1.15.0",
