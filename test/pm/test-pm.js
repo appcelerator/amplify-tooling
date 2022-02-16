@@ -46,7 +46,7 @@ describe('axway pm', () => {
 	});
 
 	describe('search', () => {
-		it('should show all packages', async () => {
+		it('should show all packages', async function () {
 			this.timeout(120000);
 			this.slow(60000);
 
