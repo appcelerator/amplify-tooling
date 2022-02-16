@@ -47,6 +47,9 @@ describe('axway pm', () => {
 
 	describe('search', () => {
 		it('should show all packages', async () => {
+			this.timeout(120000);
+			this.slow(60000);
+
 			const { status, stdout } = await runAxwaySync([ 'pm', 'search', '--json' ]);
 			expect(status).to.equal(0);
 			const results = JSON.parse(stdout);
