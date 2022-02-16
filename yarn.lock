@@ -22,10 +22,10 @@
     snooplogg "^3.0.2"
     source-map-support "^0.5.19"
 
-"@axway/gulp-tasks@^4.1.3":
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/@axway/gulp-tasks/-/gulp-tasks-4.1.3.tgz#014d1fbf59404ece05ca4a1cf9cf0b119ba04674"
-  integrity sha512-JTmosDP3J7UFTV4Bk7/kjnv8aHR4U9ECN4bXcbFR/lcAUEjLoMDP2g8Shy2iEmWD4GH7jtps9E2K2LEAq6pDFg==
+"@axway/gulp-tasks@^4.1.4":
+  version "4.1.4"
+  resolved "https://registry.yarnpkg.com/@axway/gulp-tasks/-/gulp-tasks-4.1.4.tgz#713be266713f3c85b0e94aef21d3ce427f36e485"
+  integrity sha512-84/fwqnUUNkJ9bWCtxw76kszcRdgEH9KbAr3FjqhNwI+Jzs7/x+wxNmgTIKmPMc7wjijmQgGlH6t8JDDDA3YBQ==
   dependencies:
     "@babel/core" "^7.17.2"
     "@babel/eslint-parser" "^7.17.0"
@@ -42,7 +42,7 @@
     esdoc-ecmascript-proposal-plugin "^1.0.0"
     esdoc-standard-plugin "^1.0.0"
     eslint "^7.32.0"
-    eslint-config-axway "^7.0.0"
+    eslint-config-axway "^6.0.2"
     eslint-plugin-chai-friendly "^0.7.2"
     eslint-plugin-mocha "^9.0.0"
     eslint-plugin-node "^11.1.0"
@@ -3852,15 +3852,15 @@ esdoc@^1.1.0:
     minimist "1.2.0"
     taffydb "2.7.3"
 
-eslint-config-axway@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-axway/-/eslint-config-axway-7.0.0.tgz#02eb126ae0257d87db6b434a8abfd5015b531baf"
-  integrity sha512-qeoE9UZxGttQfy9YyIEiGa1l33tzciztRul46COWGGOCRnMyU1fqJChOvkp7Ek5VvWqSqwU511qH1i+9CD2olw==
+eslint-config-axway@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/eslint-config-axway/-/eslint-config-axway-6.0.2.tgz#2ce7752650b2e4cec8beb9fa4cb1f8fbb05fdb80"
+  integrity sha512-+O+kCrTycij3Vyk+hJtljZy/Xa/Xz0PdkJm4c4DRed6YT7JuSVpoH4UPCST/xCT9/Nonpy8VuyuZTa3kneHdjw==
   dependencies:
-    eslint-plugin-chai-expect "^3.0.0"
-    eslint-plugin-import "^2.25.4"
+    eslint-plugin-chai-expect "^2.2.0"
+    eslint-plugin-import "^2.22.1"
     eslint-plugin-node "^11.1.0"
-    eslint-plugin-promise "^6.0.0"
+    eslint-plugin-promise "^5.1.0"
     eslint-plugin-security "^1.4.0"
     find-root "^1.1.0"
     semver "^7.3.4"
@@ -3881,10 +3881,10 @@ eslint-module-utils@^2.7.2:
     debug "^3.2.7"
     find-up "^2.1.0"
 
-eslint-plugin-chai-expect@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-chai-expect/-/eslint-plugin-chai-expect-3.0.0.tgz#812d7384756177b2d424040cb3c20e78606db1b2"
-  integrity sha512-NS0YBcToJl+BRKBSMCwRs/oHJIX67fG5Gvb4tGked+9Wnd1/PzKijd82B2QVKcSSOwRe+pp4RAJ2AULeck4eQw==
+eslint-plugin-chai-expect@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-chai-expect/-/eslint-plugin-chai-expect-2.2.0.tgz#ff41fb00067fe6ff26e72b04ab1011ecaf3cb249"
+  integrity sha512-ExTJKhgeYMfY8wDj3UiZmgpMKJOUHGNHmWMlxT49JUDB1vTnw0sSNfXJSxnX+LcebyBD/gudXzjzD136WqPJrQ==
 
 eslint-plugin-chai-friendly@^0.7.2:
   version "0.7.2"
@@ -3899,7 +3899,7 @@ eslint-plugin-es@^3.0.0:
     eslint-utils "^2.0.0"
     regexpp "^3.0.0"
 
-eslint-plugin-import@^2.25.4:
+eslint-plugin-import@^2.22.1:
   version "2.25.4"
   resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.25.4.tgz#322f3f916a4e9e991ac7af32032c25ce313209f1"
   integrity sha512-/KJBASVFxpu0xg1kIBn9AUa8hQVnszpwgE7Ld0lKAlx7Ie87yzEzCgSkekt+le/YVhiaosO4Y14GDAOc41nfxA==
@@ -3938,10 +3938,10 @@ eslint-plugin-node@^11.1.0:
     resolve "^1.10.1"
     semver "^6.1.0"
 
-eslint-plugin-promise@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-promise/-/eslint-plugin-promise-6.0.0.tgz#017652c07c9816413a41e11c30adc42c3d55ff18"
-  integrity sha512-7GPezalm5Bfi/E22PnQxDWH2iW9GTvAlUNTztemeHb6c1BniSyoeTrM87JkC0wYdi6aQrZX9p2qEiAno8aTcbw==
+eslint-plugin-promise@^5.1.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-promise/-/eslint-plugin-promise-5.2.0.tgz#a596acc32981627eb36d9d75f9666ac1a4564971"
+  integrity sha512-SftLb1pUG01QYq2A/hGAWfDRXqYD82zE7j7TopDOyNdU+7SvvoXREls/+PRTY17vUXzXnZA/zfnyKgRH6x4JJw==
 
 eslint-plugin-security@^1.4.0:
   version "1.4.0"
