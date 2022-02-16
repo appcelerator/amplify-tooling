@@ -1,3 +1,7 @@
+# v3.2.3 (Feb 16, 2022)
+
+ * chore: Updated dependencies.
+
 # v3.2.2 (Feb 2, 2022)
 
  * fix: Use "staging" name instead of "preprod".

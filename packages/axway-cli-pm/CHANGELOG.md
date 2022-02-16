@@ -1,3 +1,9 @@
+# v4.0.7 (Feb 16, 2022)
+
+ * chore: Migrate from `listr` to `listr2` to resolve moderate security vulnerability warnings.
+   ([APIGOV-21697](https://jira.axway.com/browse/APIGOV-21697))
+ * chore: Updated dependencies.
+
 # v4.0.6 (Feb 2, 2022)
 
  * chore: Updated dependencies.
