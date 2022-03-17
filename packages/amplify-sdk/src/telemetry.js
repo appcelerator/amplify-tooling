@@ -168,6 +168,11 @@ export default class Telemetry {
 						return line;
 					}
 
+					// node internal module
+					if (/ \(node:/.test(line)) {
+						return line;
+					}
+
 					let m = line.match(/\(([^:)]*:)/);
 					// istanbul ignore if
 					if (!m) {

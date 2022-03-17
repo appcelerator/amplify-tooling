@@ -92,12 +92,6 @@ Set a config setting:
 		</td>
 	</tr>
 	<tr>
-		<td><code>env</code></td>
-		<td>string</td>
-		<td><code>"prod"</code></td>
-		<td>The name of the environment to use for all commands.</td>
-	</tr>
-	<tr>
 		<td><code>extensions.&lt;name&gt;</code></td>
 		<td>string</td>
 		<td></td>

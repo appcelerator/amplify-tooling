@@ -1,3 +1,8 @@
+# v3.2.4
+
+ * fix(telemetry): Fixed bug in crash error stacktrace scrubbing for internal node modules.
+   ([APIGOV-22150](https://jira.axway.com/browse/APIGOV-22150))
+
 # v3.2.3 (Feb 16, 2022)
 
  * chore: Updated dependencies.
