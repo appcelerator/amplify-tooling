@@ -1,5 +1,7 @@
 # v3.2.4
 
+ * fix(auth): During logout, redirect to correct logout page with signin button.
+   ([APIGOV-22156](https://jira.axway.com/browse/APIGOV-22156))
  * fix(telemetry): Fixed bug in crash error stacktrace scrubbing for internal node modules.
    ([APIGOV-22150](https://jira.axway.com/browse/APIGOV-22150))
 
