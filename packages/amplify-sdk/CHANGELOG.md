@@ -1,9 +1,10 @@
-# v3.2.4
+# v3.2.4 (Mar 28, 2022)
 
  * fix(auth): During logout, redirect to correct logout page with signin button.
    ([APIGOV-22156](https://jira.axway.com/browse/APIGOV-22156))
  * fix(telemetry): Fixed bug in crash error stacktrace scrubbing for internal node modules.
    ([APIGOV-22150](https://jira.axway.com/browse/APIGOV-22150))
+ * chore: Updated dependencies.
 
 # v3.2.3 (Feb 16, 2022)
 
