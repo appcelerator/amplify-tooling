@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-config",
-  "version": "4.0.7",
+  "version": "4.0.8",
   "publishConfig": {
     "access": "public"
   },
@@ -24,7 +24,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-utils": "^1.0.7",
+    "@axway/amplify-utils": "^1.0.8",
     "config-kit": "^1.7.2",
     "fs-extra": "^10.0.1",
     "source-map-support": "^0.5.21"
