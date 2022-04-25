@@ -94,11 +94,11 @@ describe('axway pm', () => {
 		});
 		afterEach(resetHomeDir);
 
-		it('should install the acs extension', async function () {
+		it.only('should install the acs extension', async function () {
 			this.timeout(240000);
 			this.slow(60000);
 
-			let { status, stdout } = await runAxwaySync([ 'pm', 'install', 'acs' ]);
+			let { status, stdout, stderr } = await runAxwaySync([ 'pm', 'install', 'acs' ]);
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('install/acs-installed'));
 
@@ -108,9 +108,14 @@ describe('axway pm', () => {
 			expect(results).to.have.lengthOf(1);
 			expect(results[0].name).to.equal('acs');
 
-			({ status, stdout } = await runAxwaySync([ 'pm', 'view', 'acs' ]));
-			expect(status).to.equal(0);
+			({ status, stdout, stderr } = await runAxwaySync([ 'pm', 'view', 'acs' ]));
+			console.log('*'.repeat(80));
+			console.log(stdout);
+			console.log('*'.repeat(80));
+			console.log(stderr);
+			console.log('*'.repeat(80));
 			expect(stdout).to.match(renderRegexFromFile('view/acs-installed'));
+			expect(status).to.equal(0);
 		});
 
 		it('should install a specific acs extension version', async function () {
