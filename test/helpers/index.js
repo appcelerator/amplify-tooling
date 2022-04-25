@@ -98,7 +98,7 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 		if (args.includes('--no-color') || args.includes('--no-colors')) {
 			delete env.FORCE_COLOR;
 		}
-		delete env.SNOOPLOGG;
+		// delete env.SNOOPLOGG;
 	}
 
 	if (cfg) {
