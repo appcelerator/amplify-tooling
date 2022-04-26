@@ -1,6 +1,9 @@
 import path from 'path';
+import { expect } from 'chai';
+import { fileURLToPath } from 'url';
+import * as util from '../src/index.js';
 
-import * as util from '../dist/index';
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 describe('util', () => {
 
@@ -355,7 +358,7 @@ describe('util', () => {
 				count++;
 			});
 
-			return Promise
+			await Promise
 				.all([
 					fn(),
 					fn(),
@@ -364,10 +367,9 @@ describe('util', () => {
 					fn(),
 					fn(),
 					fn()
-				])
-				.then(() => {
-					expect(count).to.equal(1);
-				});
+				]);
+
+			expect(count).to.equal(1);
 		});
 
 		it('should cancel a pending debounce', function (done) {

@@ -1,5 +1,6 @@
 /* eslint-disable node/no-deprecated-api, no-new-func */
 
+import asyncHooks from 'async_hooks';
 import crypto from 'crypto';
 import fs from 'fs';
 import get from 'lodash.get';
@@ -9,7 +10,7 @@ import semver from 'semver';
 import { ChildProcess, execSync, spawnSync } from 'child_process';
 import { EventEmitter } from 'events';
 import { homedir } from 'os';
-import { isFile } from './fs';
+import { isFile } from './fs.js';
 import { Server, Socket } from 'net';
 
 function getBinding(name) {
@@ -835,7 +836,7 @@ export function trackTimers() {
 	if (!trackTimerAsyncHook) {
 		try {
 			// try to initialize the async hook
-			trackTimerAsyncHook = require('async_hooks')
+			trackTimerAsyncHook = asyncHooks
 				.createHook({
 					init(asyncId, type, triggerAsyncId, resource) {
 						if (type === 'Timeout') {

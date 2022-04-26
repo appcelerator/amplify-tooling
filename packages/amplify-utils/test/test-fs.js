@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import tmp from 'tmp';
+import { expect } from 'chai';
+import { fileURLToPath } from 'url';
 
 import {
 	existsSync,
@@ -11,7 +13,10 @@ import {
 	moveSync,
 	readdirScopedSync,
 	writeFileSync
-} from '../dist/index';
+} from '../src/index.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
 
 const {
 	name: tmpDir,

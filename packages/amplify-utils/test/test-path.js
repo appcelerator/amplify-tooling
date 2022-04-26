@@ -1,9 +1,11 @@
 import fs from 'fs-extra';
 import tmp from 'tmp';
 import _path from 'path';
+import { expect } from 'chai';
+import { fileURLToPath } from 'url';
+import * as path from '../src/index.js';
 
-import * as path from '../dist/index';
-
+const __filename = fileURLToPath(import.meta.url);
 const isWin = /^win/.test(process.platform);
 
 describe('path', () => {

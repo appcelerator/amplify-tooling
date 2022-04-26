@@ -5,6 +5,8 @@
     "access": "public"
   },
   "description": "Axway Amplify utility library",
+  "type": "module",
+  "exports": "./src/index.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"
@@ -14,30 +16,32 @@
     "axway",
     "amplify"
   ],
-  "main": "./dist/index",
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "build": "node scripts/build",
+    "coverage": "c8 npm run test",
+    "lint": "eslint src test",
+    "prepublishOnly": "npm run lint",
+    "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2",
     "semver": "^7.3.7",
-    "source-map-support": "^0.5.21",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4",
+    "c8": "^7.11.2",
+    "eslint": "^8.14.0",
+    "eslint-config-axway": "^7.0.0",
+    "eslint-plugin-mocha": "^10.0.4",
     "fs-extra": "^10.1.0",
+    "mocha": "^9.2.2",
     "tmp": "^0.2.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-utils",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=14.15.0"
   }
 }
