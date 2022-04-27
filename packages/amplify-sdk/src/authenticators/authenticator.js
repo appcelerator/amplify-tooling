@@ -337,6 +337,7 @@ export default class Authenticator {
 
 		let email;
 		let guid;
+		let idp;
 		let org;
 		let name = this.hash;
 
@@ -351,6 +352,7 @@ export default class Authenticator {
 			if (email) {
 				name = `${this.clientId}:${email}`;
 			}
+			idp = info.payload.identity_provider;
 			const { orgId } = info.payload;
 			if (orgId) {
 				org = { name: orgId, id: orgId };
@@ -373,6 +375,7 @@ export default class Authenticator {
 					access: (tokens.expires_in * 1000) + now,
 					refresh
 				},
+				idp,
 				realm:         this.realm,
 				tokens
 			},
@@ -505,11 +508,17 @@ export default class Authenticator {
 			log(`Getting token using code: ${highlight(code)}`);
 			const account = await this.getToken(code, codeCallback.url);
 
-			log(`Waiting for platform org select to finish and redirect to ${highlight(orgSelectedCallback.url)}`);
-			res.writeHead(302, {
-				Location: createURL(`${this.platformUrl}/#/auth/org.select`, {
+			let redirect = orgSelectedCallback.url;
+			// if we just authenticated using a IdP user (e.g. not 360)
+			if (account.auth.idp !== '360') {
+				redirect = createURL(`${this.platformUrl}/#/auth/org.select`, {
 					redirect: orgSelectedCallback.url
-				})
+				});
+			}
+
+			log(`Waiting for platform org select to finish and redirect to ${highlight(redirect)}`);
+			res.writeHead(302, {
+				Location: redirect
 			});
 			res.end();
 

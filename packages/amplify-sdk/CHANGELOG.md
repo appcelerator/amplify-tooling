@@ -1,3 +1,9 @@
+# v3.2.5
+
+ * fix(auth): Don't redirect to org select when identity provider is 360.
+   ([APIGOV-21467](https://jira.axway.com/browse/APIGOV-21467))
+ * chore: Updated dependencies.
+
 # v3.2.4 (Mar 28, 2022)
 
  * fix(auth): During logout, redirect to correct logout page with signin button.
