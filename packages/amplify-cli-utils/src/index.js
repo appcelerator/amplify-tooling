@@ -1,8 +1,3 @@
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
-}
-
 import AmplifySDK, { Telemetry } from '@axway/amplify-sdk';
 import boxen from 'boxen';
 import check from 'check-kit';
@@ -10,11 +5,11 @@ import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
 import snooplogg from 'snooplogg';
 import { ansi } from 'cli-kit';
-import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request';
-import * as environments from './environments';
-import * as locations from './locations';
+import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request.js';
+import * as environments from './environments.js';
+import * as locations from './locations.js';
 import * as request from '@axway/amplify-request';
-import * as telemetry from './telemetry';
+import * as telemetry from './telemetry.js';
 
 export {
 	AmplifySDK,

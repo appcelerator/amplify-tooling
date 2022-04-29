@@ -1,10 +1,12 @@
 {
   "name": "@axway/amplify-sdk",
-  "version": "3.2.4",
+  "version": "4.0.0",
   "publishConfig": {
     "access": "public"
   },
   "description": "Axway Amplify SDK for Node.js",
+  "type": "module",
+  "exports": "./src/index.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"
@@ -14,13 +16,11 @@
     "axway",
     "amplify"
   ],
-  "main": "./dist/index",
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "coverage": "c8 npm run test",
+    "lint": "eslint src test",
+    "prepublishOnly": "npm run lint",
+    "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
     "@axway/amplify-request": "^3.0.8",
@@ -28,20 +28,18 @@
     "ci-info": "^3.3.0",
     "ejs": "^3.1.7",
     "fs-extra": "^10.1.0",
-    "get-port": "^5.1.1",
+    "get-port": "^6.1.2",
     "jws": "^4.0.0",
     "keytar": "7.9.0",
     "open": "^8.4.0",
     "pluralize": "^8.0.0",
-    "serialize-error": "^8.1.0",
+    "serialize-error": "^10.0.0",
     "set-cookie-parser": "^2.4.8",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21",
+    "snooplogg": "^5.0.0",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4",
     "@koa/router": "^10.1.1",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
@@ -51,7 +49,6 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-sdk",
   "engines": {
-    "node": ">=12.13.0"
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+    "node": ">=14.15.0"
+  }
 }

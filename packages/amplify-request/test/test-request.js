@@ -3,7 +3,9 @@ import http from 'http';
 import https from 'https';
 import init from '../dist';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const sslDir = path.join(__dirname, 'fixtures', 'ssl');
 
 describe('init', () => {

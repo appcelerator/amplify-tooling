@@ -1,3 +1,7 @@
+# v3.0.0
+
+ * BREAKING CHANGE: Dropped support for Node.js 12 and older.
+
 # v2.0.9
 
  * chore: Updated dependencies.

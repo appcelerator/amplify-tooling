@@ -1,10 +1,12 @@
 {
   "name": "axway",
-  "version": "3.2.4",
+  "version": "4.0.0",
   "publishConfig": {
     "access": "public"
   },
   "description": "A unified CLI for the Axway Amplify platform.",
+  "type": "module",
+  "exports": "./src/index.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>",
@@ -20,12 +22,10 @@
   },
   "preferGlobal": true,
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "postinstall": "node scripts/postinstall.js || node -e true",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "coverage": "c8 npm run test",
+    "lint": "eslint src test",
+    "prepublishOnly": "npm run lint",
+    "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^5.0.8",
@@ -33,22 +33,17 @@
     "@axway/axway-cli-auth": "^3.3.4",
     "@axway/axway-cli-oum": "^2.0.8",
     "@axway/axway-cli-pm": "^4.0.8",
-    "boxen": "^5.1.2",
+    "boxen": "^6.2.1",
     "check-kit": "^2.0.0",
     "cli-kit": "^1.16.0",
-    "serialize-error": "^8.1.0",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21",
+    "serialize-error": "^10.0.0",
+    "snooplogg": "^5.0.0",
     "v8-compile-cache": "^2.3.0"
-  },
-  "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli",
   "engines": {
-    "node": ">=12.13.0"
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+    "node": ">=14.15.0"
+  }
 }

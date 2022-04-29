@@ -1,10 +1,12 @@
 {
   "name": "@axway/axway-cli-oum",
-  "version": "2.0.8",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },
   "description": "Axway Amplify platform organization and user management CLI",
+  "type": "module",
+  "exports": "./src/index.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"
@@ -15,27 +17,22 @@
     "amplify"
   ],
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "coverage": "c8 npm run test",
+    "lint": "eslint src test",
+    "prepublishOnly": "npm run lint",
+    "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^5.0.8",
     "cli-kit": "^1.16.0",
     "open": "^8.4.0",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21"
-  },
-  "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "snooplogg": "^5.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-oum",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=14.15.0"
   },
   "cli-kit": {
     "exports": {
@@ -52,6 +49,5 @@
         "main": "./dist/user/index.js"
       }
     }
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+  }
 }

@@ -1,3 +1,7 @@
+# v4.0.0
+
+ * BREAKING CHANGE: Dropped support for Node.js 12 and older.
+
 # v3.2.5
 
  * fix(auth): Don't redirect to org select when identity provider is 360.

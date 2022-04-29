@@ -2,10 +2,10 @@ import fs from 'fs-extra';
 import loadConfig from '@axway/amplify-config';
 import path from 'path';
 import snooplogg from 'snooplogg';
-import { createRequestOptions } from './request';
+import { createRequestOptions } from './request.js';
 import { Telemetry } from '@axway/amplify-sdk';
-import * as environments from './environments';
-import * as locations from './locations';
+import * as environments from './environments.js';
+import * as locations from './locations.js';
 
 const { warn } = snooplogg('amplify-cli-utils:telemetry');
 const telemetryCacheDir = path.join(locations.axwayHome, 'axway-cli', 'telemetry');

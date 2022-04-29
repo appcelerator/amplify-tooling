@@ -5,6 +5,8 @@
     "access": "public"
   },
   "description": "Common utils for Axway CLI packages",
+  "type": "module",
+  "exports": "./src/index.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Ewan Harris <eharris@axway.com>",
@@ -15,34 +17,27 @@
     "axway",
     "amplify"
   ],
-  "main": "./dist/index",
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "coverage": "c8 npm run test",
+    "lint": "eslint src test",
+    "prepublishOnly": "npm run lint",
+    "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
     "@axway/amplify-config": "^4.0.8",
     "@axway/amplify-request": "^3.0.8",
     "@axway/amplify-sdk": "^3.2.4",
-    "boxen": "^5.1.2",
-    "check-kit": "^1.2.1",
+    "boxen": "^6.2.1",
+    "check-kit": "^2.0.0",
     "cli-kit": "^1.16.0",
     "cli-table3": "^0.6.2",
     "fs-extra": "^10.1.0",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21"
-  },
-  "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "snooplogg": "^5.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-utils",
   "engines": {
-    "node": ">=12.13.0"
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+    "node": ">=14.15.0"
+  }
 }

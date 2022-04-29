@@ -1,8 +1,3 @@
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
-}
-
 import Config from 'config-kit';
 import fs from 'fs-extra';
 import os from 'os';

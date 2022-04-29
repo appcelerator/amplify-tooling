@@ -1,0 +1,8 @@
+{
+    "extends": [ "axway/env-node", "axway/+mocha", "axway/+chai" ],
+    "rules": {
+		"no-confusing-arrow": "off",
+        "no-ex-assign": "off",
+        "node/no-unsupported-features/node-builtins": [ "warn", { "version": ">=12.13.0" } ]
+	}
+}

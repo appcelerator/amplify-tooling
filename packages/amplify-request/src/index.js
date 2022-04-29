@@ -1,8 +1,3 @@
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
-}
-
 import fs from 'fs';
 import got from 'got';
 import HttpProxyAgent from 'http-proxy-agent';

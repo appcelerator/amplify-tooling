@@ -1,7 +1,7 @@
 import http from 'http';
 
 import { Config } from '@axway/amplify-config';
-import { initSDK } from '../dist/index';
+import { initSDK } from '../src/index.js';
 import { MemoryStore } from '@axway/amplify-sdk';
 
 describe('auth', () => {

@@ -1,3 +1,7 @@
+# v4.0.0
+
+ * BREAKING CHANGE: Dropped support for Node.js 12 and older.
+
 # v3.3.5
 
  * chore: Updated dependencies.

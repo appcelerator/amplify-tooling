@@ -1,9 +1,11 @@
-import path from 'path';
 import fs from 'fs-extra';
-
+import path from 'path';
 import { Config } from '@axway/amplify-config';
-import { loadConfig, locations } from '../dist/index';
+import { expect } from 'chai';
+import { fileURLToPath } from 'url';
+import { loadConfig, locations } from '../src/index.js';
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const { configFile } = locations;
 const fixturesDir = path.join(__dirname, 'fixtures', 'config');
 const temp = path.join(__dirname, 'fixtures', 'axway-config.json');
