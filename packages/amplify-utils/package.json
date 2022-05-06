@@ -6,7 +6,7 @@
   },
   "description": "Axway Amplify utility library",
   "type": "module",
-  "exports": "./src/index.js",
+  "exports": "./dist/index.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"
@@ -17,10 +17,11 @@
     "amplify"
   ],
   "scripts": {
+    "build": "tsc",
     "coverage": "c8 npm run test",
-    "lint": "eslint src test",
+    "lint": "tslint ./src ./test",
     "prepublishOnly": "npm run lint",
-    "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
+    "test": "ts-mocha test/**/test-*.ts --reporter spec"
   },
   "dependencies": {
     "lodash.get": "^4.4.2",
@@ -29,6 +30,7 @@
     "tmp": "^0.2.1"
   },
   "devDependencies": {
+    "@types/node": "^17.0.31",
     "fs-extra": "^10.1.0",
     "tmp": "^0.2.1"
   },

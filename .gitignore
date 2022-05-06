@@ -2,7 +2,9 @@
 .DS_Store*
 .npm-info
 .nyc_output
-/coverage
+coverage/**
+build/**
+dist
 gulpfile.tmp.*
 junit.xml
 lerna-debug.log

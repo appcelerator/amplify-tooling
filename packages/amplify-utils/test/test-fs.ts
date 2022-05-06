@@ -8,15 +8,13 @@ import {
 	existsSync,
 	isDir,
 	isFile,
-	locate,
 	mkdirpSync,
 	moveSync,
-	readdirScopedSync,
 	writeFileSync
-} from '../src/index.js';
+} from '../src/index.ts';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const __filename = fileURLToPath(import.meta.url);
+// const __dirname = fileURLToPath(new URL('.', import.meta.url));
+// const __filename = fileURLToPath(import.meta.url);
 
 const {
 	name: tmpDir,
@@ -70,46 +68,6 @@ describe('fs', () => {
 		});
 	});
 
-	describe('locate()', () => {
-		const baseDir = path.resolve(__dirname, './fixtures/locate');
-
-		it('should find a file with no depth', () => {
-			let result = locate(baseDir, 'foo.txt');
-			expect(result).to.be.a('string');
-			expect(result).to.equal(path.join(baseDir, 'subdir1', 'foo.txt'));
-
-			result = locate(baseDir, 'bar.txt');
-			expect(result).to.be.a('string');
-			expect(result).to.equal(path.join(baseDir, 'subdir1', 'subdir2', 'bar.txt'));
-		});
-
-		it('should find a file using a regex', () => {
-			let result = locate(baseDir, /foo\.txt/);
-			expect(result).to.be.a('string');
-			expect(result).to.equal(path.join(baseDir, 'subdir1', 'foo.txt'));
-
-			result = locate(baseDir, /bar\.txt/);
-			expect(result).to.be.a('string');
-			expect(result).to.equal(path.join(baseDir, 'subdir1', 'subdir2', 'bar.txt'));
-		});
-
-		it('should find a file with depth', () => {
-			const result = locate(baseDir, 'foo.txt', 1);
-			expect(result).to.be.a('string');
-			expect(result).to.equal(path.join(baseDir, 'subdir1', 'foo.txt'));
-		});
-
-		it('should not find non-existant file', () => {
-			const result = locate(baseDir, 'baz.txt');
-			expect(result).to.be.null;
-		});
-
-		it('should not find a file with depth', () => {
-			const result = locate(baseDir, 'bar.txt', 1);
-			expect(result).to.be.null;
-		});
-	});
-
 	describe('mkdirpSync()', () => {
 		afterEach(() => {
 			try {
@@ -150,19 +108,6 @@ describe('fs', () => {
 			expect(() => {
 				moveSync('does_not_exist', tmpDir);
 			}).to.throw(Error, /^ENOENT/);
-		});
-	});
-
-	describe('readdirScoped', () => {
-		const baseDir = path.resolve(__dirname, './fixtures/readdirScopedSync');
-		it('should read dir and have scoped packages as a single entry', () => {
-			const dirs = readdirScopedSync(baseDir);
-			expect(dirs).to.deep.equal([ '@test/bar', '@test/foo', 'bar', 'foo' ]);
-		});
-
-		it('should work normally when no scopes exists and filter files out', () => {
-			const dirs = readdirScopedSync(__dirname);
-			expect(dirs).to.deep.equal([ 'fixtures' ]);
 		});
 	});
 
