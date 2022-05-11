@@ -197,7 +197,8 @@ describe('amplify-sdk', () => {
 				expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 				expect(account.isPlatform).to.equal(true);
 				expect(account.org.guid).to.equal('1000');
-				expect(account.orgs).to.have.lengthOf(2);
+				expect(account.orgs).to.have.lengthOf(1);
+				expect(account.orgs[0].guid).to.equal(account.org.guid);
 				expect(account.user.email).to.equal('test1@domain.com');
 			});
 
