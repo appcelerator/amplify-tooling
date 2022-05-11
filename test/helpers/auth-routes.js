@@ -60,7 +60,8 @@ export function createAuthRoutes(server, opts = {}) {
 	router.get('/realms/test_realm/protocol/openid-connect/userinfo', ctx => {
 		ctx.body = {
 			name: `tester`,
-			email: state.email
+			email: state.email,
+			org_guid: '1000'
 		};
 	});
 
