@@ -89,66 +89,31 @@ more than one of org or team.`,
 		config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
 		config.save();
 
+		if (account.isPlatformTooling) {
+			const org = argv.org && String(argv.org);
+			const o = account.org;
+			if (org
+				&& org.toLowerCase() !== o.guid?.toLowerCase()
+				&& org !== String(o.id)
+				&& (!o.name || org.toLowerCase() !== o.name.toLowerCase())) {
+				throw new Error(`Specified organization "${org}" does not match the service account's organization (${o.guid || o.id})`);
+			}
+		}
+
 		if (account.isPlatform) {
 			// determine the org
 			const defaultOrg = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
 			const selectedOrg = argv.org || defaultOrg;
-			const org = selectedOrg && account.orgs.find(o => o.guid === selectedOrg || o.id === selectedOrg || o.name === selectedOrg);
+			const org = selectedOrg && account.orgs.find(o => o.guid === selectedOrg || String(o.id) === selectedOrg || o.name.toLowerCase() === selectedOrg.toLowerCase());
 
 			if (account.isPlatformTooling) {
 				if (argv.org && !org) {
-					// if there was an explicit --org that wasn't found, then we error for tooling users as web doesn't care
-					const err = `Unable to find organization "${argv.org}"`;
+					// if there was an explicit --org or default org that wasn't found, then we error for tooling users as web doesn't care
+					const err = new Error(`Unable to find organization "${argv.org}"`);
 					err.code = 'ERR_NOT_FOUND';
 					err.details = `Available organizations:\n${account.orgs.map(a => `  ${highlight(a.name)}`).join('\n')}`;
 					throw err;
 				}
-
-				if (org) {
-					account.org = org;
-				} else if (account.orgs.length === 1) {
-					account.org = accounts.orgs[0];
-				} else if (account.orgs.length > 1) {
-					if (argv.json) {
-						throw new Error('Must specify --org when --json is set and the selected account has multiple organizations');
-					}
-
-					const choices = account.orgs
-						.map(org => {
-							org.toString = () => org.name;
-							return {
-								guid:    org.guid,
-								message: `${org.name} (${org.guid} : ${org.id})`,
-								value:   org
-							};
-						})
-						.sort((a, b) => a.message.localeCompare(b.message));
-					const initial = choices.findIndex(org => org.guid === defaultOrg);
-					const { prompt } = require('enquirer');
-
-					account.org = (await prompt({
-						choices,
-						format: function () {
-							// for some reason, enquirer doesn't print the selected value using the primary
-							// (green) color for select prompts, so we just force it for all prompts
-							return this.style(this.value);
-						},
-						initial,
-						message: 'Select an organization to switch to',
-						name: 'org',
-						styles: {
-							em(msg) {
-								// stylize emphasised text with just the primary color, no underline
-								return this.primary(msg);
-							}
-						},
-						type: 'select'
-					})).org;
-
-					console.log();
-				}
-
-				await sdk.authClient.updateAccount(account);
 			} else {
 				account = await sdk.auth.switchOrg(account, org?.id, {
 					onOpenBrowser() {

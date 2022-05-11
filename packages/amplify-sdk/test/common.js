@@ -710,7 +710,8 @@ function createAuthRoutes(server) {
 	router.get('/realms/test_realm/protocol/openid-connect/userinfo', ctx => {
 		ctx.body = {
 			name: `tester${counter}`,
-			email: 'foo@bar.com'
+			email: 'foo@bar.com',
+			org_guid: '1000'
 		};
 	});
 
@@ -725,7 +726,7 @@ function createAuthRoutes(server) {
 	router.post('/realms/test_realm/protocol/openid-connect/token', ctx => {
 		server.accessToken = jws.sign({
 			header: { alg: 'HS256' },
-			payload: { email: 'foo@bar.com' },
+			payload: { email: 'foo@bar.com', orgId: 100 },
 			secret: `access${counter}`
 		});
 
@@ -745,13 +746,6 @@ function createAuthRoutes(server) {
 
 	router.get('/realms/test_realm/protocol/openid-connect/logout', ctx => {
 		ctx.body = 'OK';
-	});
-
-	router.get('/realms/test_realm/protocol/openid-connect/userinfo', ctx => {
-		ctx.body = {
-			name: `tester${counter}`,
-			email: 'foo@bar.com'
-		};
 	});
 
 	router.get('/realms/test_realm/.well-known/openid-configuration', ctx => {

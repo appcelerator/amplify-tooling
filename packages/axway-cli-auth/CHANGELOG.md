@@ -4,6 +4,9 @@
 
 # v3.3.5
 
+ * fix(switch): Restict platform tooling accounts from being able to switch orgs since the
+   associated service account can only access the org for which it belongs to.
+   ([APIGOV-22543](https://jira.axway.com/browse/APIGOV-22543))
  * chore: Updated dependencies.
 
 # v3.3.4 (Mar 28, 2022)
