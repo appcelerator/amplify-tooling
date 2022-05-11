@@ -25,7 +25,7 @@
   "dependencies": {
     "@axway/amplify-request": "^3.0.8",
     "@axway/amplify-utils": "^1.0.8",
-    "ci-info": "^3.3.0",
+    "ci-info": "^3.3.1",
     "ejs": "^3.1.7",
     "fs-extra": "^10.1.0",
     "get-port": "^5.1.1",

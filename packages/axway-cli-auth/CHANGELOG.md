@@ -1,4 +1,4 @@
-# v3.3.5
+# v3.3.5 (May 11, 2022)
 
  * fix(switch): Restict platform tooling accounts from being able to switch orgs since the
    associated service account can only access the org for which it belongs to.

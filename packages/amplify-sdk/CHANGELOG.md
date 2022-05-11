@@ -1,4 +1,4 @@
-# v3.2.5
+# v3.2.5 (May 11, 2022)
 
  * fix(auth): Don't redirect to org select when identity provider is 360.
    ([APIGOV-21467](https://jira.axway.com/browse/APIGOV-21467))
