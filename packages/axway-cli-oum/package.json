@@ -23,7 +23,7 @@
     "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.8",
+    "@axway/amplify-cli-utils": "^5.0.9",
     "cli-kit": "^1.16.0",
     "open": "^8.4.0",
     "snooplogg": "^5.0.0"

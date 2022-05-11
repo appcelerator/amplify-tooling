@@ -23,8 +23,8 @@
     "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.8",
-    "@axway/amplify-utils": "^1.0.8",
+    "@axway/amplify-cli-utils": "^5.0.9",
+    "@axway/amplify-utils": "^1.0.9",
     "cli-kit": "^1.16.0",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",

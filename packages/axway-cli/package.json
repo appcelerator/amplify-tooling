@@ -28,11 +28,11 @@
     "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.8",
-    "@axway/amplify-utils": "^1.0.8",
-    "@axway/axway-cli-auth": "^3.3.4",
-    "@axway/axway-cli-oum": "^2.0.8",
-    "@axway/axway-cli-pm": "^4.0.8",
+    "@axway/amplify-cli-utils": "^5.0.9",
+    "@axway/amplify-utils": "^1.0.9",
+    "@axway/axway-cli-auth": "^3.3.5",
+    "@axway/axway-cli-oum": "^2.0.9",
+    "@axway/axway-cli-pm": "^4.0.9",
     "boxen": "^6.2.1",
     "check-kit": "^2.0.0",
     "cli-kit": "^1.16.0",

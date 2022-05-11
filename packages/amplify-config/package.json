@@ -24,9 +24,13 @@
     "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "dependencies": {
-    "@axway/amplify-utils": "^1.0.8",
+    "@axway/amplify-utils": "^1.0.9",
     "config-kit": "^2.0.0",
-    "fs-extra": "^10.1.0"
+    "fs-extra": "^10.1.0",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "@axway/gulp-tasks": "^4.1.4"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

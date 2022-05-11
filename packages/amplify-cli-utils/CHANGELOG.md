@@ -2,7 +2,7 @@
 
  * BREAKING CHANGE: Dropped support for Node.js 12 and older.
 
-# v5.0.9
+# v5.0.9 (May 11, 2022)
 
  * chore: Updated dependencies.
 
