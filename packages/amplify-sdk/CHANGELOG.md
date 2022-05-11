@@ -2,6 +2,9 @@
 
  * fix(auth): Don't redirect to org select when identity provider is 360.
    ([APIGOV-21467](https://jira.axway.com/browse/APIGOV-21467))
+ * fix(login): Restrict platform service accounts to the org which owns the service account.
+   ([APIGOV-22543](https://jira.axway.com/browse/APIGOV-22543))
+ * fix(login): Invalid account if authentication succeeds, but loading the session fails.
  * chore: Updated dependencies.
 
 # v3.2.4 (Mar 28, 2022)

@@ -16,7 +16,7 @@ import { createURL } from './util';
 import { promisify } from 'util';
 import { redact } from '@axway/amplify-utils';
 
-const { log, warn } = snooplogg('amplify-sdk');
+const { error, log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -245,7 +245,20 @@ export default class AmplifySDK {
 			 */
 			loadSession: async (account, defaultTeams) => {
 				try {
+					// grab the org guid before findSession clobbers it
+					const { guid } = account.org;
+
 					account = await this.auth.findSession(account, defaultTeams);
+
+					// validate the service account
+					if (account.isPlatformTooling) {
+						const filteredOrgs = account.orgs.filter(o => o.guid === guid);
+						if (!filteredOrgs.length) {
+							error(`Service account belongs to org "${guid}", but platform account belongs to:\n${account.orgs.map(o => `  "${o.guid}"`).join('\n')}`);
+							throw new Error('The service account\'s organization does not match the specified platform account\'s organizations');
+						}
+						account.orgs = filteredOrgs;
+					}
 				} catch (err) {
 					if (err.code === 'ERR_SESSION_INVALIDATED') {
 						warn(`Detected invalidated session, purging account ${highlight(account.name)}`);
@@ -336,9 +349,10 @@ export default class AmplifySDK {
 					return account;
 				}
 
-				// upgrade the service account with the platform tooling account
-				if (username && password) {
-					try {
+				try {
+					// upgrade the service account with the platform tooling account
+					if (username && password) {
+						// request() will set the sid and update the account in the token store
 						await this.request('/api/v1/auth/login', account, {
 							errorMsg: 'Failed to authenticate',
 							isToolingAuth: true,
@@ -348,18 +362,19 @@ export default class AmplifySDK {
 								password
 							}
 						});
-						account.isPlatformTooling = true;
-					} catch (err) {
-						// something happened, revoke the access tokens we just got and rethrow
-						await this.authClient.logout({
-							accounts: [ account.name ],
-							baseUrl: this.baseUrl
-						});
-						throw err;
-					}
-				}
 
-				return await this.auth.loadSession(account);
+						account.isPlatformTooling = true;
+					}
+
+					return await this.auth.loadSession(account);
+				} catch (err) {
+					// something happened, revoke the access tokens we just got and rethrow
+					await this.authClient.logout({
+						accounts: [ account.name ],
+						baseUrl: this.baseUrl
+					});
+					throw err;
+				}
 			},
 
 			/**
@@ -440,6 +455,8 @@ export default class AmplifySDK {
 						}
 						org = undefined;
 					}
+
+					log(`Switching ${highlight(account.name)} to org ${highlight(org.name)} (${org.guid})`);
 
 					const server = new Server();
 					const { start, url: redirect } = await server.createCallback((req, res) => {
