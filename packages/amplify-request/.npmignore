@@ -11,6 +11,9 @@ gulpfile.js
 junit.xml
 node_modules
 npm-debug.log
+retire_output.json
+tsconfig.json
+yarn.lock
 yarn-error.log
 /src
 /test

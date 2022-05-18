@@ -11,16 +11,16 @@ import {
 	mkdirpSync,
 	moveSync,
 	writeFileSync
-} from '../src/index.ts';
+} from '../src/index.js';
 
-// const __dirname = fileURLToPath(new URL('.', import.meta.url));
-// const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
 
 const {
 	name: tmpDir,
 	removeCallback
 } = tmp.dirSync({
-	mode: '755',
+	mode: 0o755,
 	prefix: 'amplify-utils-fs-test-',
 	unsafeCleanup: true
 });

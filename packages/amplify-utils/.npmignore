@@ -1,4 +1,5 @@
 ._*
+.babelrc
 .DS_Store
 .eslintrc
 .git*
@@ -11,8 +12,8 @@ junit.xml
 node_modules
 npm-debug.log
 retire_output.json
+tsconfig.json
+yarn.lock
 yarn-error.log
-/sample
 /src
 /test
-yarn.lock

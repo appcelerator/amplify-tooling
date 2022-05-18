@@ -19,18 +19,18 @@
   "scripts": {
     "build": "tsc",
     "coverage": "c8 npm run test",
-    "lint": "tslint ./src ./test",
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:test",
+    "lint:src": "eslint src/**/*.ts",
+    "lint:test": "eslint --parser-options=project:'test/tsconfig.json' test/**/*.ts",
     "prepublishOnly": "npm run lint",
-    "test": "ts-mocha test/**/test-*.ts --reporter spec"
+    "test": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --reporter spec"
   },
   "dependencies": {
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2",
-    "semver": "^7.3.7",
-    "tmp": "^0.2.1"
+    "semver": "^7.3.7"
   },
   "devDependencies": {
-    "@types/node": "^17.0.32",
     "fs-extra": "^10.1.0",
     "tmp": "^0.2.1"
   },

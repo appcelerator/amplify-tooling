@@ -1,8 +1,6 @@
-import _path from 'path';
 import { expect } from 'chai';
-import * as path from '../src/index.ts';
+import * as path from '../src/index.js';
 
-// const __filename = fileURLToPath(import.meta.url);
 const isWin = /^win/.test(process.platform);
 
 describe('path', () => {

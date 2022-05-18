@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import * as util from '../src/index.ts';
+import * as util from '../src/index.js';
 
 describe('util', () => {
 
@@ -58,16 +58,16 @@ describe('util', () => {
 		});
 
 		it('should create a dest object', () => {
-			const obj = util.mergeDeep(null, { b: 2 });
+			const obj = util.mergeDeep(null as any, { b: 2 });
 			expect(obj).to.deep.equal({ b: 2 });
 		});
 
 		it('should return original dest object if source not an object', () => {
 			const orig = { b: 2 };
-			const obj = util.mergeDeep(orig);
+			const obj = util.mergeDeep(orig, undefined as any);
 			expect(obj).to.equal(orig);
 
-			const obj2 = util.mergeDeep(orig, 'foo');
+			const obj2 = util.mergeDeep(orig, 'foo' as any);
 			expect(obj2).to.equal(orig);
 		});
 
@@ -144,52 +144,52 @@ describe('util', () => {
 	describe('redact()', () => {
 		it('should error if options are invalid', () => {
 			expect(() => {
-				util.redact({}, 'foo');
+				util.redact({}, 'foo' as any);
 			}).to.throw(TypeError, 'Expected options to be an object');
 
 			expect(() => {
-				util.redact({}, 123);
+				util.redact({}, 123 as any);
 			}).to.throw(TypeError, 'Expected options to be an object');
 		});
 
 		it('should error if props is invalid', () => {
 			expect(() => {
-				util.redact({}, { props: 'foo' });
+				util.redact({}, { props: 'foo' } as any);
 			}).to.throw(TypeError, 'Expected props to be a set or array of strings');
 
 			expect(() => {
-				util.redact({}, { props: 123 });
+				util.redact({}, { props: 123 } as any);
 			}).to.throw(TypeError, 'Expected props to be a set or array of strings');
 
 			expect(() => {
-				util.redact({}, { props: [ 123 ] });
+				util.redact({}, { props: [ 123 ] } as any);
 			}).to.throw(TypeError, 'Expected props to be a set or array of strings');
 
 			expect(() => {
-				util.redact({}, { props: [ {} ] });
+				util.redact({}, { props: [ {} ] } as any);
 			}).to.throw(TypeError, 'Expected props to be a set or array of strings');
 
 			expect(() => {
-				util.redact({}, { props: new Set([ 123 ]) });
+				util.redact({}, { props: new Set([ 123 ]) } as any);
 			}).to.throw(TypeError, 'Expected props to be a set or array of strings');
 
 			expect(() => {
-				util.redact({}, { props: new Set([ {} ]) });
+				util.redact({}, { props: new Set([ {} ]) } as any);
 			}).to.throw(TypeError, 'Expected props to be a set or array of strings');
 		});
 
 		it('should error if replacements is invalid', () => {
 			expect(() => {
-				util.redact({}, { replacements: 'foo' });
+				util.redact({}, { replacements: 'foo' } as any);
 			}).to.throw(TypeError, 'Expected replacements to be an array of replace arguments');
 
 			expect(() => {
-				util.redact({}, { replacements: [ 123 ] });
+				util.redact({}, { replacements: [ 123 ] } as any);
 			}).to.throw(TypeError, 'Expected replacements to be an array of replace arguments');
 		});
 
 		it('should redact undefined value', () => {
-			expect(util.redact()).to.equal(undefined);
+			expect(util.redact(undefined)).to.equal(undefined);
 		});
 
 		it('should redact null value', () => {
@@ -254,7 +254,7 @@ describe('util', () => {
 				replacements: [
 					[ 'chris', '*****' ]
 				]
-			})).to.equal('Your username is *****!');
+			} as any)).to.equal('Your username is *****!');
 
 			expect(util.redact('Account name: foo@bar.com')).to.equal('Account name: <REDACTED>');
 
@@ -262,14 +262,14 @@ describe('util', () => {
 				replacements: [
 					[ /\d-\d{3}-\d{3}-\d{4}/ ]
 				]
-			})).to.equal('Call me at <REDACTED>');
+			} as any)).to.equal('Call me at <REDACTED>');
 
 			const s = 'TODO:\n1. Draw winner\n2. Email foo@bar.com\n3. Ship prize';
 			expect(util.redact(s)).to.equal('TODO:\n1. Draw winner\n2. Email <REDACTED>\n3. Ship prize');
 		});
 
 		it('should redact an array of items', () => {
-			const name = process.env.USERNAME || process.env.USER;
+			const name = process.env.USERNAME || process.env.USER || '';
 			const arr = util.redact([
 				{ user: name, password: '123456', email: 'foo@bar.com' },
 				`Welcome ${name.substring(0, 1).toUpperCase()}${name.substring(1).toLowerCase()}!`,

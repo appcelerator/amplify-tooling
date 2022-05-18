@@ -1,4 +1,3 @@
-import fs from 'fs';
 import _path from 'path';
 
 const homeDirRegExp = /^~([\\|/].*)?$/;

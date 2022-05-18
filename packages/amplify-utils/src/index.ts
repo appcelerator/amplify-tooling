@@ -1,3 +1,3 @@
-export * from './fs.ts';
-export * from './path.ts';
-export * from './util.ts';
+export * from './fs.js';
+export * from './path.js';
+export * from './util.js';

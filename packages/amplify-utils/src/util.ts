@@ -1,14 +1,13 @@
 /* eslint-disable node/no-deprecated-api, no-new-func */
 
-import crypto from 'crypto';
-import fs from 'fs';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
 import get from 'lodash.get';
 import set from 'lodash.set';
 
 import { execSync, spawnSync } from 'child_process';
 import { homedir } from 'os';
-import { isFile } from './fs.ts';
-import process from 'process';
+import { isFile } from './fs.js';
 
 let archCache: string | null = null;
 
@@ -20,7 +19,7 @@ let archCache: string | null = null;
  * will never change.
  * @returns {String}
  */
-export function arch(bypassCache: boolean) : string {
+export function arch(bypassCache = false) : string {
 	if (archCache && !bypassCache) {
 		return archCache;
 	}
@@ -75,9 +74,9 @@ export function mergeDeep(dest: { [key: string]: any }, src: { [key: string]: an
 		const value = src[key];
 		if (Array.isArray(value)) {
 			if (Array.isArray(dest[key])) {
-				dest[key].push.apply(dest[key], value);
+				dest[key].push(...value);
 			} else {
-				dest[key] = value.slice();
+				dest[key] = value.slice(); // clone the original array
 			}
 		} else if (typeof value === 'object' && value !== null) {
 			if (typeof dest[key] !== 'object' || dest[key] === null || Array.isArray(dest[key])) {
@@ -234,7 +233,7 @@ interface RedactOptions {
  * > redact({
  *     info: {
  *         username: 'chris',
- *         password: '123456,
+ *         password: '123456',
  *         desktop: '/Users/chris/Desktop'
  *     }
  * })
@@ -253,11 +252,13 @@ export function redact(data: any, opts: RedactOptions = {}) : any {
 
 	const redacted = opts.redacted || '<REDACTED>';
 
-	const init = (key: string, value: any) => {
+	type TestFunction = (s: string) => boolean;
+
+	const init = (key: string, value: TestFunction[]) => {
 		if (Array.isArray(opts[key]) || opts[key] instanceof Set) {
 			for (const item of opts[key]) {
 				if (item && typeof item === 'string') {
-					value.push(new Function('s', `return s === ${JSON.stringify(item.toLowerCase())}`));
+					value.push((s: string) => s === item.toLowerCase());
 				} else if (item instanceof RegExp) {
 					value.push(item.test.bind(item));
 				} else {
@@ -275,11 +276,13 @@ export function redact(data: any, opts: RedactOptions = {}) : any {
 
 	// init the replacements
 	const replacementMap = new Map();
-	const addReplacement = (replacements: (string|RegExp|undefined|string[])[] | Set<string|RegExp|undefined|string[]> | undefined) => {
+	type ReplacementValue = string | RegExp | undefined | string[]
+	type ReplacementList = ReplacementValue[] | Set<ReplacementValue>;
+	const addReplacement = (replacements: ReplacementList | undefined) => {
 		if (Array.isArray(replacements) || replacements instanceof Set) {
-			for (const replacement of replacements) {
+			for (const replacement of (replacements as ReplacementList)) {
 				let pattern: string | RegExp;
-				let value: any;
+				let value: string | null | undefined;
 				if (!replacement) {
 					continue;
 				} else if (Array.isArray(replacement)) {
@@ -297,7 +300,7 @@ export function redact(data: any, opts: RedactOptions = {}) : any {
 				if (value === undefined || value === null) {
 					value = redacted;
 				}
-				replacementMap.set(key, (s: string) => s.replace(pattern, value));
+				replacementMap.set(key, (s: string) => s.replace(pattern, value as string));
 			}
 		} else if (replacements) {
 			throw new TypeError('Expected replacements to be an array of replace arguments');

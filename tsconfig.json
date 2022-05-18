@@ -1,13 +1,17 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
+		"isolatedModules": true,
 		"lib": [
-			"esnext"
+			"ES2019"
 		],
+		"module": "esnext",
 		"moduleResolution": "node",
+		"sourceMap": true,
 		"strict": true,
-		"target": "es2022"
+		"target": "ES2019"
 	},
 	"exclude": [ "node_modules" ]
 }
