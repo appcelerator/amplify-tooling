@@ -6,7 +6,8 @@
   },
   "description": "Configuration helper for the Axway CLI.",
   "type": "module",
-  "exports": "./src/index.js",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Ewan Harris <eharris@axway.com>",
@@ -18,10 +19,13 @@
     "amplify"
   ],
   "scripts": {
+    "build": "tsc",
     "coverage": "c8 npm run test",
-    "lint": "eslint src test",
-    "prepublishOnly": "npm run lint",
-    "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:test",
+    "lint:src": "eslint src/**/*.ts",
+    "lint:test": "eslint --parser-options=project:'test/tsconfig.json' test/**/*.ts",
+    "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
+    "test": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --reporter spec"
   },
   "dependencies": {
     "@axway/amplify-utils": "^1.0.9",

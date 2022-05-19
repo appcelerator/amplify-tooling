@@ -54,6 +54,9 @@ export function arch(bypassCache = false) : string {
  */
 export { get };
 
+type MergeTarget = { [key: string]: any };
+type MergeSource = { [key: string]: any };
+
 /**
  * Deeply merges two JavaScript objects.
  *
@@ -61,9 +64,9 @@ export { get };
  * @param {Object} src - The object to copy.
  * @returns {Object} Returns the dest object.
  */
-export function mergeDeep(dest: { [key: string]: any }, src: { [key: string]: any }) : object {
+export function mergeDeep<T extends MergeTarget, T2 extends MergeSource>(dest?: T, src?: T2): T {
 	if (typeof dest !== 'object' || dest === null || Array.isArray(dest)) {
-		dest = {};
+		dest = {} as T;
 	}
 
 	if (typeof src !== 'object' || src === null || Array.isArray(src)) {
@@ -76,15 +79,15 @@ export function mergeDeep(dest: { [key: string]: any }, src: { [key: string]: an
 			if (Array.isArray(dest[key])) {
 				dest[key].push(...value);
 			} else {
-				dest[key] = value.slice(); // clone the original array
+				(dest as any)[key] = value.slice(); // clone the original array
 			}
 		} else if (typeof value === 'object' && value !== null) {
 			if (typeof dest[key] !== 'object' || dest[key] === null || Array.isArray(dest[key])) {
-				dest[key] = {};
+				(dest as any)[key] = {};
 			}
 			mergeDeep(dest[key], value);
 		} else if (typeof value !== 'undefined') {
-			dest[key] = value;
+			(dest as any)[key] = value;
 		}
 	}
 

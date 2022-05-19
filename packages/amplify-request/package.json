@@ -7,6 +7,7 @@
   "description": "HTTP request library for Axway CLI packages",
   "type": "module",
   "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"
@@ -27,7 +28,7 @@
     "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:test",
     "lint:src": "eslint src/**/*.ts",
     "lint:test": "eslint --parser-options=project:'test/tsconfig.json' test/**/*.ts",
-    "prepublishOnly": "npm run lint",
+    "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
     "test": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --reporter spec"
   },
   "dependencies": {

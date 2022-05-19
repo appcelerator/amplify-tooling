@@ -1,12 +1,21 @@
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import init from '../dist';
+import init from '../src/index.js';
 import path from 'path';
+import tls from 'tls';
+import { expect } from 'chai';
 import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const sslDir = path.join(__dirname, 'fixtures', 'ssl');
+
+interface IncomingMessageWithClient extends http.IncomingMessage {
+	client?: {
+		authorized: boolean
+	};
+	connection: tls.TLSSocket
+}
 
 describe('init', () => {
 	beforeEach(function () {
@@ -29,7 +38,7 @@ describe('init', () => {
 	});
 
 	it('should error if params is not an object', () => {
-		expect(() => init('foo')).to.throw(TypeError, 'Expected options to be an object');
+		expect(() => init('foo' as any)).to.throw(TypeError, 'Expected options to be an object');
 	});
 
 	it('should make http request', async function () {
@@ -47,7 +56,7 @@ describe('init', () => {
 
 		try {
 			await init()('http://127.0.0.1:1337');
-		} catch (err) {
+		} catch (err: any) {
 			expect(err.code).to.equal('ECONNREFUSED');
 			return;
 		}
@@ -65,7 +74,7 @@ describe('init', () => {
 
 		try {
 			await init()('http://127.0.0.1:1337');
-		} catch (err) {
+		} catch (err: any) {
 			expect(err.response.statusCode).to.equal(404);
 			expect(err.response.body).to.equal('Not Found');
 		}
@@ -76,7 +85,7 @@ describe('init', () => {
 
 		try {
 			await init()({ url: 'http://127.0.0.1:1336' });
-		} catch (err) {
+		} catch (err: any) {
 			expect(err.code).to.equal('ECONNREFUSED');
 			expect(err.message).to.equal('connect ECONNREFUSED 127.0.0.1:1336');
 			return;
@@ -95,7 +104,7 @@ describe('init', () => {
 
 		try {
 			await init()('http://127.0.0.1:1337', { responseType: 'json' });
-		} catch (err) {
+		} catch (err: any) {
 			expect(err.message).to.include('Unexpected token { in JSON');
 			return;
 		}
@@ -115,12 +124,12 @@ describe('init', () => {
 		await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
 
 		const response = await init()({
-			strictSSL: false,
+			// strictSSL: false,
 			url: 'https://127.0.0.1:1337'
 		});
 
 		expect(response.statusCode).to.equal(200);
-		expect(parseInt(response.headers['content-length'])).to.equal(4);
+		expect(parseInt(response.headers['content-length'] as string)).to.equal(4);
 		expect(response.body).to.equal('foo!');
 	});
 
@@ -136,7 +145,7 @@ describe('init', () => {
 
 		try {
 			await init({ strictSSL: true })('https://127.0.0.1:1337');
-		} catch (err) {
+		} catch (err: any) {
 			expect(err.message).to.match(/self signed/);
 			return;
 		}
@@ -152,13 +161,16 @@ describe('init', () => {
 			key:         fs.readFileSync(path.join(sslDir, 'server.key.pem')),
 			requestCert: true
 		}, (req, res) => {
-			if (!req.client.authorized) {
+			const r = req as IncomingMessageWithClient;
+
+			if (!r.client?.authorized) {
 				res.writeHead(401, { 'Content-Type': 'text/plain' });
 				res.end('Client cert required');
 				return;
 			}
 
-			let cert = req.connection.getPeerCertificate();
+			const conn = r.connection as tls.TLSSocket;
+			const cert = conn.getPeerCertificate();
 			if (!cert || !Object.keys(cert).length) {
 				res.writeHead(500, { 'Content-Type': 'text/plain' });
 				res.end('Client cert was authenticated, but no cert!');
@@ -182,7 +194,7 @@ describe('init', () => {
 		const response = await got('https://127.0.0.1:1337');
 
 		expect(response.statusCode).to.equal(200);
-		expect(parseInt(response.headers['content-length'])).to.equal(4);
+		expect(parseInt(response.headers['content-length'] as string)).to.equal(4);
 		expect(response.body).to.equal('foo!');
 	});
 
@@ -206,7 +218,7 @@ describe('init', () => {
 		const response = await got('http://127.0.0.1:1338');
 
 		expect(response.statusCode).to.equal(200);
-		expect(parseInt(response.headers['content-length'])).to.equal(4);
+		expect(parseInt(response.headers['content-length'] as string)).to.equal(4);
 		expect(response.body).to.equal('foo!');
 	});
 });

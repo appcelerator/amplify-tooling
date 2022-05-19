@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import loadConfig, { Config, configFile } from '../src/index.js';
 import path from 'path';
+import { expect } from 'chai';
 import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));

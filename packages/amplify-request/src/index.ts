@@ -7,9 +7,40 @@ import snooplogg from 'snooplogg';
 import { mergeDeep } from '@axway/amplify-utils';
 
 const { log } = snooplogg('amplify-request');
-const { alert, highlight, magenta, ok, note } = snooplogg.styles;
+const { alert, highlight, magenta, note, ok } = snooplogg.styles;
 
 export { got };
+
+interface GotHooks {
+	afterResponse: [
+		(response: any) => any
+	]
+}
+
+interface HttpsOptions {
+	certificate?: Buffer,
+	certificateAuthority?: Buffer,
+	key?: Buffer,
+	rejectUnauthorized?: boolean
+}
+
+interface RequestOptions {
+	agent?: {
+		http?: HttpProxyAgent.HttpProxyAgent,
+		https?: HttpsProxyAgent.HttpsProxyAgent
+	},
+	ca?: Buffer | string,
+	caFile?: string,
+	cert?: Buffer | string,
+	certFile?: string,
+	defaults?: RequestOptions,
+	hooks?: GotHooks,
+	https?: HttpsOptions,
+	key?: Buffer | string,
+	keyFile?: string,
+	proxy?: string,
+	strictSSL?: boolean
+}
 
 /**
  * Creates an options object for use with `got`.
@@ -28,7 +59,7 @@ export { got };
  * for both `https` destinations and `https` proxy servers.
  * @returns {Promise} Resolves `got` options object.
  */
-export function options(opts = {}) {
+export function options(opts: RequestOptions = {}) {
 	if (!opts || typeof opts !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	}
@@ -57,11 +88,11 @@ export function options(opts = {}) {
 	delete opts.proxy;
 	delete opts.strictSSL;
 
-	const load = it => Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : undefined;
+	const load = (it: Buffer | string | undefined) => Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : undefined;
 
 	opts.hooks = mergeDeep(opts.hooks, {
 		afterResponse: [
-			response => {
+			(response: any) => {
 				const { headers, request, statusCode, url } = response;
 				log([
 					request.options.method,
@@ -75,7 +106,7 @@ export function options(opts = {}) {
 		]
 	});
 
-	opts.https = mergeDeep(opts.https, {
+	const https: HttpsOptions = opts.https = mergeDeep(opts.https, {
 		certificate:          load(opts.https?.certificate || cert || certFile),
 		certificateAuthority: load(opts.https?.certificateAuthority || ca || caFile),
 		key:                  load(opts.https?.key || key || keyFile),
@@ -85,20 +116,20 @@ export function options(opts = {}) {
 	if (proxy) {
 		const { hostname: host, pathname: path, port, protocol } = new URL(proxy);
 		const agentOpts = {
-			ca:                 opts.https.certificateAuthority,
-			cert:               opts.https.certificate,
+			ca:                 https.certificateAuthority,
+			cert:               https.certificate,
 			host,
-			key:                opts.https.key,
+			key:                https.key,
 			path,
 			port,
 			protocol,
-			rejectUnauthorized: opts.https.rejectUnauthorized
+			rejectUnauthorized: https.rejectUnauthorized
 		};
 		// console.log(agentOpts);
 		opts.agent = {
 			...opts.agent,
-			http: opts.agent?.http || new HttpProxyAgent(agentOpts),
-			https: opts.agent?.https || new HttpsProxyAgent(agentOpts)
+			http: opts.agent?.http || new HttpProxyAgent.HttpProxyAgent(agentOpts),
+			https: opts.agent?.https || new HttpsProxyAgent.HttpsProxyAgent(agentOpts)
 		};
 	}
 
@@ -122,7 +153,7 @@ export function options(opts = {}) {
  * for both `https` destinations and `https` proxy servers.
  * @returns {Function} A `got` instance.
  */
-export function init(opts = {}) {
+export function init(opts: RequestOptions = {}) {
 	return got.extend(options(opts));
 }
 
