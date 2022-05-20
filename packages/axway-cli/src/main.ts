@@ -1,8 +1,3 @@
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
-}
-
 import check from 'check-kit';
 import CLI from 'cli-kit';
 import {
@@ -32,11 +27,11 @@ const { log, warn } = snooplogg('axway');
 
 	let cfg;
 	try {
-		cfg = loadConfig();
+		cfg = await loadConfig();
 	} catch (err) {
 		// config failed to load, reset to defaults
 		warn(err);
-		cfg = new Config();
+		cfg = await new Config().init();
 	}
 
 	const externalExtensions = Object.entries(cfg.get('extensions', {}));
@@ -92,13 +87,13 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 		version
 	});
 
-	cli.on('banner', ({ argv }) => {
+	cli.on('banner', async ({ argv }) => {
 		if (cfg.get('update.check') === false || argv.json) {
 			log('Skipping update check');
 			return;
 		}
 
-		const opts = createRequestOptions({
+		const opts = await createRequestOptions({
 			metaDir: resolve(locations.axwayHome, 'axway-cli', 'update'),
 			timeout: 4000
 		}, cfg);
@@ -199,7 +194,7 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 		if (checkWait && cmd.prop('banner')) {
 			const results = (await checkWait).filter(p => p?.updateAvailable);
 			if (results.length) {
-				const boxen = require('boxen');
+				const { default: boxen } = await import('boxen');
 				let msg = '';
 				let axway = '';
 				const exts = createTable();
@@ -210,7 +205,7 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 					return;
 				}
 
-				loadConfig().set('update.notified', Date.now()).save();
+				(await loadConfig()).set('update.notified', Date.now()).save();
 
 				// remove axway package and treat it special
 				for (let i = 0; i < results.length; i++) {

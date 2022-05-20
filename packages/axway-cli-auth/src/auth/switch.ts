@@ -21,12 +21,12 @@ more than one of org or team.`,
 		'--team [guid|name]': 'The team to use for the selected account'
 	},
 	async action({ argv, cli, console }) {
-		const { default: snooplogg } = require('snooplogg');
-		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
-		const { renderAccountInfo } = require('../lib/info');
-		const { prompt } = require('enquirer');
+		const { default: snooplogg } = await import('snooplogg');
+		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
+		const { renderAccountInfo } = await import('../lib/info');
+		const { prompt } = await import('enquirer');
 		const { highlight, note } = snooplogg.styles;
-		const { config, sdk } = initSDK({
+		const { config, sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm
@@ -160,7 +160,6 @@ more than one of org or team.`,
 						})
 						.sort((a, b) => a.message.localeCompare(b.message));
 					const initial = choices.findIndex(team => team.guid === defaultTeam);
-					const { prompt } = require('enquirer');
 
 					team = (await prompt({
 						choices,

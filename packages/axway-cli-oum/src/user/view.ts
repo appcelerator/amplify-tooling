@@ -9,7 +9,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
+		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
 		const { account } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const { user } = account;
 
@@ -18,7 +18,7 @@ export default {
 			return;
 		}
 
-		const { default: snooplogg } = require('snooplogg');
+		const { default: snooplogg } = await import('snooplogg');
 		const { highlight } = snooplogg.styles;
 
 		console.log(`First Name:   ${highlight(user.firstname)}`);

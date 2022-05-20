@@ -9,7 +9,7 @@ export default {
 		'--org [name|id|guid]': 'The organization name, id, or guid; roles vary by org'
 	},
 	async action({ argv, console }) {
-		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
+		const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const roles = (await sdk.role.list(account, { org }));
 
@@ -22,7 +22,7 @@ export default {
 			return;
 		}
 
-		const { default: snooplogg } = require('snooplogg');
+		const { default: snooplogg } = await import('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 		const platformRoles = createTable([ '  Role', 'Description' ]);
 		const serviceRoles = createTable([ '  Role', 'Description', 'Product' ]);

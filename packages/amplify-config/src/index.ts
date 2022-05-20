@@ -8,6 +8,11 @@ const axwayHome = path.join(os.homedir(), '.axway');
 
 export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
 
+interface LoadConfigOptions {
+	config?: any,
+	configFile?: string
+}
+
 /**
  * Load a users config, if no userConfig is given then the default Axway CLI config will be
  * loaded.
@@ -18,7 +23,7 @@ export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
  * @param {String} [opts.configFile] - The path to a .js or .json config file to load.
  * @returns {Config}
  */
-export function loadConfig(opts = {}) {
+export async function loadConfig(opts: LoadConfigOptions = {}): Promise<Config> {
 	// validate the config options
 	if (opts.config && (typeof opts.config !== 'object' || Array.isArray(opts.config))) {
 		throw new TypeError('Expected config to be an object');
@@ -37,7 +42,7 @@ export function loadConfig(opts = {}) {
 		writeFileSync(configFile, JSON.stringify(json, null, 2));
 	}
 
-	return new Config({
+	return await new Config().init({
 		data: opts.config,
 		file: expandPath(opts.configFile || configFile)
 	});

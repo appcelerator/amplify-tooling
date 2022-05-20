@@ -18,11 +18,11 @@ export default {
 	},
 	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console, exitCode }) {
-		const { default: snooplogg } = require('snooplogg');
-		const { Extension }          = require('cli-kit');
-		const { install }            = require('../pm');
-		const { loadConfig }         = require('@axway/amplify-cli-utils');
-		const { runListr }           = require('../utils');
+		const { default: snooplogg } = await import('snooplogg');
+		const { Extension }          = await import('cli-kit');
+		const { install }            = await import('../pm');
+		const { loadConfig }         = await import('@axway/amplify-cli-utils');
+		const { runListr }           = await import('../utils');
 
 		const { alert, highlight } = snooplogg.styles;
 		const tasks = [];
@@ -81,7 +81,7 @@ export default {
 			// errors are stored in the results
 		}
 
-		const cfg = loadConfig();
+		const cfg = await loadConfig();
 		cfg.delete('update.notified');
 		cfg.save();
 

@@ -28,7 +28,7 @@ export const packagesDir = path.join(locations.axwayHome, 'axway-cli', 'packages
  * @param {String} packageName - The name of the package to find.
  * @returns {Object}
  */
-export function find(packageName) {
+export async function find(packageName: string) {
 	if (!packageName || typeof packageName !== 'string') {
 		throw new TypeError('Expected package name to be a non-empty string');
 	}
@@ -37,7 +37,7 @@ export function find(packageName) {
 		return undefined;
 	}
 
-	const extensions = loadConfig().get('extensions', {});
+	const extensions = (await loadConfig()).get('extensions', {});
 
 	packageName = packageName.toLowerCase();
 
@@ -73,11 +73,11 @@ export function find(packageName) {
  * @param {String} pkgName - The package and version to install.
  * @returns {EventEmitter}
  */
-export function install(pkgName) {
+export function install(pkgName: string) {
 	const emitter = new EventEmitter();
 
 	setImmediate(async () => {
-		let cfg = loadConfig();
+		let cfg = await loadConfig();
 		let previousActivePackage;
 		let info;
 
@@ -99,14 +99,14 @@ export function install(pkgName) {
 			mkdirpSync(info.path);
 
 			emitter.emit('download', info);
-			await pacote.extract(`${info.name}@${info.version}`, info.path, createRequestOptions());
+			await pacote.extract(`${info.name}@${info.version}`, info.path, await createRequestOptions());
 
 			emitter.emit('install', info);
 			const args = [
 				'install',
 				'--production',
 				'--force', // needed for npm 7
-				...createNPMRequestArgs()
+				...(await createNPMRequestArgs())
 			];
 			const opts = {
 				cwd: info.path,
@@ -118,12 +118,12 @@ export function install(pkgName) {
 
 			log(`node ${highlight(process.version)} npm ${highlight(spawn.sync('npm', [ '-v' ], opts).stdout.toString().trim())}`);
 			log(`Running PWD=${info.path} ${highlight(`${npm} ${args.join(' ')}`)}`);
-			await new Promise((resolve, reject) => {
+			await new Promise(async (resolve, reject) => {
 				let stderr = '';
 				const child = spawn(npm, args, opts);
 
-				child.stdout.on('data', data => log(data.toString().trim()));
-				child.stderr.on('data', data => {
+				child.stdout.on('data', (data: Buffer) => log(data.toString().trim()));
+				child.stderr.on('data', (data: Buffer) => {
 					const s = data.toString();
 					stderr += s;
 					log(s.trim());
@@ -139,7 +139,7 @@ export function install(pkgName) {
 			});
 
 			emitter.emit('register', info);
-			cfg = loadConfig();
+			cfg = await loadConfig();
 			cfg.set(`extensions.${info.name}`, info.path);
 			cfg.save();
 
@@ -148,12 +148,12 @@ export function install(pkgName) {
 			if (info) {
 				if (previousActivePackage === info.path) {
 					// package was reinstalled, but failed and directory is in an unknown state
-					cfg = loadConfig();
+					cfg = await loadConfig();
 					cfg.delete(`extensions.${info.name}`);
 					cfg.save();
 				} else if (previousActivePackage) {
 					// restore the previous value
-					cfg = loadConfig();
+					cfg = await loadConfig();
 					cfg.set(`extensions.${info.name}`, previousActivePackage);
 					cfg.save();
 				}
@@ -180,7 +180,7 @@ export async function list() {
 		return [];
 	}
 
-	const extensions = loadConfig().get('extensions', {});
+	const extensions = (await loadConfig()).get('extensions', {});
 	const packages = [];
 
 	for (const name of fs.readdirSync(packagesDir)) {
@@ -340,7 +340,7 @@ export async function uninstallPackage(dir) {
  */
 export async function search({ keyword, limit, type } = {}) {
 	const plimit = promiseLimit(10);
-	const requestOpts = createRequestOptions();
+	const requestOpts = await createRequestOptions();
 	const keywords = [ 'amplify-package' ];
 	if (process.env.TEST) {
 		keywords.push('amplify-test-package');
@@ -378,9 +378,13 @@ export async function search({ keyword, limit, type } = {}) {
  * @param {Object} [opts.requestOpts] - HTTP request options.
  * @param {String} [opts.type] - The package type to filter by.
  */
-export async function view(pkgName, { requestOpts = createRequestOptions(), type } = {}) {
+export async function view(pkgName, { requestOpts, type } = {}) {
 	if (!pkgName || typeof pkgName !== 'string') {
 		throw new TypeError('Expected package name to be a non-empty string');
+	}
+
+	if (!requestOpts) {
+		requestOpts = await createRequestOptions();
 	}
 
 	const { name, fetchSpec } = npa(pkgName);

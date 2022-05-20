@@ -3,6 +3,7 @@ import boxen from 'boxen';
 import check from 'check-kit';
 import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
+import Table from 'cli-table3';
 import snooplogg from 'snooplogg';
 import { ansi } from 'cli-kit';
 import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request.js';
@@ -35,13 +36,13 @@ const { cyan, gray, green } = snooplogg.chalk;
  * @param {Config} [config] - The Amplify config object.
  * @returns {Object}
  */
-export function buildAuthParams(opts = {}, config) {
+export async function buildAuthParams(opts = {}, config: Config) {
 	if (!opts || typeof opts !== 'object') {
 		throw new Error('Expected options to be an object');
 	}
 
 	if (!config) {
-		config = loadConfig();
+		config = await loadConfig();
 	}
 
 	const env = environments.resolve(opts.env || config.get('env'));
@@ -85,7 +86,7 @@ export function buildAuthParams(opts = {}, config) {
 		}
 	}
 
-	params.requestOptions = createRequestOptions(opts, config);
+	params.requestOptions = await createRequestOptions(opts, config);
 
 	return params;
 }
@@ -117,7 +118,7 @@ export { buildAuthParams as buildParams };
  * @returns {String}
  */
 export async function checkForUpdate(opts, config) {
-	opts = createRequestOptions(opts, config || loadConfig());
+	opts = await createRequestOptions(opts, config || await loadConfig());
 
 	const {
 		current,
@@ -146,7 +147,6 @@ export async function checkForUpdate(opts, config) {
  * @returns {Table}
  */
 export function createTable(head, indent = 0) {
-	const Table = require('cli-table3');
 	return new Table({
 		chars: {
 			bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
@@ -232,8 +232,8 @@ export function hlVer(toVer, fromVer) {
  * @param {String} [env] - The environment name.
  * @returns {Promise<Object>}
  */
-export async function initPlatformAccount(accountName, org, env) {
-	const { config, sdk } = initSDK({ env });
+export async function initPlatformAccount(accountName?: string, org?: string, env?: string) {
+	const { config, sdk } = await initSDK({ env });
 	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvSpecifier}.defaultAccount`));
 
@@ -275,14 +275,14 @@ export async function initPlatformAccount(accountName, org, env) {
  * @returns {Object} Returns an object containing the Axway CLI config and an initialized
  * Amplify SDK instance.
  */
-export function initSDK(opts = {}, config) {
+export async function initSDK(opts = {}, config) {
 	if (!config) {
-		config = loadConfig();
+		config = await loadConfig();
 	}
 
 	return {
 		config,
-		sdk: new AmplifySDK(buildAuthParams(opts, config))
+		sdk: new AmplifySDK(await buildAuthParams(opts, config))
 	};
 }
 

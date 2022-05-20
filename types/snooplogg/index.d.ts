@@ -1,5 +1,7 @@
 interface Snooplogg {
     log: (s: string) => void;
+    warn: (s: string) => void;
+    error: (s: string) => void;
 }
     
 declare function snooplogg(ns: string): Snooplogg;
@@ -11,6 +13,7 @@ declare namespace snooplogg {
         magenta(s: any): void;
         note(s: any): void;
         ok(s: any): void;
+        warning(s: any): void;
     };
 }
 

@@ -14,13 +14,8 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const [
-			{ initSDK, isHeadless },
-			{ default: snooplogg }
-		] = await Promise.all([
-			import('@axway/amplify-cli-utils'),
-			import('snooplogg')
-		]);
+		const { initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
+		const { default: snooplogg } = await import('snooplogg');
 
 		if (!argv.accounts.length) {
 			argv.all = true;
@@ -28,7 +23,7 @@ export default {
 
 		const { highlight, warning } = snooplogg.styles;
 
-		const { sdk } = initSDK({
+		const { sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm

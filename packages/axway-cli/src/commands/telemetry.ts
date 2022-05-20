@@ -28,10 +28,10 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 		'--disable': 'Disabled data collection and deletes any pending telemetry data'
 	},
 	async action({ argv, console, terminal }) {
-		const { default: snooplogg } = require('snooplogg');
+		const { default: snooplogg } = await import('snooplogg');
 		const { green, red } = snooplogg.styles;
-		const { loadConfig, telemetry } = require('@axway/amplify-cli-utils');
-		const config = loadConfig();
+		const { loadConfig, telemetry } = await import('@axway/amplify-cli-utils');
+		const config = await loadConfig();
 		let enabled = telemetry.isEnabled();
 
 		if (argv.enable && !argv.disable) {

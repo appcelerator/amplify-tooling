@@ -48,8 +48,8 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { formatDate } = require('../lib/util');
-		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
+		const { formatDate } = await import('../lib/util');
+		const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const { bundle, from, to, usage } = await sdk.org.usage(account, org, argv);
 		const orgEnvs = await sdk.org.environments(account);
@@ -111,7 +111,7 @@ export default {
 			return;
 		}
 
-		const { default: snooplogg } = require('snooplogg');
+		const { default: snooplogg } = await import('snooplogg');
 		const { bold, gray, green, highlight, note, red, yellow } = snooplogg.styles;
 
 		console.log(`Account:      ${highlight(account.name)}`);

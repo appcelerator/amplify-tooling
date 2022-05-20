@@ -20,13 +20,13 @@ export default {
 	},
 	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console, exitCode, terminal }) {
-		const { default: snooplogg }                      = require('snooplogg');
-		const { runListr }                                = require('../utils');
-		const { createTable, hlVer, loadConfig }          = require('@axway/amplify-cli-utils');
-		const { find, install, list, listPurgable, view } = require('../pm');
-		const ora                                         = require('ora');
-		const promiseLimit                                = require('promise-limit');
-		const semver                                      = require('semver');
+		const { default: snooplogg }                      = await import('snooplogg');
+		const { runListr }                                = await import('../utils');
+		const { createTable, hlVer, loadConfig }          = await import('@axway/amplify-cli-utils');
+		const { find, install, list, listPurgable, view } = await import('../pm');
+		const { default: ora }                            = await import('ora');
+		const { default: promiseLimit }                   = await import('promise-limit');
+		const { default: semver }                         = await import('semver');
 
 		const { alert, bold, highlight } = snooplogg.styles;
 		const results = {
@@ -101,55 +101,57 @@ export default {
 		}
 
 		// step 3: create the tasks
-		const tasks = packages.map(pkg => {
+		const tasks = await packages.reduce(async (promise, list) => {
 			const versionData = pkg.versions[pkg.latest];
 			if (versionData) {
 				// select it
-				return {
+				list.push({
 					title: `${highlight(`${pkg.name}@${pkg.latest}`)} is installed, setting it as active`,
 					async task(ctx, task) {
 						results.selected.push(`${pkg.name}@${pkg.latest}`);
-						loadConfig().set(`extensions.${pkg.name}`, versionData.path).save();
+						(await loadConfig()).set(`extensions.${pkg.name}`, versionData.path).save();
 						task.title = `${highlight(`${pkg.name}@${pkg.latest}`)} set as active version`;
 					}
-				};
+				});
+			} else {
+				list.push({
+					title: `Downloading and installing ${highlight(`${pkg.name}@${pkg.latest}`)}`,
+					async task(ctx, task) {
+						try {
+							await new Promise((resolve, reject) => {
+								install(`${pkg.name}@${pkg.latest}`)
+									.on('download', ({ name, version }) => {
+										task.title = `Downloading ${highlight(`${name}@${version}`)}`;
+									})
+									.on('install', ({ name, version }) => {
+										task.title = `Installing ${highlight(`${name}@${version}`)}`;
+									})
+									.on('register', ({ name, version }) => {
+										task.title = `Registering ${highlight(`${name}@${version}`)}`;
+									})
+									.on('end', info => {
+										task.title = `${highlight(`${info.name}@${info.version}`)} installed and set as active version`;
+										results.installed.push(info);
+										resolve();
+									})
+									.on('error', reject);
+							});
+						} catch (err) {
+							results.failures.push({
+								error: err.toString(),
+								package: pkg
+							});
+							task.title = alert(err.toString());
+							err.message = undefined; // prevent the error from rendering twice
+							exitCode(1);
+							throw err;
+						}
+					}
+				});
 			}
 
-			return {
-				title: `Downloading and installing ${highlight(`${pkg.name}@${pkg.latest}`)}`,
-				async task(ctx, task) {
-					try {
-						await new Promise((resolve, reject) => {
-							install(`${pkg.name}@${pkg.latest}`)
-								.on('download', ({ name, version }) => {
-									task.title = `Downloading ${highlight(`${name}@${version}`)}`;
-								})
-								.on('install', ({ name, version }) => {
-									task.title = `Installing ${highlight(`${name}@${version}`)}`;
-								})
-								.on('register', ({ name, version }) => {
-									task.title = `Registering ${highlight(`${name}@${version}`)}`;
-								})
-								.on('end', info => {
-									task.title = `${highlight(`${info.name}@${info.version}`)} installed and set as active version`;
-									results.installed.push(info);
-									resolve();
-								})
-								.on('error', reject);
-						});
-					} catch (err) {
-						results.failures.push({
-							error: err.toString(),
-							package: pkg
-						});
-						task.title = alert(err.toString());
-						err.message = undefined; // prevent the error from rendering twice
-						exitCode(1);
-						throw err;
-					}
-				}
-			};
-		});
+			return list;
+		}, Promise.resolve([]));
 
 		// step 4: run the tasks
 		try {
@@ -158,7 +160,7 @@ export default {
 			// errors are stored in the results
 		}
 
-		const cfg = loadConfig();
+		const cfg = await loadConfig();
 		cfg.delete('update.notified');
 		cfg.save();
 

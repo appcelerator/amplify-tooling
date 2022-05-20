@@ -12,8 +12,8 @@ import * as request from '@axway/amplify-request';
  * from disk.
  * @returns {Array.<String>}
  */
-export function createNPMRequestArgs(opts, config) {
-	const { ca, cert, key, proxy, strictSSL } = createRequestOptions(opts, config);
+export async function createNPMRequestArgs(opts = {}, config: Config) {
+	const { ca, cert, key, proxy, strictSSL } = await createRequestOptions(opts, config);
 	const args = [];
 
 	if (ca) {
@@ -42,8 +42,8 @@ export function createNPMRequestArgs(opts, config) {
  * from disk.
  * @returns {Function}
  */
-export function createRequestClient(opts, config) {
-	opts = createRequestOptions(opts, config);
+export async function createRequestClient(opts = {}, config: Config) {
+	opts = await createRequestOptions(opts, config);
 	return request.init({
 		...opts,
 		https: {
@@ -64,7 +64,7 @@ export function createRequestClient(opts, config) {
  * from disk.
  * @returns {Object}
  */
-export function createRequestOptions(opts = {}, config) {
+export async function createRequestOptions(opts = {}, config: Config) {
 	if (opts instanceof Config) {
 		config = opts;
 		opts = {};
@@ -78,12 +78,12 @@ export function createRequestOptions(opts = {}, config) {
 		throw new TypeError('Expected config to be an Amplify Config instance');
 	}
 
-	const load = (src, dest) => {
+	const load = async (src, dest) => {
 		if (opts[dest] !== undefined) {
 			return;
 		}
 		if (!config) {
-			config = loadConfig();
+			config = await loadConfig();
 		}
 		const value = config.get(src);
 		if (value === undefined) {
@@ -98,13 +98,13 @@ export function createRequestOptions(opts = {}, config) {
 		}
 	};
 
-	load('network.caFile',     'ca');
-	load('network.certFile',   'cert');
-	load('network.keyFile',    'key');
-	load('network.proxy',      'proxy');
-	load('network.httpsProxy', 'proxy');
-	load('network.httpProxy',  'proxy');
-	load('network.strictSSL',  'strictSSL');
+	await load('network.caFile',     'ca');
+	await load('network.certFile',   'cert');
+	await load('network.keyFile',    'key');
+	await load('network.proxy',      'proxy');
+	await load('network.httpsProxy', 'proxy');
+	await load('network.httpProxy',  'proxy');
+	await load('network.strictSSL',  'strictSSL');
 
 	return opts;
 }

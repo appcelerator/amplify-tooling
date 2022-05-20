@@ -17,8 +17,8 @@ export default {
 		'--type [type]': { desc: 'Type of package to search', redact: false }
 	},
 	async action({ argv, console }) {
-		const { createTable } = require('@axway/amplify-cli-utils');
-		const { search }      = require('../pm');
+		const { createTable } = await import('@axway/amplify-cli-utils');
+		const { search }      = await import('../pm');
 
 		const results = await search(argv);
 

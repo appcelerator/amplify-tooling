@@ -48,14 +48,14 @@ required options must be passed in at execution.`;
 		'--secret [key]':       'A custom client secret key'
 	},
 	async action({ argv, cli, console, help, terminal }) {
-		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { existsSync, isFile } = require('@axway/amplify-utils');
-		const { generateKeypair } = require('../lib/keypair');
-		const { prompt } = require('enquirer');
-		const { readFileSync } = require('fs');
-		const uuid = require('uuid');
-		const { default: snooplogg } = require('snooplogg');
-		const { highlight, note } = snooplogg.styles;
+		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
+		const { existsSync, isFile }  = await import('@axway/amplify-utils');
+		const { generateKeypair }     = await import('../lib/keypair');
+		const { prompt }              = await import('enquirer');
+		const { readFileSync }        = await import('fs');
+		const { default: uuid }       = await import('uuid');
+		const { default: snooplogg }  = await import('snooplogg');
+		const { highlight, note }     = snooplogg.styles;
 
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 

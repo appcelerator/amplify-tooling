@@ -14,9 +14,9 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { getAuthConfigEnvSpecifier, initSDK } = require('@axway/amplify-cli-utils');
-		const { renderAccountInfo } = require('../lib/info');
-		const { config, sdk } = initSDK({
+		const { getAuthConfigEnvSpecifier, initSDK } = await import('@axway/amplify-cli-utils');
+		const { renderAccountInfo } = await import('../lib/info');
+		const { config, sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm
@@ -39,7 +39,7 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(accounts, null, 2));
 		} else {
-			const { default: snooplogg } = require('snooplogg');
+			const { default: snooplogg } = await import('snooplogg');
 			const { highlight, note } = snooplogg.styles;
 
 			if (accounts.length) {

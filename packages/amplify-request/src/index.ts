@@ -24,7 +24,7 @@ interface HttpsOptions {
 	rejectUnauthorized?: boolean
 }
 
-interface RequestOptions {
+export interface RequestOptions {
 	agent?: {
 		http?: HttpProxyAgent.HttpProxyAgent,
 		https?: HttpsProxyAgent.HttpsProxyAgent

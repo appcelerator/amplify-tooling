@@ -48,9 +48,9 @@ to public key and vice versa.`;
 		'--secret [key]':       'A custom client secret key'
 	},
 	async action({ argv, cli, console }) {
-		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { existsSync, isFile } = require('@axway/amplify-utils');
-		const { readFileSync } = require('fs');
+		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
+		const { existsSync, isFile } = await import('@axway/amplify-utils');
+		const { readFileSync } = await import('fs');
 
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
@@ -99,7 +99,7 @@ to public key and vice versa.`;
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const { default: snooplogg } = require('snooplogg');
+			const { default: snooplogg } = await import('snooplogg');
 			const { highlight, note } = snooplogg.styles;
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);

@@ -67,10 +67,10 @@ team to use for "axway" commands.`;
 		}
 	],
 	async action({ argv, cli, console }) {
-		const { default: snooplogg } = require('snooplogg');
-		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
-		const { renderAccountInfo } = require('../lib/info');
-		const { prompt } = require('enquirer');
+		const { default: snooplogg } = await import('snooplogg');
+		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
+		const { renderAccountInfo } = await import('../lib/info');
+		const { prompt } = await import('enquirer');
 
 		// prompt for the username and password
 		if (argv.username !== undefined) {
@@ -113,7 +113,7 @@ team to use for "axway" commands.`;
 			}
 		}
 
-		const { config, sdk } = initSDK({
+		const { config, sdk } = await initSDK({
 			baseUrl:        argv.baseUrl,
 			clientId:       argv.clientId,
 			clientSecret:   argv.clientSecret,

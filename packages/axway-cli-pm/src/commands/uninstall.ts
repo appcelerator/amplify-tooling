@@ -18,22 +18,22 @@ export default {
 	},
 	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console }) {
-		const fs                     = require('fs-extra');
-		const npa                    = require('npm-package-arg');
-		const semver                 = require('semver');
-		const { default: snooplogg } = require('snooplogg');
-		const { dirname }            = require('path');
-		const { runListr }           = require('../utils');
-		const { loadConfig }         = require('@axway/amplify-cli-utils');
+		const { default: fs }        = await import('fs-extra');
+		const { default: npa }       = await import('npm-package-arg');
+		const { default: semver }    = await import('semver');
+		const { default: snooplogg } = await import('snooplogg');
+		const { dirname }            = await import('path');
+		const { runListr }           = await import('../utils');
+		const { loadConfig }         = await import('@axway/amplify-cli-utils');
 		const {
 			find,
 			packagesDir,
 			uninstallPackage
-		}  = require('../pm');
+		}  = await import('../pm');
 
 		const { highlight, note } = snooplogg.styles;
 		const { fetchSpec, name, type } = npa(argv.package);
-		const installed = find(name);
+		const installed = await find(name);
 
 		if (!installed) {
 			const err = new Error(`Package "${name}" is not installed`);
@@ -96,7 +96,7 @@ export default {
 			{
 				title: `Unregistering ${highlight(name)} extension`,
 				task: () => {
-					const cfg = loadConfig();
+					const cfg = await loadConfig();
 					if (replacement.path) {
 						cfg.set(`extensions.${name}`, replacement.path);
 					} else {
@@ -137,7 +137,7 @@ export default {
 			}
 		}
 
-		const cfg = loadConfig();
+		const cfg = await loadConfig();
 		cfg.delete('update.notified');
 		cfg.save();
 

@@ -14,8 +14,8 @@ export async function renderActivity({ account, console, json, results }) {
 		return;
 	}
 
-	const { createTable } = require('@axway/amplify-cli-utils');
-	const { default: snooplogg } = require('snooplogg');
+	const { createTable } = await import('@axway/amplify-cli-utils');
+	const { default: snooplogg } = await import('snooplogg');
 	const { highlight, note } = snooplogg.styles;
 	let { from, to, events } = results;
 

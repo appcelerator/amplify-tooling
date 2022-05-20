@@ -47,13 +47,13 @@ export function addCrash(payload, opts) {
  * @param {String} [opts.url] - The platform analytics endpoint URL.
  * @returns {Telemetry}
  */
-export function init(opts = {}) {
+export async function init(opts = {}) {
 	try {
 		if (telemetryInst) {
 			return telemetryInst;
 		}
 
-		const config = opts.config || loadConfig();
+		const config = opts.config || await loadConfig();
 		if (!config.get('telemetry.enabled')) {
 			return;
 		}
@@ -69,7 +69,7 @@ export function init(opts = {}) {
 			appVersion:     opts.appVersion,
 			cacheDir:       telemetryCacheDir,
 			environment:    env === 'staging' ? 'preproduction' : 'production',
-			requestOptions: createRequestOptions(config),
+			requestOptions: await createRequestOptions(config),
 			url:            opts.url
 		});
 
@@ -93,8 +93,9 @@ export function init(opts = {}) {
  *
  * @returns {Boolean}
  */
-export function isEnabled() {
-	return !!loadConfig().get('telemetry.enabled');
+export async function isEnabled(): Promise<boolean> {
+	const cfg = await loadConfig();
+	return !!cfg.get('telemetry.enabled');
 }
 
 /**

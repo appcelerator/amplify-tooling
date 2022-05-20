@@ -33,7 +33,7 @@ export default {
 		'--public-key [path]': 'The file to output the public key to'
 	},
 	async action({ argv, console, terminal }) {
-		const { generateKeypair } = require('../lib/keypair');
+		const { generateKeypair } = await import('../lib/keypair');
 
 		const certs = await generateKeypair({
 			console,
@@ -46,7 +46,7 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(certs, null, 2));
 		} else {
-			const { default: snooplogg } = require('snooplogg');
+			const { default: snooplogg } = await import('snooplogg');
 			const { highlight } = snooplogg.styles;
 			for (const { file, label } of Object.values(certs)) {
 				console.log(`Wrote ${label.toLowerCase()}: ${highlight(file)}`);

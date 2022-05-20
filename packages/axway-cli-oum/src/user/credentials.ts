@@ -1,11 +1,11 @@
 export default {
 	desc: 'Opens a web browser to the change your password page',
 	async action({ console }) {
-		const { initSDK, isHeadless } = require('@axway/amplify-cli-utils');
-		const { default: snooplogg } = require('snooplogg');
-		const { highlight } = snooplogg.styles;
-		const { sdk } = initSDK();
-		const open = require('open');
+		const { initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
+		const { default: snooplogg }  = await import('snooplogg');
+		const { highlight }           = snooplogg.styles;
+		const { sdk }                 = await initSDK();
+		const { default: open }       = await import('open');
 
 		if (isHeadless()) {
 			throw new Error('Changing your login credentials requires a web browser and is unsupported in headless environments');

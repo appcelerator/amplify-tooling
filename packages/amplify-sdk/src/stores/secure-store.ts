@@ -41,7 +41,6 @@ export default class SecureStore extends FileStore {
 
 		super(opts);
 
-		this.keytar = require('keytar');
 		this.serviceName = opts.secureServiceName || 'Axway AMPLIFY Auth';
 		this.tokenStoreFile = path.join(this.tokenStoreDir, this.filename);
 	}
@@ -58,7 +57,8 @@ export default class SecureStore extends FileStore {
 			return await super.decode(str);
 		} catch (e) {
 			if (e.amplifyCode === 'ERR_BAD_KEY') {
-				await this.keytar.deletePassword(this.serviceName, this.serviceName);
+				const keytar = await this.getKeytar();
+				await keytar.deletePassword(this.serviceName, this.serviceName);
 			}
 			throw e;
 		}
@@ -73,9 +73,10 @@ export default class SecureStore extends FileStore {
 	async getKey() {
 		if (!this._key) {
 			let key;
+			const keytar = await this.getKeytar();
 
 			try {
-				key = await this.keytar.getPassword(this.serviceName, this.serviceName);
+				key = await keytar.getPassword(this.serviceName, this.serviceName);
 			} catch (err) {
 				if (process.platform === 'linux') {
 					// this is likely due to d-bus daemon not running (i.e. "Connection refused") or
@@ -98,10 +99,23 @@ export default class SecureStore extends FileStore {
 			if (!key) {
 				log('Generating new key...');
 				key = crypto.randomBytes(16).toString('hex');
-				await this.keytar.setPassword(this.serviceName, this.serviceName, key);
+				await keytar.setPassword(this.serviceName, this.serviceName, key);
 			}
 			Object.defineProperty(this, '_key', { value: Buffer.from(key, 'hex') });
 		}
 		return this._key;
+	}
+
+	/**
+	 * Loads the `keytar` library if not already loaded.
+	 *
+	 * @returns {Promise}
+	 * @access private
+	 */
+	async getKeytar() {
+		if (!this.keytar) {
+			this.keytar = (await import('keytar')).default;
+		}
+		return this.keytar;
 	}
 }

@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@axway/amplify-utils": "^1.0.9",
-    "config-kit": "^2.0.0",
+    "config-kit": "^2.1.0",
     "fs-extra": "^10.1.0",
     "source-map-support": "^0.5.21"
   },

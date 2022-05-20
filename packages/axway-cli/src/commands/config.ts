@@ -102,9 +102,9 @@ ${style.heading('Settings:')}
 };
 
 async function runConfig(action, { argv, cli, console, setExitCode }) {
-	const { loadConfig } = require('@axway/amplify-cli-utils');
+	const { loadConfig } = await import('@axway/amplify-cli-utils');
 	let { json, key, value } = argv;
-	const cfg = loadConfig(argv);
+	const cfg = await loadConfig(argv);
 	const data = { action, key, value };
 	const filter = key && key.split(/\.|\//).filter(Boolean).join('.') || undefined;
 

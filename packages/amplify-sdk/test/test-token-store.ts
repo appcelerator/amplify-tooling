@@ -335,7 +335,7 @@ describe('Token Store', () => {
 
 		afterEach(async () => {
 			if (!isCI || process.platform !== 'linux') {
-				await require('keytar').deletePassword(secureServiceName, secureServiceName);
+				await (await import('keytar')).deletePassword(secureServiceName, secureServiceName);
 			}
 		});
 

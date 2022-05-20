@@ -8,10 +8,10 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const semver                 = require('semver');
-		const { default: snooplogg } = require('snooplogg');
-		const { createTable }        = require('@axway/amplify-cli-utils');
-		const { list, packagesDir }  = require('../pm');
+		const { default: semver }    = await import('semver');
+		const { default: snooplogg } = await import('snooplogg');
+		const { createTable }        = await import('@axway/amplify-cli-utils');
+		const { list, packagesDir }  = await import('../pm');
 
 		const installed = await list();
 

@@ -10,11 +10,11 @@ export default {
 		'--account [name]': 'The account to use'
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount, isHeadless } = require('@axway/amplify-cli-utils');
-		const { default: snooplogg } = require('snooplogg');
+		const { initPlatformAccount, isHeadless } = await import('@axway/amplify-cli-utils');
+		const { default: snooplogg } = await import('snooplogg');
 		const { highlight } = snooplogg.styles;
 		const { org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const open = require('open');
+		const { default: open } = await import('open');
 
 		if (!org.userRoles.includes('administrator')) {
 			throw new Error('You do not have administrative access to configure this organization\'s identity provider');
