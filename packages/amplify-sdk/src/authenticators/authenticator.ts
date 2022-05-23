@@ -202,7 +202,7 @@ export default class Authenticator {
 					Authorization: `Bearer ${accessToken}`
 				},
 				responseType: 'json',
-				retry: 0
+				retry: { limit: 0 }
 			});
 			const { email, family_name, given_name, guid, org_guid, org_name } = body;
 

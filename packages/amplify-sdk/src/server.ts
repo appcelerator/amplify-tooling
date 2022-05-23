@@ -13,10 +13,27 @@ const { green, highlight, red } = snooplogg.styles;
 const defaultPort = 3000;
 const defaultTimeout = 120000; // 2 minutes
 
+interface PendingHandler {
+	handler: (req: http.IncomingMessage, res: http.OutgoingMessage) => void;
+	resolve: (v: any) => void;
+	reject: (e: Error) => void;
+	timer: NodeJS.Timeout;
+}
+
+interface ServerOptions {
+	timeout: number;
+}
+
 /**
  * An HTTP server to listen for redirect callbacks.
  */
 export default class Server {
+	pending: Map<string, PendingHandler>;
+	port: number | null;
+	server: http.Server | null;
+	serverURL: string | null;
+	timeout: number
+
 	/**
 	 * Initializes the server.
 	 *
@@ -25,7 +42,7 @@ export default class Server {
 	 * out.
 	 * @access public
 	 */
-	constructor(opts = {}) {
+	constructor(opts: ServerOptions = {}) {
 		if (!opts || typeof opts !== 'object') {
 			throw new TypeError('Expected options to be an object');
 		}
@@ -211,7 +228,7 @@ export default class Server {
 	 * @returns {Promise}
 	 * @memberof Server
 	 */
-	async stop(force) {
+	async stop(force?: boolean) {
 		if (force || this.pending.size === 0) {
 			const { server } = this;
 			if (server) {

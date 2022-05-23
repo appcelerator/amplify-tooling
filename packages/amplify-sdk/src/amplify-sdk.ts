@@ -1842,7 +1842,7 @@ export default class AmplifySDK {
 				headers,
 				json: json ? JSON.parse(JSON.stringify(json)) : undefined,
 				responseType: 'json',
-				retry: 0
+				retry: { limit: 0 }
 			};
 			let error;
 

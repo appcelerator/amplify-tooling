@@ -4,6 +4,7 @@ import path from 'path';
 import os from 'os';
 import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
 import * as request from '@axway/amplify-request';
+import { RequestOptions } from '@axway/amplify-request';
 import * as uuid from 'uuid';
 import { arch as _arch, isDir, osInfo, redact, writeFileSync } from '@axway/amplify-utils';
 import { serializeError } from 'serialize-error';
@@ -15,15 +16,16 @@ const { highlight } = snooplogg.styles;
 
 /**
  * A map of known send process exit codes.
- * @type {Object}
+ * @type {Array<String>}
  */
-const exitCodes = {
-	0: 'Success',
-	1: 'Error',
-	2: 'Already running',
-	ALREADY_RUNNING: 2,
-	ERROR: 1
-};
+const exitCodes = [
+	'Success',
+	'Error',
+	'Already running'
+];
+
+const CODE_ALREADY_RUNNING = 2;
+const CODE_ERROR = 1;
 
 /**
  * The number of milliseconds since the last execution before starting a new session.
@@ -43,11 +45,65 @@ const sendBatchSize = 10;
  */
 const telemetryUrl = 'https://gatekeeper.platform.axway.com/v4/event';
 
+interface TelemetryOptions {
+	appGuid: string;
+	appVersion: string;
+	cacheDir: string;
+	environment: string;
+	requestOptions?: RequestOptions,
+	url?: string
+}
+
+interface CrashData {
+	message: string;
+	stack?: string | string[];
+}
+
+type CrashPayload = CrashData | Error;
+
+interface EventPayload {
+	cpus?: number;
+	event: string;
+	memory?: number;
+	nodePlatform?: string;
+	nodeVersion?: string;
+}
+
+interface EventData {
+	cpus?: number;
+	event?: string;
+	memory?: number;
+	message: string;
+	nodePlatform?: string;
+	nodeVersion?: string;
+}
+
 /**
  * Sends anonymous telemetry events for Axway products to help improve our software.
  * Spec: https://techweb.axway.com/confluence/display/analytics/Analytics+JSON+Payload+V4
  */
 export default class Telemetry {
+	appDir: string;
+	common: {
+		app: string,
+		distribution: {
+			environment: string,
+			version: string
+		},
+		hardware: {
+			arch: string,
+			id: string
+		},
+		os: {
+			arch: string
+		},
+		version: string
+	};
+	count: number;
+	requestOptions?: RequestOptions;
+	sessionId: string;
+	url: string;
+
 	/**
 	 * Initializes a telemetry instance.
 	 *
@@ -62,7 +118,7 @@ export default class Telemetry {
 	 * intended for testing purposes.
 	 * @access public
 	 */
-	constructor(opts) {
+	constructor(opts: TelemetryOptions) {
 		if (!opts || typeof opts !== 'object') {
 			throw new TypeError('Expected telemetry options to be an object');
 		}
@@ -141,7 +197,7 @@ export default class Telemetry {
 	 * @param {String} [payload.stack] - The stack trace.
 	 * @access public
 	 */
-	addCrash(payload) {
+	addCrash(payload: CrashPayload) {
 		if (isTelemetryDisabled() || this.common.distribution.environment !== 'production') {
 			return;
 		}
@@ -150,20 +206,18 @@ export default class Telemetry {
 			throw new TypeError('Expected crash payload to be an object');
 		}
 
-		if (payload instanceof Error) {
-			// we need to clone the error so that it can be serialized
-			payload = serializeError(payload);
-		}
+		// we need to clone the error so that it can be serialized
+		const data = payload instanceof Error ? serializeError(payload) : payload;
 
-		if (!payload.message || typeof payload.message !== 'string') {
+		if (!data.message || typeof data.message !== 'string') {
 			throw new TypeError('Expected crash payload to have a message');
 		}
 
 		const homeDir = os.homedir();
 
-		if (typeof payload.stack === 'string') {
-			payload.stack = [
-				payload.stack.split(/\r\n|\n/).map((line, i) => {
+		if (typeof data.stack === 'string') {
+			data.stack = [
+				data.stack.split(/\r\n|\n/).map((line, i) => {
 					if (!i) {
 						return line;
 					}
@@ -173,7 +227,7 @@ export default class Telemetry {
 						return line;
 					}
 
-					let m = line.match(/\(([^:)]*:)/);
+					let m: RegExpMatchArray | null = line.match(/\(([^:)]*:)/);
 					// istanbul ignore if
 					if (!m) {
 						m = line.match(/at ([^:]*:)/);
@@ -197,11 +251,11 @@ export default class Telemetry {
 					return line.replace(pkgDir, scrubbed);
 				}).join('\n')
 			];
-		} else if (payload.stack && !Array.isArray(payload.stack)) {
-			payload.stack = [ payload.stack ];
+		} else if (data.stack && !Array.isArray(data.stack)) {
+			data.stack = [ data.stack ];
 		}
 
-		this.writeEvent('crash.report', payload);
+		this.writeEvent('crash.report', data as EventData);
 	}
 
 	/**
@@ -211,7 +265,7 @@ export default class Telemetry {
 	 * @param {String} payload.event - The event name.
 	 * @access public
 	 */
-	addEvent(payload) {
+	addEvent(payload: EventPayload) {
 		if (isTelemetryDisabled()) {
 			return;
 		}
@@ -220,8 +274,9 @@ export default class Telemetry {
 			throw new TypeError('Expected telemetry payload to be an object');
 		}
 
-		const { event } = payload;
-		delete payload.event;
+		const data: EventData = { ...payload } as EventData;
+		const { event } = data;
+		delete data.event;
 		if (!event || typeof event !== 'string') {
 			throw new TypeError('Expected telemetry payload to have an event name');
 		}
@@ -242,7 +297,7 @@ export default class Telemetry {
 	 * @returns {Object}
 	 * @access private
 	 */
-	initId(filename) {
+	initId(filename: string): { id: string, prev: string, ts: number | null } {
 		const file = path.join(this.appDir, filename);
 		let id, prev, ts;
 		try {
@@ -272,7 +327,7 @@ export default class Telemetry {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async send(opts) {
+	async send(opts?: { wait?: boolean }): Promise<void> {
 		if (isTelemetryDisabled()) {
 			return;
 		}
@@ -292,8 +347,8 @@ export default class Telemetry {
 
 		if (opts?.wait) {
 			log(`Forked send process (pid: ${pid}), waiting for exit... `);
-			await new Promise(resolve => {
-				child.on('close', code => {
+			await new Promise<void>(resolve => {
+				child.on('close', (code: number) => {
 					const debugLog = path.join(this.appDir, `debug-${pid}.log`);
 					if (fs.existsSync(debugLog)) {
 						logger(`send-${pid}`).log(fs.readFileSync(debugLog, 'utf-8').trim());
@@ -316,7 +371,7 @@ export default class Telemetry {
 	 * @param {Object} data - The event data payload.
 	 * @access private
 	 */
-	writeEvent(event, data) {
+	writeEvent(event: string, data: EventData) {
 		const id = uuid.v4();
 		const now = new Date();
 		const ts = `${now.toISOString().replace(/[\WZ]*/ig, '').replace('T', '-')}-${String(++this.count).padStart(4, '0')}`;
@@ -339,6 +394,13 @@ export default class Telemetry {
 	}
 }
 
+interface TelemetryMessage {
+	appDir: string;
+	requestOptions?: RequestOptions;
+	url?: string;
+	wait?: boolean;
+}
+
 /**
  * When Telemetry::send() is called, it spawns this file using `fork()` which conveniently creates
  * an IPC tunnel. The parent then immediately sends this child process a message with the app dir
@@ -348,7 +410,7 @@ export default class Telemetry {
  * The only way to get output from this child process is to either set SNOOPLOGG=* and call
  * Telemetry::send({ wait: true }) -or- look in the app's telemetry data dir for the debug.log file.
  */
-process.on('message', async msg => {
+process.on('message', async (msg: TelemetryMessage) => {
 	// istanbul ignore if
 	if (!msg || !msg.appDir || !isDir(msg.appDir)) {
 		process.disconnect();
@@ -422,7 +484,7 @@ process.on('message', async msg => {
 		};
 
 		if (!await acquireLock()) {
-			process.exitCode = exitCodes.ALREADY_RUNNING;
+			process.exitCode = CODE_ALREADY_RUNNING;
 			return;
 		}
 
@@ -468,8 +530,8 @@ process.on('message', async msg => {
 			log(`Batch ${batchCounter}: Sending batch with ${batch.length} event${batch.length !== 1 ? 's' : ''}`);
 			await got.post({
 				json: batch.map(b => b.event),
-				retry: 0,
-				timeout: 10000,
+				retry: { limit: 0 },
+				timeout: { request: 10000 },
 				url
 			});
 			log(`Batch ${batchCounter}: Successfully sent ${batch.length} event${batch.length !== 1 ? 's' : ''}`);
@@ -486,7 +548,7 @@ process.on('message', async msg => {
 		}
 	} catch (err) {
 		error(err);
-		process.exitCode = exitCodes.ERROR;
+		process.exitCode = CODE_ERROR;
 	} finally {
 		fs.removeSync(lockFile);
 		log(`Finished in ${((Date.now() - startTime) / 1000).toFixed(1)} seconds`);
@@ -504,7 +566,7 @@ process.on('message', async msg => {
  * @param {String} file - The filename to locate.
  * @returns {String}
  */
-function findDir(dir, file) {
+function findDir(dir: string, file: string): string | undefined {
 	const { root } = path.parse(dir);
 	let cur = dir;
 	let it;
@@ -523,6 +585,6 @@ function findDir(dir, file) {
  *
  * @returns {Boolean}
  */
-function isTelemetryDisabled() {
+function isTelemetryDisabled(): boolean {
 	return process.env.AXWAY_TELEMETRY_DISABLED === '1' || (!process.env.AXWAY_TEST && ci.isCI);
 }

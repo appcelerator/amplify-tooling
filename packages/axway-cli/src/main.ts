@@ -95,7 +95,7 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 
 		const opts = await createRequestOptions({
 			metaDir: resolve(locations.axwayHome, 'axway-cli', 'update'),
-			timeout: 4000
+			timeout: { request: 4000 }
 		}, cfg);
 
 		// store the check promise and let it continue asynchronously

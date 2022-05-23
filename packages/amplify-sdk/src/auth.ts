@@ -457,7 +457,7 @@ export default class Auth {
 				if (!entry.isPlatform) {
 					const url = `${getEndpoints(entry.auth).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
 					try {
-						const { statusCode } = await this.got(url, { responseType: 'json', retry: 0 });
+						const { statusCode } = await this.got(url, { responseType: 'json', retry: { limit: 0 } });
 						log(`Successfully logged out ${highlight(entry.name)} ${magenta(statusCode)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
 					} catch (err) {
 						log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
@@ -496,7 +496,7 @@ export default class Auth {
 
 		try {
 			log(`Fetching server info: ${highlight(url)}...`);
-			return (await this.got(url, { responseType: 'json', retry: 0 })).body;
+			return (await this.got(url, { responseType: 'json', retry: { limit: 0 } })).body;
 		} catch (err) {
 			if (err.name !== 'ParseError') {
 				err.message = `Failed to get server info (status ${err.response.statusCode})`;

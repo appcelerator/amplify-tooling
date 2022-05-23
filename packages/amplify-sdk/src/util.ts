@@ -1,5 +1,9 @@
 import crypto from 'crypto';
 
+interface FormParams {
+	[key: string]: string
+}
+
 /**
  * Appends query string parameters to a URL.
  *
@@ -7,7 +11,7 @@ import crypto from 'crypto';
  * @param {Object} params - A map of query string parameters.
  * @returns {String}
  */
-export function createURL(url, params) {
+export function createURL(url: string, params: FormParams) {
 	return `${url}${url.includes('?') ? '&' : '?'}${prepareForm(params).toString()}`;
 }
 
@@ -17,7 +21,7 @@ export function createURL(url, params) {
  * @param {String|Object} it - The object to serialize and hash.
  * @returns {String}
  */
-export function md5(it) {
+export function md5(it: string | any) {
 	return crypto.createHash('md5').update(typeof it === 'string' ? it : JSON.stringify(it)).digest('hex');
 }
 
@@ -27,7 +31,7 @@ export function md5(it) {
  * @param {Object} params - The query string parameters to stringify.
  * @returns {Object}
  */
-export function prepareForm(params) {
+export function prepareForm(params: FormParams) {
 	const form = new URLSearchParams();
 	for (const prop of Object.keys(params).sort()) {
 		if (params[prop] !== undefined) {

@@ -173,6 +173,20 @@ export function randomBytes(howMany: number) : string {
 	return crypto.randomBytes(Math.max(~~howMany, 0)).toString('hex');
 }
 
+type ReplacementPattern = string | RegExp;
+type ReplacementValue = string | RegExp;
+type ReplacementItem = [ReplacementPattern, ReplacementValue] | ReplacementPattern | undefined;
+type ReplacementList = Array<ReplacementItem> | Set<ReplacementItem>;
+
+interface RedactOptions {
+	clone?: boolean;
+	props?: Array<string|RegExp> | Set<string|RegExp>;
+	redacted?: string;
+	replacements?: ReplacementList;
+	triggers?: Array<string|RegExp> | Set<string|RegExp>;
+	[key: string]: any;
+}
+
 /**
  * A lookup of various properties that must be redacted during log message serialization.
  * @type {Array.<String|RegExp>}
@@ -194,21 +208,12 @@ const mandatoryRedactionTriggers = [
  * A list of string replacement arguments.
  * @type {Array.<Array|String>}
  */
-const mandatoryReplacements: (string|RegExp|undefined|string[])[] = [
+const mandatoryReplacements: ReplacementList = [
 	[ homedir(), '<HOME>' ],
 	process.env.USER, // macOS, Linux
 	process.env.USERNAME, // Windows
 	/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g // email address
 ];
-
-interface RedactOptions {
-	clone?: boolean;
-	props?: (string|RegExp)[] | Set<string|RegExp>;
-	redacted?: string;
-	replacements?: (string|RegExp)[] | Set<string|RegExp>;
-	triggers?: (string|RegExp)[] | Set<string|RegExp>;
-	[key: string]: any;
-}
 
 /**
  * Scrubs any potentially sensitive data from a value. By default, if the source is an object, it
@@ -279,13 +284,12 @@ export function redact(data: any, opts: RedactOptions = {}) : any {
 
 	// init the replacements
 	const replacementMap = new Map();
-	type ReplacementValue = string | RegExp | undefined | string[]
-	type ReplacementList = ReplacementValue[] | Set<ReplacementValue>;
+
 	const addReplacement = (replacements: ReplacementList | undefined) => {
 		if (Array.isArray(replacements) || replacements instanceof Set) {
 			for (const replacement of (replacements as ReplacementList)) {
-				let pattern: string | RegExp;
-				let value: string | null | undefined;
+				let pattern: ReplacementPattern;
+				let value: ReplacementValue | null = null;
 				if (!replacement) {
 					continue;
 				} else if (Array.isArray(replacement)) {
@@ -309,6 +313,7 @@ export function redact(data: any, opts: RedactOptions = {}) : any {
 			throw new TypeError('Expected replacements to be an array of replace arguments');
 		}
 	};
+
 	addReplacement(mandatoryReplacements);
 	addReplacement(opts.replacements);
 	const replacements = Array.from(replacementMap.values());
