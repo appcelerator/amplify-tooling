@@ -26,11 +26,11 @@ declare module 'snooplogg' {
 
 	class SnoopLogg extends Logger {
 		styles: {
-			alert: (s: string) => void,
-			highlight: (s: string) => void,
-			note: (s: string) => void,
-			ok: (s: string) => void,
-			[key: string]: (s: string) => void
+			alert: (s?: string | number) => void,
+			highlight: (s?: string | number) => void,
+			note: (s?: string | number) => void,
+			ok: (s?: string | number) => void,
+			[key: string]: (s?: string | number) => void
 		};
 
 		constructor(opts: any);

@@ -1,5 +1,5 @@
-import Authenticator from './authenticator';
-import E from '../errors';
+import Authenticator, { AuthenticatorParams } from './authenticator.js';
+import E from '../errors.js';
 import fs from 'fs';
 import jws from 'jws';
 
@@ -8,10 +8,18 @@ import { v4 as uuidv4 } from 'uuid';
 
 const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;
 
+interface SignedJWTParams extends AuthenticatorParams {
+    secret?: string;
+    secretFile?: string;
+}
+
 /**
  * Authentication scheme using a JSON Web Token (JWT).
  */
 export default class SignedJWT extends Authenticator {
+	shouldFetchOrgs: boolean;
+	signedJWT?: string;
+
 	/**
 	 * Initializes an PKCE authentication instance.
 	 *
@@ -20,7 +28,7 @@ export default class SignedJWT extends Authenticator {
 	 * @param {String} [opts.secretFile] - The path to the private key file when `secret` is not set.
 	 * @access public
 	 */
-	constructor(opts) {
+	constructor(opts?: SignedJWTParams) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
@@ -48,7 +56,7 @@ export default class SignedJWT extends Authenticator {
 
 		this.shouldFetchOrgs = false;
 
-		if (!/^-----BEGIN (RSA )?PRIVATE KEY-----/.test(secret)) {
+		if (!secret || !/^-----BEGIN (RSA )?PRIVATE KEY-----/.test(secret)) {
 			throw new Error(`Private key file ${opts.secretFile} is not a PEM formatted file`);
 		}
 		Object.defineProperty(this, 'secret', { value: secret });

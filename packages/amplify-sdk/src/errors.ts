@@ -1,4 +1,8 @@
-const errors = {};
+
+type ErrorBuilder = (msg: string, meta?: any) => Error;
+type ErrorList = { [key: string]: ErrorBuilder };
+
+const errors: ErrorList = {};
 export default errors;
 
 createError('AUTH_FAILED',                Error,      'Authorization failed');
@@ -30,7 +34,7 @@ createError('TOKEN_EXPIRED',              Error,      'The access token is expir
  * @param {Error|RangeError|TypeError} type - An instantiable error object.
  * @param {String} desc - A generic error description.
  */
-function createError(code, type, desc) {
+function createError(code: string, type: ErrorConstructor, desc: string) {
 	errors[code] = function (msg, meta) {
 		const err = new type(msg);
 

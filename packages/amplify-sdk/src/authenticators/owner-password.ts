@@ -1,10 +1,18 @@
-import Authenticator from './authenticator';
+import Authenticator, { AuthenticatorParams } from './authenticator';
 import E from '../errors';
+
+interface OwnerPasswordParams extends AuthenticatorParams {
+    username?: string;
+    password?: string;
+}
 
 /**
  * Authentication scheme using a username and password.
  */
 export default class OwnerPassword extends Authenticator {
+	username?: string;
+    password?: string;
+
 	/**
 	 * Initializes an owner password authentication instance.
 	 *
@@ -13,7 +21,7 @@ export default class OwnerPassword extends Authenticator {
 	 * @param {String} opts.password - The password used to authenticate.
 	 * @access public
 	 */
-	constructor(opts) {
+	constructor(opts: OwnerPasswordParams) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}

@@ -1,11 +1,17 @@
 /* eslint-disable no-unused-vars */
 
-import E from '../errors';
+import E from '../errors.js';
 import pluralize from 'pluralize';
 import snooplogg from 'snooplogg';
+import { Account } from '../types.js';
 
 const { log } = snooplogg('amplify-sdk:auth:token-store');
 const { highlight } = snooplogg.styles;
+
+export interface StoreMutateResult {
+	entries: Account[];
+	removed: Account[];
+}
 
 /**
  * A regex to match a URL protocol.
@@ -37,8 +43,8 @@ export default class TokenStore {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async clear(baseUrl) {
-		return { entries: [], removed: [] };
+	async clear(baseUrl?: string): Promise<Account[]> {
+		return [];
 	}
 
 	/**
@@ -48,7 +54,7 @@ export default class TokenStore {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async _clear(baseUrl) {
+	async _clear(baseUrl?: string): Promise<StoreMutateResult> {
 		const entries = await this.list();
 
 		if (!baseUrl) {
@@ -80,7 +86,7 @@ export default class TokenStore {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async delete(accounts, baseUrl) {
+	async delete(accounts: string | string[], baseUrl?: string): Promise<Account[]> {
 		return [];
 	}
 
@@ -92,7 +98,7 @@ export default class TokenStore {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async _delete(accounts, baseUrl) {
+	async _delete(accounts: string | string[], baseUrl?: string): Promise<StoreMutateResult> {
 		const entries = await this.list();
 		const removed = [];
 
@@ -126,7 +132,7 @@ export default class TokenStore {
 	 * @returns {Promise} Resolves the token or `undefined` if not set.
 	 * @access public
 	 */
-	async get({ accountName, baseUrl, hash } = {}) {
+	async get({ accountName, baseUrl, hash }: { accountName?: string, baseUrl?: string, hash?: string } = {}): Promise<Account | null> {
 		const entries = await this.list();
 
 		if (baseUrl) {
@@ -158,7 +164,7 @@ export default class TokenStore {
 	 * @returns {Promise<Array>} Resolves an array of tokens.
 	 * @access public
 	 */
-	async list() {
+	async list(): Promise<Account[]> {
 		return [];
 	}
 
@@ -169,7 +175,7 @@ export default class TokenStore {
 	 * @returns {Array.<Object>}
 	 * @access private
 	 */
-	purge(entries) {
+	purge(entries: Account[]) {
 		if (!entries) {
 			return [];
 		}
@@ -213,7 +219,7 @@ export default class TokenStore {
 	 * @returns {Promise}
 	 * @access private
 	 */
-	async set(data) {
+	async set(data: Account): Promise<void> {
 		// noop
 	}
 
@@ -224,7 +230,7 @@ export default class TokenStore {
 	 * @returns {Promise}
 	 * @access private
 	 */
-	async _set(data) {
+	async _set(data: Account) {
 		const entries = await this.list();
 
 		for (let i = 0, len = entries.length; i < len; i++) {

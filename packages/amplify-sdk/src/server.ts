@@ -6,6 +6,8 @@ import getPort from 'get-port';
 import http from 'http';
 import path from 'path';
 import snooplogg from 'snooplogg';
+import { Socket } from 'net';
+import { OutgoingHttpHeaders } from 'http';
 
 const { error, log } = snooplogg('amplify-auth:server');
 const { green, highlight, red } = snooplogg.styles;
@@ -13,15 +15,21 @@ const { green, highlight, red } = snooplogg.styles;
 const defaultPort = 3000;
 const defaultTimeout = 120000; // 2 minutes
 
+type RequestHandler = (req: http.IncomingMessage, res: http.OutgoingMessage, url: URL) => Promise<any>;
+
 interface PendingHandler {
-	handler: (req: http.IncomingMessage, res: http.OutgoingMessage) => void;
+	handler: RequestHandler;
 	resolve: (v: any) => void;
 	reject: (e: Error) => void;
 	timer: NodeJS.Timeout;
 }
 
 interface ServerOptions {
-	timeout: number;
+	timeout?: number;
+}
+
+interface CallbackServer extends http.Server {
+	destroy: () => Promise<void>;
 }
 
 /**
@@ -30,7 +38,7 @@ interface ServerOptions {
 export default class Server {
 	pending: Map<string, PendingHandler>;
 	port: number | null;
-	server: http.Server | null;
+	server: CallbackServer | null;
 	serverURL: string | null;
 	timeout: number
 
@@ -61,7 +69,7 @@ export default class Server {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async createCallback(handler) {
+	async createCallback(handler: RequestHandler) {
 		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();
 
 		log(`Creating callback: ${requestId}`);
@@ -104,56 +112,56 @@ export default class Server {
 	 * @returns {Promise}
 	 * @access private
 	 */
-	async createServer() {
+	async createServer(): Promise<void> {
 		if (this.server) {
 			return;
 		}
 
 		const host = 'localhost'; // this has to be localhost because platform whitelists it
 		const port = this.port = this.port || await getPort({ host, port: defaultPort });
-		const connections = {};
+		const connections: { [key: string]: Socket } = {};
 		const callbackRegExp = /^\/callback\/([A-Z0-9]+)/;
 		const serverURL = `http://${host}:${port}`;
 
 		this.serverURL = serverURL;
 
-		await new Promise((resolve, reject) => {
+		await new Promise<void>((resolve, reject) => {
 			this.server = http.createServer(async (req, res) => {
-				const url = new URL(req.url, serverURL);
-				let id;
+				const url = new URL(req.url as string, serverURL);
 				let request;
 				log(`Incoming request: ${highlight(url.pathname)}`);
 
+				const m = url.pathname.match(callbackRegExp);
+				let id: string | null = m && m[1];
+
 				try {
-					const m = url.pathname.match(callbackRegExp);
-					if (!m) {
+					if (!id) {
 						throw new Error('Bad Request');
 					}
 
-					id = m[1];
 					request = this.pending.get(id);
 					if (!request) {
 						throw new Error('Invalid Request ID');
 					}
 
 					let head = false;
-					const origWriteHead = res.writeHead;
-					res.writeHead = function (status, message, headers) {
+					const origWriteHead = res.writeHead.bind(res);
+					res.writeHead = function (status: number, message: string, headers: OutgoingHttpHeaders) {
 						head = true;
 						log(`${(status >= 400 ? red : green)(String(status))} ${url.pathname} (${id})`);
 						if (status === 302) {
-							const h = headers || (typeof message === 'object' && message);
-							log(`Redirecting client to ${highlight(h?.Location || 'nowhere!')}`);
+							const h: OutgoingHttpHeaders | { Location: string } = (headers as OutgoingHttpHeaders) || (typeof message === 'object' && message);
+							log(`Redirecting client to ${highlight(h && h.Location as string || 'nowhere!')}`);
 						}
-						return origWriteHead.call(res, status, message, headers);
-					};
+						return origWriteHead(status, message, headers);
+					} as any;
 
 					let end = false;
-					const origEnd = res.end;
-					res.end = function (data, encoding, callback) {
+					const origEnd = res.end.bind(res);
+					res.end = function (data: Uint8Array | string, encoding: BufferEncoding, callback?: () => void) {
 						end = true;
-						return origEnd.call(res, data, encoding, callback);
-					};
+						return origEnd(data, encoding, callback);
+					} as any;
 
 					let result;
 					if (typeof request.handler === 'function') {
@@ -173,7 +181,7 @@ export default class Server {
 					clearTimeout(request.timer);
 					this.pending.delete(id);
 					request.resolve({ result, url });
-				} catch (err) {
+				} catch (err: any) {
 					log(`${red(err.status || '400')} ${url.pathname}`);
 					error(err);
 
@@ -186,11 +194,13 @@ export default class Server {
 
 					if (request) {
 						clearTimeout(request.timer);
-						this.pending.delete(id);
+						if (id) {
+							this.pending.delete(id);
+						}
 						request.reject(err);
 					}
 				}
-			});
+			}) as CallbackServer;
 
 			this.server.destroy = async function destroy() {
 				const conns = Object.values(connections);
@@ -204,7 +214,7 @@ export default class Server {
 			};
 
 			this.server
-				.on('connection', function (conn) {
+				.on('connection', function (conn: Socket) {
 					const key = `${conn.remoteAddress}:${conn.remotePort}`;
 					connections[key] = conn;
 					conn.on('close', () => {

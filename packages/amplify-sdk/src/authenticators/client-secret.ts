@@ -1,13 +1,22 @@
-import Authenticator from './authenticator';
-import E from '../errors';
+import Authenticator, { AuthenticatorParams } from './authenticator.js';
+import E from '../errors.js';
+import { AuthenticatorHashParams } from '../types.js';
 
 const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
+
+interface ClientSecretParams extends AuthenticatorParams {
+    clientSecret?: string;
+    serviceAccount?: boolean;
+}
 
 /**
  * Authentication scheme using a pre-shared secret token. By default, the authentication process is
  * interactive unless it is a service account.
  */
 export default class ClientSecret extends Authenticator {
+	clientSecret: string = '';
+	shouldFetchOrgs: boolean;
+
 	/**
 	 * Initializes an client secret authentication instance.
 	 *
@@ -17,7 +26,7 @@ export default class ClientSecret extends Authenticator {
 	 * requested by a service instead of a user.
 	 * @access public
 	 */
-	constructor(opts) {
+	constructor(opts?: ClientSecretParams) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
@@ -64,7 +73,7 @@ export default class ClientSecret extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get hashParams() {
+	get hashParams(): AuthenticatorHashParams {
 		return {
 			clientSecret: this.clientSecret
 		};

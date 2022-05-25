@@ -1,8 +1,8 @@
 /* eslint-disable promise/no-nesting */
 
-import Auth from './auth';
+import Auth from './auth.js';
 import crypto from 'crypto';
-import E from './errors';
+import E from './errors.js';
 import fs from 'fs-extra';
 import getEndpoints from './endpoints.js';
 import open from 'open';

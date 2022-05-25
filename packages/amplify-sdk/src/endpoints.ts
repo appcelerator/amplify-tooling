@@ -1,5 +1,14 @@
 import E from './errors.js';
 
+export interface Endpoints {
+	auth:      string;
+	certs:     string;
+	logout:    string;
+	token:     string;
+	userinfo:  string;
+	wellKnown: string;
+}
+
 /**
  * Constructs all endpoints.
  *
@@ -9,7 +18,7 @@ import E from './errors.js';
  * @param {String} params.realm - The authentication realm.
  * @returns {Object}
  */
-export default function getEndpoints({ baseUrl, realm } = {}) {
+export default function getEndpoints({ baseUrl, realm }: { baseUrl?: string, realm?: string } = {}): Endpoints {
 	if (!baseUrl || typeof baseUrl !== 'string') {
 		throw E.INVALID_ARGUMENT('Expected baseUrl to be a non-empty string');
 	}

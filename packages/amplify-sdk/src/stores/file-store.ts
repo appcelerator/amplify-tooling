@@ -1,9 +1,10 @@
 import crypto from 'crypto';
-import E from '../errors';
+import E from '../errors.js';
 import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
-import TokenStore from './token-store';
+import TokenStore from './token-store.js';
+import { Account } from '../types.js';
 import { writeFileSync } from '@axway/amplify-utils';
 
 const { log, warn } = snooplogg('amplify-auth:file-store');
@@ -19,7 +20,7 @@ const algorithm = 'aes-128-cbc';
  * The initialization vector for encrypting and decrypting.
  * @type {Buffer}
  */
-const iv = new Buffer.alloc(16);
+const iv: Buffer = Buffer.alloc(16);
 
 /**
  * A file-based token store.
@@ -29,7 +30,15 @@ export default class FileStore extends TokenStore {
 	 * The name of the token store file.
 	 * @type {String}
 	 */
-	filename = '.tokenstore.v2';
+	filename: string = '.tokenstore.v2';
+
+	homeDir: string;
+
+	tokenStoreDir: string;
+
+	tokenStoreFile: string;
+
+	_key: string = '';
 
 	/**
 	 * Initializes the file store.
@@ -40,7 +49,7 @@ export default class FileStore extends TokenStore {
 	 * Use `opts.homeDir` instead.
 	 * @access public
 	 */
-	constructor(opts = {}) {
+	constructor(opts: { homeDir?: string, tokenStoreDir?: string } = {}) {
 		super(opts);
 
 		let { homeDir, tokenStoreDir } = opts;
@@ -65,7 +74,7 @@ export default class FileStore extends TokenStore {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async clear(baseUrl) {
+	async clear(baseUrl?: string): Promise<Account[]> {
 		const { entries, removed } = await super._clear(baseUrl);
 		if (entries.length) {
 			await this.save(entries);
@@ -82,18 +91,18 @@ export default class FileStore extends TokenStore {
 	 * @returns {Array}
 	 * @access private
 	 */
-	async decode(str) {
+	async decode(str: string): Promise<Account[]> {
 		let decipher;
 		try {
 			decipher = crypto.createDecipheriv(algorithm, await this.getKey(), iv);
-		} catch (e) {
+		} catch (e: any) {
 			e.amplifyCode = 'ERR_BAD_KEY';
 			throw e;
 		}
 
 		try {
 			return JSON.parse(decipher.update(str, 'hex', 'utf8') + decipher.final('utf8'));
-		} catch (e) {
+		} catch (e: any) {
 			// it's possible that there was a tokenstore on disk that was encrypted with an old key
 			// that no longer exists and the new key can't decode it, so just nuke the tokenstore
 			await this.remove();
@@ -109,7 +118,7 @@ export default class FileStore extends TokenStore {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async delete(accounts, baseUrl) {
+	 async delete(accounts: string | string[], baseUrl?: string): Promise<Account[]> {
 		const { entries, removed } = await super._delete(accounts, baseUrl);
 		if (entries.length) {
 			await this.save(entries);
@@ -126,11 +135,11 @@ export default class FileStore extends TokenStore {
 	 * @returns {String}
 	 * @access private
 	 */
-	async encode(data) {
+	async encode(data: Account[]) {
 		let cipher;
 		try {
 			cipher = crypto.createCipheriv(algorithm, await this.getKey(), iv);
-		} catch (e) {
+		} catch (e: any) {
 			e.amplifyCode = 'ERR_BAD_KEY';
 			throw e;
 		}
@@ -143,7 +152,7 @@ export default class FileStore extends TokenStore {
 	 * @returns {Buffer}
 	 * @access private
 	 */
-	async getKey() {
+	async getKey(): Promise<string> {
 		if (!this._key) {
 			Object.defineProperty(this, '_key', {
 				value: 'd4be0906bc9fae40'
@@ -158,7 +167,7 @@ export default class FileStore extends TokenStore {
 	 * @returns {Promise<Array>} Resolves an array of tokens.
 	 * @access public
 	 */
-	async list() {
+	async list(): Promise<Account[]> {
 		if (fs.existsSync(this.tokenStoreFile)) {
 			try {
 				log(`Reading ${highlight(this.tokenStoreFile)}`);
@@ -184,7 +193,7 @@ export default class FileStore extends TokenStore {
 	 * @returns {Promise}
 	 * @access private
 	 */
-	async remove() {
+	async remove(): Promise<void> {
 		for (let ver = 1; ver <= 2; ver++) {
 			const file = ver === 2 ? this.tokenStoreFile : path.join(this.homeDir, this.filename.replace(/\.v2$/, ''));
 			log(`Removing ${highlight(file)}`);
@@ -199,14 +208,14 @@ export default class FileStore extends TokenStore {
 	 * @returns {Promise}
 	 * @access private
 	 */
-	async save(entries) {
+	async save(entries: Account[]): Promise<void> {
 		// Auth SDK v2 changed the structure of the data in the token store, but some dependencies
 		// still rely on Auth SDK v1's structure. We can't change force them to update and we can't
 		// change the structure, so we have to write two versions of the token store. v2 is written
 		// as is, but for v1, the data is translated into Auth SDK v1's structure.
 		for (let ver = 1; ver <= 2; ver++) {
-			const data = await this.encode(ver === 2 ? entries : entries.map(acct => {
-				const v1 = {
+			const data = await this.encode(ver === 2 ? entries : entries.map((acct: Account) => {
+				const v1: any = {
 					...acct,
 					...acct.auth,
 					org: {
@@ -223,7 +232,7 @@ export default class FileStore extends TokenStore {
 				delete v1.auth;
 				delete v1.org.id;
 
-				return v1;
+				return v1 as Account;
 			}));
 			const file = ver === 2 ? this.tokenStoreFile : path.join(this.homeDir, this.filename.replace(/\.v2$/, ''));
 			log(`Writing ${highlight(file)}`);
@@ -238,7 +247,7 @@ export default class FileStore extends TokenStore {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async set(obj) {
+	async set(obj: Account): Promise<void> {
 		await this.save(await super._set(obj));
 	}
 }

@@ -1,9 +1,19 @@
+interface EnvironmentProps {
+	baseUrl: string;
+	platformUrl: string;
+	realm: string;
+}
+
+export interface EnvironmentInfo extends EnvironmentProps {
+	name: string;
+}
+
 /**
  * Environment specific default settings.
  *
  * @type {Object}
  */
-export const environments = {
+export const environments: { [key: string]: EnvironmentProps } = {
 	staging: {
 		baseUrl:     'https://login.axwaytest.net',
 		platformUrl: 'https://platform.axwaytest.net',
@@ -16,18 +26,18 @@ export const environments = {
 	}
 };
 
-const mapping = {
-	dev: 'staging',
-	development: 'staging',
-	preprod: 'staging',
-	preproduction: 'staging',
+const mapping: { [key: string]: string } = {
+	'dev':            'staging',
+	'development':    'staging',
+	'preprod':        'staging',
+	'preproduction':  'staging',
 	'pre-production': 'staging',
-	production: 'prod',
-	test: 'staging'
+	'production':     'prod',
+	'test':           'staging'
 };
 
-export function resolve(env) {
-	let environment = 'prod';
+export function resolve(env?: string): EnvironmentInfo {
+	let environment: string = 'prod';
 	if (env) {
 		if (typeof env !== 'string') {
 			throw new TypeError('Expected environment to be a string');

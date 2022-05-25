@@ -1,4 +1,5 @@
 import TokenStore from './token-store';
+import { Account } from '../types.js';
 
 /**
  * A operating-specific secure token store.
@@ -9,7 +10,7 @@ export default class MemoryStore extends TokenStore {
 	 *
 	 * @type {Array.<Object>}
 	 */
-	store = [];
+	store: Account[] = [];
 
 	/**
 	 * Removes all tokens.
@@ -18,7 +19,7 @@ export default class MemoryStore extends TokenStore {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async clear(baseUrl) {
+	async clear(baseUrl?: string): Promise<Account[]> {
 		const { entries, removed } = await super._clear(baseUrl);
 		this.store = entries;
 		return removed;
@@ -32,7 +33,7 @@ export default class MemoryStore extends TokenStore {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async delete(accounts, baseUrl) {
+	async delete(accounts: string | string[], baseUrl?: string): Promise<Account[]> {
 		const { entries, removed } = await super._delete(accounts, baseUrl);
 		this.store = entries;
 		return removed;
@@ -44,7 +45,7 @@ export default class MemoryStore extends TokenStore {
 	 * @returns {Promise<Array>} Resolves an array of tokens.
 	 * @access public
 	 */
-	async list() {
+	async list(): Promise<Account[]> {
 		return this.purge(this.store);
 	}
 
@@ -55,7 +56,7 @@ export default class MemoryStore extends TokenStore {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async set(data) {
+	async set(data: Account): Promise<void> {
 		this.store = await super._set(data);
 	}
 }

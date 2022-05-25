@@ -1,10 +1,11 @@
 /* eslint-disable security/detect-non-literal-require */
 
 import crypto from 'crypto';
-import E from '../errors';
-import FileStore from './file-store';
+import E from '../errors.js';
+import FileStore from './file-store.js';
 import path from 'path';
 import snooplogg from 'snooplogg';
+import { RequestOptions } from '@axway/amplify-request';
 
 const { log, warn } = snooplogg('amplify-sdk:auth:secure-store');
 
@@ -16,7 +17,11 @@ export default class SecureStore extends FileStore {
 	 * The name of the token store file.
 	 * @type {String}
 	 */
-	filename = '.tokenstore.secure.v2';
+	filename: string = '.tokenstore.secure.v2';
+
+	keytar: any;
+
+	serviceName: string;
 
 	/**
 	 * Loads the `keytar` library and initializes the token file.
@@ -29,7 +34,7 @@ export default class SecureStore extends FileStore {
      * using this library.
 	 * @access public
 	 */
-	constructor(opts = {}) {
+	constructor(opts: { homeDir?: string, requestOptions?: RequestOptions, secureServiceName?: string } = {}) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected opts to be an object');
 		}
@@ -52,10 +57,10 @@ export default class SecureStore extends FileStore {
 	 * @returns {Array}
 	 * @access private
 	 */
-	async decode(str) {
+	async decode(str: string) {
 		try {
 			return await super.decode(str);
-		} catch (e) {
+		} catch (e: any) {
 			if (e.amplifyCode === 'ERR_BAD_KEY') {
 				const keytar = await this.getKeytar();
 				await keytar.deletePassword(this.serviceName, this.serviceName);
@@ -70,14 +75,14 @@ export default class SecureStore extends FileStore {
 	 * @returns {String}
 	 * @access private
 	 */
-	async getKey() {
+	async getKey(): Promise<string> {
 		if (!this._key) {
 			let key;
 			const keytar = await this.getKeytar();
 
 			try {
 				key = await keytar.getPassword(this.serviceName, this.serviceName);
-			} catch (err) {
+			} catch (err: any) {
 				if (process.platform === 'linux') {
 					// this is likely due to d-bus daemon not running (i.e. "Connection refused") or
 					// running in a non-desktop (headless) environment (i.e. "Cannot autolaunch D-Bus without X11")

@@ -1,21 +1,37 @@
-import E from '../errors';
+import E from '../errors.js';
 import ejs from 'ejs';
 import fs from 'fs-extra';
-import getEndpoints from '../endpoints';
+import getEndpoints, { Endpoints } from '../endpoints.js';
 import jws from 'jws';
 import open from 'open';
 import path from 'path';
 import snooplogg from 'snooplogg';
-import TokenStore from '../stores/token-store';
+import TokenStore from '../stores/token-store.js';
 
-import * as environments from '../environments';
+import * as environments from '../environments.js';
 import * as request from '@axway/amplify-request';
-import Server from '../server';
+import Server from '../server.js';
 
-import { createURL, md5, prepareForm } from '../util';
+import { createURL, md5, prepareForm } from '../util.js';
+import { Got } from 'got/dist/source/types.js';
 
 const { log, warn } = snooplogg('amplify-auth:authenticator');
 const { green, highlight, red, note } = snooplogg.styles;
+
+export interface AuthenticatorParams {
+	accessType?: string;
+	baseUrl?: string;
+	clientId: string;
+	endpoint?: string;
+	env?: string;
+	persistSecrets?: boolean;
+	got?: Got;
+	platformUrl: string;
+	realm: string;
+	responseType?: string;
+	scope?: string;
+	tokenStore: TokenStore;
+}
 
 /**
  * Orchestrates authentication and token management.
@@ -41,7 +57,7 @@ export default class Authenticator {
 	 * @type {String}
 	 * @access private
 	 */
-	accessType = 'offline';
+	accessType: string = 'offline';
 
 	/**
 	 * Defines if this authentication method is interactive. If `true`, then it will not attempt to
@@ -50,7 +66,7 @@ export default class Authenticator {
 	 * @type {Boolean}
 	 * @access private
 	 */
-	interactive = false;
+	interactive: boolean = false;
 
 	/**
 	 * When `true`, adds the authenticator params (client secret, private key, username/password)
@@ -85,6 +101,14 @@ export default class Authenticator {
 	 */
 	tokenStore = null;
 
+	baseUrl: string = '';
+
+	endpoints: Endpoints;
+
+	env: environments.EnvironmentInfo;
+
+	platformUrl: string;
+
 	/**
 	 * Initializes the authenticator instance.
 	 *
@@ -107,7 +131,7 @@ export default class Authenticator {
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
 	 * @access public
 	 */
-	constructor(opts) {
+	constructor(opts: AuthenticatorParams) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
@@ -125,7 +149,7 @@ export default class Authenticator {
 
 		this.platformUrl = opts.platformUrl || this.env.platformUrl;
 
-		this.persistSecrets = opts.persistSecrets;
+		this.persistSecrets = !!opts.persistSecrets;
 
 		// validate the required string properties
 		for (const prop of [ 'clientId', 'realm' ]) {
@@ -219,7 +243,7 @@ export default class Authenticator {
 			}
 			account.org.name = org_name;
 			account.org.guid = org_guid;
-		} catch (err) {
+		} catch (err: any) {
 			const status = err.response?.statusCode;
 			warn(`Fetch user info failed: ${err.message}${status ? ` (${status})` : ''}`);
 		}
@@ -278,7 +302,7 @@ export default class Authenticator {
 				});
 				log(`${(response.statusCode >= 400 ? red : green)(String(response.statusCode))} ${highlight(url)}`);
 				return response;
-			} catch (err) {
+			} catch (err: any) {
 				if (err.code === 'ECONNREFUSED') {
 					// don't change the code, just re-throw
 					throw err;
@@ -357,7 +381,7 @@ export default class Authenticator {
 			if (orgId) {
 				org = { name: orgId, id: orgId };
 			}
-		} catch (e) {
+		} catch (e: any) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
 		}
 
@@ -558,7 +582,7 @@ export default class Authenticator {
 		}
 		try {
 			await open(authorizationUrl, opts);
-		} catch (err) {
+		} catch (err: any) {
 			const m = err.message.match(/Exited with code (\d+)/i);
 			throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
 		}
