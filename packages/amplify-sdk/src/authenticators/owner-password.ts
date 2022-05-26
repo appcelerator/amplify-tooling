@@ -1,7 +1,12 @@
-import Authenticator, { AuthenticatorParams } from './authenticator';
+import Authenticator, {
+	AuthenticatorOptions,
+	AuthenticatorParamsResult,
+	HashParamsResult,
+	TokenParamsResult
+} from './authenticator.js';
 import E from '../errors';
 
-interface OwnerPasswordParams extends AuthenticatorParams {
+export interface OwnerPasswordOptions extends AuthenticatorOptions {
     username?: string;
     password?: string;
 }
@@ -10,8 +15,8 @@ interface OwnerPasswordParams extends AuthenticatorParams {
  * Authentication scheme using a username and password.
  */
 export default class OwnerPassword extends Authenticator {
-	username?: string;
-    password?: string;
+	username!: string;
+    password!: string;
 
 	/**
 	 * Initializes an owner password authentication instance.
@@ -21,7 +26,7 @@ export default class OwnerPassword extends Authenticator {
 	 * @param {String} opts.password - The password used to authenticate.
 	 * @access public
 	 */
-	constructor(opts: OwnerPasswordParams) {
+	constructor(opts: OwnerPasswordOptions) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
@@ -47,7 +52,7 @@ export default class OwnerPassword extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get authenticatorParams() {
+	get authenticatorParams(): AuthenticatorParamsResult {
 		return {
 			username: this.username,
 			password: this.password
@@ -60,7 +65,7 @@ export default class OwnerPassword extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get hashParams() {
+	get hashParams(): HashParamsResult {
 		return {
 			username: this.username
 		};
@@ -72,7 +77,7 @@ export default class OwnerPassword extends Authenticator {
 	 * @type {?Object}
 	 * @access private
 	 */
-	get tokenParams() {
+	get tokenParams(): TokenParamsResult {
 		return {
 			grantType: Authenticator.GrantTypes.Password,
 			username:  this.username,

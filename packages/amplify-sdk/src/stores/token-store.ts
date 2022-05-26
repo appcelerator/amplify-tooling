@@ -9,8 +9,8 @@ const { log } = snooplogg('amplify-sdk:auth:token-store');
 const { highlight } = snooplogg.styles;
 
 export interface StoreMutateResult {
-	entries: Account[];
-	removed: Account[];
+	entries: Account[],
+	removed: Account[]
 }
 
 /**

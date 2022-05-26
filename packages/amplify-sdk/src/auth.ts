@@ -1,10 +1,10 @@
 import E from './errors.js';
 
-import Authenticator from './authenticators/authenticator.js';
-import ClientSecret from './authenticators/client-secret.js';
-import OwnerPassword from './authenticators/owner-password.js';
+import Authenticator, { AuthenticatorOptions } from './authenticators/authenticator.js';
+import ClientSecret, { ClientSecretOptions } from './authenticators/client-secret.js';
+import OwnerPassword, { OwnerPasswordOptions } from './authenticators/owner-password.js';
 import PKCE from './authenticators/pkce.js';
-import SignedJWT from './authenticators/signed-jwt.js';
+import SignedJWT, { SignedJWTOptions } from './authenticators/signed-jwt.js';
 
 import FileStore from './stores/file-store.js';
 import MemoryStore from './stores/memory-store.js';
@@ -16,21 +16,101 @@ import snooplogg from 'snooplogg';
 
 import * as environments from './environments.js';
 import * as request from '@axway/amplify-request';
+import { Account, AccountAuthInfo } from './types.js';
+import { Got } from 'got/dist/source/types.js';
 
 const { log, warn } = snooplogg('amplify-sdk:auth');
 const { alert, highlight, magenta, note } = snooplogg.styles;
+
+export interface AuthOptions {
+	baseUrl?: string,
+	clientId?: string,
+	clientSecret?: string,
+	env?: string,
+	got?: Got,
+	homeDir?: string,
+	interactiveLoginTimeout?: number,
+	password?: string,
+	persistSecrets?: boolean,
+	platformUrl?: string,
+	realm?: string,
+	requestOptions?: request.RequestOptions,
+	secretFile?: string,
+	secureServiceName?: string,
+	serviceAccount?: boolean,
+	tokenRefreshThreshold?: number,
+	tokenStore?: TokenStore,
+	tokenStoreDir?: string,
+	tokenStoreType?: 'auto' | 'secure' | 'file' | 'memory',
+	username?: string
+}
+
+export interface DefaultOptions {
+	accountName?: string,
+	app?: string | string[],
+	authenticator?: Authenticator,
+	baseUrl?: string,
+	clientId?: string,
+	clientSecret?: string,
+	code?: string,
+	env?: string,
+	got?: Got,
+	hash?: string,
+	interactiveLoginTimeout?: number,
+	manual?: boolean,
+	onOpenBrowser?: (p: { url: string }) => void,
+	password?: string,
+	persistSecrets?: boolean,
+	platformUrl?: string,
+	realm?: string,
+	secretFile?: string,
+	serviceAccount?: boolean,
+	timeout?: number,
+	username?: string
+}
+
+export interface ServerInfoOptions {
+	baseUrl?: string,
+	env?: string,
+	realm?: string,
+	url?: string
+}
 
 /**
  * Authenticates the machine and retreives the auth token.
  */
 export default class Auth {
+	baseUrl?: string;
+
+	clientId?: string;
+
+	clientSecret?: string;
+
+	env: string;
+
+	got!: Got;
+
+	interactiveLoginTimeout?: number;
+
+	password?: string;
+
+	persistSecrets?: boolean;
+
+	platformUrl?: string;
+
+	realm?: string;
+
+	secretFile?: string;
+
+	serviceAccount?: boolean;
+
 	/**
 	 * The number of seconds before the access token expires and should be refreshed.
 	 *
 	 * @type {Number}
 	 * @access private
 	 */
-	tokenRefreshThreshold = 0;
+	tokenRefreshThreshold: number = 0;
 
 	/**
 	 * The store to persist the token.
@@ -38,7 +118,9 @@ export default class Auth {
 	 * @type {TokenStore}
 	 * @access private
 	 */
-	tokenStore = null;
+	tokenStore: TokenStore | null = null;
+
+	username?: string;
 
 	/**
 	 * Initializes the authentication instance by setting the default settings and creating the
@@ -72,7 +154,7 @@ export default class Auth {
 	 * using this library when using the "secure" token store.
 	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
 	 * requested by a service instead of a user.
-	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
+	 * @param {number} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
 	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
 	 * @param {String} [opts.tokenStoreDir] - The directory where the token store is saved. Required
@@ -84,13 +166,16 @@ export default class Auth {
 	 * @param {String} [opts.username] - The username used to authenticate. Requires a `password`.
 	 * @access public
 	 */
-	constructor(opts = {}) {
+	constructor(opts: AuthOptions = {}) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
 		if (opts.tokenRefreshThreshold !== undefined) {
-			const threshold = parseInt(opts.tokenRefreshThreshold, 10);
+			let threshold = opts.tokenRefreshThreshold;
+			if (typeof threshold === 'string') {
+				threshold = parseInt(threshold, 10);
+			}
 			if (isNaN(threshold)) {
 				throw E.INVALID_PARAMETER('Expected token refresh threshold to be a number of seconds');
 			}
@@ -108,7 +193,6 @@ export default class Auth {
 			clientSecret:   { value: opts.clientSecret },
 			got:            { value: opts.got || request.init(opts.requestOptions) },
 			interactiveLoginTimeout: { value: opts.interactiveLoginTimeout },
-			messages:       { value: opts.messages },
 			password:       { value: opts.password },
 			realm:          { value: opts.realm },
 			persistSecrets: { writable: true, value: opts.persistSecrets },
@@ -138,7 +222,7 @@ export default class Auth {
 							this.persistSecrets = true;
 						}
 						break;
-					} catch (e) {
+					} catch (e: any) {
 						/* istanbul ignore if */
 						if (tokenStoreType === 'auto') {
 							// let 'auto' fall through
@@ -153,7 +237,7 @@ export default class Auth {
 					try {
 						this.tokenStore = new FileStore(opts);
 						break;
-					} catch (e) {
+					} catch (e: any) {
 						/* istanbul ignore if */
 						if (tokenStoreType === 'auto' && e.code === 'ERR_MISSING_REQUIRED_PARAMETER') {
 							// let 'auto' fall through
@@ -182,7 +266,7 @@ export default class Auth {
 	 * @returns {Object}
 	 * @access private
 	 */
-	applyDefaults(opts = {}) {
+	applyDefaults(opts: DefaultOptions = {}) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
@@ -201,7 +285,6 @@ export default class Auth {
 			clientSecret:   opts.clientSecret || this.clientSecret,
 			env:            env.name,
 			got:            opts.got || this.got,
-			messages:       opts.messages || this.messages,
 			password:       opts.password || this.password,
 			persistSecrets: opts.persistSecrets !== undefined ? opts.persistSecrets : this.persistSecrets,
 			platformUrl:    opts.platformUrl || this.platformUrl,
@@ -229,7 +312,7 @@ export default class Auth {
 	 * @returns {Authenticator}
 	 * @access public
 	 */
-	createAuthenticator(opts = {}) {
+	createAuthenticator(opts: DefaultOptions = {}) {
 		if (opts.authenticator) {
 			if (!(opts.authenticator instanceof Authenticator)) {
 				throw E.INVALID_ARUGMENT('Expected authenticator to be an Authenticator instance.');
@@ -244,21 +327,21 @@ export default class Auth {
 
 		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
 			log(`Creating ${highlight('OwnerPassword')} authenticator`);
-			return new OwnerPassword(opts);
+			return new OwnerPassword(opts as OwnerPasswordOptions);
 		}
 
 		if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
 			log(`Creating ${highlight('ClientSecret')} authenticator`);
-			return new ClientSecret(opts);
+			return new ClientSecret(opts as ClientSecretOptions);
 		}
 
 		if (typeof opts.secretFile === 'string' && opts.secretFile) {
 			log(`Creating ${highlight('SignedJWT')} authenticator`);
-			return new SignedJWT(opts);
+			return new SignedJWT(opts as SignedJWTOptions);
 		}
 
 		log(`Creating ${highlight('PKCE')} authenticator`);
-		return new PKCE(opts);
+		return new PKCE(opts as AuthenticatorOptions);
 	}
 
 	/**
@@ -286,7 +369,7 @@ export default class Auth {
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
-	async find(opts = {}) {
+	async find(opts: DefaultOptions = {}) {
 		if (!this.tokenStore) {
 			log('Cannot get account, no token store');
 			return null;
@@ -303,16 +386,18 @@ export default class Auth {
 			opts.hash = authenticator.hash;
 		}
 
-		const account = await this.tokenStore.get(opts);
+		const account: Account | null = await this.tokenStore.get(opts);
 		if (!account) {
 			return;
 		}
 
 		// copy over the correct auth params
 		for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env', 'clientSecret', 'username', 'password', 'secret' ]) {
-			if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
-				log(`Overriding "${prop}" auth param with account's: ${opts[prop]} -> ${account.auth[prop]}`);
-				opts[prop] = account.auth[prop];
+			if (account.auth[prop as keyof AccountAuthInfo] &&
+				opts[prop as keyof DefaultOptions] !== account.auth[prop as keyof AccountAuthInfo]) {
+
+				log(`Overriding "${prop}" auth param with account's: ${opts[prop as keyof DefaultOptions]} -> ${account.auth[prop as keyof AccountAuthInfo]}`);
+				opts[prop as keyof DefaultOptions] = account.auth[prop as keyof AccountAuthInfo] as any;
 			}
 		}
 		authenticator = this.createAuthenticator(opts);
@@ -339,7 +424,7 @@ export default class Auth {
 			try {
 				log(`Refreshing access token for account ${highlight(account.name || account.hash)}`);
 				return await authenticator.getToken(null, null, true);
-			} catch (err) {
+			} catch (err: any) {
 				if (err.code !== 'EINVALIDGRANT') {
 					throw err;
 				}
@@ -356,7 +441,7 @@ export default class Auth {
 
 		try {
 			return await authenticator.getInfo(account);
-		} catch (err) {
+		} catch (err: any) {
 			if (err.statusCode === 401) {
 				warn(`Removing invalid account ${highlight(account.name || account.hash)} due to stale token`);
 				await this.tokenStore.delete(account.name, opts.baseUrl);
@@ -376,7 +461,7 @@ export default class Auth {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	async list() {
+	async list(): Promise<Account[]> {
 		if (this.tokenStore) {
 			return (await this.tokenStore.list())
 				.filter(account => (account.auth.env || 'prod') === this.env);
@@ -407,7 +492,7 @@ export default class Auth {
 	 * user info.
 	 * @access public
 	 */
-	async login(opts = {}) {
+	async login(opts: DefaultOptions = {}) {
 		opts = this.applyDefaults(opts);
 		const authenticator = this.createAuthenticator(opts);
 		return await authenticator.login(opts);
@@ -423,14 +508,14 @@ export default class Auth {
 	 * @returns {Promise<Array>} Resolves a list of revoked credentials.
 	 * @access public
 	 */
-	async logout({ accounts, all, baseUrl } = {}) {
+	async logout({ accounts, all, baseUrl }: { accounts: string[], all?: boolean, baseUrl?: string }) {
 		if (!this.tokenStore) {
 			log('No token store, returning empty array');
 			return [];
 		}
 
 		if (!all) {
-			if (!accounts) {
+			if (!accounts){ 
 				throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
 			}
 			if (typeof accounts === 'string') {
@@ -459,7 +544,7 @@ export default class Auth {
 					try {
 						const { statusCode } = await this.got(url, { responseType: 'json', retry: { limit: 0 } });
 						log(`Successfully logged out ${highlight(entry.name)} ${magenta(statusCode)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
-					} catch (err) {
+					} catch (err: any) {
 						log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
 					}
 				}
@@ -481,7 +566,7 @@ export default class Auth {
 	 * @returns {Promise<Object>}
 	 * @access public
 	 */
-	async serverInfo(opts = {}) {
+	async serverInfo(opts: ServerInfoOptions = {}) {
 		opts = this.applyDefaults(opts);
 
 		let { url } = opts;
@@ -497,7 +582,7 @@ export default class Auth {
 		try {
 			log(`Fetching server info: ${highlight(url)}...`);
 			return (await this.got(url, { responseType: 'json', retry: { limit: 0 } })).body;
-		} catch (err) {
+		} catch (err: any) {
 			if (err.name !== 'ParseError') {
 				err.message = `Failed to get server info (status ${err.response.statusCode})`;
 			}
@@ -512,7 +597,7 @@ export default class Auth {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async updateAccount(account) {
+	async updateAccount(account: Account) {
 		if (this.tokenStore) {
 			await this.tokenStore.set(account);
 		}

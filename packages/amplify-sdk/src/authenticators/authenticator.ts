@@ -10,19 +10,20 @@ import TokenStore from '../stores/token-store.js';
 
 import * as environments from '../environments.js';
 import * as request from '@axway/amplify-request';
-import Server from '../server.js';
+import Server, { CallbackHandle } from '../server.js';
 
+import { Account } from '../types.js';
 import { createURL, md5, prepareForm } from '../util.js';
 import { Got } from 'got/dist/source/types.js';
 
 const { log, warn } = snooplogg('amplify-auth:authenticator');
 const { green, highlight, red, note } = snooplogg.styles;
 
-export interface AuthenticatorParams {
+export interface AuthenticatorOptions {
 	accessType?: string;
 	baseUrl?: string;
 	clientId: string;
-	endpoint?: string;
+	endpoints?: Endpoints;
 	env?: string;
 	persistSecrets?: boolean;
 	got?: Got;
@@ -31,6 +32,26 @@ export interface AuthenticatorParams {
 	responseType?: string;
 	scope?: string;
 	tokenStore: TokenStore;
+}
+
+export interface ManualLoginResult {
+	cancel: () => Promise<void>,
+	promise: Promise<void>,
+	url: string
+}
+
+export type AuthenticatorParamsResult = { [key: string]: string } | null;
+export type AuthorizationUrlParamsResult = { [key: string]: string } | null;
+export type HashParamsResult = { [key: string]: string } | null;
+export type TokenParamsResult = { [key: string]: string } | null;
+export type RefreshTokenParamsResult = { [key: string]: string } | null;
+
+interface LoginOptions {
+	app?: string | string[],
+	code?: string,
+	manual?: boolean,
+	onOpenBrowser?: (p: { url: string }) => void,
+	timeout?: number
 }
 
 /**
@@ -99,15 +120,21 @@ export default class Authenticator {
 	 * @type {TokenStore}
 	 * @access private
 	 */
-	tokenStore = null;
+	tokenStore: TokenStore | null = null;
 
 	baseUrl: string = '';
+
+	clientId: string = '';
 
 	endpoints: Endpoints;
 
 	env: environments.EnvironmentInfo;
 
+	got: Got;
+
 	platformUrl: string;
+
+	realm: string = '';
 
 	/**
 	 * Initializes the authenticator instance.
@@ -131,7 +158,7 @@ export default class Authenticator {
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
 	 * @access public
 	 */
-	constructor(opts: AuthenticatorParams) {
+	constructor(opts: AuthenticatorOptions) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
@@ -152,21 +179,36 @@ export default class Authenticator {
 		this.persistSecrets = !!opts.persistSecrets;
 
 		// validate the required string properties
-		for (const prop of [ 'clientId', 'realm' ]) {
-			if (opts[prop] === undefined || !opts[prop] || typeof opts[prop] !== 'string') {
-				throw E.MISSING_REQUIRED_PARAMETER(`Expected required parameter "${prop}" to be a non-empty string`);
-			}
-			this[prop] = opts[prop];
+		if (!opts.clientId || typeof opts.clientId !== 'string') {
+			throw E.MISSING_REQUIRED_PARAMETER(`Expected required parameter "clientId" to be a non-empty string`);
 		}
+		this.clientId = opts.clientId;
+
+		if (!opts.realm || typeof opts.realm !== 'string') {
+			throw E.MISSING_REQUIRED_PARAMETER(`Expected required parameter "realm" to be a non-empty string`);
+		}
+		this.realm = opts.realm;
 
 		// validate optional string options
-		for (const prop of [ 'accessType', 'responseType', 'scope' ]) {
-			if (opts[prop] !== undefined) {
-				if (typeof opts[prop] !== 'string') {
-					throw E.INVALID_PARAMETER(`Expected parameter "${prop}" to be a string`);
-				}
-				this[prop] = opts[prop];
+		if (opts.accessType !== undefined) {
+			if (typeof opts.accessType !== 'string') {
+				throw E.INVALID_PARAMETER(`Expected parameter "accessType" to be a string`);
 			}
+			this.accessType = opts.accessType;
+		}
+
+		if (opts.responseType !== undefined) {
+			if (typeof opts.responseType !== 'string') {
+				throw E.INVALID_PARAMETER(`Expected parameter "responseType" to be a string`);
+			}
+			this.responseType = opts.responseType;
+		}
+
+		if (opts.scope !== undefined) {
+			if (typeof opts.scope !== 'string') {
+				throw E.INVALID_PARAMETER(`Expected parameter "scope" to be a string`);
+			}
+			this.scope = opts.scope;
 		}
 
 		// define the endpoints
@@ -181,10 +223,10 @@ export default class Authenticator {
 				if (!url || typeof url !== 'string') {
 					throw E.INVALID_PARAMETER(`Expected "${name}" endpoint URL to be a non-empty string`);
 				}
-				if (!this.endpoints[name]) {
+				if (!this.endpoints[name as keyof Endpoints]) {
 					throw E.INVALID_VALUE(`Invalid endpoint "${name}"`);
 				}
-				this.endpoints[name] = url;
+				this.endpoints[name as keyof Endpoints] = url;
 			}
 		}
 
@@ -195,7 +237,7 @@ export default class Authenticator {
 			this.tokenStore = opts.tokenStore;
 		}
 
-		this.got = opts.got || request.got;
+		this.got = (opts.got || request.got) as Got;
 	}
 
 	/* istanbul ignore next */
@@ -205,7 +247,7 @@ export default class Authenticator {
 	 * @type {?Object}
 	 * @access private
 	 */
-	get authorizationUrlParams() {
+	get authorizationUrlParams(): AuthorizationUrlParamsResult {
 		return null;
 	}
 
@@ -216,7 +258,7 @@ export default class Authenticator {
 	 * @returns {Object} The original account object.
 	 * @access public
 	 */
-	async getInfo(account) {
+	async getInfo(account: Account): Promise<Account> {
 		try {
 			const accessToken = account.auth.tokens.access_token;
 			log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
@@ -228,7 +270,7 @@ export default class Authenticator {
 				responseType: 'json',
 				retry: { limit: 0 }
 			});
-			const { email, family_name, given_name, guid, org_guid, org_name } = body;
+			const { email, family_name, given_name, guid, org_guid, org_name } = body as { [key: string]: string };
 
 			if (!account.user || typeof account.user !== 'object') {
 				account.user = {};
@@ -265,10 +307,26 @@ export default class Authenticator {
 	 * @returns {Promise<Object>} Resolves the account object.
 	 * @access private
 	 */
-	async getToken(code, redirectUri, force) {
+	async getToken(code?: string | null, redirectUri?: string | null, force?: boolean): Promise<Account> {
+		interface FetchTokenParams {
+			clientId?: string,
+			code: string,
+			grantType?: string,
+			redirectUri: string,
+			refreshToken?: string
+		}
+
+		interface TokenResponse {
+			access_token: string,
+			expires_in: number,
+			id_token: string,
+			refresh_expires_in: number,
+			refresh_token: string
+		}
+
 		let now = Date.now();
 		let expires;
-		let tokens;
+		let tokens: TokenResponse | null = null;
 		let response;
 
 		// if you have a code, then you probably don't want to have gone through all the hassle of
@@ -292,12 +350,12 @@ export default class Authenticator {
 		}
 
 		const url = this.endpoints.token;
-		const fetchTokens = async params => {
+		const fetchTokens = async (params: FetchTokenParams) => {
 			try {
 				log(`Fetching token: ${highlight(url)}`);
 				log('Post form:', { ...params, password: '********' });
 				const response = await this.got.post(url, {
-					form: prepareForm(params),
+					form: prepareForm(params as any),
 					responseType: 'json'
 				});
 				log(`${(response.statusCode >= 400 ? red : green)(String(response.statusCode))} ${highlight(url)}`);
@@ -328,13 +386,13 @@ export default class Authenticator {
 			}
 		};
 
-		if (tokens?.refresh_token && expires.refresh && expires.refresh > now) {
+		if (tokens && tokens.refresh_token && expires && expires.refresh && expires.refresh > now) {
 			log('Refreshing token using refresh token');
 			response = await fetchTokens(Object.assign({
 				clientId:     this.clientId,
 				grantType:    Authenticator.GrantTypes.RefreshToken,
 				refreshToken: tokens.refresh_token
-			}, this.refreshTokenParams));
+			}, this.refreshTokenParams) as any);
 
 		} else {
 			// get new token using the code
@@ -348,13 +406,13 @@ export default class Authenticator {
 					throw E.MISSING_AUTH_CODE('Expected code for interactive authentication to be a non-empty string');
 				}
 				params.code = code;
-				params.redirectUri = redirectUri;
+				params.redirectUri = redirectUri as string;
 			}
 
-			response = await fetchTokens(params);
+			response = await fetchTokens(params as any);
 		}
 
-		tokens = response.body;
+		tokens = response.body as TokenResponse;
 
 		log(`Authentication successful ${note(`(${response.headers['content-type']})`)}`);
 		log(tokens);
@@ -362,7 +420,7 @@ export default class Authenticator {
 		let email;
 		let guid;
 		let idp;
-		let org;
+		let org = {};
 		let name = this.hash;
 
 		try {
@@ -450,7 +508,7 @@ export default class Authenticator {
 	 * @type {String}
 	 * @access public
 	 */
-	get hash() {
+	get hash(): string {
 		return this.clientId.replace(/\s/g, '_').replace(/_+/g, '_') + ':' + md5(Object.assign({
 			baseUrl:  this.baseUrl,
 			env:      this.env.name === 'prod' ? undefined : this.env.name,
@@ -465,11 +523,11 @@ export default class Authenticator {
 	 * @type {?Object}
 	 * @access private
 	 */
-	get hashParams() {
+	get hashParams(): HashParamsResult {
 		return null;
 	}
 
-	get authenticatorParams() {
+	get authenticatorParams(): AuthenticatorParamsResult {
 		return null;
 	}
 
@@ -493,7 +551,7 @@ export default class Authenticator {
 	 * successfully authenticating.
 	 * @access public
 	 */
-	async login(opts = {}) {
+	async login(opts: LoginOptions = {}): Promise<Account | ManualLoginResult> {
 		if (!this.interactive || opts.code !== undefined) {
 			if (this.interactive) {
 				log('Retrieving tokens using auth code');
@@ -523,7 +581,7 @@ export default class Authenticator {
 			}));
 		});
 
-		const codeCallback = await server.createCallback(async (req, res, { searchParams }) => {
+		const codeCallback: CallbackHandle = await server.createCallback(async (req, res, { searchParams }) => {
 			const code = searchParams.get('code');
 			if (!code) {
 				throw new Error('Invalid auth code');
@@ -569,7 +627,9 @@ export default class Authenticator {
 		// if manual, return now with the auth url
 		if (opts.manual) {
 			return {
-				cancel: () => Promise.all([ codeCallback.cancel(), orgSelectedCallback.cancel() ]),
+				async cancel() {
+					await Promise.all([ codeCallback.cancel(), orgSelectedCallback.cancel() ]);
+				},
 				promise,
 				url: authorizationUrl
 			};
@@ -581,7 +641,7 @@ export default class Authenticator {
 			await opts.onOpenBrowser({ url: authorizationUrl });
 		}
 		try {
-			await open(authorizationUrl, opts);
+			await open(authorizationUrl, opts as open.Options);
 		} catch (err: any) {
 			const m = err.message.match(/Exited with code (\d+)/i);
 			throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
@@ -598,7 +658,7 @@ export default class Authenticator {
 	 * @type {?Object}
 	 * @access private
 	 */
-	get refreshTokenParams() {
+	get refreshTokenParams(): RefreshTokenParamsResult {
 		return null;
 	}
 
@@ -609,7 +669,7 @@ export default class Authenticator {
 	 * @type {?Object}
 	 * @access private
 	 */
-	get tokenParams() {
+	get tokenParams(): TokenParamsResult {
 		return null;
 	}
 }

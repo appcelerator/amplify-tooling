@@ -1,4 +1,10 @@
-import Authenticator, { AuthenticatorParams } from './authenticator.js';
+import Authenticator, {
+	AuthenticatorOptions,
+	AuthenticatorParamsResult,
+	HashParamsResult,
+	TokenParamsResult,
+	RefreshTokenParamsResult
+} from './authenticator.js';
 import E from '../errors.js';
 import fs from 'fs';
 import jws from 'jws';
@@ -8,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;
 
-interface SignedJWTParams extends AuthenticatorParams {
+export interface SignedJWTOptions extends AuthenticatorOptions {
     secret?: string;
     secretFile?: string;
 }
@@ -18,7 +24,9 @@ interface SignedJWTParams extends AuthenticatorParams {
  */
 export default class SignedJWT extends Authenticator {
 	shouldFetchOrgs: boolean;
-	signedJWT?: string;
+	signedJWT: string = '';
+	secret!: string;
+	secretFile: string = '';
 
 	/**
 	 * Initializes an PKCE authentication instance.
@@ -28,7 +36,7 @@ export default class SignedJWT extends Authenticator {
 	 * @param {String} [opts.secretFile] - The path to the private key file when `secret` is not set.
 	 * @access public
 	 */
-	constructor(opts?: SignedJWTParams) {
+	constructor(opts?: SignedJWTOptions) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
@@ -68,7 +76,7 @@ export default class SignedJWT extends Authenticator {
 	 * @returns {String}
 	 * @access private
 	 */
-	getSignedJWT() {
+	getSignedJWT(): string {
 		if (this.signedJWT) {
 			return this.signedJWT;
 		}
@@ -88,7 +96,7 @@ export default class SignedJWT extends Authenticator {
 				},
 				secret:  this.secret
 			});
-		} catch (err) {
+		} catch (err: any) {
 			err.message = `Bad secret file "${this.secretFile}" (${err.message})`;
 			throw err;
 		}
@@ -101,7 +109,7 @@ export default class SignedJWT extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get authenticatorParams() {
+	get authenticatorParams(): AuthenticatorParamsResult {
 		return {
 			secret: this.secret
 		};
@@ -113,7 +121,7 @@ export default class SignedJWT extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get hashParams() {
+	get hashParams(): HashParamsResult {
 		return {
 			secret: this.secret
 		};
@@ -125,7 +133,7 @@ export default class SignedJWT extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get refreshTokenParams() {
+	get refreshTokenParams(): RefreshTokenParamsResult {
 		return {
 			clientAssertion:     this.getSignedJWT(),
 			clientAssertionType: JWTAssertion
@@ -138,7 +146,7 @@ export default class SignedJWT extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get tokenParams() {
+	get tokenParams(): TokenParamsResult {
 		return {
 			clientAssertion:     this.getSignedJWT(),
 			clientAssertionType: JWTAssertion,

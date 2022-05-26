@@ -1,7 +1,8 @@
-import Authenticator, { AuthenticatorParams } from './authenticator.js';
+import Authenticator, {
+	AuthenticatorOptions,
+	TokenParamsResult
+} from './authenticator.js';
 import crypto from 'crypto';
-
-interface PKCEParams extends AuthenticatorParams {}
 
 /**
  * Authentication scheme using a Proof Key for Code Exchange (PKCE) and an interactive login.
@@ -12,7 +13,9 @@ export default class PKCE extends Authenticator {
 	 * authentication and verified by the server when retrieving the access token.
 	 * @type {String}
 	 */
-	codeVerifier: string | null = null;
+	codeVerifier: string = '';
+
+	interactive: boolean;
 
 	/**
 	 * Initializes an PKCE authentication instance.
@@ -20,7 +23,7 @@ export default class PKCE extends Authenticator {
 	 * @param {Object} opts - Various options.
 	 * @access public
 	 */
-	constructor(opts: PKCEParams) {
+	constructor(opts: AuthenticatorOptions) {
 		super(opts);
 
 		this.codeVerifier = crypto.randomBytes(32)
@@ -58,7 +61,7 @@ export default class PKCE extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get tokenParams() {
+	get tokenParams(): TokenParamsResult {
 		return {
 			codeVerifier: this.codeVerifier,
 			grantType:    Authenticator.GrantTypes.AuthorizationCode

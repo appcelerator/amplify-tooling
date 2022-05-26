@@ -4,6 +4,7 @@ import HttpProxyAgent from 'http-proxy-agent';
 import HttpsProxyAgent from 'https-proxy-agent';
 import prettyBytes from 'pretty-bytes';
 import snooplogg from 'snooplogg';
+import { Got } from 'got/dist/source/types.js';
 import { mergeDeep } from '@axway/amplify-utils';
 
 const { log } = snooplogg('amplify-request');
@@ -153,7 +154,7 @@ export function options(opts: RequestOptions = {}) {
  * for both `https` destinations and `https` proxy servers.
  * @returns {Function} A `got` instance.
  */
-export function init(opts: RequestOptions = {}) {
+export function init(opts: RequestOptions = {}): Got {
 	return got.extend(options(opts));
 }
 

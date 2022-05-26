@@ -1,9 +1,5 @@
 import crypto from 'crypto';
 
-interface FormParams {
-	[key: string]: string
-}
-
 /**
  * Appends query string parameters to a URL.
  *
@@ -11,7 +7,7 @@ interface FormParams {
  * @param {Object} params - A map of query string parameters.
  * @returns {String}
  */
-export function createURL(url: string, params: FormParams) {
+export function createURL(url: string, params: { [key: string]: string }) {
 	return `${url}${url.includes('?') ? '&' : '?'}${prepareForm(params).toString()}`;
 }
 
@@ -31,7 +27,7 @@ export function md5(it: string | any) {
  * @param {Object} params - The query string parameters to stringify.
  * @returns {Object}
  */
-export function prepareForm(params: FormParams) {
+export function prepareForm(params: { [key: string]: string }) {
 	const form = new URLSearchParams();
 	for (const prop of Object.keys(params).sort()) {
 		if (params[prop] !== undefined) {

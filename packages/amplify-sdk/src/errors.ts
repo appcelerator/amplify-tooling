@@ -1,5 +1,11 @@
+export interface AmplifySDKError extends Error {
+	code?: string,
+	body?: string,
+	statusCode?: number,
+	statusMessage?: string
+}
 
-type ErrorBuilder = (msg: string, meta?: any) => Error;
+type ErrorBuilder = (msg: string, meta?: any) => AmplifySDKError;
 type ErrorList = { [key: string]: ErrorBuilder };
 
 const errors: ErrorList = {};

@@ -15,21 +15,29 @@ const { green, highlight, red } = snooplogg.styles;
 const defaultPort = 3000;
 const defaultTimeout = 120000; // 2 minutes
 
-type RequestHandler = (req: http.IncomingMessage, res: http.OutgoingMessage, url: URL) => Promise<any>;
+type RequestHandler = (req: http.IncomingMessage, res: http.ServerResponse, url: URL) => Promise<any>;
 
 interface PendingHandler {
-	handler: RequestHandler;
-	resolve: (v: any) => void;
-	reject: (e: Error) => void;
-	timer: NodeJS.Timeout;
+	handler: RequestHandler,
+	resolve: (v: any) => void,
+	reject: (e: Error) => void,
+	timer: NodeJS.Timeout
 }
 
 interface ServerOptions {
-	timeout?: number;
+	timeout?: number
 }
 
 interface CallbackServer extends http.Server {
-	destroy: () => Promise<void>;
+	destroy: () => Promise<void>
+}
+
+export type CallbackResult = { result: any, url: string };
+
+export interface CallbackHandle {
+	cancel: () => Promise<void>,
+	start: () => Promise<CallbackResult>,
+	url: string
 }
 
 /**
@@ -69,7 +77,7 @@ export default class Server {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async createCallback(handler: RequestHandler) {
+	async createCallback(handler: RequestHandler): Promise<CallbackHandle> {
 		const requestId = crypto.randomBytes(4).toString('hex').toUpperCase();
 
 		log(`Creating callback: ${requestId}`);

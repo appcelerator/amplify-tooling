@@ -1,10 +1,16 @@
-import Authenticator, { AuthenticatorParams } from './authenticator.js';
+import Authenticator, {
+	AuthenticatorOptions,
+	AuthenticatorParamsResult,
+	AuthorizationUrlParamsResult,
+	HashParamsResult,
+	TokenParamsResult,
+	RefreshTokenParamsResult
+} from './authenticator.js';
 import E from '../errors.js';
-import { AuthenticatorHashParams } from '../types.js';
 
 const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
 
-interface ClientSecretParams extends AuthenticatorParams {
+export interface ClientSecretOptions extends AuthenticatorOptions {
     clientSecret?: string;
     serviceAccount?: boolean;
 }
@@ -14,7 +20,7 @@ interface ClientSecretParams extends AuthenticatorParams {
  * interactive unless it is a service account.
  */
 export default class ClientSecret extends Authenticator {
-	clientSecret: string = '';
+	clientSecret!: string;
 	shouldFetchOrgs: boolean;
 
 	/**
@@ -26,7 +32,7 @@ export default class ClientSecret extends Authenticator {
 	 * requested by a service instead of a user.
 	 * @access public
 	 */
-	constructor(opts?: ClientSecretParams) {
+	constructor(opts?: ClientSecretOptions) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
@@ -49,7 +55,7 @@ export default class ClientSecret extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get authenticatorParams() {
+	get authenticatorParams(): AuthenticatorParamsResult {
 		return {
 			clientSecret: this.clientSecret
 		};
@@ -61,7 +67,7 @@ export default class ClientSecret extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get authorizationUrlParams() {
+	get authorizationUrlParams(): AuthorizationUrlParamsResult {
 		return {
 			grantType: this.interactive ? AuthorizationCode : ClientCredentials
 		};
@@ -73,7 +79,19 @@ export default class ClientSecret extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get hashParams(): AuthenticatorHashParams {
+	get hashParams(): HashParamsResult {
+		return {
+			clientSecret: this.clientSecret
+		};
+	}
+
+	/**
+	 * Parameters to include with refresh requests.
+	 *
+	 * @type {Object}
+	 * @access private
+	 */
+	 get refreshTokenParams(): RefreshTokenParamsResult {
 		return {
 			clientSecret: this.clientSecret
 		};
@@ -85,22 +103,10 @@ export default class ClientSecret extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	get tokenParams() {
+	get tokenParams(): TokenParamsResult {
 		return {
 			clientSecret: this.clientSecret,
 			grantType:    this.interactive ? AuthorizationCode : ClientCredentials
-		};
-	}
-
-	/**
-	 * Parameters to include with refresh requests.
-	 *
-	 * @type {Object}
-	 * @access private
-	 */
-	get refreshTokenParams() {
-		return {
-			clientSecret: this.clientSecret
 		};
 	}
 }

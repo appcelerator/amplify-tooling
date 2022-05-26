@@ -38,7 +38,7 @@ export default class FileStore extends TokenStore {
 
 	tokenStoreFile: string;
 
-	_key: string = '';
+	_key!: string;
 
 	/**
 	 * Initializes the file store.
