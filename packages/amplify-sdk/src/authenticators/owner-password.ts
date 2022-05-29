@@ -7,8 +7,8 @@ import Authenticator, {
 import E from '../errors';
 
 export interface OwnerPasswordOptions extends AuthenticatorOptions {
-    username?: string;
-    password?: string;
+    username?: string,
+    password?: string
 }
 
 /**

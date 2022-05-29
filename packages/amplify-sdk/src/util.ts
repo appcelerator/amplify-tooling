@@ -7,7 +7,7 @@ import crypto from 'crypto';
  * @param {Object} params - A map of query string parameters.
  * @returns {String}
  */
-export function createURL(url: string, params: { [key: string]: string }) {
+export function createURL(url: string, params: { [key: string]: string | number | undefined }) {
 	return `${url}${url.includes('?') ? '&' : '?'}${prepareForm(params).toString()}`;
 }
 
@@ -27,12 +27,12 @@ export function md5(it: string | any) {
  * @param {Object} params - The query string parameters to stringify.
  * @returns {Object}
  */
-export function prepareForm(params: { [key: string]: string }) {
+export function prepareForm(params: { [key: string]: string | number | undefined }) {
 	const form = new URLSearchParams();
-	for (const prop of Object.keys(params).sort()) {
+	for (const prop of (Object.keys(params).sort() as string[])) {
 		if (params[prop] !== undefined) {
 			const name = prop.replace(/[A-Z]/g, (m, i) => `${i ? '_' : ''}${m.toLowerCase()}`);
-			form.append(name, params[prop]);
+			form.append(name, String(params[prop]));
 		}
 	}
 	return form;

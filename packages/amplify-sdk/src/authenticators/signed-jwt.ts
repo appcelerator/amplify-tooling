@@ -15,8 +15,8 @@ import { v4 as uuidv4 } from 'uuid';
 const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;
 
 export interface SignedJWTOptions extends AuthenticatorOptions {
-    secret?: string;
-    secretFile?: string;
+    secret?: string,
+    secretFile?: string
 }
 
 /**

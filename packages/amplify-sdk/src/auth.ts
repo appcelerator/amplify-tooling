@@ -69,6 +69,10 @@ export interface DefaultOptions {
 	username?: string
 }
 
+export interface ServerInfo {
+
+}
+
 export interface ServerInfoOptions {
 	baseUrl?: string,
 	env?: string,
@@ -369,7 +373,11 @@ export default class Auth {
 	 * @returns {Promise<?Object>}
 	 * @access public
 	 */
-	async find(opts: DefaultOptions = {}) {
+	async find(opts?: DefaultOptions | string) {
+		if (opts === undefined) {
+			opts = {};
+		}
+
 		if (!this.tokenStore) {
 			log('Cannot get account, no token store');
 			return null;
@@ -566,7 +574,7 @@ export default class Auth {
 	 * @returns {Promise<Object>}
 	 * @access public
 	 */
-	async serverInfo(opts: ServerInfoOptions = {}) {
+	async serverInfo(opts: ServerInfoOptions = {}): Promise<ServerInfo> {
 		opts = this.applyDefaults(opts);
 
 		let { url } = opts;
@@ -581,7 +589,7 @@ export default class Auth {
 
 		try {
 			log(`Fetching server info: ${highlight(url)}...`);
-			return (await this.got(url, { responseType: 'json', retry: { limit: 0 } })).body;
+			return (await this.got(url, { responseType: 'json', retry: { limit: 0 } })).body as ServerInfo;
 		} catch (err: any) {
 			if (err.name !== 'ParseError') {
 				err.message = `Failed to get server info (status ${err.response.statusCode})`;

@@ -1,6 +1,9 @@
 # v4.0.0
 
  * BREAKING CHANGE: Dropped support for Node.js 12 and older.
+ * BREAKING CHANGE: Removed `sdk.org.family()` from AmplifySDK.
+ * BREAKING CHANGE: Removed deprecated `childOrgs` and `parentOrg` properties from the organization
+   object.
 
 # v3.2.5 (May 11, 2022)
 

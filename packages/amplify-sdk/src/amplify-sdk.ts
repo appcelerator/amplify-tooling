@@ -1,6 +1,6 @@
 /* eslint-disable promise/no-nesting */
 
-import Auth from './auth.js';
+import Auth, { DefaultOptions, ServerInfo, ServerInfoOptions } from './auth.js';
 import crypto from 'crypto';
 import E from './errors.js';
 import fs from 'fs-extra';
@@ -12,7 +12,7 @@ import setCookie from 'set-cookie-parser';
 import snooplogg from 'snooplogg';
 import * as environments from './environments.js';
 import * as request from '@axway/amplify-request';
-import { Account, Org, Subscription } from './types.js';
+import { Account, Entitlement, Org, PlatformRole, Subscription, User } from './types.js';
 import { createURL } from './util.js';
 import { promisify } from 'util';
 import { redact } from '@axway/amplify-utils';
@@ -25,12 +25,15 @@ type OrgLike = Org | string | number;
 
 export interface AmplifySDKOptions {
 	baseUrl?: string,
+	clientSecret?: string,
 	env?: string,
 	got?: Got,
+	onOpenBrowser?: (p: { url: string }) => void,
 	password?: string,
 	platformUrl?: string,
 	realm?: string,
 	requestOptions?: request.RequestOptions,
+	secretFile?: string,
 	username?: string
 }
 
@@ -46,25 +49,187 @@ interface TeamInfo {
 	tags?: string[]
 }
 
-export interface Client {
+interface DefaultTeams {
+	[hash: string]: string
+}
 
+export interface Client {
+	client_id: string,
+	guid: string,
+	method: string,
+	name: string,
+	type: string
+}
+
+interface PlatformEnvironment {
+	guid: string,
+	name: string
+}
+
+export interface ActivityResult {
+	from: Date,
+	to: Date,
+	events: any
+}
+
+interface UsageParams {
+	from: string,
+	month: string | boolean,
+	to: string
+}
+
+class AlreadyAuthenticatedError extends Error {
+	account?: Account;
 }
 
 /**
  * An SDK for accessing Amplify API's.
  */
 export default class AmplifySDK {
-	baseUrl: string | null;
+	auth!: {
+		find: (accountName: string, defaultTeams?: DefaultTeams) => Promise<Account | null>,
+		findSession: (account: Account, defaultTeams?: DefaultTeams) => Promise<Account>,
+		list: (opts: {
+			defaultTeams?: DefaultTeams,
+			skip?: Account[],
+			validate?: boolean
+		}) => Promise<Account[]>,
+		loadSession: (account: Account, defaultTeams?: DefaultTeams) => Promise<Account | null>,
+		login: (opts: DefaultOptions & {
+			password?: string,
+			secretFile?: string,
+			username?: string
+		}) => Promise<Account>,
+		logout: ({ accounts, all, baseUrl }: {
+			accounts: string[],
+			all?: boolean,
+			baseUrl?: string,
+			onOpenBrowser?: (p: { url: string }) => void
+		}) => Promise<Account[]>,
+		serverInfo: (opts: ServerInfoOptions) => Promise<ServerInfo>,
+		switchOrg: (account: Account, org: OrgLike, opts: {
+			onOpenBrowser?: (p: { url: string }) => void
+		}) => Promise<Account | null>
+	};
+
+	baseUrl?: string;
+
+	client!: {
+		create: (account: Account, org: OrgLike, opts: {
+			desc?: string,
+			name: string,
+			publicKey?: string,
+			roles?: string[],
+			secret?: string,
+			teams?: Team[]
+		}) => Promise<{ org: Org, client: Client }>,
+		find: (account: Account, org: OrgLike, clientId: string) => Promise<{ client: Client, org: Org }>,
+		generateKeyPair: () => Promise<{ publicKey: string, privateKey: string }>,
+		list: (account: Account, org: OrgLike) => Promise<{ org: org, clients: Client[] }>,
+		remove: (account: Account, org: OrgLike, client: string) => Promise<{ client: Client, org: Org }>,
+		resolveClient: (account: Account, org: OrgLike, client: Client | string) => Promise<Client>,
+		resolveTeams: (account: Account, org: OrgLike, teams: Team[]) => Promise<Team[]>,
+		resolveType: (type: string) => string,
+		update: (account: Account, org: OrgLike, opts: {
+			client: Client | string,
+			desc?: string,
+			name?: string,
+			publicKey?: string,
+			roles?: string[],
+			secret?: string,
+			teams?: Team[]
+		}) => Promise<{ client: Client, org: Org }>
+	};
 
 	env: environments.EnvironmentInfo;
+
+	entitlement!: {
+		find: (account: Account, metric: string) => Promise<Entitlement>
+	};
 
 	got: Got;
 
 	opts: AmplifySDKOptions;
-	
-	platformUrl: string | null;
 
-	realm: string;
+	org!: {
+		activity: (account: Account, org: OrgLike, params?: {
+			from?: string,
+			month?: string | boolean,
+			to?: string
+		}) => Promise<ActivityResult>,
+		environments: (account: Account) => Promise<PlatformEnvironment>,
+		find: (account: Account, org: OrgLike) => Promise<Org>,
+		list: (account: Account, defaultOrg: string) => Promise<Org[]>
+		user: {
+			add: (account: Account, org: OrgLike, email: string, roles: string[]) => Promise<{ org: Org, user: User }>,
+			find: (account: Account, org: OrgLike, user: string) => Promise<User | undefined>,
+			list: (account: Account, org: OrgLike) => Promise<{ org: Org, users: User[] }>,
+			remove: (account: Account, org: OrgLike, user: string) => Promise<{
+				org: Org,
+				user: User
+			}>,
+			update: (account: Account, org: OrgLike, user: string, roles: string[]) => Promise<{
+				org: Org,
+				roles: string[],
+				user: User
+			}>,
+		},
+		rename: (account: Account, org: OrgLike, name: string) => Promise<{
+			name: string,
+			oldName: string
+		}>,
+		usage: (account: Account, org: OrgLike, params?: UsageParams) => Promise<{
+			bundle: {
+				metrics: {
+					[key: string]: {
+						metric: string,
+						info: {
+							name: string
+						}
+					}
+				}
+			}
+			from: Date,
+			to: Date
+		}>
+	};
+	
+	platformUrl?: string;
+
+	realm?: string;
+
+	role!: {
+		list: (account: Account, params?: {
+			client?: boolean,
+			default?: boolean,
+			org?: OrgLike,
+			team?: boolean
+		}) => Promise<PlatformRole[]>,
+		resolve: (account: Account, roles: string[], opts: {
+			client?: boolean,
+			default?: boolean,
+			org?: Org,
+			requireRoles?: boolean,
+			requireDefaultRole?: boolean,
+			team?: boolean
+		}) => Promise<string[]>
+	};
+
+	team!: {
+		create: (account: Account, org: OrgLike, name: string, info?: TeamInfo) => Promise<{
+			org: Org,
+			team: Team
+		}>,
+		find: (account: Account, org: OrgLike, team: string) => Promise<{ org: Org, team: Team }>,
+		list: (account: Account, org: OrgLike, user: string) => Promise<{ org: Org, teams: Team[] }>,
+		user: {
+			//
+		}
+	};
+
+	user!: {
+		//
+	};
 
 	userAgent: string;
 
@@ -118,13 +283,13 @@ export default class AmplifySDK {
 		 * The base Axway ID URL.
 		 * @type {String}
 		 */
-		this.baseUrl = opts.baseUrl ? opts.baseUrl.replace(/\/$/, '') : null;
+		this.baseUrl = opts.baseUrl ? opts.baseUrl.replace(/\/$/, '') : undefined;
 
 		/**
 		 * The platform URL.
 		 * @type {String}
 		 */
-		this.platformUrl = opts.platformUrl ? opts.platformUrl.replace(/\/$/, '') : null;
+		this.platformUrl = opts.platformUrl ? opts.platformUrl.replace(/\/$/, '') : undefined;
 
 		/**
 		 * The Axway ID realm.
@@ -152,7 +317,7 @@ export default class AmplifySDK {
 			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
-			find: async (accountName, defaultTeams) => {
+			find: async (accountName: string, defaultTeams?: DefaultTeams): Promise<Account | null> => {
 				const account = await this.authClient.find(accountName);
 				return account ? await this.auth.loadSession(account, defaultTeams) : null;
 			},
@@ -164,7 +329,7 @@ export default class AmplifySDK {
 			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
 			 * @returns {Promise<Object>} Resolves the original account info object.
 			 */
-			findSession: async (account, defaultTeams) => {
+			findSession: async (account: Account, defaultTeams?: DefaultTeams): Promise<Account> => {
 				if (defaultTeams && typeof defaultTeams !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected default teams to be an object');
 				}
@@ -174,7 +339,7 @@ export default class AmplifySDK {
 				});
 				account.isPlatform = !!result;
 
-				const populateOrgs = (org, orgs) => {
+				const populateOrgs = (org: Org, orgs: Org[]) => {
 					account.org = {
 						entitlements: Object
 							.entries(org.entitlements || {})
@@ -183,7 +348,7 @@ export default class AmplifySDK {
 									obj[name] = value;
 								}
 								return obj;
-							}, {}),
+							}, {} as Entitlement),
 						guid:          org.guid,
 						id:            org.org_id,
 						name:          org.name,
@@ -197,7 +362,7 @@ export default class AmplifySDK {
 						guid,
 						id: org_id,
 						name
-					}));
+					} as Org));
 				};
 
 				if (result) {
@@ -232,12 +397,12 @@ export default class AmplifySDK {
 					const selectedTeamGuid = defaultTeams?.[account.hash];
 
 					if (teams.length) {
-						const team = teams.find(t => (selectedTeamGuid && t.guid === selectedTeamGuid) || (!selectedTeamGuid && t.default)) || teams[0];
+						const team = teams.find((t: Team) => (selectedTeamGuid && t.guid === selectedTeamGuid) || (!selectedTeamGuid && t.default)) || teams[0];
 						account.team = {
 							default: team.default,
 							guid:    team.guid,
 							name:    team.name,
-							roles:   account.user.guid && team.users?.find(u => u.guid === account.user.guid)?.roles || [],
+							roles:   account.user.guid && team.users?.find((u: User) => u.guid === account.user.guid)?.roles || [],
 							tags:    team.tags
 						};
 					}
@@ -256,10 +421,10 @@ export default class AmplifySDK {
 			 * @returns {Promise<Array>}
 			 */
 			list: async (opts: {
-				defaultTeams?: { [key: string]: string },
+				defaultTeams?: DefaultTeams,
 				skip?: Account[],
 				validate?: boolean
-			} = {}) => {
+			} = {}): Promise<Account[]> => {
 				if (!opts || typeof opts !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
 				}
@@ -267,23 +432,24 @@ export default class AmplifySDK {
 				return this.authClient.list()
 					.then((accounts: Account[]) => accounts.reduce((promise, account: Account) => {
 						return promise.then(async list => {
+							let acct: Account | undefined | null = account;
 							if (opts.validate && (!opts.skip || !opts.skip.includes(account.name))) {
 								try {
-									account = await this.auth.find(account.name, opts.defaultTeams);
+									acct = await this.auth.find(account.name, opts.defaultTeams);
 								} catch (err: any) {
 									warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
 								}
 							}
-							if (account?.auth) {
+							if (acct && acct.auth) {
 								delete account.auth.clientSecret;
 								delete account.auth.password;
 								delete account.auth.secret;
 								delete account.auth.username;
-								list.push(account);
+								list.push(acct);
 							}
 							return list;
 						});
-					}, Promise.resolve([])))
+					}, Promise.resolve([] as Account[])))
 					.then((list: Account[]) => list.sort((a: Account, b: Account) => a.name.localeCompare(b.name)));
 			},
 
@@ -294,7 +460,7 @@ export default class AmplifySDK {
 			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
 			 * @returns {Promise<Object>} Resolves the original account info object.
 			 */
-			loadSession: async (account: Account, defaultTeams: { [key: string]: string }) => {
+			loadSession: async (account: Account, defaultTeams?: DefaultTeams): Promise<Account | null> => {
 				try {
 					// grab the org guid before findSession clobbers it
 					const { guid } = account.org;
@@ -345,6 +511,7 @@ export default class AmplifySDK {
 			 * org info, and returns it.
 			 * @param {Object} opts - Various authentication options to override the defaults set
 			 * via the `Auth` constructor.
+			 * @param {Boolean} [opts.force] - When `true`, skips the already logged in check.
 			 * @param {String} [opts.password] - The platform tooling password used to
 			 * authenticate. Requires a `username` and `clientSecret` or `secretFile`.
 			 * @param {String} [opts.secretFile] - The path to the PEM formatted private key used
@@ -353,7 +520,12 @@ export default class AmplifySDK {
 			 * authenticate. Requires a `password` and `clientSecret` or `secretFile`.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
-			login: async (opts = {}) => {
+			login: async (opts: DefaultOptions & {
+				force?: boolean,
+				password?: string,
+				secretFile?: string,
+				username?: string
+			} = {}): Promise<Account> => {
 				let account;
 
 				// validate the username/password
@@ -379,7 +551,7 @@ export default class AmplifySDK {
 					account = await this.authClient.find(opts);
 					if (account && !account.auth.expired) {
 						warn(`Account ${highlight(account.name)} is already authenticated`);
-						const err = new Error('Account already authenticated');
+						const err = new AlreadyAuthenticatedError('Account already authenticated');
 						err.account = account;
 						try {
 							err.account = await this.auth.loadSession(account);
@@ -439,20 +611,30 @@ export default class AmplifySDK {
 			 * be launched.
 			 * @returns {Promise<Object>} Resolves a list of revoked credentials.
 			 */
-			logout: async ({ accounts, all, baseUrl = this.baseUrl } = {}) => {
-				if (all) {
-					accounts = await this.authClient.list();
-				} else {
-					if (!Array.isArray(accounts)) {
-						throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
-					}
-					if (!accounts.length) {
-						return [];
-					}
-					accounts = (await this.authClient.list()).filter(account => accounts.includes(account.name));
+			logout: async ({ accounts, all, baseUrl }: {
+				accounts: string[],
+				all?: boolean,
+				baseUrl?: string,
+				onOpenBrowser?: (p: { url: string }) => void
+			}) => {
+				if (baseUrl === undefined) {
+					baseUrl = this.baseUrl;
 				}
 
-				for (const account of accounts) {
+				let accountList: Account[];
+
+				if (all) {
+					accountList = (await this.authClient.list());
+				} else if (!Array.isArray(accounts)) {
+					throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
+				} else if (!accounts.length) {
+					return [];
+				} else {
+					accountList = (await this.authClient.list())
+						.filter(account => accounts.includes(account.name));
+				}
+
+				for (const account of accountList) {
 					if (account.isPlatform && !account.isPlatformTooling) {
 						// note: there should only be 1 platform account in the accounts list
 						const { platformUrl } = environments.resolve(account.auth.env);
@@ -471,7 +653,7 @@ export default class AmplifySDK {
 					}
 				}
 
-				return await this.authClient.logout({ accounts: accounts.map(account => account.hash), baseUrl });
+				return await this.authClient.logout({ accounts: accountList.map(a => a.hash), baseUrl });
 			},
 
 			/**
@@ -480,7 +662,9 @@ export default class AmplifySDK {
 			 * via the `Auth` constructor.
 			 * @returns {Promise<object>}
 			 */
-			serverInfo: opts => this.authClient.serverInfo(opts),
+			serverInfo: async (opts: ServerInfoOptions): Promise<ServerInfo> => {
+				return await this.authClient.serverInfo(opts);
+			},
 
 			/**
 			 * Switches your current organization.
@@ -494,25 +678,26 @@ export default class AmplifySDK {
 			 */
 			switchOrg: async (account: Account, org: OrgLike, opts: {
 				onOpenBrowser?: (p: { url: string }) => void
-			} = {}) => {
+			} = {}): Promise<Account | null> => {
 				if (!account || account.auth.expired) {
 					log(`${account ? 'Account is expired' : 'No account specified'}, doing login`);
-					account = await this.authClient.login();
+					account = await this.authClient.login() as Account;
 				} else {
+					let organization: Org | undefined;
+
 					try {
-						org = this.resolvePlatformOrg(account, org);
+						organization = this.resolvePlatformOrg(account, org);
+						log(`Switching ${highlight(account.name)} to org ${highlight(organization.name)} (${organization.guid})`);
 					} catch (err: any) {
 						if (err.code !== 'ERR_INVALID_ACCOUNT' && err.code !== 'ERR_INVALID_PLATFORM_ACCOUNT' && err.code !== 'ERR_INVALID_ARGUMENT') {
 							// probably org not found
 							throw err;
 						}
-						org = undefined;
+						organization = undefined;
 					}
 
-					log(`Switching ${highlight(account.name)} to org ${highlight(org.name)} (${org.guid})`);
-
 					const server = new Server();
-					const { start, url: redirect } = await server.createCallback((req, res) => {
+					const { start, url: redirect } = await server.createCallback(async (req, res) => {
 						log(`Telling browser to redirect to ${highlight(this.platformUrl)}`);
 						res.writeHead(302, {
 							Location: this.platformUrl
@@ -522,7 +707,7 @@ export default class AmplifySDK {
 
 					try {
 						const url = createURL(`${this.platformUrl}/#/auth/org.select`, {
-							org_id: org?.id,
+							org_id: organization?.id,
 							redirect
 						});
 						log(`Launching default web browser: ${highlight(url)}`);
@@ -574,7 +759,14 @@ export default class AmplifySDK {
 			 * properties.
 			 * @returns {Promise<Object>}
 			 */
-			create: async (account: Account, org: OrgLike, opts = {}) => {
+			create: async (account: Account, org: OrgLike, opts: {
+				desc?: string,
+				name: string,
+				publicKey?: string,
+				roles?: string[],
+				secret?: string,
+				teams?: Team[]
+			}): Promise<{ org: Org, client: Client }> => {
 				org = this.resolvePlatformOrg(account, org);
 
 				if (!opts || typeof opts !== 'object') {
@@ -589,7 +781,16 @@ export default class AmplifySDK {
 					throw E.INVALID_ARGUMENT('Expected description to be a string');
 				}
 
-				const data = {
+				const data: {
+					description: string,
+					name: string,
+					org_guid: string,
+					publicKey?: string,
+					roles?: string[],
+					secret?: string,
+					teams?: Team[],
+					type?: string
+				} = {
 					name:        opts.name,
 					description: opts.desc || '',
 					org_guid:    org.guid
@@ -638,7 +839,7 @@ export default class AmplifySDK {
 			 * @param {String} clientId - The service account's client id.
 			 * @returns {Promise<Object>}
 			 */
-			find: async (account: Account, org: OrgLike, clientId: string) => {
+			find: async (account: Account, org: OrgLike, clientId: string): Promise<{ client: Client, org: Org }> => {
 				assertPlatformAccount(account);
 
 				const { clients } = await this.client.list(account, org);
@@ -677,8 +878,8 @@ export default class AmplifySDK {
 				}
 
 				return {
-					org: await this.org.find(account, client.org_guid),
-					client
+					client,
+					org: await this.org.find(account, client.org_guid)
 				};
 			},
 
@@ -698,11 +899,11 @@ export default class AmplifySDK {
 			 * Retrieves a list of all service accounts for the given org.
 			 * @param {Object} account - The account object.
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @returns {Promise<Object>} Resolves the service account that was removed.
+			 * @returns {Promise<Object>} Resolves a list of service accounts and their org.
 			 */
-			list: async (account: Account, org: OrgLike) => {
+			list: async (account: Account, org: OrgLike): Promise<{ org: Org, clients: Client[] }> => {
 				org = this.resolvePlatformOrg(account, org);
-				const clients = await this.request(`/api/v1/client?org_id=${org.id}`, account, {
+				const clients: Client[] = await this.request(`/api/v1/client?org_id=${org.id}`, account, {
 					errorMsg: 'Failed to get service accounts'
 				});
 
@@ -724,15 +925,16 @@ export default class AmplifySDK {
 			 * @param {Object|String} client - The service account object or client id.
 			 * @returns {Promise<Object>} Resolves the service account that was removed.
 			 */
-			remove: async (account: Account, org: OrgLike, client: string) => {
-				client = await this.client.resolveClient(account, org, client);
+			remove: async (account: Account, org: OrgLike, client: string): Promise<{ client: Client, org: Org }> => {
+				org = this.resolvePlatformOrg(account, org);
 
-				await this.request(`/api/v1/client/${client.client_id}`, account, {
+				const c: Client = await this.client.resolveClient(account, org, client);
+				await this.request(`/api/v1/client/${c.client_id}`, account, {
 					errorMsg: 'Failed to remove service account',
 					method: 'delete'
 				});
 
-				return { client, org };
+				return { client: c, org };
 			},
 
 			/**
@@ -742,7 +944,7 @@ export default class AmplifySDK {
 			 * @param {Object|String} client - The service account object or client id.
 			 * @returns {Promise<Object>}
 			 */
-			resolveClient: async (account: Account, org: OrgLike, client: string) => {
+			resolveClient: async (account: Account, org: OrgLike, client: Client | string): Promise<Client> => {
 				if (client && typeof client === 'object' && client.client_id) {
 					return client;
 				}
@@ -760,21 +962,22 @@ export default class AmplifySDK {
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 			 * @param {Array<Object>} [teams] - A list of objects containing `guid` and `roles`
 			 * properties.
-			 * @returns {Array<String>} An aray of team guids.
+			 * @returns {Array<Object>} An aray of team guids.
 			 */
-			resolveTeams: async (account: Account, org: OrgLike, teams) => {
+			resolveTeams: async (account: Account, org: OrgLike, teams: Team[]): Promise<Team[]> => {
 				if (!Array.isArray(teams)) {
 					throw E.INVALID_ARGUMENT('Expected teams to be an array');
 				}
 
+				const resolvedTeams: Team[] = [];
+
 				if (!teams.length) {
-					return;
+					return resolvedTeams;
 				}
 
 				const { teams: availableTeams } = await this.team.list(account, org);
 				const teamRoles = await this.role.list(account, { team: true, org });
 				const guids = {};
-				const resolvedTeams = [];
 
 				for (const team of teams) {
 					if (!team || typeof team !== 'object' || !team.guid || typeof team.guid !== 'string' || !team.roles || !Array.isArray(team.roles) || !team.roles.length) {
@@ -815,7 +1018,7 @@ export default class AmplifySDK {
 			 * @param {String} type - The auth type.
 			 * @returns {String}
 			 */
-			resolveType(type: string) {
+			resolveType(type: string): string {
 				return type === 'secret' ? 'Client Secret' : type === 'certificate' ? 'Client Certificate' : 'Other';
 			},
 
@@ -835,21 +1038,21 @@ export default class AmplifySDK {
 			 * @returns {Promise}
 			 */
 			update: async (account: Account, org: OrgLike, opts: {
-				client?: Client | string,
+				client: Client | string,
 				desc?: string,
 				name?: string,
 				publicKey?: string,
 				roles?: string[],
 				secret?: string,
 				teams?: Team[]
-			} = {}) => {
+			}): Promise<{ client: Client, org: Org }> => {
 				org = this.resolvePlatformOrg(account, org);
 
 				if (!opts || typeof opts !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
 				}
 
-				const client = await this.client.resolveClient(account, org, opts.client);
+				const client: Client = await this.client.resolveClient(account, org, opts.client);
 				const data = {};
 
 				if (opts.name) {
@@ -913,10 +1116,20 @@ export default class AmplifySDK {
 			 * @param {String} metric - The entitlement metric name.
 			 * @returns {Promise<Object>}
 			 */
-			find: (account: Account, metric: string) => this.request(`/api/v1/entitlement/${metric}`, account, {
-				errorMsg: 'Failed to get entitlement info'
-			})
+			find: async (account: Account, metric: string): Promise<Entitlement> => {
+				return await this.request(`/api/v1/entitlement/${metric}`, account, {
+					errorMsg: 'Failed to get entitlement info'
+				});
+			}
 		};
+
+		interface ActivityParams {
+			from?: string,
+			month?: string,
+			org?: OrgLike,
+			to?: string,
+			userGuid?: string
+		}
 
 		/**
 		 * Retrieves activity for an organization or user.
@@ -930,7 +1143,7 @@ export default class AmplifySDK {
 		 * @param {String} [params.userGuid] - The user guid.
 		 * @returns {Promise<Object>}
 		 */
-		const getActivity = async (account: Account, params = {}) => {
+		const getActivity = async (account: Account, params: ActivityParams = {}): Promise<ActivityResult> => {
 			assertPlatformAccount(account);
 
 			if (params.month !== undefined) {
@@ -978,33 +1191,24 @@ export default class AmplifySDK {
 			 * @param {String} [params.to] - The end date in ISO format.
 			 * @returns {Promise<Object>}
 			 */
-			activity: (account: Account, org: OrgLike, params) => getActivity(account, {
+			activity: (account: Account, org: OrgLike, params?: {
+				from?: string,
+				month?: string | boolean,
+				to?: string
+			}): Promise<ActivityResult> => getActivity(account, {
 				...params,
 				org
-			}),
+			} as ActivityParams),
 
 			/**
 			 * Retrieves the list of environments associated to the user's org.
 			 * @param {Object} account - The account object.
 			 * @returns {Promise<Array>}
 			 */
-			environments: async (account: Account) => {
+			environments: async (account: Account): Promise<PlatformEnvironment> => {
 				assertPlatformAccount(account);
 				return await this.request('/api/v1/org/env', account, {
 					errorMsg: 'Failed to get organization environments'
-				});
-			},
-
-			/**
-			 * Retrieves the organization family used to determine the child orgs.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @returns {Promise<Object>}
-			 */
-			family: async (account: Account, org: OrgLike) => {
-				const { id } = this.resolvePlatformOrg(account, org);
-				return await this.request(`/api/v1/org/${id}/family`, account, {
-					errorMsg: 'Failed to get organization family'
 				});
 			},
 
@@ -1014,7 +1218,7 @@ export default class AmplifySDK {
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 			 * @returns {Promise<Array>}
 			 */
-			find: async (account: Account, org: OrgLike) => {
+			find: async (account: Account, org: OrgLike): Promise<Org> => {
 				const { id } = this.resolveOrg(account, org);
 				org = await this.request(`/api/v1/org/${id}`, account, {
 					errorMsg: 'Failed to get organization'
@@ -1032,15 +1236,13 @@ export default class AmplifySDK {
 
 				const { teams } = await this.team.list(account, id);
 
-				const result = {
+				const result: Org = {
 					active:           org.active,
 					created:          org.created,
-					childOrgs:        null, // deprecated
 					guid:             org.guid,
 					id:               id,
 					name:             org.name,
 					entitlements:     org.entitlements,
-					parentOrg:        null, // deprecated
 					region:           org.region,
 					insightUserCount: ~~org.entitlements.limit_read_only_users,
 					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
@@ -1066,7 +1268,7 @@ export default class AmplifySDK {
 			 * @param {String} defaultOrg - The name, id, or guid of the default organization.
 			 * @returns {Promise<Array>}
 			 */
-			list: async (account: Account, defaultOrg: string): Org[] => {
+			list: async (account: Account, defaultOrg: string): Promise<Org[]> => {
 				assertPlatformAccount(account);
 
 				const { guid } = this.resolvePlatformOrg(account, defaultOrg);
@@ -1086,7 +1288,7 @@ export default class AmplifySDK {
 				 * @param {Array.<String>} roles - One or more roles to assign. Must include a "default" role.
 				 * @returns {Promise<Object>}
 				 */
-				add: async (account: Account, org: OrgLike, email: string, roles: string[]) => {
+				add: async (account: Account, org: OrgLike, email: string, roles: string[]): Promise<{ org: Org, user: User }> => {
 					org = this.resolvePlatformOrg(account, org);
 					const { guid } = await this.request(`/api/v1/org/${org.id}/user`, account, {
 						errorMsg: 'Failed to add user to organization',
@@ -1109,7 +1311,7 @@ export default class AmplifySDK {
 				 * @param {String} user - The user email or guid.
 				 * @returns {Promise<Object>}
 				 */
-				find: async (account: Account, org: OrgLike, user: string) => {
+				find: async (account: Account, org: OrgLike, user: string): Promise<User | undefined> => {
 					const { users } = await this.org.user.list(account, org);
 					user = user.toLowerCase();
 					return users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user);
@@ -1121,7 +1323,7 @@ export default class AmplifySDK {
 				 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 				 * @returns {Promise<Object>}
 				 */
-				list: async (account: Account, org: OrgLike) => {
+				list: async (account: Account, org: OrgLike): Promise<{ org: Org, users: User[] }> => {
 					org = this.resolvePlatformOrg(account, org);
 					const users = await this.request(`/api/v1/org/${org.id}/user?clients=1`, account, {
 						errorMsg: 'Failed to get organization users'
@@ -1146,7 +1348,10 @@ export default class AmplifySDK {
 				 * @param {String} user - The user email or guid.
 				 * @returns {Promise<Object>}
 				 */
-				remove: async (account: Account, org: OrgLike, user: string) => {
+				remove: async (account: Account, org: OrgLike, user: string): Promise<{
+					org: Org,
+					user: User
+				}> => {
 					org = this.resolvePlatformOrg(account, org);
 					const found = await this.org.user.find(account, org.guid, user);
 
@@ -1172,7 +1377,11 @@ export default class AmplifySDK {
 				 * @param {Array.<String>} roles - One or more roles to assign. Must include a "default" role.
 				 * @returns {Promise<Object>}
 				 */
-				update: async (account: Account, org: OrgLike, user: string, roles: string[]) => {
+				update: async (account: Account, org: OrgLike, user: string, roles: string[]): Promise<{
+					org: Org,
+					roles: string[],
+					user: User
+				}> => {
 					org = this.resolvePlatformOrg(account, org);
 					const found = await this.org.user.find(account, org.guid, user);
 
@@ -1203,7 +1412,10 @@ export default class AmplifySDK {
 			 * @param {String} name - The new organization name.
 			 * @returns {Promise<Object>}
 			 */
-			rename: async (account: Account, org: OrgLike, name: string) => {
+			rename: async (account: Account, org: OrgLike, name: string): Promise<{
+				name: string,
+				oldName: string
+			}> => {
 				const { id, name: oldName } = this.resolvePlatformOrg(account, org);
 
 				if (typeof name !== 'string' || !(name = name.trim())) {
@@ -1231,8 +1443,25 @@ export default class AmplifySDK {
 			 * @param {String} [params.to] - The end date in ISO format.
 			 * @returns {Promise<Object>}
 			 */
-			usage: async (account: Account, org: OrgLike, params = {}) => {
+			usage: async (account: Account, org: OrgLike, params?: UsageParams): Promise<{
+				bundle: {
+					metrics: {
+						[key: string]: {
+							metric: string,
+							info: {
+								name: string
+							}
+						}
+					}
+				}
+				from: Date,
+				to: Date
+			}> => {
 				const { id } = this.resolvePlatformOrg(account, org);
+
+				if (params === undefined) {
+					params = {} as UsageParams;
+				}
 
 				if (params.month !== undefined) {
 					Object.assign(params, resovleMonthRange(params.month));
@@ -1284,8 +1513,12 @@ export default class AmplifySDK {
 				default?: boolean,
 				org?: OrgLike,
 				team?: boolean
-			} = {}) => {
-				let roles = await this.request(
+			}): Promise<PlatformRole[]> => {
+				if (params === undefined) {
+					params = {};
+				}
+
+				let roles: PlatformRole[] = await this.request(
 					`/api/v1/role${params.team ? '?team=true' : ''}`,
 					account,
 					{ errorMsg: 'Failed to get roles' }
@@ -1296,7 +1529,7 @@ export default class AmplifySDK {
 					org = await this.org.find(account, org);
 					const { entitlements, subscriptions } = org;
 
-					roles = roles.filter(role => {
+					roles = roles.filter((role: PlatformRole) => {
 						return role.org
 							&& (!role.partner || (entitlements.partners || []).includes(role.partner) && org[role.partner]?.provisioned)
 							&& (!role.entitlement || entitlements[role.entitlement])
@@ -1307,15 +1540,15 @@ export default class AmplifySDK {
 				}
 
 				if (params.client) {
-					roles = roles.filter(r => r.client);
+					roles = roles.filter((r: PlatformRole) => r.client);
 				}
 
 				if (params.default) {
-					roles = roles.filter(r => r.default);
+					roles = roles.filter((r: PlatformRole) => r.default);
 				}
 
 				if (params.team) {
-					roles = roles.filter(r => r.team);
+					roles = roles.filter((r: PlatformRole) => r.team);
 				}
 
 				return roles;
@@ -1334,22 +1567,33 @@ export default class AmplifySDK {
 			 * @param {Boolean} [opts.team] - When `true`, validates team specific roles.
 			 * @returns {Promise<Object>}
 			 */
-			resolve: async (account: Account, roles, opts) => {
+			resolve: async (account: Account, roles: string[], opts: {
+				client?: boolean,
+				default?: boolean,
+				org?: Org,
+				requireRoles?: boolean,
+				requireDefaultRole?: boolean,
+				team?: boolean
+			}): Promise<string[]> => {
 				if (!Array.isArray(roles)) {
 					throw E.INVALID_ARGUMENT('Expected roles to be an array');
+				}
+
+				if (opts === undefined) {
+					opts = {};
 				}
 
 				if (!roles.length && !opts.requireRoles && !opts.requireDefaultRole) {
 					return [];
 				}
 
-				const allowedRoles = await this.role.list(account, {
+				const allowedRoles: PlatformRole[] = await this.role.list(account, {
 					client:  opts.client,
 					default: opts.default,
 					org:     opts.org,
 					team:    opts.team
 				});
-				const defaultRoles = allowedRoles.filter(r => r.default).map(r => r.id);
+				const defaultRoles: string[] = allowedRoles.filter(r => r.default).map(r => r.id);
 
 				if (!roles.length && opts.requireDefaultRole) {
 					throw new Error(`Expected at least one of the following roles: ${defaultRoles.join(', ')}`);
@@ -1359,8 +1603,8 @@ export default class AmplifySDK {
 				}
 
 				roles = roles
-					.reduce((arr, role) => arr.concat(role.split(',')), [])
-					.map(role => {
+					.reduce((arr, role: string) => arr.concat(role.split(',')), [])
+					.map((role: string) => {
 						const lr = role.toLowerCase().trim();
 						const found = allowedRoles.find(ar => ar.id === lr || ar.name.toLowerCase() === lr);
 						if (!found) {
@@ -1445,11 +1689,10 @@ export default class AmplifySDK {
 			 * @param {Array.<String>} [info.tags] - A list of tags.
 			 * @returns {Promise<Object>}
 			 */
-			create: async (account: Account, org: OrgLike, name: string, info?: {
-				default?: boolean,
-				desc?: string,
-				tags?: string[]
-			}) => {
+			create: async (account: Account, org: OrgLike, name: string, info?: TeamInfo): Promise<{
+				org: Org,
+				team: Team
+			}> => {
 				org = this.resolvePlatformOrg(account, org);
 
 				if (!name || typeof name !== 'string') {
@@ -1476,7 +1719,7 @@ export default class AmplifySDK {
 			 * @param {String} team - The team name or guid.
 			 * @returns {Promise<Object>}
 			 */
-			find: async (account: Account, org: OrgLike, team: string) => {
+			find: async (account: Account, org: OrgLike, team: string): Promise<{ org: Org, team: Team }> => {
 				org = this.resolvePlatformOrg(account, org);
 
 				if (!team || typeof team !== 'string') {
@@ -1486,13 +1729,13 @@ export default class AmplifySDK {
 				const origTeam = team;
 				const { teams } = await this.team.list(account, org);
 				team = team.toLowerCase();
-				team = teams.find(t => t.name.toLowerCase() === team || t.guid === team);
+				const teamObj= teams.find(t => t.name.toLowerCase() === team || t.guid === team);
 
-				if (!team) {
+				if (!teamObj) {
 					throw new Error(`Unable to find team "${origTeam}" in the "${org.name}" organization`);
 				}
 
-				return { org, team };
+				return { org, team: teamObj };
 			},
 
 			/**
@@ -1502,7 +1745,7 @@ export default class AmplifySDK {
 			 * @param {String} [user] - A user guid to filter teams
 			 * @returns {Promise<Object>}
 			 */
-			list: async (account: Account, org: OrgLike, user: string) => {
+			list: async (account: Account, org: OrgLike, user: string): Promise<{ org: Org, teams: Team[] }> => {
 				org = org && this.resolveOrg(account, org);
 				let teams = await this.request(`/api/v1/team${org?.id ? `?org_id=${org.id}` : ''}`, account, {
 					errorMsg: 'Failed to get organization teams'
@@ -1855,7 +2098,7 @@ export default class AmplifySDK {
 	 * @type {Auth}
 	 * @access public
 	 */
-	get authClient() {
+	get authClient(): Auth {
 		try {
 			if (!this._authClient) {
 				this._authClient = new Auth(this.opts);
@@ -1890,7 +2133,7 @@ export default class AmplifySDK {
 		method?: string,
 		resultKey?: string
 	} = {}) {
-		const { errorMsg, isToolingAuth, json, method, resultKey = 'result' } = opts;
+		let { errorMsg, isToolingAuth, json, method, resultKey = 'result' } = opts;
 		try {
 			if (!account || typeof account !== 'object') {
 				throw new TypeError('Account required');
@@ -2052,8 +2295,8 @@ function assertPlatformAccount(account: Account) {
 }
 
 interface DateRange {
-	from?: Date,
-	to?: Date
+	from: Date,
+	to: Date
 }
 
 /**
@@ -2063,7 +2306,7 @@ interface DateRange {
  * @param {String} [to] - The range end date.
  * @returns {Object}
  */
-function resolveDateRange(from: string, to: string): DateRange {
+function resolveDateRange(from?: string, to?: string): DateRange {
 	const r: DateRange = {};
 	const tsRE = /^\d{4}-\d{2}-\d{2}$/;
 	let ts;

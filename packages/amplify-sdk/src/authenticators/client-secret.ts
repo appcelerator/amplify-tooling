@@ -11,8 +11,8 @@ import E from '../errors.js';
 const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
 
 export interface ClientSecretOptions extends AuthenticatorOptions {
-    clientSecret?: string;
-    serviceAccount?: boolean;
+    clientSecret?: string,
+    serviceAccount?: boolean
 }
 
 /**

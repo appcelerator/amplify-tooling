@@ -8,12 +8,51 @@ export interface Subscription {
     tier: string
 }
 
+export interface Entitlement {
+    [key: string]: string
+}
+
 export interface Org {
+    active?: boolean,
+    created?: string,
     default?: boolean,
+    entitlements: Entitlement,
     guid?: string,
     id?: number,
     name?: string,
-    subscriptions?: Subscription[]
+    org_id?: number,
+    region?: string,
+    insightUserCount?: number,
+    subscriptions: Subscription[],
+    teams: Team[]
+}
+
+export interface Team {
+
+}
+
+export interface PlatformRole {
+    client: boolean,
+    default: boolean,
+    id: string,
+    name: string,
+    org: boolean,
+    partner?: string,
+    entitlement?: string,
+    subscription: {
+        end_date: string,
+        product: string
+    }[],
+    team: boolean
+}
+
+export interface User {
+    axwayId?: string,
+    email?: string,
+    firstName?: string,
+    guid?: string,
+    lastName?: string,
+    organization?: string
 }
 
 export interface AccountAuthInfo {
@@ -48,13 +87,9 @@ export interface Account {
     name: string,
     org: Org,
     orgs: Org[],
+    role: string,
+    roles: string[],
     sid?: string,
-    user: {
-        axwayId?: string,
-        email?: string,
-        firstName?: string,
-        guid?: string,
-        lastName?: string,
-        organization?: string
-    }
+    team?: Team,
+    user: User
 }
