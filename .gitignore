@@ -2,6 +2,7 @@
 .DS_Store*
 .npm-info
 .nyc_output
+.turbo
 coverage/**
 build/**
 dist

@@ -89,7 +89,9 @@ to public key and vice versa.`;
 			data.roles = argv.role.filter(r => r && r !== true);
 		}
 
-		if (argv.secret !== undefined) {
+		if (typeof argv.secret === 'number') {
+			data.secret = String(argv.secret);
+		} else if (argv.secret !== undefined) {
 			data.secret = argv.secret;
 		}
 

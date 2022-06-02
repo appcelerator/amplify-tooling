@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@axway/amplify-utils": "^1.0.9",
-    "got": "^12.0.4",
+    "got": "^12.1.0",
     "http-proxy-agent": "^5.0.0",
     "https-proxy-agent": "^5.0.1",
     "pretty-bytes": "^6.0.0",

@@ -108,6 +108,10 @@ required options must be passed in at execution.`;
 			}));
 		}
 
+		if (typeof secret === 'number') {
+			secret = String(secret);
+		}
+
 		if (!secret && !publicKey) {
 			if (!terminal.stdout.isTTY) {
 				throw new Error('Missing required --secret <key> or --public-key <path>');

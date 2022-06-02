@@ -9,26 +9,48 @@ export interface Subscription {
 }
 
 export interface Entitlement {
-    [key: string]: string
+    limit_users: number,
+    partners: string[],
+    [key: string]: string | string[] | number
+}
+
+interface EntitlementPartner {
+    [partner: string]: any
 }
 
 export interface Org {
     active?: boolean,
     created?: string,
     default?: boolean,
-    entitlements: Entitlement,
+    entitlements?: Entitlement,
     guid?: string,
     id?: number,
     name?: string,
     org_id?: number,
     region?: string,
     insightUserCount?: number,
-    subscriptions: Subscription[],
-    teams: Team[]
+    seats?: number | null,
+    subscriptions?: Subscription[],
+    teams?: Team[],
+    teamCount?: number,
+    userCount?: number,
+    userRoles?: string[],
+    [partner: keyof EntitlementPartner]: any
+}
+
+export interface TeamUser {
+    guid: string,
+    roles: string[],
+    type: string
 }
 
 export interface Team {
-
+    default: boolean,
+    guid: string,
+    name: string,
+	roles: string[],
+    tags: string[],
+    users: TeamUser[]
 }
 
 export interface PlatformRole {
@@ -87,8 +109,8 @@ export interface Account {
     name: string,
     org: Org,
     orgs: Org[],
-    role: string,
-    roles: string[],
+    role?: string,
+    roles?: string[],
     sid?: string,
     team?: Team,
     user: User
