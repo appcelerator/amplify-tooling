@@ -9,10 +9,7 @@ export default {
 			return `${style.heading('Examples:')}
 
   Update your first and last name:
-    ${style.highlight('axway user update --firstname <name> --lastname <name>')}
-
-  Update your phone number:
-    ${style.highlight('axway user update --phone <number>')}`;
+    ${style.highlight('axway user update --firstname <name> --lastname <name>')}`;
 		}
 	},
 	options: {
@@ -28,8 +25,7 @@ export default {
 		'--lastname [value]': {
 			aliases: '--last-name',
 			desc: 'Your last name'
-		},
-		'--phone [value]': 'Your phone number'
+		}
 	},
 	async action({ argv, cli, console, help }) {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
@@ -37,8 +33,7 @@ export default {
 
 		const { changes, user } = await sdk.user.update(account, {
 			firstname: argv.firstname,
-			lastname:  argv.lastname,
-			phone:     argv.phone
+			lastname:  argv.lastname
 		});
 		const results = {
 			account: account.name,
@@ -54,8 +49,7 @@ export default {
 			const { highlight } = snooplogg.styles;
 			const labels = {
 				firstname: 'first name',
-				lastname:  'last name',
-				phone:     'phone number'
+				lastname:  'last name'
 			};
 
 			if (Object.keys(changes).length) {

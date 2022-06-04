@@ -21,7 +21,6 @@ export default {
 
   Update your first name, last name, or phone number:
     ${style.highlight('axway user update --firstname <name> --lastname <name>')}
-    ${style.highlight('axway user update --phone <number>')}
 
   View your recent activity report:
     ${style.highlight('axway user activity')}

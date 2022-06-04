@@ -16,6 +16,7 @@ createError('AUTH_TIMEOUT',               Error,      'A successful login did no
 createError('INVALID_ACCOUNT',            TypeError,  'Account object is required');
 createError('INVALID_ARGUMENT',           TypeError,  'A function argument is undefined or the incorrect data type');
 createError('INVALID_FILE',               Error,      'The file does not exist or access is denied');
+createError('INVALID_MONTH',              RangeError, 'The month must be be between 1 and 12');
 createError('INVALID_PARAMETER',          TypeError,  'A parameter was not a valid value or type');
 createError('INVALID_PLATFORM_ACCOUNT',   Error,      'Authorization failed');
 createError('INVALID_RANGE',              RangeError, 'The value is not within the acceptable min/max range');

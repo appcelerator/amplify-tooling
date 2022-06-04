@@ -1,4 +1,4 @@
-export interface PlatformActivity {
+export interface PlatformActivityEvent {
 	context: string, // 'api_central', 'auth', 'org', 'team'
 	data: {
 		action_user_email?: string,
@@ -130,7 +130,7 @@ export interface PlatformEntitlements {
 	limit_users?: number,
 	nativeSDK?: boolean,
 	paidSupport?: boolean,
-	partners?: PlatformEntitlementPartners[],
+	partners?: PlatformEntitlementPartner[],
 	premiumModules?: boolean,
 	provider?: boolean,
 	provision_envs?: string[], // 'sandbox'
@@ -142,19 +142,17 @@ export interface PlatformEntitlements {
 	transactions?: number
 }
 
-export type PlatformEntitlementPartners = 'acs' | 'analytics' | 'api_central' | 'cloud_elements';
+export type PlatformEntitlementPartner = 'acs' | 'analytics' | 'api_central' | 'cloud_elements';
 
-export interface PlatformOrg {
+export interface PlatformOrg extends PlatformOrgPartners {
 	_id: string,
 	account_id: null,
 	active: boolean,
 	analytics: {
 		token: string
 	},
-	api_central?: PlatformPartner,
 	branding?: PlatformOrgBranding,
 	children?: [],
-	cloud_elements?: PlatformPartner,
 	created: string, // ISO date
 	created_by: {
         email: string,
@@ -207,6 +205,12 @@ export interface PlatformOrgEnvironment {
 	updated?: string // ISO date
 }
 
+export interface PlatformOrgPartners {
+	acs?: PlatformPartner,
+	api_central?: PlatformPartner,
+	cloud_elements?: PlatformPartner
+}
+
 export interface PlatformOrgRef {
 	guid: string,
 	name: string,
@@ -216,6 +220,33 @@ export interface PlatformOrgRef {
 
 export interface PlatformOrgUsage {
 	basis: string, // 'range'
+	bundle?: {
+		edition: string,
+		end_date: string, // ISO date
+		metrics?: {
+			[metric: string]: {
+				envs: {
+					[guid: string]: {
+						production: boolean,
+						quota: number,
+						tokens: number,
+						value: number
+					}
+				},
+				name: string,
+				tokens: number,
+				unit: string,
+				value: number
+			}
+		},
+		name: string,
+		plan: string, // 'trial'
+		product: string, // 'Bundle'
+		ratios: {
+			[key: string]: number | boolean
+		},
+		start_date: string // ISO date
+	},
 	created: string, // ISO date
 	ending: string, // ISO date
 	from: string, // ISO date
@@ -224,8 +255,8 @@ export interface PlatformOrgUsage {
 	to: string, // ISO date
 	to_ts: number,
 	usage: {
-		'Customer Managed': {
-			[name: string]: PlatformOrgUsageMetric
+		[name: string]: {
+			[metric: string]: PlatformOrgUsageMetric
 		}
 	}
 }
