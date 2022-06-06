@@ -35,7 +35,7 @@
     "listr2": "^4.0.5",
     "npm-package-arg": "^9.0.2",
     "ora": "^6.1.0",
-    "pacote": "^13.5.0",
+    "pacote": "^13.6.0",
     "promise-limit": "^2.7.0",
     "semver": "^7.3.7",
     "snooplogg": "^5.0.0",

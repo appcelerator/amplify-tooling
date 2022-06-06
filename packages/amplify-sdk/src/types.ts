@@ -90,6 +90,11 @@ export interface Client {
 	type: string
 }
 
+export interface ClientTeam {
+	guid: string,
+	roles: string[]
+}
+
 export interface DefaultTeams {
 	[hash: string]: string
 }
@@ -134,6 +139,15 @@ export interface OrgRef {
 	role?: string
 }
 
+export interface OrgUser {
+	client_id?: string,
+	email: string,
+	firstname: string,
+	guid: string,
+	lastname: string,
+	name: string
+}
+
 export interface Role extends PlatformRole {}
 
 export interface Subscription {
@@ -169,7 +183,16 @@ export interface TeamInfoChanges {
 	}
 }
 
-export interface TeamUser extends PlatformTeamUser {}
+export interface TeamUser {
+	client_id?: string,
+	email: string,
+	firstname: string,
+	guid: string,
+	lastname: string,
+	name: string
+	roles: string[],
+	type: 'client' | 'user'
+}
 
 export interface User {
 	client_id?: string,

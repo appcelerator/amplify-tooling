@@ -38,7 +38,7 @@
     "open": "^8.4.0",
     "pluralize": "^8.0.0",
     "serialize-error": "^11.0.0",
-    "set-cookie-parser": "^2.4.8",
+    "set-cookie-parser": "^2.5.0",
     "snooplogg": "^5.0.0",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2"
