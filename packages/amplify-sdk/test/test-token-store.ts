@@ -1,9 +1,10 @@
-/* eslint-disable no-unused-expressions */
+/* eslint-disable no-unused-expressions, node/no-unsupported-features/es-syntax */
 
 import fs from 'fs-extra';
 import tmp from 'tmp';
-import { Auth, MemoryStore, TokenStore } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
+import { Auth, MemoryStore, TokenStore } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
+import { expect } from 'chai';
 
 const isCI = process.env.CI || process.env.JENKINS;
 
@@ -177,7 +178,7 @@ describe('Token Store', () => {
 			const store = new MemoryStore();
 			try {
 				await store.get();
-			} catch (e) {
+			} catch (e: any) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Must specify either the account name or authenticator hash');
 				return;
@@ -349,7 +350,7 @@ describe('Token Store', () => {
 					tokenStoreDir:  tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' }),
 					tokenStoreType: 'secure'
 				});
-			} catch (e) {
+			} catch (e: any) {
 				expect(e).to.be.instanceof(TypeError);
 				expect(e.message).to.equal('Secure store requires the home directory to be specified');
 				return;

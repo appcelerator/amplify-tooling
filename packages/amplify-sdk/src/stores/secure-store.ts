@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-non-literal-require */
+/* eslint-disable security/detect-non-literal-require, node/no-unsupported-features/es-syntax */
 
 import crypto from 'crypto';
 import E from '../errors.js';
@@ -17,7 +17,7 @@ export default class SecureStore extends FileStore {
 	 * The name of the token store file.
 	 * @type {String}
 	 */
-	filename: string = '.tokenstore.secure.v2';
+	filename = '.tokenstore.secure.v2';
 
 	keytar: any;
 

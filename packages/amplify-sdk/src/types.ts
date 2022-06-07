@@ -86,12 +86,23 @@ export interface Client {
 	method: string,
 	name: string,
 	org_guid: string,
-	teams: number,
+	teams: ClientTeam[],
+	type: string
+}
+
+export interface ClientRef {
+	client_id: string,
+	guid: string,
+	method: string,
+	name: string,
+	org_guid: string,
+	team_count: number,
 	type: string
 }
 
 export interface ClientTeam {
 	guid: string,
+	name?: string,
 	roles: string[]
 }
 

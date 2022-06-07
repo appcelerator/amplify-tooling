@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-expressions */
 
 import tmp from 'tmp';
-import { Auth, Authenticator, MemoryStore, OwnerPassword } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
+import { Auth, Authenticator, MemoryStore, OwnerPassword } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
+import { expect } from 'chai';
 
 describe('Owner Password', () => {
 	describe('Constructor', () => {
@@ -50,7 +51,7 @@ describe('Owner Password', () => {
 
 			try {
 				await auth.login('foo');
-			} catch (err) {
+			} catch (err: any) {
 				expect(err).to.be.instanceof(TypeError);
 				expect(err.message).to.equal('Expected options to be an object');
 				return;
@@ -74,7 +75,7 @@ describe('Owner Password', () => {
 					username: 'foo',
 					password: 'bar'
 				});
-			} catch (e) {
+			} catch (e: any) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/connect ECONNREFUSED 127.0.0.1:133/i);
 				expect(e.code).to.equal('ECONNREFUSED');
@@ -104,7 +105,7 @@ describe('Owner Password', () => {
 					username: 'foo',
 					password: 'bar'
 				});
-			} catch (e) {
+			} catch (e: any) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication failed: Response code 401 (Unauthorized)');
 				return;
@@ -238,7 +239,7 @@ describe('Owner Password', () => {
 				tokenStoreType: 'file'
 			});
 
-			let results = await auth.login({
+			const results = await auth.login({
 				username: 'foo',
 				password: 'bar'
 			});

@@ -1,6 +1,9 @@
-import { Auth } from '../dist/index';
-import { createServer, stopServer } from './common';
-import serverInfo from './server-info.json';
+import fs from 'fs';
+import { Auth } from '../src/index.js';
+import { createServer, stopServer } from './common.js';
+import { expect } from 'chai';
+
+const serverInfo = JSON.parse(fs.readFileSync('./server-info.json', 'utf8'));
 
 describe('Server Info', () => {
 	afterEach(stopServer);
@@ -12,7 +15,7 @@ describe('Server Info', () => {
 			baseUrl:        'http://127.0.0.1:1337',
 			clientId:       'test_client',
 			realm:          'test_realm',
-			tokenStoreType: null
+			tokenStoreType: null as any
 		});
 
 		const info = await auth.serverInfo();

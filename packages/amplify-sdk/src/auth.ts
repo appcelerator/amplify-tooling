@@ -41,7 +41,7 @@ export interface AuthOptions {
 	tokenRefreshThreshold?: number,
 	tokenStore?: TokenStore,
 	tokenStoreDir?: string,
-	tokenStoreType?: 'auto' | 'secure' | 'file' | 'memory',
+	tokenStoreType: 'auto' | 'secure' | 'file' | 'memory' | null,
 	username?: string
 }
 
@@ -67,6 +67,12 @@ export interface DefaultOptions {
 	serviceAccount?: boolean,
 	timeout?: number,
 	username?: string
+}
+
+export interface LogoutOptions {
+	accounts: string[],
+	all?: boolean,
+	baseUrl?: string
 }
 
 export interface ServerInfo {
@@ -516,11 +522,13 @@ export default class Auth {
 	 * @returns {Promise<Array>} Resolves a list of revoked credentials.
 	 * @access public
 	 */
-	async logout({ accounts, all, baseUrl }: { accounts: string[], all?: boolean, baseUrl?: string }) {
+	async logout(opts: LogoutOptions): Promise<Account[]> {
 		if (!this.tokenStore) {
 			log('No token store, returning empty array');
 			return [];
 		}
+
+		const { accounts, all, baseUrl } = opts || {};
 
 		if (!all) {
 			if (!accounts){ 

@@ -1,11 +1,15 @@
-import { Auth } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
-import serverInfo from './server-info.json';
+import fs from 'fs';
+import http from 'http';
 import tmp from 'tmp';
+import { Auth } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
+import { expect } from 'chai';
 
 tmp.setGracefulCleanup();
 
 const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
+
+const serverInfo = JSON.parse(fs.readFileSync('./server-info.json', 'utf8'));
 
 describe('Auth', () => {
 	describe('Constructor', () => {
@@ -13,7 +17,7 @@ describe('Auth', () => {
 
 		it('should error if options is not an object', () => {
 			expect(() => {
-				new Auth('foo');
+				new Auth('foo' as any);
 			}).to.throw(TypeError, 'Expected options to be an object');
 		});
 
@@ -24,7 +28,7 @@ describe('Auth', () => {
 			expect(() => {
 				new Auth({
 					homeDir,
-					tokenRefreshThreshold: 'foo',
+					tokenRefreshThreshold: 'foo' as any,
 					tokenStoreType: 'memory'
 				});
 			}).to.throw(TypeError, 'Expected token refresh threshold to be a number of seconds');
@@ -53,7 +57,7 @@ describe('Auth', () => {
 					baseUrl:        'http://127.0.0.1:1337',
 					clientId:       'test_client',
 					realm:          'test_realm',
-					tokenStore:     'foo',
+					tokenStore:     'foo' as any,
 					tokenStoreType: null
 				});
 			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
@@ -84,7 +88,7 @@ describe('Auth', () => {
 
 		it('should throw error if server returns error', async function () {
 			this.server = await createLoginServer({
-				serverinfo(post, req, res) {
+				serverinfo(post: any, req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(500);
 					res.end('Server error');
 					return true;
@@ -100,7 +104,7 @@ describe('Auth', () => {
 
 		it('should throw error if server response is invalid', async function () {
 			this.server = await createLoginServer({
-				serverinfo(post, req, res) {
+				serverinfo(post: any, req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(200);
 					res.end('{{{{{{{{{{');
 					return true;
@@ -127,7 +131,7 @@ describe('Auth', () => {
 			const auth = new Auth({
 				tokenStoreType: null
 			});
-			const revoked = await auth.logout();
+			const revoked = await auth.logout(undefined as any);
 			expect(revoked).to.have.lengthOf(0);
 		});
 
@@ -137,8 +141,8 @@ describe('Auth', () => {
 			});
 
 			try {
-				await auth.logout();
-			} catch (err) {
+				await auth.logout(undefined as any);
+			} catch (err: any) {
 				expect(err).to.be.instanceof(Error);
 				expect(err.message).to.equal('Expected accounts to be a list of accounts');
 				return;

@@ -78,7 +78,7 @@ export default class Authenticator {
 	 * @type {String}
 	 * @access private
 	 */
-	accessType: string = 'offline';
+	accessType = 'offline';
 
 	/**
 	 * Defines if this authentication method is interactive. If `true`, then it will not attempt to
@@ -87,7 +87,7 @@ export default class Authenticator {
 	 * @type {Boolean}
 	 * @access private
 	 */
-	interactive: boolean = false;
+	interactive = false;
 
 	/**
 	 * When `true`, adds the authenticator params (client secret, private key, username/password)
@@ -122,9 +122,9 @@ export default class Authenticator {
 	 */
 	tokenStore: TokenStore | null = null;
 
-	baseUrl: string = '';
+	baseUrl = '';
 
-	clientId: string = '';
+	clientId = '';
 
 	endpoints: Endpoints;
 
@@ -134,7 +134,7 @@ export default class Authenticator {
 
 	platformUrl: string;
 
-	realm: string = '';
+	realm = '';
 
 	/**
 	 * Initializes the authenticator instance.
@@ -180,33 +180,33 @@ export default class Authenticator {
 
 		// validate the required string properties
 		if (!opts.clientId || typeof opts.clientId !== 'string') {
-			throw E.MISSING_REQUIRED_PARAMETER(`Expected required parameter "clientId" to be a non-empty string`);
+			throw E.MISSING_REQUIRED_PARAMETER('Expected required parameter "clientId" to be a non-empty string');
 		}
 		this.clientId = opts.clientId;
 
 		if (!opts.realm || typeof opts.realm !== 'string') {
-			throw E.MISSING_REQUIRED_PARAMETER(`Expected required parameter "realm" to be a non-empty string`);
+			throw E.MISSING_REQUIRED_PARAMETER('Expected required parameter "realm" to be a non-empty string');
 		}
 		this.realm = opts.realm;
 
 		// validate optional string options
 		if (opts.accessType !== undefined) {
 			if (typeof opts.accessType !== 'string') {
-				throw E.INVALID_PARAMETER(`Expected parameter "accessType" to be a string`);
+				throw E.INVALID_PARAMETER('Expected parameter "accessType" to be a string');
 			}
 			this.accessType = opts.accessType;
 		}
 
 		if (opts.responseType !== undefined) {
 			if (typeof opts.responseType !== 'string') {
-				throw E.INVALID_PARAMETER(`Expected parameter "responseType" to be a string`);
+				throw E.INVALID_PARAMETER('Expected parameter "responseType" to be a string');
 			}
 			this.responseType = opts.responseType;
 		}
 
 		if (opts.scope !== undefined) {
 			if (typeof opts.scope !== 'string') {
-				throw E.INVALID_PARAMETER(`Expected parameter "scope" to be a string`);
+				throw E.INVALID_PARAMETER('Expected parameter "scope" to be a string');
 			}
 			this.scope = opts.scope;
 		}

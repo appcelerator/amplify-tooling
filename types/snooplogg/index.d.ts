@@ -25,6 +25,12 @@ declare module 'snooplogg' {
 	}
 
 	class SnoopLogg extends Logger {
+		chalk: {
+			cyan: (s?: string) => string,
+			gray: (s?: string) => string,
+			green: (s?: string) => string
+		};
+
 		styles: {
 			alert: (s?: string | number) => void,
 			highlight: (s?: string | number) => void,

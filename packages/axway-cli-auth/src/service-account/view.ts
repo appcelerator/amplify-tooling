@@ -62,6 +62,20 @@ export default {
 			console.log('  No roles found');
 		}
 
+		/*
+		const { teams } = await this.sdk.team.list(account, client.org_guid);
+		client.teams = [];
+		for (const team of teams) {
+			const user = team.users.find(u => u.type === 'client' && u.guid === (client as Client).guid);
+			if (user) {
+				client.teams.push({
+					...team,
+					roles: user.roles
+				});
+			}
+		}
+		*/
+
 		console.log('\nTEAMS');
 		if (client.teams.length) {
 			const table = createTable([ '  Name', 'Role', 'Description', 'Team GUID', 'User', 'Apps', 'Date Created' ]);

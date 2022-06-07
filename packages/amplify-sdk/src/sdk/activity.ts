@@ -23,7 +23,7 @@ export default class AmplifySDKActivity extends Base {
 			Object.assign(params, resolveMonthRange(params.month));
 		}
 
-		let { from, to } = resolveDateRange(params.from, params.to);
+		const { from, to } = resolveDateRange(params.from, params.to);
 		let url = '/api/v1/activity?data=true';
 
 		if (params.org) {
@@ -52,5 +52,5 @@ export default class AmplifySDKActivity extends Base {
 			to,
 			events
 		};
-	};
+	}
 }

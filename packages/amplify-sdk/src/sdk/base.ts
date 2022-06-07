@@ -1,4 +1,4 @@
-import AmplifySDK from "../amplify-sdk";
+import AmplifySDK from '../amplify-sdk.js';
 import E from '../errors.js';
 import { Account } from '../types.js';
 

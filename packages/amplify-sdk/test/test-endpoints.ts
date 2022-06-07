@@ -1,4 +1,5 @@
-import { getEndpoints } from '../dist/index';
+import { getEndpoints } from '../src/index.js';
+import { expect } from 'chai';
 
 describe('Endpoints', () => {
 	it('should error setting endpoints if baseUrl is invalid', () => {

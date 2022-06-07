@@ -1,9 +1,12 @@
-import AmplifySDK from '../dist/index';
+import AmplifySDK from '../src/index.js';
 import fs from 'fs';
 import path from 'path';
-import { createServer, stopServer } from './common';
-import { resovleMonthRange } from '../dist/amplify-sdk';
+import { createServer, stopServer } from './common.js';
+import { expect } from 'chai';
+import { fileURLToPath } from 'url';
+import { resolveMonthRange } from '../src/util.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const baseUrl = 'http://127.0.0.1:1337';
 const isCI = process.env.CI || process.env.JENKINS;
 
@@ -131,7 +134,7 @@ describe('amplify-sdk', () => {
 
 				const sdk = createSDK();
 
-				let account = await sdk.auth.login();
+				const account = await sdk.auth.login();
 				expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 				expect(account.name).to.equal('test_client:foo@bar.com');
 
@@ -935,14 +938,13 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					let { users } = await sdk.org.user.list(account);
+					let { users } = await sdk.org.userList(account);
 					expect(users).to.deep.equal([
 						{
 							guid: '50000',
 							email: 'test1@domain.com',
 							firstname: 'Test1',
 							lastname: 'Tester1',
-							phone: '555-5001',
 							roles: [ 'administrator' ],
 							primary: true
 						},
@@ -951,20 +953,18 @@ describe('amplify-sdk', () => {
 							email: 'test2@domain.com',
 							firstname: 'Test2',
 							lastname: 'Tester2',
-							phone: '555-5002',
 							roles: [ 'developer' ],
 							primary: true
 						}
 					]);
 
-					({ users } = await sdk.org.user.list(account, '2000'));
+					({ users } = await sdk.org.userList(account, '2000'));
 					expect(users).to.deep.equal([
 						{
 							guid: '50000',
 							email: 'test1@domain.com',
 							firstname: 'Test1',
 							lastname: 'Tester1',
-							phone: '555-5001',
 							roles: [ 'administrator' ],
 							primary: true
 						}
@@ -978,7 +978,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.list(account, 300)).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
+					await expect(sdk.org.userList(account, 300)).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
 				});
 			});
 
@@ -992,13 +992,12 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					const user = await sdk.org.user.find(account, 100, '50000');
+					const user = await sdk.org.userFind(account, 100, '50000');
 					expect(user).to.deep.equal({
 						guid: '50000',
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
-						phone: '555-5001',
 						roles: [ 'administrator' ],
 						primary: true
 					});
@@ -1011,13 +1010,12 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					const user = await sdk.org.user.find(account, 100, 'test2@domain.com');
+					const user = await sdk.org.userFind(account, 100, 'test2@domain.com');
 					expect(user).to.deep.equal({
 						guid: '50001',
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
-						phone: '555-5002',
 						roles: [ 'developer' ],
 						primary: true
 					});
@@ -1030,7 +1028,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					const user = await sdk.org.user.find(account, 100, '12345');
+					const user = await sdk.org.userFind(account, 100, '12345');
 					expect(user).to.be.undefined;
 				});
 			});
@@ -1045,22 +1043,21 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					expect(await sdk.org.user.find(account, 100, 'test3@domain.com')).to.be.undefined;
+					expect(await sdk.org.userFind(account, 100, 'test3@domain.com')).to.be.undefined;
 
-					const { user } = await sdk.org.user.add(account, 100, 'test3@domain.com', [ 'developer' ]);
+					const { user } = await sdk.org.userAdd(account, 100, 'test3@domain.com', [ 'developer' ]);
 					expect(user.guid).to.deep.equal('50002');
 
-					expect(await sdk.org.user.find(account, 100, 'test3@domain.com')).to.deep.equal({
+					expect(await sdk.org.userFind(account, 100, 'test3@domain.com')).to.deep.equal({
 						guid: '50002',
 						email: 'test3@domain.com',
 						firstname: 'Test3',
 						lastname: 'Tester3',
-						phone: '555-5003',
 						roles: [ 'developer' ],
 						primary: true
 					});
 
-					await expect(sdk.org.user.add(account, 100, 'test3@domain.com', [ 'developer' ])).to.eventually.be
+					await expect(sdk.org.userAdd(account, 100, 'test3@domain.com', [ 'developer' ])).to.eventually.be
 						.rejectedWith(Error, 'Failed to add user to organization: User is already a member of this org. (400)');
 				});
 
@@ -1071,7 +1068,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.add(account, 300)).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
+					await expect(sdk.org.userAdd(account, 300)).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
 				});
 
 				it('should error if roles are invalid', async function () {
@@ -1081,10 +1078,10 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.add(account, 100, '12345')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-					await expect(sdk.org.user.add(account, 100, '12345', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-					await expect(sdk.org.user.add(account, 100, '12345', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
-					await expect(sdk.org.user.add(account, 100, '12345', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer, some_admin');
+					await expect(sdk.org.userAdd(account, 100, '12345')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.org.userAdd(account, 100, '12345', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.org.userAdd(account, 100, '12345', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
+					await expect(sdk.org.userAdd(account, 100, '12345', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer, some_admin');
 				});
 
 				it('should error if roles does not include a default role', async function () {
@@ -1094,7 +1091,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.add(account, 100, '12345', [ 'some_admin' ])).to.eventually.be.rejectedWith(Error, 'You must specify a default role: administrator, developer');
+					await expect(sdk.org.userAdd(account, 100, '12345', [ 'some_admin' ])).to.eventually.be.rejectedWith(Error, 'You must specify a default role: administrator, developer');
 				});
 			});
 
@@ -1108,13 +1105,12 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					const { user } = await sdk.org.user.update(account, 100, '50001', [ 'administrator' ]);
+					const { user } = await sdk.org.userUpdate(account, 100, '50001', [ 'administrator' ]);
 					expect(user).to.deep.equal({
 						guid: '50001',
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
-						phone: '555-5002',
 						roles: [ 'administrator' ],
 						primary: true
 					});
@@ -1127,7 +1123,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.update(account, 300, '50001', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
+					await expect(sdk.org.userUpdate(account, 300, '50001', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
 				});
 
 				it('should error update user role for user not in an org', async function () {
@@ -1137,7 +1133,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.update(account, 100, '50002', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
+					await expect(sdk.org.userUpdate(account, 100, '50002', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
 				});
 
 				it('should error if roles are invalid', async function () {
@@ -1147,10 +1143,10 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.update(account, 100, '50001')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-					await expect(sdk.org.user.update(account, 100, '50001', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-					await expect(sdk.org.user.update(account, 100, '50001', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
-					await expect(sdk.org.user.update(account, 100, '50001', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer, some_admin');
+					await expect(sdk.org.userUpdate(account, 100, '50001')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.org.userUpdate(account, 100, '50001', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.org.userUpdate(account, 100, '50001', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
+					await expect(sdk.org.userUpdate(account, 100, '50001', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer, some_admin');
 				});
 			});
 
@@ -1164,9 +1160,9 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					expect((await sdk.org.user.list(account, 100)).users).to.have.lengthOf(2);
-					await sdk.org.user.remove(account, 100, '50001');
-					expect((await sdk.org.user.list(account, 100)).users).to.have.lengthOf(1);
+					expect((await sdk.org.userList(account, 100)).users).to.have.lengthOf(2);
+					await sdk.org.userRemove(account, 100, '50001');
+					expect((await sdk.org.userList(account, 100)).users).to.have.lengthOf(1);
 				});
 
 				it('should error removing a user from a non-existing org', async function () {
@@ -1176,7 +1172,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.remove(account, 300, '50001')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
+					await expect(sdk.org.userRemove(account, 300, '50001')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "300"');
 				});
 
 				it('should error removing a user that does not currently belong to an org', async function () {
@@ -1186,7 +1182,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.org.user.remove(account, 100, '50002')).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
+					await expect(sdk.org.userRemove(account, 100, '50002')).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
 				});
 			});
 		});
@@ -1548,10 +1544,10 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					let { users } = await sdk.team.user.list(account, 100, '60000');
+					let { users } = await sdk.team.userList(account, 100, '60000');
 					expect(users).to.have.lengthOf(2);
 
-					({ users } = await sdk.team.user.list(account, 200, '60001'));
+					({ users } = await sdk.team.userList(account, 200, '60001'));
 					expect(users).to.have.lengthOf(1);
 				});
 
@@ -1562,7 +1558,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.list(account, 'abc', '60000')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "abc"');
+					await expect(sdk.team.userList(account, 'abc', '60000')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "abc"');
 				});
 
 				it('should error getting users if team is not found', async function () {
@@ -1572,7 +1568,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.list(account, 100, 'Z Team')).to.eventually.be.rejectedWith(Error, 'Unable to find team "Z Team" in the "Foo org" organization');
+					await expect(sdk.team.userList(account, 100, 'Z Team')).to.eventually.be.rejectedWith(Error, 'Unable to find team "Z Team" in the "Foo org" organization');
 				});
 			});
 
@@ -1586,14 +1582,13 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					const { user } = await sdk.team.user.find(account, 100, '60000', '50000');
+					const { user } = await sdk.team.userFind(account, 100, '60000', '50000');
 					expect(user).to.deep.equal({
 						guid: '50000',
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
 						name: 'Test1 Tester1',
-						phone: '555-5001',
 						roles: [ 'administrator' ],
 						primary: true,
 						type: 'user'
@@ -1607,14 +1602,13 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					const { user } = await sdk.team.user.find(account, 100, '60000', 'test1@domain.com');
+					const { user } = await sdk.team.userFind(account, 100, '60000', 'test1@domain.com');
 					expect(user).to.deep.equal({
 						guid: '50000',
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
 						name: 'Test1 Tester1',
-						phone: '555-5001',
 						roles: [ 'administrator' ],
 						primary: true,
 						type: 'user'
@@ -1628,7 +1622,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					const { user } = await sdk.team.user.find(account, 100, '60000', '12345');
+					const { user } = await sdk.team.userFind(account, 100, '60000', '12345');
 					expect(user).to.be.undefined;
 				});
 			});
@@ -1643,24 +1637,23 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					expect((await sdk.team.user.find(account, 100, '60000', 'test2@domain.com')).user).to.be.undefined;
+					expect((await sdk.team.userFind(account, 100, '60000', 'test2@domain.com')).user).to.be.undefined;
 
-					const { user } = await sdk.team.user.add(account, 100, '60000', 'test2@domain.com', [ 'developer' ]);
+					const { user } = await sdk.team.userAdd(account, 100, '60000', 'test2@domain.com', [ 'developer' ]);
 					expect(user.guid).to.deep.equal('50001');
 
-					expect((await sdk.team.user.find(account, 100, '60000', 'test2@domain.com')).user).to.deep.equal({
+					expect((await sdk.team.userFind(account, 100, '60000', 'test2@domain.com')).user).to.deep.equal({
 						guid: '50001',
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
 						name: 'Test2 Tester2',
-						phone: '555-5002',
 						roles: [ 'developer' ],
 						primary: true,
 						type: 'user'
 					});
 
-					await expect(sdk.team.user.add(account, 100, '60000', 'test2@domain.com', [ 'developer' ])).to.eventually.be
+					await expect(sdk.team.userAdd(account, 100, '60000', 'test2@domain.com', [ 'developer' ])).to.eventually.be
 						.rejectedWith(Error, 'Failed to add user to organization: User is already a member of this team. (400)');
 				});
 
@@ -1671,24 +1664,23 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					expect((await sdk.team.user.find(account, 100, '60000', '50001')).user).to.be.undefined;
+					expect((await sdk.team.userFind(account, 100, '60000', '50001')).user).to.be.undefined;
 
-					const { user } = await sdk.team.user.add(account, 100, '60000', '50001', [ 'developer' ]);
+					const { user } = await sdk.team.userAdd(account, 100, '60000', '50001', [ 'developer' ]);
 					expect(user.guid).to.deep.equal('50001');
 
-					expect((await sdk.team.user.find(account, 100, '60000', '50001')).user).to.deep.equal({
+					expect((await sdk.team.userFind(account, 100, '60000', '50001')).user).to.deep.equal({
 						guid: '50001',
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
 						name: 'Test2 Tester2',
-						phone: '555-5002',
 						roles: [ 'developer' ],
 						primary: true,
 						type: 'user'
 					});
 
-					await expect(sdk.team.user.add(account, 100, '60000', '50001', [ 'developer' ])).to.eventually.be
+					await expect(sdk.team.userAdd(account, 100, '60000', '50001', [ 'developer' ])).to.eventually.be
 						.rejectedWith(Error, 'Failed to add user to organization: User is already a member of this team. (400)');
 				});
 
@@ -1699,7 +1691,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.add(account, 'abc')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "abc"');
+					await expect(sdk.team.userAdd(account, 'abc')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "abc"');
 				});
 
 				it('should error if roles are invalid', async function () {
@@ -1709,10 +1701,10 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.add(account, 100, '60000', '50001')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-					await expect(sdk.team.user.add(account, 100, '60000', '50001', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-					await expect(sdk.team.user.add(account, 100, '60000', '50001', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
-					await expect(sdk.team.user.add(account, 100, '60000', '50001', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer');
+					await expect(sdk.team.userAdd(account, 100, '60000', '50001')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.team.userAdd(account, 100, '60000', '50001', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.team.userAdd(account, 100, '60000', '50001', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
+					await expect(sdk.team.userAdd(account, 100, '60000', '50001', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer');
 				});
 			});
 
@@ -1726,14 +1718,13 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					const { user } = await sdk.team.user.update(account, 100, '60000', '50000', [ 'developer' ]);
+					const { user } = await sdk.team.userUpdate(account, 100, '60000', '50000', [ 'developer' ]);
 					expect(user).to.deep.equal({
 						guid: '50000',
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
 						name: 'Test1 Tester1',
-						phone: '555-5001',
 						roles: [ 'developer' ],
 						primary: true,
 						type: 'user'
@@ -1747,7 +1738,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.update(account, 'abc', '60000', '50001', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "abc"');
+					await expect(sdk.team.userUpdate(account, 'abc', '60000', '50001', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "abc"');
 				});
 
 				it('should error update user\'s team role for user not in an org', async function () {
@@ -1757,7 +1748,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.update(account, 100, '60000', '50002', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
+					await expect(sdk.team.userUpdate(account, 100, '60000', '50002', [ 'administrator' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
 				});
 
 				it('should error if roles are invalid', async function () {
@@ -1767,10 +1758,10 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.update(account, 100, '60000', '50000')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-					await expect(sdk.team.user.update(account, 100, '60000', '50000', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
-					await expect(sdk.team.user.update(account, 100, '60000', '50000', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
-					await expect(sdk.team.user.update(account, 100, '60000', '50000', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer');
+					await expect(sdk.team.userUpdate(account, 100, '60000', '50000')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.team.userUpdate(account, 100, '60000', '50000', 'foo')).to.eventually.be.rejectedWith(TypeError, 'Expected roles to be an array');
+					await expect(sdk.team.userUpdate(account, 100, '60000', '50000', [])).to.eventually.be.rejectedWith(Error, 'Expected at least one of the following roles:');
+					await expect(sdk.team.userUpdate(account, 100, '60000', '50000', [ 'foo' ])).to.eventually.be.rejectedWith(Error, 'Invalid role "foo", expected one of the following: administrator, developer');
 				});
 
 				it('should error if user not apart of the team', async function () {
@@ -1780,7 +1771,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.update(account, 100, '60000', '50002', [ 'developer' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
+					await expect(sdk.team.userUpdate(account, 100, '60000', '50002', [ 'developer' ])).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
 				});
 
 				it('should error updating user if team is not found', async function () {
@@ -1790,7 +1781,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.update(account, 100, 'Z Team', '50000', [ 'developer' ])).to.eventually.be.rejectedWith(Error, 'Unable to find team "Z Team" in the "Foo org" organization');
+					await expect(sdk.team.userUpdate(account, 100, 'Z Team', '50000', [ 'developer' ])).to.eventually.be.rejectedWith(Error, 'Unable to find team "Z Team" in the "Foo org" organization');
 				});
 			});
 
@@ -1804,9 +1795,9 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					expect((await sdk.team.user.list(account, 100, '60000')).users).to.have.lengthOf(2);
-					await sdk.team.user.remove(account, 100, '60000', '50000');
-					expect((await sdk.team.user.list(account, 100, '60000')).users).to.have.lengthOf(1);
+					expect((await sdk.team.userList(account, 100, '60000')).users).to.have.lengthOf(2);
+					await sdk.team.userRemove(account, 100, '60000', '50000');
+					expect((await sdk.team.userList(account, 100, '60000')).users).to.have.lengthOf(1);
 				});
 
 				it('should error removing a user from a non-existing org', async function () {
@@ -1816,7 +1807,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.remove(account, 'abc', '60000', '50001')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "abc"');
+					await expect(sdk.team.userRemove(account, 'abc', '60000', '50001')).to.eventually.be.rejectedWith(Error, 'Unable to find the organization "abc"');
 				});
 
 				it('should error removing a user that does not currently belong to an org', async function () {
@@ -1826,7 +1817,7 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					await expect(sdk.team.user.remove(account, 100, '60000', '50002')).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
+					await expect(sdk.team.userRemove(account, 100, '60000', '50002')).to.eventually.be.rejectedWith(Error, 'Unable to find the user "50002"');
 				});
 			});
 		});
@@ -1847,21 +1838,18 @@ describe('amplify-sdk', () => {
 				expect(user.guid).to.equal('50000');
 				expect(user.firstname).to.equal('Test1');
 				expect(user.lastname).to.equal('Tester1');
-				expect(user.phone).to.equal('555-5001');
 				expect(user.email).to.equal('test1@domain.com');
 
 				user = await sdk.user.find(account, '50001');
 				expect(user.guid).to.equal('50001');
 				expect(user.firstname).to.equal('Test2');
 				expect(user.lastname).to.equal('Tester2');
-				expect(user.phone).to.equal('555-5002');
 				expect(user.email).to.equal('test2@domain.com');
 
 				user = await sdk.user.find(account, user);
 				expect(user.guid).to.equal('50001');
 				expect(user.firstname).to.equal('Test2');
 				expect(user.lastname).to.equal('Tester2');
-				expect(user.phone).to.equal('555-5002');
 				expect(user.email).to.equal('test2@domain.com');
 			});
 
@@ -1876,14 +1864,12 @@ describe('amplify-sdk', () => {
 				expect(user.guid).to.equal('50000');
 				expect(user.firstname).to.equal('Test1');
 				expect(user.lastname).to.equal('Tester1');
-				expect(user.phone).to.equal('555-5001');
 				expect(user.email).to.equal('test1@domain.com');
 
 				user = await sdk.user.find(account, 'test2@domain.com');
 				expect(user.guid).to.equal('50001');
 				expect(user.firstname).to.equal('Test2');
 				expect(user.lastname).to.equal('Tester2');
-				expect(user.phone).to.equal('555-5002');
 				expect(user.email).to.equal('test2@domain.com');
 			});
 
@@ -1911,8 +1897,7 @@ describe('amplify-sdk', () => {
 
 				const { changes } = await sdk.user.update(account, {
 					firstname: 'Foo',
-					lastname: 'Bar',
-					phone: '555-0000'
+					lastname: 'Bar'
 				});
 
 				expect(changes).to.deep.equal({
@@ -1923,17 +1908,12 @@ describe('amplify-sdk', () => {
 					lastname: {
 						v: 'Bar',
 						p: 'Tester1'
-					},
-					phone: {
-						v: '555-0000',
-						p: '555-5001'
 					}
 				});
 
 				const user = await sdk.user.find(account, '50000');
 				expect(user.firstname).to.equal('Foo');
 				expect(user.lastname).to.equal('Bar');
-				expect(user.phone).to.equal('555-0000');
 			});
 
 			it('should not error if no info to update', async function () {
@@ -2011,59 +1991,59 @@ describe('amplify-sdk', () => {
 		});
 	});
 
-	describe('resovleMonthRange', () => {
+	describe('resolveMonthRange', () => {
 		it('should error if month is invalid', () => {
 			expect(() => {
-				resovleMonthRange();
+				resolveMonthRange();
 			}).to.throw(TypeError, 'Expected month to be in the format YYYY-MM or MM');
 
 			expect(() => {
-				resovleMonthRange({});
+				resolveMonthRange({});
 			}).to.throw(TypeError, 'Expected month to be in the format YYYY-MM or MM');
 
 			expect(() => {
-				resovleMonthRange('foo');
+				resolveMonthRange('foo');
 			}).to.throw(TypeError, 'Expected month to be in the format YYYY-MM or MM');
 		});
 
 		it('should return current month', () => {
-			const r = resovleMonthRange(true);
+			const r = resolveMonthRange(true);
 			expect(r.from).to.match(/^\d{4}-\d{2}-01$/);
 			expect(r.to).to.match(/^\d{4}-\d{2}-\d{2}$/);
 		});
 
 		it('should return range from single digit month', () => {
-			const r = resovleMonthRange('3');
+			const r = resolveMonthRange('3');
 			expect(r.from).to.match(/^\d{4}-03-01$/);
 			expect(r.to).to.match(/^\d{4}-03-31$/);
 		});
 
 		it('should return range from single numeric digit month', () => {
-			const r = resovleMonthRange(6);
+			const r = resolveMonthRange(6);
 			expect(r.from).to.match(/^\d{4}-06-01$/);
 			expect(r.to).to.match(/^\d{4}-06-30$/);
 		});
 
 		it('should return range from leading zero single digit month', () => {
-			const r = resovleMonthRange('04');
+			const r = resolveMonthRange('04');
 			expect(r.from).to.match(/^\d{4}-04-01$/);
 			expect(r.to).to.match(/^\d{4}-04-30$/);
 		});
 
 		it('should return range from year and month', () => {
-			const r = resovleMonthRange('2020-05');
+			const r = resolveMonthRange('2020-05');
 			expect(r.from).to.equal('2020-05-01');
 			expect(r.to).to.equal('2020-05-31');
 		});
 
 		it('should error if month is out of range', () => {
 			expect(() => {
-				resovleMonthRange('13');
+				resolveMonthRange('13');
 			}).to.throw(RangeError, 'Invalid month "13"');
 		});
 
 		it('should handle leap year', () => {
-			const r = resovleMonthRange('2020-02');
+			const r = resolveMonthRange('2020-02');
 			expect(r.from).to.equal('2020-02-01');
 			expect(r.to).to.equal('2020-02-29');
 		});

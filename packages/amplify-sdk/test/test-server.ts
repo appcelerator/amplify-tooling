@@ -1,6 +1,7 @@
 import got from 'got';
-import { Auth } from '../dist/index';
 import snooplogg from 'snooplogg';
+import { Auth } from '../src/index.js';
+import { expect } from 'chai';
 
 const { log } = snooplogg('test:amplify-sdk:server');
 const { highlight } = snooplogg.styles;
@@ -23,7 +24,7 @@ describe('Server', () => {
 		try {
 			log(`Requesting ${highlight(`${redirect_uri.origin}/callback`)}`);
 			await got(`${redirect_uri.origin}/callback`);
-		} catch (error) {
+		} catch (error: any) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
 			} else {
@@ -52,7 +53,7 @@ describe('Server', () => {
 		try {
 			log(`Requesting ${highlight(redirectURL)}`);
 			await got(redirectURL);
-		} catch (error) {
+		} catch (error: any) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
 			} else {
@@ -81,7 +82,7 @@ describe('Server', () => {
 		try {
 			log(`Requesting ${highlight(redirectURL)}`);
 			await got(redirectURL);
-		} catch (error) {
+		} catch (error: any) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
 			} else {
@@ -114,7 +115,7 @@ describe('Server', () => {
 			log(`Requesting: ${highlight(redirectUrl)}`);
 			await got(redirectUrl);
 			throw new Error('Expected request to fail');
-		} catch (error) {
+		} catch (error: any) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
 				return;
@@ -144,7 +145,7 @@ describe('Server', () => {
 		try {
 			log(`Requesting: ${highlight(redirect_uri.origin)}`);
 			await got(redirect_uri.origin);
-		} catch (error) {
+		} catch (error: any) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
 			} else {

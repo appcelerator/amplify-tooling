@@ -61,10 +61,10 @@ export default class AmplifySDKUser extends Base {
 	 * @param {String} [info.lastname] - The user's last name.
 	 * @returns {Promise<Object>}
 	 */
-	 async update(account: Account, info: UserInfo = {}): Promise<{
-		 changes: UserChanges,
-		 user: User | null
-	 }> {
+	async update(account: Account, info: UserInfo = {}): Promise<{
+		changes: UserChanges,
+		user: User | null
+	}> {
 		this.assertPlatformAccount(account);
 
 		if (!info || typeof info !== 'object') {

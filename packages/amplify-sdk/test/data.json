@@ -217,22 +217,19 @@
 			"guid": "50000",
 			"email": "test1@domain.com",
 			"firstname": "Test1",
-			"lastname": "Tester1",
-			"phone": "555-5001"
+			"lastname": "Tester1"
 		},
 		{
 			"guid": "50001",
 			"email": "test2@domain.com",
 			"firstname": "Test2",
-			"lastname": "Tester2",
-			"phone": "555-5002"
+			"lastname": "Tester2"
 		},
 		{
 			"guid": "50002",
 			"email": "test3@domain.com",
 			"firstname": "Test3",
-			"lastname": "Tester3",
-			"phone": "555-5003"
+			"lastname": "Tester3"
 		},
 		{
 			"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad"

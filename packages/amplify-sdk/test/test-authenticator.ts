@@ -1,4 +1,5 @@
-import { Authenticator } from '../dist/index';
+import { Authenticator } from '../src/index.js';
+import { expect } from 'chai';
 
 describe('Authenticator', () => {
 	describe('Constructor', () => {

@@ -15,8 +15,8 @@ import { v4 as uuidv4 } from 'uuid';
 const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;
 
 export interface SignedJWTOptions extends AuthenticatorOptions {
-    secret?: string,
-    secretFile?: string
+	secret?: string,
+	secretFile?: string
 }
 
 /**
@@ -24,9 +24,9 @@ export interface SignedJWTOptions extends AuthenticatorOptions {
  */
 export default class SignedJWT extends Authenticator {
 	shouldFetchOrgs: boolean;
-	signedJWT: string = '';
+	signedJWT = '';
 	secret!: string;
-	secretFile: string = '';
+	secretFile = '';
 
 	/**
 	 * Initializes an PKCE authentication instance.
@@ -41,7 +41,8 @@ export default class SignedJWT extends Authenticator {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		let { secret, secretFile } = opts;
+		let { secret } = opts;
+		const { secretFile } = opts;
 
 		if (!secret && !secretFile) {
 			throw E.INVALID_ARGUMENT('Expected either a private key or private key file to be an object');

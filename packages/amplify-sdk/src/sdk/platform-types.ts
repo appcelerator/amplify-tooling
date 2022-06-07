@@ -155,11 +155,11 @@ export interface PlatformOrg extends PlatformOrgPartners {
 	children?: [],
 	created: string, // ISO date
 	created_by: {
-        email: string,
-        guid: string,
-        name: string,
-        type: string
-    },
+		email: string,
+		guid: string,
+		name: string,
+		type: string
+	},
 	entitlements?: PlatformEntitlements,
 	envs?: string[],
 	guid: string,

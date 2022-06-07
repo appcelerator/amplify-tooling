@@ -1,19 +1,19 @@
 import Base from './base.js';
 import crypto from 'crypto';
 import E from '../errors.js';
-import { Account, Client, ClientTeam, Org, OrgLike, OrgRef, Team } from '../types.js';
-import { PlatformClient, PlatformTeam } from './platform-types.js';
+import { Account, Client, ClientRef, ClientTeam, OrgLike, OrgRef, Team } from '../types.js';
+import { PlatformClient } from './platform-types.js';
 import { promisify } from 'util';
 
 interface PlatformClientPayload {
-    description: string,
-    name: string,
-    org_guid: string,
-    publicKey?: string,
-    roles?: string[],
-    secret?: string,
-    teams?: ClientTeam[],
-    type?: string
+	description?: string,
+	name?: string,
+	org_guid?: string,
+	publicKey?: string,
+	roles?: string[],
+	secret?: string,
+	teams?: ClientTeam[],
+	type?: string
 }
 
 export default class AmplifySDKClient extends Base {
@@ -38,10 +38,7 @@ export default class AmplifySDKClient extends Base {
 		roles?: string[],
 		secret?: string,
 		teams?: ClientTeam[]
-	}): Promise<{
-        org: OrgRef,
-        client: Client
-    }> {
+	}): Promise<{ client: Client, org: OrgRef }> {
 		const orgRef: OrgRef = this.sdk.org.resolve(account, org, true);
 
 		if (!opts || typeof opts !== 'object') {
@@ -89,21 +86,22 @@ export default class AmplifySDKClient extends Base {
 			data.teams = await this.resolveTeams(account, org, opts.teams);
 		}
 
-        const client: PlatformClient = await this.sdk.request('/api/v1/client', account, {
-            errorMsg: 'Failed to create service account',
-            json: data
-        });
+		const client: PlatformClient = await this.sdk.request('/api/v1/client', account, {
+			errorMsg: 'Failed to create service account',
+			json: data
+		});
 
 		return {
 			client: {
-                client_id:   client.client_id,
-                description: client.description,
-                guid:        client.guid,
-                name:        client.name,
-                org_guid:    client.org_guid,
-                teams:       client.teams,
-                type:        client.type
-            } as Client,
+				client_id:   client.client_id,
+				description: client.description,
+				guid:        client.guid,
+				method:      this.resolveType(client.type),
+				name:        client.name,
+				org_guid:    client.org_guid,
+				teams:       [],
+				type:        client.type
+			} as Client,
 			org: orgRef
 		};
 	}
@@ -115,47 +113,56 @@ export default class AmplifySDKClient extends Base {
 	 * @param {String} clientId - The service account's client id.
 	 * @returns {Promise<Object>}
 	 */
-    async find(account: Account, org: OrgLike, clientId: string): Promise<{ client: Client, org: Org }> {
+	async find(account: Account, org: OrgLike, clientId: string): Promise<{ client: Client, org: OrgRef }> {
 		this.assertPlatformAccount(account);
 
-		const { clients } = await this.list(account, org);
+		const { clients, org: orgRef } = await this.list(account, org);
 
 		// first try to find the service account by guid, then client id, then name
-		let client = clients.find(c => c.guid === clientId);
-		if (!client) {
-			client = clients.find(c => c.client_id === clientId);
+		let clientRef: ClientRef | undefined = clients.find(c => c.guid === clientId);
+		if (!clientRef) {
+			clientRef = clients.find(c => c.client_id === clientId);
 		}
-		if (!client) {
-			client = clients.find(c => c.name === clientId);
+		if (!clientRef) {
+			clientRef = clients.find(c => c.name === clientId);
 		}
 
 		// if still not found, error
-		if (!client) {
+		if (!clientRef) {
 			throw new Error(`Service account "${clientId}" not found`);
 		}
 
 		// get service account description
-		const { description } = await this.sdk.request(`/api/v1/client/${client.client_id}`, account, {
+		const platformClient: PlatformClient = await this.sdk.request(`/api/v1/client/${clientRef.client_id}`, account, {
 			errorMsg: 'Failed to get service account'
 		});
 
-		client.description = description;
-
-		const { teams } = await this.sdk.team.list(account, client.org_guid);
-		client.teams = [];
-		for (const team of teams) {
-			const user = team.users.find(u => u.type === 'client' && u.guid === (client as Client).guid);
+		// get the teams
+		const teams: ClientTeam[] = [];
+		const { teams: allTeams } = await this.sdk.team.list(account, platformClient.org_guid);
+		for (const team of allTeams) {
+			const user = team.users.find(u => u.type === 'client' && u.guid === platformClient.guid);
 			if (user) {
-				client.teams.push({
-					...team,
+				teams.push({
+					guid:  team.guid,
+					name:  team.name,
 					roles: user.roles
 				});
 			}
 		}
 
 		return {
-			client,
-			org: await this.sdk.org.find(account, client.org_guid)
+			client: {
+				client_id:   platformClient.client_id,
+				description: platformClient.description,
+				guid:        platformClient.guid,
+				method:      this.resolveType(platformClient.type),
+				name:        platformClient.name,
+				org_guid:    platformClient.org_guid,
+				teams,
+				type:        platformClient.type
+			},
+			org: orgRef
 		};
 	}
 
@@ -177,19 +184,24 @@ export default class AmplifySDKClient extends Base {
 	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 	 * @returns {Promise<Object>} Resolves a list of service accounts and their org.
 	 */
-	async list(account: Account, org: OrgLike): Promise<{ org: OrgRef, clients: Client[] }> {
+	async list(account: Account, org: OrgLike): Promise<{ clients: ClientRef[], org: OrgRef }> {
 		const orgRef: OrgRef = this.sdk.org.resolve(account, org, true);
-		const clients: Client[] = await this.sdk.request(`/api/v1/client?org_id=${orgRef.org_id}`, account, {
+		const clients: PlatformClient[] = await this.sdk.request(`/api/v1/client?org_id=${orgRef.org_id}`, account, {
 			errorMsg: 'Failed to get service accounts'
 		});
 
 		return {
 			org: orgRef,
 			clients: clients
-				.map(c => {
-					c.method = this.resolveType(c.type);
-					return c;
-				})
+				.map(c => ({
+					client_id:  c.client_id,
+					guid:       c.guid,
+					method:     this.resolveType(c.type),
+					name:       c.name,
+					org_guid:   c.org_guid,
+					team_count: c.teams,
+					type:       c.type
+				} as ClientRef))
 				.sort((a, b) => a.name.localeCompare(b.name))
 		};
 	}
@@ -201,7 +213,7 @@ export default class AmplifySDKClient extends Base {
 	 * @param {Object|String} client - The service account object or client id.
 	 * @returns {Promise<Object>} Resolves the service account that was removed.
 	 */
-    async remove(account: Account, org: OrgLike, client: string): Promise<{ client: Client, org: OrgRef }> {
+	async remove(account: Account, org: OrgLike, client: string): Promise<{ client: Client, org: OrgRef }> {
 		const orgRef: OrgRef = this.sdk.org.resolve(account, org, true);
 
 		const c: Client = await this.resolve(account, orgRef, client);
@@ -240,12 +252,12 @@ export default class AmplifySDKClient extends Base {
 	 * properties.
 	 * @returns {Array<Object>} An aray of team guids.
 	 */
-    async resolveTeams(account: Account, org: OrgLike, teams: ClientTeam[]): Promise<PlatformTeam[]> {
+	async resolveTeams(account: Account, org: OrgLike, teams: ClientTeam[]): Promise<ClientTeam[]> {
 		if (!Array.isArray(teams)) {
 			throw E.INVALID_ARGUMENT('Expected teams to be an array');
 		}
 
-		const resolvedTeams: PlatformTeam[] = [];
+		const resolvedTeams: ClientTeam[] = [];
 
 		if (!teams.length) {
 			return resolvedTeams;
@@ -262,7 +274,7 @@ export default class AmplifySDKClient extends Base {
 
 			// find the team by name or guid
 			const lt = team.guid.toLowerCase().trim();
-			const found = availableTeams.find(t => t.guid === lt || t.name.toLowerCase() === lt);
+			const found: Team | undefined = availableTeams.find(t => t.guid === lt || t.name.toLowerCase() === lt);
 			if (!found) {
 				throw new Error(`Invalid team "${team.guid}"`);
 			}
@@ -281,7 +293,8 @@ export default class AmplifySDKClient extends Base {
 			guids[found.guid] = 1;
 
 			resolvedTeams.push({
-				guid: found.guid,
+				guid:  found.guid,
+				name:  found.name,
 				roles: team.roles
 			});
 		}
@@ -320,7 +333,7 @@ export default class AmplifySDKClient extends Base {
 		publicKey?: string,
 		roles?: string[],
 		secret?: string,
-		teams?: Team[]
+		teams?: ClientTeam[]
 	}): Promise<{ client: Client, org: OrgRef }> {
 		const orgRef: OrgRef = this.sdk.org.resolve(account, org, true);
 
@@ -374,24 +387,38 @@ export default class AmplifySDKClient extends Base {
 			data.teams = opts.teams && await this.resolveTeams(account, orgRef, opts.teams) || [];
 		}
 
-        const platformClient: PlatformClient = await this.sdk.request(`/api/v1/client/${client.guid}`, account, {
-            errorMsg: 'Failed to update service account',
-            json: data,
-            method: 'put'
-        });
+		const platformClient: PlatformClient = await this.sdk.request(`/api/v1/client/${client.guid}`, account, {
+			errorMsg: 'Failed to update service account',
+			json: data,
+			method: 'put'
+		});
 
-        return {
-			org: orgRef,
+		// get the teams
+		const teams: ClientTeam[] = [];
+		const { teams: allTeams } = await this.sdk.team.list(account, platformClient.org_guid);
+		for (const team of allTeams) {
+			const user = team.users.find(u => u.type === 'client' && u.guid === platformClient.guid);
+			if (user) {
+				teams.push({
+					guid:  team.guid,
+					name:  team.name,
+					roles: user.roles
+				});
+			}
+		}
+
+		return {
 			client: {
-                client_id:   platformClient.client_id,
-                description: platformClient.description,
-                guid:        platformClient.guid,
-                method:      platformClient.type,
-                name:        platformClient.name,
-                org_guid:    platformClient.org_guid,
-                teams:       platformClient.teams || 0,
-                type:        platformClient.type
-            }
+				client_id:   platformClient.client_id,
+				description: platformClient.description,
+				guid:        platformClient.guid,
+				method:      this.resolveType(platformClient.type),
+				name:        platformClient.name,
+				org_guid:    platformClient.org_guid,
+				teams,
+				type:        platformClient.type
+			},
+			org: orgRef
 		};
 	}
 }

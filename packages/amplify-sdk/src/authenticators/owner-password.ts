@@ -7,8 +7,8 @@ import Authenticator, {
 import E from '../errors';
 
 export interface OwnerPasswordOptions extends AuthenticatorOptions {
-    username?: string,
-    password?: string
+	username?: string,
+	password?: string
 }
 
 /**
@@ -16,7 +16,7 @@ export interface OwnerPasswordOptions extends AuthenticatorOptions {
  */
 export default class OwnerPassword extends Authenticator {
 	username!: string;
-    password!: string;
+	password!: string;
 
 	/**
 	 * Initializes an owner password authentication instance.

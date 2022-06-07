@@ -30,7 +30,7 @@ export default class FileStore extends TokenStore {
 	 * The name of the token store file.
 	 * @type {String}
 	 */
-	filename: string = '.tokenstore.v2';
+	filename = '.tokenstore.v2';
 
 	homeDir: string;
 
@@ -52,10 +52,10 @@ export default class FileStore extends TokenStore {
 	constructor(opts: { homeDir?: string, tokenStoreDir?: string } = {}) {
 		super(opts);
 
-		let { homeDir, tokenStoreDir } = opts;
+		let { homeDir } = opts;
 		if (!homeDir || typeof homeDir !== 'string') {
-			if (tokenStoreDir && typeof tokenStoreDir === 'string') {
-				homeDir = tokenStoreDir;
+			if (opts.tokenStoreDir && typeof opts.tokenStoreDir === 'string') {
+				homeDir = opts.tokenStoreDir;
 			} else {
 				throw E.MISSING_REQUIRED_PARAMETER('Token store requires a home directory');
 			}
@@ -118,7 +118,7 @@ export default class FileStore extends TokenStore {
 	 * @returns {Promise<Array>}
 	 * @access public
 	 */
-	 async delete(accounts: string | string[], baseUrl?: string): Promise<Account[]> {
+	async delete(accounts: string | string[], baseUrl?: string): Promise<Account[]> {
 		const { entries, removed } = await super._delete(accounts, baseUrl);
 		if (entries.length) {
 			await this.save(entries);

@@ -13,8 +13,7 @@ import {
 	OrgUser,
 	Subscription,
 	UsageParams,
-	UsageResult,
-	User
+	UsageResult
 } from '../types.js';
 import {
 	PlatformOrg,
@@ -156,10 +155,11 @@ export default class AmplifySDKOrg extends Base {
 	 *
 	 * @param {Object} account - The account object.
 	 * @param {Object|String|Number} [org] - The organization object, name, guid, or id.
+	 * @param {Boolean} [checkPlatformAccount=false] - When `true`, asserts the account is a platform account.
 	 * @returns {Object} Resolves the org info from the account object.
 	 * @access public
 	 */
-	resolve(account: Account, org: OrgLike, checkPlatformAccount: boolean = false): OrgRef {
+	resolve(account: Account, org: OrgLike, checkPlatformAccount = false): OrgRef {
 		if (checkPlatformAccount) {
 			this.assertPlatformAccount(account);
 		}
@@ -207,7 +207,8 @@ export default class AmplifySDKOrg extends Base {
 	 */
 	async rename(account: Account, org: OrgLike, name: string): Promise<{
 		name: string,
-		oldName: string
+		oldName: string,
+		org: Org
 	}> {
 		const { org_id, name: oldName } = this.resolve(account, org, true);
 
@@ -223,7 +224,8 @@ export default class AmplifySDKOrg extends Base {
 
 		return {
 			name,
-			oldName
+			oldName,
+			org: await this.init(account, platformOrg)
 		};
 	}
 
@@ -364,7 +366,7 @@ export default class AmplifySDKOrg extends Base {
 	async userRemove(account: Account, org: OrgLike, user: string): Promise<{
 		org: OrgRef,
 		user: OrgUser
-	}>{
+	}> {
 		const orgRef: OrgRef = this.resolve(account, org, true);
 		const found = await this.userFind(account, orgRef, user);
 

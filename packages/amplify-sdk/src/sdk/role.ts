@@ -34,7 +34,7 @@ export default class AmplifySDKRole extends Base {
 			{ errorMsg: 'Failed to get roles' }
 		);
 
-		let orgLike = params.org || account.org?.guid;
+		const orgLike = params.org || account.org?.guid;
 		if (orgLike) {
 			const org: Org = await this.sdk.org.find(account, orgLike);
 			const { entitlements, subscriptions } = org;

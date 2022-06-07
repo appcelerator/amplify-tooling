@@ -1,4 +1,4 @@
-import AmplifySDK from "../amplify-sdk";
+import AmplifySDK from '../amplify-sdk.js';
 import Auth, { DefaultOptions, ServerInfo, ServerInfoOptions } from '../auth.js';
 import Base from './base.js';
 import E from '../errors.js';
@@ -31,7 +31,7 @@ export default class AmplifySDKAuth extends Base {
 	 * @type {Auth}
 	 * @access public
 	 */
-	 get client(): Auth {
+	get client(): Auth {
 		try {
 			if (!this._client) {
 				this._client = new Auth(this.sdk.opts);
@@ -153,28 +153,29 @@ export default class AmplifySDKAuth extends Base {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		return this.client.list()
-			.then((accounts: Account[]) => accounts.reduce((promise, account: Account) => {
-				return promise.then(async list => {
-					let acct: Account | undefined | null = account;
-					if (opts.validate && (!opts.skip || (acct.name && !opts.skip.includes(acct.name)))) {
-						try {
-							acct = await this.find(account.name, opts.defaultTeams);
-						} catch (err: any) {
-							warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
-						}
+		const allAccounts: Account[] = await this.client.list();
+		const accounts: Account[] = await allAccounts.reduce((promise, account: Account) => {
+			return promise.then(async list => {
+				let acct: Account | undefined | null = account;
+				if (opts.validate && (!opts.skip || (acct.name && !opts.skip.includes(acct.name)))) {
+					try {
+						acct = await this.find(account.name, opts.defaultTeams);
+					} catch (err: any) {
+						warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
 					}
-					if (acct && acct.auth) {
-						delete account.auth.clientSecret;
-						delete account.auth.password;
-						delete account.auth.secret;
-						delete account.auth.username;
-						list.push(acct);
-					}
-					return list;
-				});
-			}, Promise.resolve([] as Account[])))
-			.then((list: Account[]) => list.sort((a: Account, b: Account) => a.name.localeCompare(b.name)));
+				}
+				if (acct && acct.auth) {
+					delete account.auth.clientSecret;
+					delete account.auth.password;
+					delete account.auth.secret;
+					delete account.auth.username;
+					list.push(acct);
+				}
+				return list;
+			});
+		}, Promise.resolve([] as Account[]));
+
+		return accounts.sort((a: Account, b: Account) => a.name.localeCompare(b.name));
 	}
 
 	/**

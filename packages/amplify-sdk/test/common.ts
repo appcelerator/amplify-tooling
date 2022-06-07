@@ -1,3 +1,5 @@
+/* eslint-disable security/detect-possible-timing-attacks */
+
 import bodyParser from 'koa-bodyparser';
 import fs from 'fs-extra';
 import http from 'http';
@@ -7,19 +9,26 @@ import path from 'path';
 import Router from '@koa/router';
 import session from 'koa-session';
 import snooplogg from 'snooplogg';
-import { MemoryStore } from '../dist/index';
+import { fileURLToPath } from 'url';
+import { MemoryStore } from '../src/index.js';
 import { v4 as uuidv4 } from 'uuid';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { error, log } = snooplogg('test:amplify-auth:common');
 const { highlight, note } = snooplogg.styles;
 
-function createAPIRoutes(server, data) {
+interface HttpTestServer extends http.Server {
+	destroy: () => Promise<void>
+}
+
+function createAPIRoutes(server: any, data: any) {
 	const router = new Router();
 
 	router.get('/v1/auth/findSession', async (ctx, next) => {
-		const { authorization } = ctx.req.headers;
+		const authorization: string | undefined = ctx.req.headers.authorization;
 		const p = authorization ? authorization.indexOf(' ') : -1;
-		const token = p !== -1 ? authorization.substring(p + 1) : null;
+		const token = p !== -1 ? authorization?.substring(p + 1) : null;
 
 		log(`Finding session using token "${token}" or cookie "${ctx.cookies.get('connect.sid')}"`);
 
@@ -74,7 +83,8 @@ function createAPIRoutes(server, data) {
 	});
 
 	router.get('/v1/activity', ctx => {
-		let { from, org_id, to, user_guid } = ctx.query;
+		let { from, to } = ctx.query;
+		const { org_id, user_guid } = ctx.query;
 
 		if (from) {
 			from = Date.parse(from);
@@ -101,10 +111,10 @@ function createAPIRoutes(server, data) {
 		ctx.body = {
 			success: true,
 			result: data.activity.filter(a => {
-				return a.ts >= from &&
-					a.ts <= to &&
-					(!org_id || String(a.org_id) === org_id) &&
-					(!user_guid || a.user_guid === user_guid);
+				return a.ts >= from
+					&& a.ts <= to
+					&& (!org_id || String(a.org_id) === org_id)
+					&& (!user_guid || a.user_guid === user_guid);
 			})
 		};
 	});
@@ -345,7 +355,7 @@ function createAPIRoutes(server, data) {
 	});
 
 	router.get('/v1/org/:id/user', ctx => {
-		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		const org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
 		if (org) {
 			ctx.body = {
 				success: true,
@@ -364,7 +374,7 @@ function createAPIRoutes(server, data) {
 	});
 
 	router.post('/v1/org/:id/user', ctx => {
-		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		const org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
 		if (org) {
 			const { email, roles } = ctx.request.body;
 			const user = data.users.find(u => u.email === email || u.guid === email);
@@ -391,7 +401,7 @@ function createAPIRoutes(server, data) {
 				guid: user.guid,
 				roles,
 				primary: true
-			})
+			});
 
 			ctx.body = {
 				success: true,
@@ -401,7 +411,7 @@ function createAPIRoutes(server, data) {
 	});
 
 	router.delete('/v1/org/:id/user/:user_guid', ctx => {
-		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		const org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
 		if (org) {
 			const { user_guid } = ctx.params;
 			const idx = org.users.findIndex(u => u.guid === user_guid);
@@ -410,7 +420,7 @@ function createAPIRoutes(server, data) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: `"user_guid" contained an invalid value.`
+					message: '"user_guid" contained an invalid value.'
 				};
 				return;
 			}
@@ -425,7 +435,7 @@ function createAPIRoutes(server, data) {
 	});
 
 	router.put('/v1/org/:id/user/:user_guid', ctx => {
-		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		const org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
 		if (org) {
 			const { user_guid } = ctx.params;
 			const user = org.users.find(u => u.guid === user_guid);
@@ -434,7 +444,7 @@ function createAPIRoutes(server, data) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: `"user_guid" contained an invalid value.`
+					message: '"user_guid" contained an invalid value.'
 				};
 				return;
 			}
@@ -488,7 +498,7 @@ function createAPIRoutes(server, data) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: `"user_guid" contained an invalid value.`
+					message: '"user_guid" contained an invalid value.'
 				};
 				return;
 			}
@@ -533,7 +543,7 @@ function createAPIRoutes(server, data) {
 				guid: user.guid,
 				roles: ctx.request.body.roles,
 				primary: true
-			})
+			});
 
 			ctx.body = {
 				success: true,
@@ -551,7 +561,7 @@ function createAPIRoutes(server, data) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: `"user_guid" contained an invalid value.`
+					message: '"user_guid" contained an invalid value.'
 				};
 				return;
 			}
@@ -620,8 +630,8 @@ function createAPIRoutes(server, data) {
 			if (!org) {
 				return;
 			}
-			teams = teams.filter(t => t.org_guid === org.guid &&
-				(!name || t.name.toLowerCase().includes(String(name).trim().toLowerCase())));
+			teams = teams.filter(t => t.org_guid === org.guid
+				&& (!name || t.name.toLowerCase().includes(String(name).trim().toLowerCase())));
 		}
 
 		ctx.body = {
@@ -631,7 +641,7 @@ function createAPIRoutes(server, data) {
 	});
 
 	router.post('/v1/team', ctx => {
-		const info = ctx.request.body
+		const info = ctx.request.body;
 		const org = data.orgs.find(o => o.guid === info.org_guid);
 
 		if (!org) {
@@ -705,7 +715,7 @@ function createAPIRoutes(server, data) {
 
 function createAuthRoutes(server) {
 	const router = new Router();
-	let counter = 0;
+	const counter = 0;
 
 	router.get('/realms/test_realm/protocol/openid-connect/userinfo', ctx => {
 		ctx.body = {
@@ -749,16 +759,16 @@ function createAuthRoutes(server) {
 	});
 
 	router.get('/realms/test_realm/.well-known/openid-configuration', ctx => {
-		ctx.body = JSON.parse(fs.readFileSync(path.join(__dirname, 'server-info.json')));
+		ctx.body = JSON.parse(fs.readFileSync(path.join(__dirname, 'server-info.json'), 'utf8'));
 	});
 
 	return router.routes();
 }
 
-export function createServer(opts = {}) {
+export function createServer() {
 	return new Promise((resolve, reject) => {
 		const connections = {};
-		const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json')));
+		const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json'), 'utf8'));
 		const router = new Router();
 		const app = new Koa();
 		const sessions = {};
@@ -881,17 +891,23 @@ export function createServer(opts = {}) {
 export async function createLoginServer(opts = {}) {
 	let counter = 0;
 
-	const handler = opts.handler || (async (req, res) => {
+	const handler = opts.handler || (async (req: http.IncomingMessage, res: http.ServerResponse) => {
 		try {
 			const url = new URL(req.url, 'http://127.0.0.1:1337');
 
 			let post = {};
 			if (req.method === 'POST') {
 				post = await new Promise((resolve, reject) => {
-					const body = [];
-					req.on('data', chunk => body.push(chunk));
+					const body: Buffer[] = [];
+					req.on('data', (chunk: Buffer) => body.push(chunk));
 					req.on('error', reject);
-					req.on('end', () => resolve(Array.from(new URLSearchParams(Buffer.concat(body).toString()).entries()).reduce((p, [k,v]) => (p[k]=v,p), {})));
+					req.on('end', () => {
+						const params = new URLSearchParams(Buffer.concat(body).toString()).entries();
+						resolve(Array.from(params).reduce((p, [ k, v ]) => {
+							p[k] = v;
+							return p;
+						}, {} as any));
+					});
 				});
 			}
 
@@ -969,7 +985,7 @@ export async function createLoginServer(opts = {}) {
 					}
 
 					res.writeHead(200, { 'Content-Type': 'application/json' });
-					res.end(fs.readFileSync(path.join(__dirname, 'server-info.json'), 'utf-8'));
+					res.end(fs.readFileSync(path.join(__dirname, 'server-info.json'), 'utf8'));
 					break;
 
 				case '/':
@@ -1001,13 +1017,13 @@ export async function createLoginServer(opts = {}) {
 		}
 	});
 
-	const server = http.createServer(handler);
+	const server: HttpTestServer = http.createServer(handler) as HttpTestServer;
 	const connections = {};
 
 	server.destroy = () => {
 		return Promise.all([
 			new Promise(resolve => server.close(resolve)),
-			new Promise(resolve => {
+			new Promise<void>(resolve => {
 				for (const conn of Object.values(connections)) {
 					conn.destroy();
 				}
@@ -1096,7 +1112,7 @@ export async function createTelemetryServer(opts = {}) {
 	return server;
 }
 
-export async function stopServer() {
+export async function stopServer(this: Mocha.Context) {
 	this.timeout(5000);
 
 	// we need to wait 1 second because after logging in, the browser is redirect to platform and

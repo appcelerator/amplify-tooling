@@ -1,8 +1,9 @@
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
-import { createTelemetryServer, stopServer } from './common';
-import { Telemetry } from '../dist/index';
+import { createTelemetryServer, stopServer } from './common.js';
+import { expect } from 'chai';
+import { Telemetry } from '../src/index.js';
 
 tmp.setGracefulCleanup();
 
@@ -225,7 +226,7 @@ describe('Telemetry', () => {
 				meaningOfLife: 42
 			});
 
-			let files = fs.readdirSync(appDir);
+			const files = fs.readdirSync(appDir);
 			expect(files).to.have.lengthOf(4);
 
 			telemetry.send();
@@ -396,7 +397,7 @@ describe('Telemetry', () => {
 				try {
 					process.kill(luckyPid, 0);
 					// try again :(
-				} catch (e) {
+				} catch (e: any) {
 					// bingo!
 					fs.writeFileSync(path.join(appDir, '.lock'), String(luckyPid));
 					break;
@@ -515,7 +516,7 @@ describe('Telemetry', () => {
 			this.slow(4000);
 
 			// eslint-disable-next-line no-unused-vars
-			let { appDir, telemetry } = createTelemetry();
+			let { appDir } = createTelemetry();
 
 			for (const filename of fs.readdirSync(appDir)) {
 				if (filename.endsWith('.json')) {
@@ -528,7 +529,7 @@ describe('Telemetry', () => {
 			json.id = 'foo';
 			fs.writeJsonSync(path.join(appDir, '.sid'), json);
 
-			({ appDir, telemetry } = createTelemetry());
+			({ appDir } = createTelemetry());
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid (new), session.start
 			json = fs.readJsonSync(path.join(appDir, '.sid'));
 			expect(json.id).to.not.equal('foo');
@@ -540,7 +541,7 @@ describe('Telemetry', () => {
 
 			process.env.AXWAY_TELEMETRY_DISABLED = '1';
 
-			let { appDir, telemetry } = createTelemetry();
+			const { appDir, telemetry } = createTelemetry();
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(2);
 
 			telemetry.addEvent({ event: 'foo.bar' });

@@ -11,8 +11,8 @@ import E from '../errors.js';
 const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
 
 export interface ClientSecretOptions extends AuthenticatorOptions {
-    clientSecret?: string,
-    serviceAccount?: boolean
+	clientSecret?: string,
+	serviceAccount?: boolean
 }
 
 /**
@@ -91,7 +91,7 @@ export default class ClientSecret extends Authenticator {
 	 * @type {Object}
 	 * @access private
 	 */
-	 get refreshTokenParams(): RefreshTokenParamsResult {
+	get refreshTokenParams(): RefreshTokenParamsResult {
 		return {
 			clientSecret: this.clientSecret
 		};

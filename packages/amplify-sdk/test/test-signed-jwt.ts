@@ -1,6 +1,10 @@
 import path from 'path';
-import { Auth, Authenticator, SignedJWT } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
+import { Auth, Authenticator, SignedJWT } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
+import { expect } from 'chai';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Signed JWT', () => {
 	describe('Constructor', () => {
@@ -61,7 +65,7 @@ describe('Signed JWT', () => {
 
 			try {
 				await auth.login();
-			} catch (err) {
+			} catch (err: any) {
 				expect(err).to.be.instanceof(Error);
 				expect(err.message).to.equal(`Specified private key file does not exist: ${secretFile}`);
 				return;
@@ -81,7 +85,7 @@ describe('Signed JWT', () => {
 
 			try {
 				await auth.login('foo');
-			} catch (err) {
+			} catch (err: any) {
 				expect(err).to.be.instanceof(TypeError);
 				expect(err.message).to.equal('Expected options to be an object');
 				return;
@@ -103,7 +107,7 @@ describe('Signed JWT', () => {
 
 			try {
 				await auth.login();
-			} catch (e) {
+			} catch (e: any) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.match(/connect ECONNREFUSED 127.0.0.1:133/i);
 				expect(e.code).to.equal('ECONNREFUSED');
@@ -131,7 +135,7 @@ describe('Signed JWT', () => {
 
 			try {
 				await auth.login();
-			} catch (e) {
+			} catch (e: any) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication failed: Response code 401 (Unauthorized)');
 				return;
@@ -163,7 +167,7 @@ describe('Signed JWT', () => {
 
 			try {
 				await auth.login();
-			} catch (e) {
+			} catch (e: any) {
 				expect(e).to.be.instanceof(Error);
 				expect(e.message).to.equal('Authentication failed: Invalid server response');
 				return;

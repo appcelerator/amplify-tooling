@@ -13,7 +13,7 @@ export default class PKCE extends Authenticator {
 	 * authentication and verified by the server when retrieving the access token.
 	 * @type {String}
 	 */
-	codeVerifier: string = '';
+	codeVerifier = '';
 
 	interactive: boolean;
 

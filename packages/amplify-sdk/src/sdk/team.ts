@@ -1,6 +1,5 @@
 import Base from './base.js';
 import E from '../errors.js';
-import snooplogg from 'snooplogg';
 import {
 	Account,
 	OrgLike,
@@ -12,8 +11,6 @@ import {
 	TeamUser
 } from '../types.js';
 import { PlatformTeam } from './platform-types.js';
-
-const { warn } = snooplogg('amplify-sdk:team');
 
 export default class AmplifySDKTeam extends Base {
 	/**
@@ -290,7 +287,6 @@ export default class AmplifySDKTeam extends Base {
 		user: OrgUser
 	}> {
 		const result = await this.find(account, org, team);
-		const teamObj: Team = result.team;
 
 		const found: OrgUser | undefined = await this.sdk.org.userFind(account, result.org.guid, user);
 		if (!found) {
