@@ -4,7 +4,7 @@ import Authenticator, {
 	HashParamsResult,
 	TokenParamsResult
 } from './authenticator.js';
-import E from '../errors';
+import E from '../errors.js';
 
 export interface OwnerPasswordOptions extends AuthenticatorOptions {
 	username?: string,

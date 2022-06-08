@@ -1,9 +1,12 @@
 import fs from 'fs';
+import path from 'path';
 import { Auth } from '../src/index.js';
 import { createServer, stopServer } from './common.js';
 import { expect } from 'chai';
+import { fileURLToPath } from 'url';
 
-const serverInfo = JSON.parse(fs.readFileSync('./server-info.json', 'utf8'));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const serverInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '/server-info.json'), 'utf8'));
 
 describe('Server Info', () => {
 	afterEach(stopServer);

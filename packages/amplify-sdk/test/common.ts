@@ -5,12 +5,14 @@ import fs from 'fs-extra';
 import http from 'http';
 import jws from 'jws';
 import Koa from 'koa';
+import net from 'net';
 import path from 'path';
 import Router from '@koa/router';
 import session from 'koa-session';
 import snooplogg from 'snooplogg';
+import { Account } from '../src/types.js';
 import { fileURLToPath } from 'url';
-import { MemoryStore } from '../src/index.js';
+import { MemoryStore, TokenStore } from '../src/index.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -19,7 +21,10 @@ const { error, log } = snooplogg('test:amplify-auth:common');
 const { highlight, note } = snooplogg.styles;
 
 interface HttpTestServer extends http.Server {
-	destroy: () => Promise<void>
+	accessToken?: string,
+	refreshToken?: string,
+	createTokenStore?: (opts: any) => { account: Account, tokenStore: TokenStore },
+	destroy?: () => Promise<void>
 }
 
 function createAPIRoutes(server: any, data: any) {
@@ -33,8 +38,8 @@ function createAPIRoutes(server: any, data: any) {
 		log(`Finding session using token "${token}" or cookie "${ctx.cookies.get('connect.sid')}"`);
 
 		if (token === 'platform_access_token') {
-			const user = data.users.find(u => u.guid === '50000');
-			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
+			const user = data.users.find((u: any) => u.guid === '50000');
+			const orgs = data.orgs.filter((o: any) => o.users.find((u: any) => u.guid === user.guid));
 
 			ctx.body = {
 				success: true,
@@ -49,9 +54,9 @@ function createAPIRoutes(server: any, data: any) {
 				success: true,
 				result: null
 			};
-		} else if (ctx.session?.userGuid) {
-			const user = data.users.find(u => u.guid === ctx.session.userGuid);
-			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
+		} else if ((ctx.session as any).userGuid) {
+			const user = data.users.find((u: any) => u.guid === (ctx.session as any).userGuid);
+			const orgs = data.orgs.filter((o: any) => o.users.find((u: any) => u.guid === user.guid));
 
 			ctx.body = {
 				success: true,
@@ -69,9 +74,9 @@ function createAPIRoutes(server: any, data: any) {
 	router.post('/v1/auth/login', async ctx => {
 		const { username, password } = ctx.request.body;
 
-		const user = data.users.find(u => u.email === username);
+		const user = data.users.find((u: any) => u.email === username);
 		if (user && password === 'bar') {
-			ctx.session.userGuid = user.guid;
+			(ctx.session as any).userGuid = user.guid;
 			ctx.body = {
 				success: true,
 				result: user
@@ -83,11 +88,13 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.get('/v1/activity', ctx => {
-		let { from, to } = ctx.query;
+		const { from: fromStr, to: toStr } = ctx.query;
 		const { org_id, user_guid } = ctx.query;
+		let from: number;
+		let to: number;
 
-		if (from) {
-			from = Date.parse(from);
+		if (fromStr) {
+			from = Date.parse(fromStr as string);
 			if (isNaN(from)) {
 				ctx.status = 400;
 				ctx.body = 'Bad from date';
@@ -97,8 +104,8 @@ function createAPIRoutes(server: any, data: any) {
 			from = Date.now() - (14 * 24 * 60 * 60 * 1000); // 14 days
 		}
 
-		if (to) {
-			to = Date.parse(to);
+		if (toStr) {
+			to = Date.parse(toStr as string);
 			if (isNaN(to)) {
 				ctx.status = 400;
 				ctx.body = 'Bad to date';
@@ -110,7 +117,7 @@ function createAPIRoutes(server: any, data: any) {
 
 		ctx.body = {
 			success: true,
-			result: data.activity.filter(a => {
+			result: data.activity.filter((a: any) => {
 				return a.ts >= from
 					&& a.ts <= to
 					&& (!org_id || String(a.org_id) === org_id)
@@ -121,15 +128,15 @@ function createAPIRoutes(server: any, data: any) {
 
 	router.get('/v1/client', ctx => {
 		const { org_id } = ctx.query;
-		const orgGuid = org_id && data.orgs.find(o => String(o.org_id) === org_id)?.guid || null;
+		const orgGuid = org_id && data.orgs.find((o: any) => String(o.org_id) === org_id)?.guid || null;
 
 		ctx.body = {
 			success: true,
 			result: data.clients
-				.filter(c => {
+				.filter((c: any) => {
 					return !orgGuid || c.org_guid === orgGuid;
 				})
-				.map(c => ({
+				.map((c: any) => ({
 					client_id: c.client_id,
 					guid:      c.guid,
 					name:      c.name,
@@ -140,7 +147,7 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.get('/v1/client/:id', ctx => {
-		const result = data.clients.find(c => c.client_id === ctx.params.id);
+		const result = data.clients.find((c: any) => c.client_id === ctx.params.id);
 		if (result) {
 			ctx.body = {
 				success: true,
@@ -150,7 +157,7 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.put('/v1/client/:guid', ctx => {
-		const idx = data.clients.findIndex(c => c.guid === ctx.params.guid);
+		const idx = data.clients.findIndex((c: any) => c.guid === ctx.params.guid);
 		if (idx !== -1) {
 			const result = data.clients[idx];
 			for (const key of [ 'name', 'description', 'publicKey', 'roles', 'secret' ]) {
@@ -181,7 +188,7 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.delete('/v1/client/:id', ctx => {
-		const idx = data.clients.findIndex(c => c.client_id === ctx.params.id);
+		const idx = data.clients.findIndex((c: any) => c.client_id === ctx.params.id);
 		if (idx !== -1) {
 			const result = data.clients[idx];
 
@@ -227,7 +234,7 @@ function createAPIRoutes(server: any, data: any) {
 
 		if (teams) {
 			for (const team of teams) {
-				const info = data.teams.find(t => t.guid === team.guid);
+				const info = data.teams.find((t: any) => t.guid === team.guid);
 				info.users.push({
 					guid: result.guid,
 					type: 'client',
@@ -270,16 +277,16 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.get('/v1/org/:id/family', ctx => {
-		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		let org = data.orgs.find((o: any) => String(o.org_id) === ctx.params.id);
 		if (org?.parent_org_guid) {
-			org = data.orgs.find(o => o.org_id === org.parent_org_guid);
+			org = data.orgs.find((o: any) => o.org_id === org.parent_org_guid);
 		}
 		if (org) {
 			ctx.body = {
 				success: true,
 				result: {
 					...org,
-					children: org.children.map(c => data.orgs.find(o => o.guid === c))
+					children: org.children.map((c: any) => data.orgs.find((o: any) => o.guid === c))
 				}
 			};
 		}
@@ -287,12 +294,14 @@ function createAPIRoutes(server: any, data: any) {
 
 	router.get('/v1/org/:id/usage', ctx => {
 		const { id } = ctx.params;
-		const org = data.orgs.find(o => String(o.org_id) === id || o.guid === id);
+		const org = data.orgs.find((o: any) => String(o.org_id) === id || o.guid === id);
 		if (org) {
-			let { from, to } = ctx.query;
+			const { from: fromStr, to: toStr } = ctx.query;
+			let from: number;
+			let to: number;
 
-			if (from) {
-				from = Date.parse(from);
+			if (fromStr) {
+				from = Date.parse(fromStr as string);
 				if (isNaN(from)) {
 					ctx.status = 400;
 					ctx.body = 'Bad from date';
@@ -302,8 +311,8 @@ function createAPIRoutes(server: any, data: any) {
 				from = Date.now() - (14 * 24 * 60 * 60 * 1000); // 14 days
 			}
 
-			if (to) {
-				to = Date.parse(to);
+			if (toStr) {
+				to = Date.parse(toStr as string);
 				if (isNaN(to)) {
 					ctx.status = 400;
 					ctx.body = 'Bad to date';
@@ -321,8 +330,8 @@ function createAPIRoutes(server: any, data: any) {
 				containerPoints:   { name: 'Container Points', unit: 'Points' },
 				eventRateMonth:    { name: 'Analytics Events', unit: 'Events' }
 			};
-			const usage = data.usage.find(u => u.org_guid === org.guid);
-			const SaaS = {};
+			const usage = data.usage.find((u: any) => u.org_guid === org.guid);
+			const SaaS: any = {};
 
 			for (const [ type, meta ] of Object.entries(types)) {
 				SaaS[type] = {
@@ -355,12 +364,12 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.get('/v1/org/:id/user', ctx => {
-		const org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		const org = data.orgs.find((o: any) => String(o.org_id) === ctx.params.id);
 		if (org) {
 			ctx.body = {
 				success: true,
-				result: org.users.reduce((users, ou) => {
-					const user = data.users.find(u => u.guid === ou.guid);
+				result: org.users.reduce((users: any, ou: any) => {
+					const user = data.users.find((u: any) => u.guid === ou.guid);
 					if (user) {
 						users.push({
 							...user,
@@ -374,10 +383,10 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.post('/v1/org/:id/user', ctx => {
-		const org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		const org = data.orgs.find((o: any) => String(o.org_id) === ctx.params.id);
 		if (org) {
 			const { email, roles } = ctx.request.body;
-			const user = data.users.find(u => u.email === email || u.guid === email);
+			const user = data.users.find((u: any) => u.email === email || u.guid === email);
 
 			if (!user) {
 				ctx.status = 400;
@@ -388,7 +397,7 @@ function createAPIRoutes(server: any, data: any) {
 				return;
 			}
 
-			if (org.users.find(u => u.guid === user.guid)) {
+			if (org.users.find((u: any) => u.guid === user.guid)) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
@@ -411,10 +420,10 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.delete('/v1/org/:id/user/:user_guid', ctx => {
-		const org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		const org = data.orgs.find((o: any) => String(o.org_id) === ctx.params.id);
 		if (org) {
 			const { user_guid } = ctx.params;
-			const idx = org.users.findIndex(u => u.guid === user_guid);
+			const idx = org.users.findIndex((u: any) => u.guid === user_guid);
 
 			if (idx === -1) {
 				ctx.status = 400;
@@ -435,10 +444,10 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.put('/v1/org/:id/user/:user_guid', ctx => {
-		const org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
+		const org = data.orgs.find((o: any) => String(o.org_id) === ctx.params.id);
 		if (org) {
 			const { user_guid } = ctx.params;
-			const user = org.users.find(u => u.guid === user_guid);
+			const user = org.users.find((u: any) => u.guid === user_guid);
 
 			if (!user) {
 				ctx.status = 400;
@@ -460,7 +469,7 @@ function createAPIRoutes(server: any, data: any) {
 
 	router.get('/v1/org/:id', ctx => {
 		const { id } = ctx.params;
-		const org = data.orgs.find(o => String(o.org_id) === id || o.guid === id);
+		const org = data.orgs.find((o: any) => String(o.org_id) === id || o.guid === id);
 		if (org) {
 			ctx.body = {
 				success: true,
@@ -471,7 +480,7 @@ function createAPIRoutes(server: any, data: any) {
 
 	router.put('/v1/org/:id', ctx => {
 		const { id } = ctx.params;
-		const org = data.orgs.find(o => String(o.org_id) === id || o.guid === id);
+		const org = data.orgs.find((o: any) => String(o.org_id) === id || o.guid === id);
 		if (org) {
 			org.name = ctx.request.body.name;
 			ctx.body = {
@@ -485,14 +494,14 @@ function createAPIRoutes(server: any, data: any) {
 		const { team } = ctx.query;
 		ctx.body = {
 			success: true,
-			result: data.roles.filter(r => team ? r.team : r.org)
+			result: data.roles.filter((r: any) => team ? r.team : r.org)
 		};
 	});
 
 	router.delete('/v1/team/:guid/user/:user_guid', ctx => {
-		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		const team = data.teams.find((t: any) => t.guid === ctx.params.guid);
 		if (team) {
-			const idx = team.users.findIndex(u => u.guid === ctx.params.user_guid);
+			const idx = team.users.findIndex((u: any) => u.guid === ctx.params.user_guid);
 
 			if (idx === -1) {
 				ctx.status = 400;
@@ -513,9 +522,9 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.post('/v1/team/:guid/user/:user_guid', ctx => {
-		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		const team = data.teams.find((t: any) => t.guid === ctx.params.guid);
 		if (team) {
-			const user = data.users.find(u => u.guid === ctx.params.user_guid);
+			const user = data.users.find((u: any) => u.guid === ctx.params.user_guid);
 
 			if (!user) {
 				ctx.status = 400;
@@ -526,7 +535,7 @@ function createAPIRoutes(server: any, data: any) {
 				return;
 			}
 
-			if (team.users.find(u => u.guid === user.guid)) {
+			if (team.users.find((u: any) => u.guid === user.guid)) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
@@ -553,9 +562,9 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.put('/v1/team/:guid/user/:user_guid', ctx => {
-		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		const team = data.teams.find((t: any) => t.guid === ctx.params.guid);
 		if (team) {
-			const user = team.users.find(u => u.guid === ctx.params.user_guid);
+			const user = team.users.find((u: any) => u.guid === ctx.params.user_guid);
 
 			if (!user) {
 				ctx.status = 400;
@@ -576,7 +585,7 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.delete('/v1/team/:guid', ctx => {
-		const idx = data.teams.findIndex(t => t.guid === ctx.params.guid);
+		const idx = data.teams.findIndex((t: any) => t.guid === ctx.params.guid);
 		if (idx !== -1) {
 			data.teams.splice(idx, 1);
 			ctx.body = {
@@ -587,7 +596,7 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.get('/v1/team/:guid', ctx => {
-		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		const team = data.teams.find((t: any) => t.guid === ctx.params.guid);
 		if (team) {
 			ctx.body = {
 				success: true,
@@ -597,7 +606,7 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.put('/v1/team/:guid', ctx => {
-		const team = data.teams.find(t => t.guid === ctx.params.guid);
+		const team = data.teams.find((t: any) => t.guid === ctx.params.guid);
 		if (team) {
 			const info = ctx.request.body;
 
@@ -626,11 +635,11 @@ function createAPIRoutes(server: any, data: any) {
 
 		const { name, org_id } = ctx.query;
 		if (org_id) {
-			const org = data.orgs.find(o => String(o.org_id) === org_id);
+			const org = data.orgs.find((o: any) => String(o.org_id) === org_id);
 			if (!org) {
 				return;
 			}
-			teams = teams.filter(t => t.org_guid === org.guid
+			teams = teams.filter((t: any) => t.org_guid === org.guid
 				&& (!name || t.name.toLowerCase().includes(String(name).trim().toLowerCase())));
 		}
 
@@ -642,7 +651,7 @@ function createAPIRoutes(server: any, data: any) {
 
 	router.post('/v1/team', ctx => {
 		const info = ctx.request.body;
-		const org = data.orgs.find(o => o.guid === info.org_guid);
+		const org = data.orgs.find((o: any) => o.guid === info.org_guid);
 
 		if (!org) {
 			throw new Error('Org not found');
@@ -668,18 +677,15 @@ function createAPIRoutes(server: any, data: any) {
 
 	router.put('/v1/user/profile/:id', ctx => {
 		const { id } = ctx.params;
-		const user = data.users.find(u => u.guid === id);
+		const user = data.users.find((u: any) => u.guid === id);
 		if (user) {
-			const { firstname, lastname, phone } = ctx.request.body;
+			const { firstname, lastname } = ctx.request.body;
 
 			if (firstname) {
 				user.firstname = firstname;
 			}
 			if (lastname) {
 				user.lastname = lastname;
-			}
-			if (phone) {
-				user.phone = phone;
 			}
 
 			ctx.body = {
@@ -691,7 +697,7 @@ function createAPIRoutes(server: any, data: any) {
 
 	router.get('/v1/user/:id', ctx => {
 		const { id } = ctx.params;
-		const user = data.users.find(u => u.guid === id);
+		const user = data.users.find((u: any) => u.guid === id);
 		if (user) {
 			ctx.body = {
 				success: true,
@@ -705,7 +711,7 @@ function createAPIRoutes(server: any, data: any) {
 		if (term) {
 			ctx.body = {
 				success: true,
-				result: data.users.filter(u => u.email === term)
+				result: data.users.filter((u: any) => u.email === term)
 			};
 		}
 	});
@@ -713,7 +719,7 @@ function createAPIRoutes(server: any, data: any) {
 	return router.routes();
 }
 
-function createAuthRoutes(server) {
+function createAuthRoutes(server: HttpTestServer) {
 	const router = new Router();
 	const counter = 0;
 
@@ -765,13 +771,13 @@ function createAuthRoutes(server) {
 	return router.routes();
 }
 
-export function createServer() {
+export function createServer(): Promise<HttpTestServer> {
 	return new Promise((resolve, reject) => {
-		const connections = {};
+		const connections: { [key: string]: net.Socket } = {};
 		const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json'), 'utf8'));
 		const router = new Router();
 		const app = new Koa();
-		const sessions = {};
+		const sessions: any = {};
 
 		app.keys = [ 'a', 'b' ];
 		app.use(bodyParser());
@@ -797,7 +803,7 @@ export function createServer() {
 		});
 		app.use(router.routes());
 
-		const server = app
+		const server: HttpTestServer = app
 			.listen(1337, '127.0.0.1')
 			.on('connection', conn => {
 				const key = conn.remoteAddress + ':' + conn.remotePort;
@@ -815,7 +821,7 @@ export function createServer() {
 			.on('error', reject);
 
 		router.use('/api', createAPIRoutes(server, data));
-		router.use('/auth', createAuthRoutes(server, data));
+		router.use('/auth', createAuthRoutes(server));
 
 		router.get([ '/', '/success' ], ctx => {
 			ctx.body = `<html>
@@ -836,9 +842,9 @@ export function createServer() {
 </html>`;
 		});
 
-		server.createTokenStore = (opts = {}) => {
-			const user = data.users.find(u => u.guid === (opts.userGuid || '50000'));
-			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
+		server.createTokenStore = (opts = {}): { account: Account, tokenStore: TokenStore } => {
+			const user = data.users.find((u: any) => u.guid === (opts.userGuid || '50000'));
+			const orgs = data.orgs.filter((o: any) => o.users.find((u: any) => u.guid === user.guid));
 			const account = JSON.parse(JSON.stringify({
 				auth: {
 					baseUrl: 'http://127.0.0.1:1337',
@@ -855,7 +861,7 @@ export function createServer() {
 				},
 				name: 'test_client:foo@bar.com',
 				org: orgs[0],
-				orgs: orgs.map(o => {
+				orgs: orgs.map((o: any) => {
 					const r = { ...o };
 					r.id = r.org_id;
 					delete r.org_id;
@@ -888,12 +894,12 @@ export function createServer() {
 	});
 }
 
-export async function createLoginServer(opts = {}) {
+export async function createLoginServer(opts: any = {}): Promise<HttpTestServer> {
 	let counter = 0;
 
 	const handler = opts.handler || (async (req: http.IncomingMessage, res: http.ServerResponse) => {
 		try {
-			const url = new URL(req.url, 'http://127.0.0.1:1337');
+			const url = new URL(req.url as string, 'http://127.0.0.1:1337');
 
 			let post = {};
 			if (req.method === 'POST') {
@@ -1010,7 +1016,7 @@ export async function createLoginServer(opts = {}) {
 </html>`);
 					break;
 			}
-		} catch (e) {
+		} catch (e: any) {
 			error(e);
 			res.writeHead(400, { 'Content-Type': 'text/plain' });
 			res.end(e.toString());
@@ -1018,11 +1024,11 @@ export async function createLoginServer(opts = {}) {
 	});
 
 	const server: HttpTestServer = http.createServer(handler) as HttpTestServer;
-	const connections = {};
+	const connections: { [key: string]: net.Socket } = {};
 
-	server.destroy = () => {
-		return Promise.all([
-			new Promise(resolve => server.close(resolve)),
+	server.destroy = async (): Promise<void> => {
+		await Promise.all<void>([
+			new Promise<void>(resolve => server.close(() => resolve())),
 			new Promise<void>(resolve => {
 				for (const conn of Object.values(connections)) {
 					conn.destroy();
@@ -1051,15 +1057,15 @@ export async function createLoginServer(opts = {}) {
 	return server;
 }
 
-export async function createTelemetryServer(opts = {}) {
-	const server = http.createServer(async (req, res) => {
+export async function createTelemetryServer(opts: any = {}) {
+	const server: HttpTestServer = http.createServer(async (req: http.IncomingMessage, res: http.ServerResponse) => {
 		try {
-			const url = new URL(req.url, 'http://127.0.0.1:13372');
+			const url = new URL(req.url as string, 'http://127.0.0.1:13372');
 			log(`Incoming request: ${req.method} ${highlight(url.pathname)}`);
 
 			if (req.method === 'POST') {
 				const post = await new Promise((resolve, reject) => {
-					const body = [];
+					const body: Buffer[] = [];
 					req.on('data', chunk => body.push(chunk));
 					req.on('error', reject);
 					req.on('end', () => resolve(JSON.parse(Buffer.concat(body).toString())));
@@ -1075,17 +1081,17 @@ export async function createTelemetryServer(opts = {}) {
 						break;
 				}
 			}
-		} catch (e) {
+		} catch (e: any) {
 			res.writeHead(400, { 'Content-Type': 'text/plain' });
 			res.end(e.toString());
 		}
 	});
-	const connections = {};
+	const connections: { [key: string]: net.Socket } = {};
 
-	server.destroy = () => {
-		return Promise.all([
-			new Promise(resolve => server.close(resolve)),
-			new Promise(resolve => {
+	server.destroy = async (): Promise<void> => {
+		await Promise.all<void>([
+			new Promise<void>(resolve => server.close(() => resolve())),
+			new Promise<void>(resolve => {
 				for (const conn of Object.values(connections)) {
 					conn.destroy();
 				}

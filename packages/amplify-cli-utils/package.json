@@ -21,9 +21,10 @@
   "scripts": {
     "build": "tsc",
     "coverage": "c8 npm run test",
-    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:test",
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:test npm:lint:tsc",
     "lint:src": "eslint src/**/*.ts",
     "lint:test": "eslint --parser-options=project:'test/tsconfig.json' test/**/*.ts",
+    "lint:tsc": "tsc -p tsconfig.json",
     "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
     "test": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --reporter spec"
   },

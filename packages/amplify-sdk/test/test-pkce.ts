@@ -1,8 +1,11 @@
 /* eslint-disable max-len */
 
+import http from 'http';
+import { Account } from '../src/types.js';
 import { Auth, Authenticator } from '../src/index.js';
 import { createLoginServer, stopLoginServer } from './common.js';
 import { expect } from 'chai';
+import { ManualLoginResult } from '../src/authenticators/authenticator.js';
 
 const isCI = process.env.CI || process.env.JENKINS;
 
@@ -18,7 +21,7 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			await expect(auth.login('foo'))
+			await expect(auth.login('foo' as any))
 				.to.eventually.be.rejectedWith(TypeError, 'Expected options to be an object');
 		});
 
@@ -30,7 +33,7 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			const { cancel, url } = await auth.login({ manual: true });
+			const { cancel, url }: ManualLoginResult = await auth.login({ manual: true }) as ManualLoginResult;
 			await cancel();
 			expect(url).to.match(/^http:\/\/127\.0\.0\.1:1337\/auth\/realms\/test_realm\/protocol\/openid-connect\/auth\?access_type=offline&client_id=test_client&code_challenge=.+&code_challenge_method=S256&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A\d+%2Fcallback%2F.+&response_type=code&scope=openid$/);
 		});
@@ -49,7 +52,7 @@ describe('PKCE', () => {
 
 		it('should error if code is incorrect', async function () {
 			this.server = await createLoginServer({
-				handler(req, res) {
+				handler(req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(401, { 'Content-Type': 'text/plain' });
 					res.end('Unauthorized');
 				}
@@ -105,7 +108,7 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			const account = await auth.login({ code: 'foo' });
+			const account: Account = await auth.login({ code: 'foo' }) as Account;
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 
@@ -125,7 +128,7 @@ describe('PKCE', () => {
 
 		it('should error if server returns invalid user identity', async function () {
 			this.server = await createLoginServer({
-				handler(req, res) {
+				handler(req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(200, { 'Content-Type': 'application/json' });
 					res.end(JSON.stringify({
 						// no access token!
@@ -159,7 +162,7 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			const account = await auth.login();
+			const account: Account = await auth.login() as Account;
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
@@ -182,12 +185,12 @@ describe('PKCE', () => {
 				tokenStoreType: 'memory'
 			});
 
-			let results = await auth.login({ code: 'foo' });
+			let results: Account = await auth.login({ code: 'foo' }) as Account;
 			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			results = await auth.login({ code: 'foo' });
+			results = await auth.login({ code: 'foo' }) as Account;
 			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 
@@ -238,8 +241,8 @@ describe('PKCE', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login({ code: 'foo' });
-			const revoked = await auth.logout({ accounts: account.name });
+			const account: Account = await auth.login({ code: 'foo' }) as Account;
+			const revoked: Account[] = await auth.logout({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
 		});
 

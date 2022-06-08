@@ -1,4 +1,6 @@
+import http from 'http';
 import path from 'path';
+import { Account } from '../src/types.js';
 import { Auth, Authenticator, SignedJWT } from '../src/index.js';
 import { createLoginServer, stopLoginServer } from './common.js';
 import { expect } from 'chai';
@@ -16,35 +18,35 @@ describe('Signed JWT', () => {
 
 		it('should error if secret is invalid', () => {
 			expect(() => {
-				new SignedJWT({});
+				new SignedJWT({} as any);
 			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
 
 			expect(() => {
-				new SignedJWT({ secret: null });
+				new SignedJWT({ secret: null } as any);
 			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
 
 			expect(() => {
-				new SignedJWT({ secret: '' });
+				new SignedJWT({ secret: '' } as any);
 			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
 
 			expect(() => {
-				new SignedJWT({ secret: 123 });
+				new SignedJWT({ secret: 123 } as any);
 			}).to.throw(TypeError, 'Expected private key to be a string');
 
 			expect(() => {
-				new SignedJWT({ secretFile: null });
+				new SignedJWT({ secretFile: null } as any);
 			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
 
 			expect(() => {
-				new SignedJWT({ secretFile: '' });
+				new SignedJWT({ secretFile: '' } as any);
 			}).to.throw(Error, 'Expected either a private key or private key file to be an object');
 
 			expect(() => {
-				new SignedJWT({ secretFile: 123 });
+				new SignedJWT({ secretFile: 123 } as any);
 			}).to.throw(Error, 'Expected private key file path to be a string');
 
 			expect(() => {
-				new SignedJWT({ secretFile: __dirname });
+				new SignedJWT({ secretFile: __dirname } as any);
 			}).to.throw(Error, /^Specified private key is not a file:/);
 		});
 	});
@@ -84,7 +86,7 @@ describe('Signed JWT', () => {
 			});
 
 			try {
-				await auth.login('foo');
+				await auth.login('foo' as any);
 			} catch (err: any) {
 				expect(err).to.be.instanceof(TypeError);
 				expect(err.message).to.equal('Expected options to be an object');
@@ -119,7 +121,7 @@ describe('Signed JWT', () => {
 
 		it('should error if JWT token is incorrect', async function () {
 			this.server = await createLoginServer({
-				handler(req, res) {
+				handler(req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(401, { 'Content-Type': 'text/plain' });
 					res.end('Unauthorized');
 				}
@@ -154,7 +156,7 @@ describe('Signed JWT', () => {
 			});
 
 			this.server = await createLoginServer({
-				handler(req, res) {
+				handler(req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(200, { 'Content-Type': 'application/json' });
 					res.end(JSON.stringify({
 						access_token:       'foo',
@@ -180,7 +182,7 @@ describe('Signed JWT', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -202,7 +204,7 @@ describe('Signed JWT', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login();
+			const account: Account = await auth.login() as Account;
 			expect(account.name).to.equal('test_client:foo@bar.com');
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
@@ -215,7 +217,7 @@ describe('Signed JWT', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -236,13 +238,13 @@ describe('Signed JWT', () => {
 				tokenStoreType: 'memory'
 			});
 
-			let results = await auth.login();
+			let results: Account = await auth.login() as Account;
 			const { accessToken } = this.server;
 			expect(results.auth.tokens.access_token).to.equal(accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1500));
 
-			results = await auth.login();
+			results = await auth.login() as Account;
 			expect(results.auth.tokens.access_token).to.not.equal(accessToken);
 			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
@@ -251,7 +253,7 @@ describe('Signed JWT', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -263,7 +265,7 @@ describe('Signed JWT', () => {
 							break;
 					}
 				},
-				userinfo(post, req, res) {
+				userinfo(post: any, req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(500, { 'Content-Type': 'text/plain' });
 					res.end('Server error');
 					return true;
@@ -278,7 +280,7 @@ describe('Signed JWT', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login();
+			const account: Account = await auth.login() as Account;
 			expect(account.name).to.equal('test_client:foo@bar.com');
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
@@ -292,7 +294,7 @@ describe('Signed JWT', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 10,
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -314,7 +316,7 @@ describe('Signed JWT', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login();
+			const account: Account = await auth.login() as Account;
 			const revoked = await auth.logout({ accounts: account.name });
 			expect(revoked).to.have.lengthOf(1);
 		});

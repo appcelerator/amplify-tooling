@@ -1,5 +1,7 @@
 /* eslint-disable max-len */
 
+import http from 'http';
+import { Account } from '../src/types.js';
 import { Auth, Authenticator, ClientSecret } from '../src/index.js';
 import { createLoginServer, stopLoginServer } from './common.js';
 import { expect } from 'chai';
@@ -16,15 +18,15 @@ describe('Client Secret', () => {
 
 		it('should error if client secret is invalid', () => {
 			expect(() => {
-				new ClientSecret({});
+				new ClientSecret({} as any);
 			}).to.throw(TypeError, 'Expected client secret to be a non-empty string');
 
 			expect(() => {
-				new ClientSecret({ clientSecret: null });
+				new ClientSecret({ clientSecret: null } as any);
 			}).to.throw(TypeError, 'Expected client secret to be a non-empty string');
 
 			expect(() => {
-				new ClientSecret({ clientSecret: '' });
+				new ClientSecret({ clientSecret: '' } as any);
 			}).to.throw(TypeError, 'Expected client secret to be a non-empty string');
 		});
 	});
@@ -47,7 +49,7 @@ describe('Client Secret', () => {
 
 		it('should error if code is incorrect', async function () {
 			this.server = await createLoginServer({
-				handler(req, res) {
+				handler(req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(401, { 'Content-Type': 'text/plain' });
 					res.end('Unauthorized');
 				}
@@ -84,7 +86,7 @@ describe('Client Secret', () => {
 
 		it('should error if server returns invalid user identity', async function () {
 			this.server = await createLoginServer({
-				handler(req, res) {
+				handler(req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(200, { 'Content-Type': 'application/json' });
 					res.end(JSON.stringify({
 						// no access token!
@@ -123,7 +125,7 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login();
+			const account: Account = await auth.login() as Account;
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
@@ -136,7 +138,7 @@ describe('Client Secret', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token: post => {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -161,12 +163,12 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			let account = await auth.login();
+			let account: Account = await auth.login() as Account;
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			account = await auth.login();
+			account = await auth.login() as Account;
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 	});
@@ -184,7 +186,7 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			await expect(auth.login('foo'))
+			await expect(auth.login('foo' as any))
 				.to.eventually.be.rejectedWith(TypeError, 'Expected options to be an object');
 		});
 
@@ -206,7 +208,7 @@ describe('Client Secret', () => {
 
 		it('should error if server returns invalid user identity', async function () {
 			this.server = await createLoginServer({
-				handler(req, res) {
+				handler(req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(200, { 'Content-Type': 'application/json' });
 					res.end(JSON.stringify({
 						// no access token!
@@ -257,7 +259,7 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login();
+			const account: Account = await auth.login() as Account;
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
@@ -270,7 +272,7 @@ describe('Client Secret', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token: post => {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -294,12 +296,12 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			let results = await auth.login();
+			let results: Account = await auth.login() as Account;
 			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			results = await auth.login();
+			results = await auth.login() as Account;
 			expect(results.auth.tokens.access_token).to.equal(this.server.accessToken);
 		});
 	});
@@ -311,7 +313,7 @@ describe('Client Secret', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				token: post => {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -336,7 +338,7 @@ describe('Client Secret', () => {
 				tokenStoreType: 'memory'
 			});
 
-			const account = await auth.login();
+			const account: Account = await auth.login() as Account;
 			expect(account.name).to.equal('test_client:foo@bar.com');
 
 			const revoked = await auth.logout({ accounts: account.name });

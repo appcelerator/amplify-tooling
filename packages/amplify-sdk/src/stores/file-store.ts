@@ -178,7 +178,7 @@ export default class FileStore extends TokenStore {
 					await this.save(validEntries);
 				}
 				return validEntries;
-			} catch (e) {
+			} catch (e: any) {
 				// the decode failed (or there was a keytar problem), so just log a warning and
 				// return an empty result
 				warn(e);
@@ -218,19 +218,11 @@ export default class FileStore extends TokenStore {
 				const v1: any = {
 					...acct,
 					...acct.auth,
-					org: {
-						...acct.org,
-						org_id: acct.org?.id
-					},
-					orgs: !Array.isArray(acct.orgs) ? [] : acct.orgs.map(org => {
-						const o = { ...org, org_id: org.id };
-						delete o.id;
-						return o;
-					})
+					org: acct.org,
+					orgs: !Array.isArray(acct.orgs) ? [] : acct.orgs
 				};
 
 				delete v1.auth;
-				delete v1.org.id;
 
 				return v1 as Account;
 			}));

@@ -19,7 +19,7 @@ describe('Endpoints', () => {
 
 		expect(() => {
 			getEndpoints({
-				baseUrl: 123
+				baseUrl: 123 as any
 			});
 		}).to.throw(TypeError, 'Expected baseUrl to be a non-empty string');
 	});
@@ -41,7 +41,7 @@ describe('Endpoints', () => {
 		expect(() => {
 			getEndpoints({
 				baseUrl: 'http://localhost/',
-				realm: 123
+				realm: 123 as any
 			});
 		}).to.throw(TypeError, 'Expected realm to be a non-empty string');
 	});

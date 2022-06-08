@@ -1,4 +1,4 @@
-import TokenStore from './token-store';
+import TokenStore from './token-store.js';
 import { Account } from '../types.js';
 
 /**

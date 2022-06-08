@@ -1,8 +1,9 @@
 import AmplifySDK from '../amplify-sdk.js';
-import Auth, { DefaultOptions, ServerInfo, ServerInfoOptions } from '../auth.js';
+import Auth, { AuthOptions, DefaultOptions, ServerInfo, ServerInfoOptions } from '../auth.js';
 import Base from './base.js';
 import E from '../errors.js';
 import getEndpoints from '../endpoints.js';
+import http from 'http';
 import open from 'open';
 import Server from '../server.js';
 import snooplogg from 'snooplogg';
@@ -34,7 +35,7 @@ export default class AmplifySDKAuth extends Base {
 	get client(): Auth {
 		try {
 			if (!this._client) {
-				this._client = new Auth(this.sdk.opts);
+				this._client = new Auth(this.sdk.opts as AuthOptions);
 			}
 			return this._client;
 		} catch (err: any) {
@@ -424,7 +425,7 @@ export default class AmplifySDKAuth extends Base {
 			}
 
 			const server = new Server();
-			const { start, url: redirect } = await server.createCallback(async (req, res) => {
+			const { start, url: redirect } = await server.createCallback(async (req: http.IncomingMessage, res: http.ServerResponse) => {
 				log(`Telling browser to redirect to ${highlight(this.platformUrl)}`);
 				res.writeHead(302, {
 					Location: this.platformUrl

@@ -207,8 +207,7 @@ const activity = await sdk.user.activity(account, {
 // update user info
 const { changes, user } = await sdk.user.update(account, {
 	firstname: 'Elite',
-	lastname: 'Coder',
-	phone: '555-1212'
+	lastname: 'Coder'
 });
 ```
 
@@ -253,13 +252,11 @@ account: {
 		{ /* org */ }
 	],
 	user: {
-		axwayId:      '<SNIP>',
 		email:        '',
-		firstName:    '',
+		firstname:    '',
 		guid:         '',
-		lastName:     '',
-		organization: '',
-		is2FAEnabled: true
+		lastname:     '',
+		organization: ''
 	},
 	sid: '<SNIP>'
 }

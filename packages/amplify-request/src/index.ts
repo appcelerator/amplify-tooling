@@ -1,10 +1,9 @@
 import fs from 'fs';
-import got from 'got';
+import got, { Got } from 'got';
 import HttpProxyAgent from 'http-proxy-agent';
 import HttpsProxyAgent from 'https-proxy-agent';
 import prettyBytes from 'pretty-bytes';
 import snooplogg from 'snooplogg';
-import { Got } from 'got/dist/source/types.js';
 import { mergeDeep } from '@axway/amplify-utils';
 
 const { log } = snooplogg('amplify-request');

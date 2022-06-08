@@ -207,7 +207,7 @@ export interface TeamUser {
 
 export interface User {
 	client_id?: string,
-	dateJoined: string, // ISO date
+	dateJoined?: string, // ISO date
 	email: string,
 	firstname: string,
 	guid: string,

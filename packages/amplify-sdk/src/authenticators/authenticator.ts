@@ -2,6 +2,7 @@ import E from '../errors.js';
 import ejs from 'ejs';
 import fs from 'fs-extra';
 import getEndpoints, { Endpoints } from '../endpoints.js';
+import http from 'http';
 import jws from 'jws';
 import open from 'open';
 import path from 'path';
@@ -12,9 +13,9 @@ import * as environments from '../environments.js';
 import * as request from '@axway/amplify-request';
 import Server, { CallbackHandle } from '../server.js';
 
-import { Account } from '../types.js';
+import { Account, Org, User } from '../types.js';
 import { createURL, md5, prepareForm } from '../util.js';
-import { Got } from 'got/dist/source/types.js';
+import { Got } from 'got';
 
 const { log, warn } = snooplogg('amplify-auth:authenticator');
 const { green, highlight, red, note } = snooplogg.styles;
@@ -273,15 +274,15 @@ export default class Authenticator {
 			const { email, family_name, given_name, guid, org_guid, org_name } = body as { [key: string]: string };
 
 			if (!account.user || typeof account.user !== 'object') {
-				account.user = {};
+				account.user = {} as User;
 			}
 			account.user.email     = email;
-			account.user.firstName = given_name;
+			account.user.firstname = given_name;
 			account.user.guid      = guid || account.user.guid;
-			account.user.lastName  = family_name;
+			account.user.lastname  = family_name;
 
 			if (!account.org || typeof account.org !== 'object') {
-				account.org = {};
+				account.org = {} as Org;
 			}
 			account.org.name = org_name;
 			account.org.guid = org_guid;
@@ -420,7 +421,7 @@ export default class Authenticator {
 		let email;
 		let guid;
 		let idp;
-		let org = {};
+		let org: Org = {} as Org;
 		let name = this.hash;
 
 		try {
@@ -437,7 +438,7 @@ export default class Authenticator {
 			idp = info.payload.identity_provider;
 			const { orgId } = info.payload;
 			if (orgId) {
-				org = { name: orgId, id: orgId };
+				org = { name: orgId, org_id: orgId } as Org;
 			}
 		} catch (e: any) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
@@ -466,12 +467,10 @@ export default class Authenticator {
 			org,
 			orgs:              org ? [ org ] : [],
 			user: {
-				axwayId:       undefined,
 				email,
-				firstName:     undefined,
+				firstname:     '',
 				guid,
-				lastName:      undefined,
-				organization:  undefined
+				lastname:      ''
 			}
 		});
 
@@ -569,7 +568,7 @@ export default class Authenticator {
 			timeout: opts.timeout
 		});
 
-		const orgSelectedCallback = await server.createCallback(async (req, res) => {
+		const orgSelectedCallback = await server.createCallback(async (req: http.IncomingMessage, res: http.ServerResponse) => {
 			res.writeHead(302, {
 				'Content-Type': 'text/html',
 				Location: this.platformUrl
@@ -581,7 +580,7 @@ export default class Authenticator {
 			}));
 		});
 
-		const codeCallback: CallbackHandle = await server.createCallback(async (req, res, { searchParams }) => {
+		const codeCallback: CallbackHandle = await server.createCallback(async (req: http.IncomingMessage, res: http.ServerResponse, { searchParams }) => {
 			const code = searchParams.get('code');
 			if (!code) {
 				throw new Error('Invalid auth code');

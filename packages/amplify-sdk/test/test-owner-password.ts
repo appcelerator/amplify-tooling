@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-expressions */
 
+import http from 'http';
 import tmp from 'tmp';
+import { Account } from '../src/types.js';
 import { Auth, Authenticator, MemoryStore, OwnerPassword } from '../src/index.js';
 import { createLoginServer, stopLoginServer } from './common.js';
 import { expect } from 'chai';
@@ -9,31 +11,31 @@ describe('Owner Password', () => {
 	describe('Constructor', () => {
 		it('should error if options is invalid', () => {
 			expect(() => {
-				new OwnerPassword();
+				new OwnerPassword(undefined as any);
 			}).to.throw(TypeError, 'Expected options to be an object');
 		});
 
 		it('should error if username is invalid', () => {
 			expect(() => {
-				new OwnerPassword({});
+				new OwnerPassword({} as any);
 			}).to.throw(TypeError, 'Expected username to be a non-empty string');
 
 			expect(() => {
-				new OwnerPassword({ username: null });
+				new OwnerPassword({ username: null } as any);
 			}).to.throw(TypeError, 'Expected username to be a non-empty string');
 
 			expect(() => {
-				new OwnerPassword({ username: '' });
+				new OwnerPassword({ username: '' } as any);
 			}).to.throw(TypeError, 'Expected username to be a non-empty string');
 		});
 
 		it('should error if password is invalid', () => {
 			expect(() => {
-				new OwnerPassword({ username: 'foo' });
+				new OwnerPassword({ username: 'foo' } as any);
 			}).to.throw(TypeError, 'Expected password to be a string');
 
 			expect(() => {
-				new OwnerPassword({ username: 'foo', password: null });
+				new OwnerPassword({ username: 'foo', password: null } as any);
 			}).to.throw(TypeError, 'Expected password to be a string');
 		});
 	});
@@ -50,7 +52,7 @@ describe('Owner Password', () => {
 			});
 
 			try {
-				await auth.login('foo');
+				await auth.login('foo' as any);
 			} catch (err: any) {
 				expect(err).to.be.instanceof(TypeError);
 				expect(err.message).to.equal('Expected options to be an object');
@@ -87,7 +89,7 @@ describe('Owner Password', () => {
 
 		it('should error if username/password is incorrect', async function () {
 			this.server = await createLoginServer({
-				handler(req, res) {
+				handler(req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(401, { 'Content-Type': 'text/plain' });
 					res.end('Unauthorized');
 				}
@@ -124,10 +126,10 @@ describe('Owner Password', () => {
 				tokenStoreType: null
 			});
 
-			const account = await auth.login({
+			const account: Account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 			expect(account.name).to.equal('test_client:foo@bar.com');
 			expect(account.auth.expired).to.be.false;
@@ -141,7 +143,7 @@ describe('Owner Password', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
@@ -165,10 +167,10 @@ describe('Owner Password', () => {
 				tokenStoreType: 'file'
 			});
 
-			let account = await auth.login({
+			let account: Account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 			const { accessToken } = this.server;
 			expect(account.auth.tokens.access_token).to.equal(accessToken);
 			expect(account.auth.expired).to.be.false;
@@ -180,7 +182,7 @@ describe('Owner Password', () => {
 			account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 			expect(account.auth.tokens.access_token).to.not.equal(accessToken);
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 			expect(account.auth.expired).to.be.false;
@@ -188,7 +190,7 @@ describe('Owner Password', () => {
 
 		it('should handle bad user info response', async function () {
 			this.server = await createLoginServer({
-				userinfo(post, req, res) {
+				userinfo(post: any, req: http.IncomingMessage, res: http.ServerResponse) {
 					res.writeHead(200, { 'Content-Type': 'text/plain' });
 					res.end('{{{{{{');
 					return true;
@@ -204,10 +206,10 @@ describe('Owner Password', () => {
 				tokenStoreType: null
 			});
 
-			const account = await auth.login({
+			const account: Account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 			expect(account.auth.tokens.access_token).to.not.equal(accessToken);
 		});
 	});
@@ -239,10 +241,10 @@ describe('Owner Password', () => {
 				tokenStoreType: 'file'
 			});
 
-			const results = await auth.login({
+			const results: Account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			const account = await auth.find({ accountName: 'test_client:foo@bar.com' });
 			expect(account).to.be.ok;
@@ -285,7 +287,7 @@ describe('Owner Password', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 			expect(account.name).to.equal('test_client:foo@bar.com');
 			expect(account.auth.expired).to.be.false;
 
@@ -325,7 +327,7 @@ describe('Owner Password', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 			expect(account.name).to.equal('test_client:foo@bar.com');
 			expect(account.auth.expired).to.be.false;
 

@@ -5,13 +5,13 @@ describe('Authenticator', () => {
 	describe('Constructor', () => {
 		it('should error if options is invalid', () => {
 			expect(() => {
-				new Authenticator('foo');
+				new Authenticator('foo' as any);
 			}).to.throw(TypeError, 'Expected options to be an object');
 		});
 
 		it('should error if base URL is not specified', () => {
 			expect(() => {
-				new Authenticator({});
+				new Authenticator({} as any);
 			}).to.throw(Error, 'Invalid base URL: env or baseUrl required');
 		});
 
@@ -19,7 +19,7 @@ describe('Authenticator', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 123
-				});
+				} as any);
 			}).to.throw(Error, 'Invalid base URL: env or baseUrl required');
 		});
 
@@ -27,14 +27,14 @@ describe('Authenticator', () => {
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337'
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected required parameter "clientId" to be a non-empty string');
 
 			expect(() => {
 				new Authenticator({
 					baseUrl: 'http://127.0.0.1:1337',
 					clientId: ''
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected required parameter "clientId" to be a non-empty string');
 		});
 
@@ -45,7 +45,7 @@ describe('Authenticator', () => {
 					clientId: 'test_client',
 					realm: 'test_realm',
 					accessType: 123
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected parameter "accessType" to be a string');
 		});
 
@@ -56,7 +56,7 @@ describe('Authenticator', () => {
 					clientId: 'test_client',
 					realm: 'test_realm',
 					responseType: 123
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected parameter "responseType" to be a string');
 		});
 
@@ -67,7 +67,7 @@ describe('Authenticator', () => {
 					clientId: 'test_client',
 					realm: 'test_realm',
 					scope: 123
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected parameter "scope" to be a string');
 		});
 
@@ -81,7 +81,7 @@ describe('Authenticator', () => {
 					endpoints: {
 						auth: ''
 					}
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected "auth" endpoint URL to be a non-empty string');
 		});
 
@@ -95,7 +95,7 @@ describe('Authenticator', () => {
 					endpoints: {
 						foo: 'bar'
 					}
-				});
+				} as any);
 			}).to.throw(Error, 'Invalid endpoint "foo"');
 		});
 
@@ -107,7 +107,7 @@ describe('Authenticator', () => {
 				endpoints: {
 					auth: 'bar'
 				}
-			});
+			} as any);
 
 			expect(auth.endpoints.auth).to.equal('bar');
 		});
@@ -119,7 +119,7 @@ describe('Authenticator', () => {
 					clientId:    'test_client',
 					realm:       'test_realm',
 					tokenStore:  'foo'
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
 
 			expect(() => {
@@ -128,7 +128,7 @@ describe('Authenticator', () => {
 					clientId:    'test_client',
 					realm:       'test_realm',
 					tokenStore:  {}
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
 		});
 	});

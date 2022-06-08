@@ -41,7 +41,7 @@ export interface AuthOptions {
 	tokenRefreshThreshold?: number,
 	tokenStore?: TokenStore,
 	tokenStoreDir?: string,
-	tokenStoreType: 'auto' | 'secure' | 'file' | 'memory' | null,
+	tokenStoreType?: 'auto' | 'secure' | 'file' | 'memory' | null,
 	username?: string
 }
 
@@ -70,7 +70,7 @@ export interface DefaultOptions {
 }
 
 export interface LogoutOptions {
-	accounts: string[],
+	accounts: string | string[],
 	all?: boolean,
 	baseUrl?: string
 }
@@ -528,16 +528,18 @@ export default class Auth {
 			return [];
 		}
 
-		const { accounts, all, baseUrl } = opts || {};
+		const { all, baseUrl } = opts || {};
+		let accounts: string[] = [];
 
 		if (!all) {
-			if (!accounts){ 
+			if (!opts.accounts){ 
 				throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
 			}
-			if (typeof accounts === 'string') {
-				accounts = [ accounts ];
-			}
-			if (!Array.isArray(accounts)) {
+			if (typeof opts.accounts === 'string') {
+				accounts = [ opts.accounts ];
+			} else if (Array.isArray(opts.accounts)) {
+				accounts = opts.accounts;
+			} else {
 				throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
 			}
 			if (!accounts.length) {

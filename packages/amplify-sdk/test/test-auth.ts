@@ -1,15 +1,18 @@
 import fs from 'fs';
 import http from 'http';
+import path from 'path';
 import tmp from 'tmp';
 import { Auth } from '../src/index.js';
 import { createLoginServer, stopLoginServer } from './common.js';
 import { expect } from 'chai';
+import { fileURLToPath } from 'url';
 
 tmp.setGracefulCleanup();
 
 const homeDir = tmp.tmpNameSync({ prefix: 'test-amplify-sdk-' });
 
-const serverInfo = JSON.parse(fs.readFileSync('./server-info.json', 'utf8'));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const serverInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '/server-info.json'), 'utf8'));
 
 describe('Auth', () => {
 	describe('Constructor', () => {

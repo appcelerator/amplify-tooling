@@ -134,7 +134,7 @@ export default class Server {
 		this.serverURL = serverURL;
 
 		await new Promise<void>((resolve, reject) => {
-			this.server = http.createServer(async (req, res) => {
+			this.server = http.createServer(async (req: http.IncomingMessage, res: http.ServerResponse) => {
 				const url = new URL(req.url as string, serverURL);
 				let request;
 				log(`Incoming request: ${highlight(url.pathname)}`);
