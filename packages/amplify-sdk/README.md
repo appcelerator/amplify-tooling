@@ -107,9 +107,6 @@ const { from, to, events } = await sdk.org.activity(account, 'org name/id/guid',
 // as 'production' and 'development'
 const envs = await sdk.org.getEnvironments(account);
 
-// get org family including child orgs
-const family = await sdk.org.family(account, 'org name/id/guid');
-
 // rename an org
 await sdk.org.rename(account, 'org name/id/guid', 'new org name');
 
@@ -244,7 +241,7 @@ account: {
 	name: 'amplify-cli:user@domain.com',
 	org: {
 		guid: '<GUID>',
-		id: 12345,
+		org_id: 12345,
 		name: 'Example Org'
 	},
 	orgs: [

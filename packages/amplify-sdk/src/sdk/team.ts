@@ -116,6 +116,7 @@ export default class AmplifySDKTeam extends Base {
 			teams: teams
 				.map((team: PlatformTeam): Team => ({
 					default:  team.default,
+					desc:     team.desc,
 					guid:     team.guid,
 					name:     team.name,
 					org_guid: team.org_guid,
@@ -257,6 +258,7 @@ export default class AmplifySDKTeam extends Base {
 			});
 			teamObj = {
 				default:  platformTeam.default,
+				desc:     platformTeam.desc,
 				guid:     platformTeam.guid,
 				name:     platformTeam.name,
 				org_guid: platformTeam.org_guid,

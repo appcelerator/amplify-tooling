@@ -246,7 +246,7 @@ describe('Owner Password', () => {
 				password: 'bar'
 			}) as Account;
 
-			const account = await auth.find({ accountName: 'test_client:foo@bar.com' });
+			const account: Account = await auth.find({ accountName: 'test_client:foo@bar.com' }) as Account;
 			expect(account).to.be.ok;
 			expect(account.name).to.equal(`test_client:${results.user.email}`);
 			expect(account.auth.expired).to.be.false;
@@ -261,7 +261,7 @@ describe('Owner Password', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 10,
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
@@ -301,7 +301,7 @@ describe('Owner Password', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 10,
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
@@ -347,14 +347,14 @@ describe('Owner Password', () => {
 			});
 
 			class Foo extends MemoryStore {
-				async clear(...args) {
+				async clear(baseUrl: string) {
 					deleteCounter++;
-					return await super.clear(...args);
+					return await super.clear(baseUrl);
 				}
 
-				async delete(...args) {
+				async delete(accounts: string | string[], baseUrl?: string) {
 					deleteCounter++;
-					return await super.delete(...args);
+					return await super.delete(accounts, baseUrl);
 				}
 			}
 
@@ -382,14 +382,14 @@ describe('Owner Password', () => {
 			});
 
 			class Foo extends MemoryStore {
-				async clear(...args) {
+				async clear(baseUrl: string) {
 					deleteCounter++;
-					return await super.clear(...args);
+					return await super.clear(baseUrl);
 				}
 
-				async delete(...args) {
+				async delete(accounts: string | string[], baseUrl?: string) {
 					deleteCounter++;
-					return await super.delete(...args);
+					return await super.delete(accounts, baseUrl);
 				}
 			}
 

@@ -87,7 +87,7 @@ describe('PKCE', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
@@ -173,7 +173,7 @@ describe('PKCE', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token(post) {
+				token(post: any) {
 					expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);
 				}
 			});
@@ -220,7 +220,7 @@ describe('PKCE', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				token(post) {
+				token(post: any) {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.AuthorizationCode);

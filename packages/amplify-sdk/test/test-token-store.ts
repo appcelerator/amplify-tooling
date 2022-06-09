@@ -1,10 +1,11 @@
-/* eslint-disable no-unused-expressions, node/no-unsupported-features/es-syntax */
+/* eslint-disable no-unused-expressions, node/no-unsupported-features/es-syntax, @typescript-eslint/no-unused-vars */
 
 import fs from 'fs-extra';
 import tmp from 'tmp';
-import { Auth, MemoryStore, TokenStore } from '../src/index.js';
+import { Auth, FileStore, MemoryStore, TokenStore } from '../src/index.js';
 import { createLoginServer, stopLoginServer } from './common.js';
 import { expect } from 'chai';
+import { Account } from '../src/types.js';
 
 const isCI = process.env.CI || process.env.JENKINS;
 
@@ -59,7 +60,7 @@ describe('Token Store', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
@@ -93,7 +94,7 @@ describe('Token Store', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
@@ -127,7 +128,7 @@ describe('Token Store', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
@@ -163,7 +164,7 @@ describe('Token Store', () => {
 			await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
@@ -219,7 +220,7 @@ describe('Token Store', () => {
 				tokenStoreDir,
 				tokenStoreType: 'file'
 			});
-			const { tokenStoreFile } = auth.tokenStore;
+			const { tokenStoreFile } = auth.tokenStore as FileStore;
 
 			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -229,7 +230,7 @@ describe('Token Store', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			expect(fs.existsSync(tokenStoreFile)).to.be.true;
 
@@ -260,7 +261,7 @@ describe('Token Store', () => {
 				tokenStoreDir,
 				tokenStoreType: 'file'
 			});
-			const { tokenStoreFile } = auth.tokenStore;
+			const { tokenStoreFile } = auth.tokenStore as FileStore;
 
 			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -270,7 +271,7 @@ describe('Token Store', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			expect(fs.existsSync(tokenStoreFile)).to.be.true;
 
@@ -305,7 +306,7 @@ describe('Token Store', () => {
 				tokenStoreDir,
 				tokenStoreType: 'file'
 			});
-			const { tokenStoreFile } = auth.tokenStore;
+			const { tokenStoreFile } = auth.tokenStore as FileStore;
 
 			let tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(0);
@@ -336,7 +337,8 @@ describe('Token Store', () => {
 
 		afterEach(async () => {
 			if (!isCI || process.platform !== 'linux') {
-				await (await import('keytar')).deletePassword(secureServiceName, secureServiceName);
+				const { keytar }: any = await import('keytar');
+				await keytar.deletePassword(secureServiceName, secureServiceName);
 			}
 		});
 
@@ -383,7 +385,7 @@ describe('Token Store', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
@@ -424,7 +426,7 @@ describe('Token Store', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			tokens = await auth.list();
 			expect(tokens).to.have.lengthOf(1);
@@ -451,7 +453,7 @@ describe('Token Store', () => {
 					baseUrl:     'http://127.0.0.1:1337',
 					clientId:    'test_client',
 					realm:       'test_realm',
-					tokenStore:  '123'
+					tokenStore:  '123' as any
 				});
 			}).to.throw(TypeError, 'Expected the token store to be a "TokenStore" instance');
 		});
@@ -463,11 +465,12 @@ describe('Token Store', () => {
 			let delCounter = 0;
 
 			class Foo extends TokenStore {
-				delete() {
+				async delete(accounts: string | string[], baseUrl?: string): Promise<Account[]> {
 					delCounter++;
+					return [] as Account[];
 				}
 
-				set() {
+				async set(data: Account): Promise<void> {
 					setCounter++;
 				}
 			}
@@ -486,7 +489,7 @@ describe('Token Store', () => {
 			const account = await auth.login({
 				username: 'foo',
 				password: 'bar'
-			});
+			}) as Account;
 
 			expect(setCounter).to.equal(1);
 			expect(delCounter).to.equal(0);

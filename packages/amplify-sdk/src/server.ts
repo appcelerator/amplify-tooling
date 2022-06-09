@@ -6,8 +6,11 @@ import getPort from 'get-port';
 import http from 'http';
 import path from 'path';
 import snooplogg from 'snooplogg';
-import { Socket } from 'net';
+import { fileURLToPath } from 'url';
 import { OutgoingHttpHeaders } from 'http';
+import { Socket } from 'net';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { error, log } = snooplogg('amplify-auth:server');
 const { green, highlight, red } = snooplogg.styles;

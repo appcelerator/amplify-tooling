@@ -2,6 +2,7 @@ import got from 'got';
 import snooplogg from 'snooplogg';
 import { Auth } from '../src/index.js';
 import { expect } from 'chai';
+import { ManualLoginResult } from '../src/authenticators/authenticator.js';
 
 const { log } = snooplogg('test:amplify-sdk:server');
 const { highlight } = snooplogg.styles;
@@ -18,8 +19,8 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel, url } = await auth.login({ manual: true });
-		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri'));
+		const { cancel, url } = await auth.login({ manual: true }) as ManualLoginResult;
+		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri') as string);
 
 		try {
 			log(`Requesting ${highlight(`${redirect_uri.origin}/callback`)}`);
@@ -46,8 +47,8 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel, url } = await auth.login({ manual: true });
-		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
+		const { cancel, url } = await auth.login({ manual: true }) as ManualLoginResult;
+		const redirect_uri = new URL(url).searchParams.get('redirect_uri') as string;
 		const redirectURL = redirect_uri.replace(/(\/callback)\/.+$/, '$1') + '?code=123';
 
 		try {
@@ -75,8 +76,8 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel, url } = await auth.login({ manual: true });
-		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
+		const { cancel, url } = await auth.login({ manual: true }) as ManualLoginResult;
+		const redirect_uri = new URL(url).searchParams.get('redirect_uri') as string;
 		const redirectURL = redirect_uri.replace(/(\/callback)\/.+$/, '$1/foo') + '?code=123';
 
 		try {
@@ -104,7 +105,7 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel, promise, url } = await auth.login({ manual: true });
+		const { cancel, promise, url } = await auth.login({ manual: true }) as ManualLoginResult;
 		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
 		const redirectUrl = `${redirect_uri}?code=123`;
 
@@ -139,8 +140,8 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel, url } = await auth.login({ manual: true });
-		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri'));
+		const { cancel, url } = await auth.login({ manual: true }) as ManualLoginResult;
+		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri') as string);
 
 		try {
 			log(`Requesting: ${highlight(redirect_uri.origin)}`);
@@ -167,7 +168,7 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel, promise } = await auth.login({ manual: true });
+		const { cancel, promise } = await auth.login({ manual: true }) as ManualLoginResult;
 
 		await cancel();
 

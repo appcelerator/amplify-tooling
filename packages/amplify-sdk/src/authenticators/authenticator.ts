@@ -6,16 +6,19 @@ import http from 'http';
 import jws from 'jws';
 import open from 'open';
 import path from 'path';
+import Server, { CallbackHandle } from '../server.js';
 import snooplogg from 'snooplogg';
 import TokenStore from '../stores/token-store.js';
 
 import * as environments from '../environments.js';
 import * as request from '@axway/amplify-request';
-import Server, { CallbackHandle } from '../server.js';
 
 import { Account, Org, User } from '../types.js';
 import { createURL, md5, prepareForm } from '../util.js';
+import { fileURLToPath } from 'url';
 import { Got } from 'got';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { log, warn } = snooplogg('amplify-auth:authenticator');
 const { green, highlight, red, note } = snooplogg.styles;

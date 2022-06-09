@@ -32,7 +32,7 @@ export default class AmplifySDKOrg extends Base {
 	/**
 	 * Retieves organization activity.
 	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, guid, or id.
+	 * @param {Object|String|Number} [org] - The organization object, name, guid, or id.
 	 * @param {Object} [params] - Various parameters.
 	 * @param {String} [params.from] - The start date in ISO format.
 	 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
@@ -40,7 +40,7 @@ export default class AmplifySDKOrg extends Base {
 	 * @param {String} [params.to] - The end date in ISO format.
 	 * @returns {Promise<Object>}
 	 */
-	async activity(account: Account, org: OrgLike, params?: {
+	async activity(account: Account, org?: OrgLike, params?: {
 		from?: string,
 		month?: string | boolean,
 		to?: string
@@ -136,10 +136,10 @@ export default class AmplifySDKOrg extends Base {
 	/**
 	 * Retrieves the list of orgs from the specified account.
 	 * @param {Object} account - The account object.
-	 * @param {String} defaultOrg - The name, id, or guid of the default organization.
+	 * @param {String} [defaultOrg] - The name, id, or guid of the default organization.
 	 * @returns {Promise<Array>}
 	 */
-	async list(account: Account, defaultOrg: string): Promise<OrgRef[]> {
+	async list(account: Account, defaultOrg?: string): Promise<OrgRef[]> {
 		const { guid } = this.resolve(account, defaultOrg, true);
 
 		return account.orgs
@@ -159,7 +159,7 @@ export default class AmplifySDKOrg extends Base {
 	 * @returns {Object} Resolves the org info from the account object.
 	 * @access public
 	 */
-	resolve(account: Account, org: OrgLike, checkPlatformAccount = false): OrgRef {
+	resolve(account: Account, org?: OrgLike, checkPlatformAccount = false): OrgRef {
 		if (checkPlatformAccount) {
 			this.assertPlatformAccount(account);
 		}
@@ -230,9 +230,9 @@ export default class AmplifySDKOrg extends Base {
 	}
 
 	/**
-	 * Renames an org.
+	 * Retrieves organization usage information.
 	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object|String|Number} [org] - The organization object, name, id, or guid.
 	 * @param {Object} [params] - Various parameters.
 	 * @param {String} [params.from] - The start date in ISO format.
 	 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
@@ -240,7 +240,7 @@ export default class AmplifySDKOrg extends Base {
 	 * @param {String} [params.to] - The end date in ISO format.
 	 * @returns {Promise<Object>}
 	 */
-	async usage(account: Account, org: OrgLike, params?: UsageParams): Promise<UsageResult> {
+	async usage(account: Account, org?: OrgLike, params?: UsageParams): Promise<UsageResult> {
 		const { org_id } = this.resolve(account, org, true);
 
 		if (params === undefined) {
@@ -313,7 +313,7 @@ export default class AmplifySDKOrg extends Base {
 	/**
 	 * Finds a user and returns their information.
 	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object|String|Number} [org] - The organization object, name, id, or guid.
 	 * @param {String} user - The user email or guid.
 	 * @returns {Promise<Object>}
 	 */
@@ -326,10 +326,10 @@ export default class AmplifySDKOrg extends Base {
 	/**
 	 * Lists all users in an org.
 	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object|String|Number} [org] - The organization object, name, id, or guid.
 	 * @returns {Promise<Object>}
 	 */
-	async userList(account: Account, org: OrgLike): Promise<{ org: OrgRef, users: OrgUser[] }> {
+	async userList(account: Account, org?: OrgLike): Promise<{ org: OrgRef, users: OrgUser[] }> {
 		const orgRef = this.resolve(account, org, true);
 		const users: PlatformOrgUser[] = await this.sdk.request(`/api/v1/org/${orgRef.org_id}/user?clients=1`, account, {
 			errorMsg: 'Failed to get organization users'

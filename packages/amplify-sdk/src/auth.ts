@@ -70,7 +70,7 @@ export interface DefaultOptions {
 }
 
 export interface LogoutOptions {
-	accounts: string | string[],
+	accounts?: string | string[],
 	all?: boolean,
 	baseUrl?: string
 }
@@ -516,7 +516,7 @@ export default class Auth {
 	 * Revokes all or specific authenticated accounts.
 	 *
 	 * @param {Object} opts - Required options.
-	 * @param {Array.<String>} opts.accounts - A list of accounts names or hashes.
+	 * @param {Array.<String>} [opts.accounts] - A list of accounts names or hashes.
 	 * @param {Boolean} [opts.all] - When `true`, revokes all accounts.
 	 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>} Resolves a list of revoked credentials.
@@ -584,7 +584,7 @@ export default class Auth {
 	 * @returns {Promise<Object>}
 	 * @access public
 	 */
-	async serverInfo(opts: ServerInfoOptions = {}): Promise<ServerInfo> {
+	async serverInfo(opts: ServerInfoOptions | undefined = {}): Promise<ServerInfo> {
 		opts = this.applyDefaults(opts);
 
 		let { url } = opts;

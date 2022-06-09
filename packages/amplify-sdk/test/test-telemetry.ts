@@ -15,59 +15,59 @@ describe('Telemetry', () => {
 
 		it('should error if options are invalid', () => {
 			expect(() => {
-				new Telemetry();
+				new Telemetry(undefined as any);
 			}).to.throw(TypeError, 'Expected telemetry options to be an object');
 
 			expect(() => {
-				new Telemetry(123);
+				new Telemetry(123 as any);
 			}).to.throw(TypeError, 'Expected telemetry options to be an object');
 		});
 
 		it('should error if app guid is invalid', () => {
 			expect(() => {
-				new Telemetry({});
+				new Telemetry({} as any);
 			}).to.throw(TypeError, 'Expected app guid to be a non-empty string');
 
 			expect(() => {
-				new Telemetry({ appGuid: '' });
+				new Telemetry({ appGuid: '' } as any);
 			}).to.throw(TypeError, 'Expected app guid to be a non-empty string');
 
 			expect(() => {
-				new Telemetry({ appGuid: 123 });
+				new Telemetry({ appGuid: 123 } as any);
 			}).to.throw(TypeError, 'Expected app guid to be a non-empty string');
 		});
 
 		it('should error if app version is invalid', () => {
 			expect(() => {
-				new Telemetry({ appGuid: 'foo' });
+				new Telemetry({ appGuid: 'foo' } as any);
 			}).to.throw(TypeError, 'Expected app version to be a non-empty string');
 
 			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '' });
+				new Telemetry({ appGuid: 'foo', appVersion: '' } as any);
 			}).to.throw(TypeError, 'Expected app version to be a non-empty string');
 
 			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: 123 });
+				new Telemetry({ appGuid: 'foo', appVersion: 123 } as any);
 			}).to.throw(TypeError, 'Expected app version to be a non-empty string');
 		});
 
 		it('should error if cache dir is invalid', () => {
 			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0' });
+				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0' } as any);
 			}).to.throw(TypeError, 'Expected telemetry cache dir to be a non-empty string');
 
 			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: '' });
+				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: '' } as any);
 			}).to.throw(TypeError, 'Expected telemetry cache dir to be a non-empty string');
 
 			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 123 });
+				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 123 } as any);
 			}).to.throw(TypeError, 'Expected telemetry cache dir to be a non-empty string');
 		});
 
 		it('should error if environment is invalid', () => {
 			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 'bar' });
+				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 'bar' } as any);
 			}).to.throw(TypeError, 'Expected environment to be a non-empty string');
 
 			expect(() => {
@@ -75,7 +75,7 @@ describe('Telemetry', () => {
 			}).to.throw(TypeError, 'Expected environment to be a non-empty string');
 
 			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 'bar', environment: 123 });
+				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 'bar', environment: 123 } as any);
 			}).to.throw(TypeError, 'Expected environment to be a non-empty string');
 		});
 
@@ -87,7 +87,7 @@ describe('Telemetry', () => {
 					cacheDir: 'bar',
 					environment: 'test',
 					requestOptions: 'baz'
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected telemetry request options to be an object');
 
 			expect(() => {
@@ -97,7 +97,7 @@ describe('Telemetry', () => {
 					cacheDir: 'bar',
 					environment: 'test',
 					requestOptions: 123
-				});
+				} as any);
 			}).to.throw(TypeError, 'Expected telemetry request options to be an object');
 		});
 
@@ -105,15 +105,15 @@ describe('Telemetry', () => {
 			const { telemetry } = createTelemetry();
 
 			expect(() => {
-				telemetry.addEvent();
+				telemetry.addEvent(undefined as any);
 			}).to.throw(TypeError, 'Expected telemetry payload to be an object');
 
 			expect(() => {
-				telemetry.addEvent(123);
+				telemetry.addEvent(123 as any);
 			}).to.throw(TypeError, 'Expected telemetry payload to be an object');
 
 			expect(() => {
-				telemetry.addEvent('foo');
+				telemetry.addEvent('foo' as any);
 			}).to.throw(TypeError, 'Expected telemetry payload to be an object');
 		});
 
@@ -121,7 +121,7 @@ describe('Telemetry', () => {
 			const { telemetry } = createTelemetry();
 
 			expect(() => {
-				telemetry.addEvent({});
+				telemetry.addEvent({} as any);
 			}).to.throw(TypeError, 'Expected telemetry payload to have an event name');
 
 			expect(() => {
@@ -129,7 +129,7 @@ describe('Telemetry', () => {
 			}).to.throw(TypeError, 'Expected telemetry payload to have an event name');
 
 			expect(() => {
-				telemetry.addEvent({ event: 123 });
+				telemetry.addEvent({ event: 123 } as any);
 			}).to.throw(TypeError, 'Expected telemetry payload to have an event name');
 		});
 
@@ -137,15 +137,15 @@ describe('Telemetry', () => {
 			const { telemetry } = createTelemetry({ environment: 'production' });
 
 			expect(() => {
-				telemetry.addCrash();
+				telemetry.addCrash(undefined as any);
 			}).to.throw(TypeError, 'Expected crash payload to be an object');
 
 			expect(() => {
-				telemetry.addCrash(123);
+				telemetry.addCrash(123 as any);
 			}).to.throw(TypeError, 'Expected crash payload to be an object');
 
 			expect(() => {
-				telemetry.addCrash('foo');
+				telemetry.addCrash('foo' as any);
 			}).to.throw(TypeError, 'Expected crash payload to be an object');
 		});
 
@@ -153,7 +153,7 @@ describe('Telemetry', () => {
 			const { telemetry } = createTelemetry({ environment: 'production' });
 
 			expect(() => {
-				telemetry.addCrash({});
+				telemetry.addCrash({} as any);
 			}).to.throw(TypeError, 'Expected crash payload to have a message');
 
 			expect(() => {
@@ -161,13 +161,13 @@ describe('Telemetry', () => {
 			}).to.throw(TypeError, 'Expected crash payload to have a message');
 
 			expect(() => {
-				telemetry.addCrash({ message: 123 });
+				telemetry.addCrash({ message: 123 } as any);
 			}).to.throw(TypeError, 'Expected crash payload to have a message');
 		});
 
 		it('should not add crash if not production', () => {
 			const { telemetry } = createTelemetry();
-			telemetry.addCrash();
+			telemetry.addCrash(new Error());
 		});
 	});
 
@@ -183,9 +183,9 @@ describe('Telemetry', () => {
 			this.timeout(10000);
 			this.slow(8000);
 
-			const posts = [];
+			const posts: any = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -210,9 +210,9 @@ describe('Telemetry', () => {
 			this.timeout(10000);
 			this.slow(8000);
 
-			const posts = [];
+			const posts: any = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -224,13 +224,13 @@ describe('Telemetry', () => {
 			telemetry.addEvent({
 				event: 'foo.bar',
 				meaningOfLife: 42
-			});
+			} as any);
 
 			const files = fs.readdirSync(appDir);
 			expect(files).to.have.lengthOf(4);
 
 			telemetry.send();
-			await new Promise(resolve => setTimeout(() => resolve(), 5000));
+			await new Promise<void>(resolve => setTimeout(() => resolve(), 5000));
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
 			expect(posts).to.have.lengthOf(1);
@@ -244,9 +244,9 @@ describe('Telemetry', () => {
 			this.timeout(5000);
 			this.slow(4000);
 
-			const posts = [];
+			const posts: any = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -283,9 +283,9 @@ describe('Telemetry', () => {
 			this.timeout(5000);
 			this.slow(4000);
 
-			const posts = [];
+			const posts: any = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -296,7 +296,10 @@ describe('Telemetry', () => {
 			telemetry.addCrash(new Error('This is an error'));
 
 			class CustomError extends Error {
-				constructor(message, code, data) {
+				code?: string | number;
+				data?: any;
+
+				constructor(message: string, code?: string | number, data?: any) {
 					super(message);
 					this.code = code;
 					this.data = data;
@@ -351,9 +354,9 @@ describe('Telemetry', () => {
 			this.timeout(10000);
 			this.slow(8000);
 
-			const posts = [];
+			const posts: any = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -379,9 +382,9 @@ describe('Telemetry', () => {
 			this.timeout(10000);
 			this.slow(8000);
 
-			const posts = [];
+			const posts: any = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -416,9 +419,9 @@ describe('Telemetry', () => {
 			this.timeout(10000);
 			this.slow(8000);
 
-			const posts = [];
+			const posts: any = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -449,7 +452,7 @@ describe('Telemetry', () => {
 
 			const posts = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -481,9 +484,9 @@ describe('Telemetry', () => {
 			this.timeout(10000);
 			this.slow(8000);
 
-			const posts = [];
+			const posts: any = [];
 			this.server = await createTelemetryServer({
-				onEvent(payload) {
+				onEvent(payload: any) {
 					posts.push(payload);
 				}
 			});
@@ -494,7 +497,7 @@ describe('Telemetry', () => {
 			// rewrite the .sid to be expired
 			const json = fs.readJsonSync(path.join(appDir, '.sid'));
 			const { id } = json;
-			json.ts = new Date(new Date(json.ts) - 72 * 60 * 60 * 1000).toISOString();
+			json.ts = new Date(Date.parse(json.ts) - 72 * 60 * 60 * 1000).toISOString();
 			fs.writeJsonSync(path.join(appDir, '.sid'), json);
 
 			({ appDir, telemetry } = createTelemetry());

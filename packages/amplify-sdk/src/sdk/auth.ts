@@ -340,7 +340,7 @@ export default class AmplifySDKAuth extends Base {
 	 * @returns {Promise<Object>} Resolves a list of revoked credentials.
 	 */
 	async logout({ accounts, all, baseUrl, onOpenBrowser }: {
-		accounts: string[],
+		accounts?: string[],
 		all?: boolean,
 		baseUrl?: string,
 		onOpenBrowser?: (p: { url: string }) => void
@@ -386,11 +386,11 @@ export default class AmplifySDKAuth extends Base {
 
 	/**
 	 * Returns AxwayID server information.
-	 * @param {Object} opts - Various authentication options to override the defaults set
+	 * @param {Object} [opts] - Various authentication options to override the defaults set
 	 * via the `Auth` constructor.
 	 * @returns {Promise<object>}
 	 */
-	async serverInfo(opts: ServerInfoOptions): Promise<ServerInfo> {
+	async serverInfo(opts: ServerInfoOptions | undefined = {}): Promise<ServerInfo> {
 		return await this.client.serverInfo(opts);
 	}
 
@@ -404,7 +404,7 @@ export default class AmplifySDKAuth extends Base {
 	 * be launched.
 	 * @returns {Promise<Object>} Resolves the updated account object.
 	 */
-	async switchOrg(account: Account, org: OrgLike, opts: {
+	async switchOrg(account?: Account, org?: OrgLike, opts: {
 		onOpenBrowser?: (p: { url: string }) => void
 	} = {}): Promise<Account | null> {
 		if (!account || account.auth.expired) {

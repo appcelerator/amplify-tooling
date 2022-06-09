@@ -4,6 +4,8 @@
  * BREAKING CHANGE: Removed `sdk.org.family()` from AmplifySDK.
  * BREAKING CHANGE: Removed deprecated `childOrgs` and `parentOrg` properties from the organization
    object.
+ * BREAKING CHANGE: All `sdk.*.user.<action>()` functions have been renamed to
+   `sdk.*.user<Action>()`.
 
 # v3.2.5 (May 11, 2022)
 

@@ -16,8 +16,11 @@ import snooplogg from 'snooplogg';
 import * as environments from './environments.js';
 import * as request from '@axway/amplify-request';
 import { Account, AmplifySDKOptions } from './types.js';
+import { fileURLToPath } from 'url';
 import { Got, HTTPAlias, OptionsOfJSONResponseBody } from 'got/dist/source/types.js';
 import { redact } from '@axway/amplify-utils';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;

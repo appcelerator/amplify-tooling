@@ -67,6 +67,7 @@ export interface ActivityResult {
 
 export interface AmplifySDKOptions {
 	baseUrl?: string,
+	clientId?: string,
 	clientSecret?: string,
 	env?: string,
 	got?: Got,
@@ -76,6 +77,7 @@ export interface AmplifySDKOptions {
 	realm?: string,
 	requestOptions?: request.RequestOptions,
 	secretFile?: string,
+	tokenStoreType?: string,
 	username?: string
 }
 
@@ -173,6 +175,7 @@ export interface Subscription {
 
 export interface Team {
 	default: boolean,
+	desc?: string,
 	guid: string,
 	name: string,
 	org_guid: string,
@@ -226,11 +229,16 @@ export interface UserInfo {
 	lastname?: string
 }
 
-export interface UsageParams {
+export interface UsageParamsRange {
 	from: string,
-	month: string | boolean,
 	to: string
 }
+
+export interface UsageParamsMonth {
+	month: string | boolean
+}
+
+export type UsageParams = UsageParamsRange & UsageParamsMonth;
 
 // note: this interface is identical to PlatformOrgUsage except `from` and `to`
 // are Date objects instead of ISO strings
