@@ -91,13 +91,14 @@ export default class AmplifySDKAuth extends Base {
 
 		if (result) {
 			const { org, orgs, role, roles, user } = result;
-			account.org = await this.sdk.org.init(account, org);
+			// note: account.orgs must be defined first
 			account.orgs = orgs.map(org => ({
 				guid:   org.guid,
 				name:   org.name,
 				org_id: org.org_id,
 				role:   org.role
 			}));
+			account.org = await this.sdk.org.init(account, org);
 			account.role = role;
 			account.roles = roles;
 
@@ -111,7 +112,7 @@ export default class AmplifySDKAuth extends Base {
 			};
 		} else if (account.org?.guid) {
 			// we have a service account
-			account.org = await this.sdk.org.find(account, account.org.guid);
+			account.org = await this.sdk.org.find(account);
 			account.orgs = [
 				{
 					guid:   account.org.guid,

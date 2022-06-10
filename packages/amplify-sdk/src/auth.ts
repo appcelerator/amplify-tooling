@@ -515,14 +515,14 @@ export default class Auth {
 	/**
 	 * Revokes all or specific authenticated accounts.
 	 *
-	 * @param {Object} opts - Required options.
+	 * @param {Object} [opts] - Required options.
 	 * @param {Array.<String>} [opts.accounts] - A list of accounts names or hashes.
 	 * @param {Boolean} [opts.all] - When `true`, revokes all accounts.
 	 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>} Resolves a list of revoked credentials.
 	 * @access public
 	 */
-	async logout(opts: LogoutOptions): Promise<Account[]> {
+	async logout(opts: LogoutOptions = {}): Promise<Account[]> {
 		if (!this.tokenStore) {
 			log('No token store, returning empty array');
 			return [];

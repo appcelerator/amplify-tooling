@@ -180,7 +180,7 @@ describe('Telemetry', () => {
 		});
 
 		it('should not send if no events', async function () {
-			this.timeout(10000);
+			this.timeout(1000000);
 			this.slow(8000);
 
 			const posts: any = [];

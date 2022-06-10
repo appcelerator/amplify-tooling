@@ -25,7 +25,8 @@
     "lint:test": "eslint --parser-options=project:'test/tsconfig.json' test/**/*.ts",
     "lint:tsc": "tsc -p tsconfig.json",
     "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
-    "test": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --require ../../test/setup.js --reporter spec"
+    "test": "concurrently -s all -m 1 npm:build npm:test:mocha",
+    "test:mocha": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --require ../../test/setup.js --reporter spec"
   },
   "dependencies": {
     "@axway/amplify-request": "^3.0.9",

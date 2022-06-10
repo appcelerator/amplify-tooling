@@ -337,7 +337,7 @@ describe('Token Store', () => {
 
 		afterEach(async () => {
 			if (!isCI || process.platform !== 'linux') {
-				const { keytar }: any = await import('keytar');
+				const { default: keytar }: any = await import('keytar');
 				await keytar.deletePassword(secureServiceName, secureServiceName);
 			}
 		});

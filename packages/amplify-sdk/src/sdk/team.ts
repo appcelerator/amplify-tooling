@@ -66,7 +66,7 @@ export default class AmplifySDKTeam extends Base {
 		org: OrgRef,
 		team: Team
 	}> {
-		const orgRef: OrgRef = this.sdk.org.resolve(account, org, true);
+		const orgRef: OrgRef = this.sdk.org.resolve(account, org);
 		const origTeam = team;
 
 		if (!team || typeof team !== 'string') {
@@ -98,7 +98,7 @@ export default class AmplifySDKTeam extends Base {
 		org?: OrgRef,
 		teams: Team[]
 	}> {
-		const orgRef: OrgRef = this.sdk.org.resolve(account, org, true);
+		const orgRef: OrgRef = this.sdk.org.resolve(account, org);
 		let teams: PlatformTeam[] = await this.sdk.request(`/api/v1/team${orgRef?.org_id ? `?org_id=${orgRef.org_id}` : ''}`, account, {
 			errorMsg: 'Failed to get organization teams'
 		});

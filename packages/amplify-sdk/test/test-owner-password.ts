@@ -261,7 +261,7 @@ describe('Owner Password', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 10,
-				token(post: any) {
+				token: (post: any) => {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);
@@ -301,7 +301,7 @@ describe('Owner Password', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 10,
-				token(post: any) {
+				token: (post: any) => {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.Password);

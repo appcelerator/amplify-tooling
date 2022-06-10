@@ -44,7 +44,7 @@ describe('amplify-sdk', () => {
 		});
 	});
 
-	describe('Auth', () => {
+	describe.only('Auth', () => {
 		describe('Error Handling', () => {
 			it('should error creating client if token store is invalid', () => {
 				expect(() => {

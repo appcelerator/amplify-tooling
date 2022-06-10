@@ -138,7 +138,7 @@ describe('Client Secret', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token(post: any) {
+				token: (post: any) => {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -272,7 +272,7 @@ describe('Client Secret', () => {
 
 			this.server = await createLoginServer({
 				expiresIn: 1,
-				token(post: any) {
+				token: (post: any) => {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);
@@ -313,7 +313,7 @@ describe('Client Secret', () => {
 			let counter = 0;
 
 			this.server = await createLoginServer({
-				token(post: any) {
+				token: (post: any) => {
 					switch (++counter) {
 						case 1:
 							expect(post.grant_type).to.equal(Authenticator.GrantTypes.ClientCredentials);

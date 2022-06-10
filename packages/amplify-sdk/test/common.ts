@@ -861,12 +861,7 @@ export function createServer(): Promise<HttpTestServer> {
 				},
 				name: 'test_client:foo@bar.com',
 				org: orgs[0],
-				orgs: orgs.map((o: any) => {
-					const r = { ...o };
-					r.id = r.org_id;
-					delete r.org_id;
-					return r;
-				}),
+				orgs,
 				user
 			}));
 

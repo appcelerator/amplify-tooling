@@ -57,7 +57,7 @@ export default class AmplifySDKOrg extends Base {
 	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 	 * @returns {Promise<Array>}
 	 */
-	async find(account: Account, org: OrgLike): Promise<Org> {
+	async find(account: Account, org?: OrgLike): Promise<Org> {
 		const { org_id } = this.resolve(account, org);
 		const platformOrg = await this.sdk.request(`/api/v1/org/${org_id}`, account, {
 			errorMsg: 'Failed to get organization'
@@ -185,7 +185,7 @@ export default class AmplifySDKOrg extends Base {
 		const subject = String(org).toLowerCase();
 		const found: OrgRef | undefined = account.orgs.find(o => {
 			return o.guid.toLowerCase() === subject
-				|| o.name.toLowerCase() === subject
+				|| (o.name && o.name.toLowerCase() === subject) // service accounts don't have access to the org name
 				|| String(o.org_id) === subject;
 		});
 
@@ -330,7 +330,7 @@ export default class AmplifySDKOrg extends Base {
 	 * @returns {Promise<Object>}
 	 */
 	async userList(account: Account, org?: OrgLike): Promise<{ org: OrgRef, users: OrgUser[] }> {
-		const orgRef = this.resolve(account, org, true);
+		const orgRef = this.resolve(account, org, false); // this should be true
 		const users: PlatformOrgUser[] = await this.sdk.request(`/api/v1/org/${orgRef.org_id}/user?clients=1`, account, {
 			errorMsg: 'Failed to get organization users'
 		});

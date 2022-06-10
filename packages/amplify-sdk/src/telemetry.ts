@@ -286,7 +286,7 @@ export default class Telemetry {
 		}
 
 		// write the event to disk
-		this.writeEvent(event, redact(payload, {
+		this.writeEvent(event, redact(data, {
 			props: [ 'clientSecret', 'password', 'username' ],
 			replacements: [
 				[ /\/.+\//, '/<REDACTED>/' ]
@@ -336,36 +336,62 @@ export default class Telemetry {
 			return;
 		}
 
-		const child = spawn(process.execPath, [ __filename ], {
+		const script = __filename.replace('/src/telemetry.ts', '/dist/telemetry.js');
+		log(`Spawning: ${highlight(`${process.execPath} ${script}`)}`);
+		const child = spawn(process.execPath, [ script ], {
 			stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ],
 			windowsHide: true
 		});
-		const { pid } = child;
 
-		child.send({
-			appDir: this.appDir,
-			requestOptions: this.requestOptions,
-			url: this.url,
-			wait: opts?.wait
-		});
+		// block until the child process sends us the ready messager
+		await new Promise<void>(resolve => {
+			const { pid } = child;
 
-		if (opts?.wait) {
-			log(`Forked send process (pid: ${pid}), waiting for exit... `);
-			await new Promise<void>(resolve => {
-				child.on('close', (code: number) => {
-					const debugLog = path.join(this.appDir, `debug-${pid}.log`);
-					if (fs.existsSync(debugLog)) {
-						logger(`send-${pid}`).log(fs.readFileSync(debugLog, 'utf-8').trim());
-						fs.renameSync(debugLog, path.join(this.appDir, 'debug.log'));
-					}
-					log(`Send process ${pid} exited with code ${code} (${exitCodes[code] || 'Unknown'})`);
+			const timer = setTimeout(() => {
+				child.kill();
+				log(`Send process ${pid} timed out while waiting`);
+				resolve();
+			}, 5000);
+
+			const cleanup = (code: number) => {
+				log(`Send process ${pid} exited before being ready with code ${code} (${exitCodes[code] || 'Unknown'})`);
+				resolve();
+			};
+			child.once('close', cleanup);
+
+			child.once('message', () => {
+				// child is ready, clear the timeout and close event
+				clearTimeout(timer);
+				child.removeListener('close', cleanup);
+
+				const msg = {
+					appDir: this.appDir,
+					requestOptions: this.requestOptions,
+					url: this.url,
+					wait: !!opts?.wait
+				};
+
+				log(`Forked send process (pid: ${pid}) is ready, sending message:`, msg);
+				child.send(msg);
+
+				if (opts?.wait) {
+					log(`Forked send process (pid: ${pid}), waiting for exit... `);
+					child.once('close', (code: number) => {
+						const debugLog = path.join(this.appDir, `debug-${pid}.log`);
+						if (fs.existsSync(debugLog)) {
+							logger(`send-${pid}`).log(fs.readFileSync(debugLog, 'utf-8').trim());
+							fs.renameSync(debugLog, path.join(this.appDir, 'debug.log'));
+						}
+						log(`Send process ${pid} exited with code ${code} (${exitCodes[code] || 'Unknown'})`);
+						resolve();
+					});
+				} else {
+					log(`Forked send process (pid: ${pid}), unreferencing child process... `);
+					child.unref();
 					resolve();
-				});
+				}
 			});
-		} else {
-			log(`Forked send process (pid: ${pid}), unreferencing child process... `);
-			child.unref();
-		}
+		});
 	}
 
 	/**
@@ -406,9 +432,10 @@ interface TelemetryMessage {
 }
 
 /**
- * When Telemetry::send() is called, it spawns this file using `fork()` which conveniently creates
- * an IPC tunnel. The parent then immediately sends this child process a message with the app dir
- * and other info so that it can send the actual messages without blocking the parent.
+ * When Telemetry::send() is called, it spawns this file and sets up an IPC channel. The parent
+ * must wait for the child process to send a ready event before the parent sends this child process
+ * a message with the app dir and other info so that it can send the actual messages without
+ * blocking the parent.
  *
  * This child process will not exit until the IPC tunnel has been closed via process.disconnect().
  * The only way to get output from this child process is to either set SNOOPLOGG=* and call
@@ -562,6 +589,13 @@ process.on('message', async (msg: TelemetryMessage) => {
 		}
 	}
 });
+
+/**
+ * If this script is being spawned as a child process, then tell the parent we're ready.
+ */
+if (process.connected && process.send) {
+	process.send('ready!');
+}
 
 /**
  * Scans up the directory tree looking for a specific file.
