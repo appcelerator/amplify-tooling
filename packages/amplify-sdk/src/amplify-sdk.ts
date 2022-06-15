@@ -213,6 +213,7 @@ export default class AmplifySDK {
 			const msg = err.response?.body?.message || err.response?.body?.description;
 			err.message = `${errorMsg ? `${errorMsg}: ` : ''}${msg || err.message}`;
 			if (err.response?.statusCode) {
+				err.statusCode = err.response.statusCode;
 				err.message += ` (${err.response.statusCode})`;
 			}
 

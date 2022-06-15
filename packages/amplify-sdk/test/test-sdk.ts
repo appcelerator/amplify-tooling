@@ -44,7 +44,7 @@ describe('amplify-sdk', () => {
 		});
 	});
 
-	describe.only('Auth', () => {
+	describe('Auth', () => {
 		describe('Error Handling', () => {
 			it('should error creating client if token store is invalid', () => {
 				expect(() => {
@@ -390,7 +390,6 @@ describe('amplify-sdk', () => {
 				const sdk = createSDK({ tokenStore });
 
 				const { team } = await sdk.team.create(account, 100, 'C Team', { desc: 'The C Team' });
-
 				let { client } = await sdk.client.create(account, 100, {
 					name: 'foo',
 					secret: 'baz',
@@ -740,10 +739,12 @@ describe('amplify-sdk', () => {
 				const envs = await sdk.org.environments(account);
 				expect(envs).to.deep.equal([
 					{
+						guid: undefined,
 						name: 'production',
 						isProduction: true
 					},
 					{
+						guid: undefined,
 						name: 'development',
 						isProduction: false
 					}
@@ -925,32 +926,48 @@ describe('amplify-sdk', () => {
 					let { users } = await sdk.org.userList(account);
 					expect(users).to.deep.equal([
 						{
+							client_id: undefined,
 							guid: '50000',
 							email: 'test1@domain.com',
 							firstname: 'Test1',
 							lastname: 'Tester1',
-							roles: [ 'administrator' ],
-							primary: true
+							name: 'Test1 Tester1',
+							primary: true,
+							roles: [ 'administrator' ]
 						},
 						{
+							client_id: undefined,
 							guid: '50001',
 							email: 'test2@domain.com',
 							firstname: 'Test2',
 							lastname: 'Tester2',
-							roles: [ 'developer' ],
-							primary: true
+							name: 'Test2 Tester2',
+							primary: true,
+							roles: [ 'developer' ]
+						},
+						{
+							client_id: 'test_629e1705-9cd7-4db7-9dfe-08aa47b0f3ad',
+							email: undefined,
+							firstname: undefined,
+							guid: '629e1705-9cd7-4db7-9dfe-08aa47b0f3ad',
+							lastname: undefined,
+							name: 'Test',
+							primary: undefined,
+							roles: [ 'developer' ]
 						}
 					]);
 
 					({ users } = await sdk.org.userList(account, '2000'));
 					expect(users).to.deep.equal([
 						{
+							client_id: undefined,
 							guid: '50000',
 							email: 'test1@domain.com',
 							firstname: 'Test1',
 							lastname: 'Tester1',
-							roles: [ 'administrator' ],
-							primary: true
+							name: 'Test1 Tester1',
+							primary: true,
+							roles: [ 'administrator' ]
 						}
 					]);
 				});
@@ -978,12 +995,14 @@ describe('amplify-sdk', () => {
 
 					const user = await sdk.org.userFind(account, 100, '50000');
 					expect(user).to.deep.equal({
+						client_id: undefined,
 						guid: '50000',
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
-						roles: [ 'administrator' ],
-						primary: true
+						name: 'Test1 Tester1',
+						primary: true,
+						roles: [ 'administrator' ]
 					});
 				});
 
@@ -996,12 +1015,14 @@ describe('amplify-sdk', () => {
 
 					const user = await sdk.org.userFind(account, 100, 'test2@domain.com');
 					expect(user).to.deep.equal({
+						client_id: undefined,
 						guid: '50001',
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
-						roles: [ 'developer' ],
-						primary: true
+						name: 'Test2 Tester2',
+						primary: true,
+						roles: [ 'developer' ]
 					});
 				});
 
@@ -1033,12 +1054,14 @@ describe('amplify-sdk', () => {
 					expect((user as User).guid).to.deep.equal('50002');
 
 					expect(await sdk.org.userFind(account, 100, 'test3@domain.com')).to.deep.equal({
+						client_id: undefined,
 						guid: '50002',
 						email: 'test3@domain.com',
 						firstname: 'Test3',
 						lastname: 'Tester3',
-						roles: [ 'developer' ],
-						primary: true
+						name: 'Test3 Tester3',
+						primary: true,
+						roles: [ 'developer' ]
 					});
 
 					await expect(sdk.org.userAdd(account, 100, 'test3@domain.com', [ 'developer' ])).to.eventually.be
@@ -1091,12 +1114,14 @@ describe('amplify-sdk', () => {
 
 					const { user } = await sdk.org.userUpdate(account, 100, '50001', [ 'administrator' ]);
 					expect(user).to.deep.equal({
+						client_id: undefined,
 						guid: '50001',
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
-						roles: [ 'administrator' ],
-						primary: true
+						name: 'Test2 Tester2',
+						primary: true,
+						roles: [ 'administrator' ]
 					});
 				});
 
@@ -1144,9 +1169,9 @@ describe('amplify-sdk', () => {
 					const { account, tokenStore } = this.server.createTokenStore();
 					const sdk = createSDK({ tokenStore });
 
-					expect((await sdk.org.userList(account, 100)).users).to.have.lengthOf(2);
+					expect((await sdk.org.userList(account, 100)).users).to.have.lengthOf(3);
 					await sdk.org.userRemove(account, 100, '50001');
-					expect((await sdk.org.userList(account, 100)).users).to.have.lengthOf(1);
+					expect((await sdk.org.userList(account, 100)).users).to.have.lengthOf(2);
 				});
 
 				it('should error removing a user from a non-existing org', async function () {
@@ -1568,13 +1593,13 @@ describe('amplify-sdk', () => {
 
 					const { user } = await sdk.team.userFind(account, 100, '60000', '50000');
 					expect(user).to.deep.equal({
+						client_id: undefined,
 						guid: '50000',
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
 						name: 'Test1 Tester1',
 						roles: [ 'administrator' ],
-						primary: true,
 						type: 'user'
 					});
 				});
@@ -1588,13 +1613,13 @@ describe('amplify-sdk', () => {
 
 					const { user } = await sdk.team.userFind(account, 100, '60000', 'test1@domain.com');
 					expect(user).to.deep.equal({
+						client_id: undefined,
 						guid: '50000',
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
 						name: 'Test1 Tester1',
 						roles: [ 'administrator' ],
-						primary: true,
 						type: 'user'
 					});
 				});
@@ -1627,13 +1652,13 @@ describe('amplify-sdk', () => {
 					expect(user.guid).to.deep.equal('50001');
 
 					expect((await sdk.team.userFind(account, 100, '60000', 'test2@domain.com')).user).to.deep.equal({
+						client_id: undefined,
 						guid: '50001',
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
 						name: 'Test2 Tester2',
 						roles: [ 'developer' ],
-						primary: true,
 						type: 'user'
 					});
 
@@ -1654,13 +1679,13 @@ describe('amplify-sdk', () => {
 					expect(user.guid).to.deep.equal('50001');
 
 					expect((await sdk.team.userFind(account, 100, '60000', '50001')).user).to.deep.equal({
+						client_id: undefined,
 						guid: '50001',
 						email: 'test2@domain.com',
 						firstname: 'Test2',
 						lastname: 'Tester2',
 						name: 'Test2 Tester2',
 						roles: [ 'developer' ],
-						primary: true,
 						type: 'user'
 					});
 
@@ -1704,13 +1729,13 @@ describe('amplify-sdk', () => {
 
 					const { user } = await sdk.team.userUpdate(account, 100, '60000', '50000', [ 'developer' ]);
 					expect(user).to.deep.equal({
+						client_id: undefined,
 						guid: '50000',
 						email: 'test1@domain.com',
 						firstname: 'Test1',
 						lastname: 'Tester1',
 						name: 'Test1 Tester1',
 						roles: [ 'developer' ],
-						primary: true,
 						type: 'user'
 					});
 				});

@@ -3,8 +3,7 @@ import {
 	PlatformEntitlement,
 	PlatformEntitlements,
 	PlatformOrgUsageMetric,
-	PlatformRole,
-	PlatformTeamUser
+	PlatformRole
 } from './sdk/platform-types.js';
 import { Got } from 'got/dist/source/types.js';
 import * as request from '@axway/amplify-request';
@@ -118,6 +117,7 @@ export interface Entitlements extends PlatformEntitlements {}
 
 export interface Environment {
 	guid?: string,
+	isProduction: boolean,
 	name: string
 }
 
@@ -155,10 +155,12 @@ export interface OrgRef {
 export interface OrgUser {
 	client_id?: string,
 	email: string,
-	firstname: string,
+	firstname?: string,
 	guid: string,
-	lastname: string,
-	name: string
+	lastname?: string,
+	name: string,
+	primary: boolean,
+	roles: string[]
 }
 
 export interface Role extends PlatformRole {}
@@ -200,9 +202,9 @@ export interface TeamInfoChanges {
 export interface TeamUser {
 	client_id?: string,
 	email: string,
-	firstname: string,
+	firstname?: string,
 	guid: string,
-	lastname: string,
+	lastname?: string,
 	name: string
 	roles: string[],
 	type: 'client' | 'user'

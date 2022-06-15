@@ -78,8 +78,9 @@ export default class AmplifySDKOrg extends Base {
 		});
 
 		return envs.map(env => ({
-			guid: env.guid,
-			name: env.name
+			guid:         env.guid,
+			isProduction: env.isProduction,
+			name:         env.name
 		}));
 	}
 
@@ -334,15 +335,20 @@ export default class AmplifySDKOrg extends Base {
 		const users: PlatformOrgUser[] = await this.sdk.request(`/api/v1/org/${orgRef.org_id}/user?clients=1`, account, {
 			errorMsg: 'Failed to get organization users'
 		});
+
 		return {
 			org: orgRef,
 			users: users
 				.map((user: PlatformOrgUser) => {
 					return {
-						client_id:  user.client_id,
-						email:      user.email,
-						guid:       user.guid,
-						name:       user.name
+						client_id: user.client_id,
+						email:     user.email,
+						firstname: user.firstname,
+						guid:      user.guid,
+						lastname:  user.lastname,
+						name:      user.name,
+						primary:   user.primary,
+						roles:     user.roles
 					} as OrgUser;
 				})
 				.sort((a, b) => {

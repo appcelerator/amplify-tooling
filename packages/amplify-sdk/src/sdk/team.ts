@@ -38,7 +38,8 @@ export default class AmplifySDKTeam extends Base {
 			errorMsg: 'Failed to create team',
 			json: {
 				...this.prepareTeamInfo(info).data,
-				name
+				name,
+				org_guid: orgRef.guid
 			}
 		}) as PlatformTeam;
 
@@ -46,6 +47,7 @@ export default class AmplifySDKTeam extends Base {
 			org: orgRef,
 			team: {
 				default:  team.default,
+				desc:     team.desc,
 				guid:     team.guid,
 				name:     team.name,
 				org_guid: orgRef.guid,

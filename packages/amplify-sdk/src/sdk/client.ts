@@ -91,6 +91,20 @@ export default class AmplifySDKClient extends Base {
 			json: data
 		});
 
+		const { teams } = await this.sdk.team.list(account, orgRef, client.guid);
+		const clientTeams = [];
+
+		for (const team of teams) {
+			const user = team.users.find(u => u.guid === client.guid);
+			if (user) {
+				clientTeams.push({
+					guid: team.guid,
+					name: team.name,
+					roles: user.roles
+				});
+			}
+		}
+
 		return {
 			client: {
 				client_id:   client.client_id,
@@ -99,7 +113,7 @@ export default class AmplifySDKClient extends Base {
 				method:      this.resolveType(client.type),
 				name:        client.name,
 				org_guid:    client.org_guid,
-				teams:       [],
+				teams:       clientTeams,
 				type:        client.type
 			} as Client,
 			org: orgRef
@@ -141,7 +155,7 @@ export default class AmplifySDKClient extends Base {
 		const teams: ClientTeam[] = [];
 		const { teams: allTeams } = await this.sdk.team.list(account, platformClient.org_guid);
 		for (const team of allTeams) {
-			const user = team.users.find(u => u.type === 'client' && u.guid === platformClient.guid);
+			const user = team.users.find(u => u.guid === platformClient.guid);
 			if (user) {
 				teams.push({
 					guid:  team.guid,
@@ -397,7 +411,7 @@ export default class AmplifySDKClient extends Base {
 		const teams: ClientTeam[] = [];
 		const { teams: allTeams } = await this.sdk.team.list(account, platformClient.org_guid);
 		for (const team of allTeams) {
-			const user = team.users.find(u => u.type === 'client' && u.guid === platformClient.guid);
+			const user = team.users.find(u => u.client_id && u.guid === platformClient.guid);
 			if (user) {
 				teams.push({
 					guid:  team.guid,

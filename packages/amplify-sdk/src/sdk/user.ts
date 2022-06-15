@@ -40,17 +40,24 @@ export default class AmplifySDKUser extends Base {
 		}
 
 		const subject: string = user as string;
-		const platformUser: PlatformUser = await this.sdk.request(`/api/v1/user/${subject}`, account, {
-			errorMsg: 'Failed to find user'
-		});
+		try {
+			const platformUser: PlatformUser = await this.sdk.request(`/api/v1/user/${subject}`, account, {
+				errorMsg: 'Failed to find user'
+			});
 
-		return {
-			dateJoined: platformUser.date_activated,
-			email:      platformUser.email,
-			firstname:  platformUser.firstname,
-			guid:       platformUser.guid,
-			lastname:   platformUser.lastname
-		};
+			return {
+				dateJoined: platformUser.date_activated,
+				email:      platformUser.email,
+				firstname:  platformUser.firstname,
+				guid:       platformUser.guid,
+				lastname:   platformUser.lastname
+			};
+		} catch (e: any) {
+			if (e.statusCode === 404) {
+				throw new Error(`User "${subject}" not found`);
+			}
+			throw e;
+		}
 	}
 
 	/**
@@ -72,6 +79,7 @@ export default class AmplifySDKUser extends Base {
 		}
 
 		let user: User | null = account.user;
+
 		const changes: UserChanges = {};
 		const json: UserInfo = {
 			firstname: info.firstname ? String(info.firstname).trim() : undefined,
@@ -80,7 +88,8 @@ export default class AmplifySDKUser extends Base {
 
 		// remove unchanged
 		for (const key of Object.keys(json)) {
-			if (json[key as keyof UserInfo] === user[key as keyof UserInfo]) {
+			const value = json[key as keyof UserInfo];
+			if (value === undefined || value === user[key as keyof UserInfo]) {
 				delete json[key as keyof UserInfo];
 			} else {
 				changes[key] = {

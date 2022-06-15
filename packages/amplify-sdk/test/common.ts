@@ -232,11 +232,17 @@ function createAPIRoutes(server: any, data: any) {
 		// add the user
 		data.users.push({ guid: result.guid });
 
+		const org = data.orgs.find((o: any) => o.guid === org_guid);
+		org.users.push({
+			guid,
+			roles
+		});
+
 		if (teams) {
 			for (const team of teams) {
 				const info = data.teams.find((t: any) => t.guid === team.guid);
 				info.users.push({
-					guid: result.guid,
+					guid,
 					type: 'client',
 					roles: team.roles
 				});
@@ -274,22 +280,6 @@ function createAPIRoutes(server: any, data: any) {
 				}
 			]
 		};
-	});
-
-	router.get('/v1/org/:id/family', ctx => {
-		let org = data.orgs.find((o: any) => String(o.org_id) === ctx.params.id);
-		if (org?.parent_org_guid) {
-			org = data.orgs.find((o: any) => o.org_id === org.parent_org_guid);
-		}
-		if (org) {
-			ctx.body = {
-				success: true,
-				result: {
-					...org,
-					children: org.children.map((c: any) => data.orgs.find((o: any) => o.guid === c))
-				}
-			};
-		}
 	});
 
 	router.get('/v1/org/:id/usage', ctx => {
@@ -364,6 +354,7 @@ function createAPIRoutes(server: any, data: any) {
 	});
 
 	router.get('/v1/org/:id/user', ctx => {
+		const { clients } = ctx.query;
 		const org = data.orgs.find((o: any) => String(o.org_id) === ctx.params.id);
 		if (org) {
 			ctx.body = {
@@ -373,8 +364,19 @@ function createAPIRoutes(server: any, data: any) {
 					if (user) {
 						users.push({
 							...user,
-							...ou
+							...ou,
+							type: 'user'
 						});
+					}
+					if (clients) {
+						const client = data.clients.find((c: any) => c.guid === ou.guid);
+						if (client) {
+							users.push({
+								...client,
+								...ou,
+								type: 'client'
+							});
+						}
 					}
 					return users;
 				}, [])
@@ -524,7 +526,10 @@ function createAPIRoutes(server: any, data: any) {
 	router.post('/v1/team/:guid/user/:user_guid', ctx => {
 		const team = data.teams.find((t: any) => t.guid === ctx.params.guid);
 		if (team) {
-			const user = data.users.find((u: any) => u.guid === ctx.params.user_guid);
+			let user = data.users.find((u: any) => u.guid === ctx.params.user_guid);
+			if (!user) {
+				user = data.clients.find((c: any) => c.guid === ctx.params.user_guid);
+			}
 
 			if (!user) {
 				ctx.status = 400;
@@ -551,12 +556,13 @@ function createAPIRoutes(server: any, data: any) {
 			team.users.push({
 				guid: user.guid,
 				roles: ctx.request.body.roles,
-				primary: true
+				primary: true,
+				type: user.client_id ? 'client' : 'user'
 			});
 
 			ctx.body = {
 				success: true,
-				result: { guid: user.guid }
+				result: team
 			};
 		}
 	});
@@ -697,7 +703,7 @@ function createAPIRoutes(server: any, data: any) {
 
 	router.get('/v1/user/:id', ctx => {
 		const { id } = ctx.params;
-		const user = data.users.find((u: any) => u.guid === id);
+		const user = data.users.find((u: any) => u.guid === id || u.email === id);
 		if (user) {
 			ctx.body = {
 				success: true,
