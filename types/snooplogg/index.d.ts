@@ -33,6 +33,9 @@ declare module 'snooplogg' {
 
 		styles: {
 			alert: (s?: string | number) => void,
+			cyan: (s?: string | number) => void,
+			gray: (s?: string | number) => void,
+			green: (s?: string | number) => void
 			highlight: (s?: string | number) => void,
 			note: (s?: string | number) => void,
 			ok: (s?: string | number) => void,

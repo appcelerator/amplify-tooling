@@ -1,16 +1,21 @@
+import { Environment } from './types.js';
+
+interface EnvironmentDefaults {
+	dev: {},
+	staging: {},
+	prod: {}
+}
+
 /**
  * Environment specific settings.
  *
  * @type {Object}
  */
-export const environments = {
+export const environments: EnvironmentDefaults = {
 	dev: {
 		auth: {
 			clientId: 'cli-test-public',
 			realm: 'Broker'
-		},
-		registry: {
-			url: 'http://localhost:8082'
 		},
 		title: 'Development'
 	},
@@ -19,9 +24,6 @@ export const environments = {
 			clientId: 'amplify-cli',
 			realm: 'Broker'
 		},
-		registry: {
-			url: 'https://registry.axwaytest.net'
-		},
 		title: 'Staging'
 	},
 	prod: {
@@ -29,37 +31,43 @@ export const environments = {
 			clientId: 'amplify-cli',
 			realm: 'Broker'
 		},
-		registry: {
-			url: 'https://registry.platform.axway.com'
-		},
 		title: 'Production'
 	}
 };
 
-const mapping = {
-	development: 'dev',
-	preprod: 'staging',
-	preproduction: 'staging',
+interface EnvironmentMapping {
+	development: string,
+	preprod: string,
+	preproduction: string,
+	'pre-production': string,
+	production: string,
+	test: string,
+}
+
+const mapping: EnvironmentMapping = {
+	development:      'dev',
+	preprod:          'staging',
+	preproduction:    'staging',
 	'pre-production': 'staging',
-	production: 'prod',
-	test: 'staging'
+	production:       'prod',
+	test:             'staging'
 };
 
-export function resolve(env) {
-	let environment = 'prod';
+export function resolve(env: string): Environment {
+	let environment: string = 'prod';
 	if (env) {
 		if (typeof env !== 'string') {
 			throw new TypeError('Expected environment to be a string');
 		}
 		environment = env.toLowerCase();
-		environment = mapping[environment] || environment;
-		if (!environments[environment]) {
+		environment = mapping[environment as keyof EnvironmentMapping] || environment;
+		if (!environments[environment as keyof EnvironmentDefaults]) {
 			throw new Error(`Invalid environment "${env}"`);
 		}
 	}
 
 	return {
 		name: environment,
-		...environments[environment]
-	};
+		...environments[environment as keyof EnvironmentDefaults]
+	} as Environment;
 }

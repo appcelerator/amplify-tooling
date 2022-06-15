@@ -1,11 +1,10 @@
 import AmplifySDK, { Telemetry } from '@axway/amplify-sdk';
-import boxen from 'boxen';
-import check from 'check-kit';
 import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
-import Table from 'cli-table3';
+import Table, { TableConstructorOptions } from 'cli-table3';
 import snooplogg from 'snooplogg';
 import { ansi } from 'cli-kit';
+import { BuildAuthParamsOptions, InitSDKOptions } from './types.js';
 import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request.js';
 import * as environments from './environments.js';
 import * as locations from './locations.js';
@@ -27,7 +26,7 @@ export {
 };
 
 const { warn } = snooplogg('amplify-cli-utils');
-const { cyan, gray, green } = snooplogg.chalk;
+const { green } = snooplogg.chalk;
 
 /**
  * Constructs a parameters object to pass into an Auth instance.
@@ -36,7 +35,7 @@ const { cyan, gray, green } = snooplogg.chalk;
  * @param {Config} [config] - The Amplify config object.
  * @returns {Object}
  */
-export async function buildAuthParams(opts = {}, config: Config) {
+export async function buildAuthParams(opts: BuildAuthParamsOptions = {}, config?: Config) {
 	if (!opts || typeof opts !== 'object') {
 		throw new Error('Expected options to be an object');
 	}
@@ -81,7 +80,7 @@ export async function buildAuthParams(opts = {}, config: Config) {
 		config.set('auth.tokenStoreType', 'file');
 		try {
 			config.save();
-		} catch (err) {
+		} catch (err: any) {
 			warn(err);
 		}
 	}
@@ -96,57 +95,13 @@ export async function buildAuthParams(opts = {}, config: Config) {
 export { buildAuthParams as buildParams };
 
 /**
- * Checks if a new version of an npm package is available and returns a string with the formatted
- * update message.
- *
- * @param {Object} [opts] - Check update and request configuration options.
- * @param {Number} [opts.checkInterval=3600000] - The amount of time in milliseconds before
- * checking for an update. Defaults to 1 hour.
- * @param {String} [opts.cwd] - The current working directory used to locate the `package.json` if
- * `pkg` is not specified.
- * @param {String} [opts.distTag='latest'] - The tag to check for the latest version.
- * @param {Boolean} [opts.force=false] - Forces an update check.
- * @param {String} [opts.metaDir] - The directory to store package update information.
- * @param {Object|String} [opts.pkg] - The parsed `package.json`, path to the package.json file, or
- * falsey and it will scan parent directories looking for a package.json.
- * @param {String} [opts.registryUrl] - The npm registry URL. By default, it will autodetect the
- * URL based on the package name/scope.
- * @param {Number} [opts.timeout=1000] - The number of milliseconds to wait to query npm before
- * timing out.
- * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
- * from disk.
- * @returns {String}
- */
-export async function checkForUpdate(opts, config) {
-	opts = await createRequestOptions(opts, config || await loadConfig());
-
-	const {
-		current,
-		latest,
-		name,
-		updateAvailable
-	} = await check(opts);
-
-	if (updateAvailable) {
-		const msg = `Update available ${gray(current)} → ${green(latest)}\nRun ${cyan(`npm i -g ${name}`)} to update`;
-		return boxen(msg, {
-			align: 'center',
-			borderColor: 'yellow',
-			borderStyle: 'round',
-			margin: { bottom: 1, left: 4, right: 4, top: 1 },
-			padding: { bottom: 1, left: 4, right: 4, top: 1 }
-		});
-	}
-}
-
-/**
  * Creates a table with default styles and padding.
  *
  * @param {Array.<String>} head - One or more headings.
  * @param {Number} [indent] - The number of spaces to indent the table.
  * @returns {Table}
  */
-export function createTable(head, indent = 0) {
+export function createTable(head: string[], indent: number = 0): Table {
 	return new Table({
 		chars: {
 			bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
@@ -162,7 +117,7 @@ export function createTable(head, indent = 0) {
 			'padding-left': 0,
 			'padding-right': 0
 		}
-	});
+	} as TableOptions);
 }
 
 /**
@@ -186,22 +141,21 @@ export function getAuthConfigEnvSpecifier(env) {
  * @param {String} fromVer - The current version.
  * @returns {String}
  */
-export function hlVer(toVer, fromVer) {
-	const { green } = snooplogg.styles;
+export function hlVer(toVer: string, fromVer: string): string {
 	const version = [];
 
-	let [ from, fromTag ] = fromVer.split(/-(.+)/);
-	from = from.replace(/[^.\d]/g, '').split('.').map(x => parseInt(x));
+	const [ from, fromTag ] = fromVer.split(/-(.+)/);
+	const fromArr = from.replace(/[^.\d]/g, '').split('.').map(x => parseInt(x));
 
-	let [ to, toTag ] = toVer.split(/-(.+)/);
+	const [ to, toTag ] = toVer.split(/-(.+)/);
 	const toMatch = to.match(/^([^\d]+)?(.+)$/);
-	to = (toMatch ? toMatch[2] : to).split('.').map(x => parseInt(x));
+	const toArr = (toMatch ? toMatch[2] : to).split('.').map(x => parseInt(x));
 
-	const tag = () => {
+	const tag = (): string => {
 		if (toTag) {
 			const toNum = toTag.match(/\d+$/);
 			const fromNum = fromTag && fromTag.match(/\d+$/);
-			if (fromNum && parseInt(fromNum[0]) >= parseInt(toNum)) {
+			if (fromNum && toNum && parseInt(fromNum[0]) >= parseInt(toNum[0])) {
 				return `-${toTag}`;
 			} else {
 				return green(`-${toTag}`);
@@ -210,15 +164,15 @@ export function hlVer(toVer, fromVer) {
 		return '';
 	};
 
-	while (to.length) {
-		if (to[0] > from[0]) {
+	while (toArr.length) {
+		if (toArr[0] > fromArr[0]) {
 			if (version.length) {
-				return (toMatch && toMatch[1] || '') + version.concat(green(to.join('.') + tag())).join('.');
+				return (toMatch && toMatch[1] || '') + [ ...version, green(toArr.join('.') + tag()) ].join('.');
 			}
-			return green((toMatch && toMatch[1] || '') + to.join('.') + tag());
+			return green((toMatch && toMatch[1] || '') + toArr.join('.') + tag());
 		}
-		version.push(to.shift());
-		from.shift();
+		version.push(toArr.shift());
+		fromArr.shift();
 	}
 
 	return (toMatch && toMatch[1] || '') + version.join('.') + tag();
@@ -247,22 +201,23 @@ export async function initPlatformAccount(accountName?: string, org?: string, en
 		throw new Error('You must be logged into a platform account\n\nTo login, run: axway auth login');
 	}
 
+	let orgObj = null;
 	if (org) {
-		org = await sdk.org.find(account, org);
+		orgObj = await sdk.org.find(account, org);
 	} else {
 		try {
 			// check the config for a default org for this account
-			org = await sdk.org.find(account, config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
-		} catch (err) {
+			orgObj = await sdk.org.find(account, config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
+		} catch (err: any) {
 			// default org was stale, auto detect the default from the account orgs
-			org = await sdk.org.find(account);
+			orgObj = await sdk.org.find(account);
 		}
 	}
 
 	return {
 		account,
 		config,
-		org,
+		org: orgObj,
 		sdk
 	};
 }
@@ -275,7 +230,7 @@ export async function initPlatformAccount(accountName?: string, org?: string, en
  * @returns {Object} Returns an object containing the Axway CLI config and an initialized
  * Amplify SDK instance.
  */
-export async function initSDK(opts = {}, config) {
+export async function initSDK(opts: InitSDKOptions = {}, config?: Config): Promise<{ config: Config, sdk: AmplifySDK }> {
 	if (!config) {
 		config = await loadConfig();
 	}
@@ -291,7 +246,7 @@ export async function initSDK(opts = {}, config) {
  *
  * @returns {Boolean}
  */
-export function isHeadless() {
+export function isHeadless(): boolean {
 	try {
 		if (process.platform === 'linux' && (process.env.SSH_TTY || !process.env.DISPLAY || /docker|lxc/.test(fs.readFileSync('/proc/1/cgroup', 'utf8')))) {
 			return true;
@@ -299,7 +254,7 @@ export function isHeadless() {
 		if (process.platform === 'darwin' && process.env.SSH_TTY) {
 			return true;
 		}
-	} catch (e) {
+	} catch (e: any) {
 		// do nothing
 	}
 

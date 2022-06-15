@@ -64,7 +64,7 @@ export async function createRequestClient(opts = {}, config: Config) {
  * from disk.
  * @returns {Object}
  */
-export async function createRequestOptions(opts = {}, config: Config) {
+export async function createRequestOptions(opts: request.RequestOptions | Config = {}, config: Config): request.RequestOptions {
 	if (opts instanceof Config) {
 		config = opts;
 		opts = {};
@@ -78,8 +78,8 @@ export async function createRequestOptions(opts = {}, config: Config) {
 		throw new TypeError('Expected config to be an Amplify Config instance');
 	}
 
-	const load = async (src, dest) => {
-		if (opts[dest] !== undefined) {
+	const load = async (src: string, dest: string) => {
+		if (opts[dest as keyof request.RequestOptions] !== undefined) {
 			return;
 		}
 		if (!config) {

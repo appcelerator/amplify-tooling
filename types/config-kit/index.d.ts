@@ -11,6 +11,10 @@ declare class Config {
 	data(key: string): any;
 
 	get(key: string): any;
+
+	set(key: string, value: any, id?: string | Symbol): Promise<Config>;
+
+	save(): Promise<Config>;
 }
 
 declare module 'config-kit' {

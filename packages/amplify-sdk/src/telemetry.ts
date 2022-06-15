@@ -49,23 +49,23 @@ const sendBatchSize = 10;
  */
 const telemetryUrl = 'https://gatekeeper.platform.axway.com/v4/event';
 
-interface TelemetryOptions {
+export interface TelemetryOptions {
 	appGuid: string,
 	appVersion: string,
 	cacheDir: string,
 	environment: string,
-	requestOptions?: RequestOptions,
+	requestOptions?: request.RequestOptions,
 	url?: string
 }
 
-interface CrashData {
+export interface CrashData {
 	message: string,
 	stack?: string | string[]
 }
 
-type CrashPayload = CrashData | Error;
+export type CrashPayload = CrashData | Error;
 
-interface EventPayload {
+export interface EventPayload {
 	cpus?: number,
 	event: string,
 	memory?: number,

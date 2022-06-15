@@ -6,10 +6,11 @@ import { createRequestOptions } from './request.js';
 import { Telemetry } from '@axway/amplify-sdk';
 import * as environments from './environments.js';
 import * as locations from './locations.js';
+import { Environment } from './types.js';
 
 const { warn } = snooplogg('amplify-cli-utils:telemetry');
 const telemetryCacheDir = path.join(locations.axwayHome, 'axway-cli', 'telemetry');
-let telemetryInst = null;
+let telemetryInst: Telemetry | null = null;
 
 /**
  * If telemetry is enabled, writes the anonymous event data to disk where it will eventually be
@@ -18,7 +19,7 @@ let telemetryInst = null;
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export function addEvent(payload, opts) {
+export function addEvent(payload: any, opts: TelemetryOptions) {
 	// eslint-disable-next-line no-unused-expressions
 	init(opts)?.addEvent(payload);
 }
@@ -30,7 +31,7 @@ export function addEvent(payload, opts) {
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export function addCrash(payload, opts) {
+export function addCrash(payload: any, opts) {
 	// eslint-disable-next-line no-unused-expressions
 	init(opts)?.addCrash(payload);
 }
@@ -62,7 +63,7 @@ export async function init(opts = {}) {
 			throw new Error('Expected telemetry app guid to be a non-empty string');
 		}
 
-		const env = environments.resolve(opts.env || config.get('env'));
+		const env: Environment = environments.resolve(opts.env || config.get('env'));
 
 		telemetryInst = new Telemetry({
 			appGuid:        opts.appGuid,
@@ -75,14 +76,14 @@ export async function init(opts = {}) {
 
 		process.on('exit', () => {
 			try {
-				telemetryInst.send();
-			} catch (err) {
+				telemetryInst?.send();
+			} catch (err: any) {
 				warn(err);
 			}
 		});
 
 		return telemetryInst;
-	} catch (err) {
+	} catch (err: any) {
 		telemetryInst = null;
 		warn(err);
 	}
