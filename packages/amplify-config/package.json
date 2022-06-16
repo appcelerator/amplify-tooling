@@ -34,9 +34,6 @@
     "fs-extra": "^10.1.0",
     "source-map-support": "^0.5.21"
   },
-  "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
-  },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-config",
