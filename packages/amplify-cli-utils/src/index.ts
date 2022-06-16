@@ -103,7 +103,7 @@ export { buildAuthParams as buildParams };
  * @param {Number} [indent] - The number of spaces to indent the table.
  * @returns {Table}
  */
-export function createTable(head: string[], indent = 0) {
+export function createTable(head?: string[], indent = 0) {
 	return new Table({
 		chars: {
 			bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',

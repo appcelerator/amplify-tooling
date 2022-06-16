@@ -6,15 +6,15 @@ interface ConfigOptions {
 declare class Config {
 	static Base: string;
 
-	init(opts?: ConfigOptions): Promise<Config>;
+	init(opts?: ConfigOptions): Promise<this>;
 
 	data(key: string): any;
 
 	get(key: string, defaultValue?: any): any;
 
-	set(key: string, value: any, id?: string | Symbol): Promise<Config>;
+	set(key: string, value: any, id?: string | Symbol): Promise<this>;
 
-	save(): Promise<Config>;
+	save(): Promise<this>;
 }
 
 declare module 'config-kit' {

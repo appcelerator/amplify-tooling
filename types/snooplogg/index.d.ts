@@ -32,14 +32,17 @@ declare module 'snooplogg' {
 		};
 
 		styles: {
-			alert: (s?: string | number) => void,
-			cyan: (s?: string | number) => void,
-			gray: (s?: string | number) => void,
-			green: (s?: string | number) => void
-			highlight: (s?: string | number) => void,
-			note: (s?: string | number) => void,
-			ok: (s?: string | number) => void,
-			[key: string]: (s?: string | number) => void
+			alert: (s?: string | number) => string,
+			bold: (s?: string | number) => string,
+			cyan: (s?: string | number) => string,
+			gray: (s?: string | number) => string,
+			green: (s?: string | number) => string
+			highlight: (s?: string | number) => string,
+			note: (s?: string | number) => string,
+			ok: (s?: string | number) => string,
+			red: (s?: string | number) => string,
+			yellow: (s?: string | number) => string,
+			[key: string]: (s?: string | number) => string
 		};
 
 		constructor(opts: any);

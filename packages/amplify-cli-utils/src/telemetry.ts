@@ -16,10 +16,8 @@ let telemetryInst: Telemetry | null = null;
 interface InitOptions {
 	appGuid: string,
 	appVersion: string,
-	cacheDir: string,
-	config: Config
-	env: string,
-	requestOptions?: request.RequestOptions,
+	config?: Config
+	env?: string,
 	url?: string
 }
 
@@ -30,7 +28,7 @@ interface InitOptions {
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export async function addEvent(payload: EventPayload, opts: InitOptions): Promise<void> {
+export async function addEvent(payload: EventPayload, opts?: InitOptions): Promise<void> {
 	// eslint-disable-next-line no-unused-expressions
 	(await init(opts))?.addEvent(payload);
 }
@@ -42,7 +40,7 @@ export async function addEvent(payload: EventPayload, opts: InitOptions): Promis
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export async function addCrash(payload: CrashPayload, opts: InitOptions): Promise<void> {
+export async function addCrash(payload: CrashPayload, opts?: InitOptions): Promise<void> {
 	// eslint-disable-next-line no-unused-expressions
 	(await init(opts))?.addCrash(payload);
 }
@@ -51,18 +49,22 @@ export async function addCrash(payload: CrashPayload, opts: InitOptions): Promis
  * Checks if telemetry is enabled, then if it is, creates the telemetry instance and registers the
  * send handler.
  *
- * @param {Object} [opts] - Various options.
- * @param {String} [opts.appGuid] - The platform registered app guid.
- * @param {String} [opts.appVersion] - The app version.
+ * @param {Object} opts - Various options.
+ * @param {String} opts.appGuid - The platform registered app guid.
+ * @param {String} opts.appVersion - The app version.
  * @param {Config} [opts.config] - The Axway CLI config object.
  * @param {String} [opts.env] - The environment name.
  * @param {String} [opts.url] - The platform analytics endpoint URL.
  * @returns {Telemetry}
  */
-export async function init(opts: InitOptions): Promise<Telemetry|void> {
+export async function init(opts?: InitOptions): Promise<Telemetry|void> {
 	try {
 		if (telemetryInst) {
 			return telemetryInst;
+		}
+
+		if (!opts || typeof opts !== 'object') {
+			throw new TypeError('Expected telemetry init options to be an object');
 		}
 
 		const config = opts.config || await loadConfig();

@@ -1,5 +1,11 @@
-import check from 'check-kit';
-import CLI from 'cli-kit';
+import check, {
+	CheckKitResults
+} from 'check-kit';
+import CLI, {
+	CLINextIterator,
+	CLIParsedArgument,
+	CLIState
+} from 'cli-kit';
 import {
 	Config,
 	createRequestOptions,
@@ -19,13 +25,17 @@ import { serializeError } from 'serialize-error';
 const { bold, cyan, gray, red, yellow } = snooplogg.styles;
 const { log, warn } = snooplogg('axway');
 
+interface ConfigExtensionMap {
+	[name: string]: string
+}
+
 (async () => {
-	const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
+	const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'));
 	const { version } = pkgJson;
 	process.env.AMPLIFY_CLI = version;
 	process.env.AXWAY_CLI = version;
 
-	let cfg;
+	let cfg: Config;
 	try {
 		cfg = await loadConfig();
 	} catch (err) {
@@ -34,42 +44,39 @@ const { log, warn } = snooplogg('axway');
 		cfg = await new Config().init();
 	}
 
-	const externalExtensions = Object.entries(cfg.get('extensions', {}));
-	const allExtensions = [ ...externalExtensions ];
-	for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
-		let { dir, root } = parse(__dirname);
-		while (dir !== root) {
-			const packageDir = resolve(dir, 'node_modules', name);
-			const pkgJson = join(packageDir, 'package.json');
-			if (existsSync(pkgJson)) {
-				allExtensions.push([ name, packageDir ]);
-				break;
-			}
-			dir = dirname(dir);
-		}
-	}
+	const externalExtensions: ConfigExtensionMap[] = [] // Object.entries(cfg.get('extensions', {}));
+	const allExtensions: ConfigExtensionMap[] = [ ...externalExtensions ];
+	// for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
+	// 	let { dir, root } = parse(__dirname);
+	// 	while (dir !== root) {
+	// 		const packageDir = resolve(dir, 'node_modules', name);
+	// 		const pkgJson = join(packageDir, 'package.json');
+	// 		if (existsSync(pkgJson)) {
+	// 			allExtensions.push([ name, packageDir ]);
+	// 			break;
+	// 		}
+	// 		dir = dirname(dir);
+	// 	}
+	// }
 
 	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
-	let checkWait;
+	let checkWait: Promise<CheckKitResults[]> | undefined;
 
 	const cli = new CLI({
 		banner() {
 			const env = process.env.AXWAY_ENV;
 			const title = process.env.AXWAY_ENV_TITLE;
-			let str = `${cyan('AXWAY CLI')}, version ${version}${!env || env === 'prod' ? '' : ` ${yellow(title.toUpperCase())}`}
+			let str = `${cyan('AXWAY CLI')}, version ${version}${!env || env === 'prod' || !title ? '' : ` ${yellow(title.toUpperCase())}`}
 Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 
-			if (process.versions.node.split('.')[0] < 12) {
+			if (parseInt(process.versions.node.split('.')[0]) < 14) {
 				str += '\n\n' + yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
- ┃ deprecated and is unsupported in Axway CLI v3 and newer. Please upgrade
+ ┃ deprecated and is unsupported in Axway CLI v4 and newer. Please upgrade
  ┃ Node.js to the latest LTS release: https://nodejs.org/`);
 			}
 
 			const { arch } = process;
-			if (arch === 'ia32' || arch === 'x32') {
-				str += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" has been deprecated and is unsupported
- ┃ in Axway CLI v3 and newer.`);
-			} else if (arch !== 'x64' && arch !== 'arm64') {
+			if (arch !== 'x64' && arch !== 'arm64') {
 				str += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" is not supported.`);
 			}
 			return str;
@@ -94,23 +101,23 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 		}
 
 		const opts = await createRequestOptions({
-			metaDir: resolve(locations.axwayHome, 'axway-cli', 'update'),
 			timeout: { request: 4000 }
 		}, cfg);
 
 		// store the check promise and let it continue asynchronously
-		checkWait = Promise.all([
+		checkWait = Promise.all<CheckKitResults[]>([
 			// check the Axway CLI for updates
 			check({
 				...opts,
+				metaDir: resolve(locations.axwayHome, 'axway-cli', 'update'),
 				pkg: pkgJson
-			}).catch(() => {}),
+			}).catch(() => {}) as Promise<CheckKitResults>,
 
 			// check all CLI extensions for updates
 			...(externalExtensions
 				.map(ext => join(ext[1], 'package.json'))
 				.filter(ext => ext.startsWith(packagesDir) && existsSync(ext))
-				.map(pkg => check({
+				.map(async (pkg): Promise<CheckKitResults> => await check({
 					...opts,
 					pkg
 				}).catch(() => {})))
@@ -124,10 +131,10 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 	});
 
 	// local ref so we can include argv and the context chain in the crash report
-	let state;
+	let state: CLIState;
 
 	// after the args have been parsed, determine the environment before the banner is rendered
-	cli.on('parse', async (state, next) => {
+	cli.on('parse', async (state: CLIState, next: CLINextIterator) => {
 		const { result } = await next();
 		const env = environments.resolve(result.argv.env || cfg.get('env'));
 		process.env.AXWAY_ENV = env.name;
@@ -168,14 +175,19 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 				exitCode:   state?.exitCode() || 0,
 				extensions: allExtensions
 					.map(([ name, ext ]) => {
-						const info = { name };
+						const info = {
+							err: undefined,
+							managed: false,
+							name,
+							version: undefined
+						};
 						try {
-							const json = JSON.parse(readFileSync(join(ext, 'package.json')));
+							const json = JSON.parse(readFileSync(join(ext, 'package.json'), 'utf-8'));
 							if (ext.startsWith(packagesDir)) {
 								info.managed = true;
 							}
 							info.version = json.version;
-						} catch (err) {
+						} catch (err: any) {
 							info.err = err.toString();
 						}
 						return info;
@@ -205,7 +217,9 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 					return;
 				}
 
-				(await loadConfig()).set('update.notified', Date.now()).save();
+				const config = await loadConfig();
+				await config.set('update.notified', Date.now());
+				await config.save();
 
 				// remove axway package and treat it special
 				for (let i = 0; i < results.length; i++) {
@@ -237,7 +251,7 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 				}
 			}
 		}
-	} catch (err) {
+	} catch (err: any) {
 		const exitCode = err.exitCode || 1;
 
 		// record the crash
@@ -281,7 +295,7 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
  * @param {Array<Object>} argv - The parsed arguments.
  * @returns {Array<String>}
  */
-function scrubArgv(argv) {
+function scrubArgv(argv: CLIParsedArgument[]): string[] {
 	const scrubbed = [];
 	for (const { arg, input, option, type } of argv) {
 		if (type === 'command' || type === 'extension' || (type === 'option' && option.isFlag)) {

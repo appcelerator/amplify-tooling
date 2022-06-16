@@ -1,5 +1,5 @@
 import fs from 'fs';
-import got, { Got } from 'got';
+import got, { Got, ExtendOptions } from 'got';
 import HttpProxyAgent from 'http-proxy-agent';
 import HttpsProxyAgent from 'https-proxy-agent';
 import prettyBytes from 'pretty-bytes';
@@ -24,6 +24,10 @@ interface HttpsOptions {
 	rejectUnauthorized?: boolean
 }
 
+interface GotTimeout {
+	request: number
+}
+
 export interface RequestOptions {
 	agent?: {
 		http?: HttpProxyAgent.HttpProxyAgent,
@@ -39,7 +43,8 @@ export interface RequestOptions {
 	key?: Buffer | string,
 	keyFile?: string,
 	proxy?: string,
-	strictSSL?: boolean
+	strictSSL?: boolean,
+	timeout?: number | GotTimeout
 }
 
 /**
@@ -59,7 +64,7 @@ export interface RequestOptions {
  * for both `https` destinations and `https` proxy servers.
  * @returns {Promise} Resolves `got` options object.
  */
-export function options(opts: RequestOptions = {}) {
+export function options(opts: RequestOptions = {}): ExtendOptions {
 	if (!opts || typeof opts !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	}
@@ -87,6 +92,10 @@ export function options(opts: RequestOptions = {}) {
 	delete opts.keyFile;
 	delete opts.proxy;
 	delete opts.strictSSL;
+
+	if (typeof opts.timeout === 'number') {
+		opts.timeout = { request: opts.timeout };
+	}
 
 	const load = (it: Buffer | string | undefined) => Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : undefined;
 
@@ -134,7 +143,7 @@ export function options(opts: RequestOptions = {}) {
 	}
 
 	// console.log(opts);
-	return opts;
+	return opts as ExtendOptions;
 }
 
 /**
