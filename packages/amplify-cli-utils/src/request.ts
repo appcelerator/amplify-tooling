@@ -1,5 +1,7 @@
 import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
+import { GotReturn } from 'got';
+import { RequestOptions } from '@axway/amplify-request';
 import * as request from '@axway/amplify-request';
 
 /**
@@ -12,7 +14,7 @@ import * as request from '@axway/amplify-request';
  * from disk.
  * @returns {Array.<String>}
  */
-export async function createNPMRequestArgs(opts = {}, config: Config) {
+export async function createNPMRequestArgs(opts: RequestOptions = {}, config: Config) {
 	const { ca, cert, key, proxy, strictSSL } = await createRequestOptions(opts, config);
 	const args = [];
 
@@ -42,7 +44,7 @@ export async function createNPMRequestArgs(opts = {}, config: Config) {
  * from disk.
  * @returns {Function}
  */
-export async function createRequestClient(opts = {}, config: Config) {
+export async function createRequestClient(opts: RequestOptions = {}, config: Config): Promise<GotReturn> {
 	opts = await createRequestOptions(opts, config);
 	return request.init({
 		...opts,
@@ -64,14 +66,14 @@ export async function createRequestClient(opts = {}, config: Config) {
  * from disk.
  * @returns {Object}
  */
-export async function createRequestOptions(opts: request.RequestOptions | Config = {}, config: Config): request.RequestOptions {
+export async function createRequestOptions(opts: RequestOptions | Config = {}, config?: Config): Promise<RequestOptions> {
+	let reqOpts: RequestOptions = {};
 	if (opts instanceof Config) {
 		config = opts;
-		opts = {};
 	} else if (!opts && typeof opts !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	} else {
-		opts = { ...opts };
+		reqOpts = { ...opts };
 	}
 
 	if (config && !(config instanceof Config)) {
@@ -79,7 +81,7 @@ export async function createRequestOptions(opts: request.RequestOptions | Config
 	}
 
 	const load = async (src: string, dest: string) => {
-		if (opts[dest as keyof request.RequestOptions] !== undefined) {
+		if (reqOpts[dest as keyof RequestOptions] !== undefined) {
 			return;
 		}
 		if (!config) {
@@ -90,11 +92,11 @@ export async function createRequestOptions(opts: request.RequestOptions | Config
 			return;
 		}
 		if (dest === 'proxy') {
-			opts[dest] = value;
+			reqOpts.proxy = value;
 		} else if (dest === 'strictSSL') {
-			opts[dest] = !!value !== false;
+			reqOpts.strictSSL = !!value !== false;
 		} else {
-			opts[dest] = fs.readFileSync(value);
+			reqOpts[dest as keyof RequestOptions] = fs.readFileSync(value, 'utf-8') as any;
 		}
 	};
 
@@ -106,5 +108,5 @@ export async function createRequestOptions(opts: request.RequestOptions | Config
 	await load('network.httpProxy',  'proxy');
 	await load('network.strictSSL',  'strictSSL');
 
-	return opts;
+	return reqOpts;
 }

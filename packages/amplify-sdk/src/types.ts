@@ -231,6 +231,8 @@ export interface UserInfo {
 	lastname?: string
 }
 
+export type UsageParams = UsageParamsRange & UsageParamsMonth;
+
 export interface UsageParamsRange {
 	from: string,
 	to: string
@@ -239,8 +241,6 @@ export interface UsageParamsRange {
 export interface UsageParamsMonth {
 	month: string | boolean
 }
-
-export type UsageParams = UsageParamsRange & UsageParamsMonth;
 
 // note: this interface is identical to PlatformOrgUsage except `from` and `to`
 // are Date objects instead of ISO strings

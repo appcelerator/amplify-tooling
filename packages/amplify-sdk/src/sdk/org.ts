@@ -116,7 +116,7 @@ export default class AmplifySDKOrg extends Base {
 			partners:         {},
 			region:           platformOrg.region,
 			seats:            platformOrg.entitlements?.limit_users === 10000 ? null : platformOrg.entitlements?.limit_users,
-			subscriptions:    subscriptions,
+			subscriptions,
 			teams,
 			userCount:        platformOrg.users.length,
 			userRoles:        platformOrg.users.find(u => u.guid === account.user.guid)?.roles || []

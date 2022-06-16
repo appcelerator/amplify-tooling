@@ -1,9 +1,17 @@
 import { Environment } from './types.js';
 
 interface EnvironmentDefaults {
-	dev: {},
-	staging: {},
-	prod: {}
+	auth: {
+		clientId: string,
+		realm: string
+	},
+	title: string
+}
+
+interface EnvironmentDefaultsMap {
+	dev:     EnvironmentDefaults,
+	staging: EnvironmentDefaults,
+	prod:    EnvironmentDefaults
 }
 
 /**
@@ -11,7 +19,7 @@ interface EnvironmentDefaults {
  *
  * @type {Object}
  */
-export const environments: EnvironmentDefaults = {
+export const environments: EnvironmentDefaultsMap = {
 	dev: {
 		auth: {
 			clientId: 'cli-test-public',
@@ -54,20 +62,20 @@ const mapping: EnvironmentMapping = {
 };
 
 export function resolve(env: string): Environment {
-	let environment: string = 'prod';
+	let environment = 'prod';
 	if (env) {
 		if (typeof env !== 'string') {
 			throw new TypeError('Expected environment to be a string');
 		}
 		environment = env.toLowerCase();
 		environment = mapping[environment as keyof EnvironmentMapping] || environment;
-		if (!environments[environment as keyof EnvironmentDefaults]) {
+		if (!environments[environment as keyof EnvironmentDefaultsMap]) {
 			throw new Error(`Invalid environment "${env}"`);
 		}
 	}
 
 	return {
 		name: environment,
-		...environments[environment as keyof EnvironmentDefaults]
+		...environments[environment as keyof EnvironmentDefaultsMap]
 	} as Environment;
 }

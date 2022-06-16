@@ -147,7 +147,9 @@ export default class TokenStore {
 		log(`Scanning ${highlight(len)} ${pluralize('token', len)} for accountName=${highlight(accountName)} hash=${highlight(hash)} baseUrl=${highlight(baseUrl)}`);
 
 		for (let i = 0; i < len; i++) {
-			if (((accountName && entries[i].name === accountName) || (hash && entries[i].hash === hash)) && (!baseUrl || entries[i].auth.baseUrl.replace(protoRegExp, '').replace(/\/$/, '') === baseUrl)) {
+			const bu = entries[i].auth.baseUrl.replace(protoRegExp, '').replace(/\/$/, '');
+			log(`  ${i}: ${entries[i].name || 'unknown'} (${entries[i].hash || 'no hash'}) ${bu}`);
+			if (((accountName && entries[i].name === accountName) || (hash && entries[i].hash === hash)) && (!baseUrl || bu === baseUrl)) {
 				log(`Found account tokens: ${highlight(entries[i].name)}`);
 				return entries[i];
 			}

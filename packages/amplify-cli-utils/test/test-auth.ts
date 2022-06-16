@@ -1,15 +1,16 @@
 import http from 'http';
+import { Account, MemoryStore } from '@axway/amplify-sdk';
 import { Config } from '@axway/amplify-config';
 import { expect } from 'chai';
 import { initSDK } from '../src/index.js';
-import { MemoryStore } from '@axway/amplify-sdk';
+import { Socket } from 'net';
 
 describe('auth', () => {
 	before(async function () {
 		this.timeout(5000);
 
-		this.server = http.createServer((req, res) => {
-			const url = new URL(req.url, 'http://127.0.0.1:1337');
+		this.server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
+			const url = new URL(req.url as string, 'http://127.0.0.1:1337');
 			switch (url.pathname) {
 				case '/auth/realms/AppcID/protocol/openid-connect/userinfo':
 				case '/auth/realms/Axway/protocol/openid-connect/userinfo':
@@ -26,8 +27,18 @@ describe('auth', () => {
 					res.end(JSON.stringify({
 						result: {
 							org: {
+								guid: '123',
 								org_id: 123,
-								name: 'foo org'
+								name: 'foo org',
+								subscriptions: [],
+								users: [
+									{
+										firstname: 'foo',
+										guid: 'def456',
+										lastname: 'bar',
+										name: 'foo bar'
+									}
+								]
 							},
 							orgs: [
 								{
@@ -68,6 +79,20 @@ describe('auth', () => {
 					}));
 					break;
 
+				case '/api/v1/org/123/user':
+					res.writeHead(200, { 'Content-Type': 'application/json' });
+					res.end(JSON.stringify({
+						result: [
+							{
+								firstname: 'foo',
+								guid: 'def456',
+								lastname: 'bar',
+								name: 'foo bar'
+							}
+						]
+					}));
+					break;
+
 				case '/success':
 					res.writeHead(200, { 'Content-Type': 'text/html' });
 					res.end('<html><head><title>Test successful!</title></head><body><h1>Test successful!</h1><p>You can close this browser window</p></body></html>');
@@ -84,7 +109,7 @@ describe('auth', () => {
 		await new Promise((resolve, reject) => {
 			this.server
 				.on('listening', resolve)
-				.on('connection', conn => {
+				.on('connection', (conn: Socket) => {
 					const key = `${conn.remoteAddress}:${conn.remotePort}`;
 					this.connections[key] = conn;
 					conn.on('close', () => {
@@ -97,10 +122,11 @@ describe('auth', () => {
 	});
 
 	after(function () {
-		return Promise.all([
-			new Promise(resolve => this.server.close(resolve)),
-			new Promise(resolve => {
-				for (const conn of Object.values(this.connections)) {
+		return Promise.all<void>([
+			new Promise<void>(resolve => this.server.close(() => resolve())),
+			new Promise<void>(resolve => {
+				const connections: { [key: string]: Socket } = this.connections;
+				for (const conn of Object.values(connections)) {
 					conn.destroy();
 				}
 				resolve();
@@ -123,22 +149,25 @@ describe('auth', () => {
 					access_token: 'foo'
 				}
 			},
-			hash: 'test:85e0419f4473118bf2bc8a8bba9f6abc',
+			hash: 'test:c40c30ec385cb552cb1f4b4600116bce',
 			name: 'bar'
 		};
 
 		const tokenStore = new MemoryStore();
-		await tokenStore.set(token);
+		await tokenStore.set(token as Account);
 
 		const { sdk } = await initSDK({
 			baseUrl:      'http://127.0.0.1:1337/',
 			clientId:     'test',
 			clientSecret: 'shhhh',
-			orgSelectUrl: 'http://127.0.0.1:1337/auth/org.select',
 			platformUrl:  'http://127.0.0.1:1337/',
 			realm:        'baz',
 			tokenStore
-		}, await new Config().init({ env: 'preprod' }));
+		}, await new Config().init({
+			data: {
+				env: 'preprod'
+			}
+		}));
 
 		const account = await sdk.auth.find();
 		expect(account).to.deep.equal(token);
@@ -164,13 +193,12 @@ describe('auth', () => {
 		};
 
 		const tokenStore = new MemoryStore();
-		await tokenStore.set(token);
+		await tokenStore.set(token as Account);
 
 		const { sdk } = await initSDK({
 			clientId:     'test',
 			env:          'preprod',
 			baseUrl:      'http://127.0.0.1:1337/',
-			orgSelectUrl: 'http://127.0.0.1:1337/auth/org.select',
 			platformUrl:  'http://127.0.0.1:1337/',
 			realm:        'baz',
 			tokenStore

@@ -28,7 +28,7 @@ export default class AmplifySDKTeam extends Base {
 		org: OrgRef,
 		team: Team
 	}> {
-		const orgRef: OrgRef = this.sdk.org.resolve(account, org, true);
+		const orgRef: OrgRef = this.sdk.org.resolve(account, org);
 
 		if (!name || typeof name !== 'string') {
 			throw E.INVALID_ARGUMENT('Expected name to be a non-empty string');

@@ -2,15 +2,26 @@ import fs from 'fs-extra';
 import loadConfig from '@axway/amplify-config';
 import path from 'path';
 import snooplogg from 'snooplogg';
+import { CrashPayload, EventPayload, Telemetry } from '@axway/amplify-sdk';
 import { createRequestOptions } from './request.js';
-import { Telemetry } from '@axway/amplify-sdk';
+import { Environment } from './types.js';
 import * as environments from './environments.js';
 import * as locations from './locations.js';
-import { Environment } from './types.js';
+import * as request from '@axway/amplify-request';
 
 const { warn } = snooplogg('amplify-cli-utils:telemetry');
 const telemetryCacheDir = path.join(locations.axwayHome, 'axway-cli', 'telemetry');
 let telemetryInst: Telemetry | null = null;
+
+interface InitOptions {
+	appGuid: string,
+	appVersion: string,
+	cacheDir: string,
+	config: Config
+	env: string,
+	requestOptions?: request.RequestOptions,
+	url?: string
+}
 
 /**
  * If telemetry is enabled, writes the anonymous event data to disk where it will eventually be
@@ -19,9 +30,9 @@ let telemetryInst: Telemetry | null = null;
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export function addEvent(payload: any, opts: TelemetryOptions) {
+export async function addEvent(payload: EventPayload, opts: InitOptions): Promise<void> {
 	// eslint-disable-next-line no-unused-expressions
-	init(opts)?.addEvent(payload);
+	(await init(opts))?.addEvent(payload);
 }
 
 /**
@@ -31,9 +42,9 @@ export function addEvent(payload: any, opts: TelemetryOptions) {
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export function addCrash(payload: any, opts) {
+export async function addCrash(payload: CrashPayload, opts: InitOptions): Promise<void> {
 	// eslint-disable-next-line no-unused-expressions
-	init(opts)?.addCrash(payload);
+	(await init(opts))?.addCrash(payload);
 }
 
 /**
@@ -48,7 +59,7 @@ export function addCrash(payload: any, opts) {
  * @param {String} [opts.url] - The platform analytics endpoint URL.
  * @returns {Telemetry}
  */
-export async function init(opts = {}) {
+export async function init(opts: InitOptions): Promise<Telemetry|void> {
 	try {
 		if (telemetryInst) {
 			return telemetryInst;
@@ -69,7 +80,7 @@ export async function init(opts = {}) {
 			appGuid:        opts.appGuid,
 			appVersion:     opts.appVersion,
 			cacheDir:       telemetryCacheDir,
-			environment:    env === 'staging' ? 'preproduction' : 'production',
+			environment:    env.name === 'staging' ? 'preproduction' : 'production',
 			requestOptions: await createRequestOptions(config),
 			url:            opts.url
 		});

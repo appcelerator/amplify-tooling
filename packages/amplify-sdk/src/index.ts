@@ -1,6 +1,5 @@
 import AmplifySDK from './amplify-sdk.js';
 import Auth from './auth.js';
-import Telemetry from './telemetry.js';
 
 import Authenticator from './authenticators/authenticator.js';
 import ClientSecret from './authenticators/client-secret.js';
@@ -15,6 +14,46 @@ import TokenStore from './stores/token-store.js';
 
 import * as environments from './environments.js';
 import getEndpoints from './endpoints.js';
+
+import Telemetry, {
+	CrashPayload,
+	EventPayload,
+	TelemetryOptions
+} from './telemetry.js';
+
+import {
+	Account,
+	AccountAuthInfo,
+	ActivityEvent,
+	ActivityParams,
+	ActivityResult,
+	AmplifySDKOptions,
+	Client,
+	ClientRef,
+	ClientTeam,
+	DefaultTeams,
+	Entitlement,
+	Entitlements,
+	Environment,
+	Org,
+	OrgLike,
+	OrgPartner,
+	OrgRef,
+	OrgUser,
+	Role,
+	Subscription,
+	Team,
+	TeamInfo,
+	TeamInfoChanges,
+	TeamUser,
+	User,
+	UserChanges,
+	UserInfo,
+	UsageParams,
+	UsageParamsRange,
+	UsageParamsMonth,
+	UsageResult
+} from './types.js';
 
 export default AmplifySDK;
 
@@ -36,4 +75,41 @@ export {
 
 	environments,
 	getEndpoints
+};
+
+export type {
+	Account,
+	AccountAuthInfo,
+	ActivityEvent,
+	ActivityParams,
+	ActivityResult,
+	AmplifySDKOptions,
+	Client,
+	ClientRef,
+	ClientTeam,
+	CrashPayload,
+	DefaultTeams,
+	Entitlement,
+	Entitlements,
+	Environment,
+	EventPayload,
+	Org,
+	OrgLike,
+	OrgPartner,
+	OrgRef,
+	OrgUser,
+	Role,
+	Subscription,
+	Team,
+	TeamInfo,
+	TeamInfoChanges,
+	TeamUser,
+	TelemetryOptions,
+	User,
+	UserChanges,
+	UserInfo,
+	UsageParams,
+	UsageParamsRange,
+	UsageParamsMonth,
+	UsageResult
 };

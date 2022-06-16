@@ -1,10 +1,10 @@
-import AmplifySDK, { Telemetry } from '@axway/amplify-sdk';
+import AmplifySDK, { AmplifySDKOptions, Telemetry } from '@axway/amplify-sdk';
 import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
-import Table, { TableConstructorOptions } from 'cli-table3';
+import Table from 'cli-table3';
 import snooplogg from 'snooplogg';
 import { ansi } from 'cli-kit';
-import { BuildAuthParamsOptions, InitSDKOptions } from './types.js';
+import { BuildAuthParamsOptions, InitPlatformAccountResult } from './types.js';
 import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request.js';
 import * as environments from './environments.js';
 import * as locations from './locations.js';
@@ -35,7 +35,7 @@ const { green } = snooplogg.chalk;
  * @param {Config} [config] - The Amplify config object.
  * @returns {Object}
  */
-export async function buildAuthParams(opts: BuildAuthParamsOptions = {}, config?: Config) {
+export async function buildAuthParams(opts: BuildAuthParamsOptions = {}, config?: Config): Promise<AmplifySDKOptions> {
 	if (!opts || typeof opts !== 'object') {
 		throw new Error('Expected options to be an object');
 	}
@@ -47,8 +47,8 @@ export async function buildAuthParams(opts: BuildAuthParamsOptions = {}, config?
 	const env = environments.resolve(opts.env || config.get('env'));
 
 	const { clientId, realm } = env.auth;
-	const params = {};
-	const props = {
+	const params: AmplifySDKOptions = {};
+	const props: BuildAuthParamsOptions = {
 		baseUrl:                 undefined,
 		clientId,
 		clientSecret:            undefined,
@@ -71,7 +71,9 @@ export async function buildAuthParams(opts: BuildAuthParamsOptions = {}, config?
 	};
 
 	for (const prop of Object.keys(props)) {
-		params[prop] = opts[prop] !== undefined ? opts[prop] : config.get(`auth.${prop}`, props[prop]);
+		params[prop as keyof AmplifySDKOptions] = opts[prop as keyof BuildAuthParamsOptions] !== undefined
+			? opts[prop as keyof BuildAuthParamsOptions]
+			: config.get(`auth.${prop}`, props[prop as keyof BuildAuthParamsOptions]);
 	}
 
 	// detect if we're headless and default token store type to `file`
@@ -85,7 +87,7 @@ export async function buildAuthParams(opts: BuildAuthParamsOptions = {}, config?
 		}
 	}
 
-	params.requestOptions = await createRequestOptions(opts, config);
+	params.requestOptions = await createRequestOptions(opts.requestOptions, config);
 
 	return params;
 }
@@ -101,7 +103,7 @@ export { buildAuthParams as buildParams };
  * @param {Number} [indent] - The number of spaces to indent the table.
  * @returns {Table}
  */
-export function createTable(head: string[], indent: number = 0): Table {
+export function createTable(head: string[], indent = 0) {
 	return new Table({
 		chars: {
 			bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
@@ -117,7 +119,7 @@ export function createTable(head: string[], indent: number = 0): Table {
 			'padding-left': 0,
 			'padding-right': 0
 		}
-	} as TableOptions);
+	});
 }
 
 /**
@@ -130,7 +132,7 @@ export function createTable(head: string[], indent: number = 0): Table {
  * @example
  *   config.get(`${getAuthConfigEnvSpecifier(sdk.env.name)}.defaultAccount`);
  */
-export function getAuthConfigEnvSpecifier(env) {
+export function getAuthConfigEnvSpecifier(env: string): string {
 	return !env || env === 'prod' ? 'auth' : `auth.environment.${env}`;
 }
 
@@ -186,7 +188,7 @@ export function hlVer(toVer: string, fromVer: string): string {
  * @param {String} [env] - The environment name.
  * @returns {Promise<Object>}
  */
-export async function initPlatformAccount(accountName?: string, org?: string, env?: string) {
+export async function initPlatformAccount(accountName?: string, org?: string, env?: string): Promise<InitPlatformAccountResult> {
 	const { config, sdk } = await initSDK({ env });
 	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvSpecifier}.defaultAccount`));
@@ -230,7 +232,7 @@ export async function initPlatformAccount(accountName?: string, org?: string, en
  * @returns {Object} Returns an object containing the Axway CLI config and an initialized
  * Amplify SDK instance.
  */
-export async function initSDK(opts: InitSDKOptions = {}, config?: Config): Promise<{ config: Config, sdk: AmplifySDK }> {
+export async function initSDK(opts: BuildAuthParamsOptions = {}, config?: Config): Promise<{ config: Config, sdk: AmplifySDK }> {
 	if (!config) {
 		config = await loadConfig();
 	}

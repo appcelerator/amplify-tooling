@@ -66,7 +66,7 @@ export default class AmplifySDKAuth extends Base {
 	 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
 	 * @returns {Promise<Object>} Resolves the account info object.
 	 */
-	async find(accountName: string, defaultTeams?: DefaultTeams): Promise<Account | null> {
+	async find(accountName?: string, defaultTeams?: DefaultTeams): Promise<Account | null> {
 		const account = await this.client.find(accountName);
 		return account ? await this.loadSession(account, defaultTeams) : null;
 	}

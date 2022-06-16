@@ -18,9 +18,9 @@ interface GotHooks {
 }
 
 interface HttpsOptions {
-	certificate?: Buffer,
+	certificate?: Buffer | string,
 	certificateAuthority?: Buffer,
-	key?: Buffer,
+	key?: Buffer | string,
 	rejectUnauthorized?: boolean
 }
 
