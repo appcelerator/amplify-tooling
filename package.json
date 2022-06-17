@@ -30,7 +30,7 @@
     "chai": "^4.3.6",
     "chalk": "^5.0.1",
     "concurrently": "^7.2.2",
-    "eslint": "^8.17.0",
+    "eslint": "^8.18.0",
     "eslint-config-axway": "^7.0.1",
     "eslint-plugin-chai-friendly": "^0.7.2",
     "eslint-plugin-mocha": "^10.0.5",
@@ -48,7 +48,7 @@
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.8.1",
     "turbo": "^1.2.16",
-    "typescript": "^4.7.3",
+    "typescript": "^4.7.4",
     "uuid": "^8.3.2"
   },
   "scripts": {
