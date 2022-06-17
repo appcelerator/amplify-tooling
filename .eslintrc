@@ -8,6 +8,7 @@
     "rules": {
         "no-confusing-arrow": "off",
         "no-ex-assign": "off",
+        "node/no-unsupported-features/es-syntax": "off",
         "node/no-unsupported-features/node-builtins": [
             "warn",
             {

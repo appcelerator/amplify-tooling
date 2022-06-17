@@ -24,7 +24,7 @@ interface HttpsOptions {
 	rejectUnauthorized?: boolean
 }
 
-interface GotTimeout {
+export interface RequestTimeout {
 	request: number
 }
 
@@ -44,7 +44,7 @@ export interface RequestOptions {
 	keyFile?: string,
 	proxy?: string,
 	strictSSL?: boolean,
-	timeout?: number | GotTimeout
+	timeout?: number | RequestTimeout
 }
 
 /**

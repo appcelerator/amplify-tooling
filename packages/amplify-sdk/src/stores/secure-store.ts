@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-non-literal-require, node/no-unsupported-features/es-syntax */
+/* eslint-disable security/detect-non-literal-require */
 
 import crypto from 'crypto';
 import E from '../errors.js';

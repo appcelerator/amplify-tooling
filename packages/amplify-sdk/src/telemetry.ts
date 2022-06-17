@@ -60,7 +60,8 @@ export interface TelemetryOptions {
 
 export interface CrashData {
 	message: string,
-	stack?: string | string[]
+	stack?: string | string[],
+	[key: string]: any
 }
 
 export type CrashPayload = CrashData | Error;
@@ -70,7 +71,8 @@ export interface EventPayload {
 	event: string,
 	memory?: number,
 	nodePlatform?: string,
-	nodeVersion?: string
+	nodeVersion?: string,
+	[key: string]: any
 }
 
 interface EventData {

@@ -1,15 +1,60 @@
 declare module 'cli-kit' {
+	import tty from 'tty';
+
+	class CLI extends CLIContext {
+		constructor(opts: CLIOptions);
+		exec(): Promise<CLIState>;
+		on(event: string, handler: (ctx: CLIState, next: CLINextIterator) => Promise<void>): Promise<this>;
+	}
+
+	class CLIArgument {
+		redact?: boolean;
+	}
+
+	class CLIArgv {
+		[key: string]: string | number | boolean;
+	}
+
 	class CLICommand {
 		name: string;
 		prop: (key: string) => string | boolean;
 		skipExtensionUpdateCheck?: boolean; // this is an ad-hoc Axway CLI specific property
 	}
 
-	type CLINextIterator = () => Promise<any>;
-
-	class CLIArgument {
-		redact?: boolean;
+	class CLIContext {
+		desc?: string;
+		emitAction(event: string, payload: any): Promise<void>;
+		name: string;
+		[key: string]: any;
 	}
+
+	class CLIError extends Error {
+		showHelp: boolean;
+	}
+
+	class CLIHelpConfig {
+		footer: (this: CLIContext, helpOpts?: CLIHelpOptions) => Promise<string> | string;
+		header: (this: CLIContext, helpOpts?: CLIHelpOptions) => Promise<string> | string;
+	}
+
+	class CLIHelpOptions {
+		style: {
+			alert: (s?: string | number) => string,
+			bold: (s?: string | number) => string,
+			cyan: (s?: string | number) => string,
+			gray: (s?: string | number) => string,
+			green: (s?: string | number) => string
+			heading: (s?: string | number) => string,
+			highlight: (s?: string | number) => string,
+			magenta: (s?: string | number) => string,
+			note: (s?: string | number) => string,
+			ok: (s?: string | number) => string,
+			red: (s?: string | number) => string,
+			yellow: (s?: string | number) => string
+		}
+	}
+
+	type CLINextIterator = () => Promise<any>;
 
 	class CLIOption {
 		hidden?: boolean;
@@ -17,16 +62,38 @@ declare module 'cli-kit' {
 		redact?: boolean;
 	}
 
+	class CLIOptions {
+		banner: () => string;
+		commands: string;
+		desc: string;
+		extensions: string[];
+		help: CLIHelpConfig | boolean;
+		helpExitCode: number;
+		helpTemplateFile: string;
+		name: string;
+		options: CLIOptionsMap;
+		version: string;
+	}
+
 	class CLIOptionsMap {
 		[key: string]: CLIOption;
 	}
 
-	class CLIArgv {
-		[key: string]: string | number | boolean;
+	class CLIOptionCallbackState {
+		ctx: CLIContext;
+		data: any;
+		exitCode: () => number;
+		input: string[];
+		name: string;
+		next: CLINextIterator;
+		opts: CLIOptionsMap;
+		option: CLIOption;
+		parser: CLIParser;
+		value: string | number | boolean | undefined;
 	}
 
-	class CLIContext {
-		name: string;
+	class CLIParser {
+		//
 	}
 
 	class CLIParsedArgument {
@@ -39,32 +106,22 @@ declare module 'cli-kit' {
 	class CLIState {
 		__argv: CLIParsedArgument[];
 		argv: CLIArgv;
+		cli: CLI;
 		cmd: CLICommand;
 		console: Console;
 		contexts: CLIContext[];
+		ctx: CLIContext;
 		err?: Error;
 		exitCode: () => number;
-		startTime: number;
+		setExitCode: (code: number) => number;
+		terminal: CLITerminal;
 		warnings: string[];
 	}
 
-	class CLIOptions {
-		banner: () => string;
-		commands: string;
-		desc: string;
-		extensions: string[];
-		help: boolean;
-		helpExitCode: number;
-		helpTemplateFile: string;
-		name: string;
-		options: CLIOptionsMap;
-		version: string;
-	}
-
-	class CLI {
-		constructor(opts: CLIOptions);
-		exec(): Promise<CLIState>;
-		on(event: string, handler: (ctx: CLIState, next: CLINextIterator) => Promise<void>): Promise<this>;
+	class CLITerminal {
+		stdout: tty.WriteStream;
+		stderr: tty.WriteStream;
+		once(event: string, handler: (...args: any) => void): this;
 	}
 
 	const ansi: {
@@ -124,11 +181,16 @@ declare module 'cli-kit' {
 
 	export default CLI;
 	export {
-		ansi
+		ansi,
+		CLI
 	};
 
 	export type {
+		CLIContext,
+		CLIError,
+		CLIHelpOptions,
 		CLINextIterator,
+		CLIOptionCallbackState,
 		CLIParsedArgument,
 		CLIState
 	};

@@ -18,18 +18,17 @@
     "amplify"
   ],
   "bin": {
-    "axway": "./bin/axway"
+    "axway": "./bin/axway.js"
   },
   "preferGlobal": true,
   "scripts": {
     "build": "tsc",
-    "coverage": "c8 npm run test",
-    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:test npm:lint:tsc",
+    "coverage": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1",
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:tsc",
     "lint:src": "eslint src/**/*.ts",
-    "lint:test": "eslint --parser-options=project:'test/tsconfig.json' test/**/*.ts",
     "lint:tsc": "tsc -p tsconfig.json",
     "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
-    "test": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --require ../../test/setup.js --reporter spec"
+    "test": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1"
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^5.0.9",

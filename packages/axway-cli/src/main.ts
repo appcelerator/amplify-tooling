@@ -1,11 +1,15 @@
 import check, {
+	CheckKitOptions,
 	CheckKitResults
 } from 'check-kit';
-import CLI, {
+import {
+	CLI,
+	CLIContext,
 	CLINextIterator,
 	CLIParsedArgument,
 	CLIState
 } from 'cli-kit';
+import { AxwayCLIState } from './types.js';
 import {
 	Config,
 	createRequestOptions,
@@ -16,18 +20,20 @@ import {
 	locations,
 	telemetry
 } from '@axway/amplify-cli-utils';
+import path from 'path';
 import snooplogg from 'snooplogg';
 import { dirname, join, parse, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 import { redact } from '@axway/amplify-utils';
 import { serializeError } from 'serialize-error';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { bold, cyan, gray, red, yellow } = snooplogg.styles;
 const { log, warn } = snooplogg('axway');
 
-interface ConfigExtensionMap {
-	[name: string]: string
-}
+type ConfigExtension = [ string, string ];
 
 (async () => {
 	const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'));
@@ -44,8 +50,8 @@ interface ConfigExtensionMap {
 		cfg = await new Config().init();
 	}
 
-	const externalExtensions: ConfigExtensionMap[] = [] // Object.entries(cfg.get('extensions', {}));
-	const allExtensions: ConfigExtensionMap[] = [ ...externalExtensions ];
+	const externalExtensions: ConfigExtension[] = [] // Object.entries(cfg.get('extensions', {}));
+	const allExtensions: ConfigExtension[] = [ ...externalExtensions ];
 	// for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
 	// 	let { dir, root } = parse(__dirname);
 	// 	while (dir !== root) {
@@ -60,8 +66,9 @@ interface ConfigExtensionMap {
 	// }
 
 	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
-	let checkWait: Promise<CheckKitResults[]> | undefined;
+	let checkWait: Promise<(CheckKitResults | void)[]> | undefined;
 
+	console.log(CLI);
 	const cli = new CLI({
 		banner() {
 			const env = process.env.AXWAY_ENV;
@@ -104,23 +111,41 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 			timeout: { request: 4000 }
 		}, cfg);
 
+		const checkOpts: CheckKitOptions = {
+			caFile:    opts.caFile,
+			certFile:  opts.certFile,
+			keyFile:   opts.keyFile,
+			proxy:     opts.proxy,
+			strictSSL: opts.strictSSL,
+			timeout:   opts.timeout,
+			metaDir:   resolve(locations.axwayHome, 'axway-cli', 'update'),
+			pkg:       pkgJson
+		};
+
 		// store the check promise and let it continue asynchronously
-		checkWait = Promise.all<CheckKitResults[]>([
+		checkWait = Promise.all<CheckKitResults | void>([
 			// check the Axway CLI for updates
 			check({
-				...opts,
-				metaDir: resolve(locations.axwayHome, 'axway-cli', 'update'),
-				pkg: pkgJson
-			}).catch(() => {}) as Promise<CheckKitResults>,
+				caFile:    opts.caFile,
+				certFile:  opts.certFile,
+				keyFile:   opts.keyFile,
+				proxy:     opts.proxy,
+				strictSSL: opts.strictSSL,
+				timeout:   opts.timeout,
+				metaDir:   resolve(locations.axwayHome, 'axway-cli', 'update'),
+				pkg:       pkgJson
+			}).catch(() => {}),
 
-			// check all CLI extensions for updates
+					// check all CLI extensions for updates
 			...(externalExtensions
 				.map(ext => join(ext[1], 'package.json'))
 				.filter(ext => ext.startsWith(packagesDir) && existsSync(ext))
-				.map(async (pkg): Promise<CheckKitResults> => await check({
-					...opts,
-					pkg
-				}).catch(() => {})))
+				.map(async (pkg): Promise<CheckKitResults | void> => {
+					try {
+						return await check(Object.assign(checkOpts, { pkg }));
+					} catch (e: any) {}
+				})
+			)
 		]);
 	});
 
@@ -131,7 +156,7 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 	});
 
 	// local ref so we can include argv and the context chain in the crash report
-	let state: CLIState;
+	let state: AxwayCLIState | undefined = undefined;
 
 	// after the args have been parsed, determine the environment before the banner is rendered
 	cli.on('parse', async (state: CLIState, next: CLINextIterator) => {
@@ -143,7 +168,7 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 
 	// add the hook to record the telemetry event after the command finishes running
 	cli.on('exec', async (_state, next) => {
-		state = _state;
+		state = _state as AxwayCLIState;
 		state.startTime = Date.now();
 
 		// if the command is running, then don't wait for it to finish, just send the telemetry
@@ -204,7 +229,7 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 		// now that the command is done, wait for the check to finish and display it's message,
 		// if there is one
 		if (checkWait && cmd.prop('banner')) {
-			const results = (await checkWait).filter(p => p?.updateAvailable);
+			const results: CheckKitResults[] = (await checkWait).filter(p => p?.updateAvailable) as CheckKitResults[];
 			if (results.length) {
 				const { default: boxen } = await import('boxen');
 				let msg = '';
@@ -258,11 +283,11 @@ Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
 		telemetry.addCrash({
 			message: 'Unknown error',
 			...serializeError(err),
-			argv:     state ? scrubArgv(state.__argv) : undefined,
-			contexts: state ? state.contexts.map(ctx => ctx.name).reverse() : undefined,
-			duration: state ? Date.now() - state.startTime : undefined,
-			exitCode: state?.exitCode() || 0,
-			warnings: state?.warnings
+			argv:     state ? scrubArgv((state as AxwayCLIState).__argv) : undefined,
+			contexts: state ? (state as AxwayCLIState).contexts.map((ctx: CLIContext) => ctx.name).reverse() : undefined,
+			duration: state ? Date.now() - (state as AxwayCLIState).startTime : undefined,
+			exitCode: state ? (state as AxwayCLIState).exitCode() : 0,
+			warnings: state ? (state as AxwayCLIState).warnings : undefined
 		});
 
 		if (err.json) {

@@ -7,7 +7,6 @@ import { createRequestOptions } from './request.js';
 import { Environment } from './types.js';
 import * as environments from './environments.js';
 import * as locations from './locations.js';
-import * as request from '@axway/amplify-request';
 
 const { warn } = snooplogg('amplify-cli-utils:telemetry');
 const telemetryCacheDir = path.join(locations.axwayHome, 'axway-cli', 'telemetry');

@@ -1,27 +1,30 @@
 declare module 'check-kit' {
-	type PackageJsonObject = Object;
+	class RequestTimeout {
+		request: number;
+	}
 
 	class CheckKitOptions {
 		applyOwner?: boolean;
-		caFile?: string;
-		certFile?: string;
+		caFile?: Buffer | string;
+		certFile?: Buffer | string;
 		checkInterval?: number;
 		cwd?: string;
 		distTag?: string;
 		force?: boolean;
 		keyFile?: string;
 		metaDir: string;
-		pkg: string | PackageJsonObject;
+		pkg: string | any;
 		proxy?: string;
 		registryUrl?: string;
 		strictSSL?: boolean;
-		timeout?: number;
+		timeout?: RequestTimeout | number;
 	}
 
 	class CheckKitResults {
 		current: string;
 		latest: string;
 		name: string;
+		updateAvailable: boolean;
 	}
 
 	function check(opts: CheckKitOptions): Promise<CheckKitResults>;
@@ -29,6 +32,7 @@ declare module 'check-kit' {
 	export default check;
 
 	export type {
+		CheckKitOptions,
 		CheckKitResults
 	};
 }

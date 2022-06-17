@@ -2,6 +2,24 @@ import path from 'path';
 import { existsSync, writeFileSync } from '@axway/amplify-utils';
 import { initSDK } from '@axway/amplify-cli-utils';
 import { prompt } from 'enquirer';
+import { CLIError } from 'cli-kit';
+
+export interface GenerateKeypairOptions {
+	force?: boolean;
+	privateKey?: string;
+	publicKey?: string;
+	silent?: boolean;
+}
+
+export interface KeyInfo {
+	file: string,
+	label: string
+}
+
+export interface Keypair {
+	privateKey: KeyInfo,
+	publicKey: KeyInfo
+}
 
 /**
  * Generates a public/private keypair. It prompts for the output filenames and whether to overwrite
@@ -16,7 +34,7 @@ import { prompt } from 'enquirer';
  * files will assume the defaults. If the destination files exist, an error is thrown.
  * @returns {Promise<Object>} Resolves the generated `publicKey` and `privateKey`.
  */
-export async function generateKeypair(opts = {}) {
+export async function generateKeypair(opts: GenerateKeypairOptions = {}): Promise<Keypair> {
 	if (!opts || typeof opts !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	}
@@ -44,13 +62,13 @@ export async function generateKeypair(opts = {}) {
 	};
 
 	return Object.keys(files).reduce((result, type) => {
-		if (files[type]) {
-			writeFileSync(files[type].file, certs[type]);
-			result[type] = files[type];
-			result[type].cert = certs[type];
+		if (files[type as keyof Keypair]) {
+			writeFileSync(files[type as keyof Keypair].file, certs[type as keyof Keypair]);
+			result[type as keyof Keypair] = files[type as keyof Keypair];
+			result[type as keyof Keypair].cert = certs[type as keyof Keypair];
 		}
 		return result;
-	}, {});
+	}, {} as Keypair);
 }
 
 /**
@@ -65,7 +83,13 @@ export async function generateKeypair(opts = {}) {
  * @param {String} opts.value - The output file path.
  * @returns {Promise}
  */
-async function validate({ force, initial, label, silent, value }) {
+async function validate({ force, initial, label, silent, value }: {
+	force?: boolean,
+	initial: string,
+	label: string,
+	silent?: boolean,
+	value?: string
+}): Promise<KeyInfo | undefined> {
 	if (!value) {
 		value = initial;
 
@@ -82,11 +106,11 @@ async function validate({ force, initial, label, silent, value }) {
 		}
 	}
 
-	const file = path.resolve(value);
+	const file = path.resolve(value as string);
 
 	if (existsSync(file) && !force) {
 		if (silent) {
-			const err = new Error(`${label} file exists: ${value}`);
+			const err = new Error(`${label} file exists: ${value}`) as CLIError;
 			err.showHelp = false;
 			throw err;
 		}
@@ -94,7 +118,7 @@ async function validate({ force, initial, label, silent, value }) {
 			message: `"${file}" already exists, overwrite?`,
 			name: 'overwrite',
 			type: 'confirm'
-		});
+		}) as any;
 		if (!overwrite) {
 			return;
 		}

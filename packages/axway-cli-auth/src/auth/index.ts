@@ -1,3 +1,7 @@
+import {
+	CLIHelpOptions
+} from 'cli-kit';
+
 export default {
 	commands: [
 		`${__dirname}/list.js`,
@@ -9,7 +13,7 @@ export default {
 	],
 	desc: 'The Axway Auth CLI authenticates with the Axway Amplify Platform, manages access tokens, and retreives user information',
 	help: {
-		header({ style }) {
+		header({ style }: CLIHelpOptions): string {
 			return `The Axway CLI auth command allows you to authenticate with the Amplify platform
 under one or more accounts and switch between them. You can log in using your
 platform account as well as one or more service accounts at the same time.
@@ -24,7 +28,7 @@ store type to “file”:
 			
   ${style.highlight('axway config set auth.tokenStoreType file')}`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   Log into a platform account using a web browser:

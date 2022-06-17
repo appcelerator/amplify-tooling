@@ -1,46 +1,55 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '../types.js';
+import {
+	CLIHelpOptions
+} from 'cli-kit';
+
 export default {
 	aliases: [ '!conf' ],
 	banner: false,
 	commands: {
 		'@ls, list': {
 			desc: 'Display all config settings',
-			action: ctx => runConfig('get', ctx)
+			action: (ctx: AxwayCLIState) => runConfig('get', ctx)
 		},
 		'get [~key]': {
 			desc: 'Display a specific config setting',
-			action: ctx => runConfig('get', ctx)
+			action: (ctx: AxwayCLIState) => runConfig('get', ctx)
 		},
 		'set <~key> <value>': {
 			desc: 'Change a config setting',
-			action: ctx => runConfig('set', ctx)
+			action: (ctx: AxwayCLIState) => runConfig('set', ctx)
 		},
 		'@rm, delete, !remove, !unset <~key>': {
 			desc: 'Remove a config setting',
-			action: ctx => runConfig('delete', ctx)
+			action: (ctx: AxwayCLIState) => runConfig('delete', ctx)
 		},
 		'push <~key> <value>': {
 			desc: 'Add a value to the end of a list',
-			action: ctx => runConfig('push', ctx)
+			action: (ctx: AxwayCLIState) => runConfig('push', ctx)
 		},
 		'pop <~key>': {
 			desc: 'Remove the last value in a list',
-			action: ctx => runConfig('pop', ctx)
+			action: (ctx: AxwayCLIState) => runConfig('pop', ctx)
 		},
 		'shift <~key>': {
 			desc: 'Remove the first value in a list',
-			action: ctx => runConfig('shift', ctx)
+			action: (ctx: AxwayCLIState) => runConfig('shift', ctx)
 		},
 		'unshift <~key> <value>': {
 			desc: 'Add a value to the beginning of a list',
-			action: ctx => runConfig('unshift', ctx)
+			action: (ctx: AxwayCLIState) => runConfig('unshift', ctx)
 		}
 	},
 	desc: 'Manage configuration options',
 	help: {
-		header() {
+		header(this: AxwayCLIContext): string {
 			return `${this.desc}.`;
 		},
-		footer: ({ style }) => `${style.heading('Examples:')}
+		footer: ({ style }: CLIHelpOptions): string => `${style.heading('Examples:')}
 
   List all config settings:
     ${style.highlight('axway config ls')}
@@ -95,18 +104,18 @@ ${style.heading('Settings:')}
 	},
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => (ctx as AxwayCLIContext).jsonMode = !!value,
 			desc: 'Outputs the config as JSON'
 		}
 	}
 };
 
-async function runConfig(action, { argv, cli, console, setExitCode }) {
+async function runConfig(action: string, { argv, cli, console, setExitCode }: AxwayCLIState): Promise<void> {
 	const { loadConfig } = await import('@axway/amplify-cli-utils');
-	let { json, key, value } = argv;
+	const { json, key, value }: { json: boolean, key: string, value: any } = argv as any;
 	const cfg = await loadConfig(argv);
 	const data = { action, key, value };
-	const filter = key && key.split(/\.|\//).filter(Boolean).join('.') || undefined;
+	const filter: string | undefined = key && key.split(/\.|\//).filter(Boolean).join('.') || undefined;
 
 	if (typeof data.value === 'string') {
 		try {
@@ -116,7 +125,7 @@ async function runConfig(action, { argv, cli, console, setExitCode }) {
 		}
 	}
 
-	const print = ({ code = 0, key = null, value }) => {
+	const print = ({ code = 0, key = null, value }: { code?: number, key?: null | string, value: any }) => {
 		setExitCode(code);
 
 		if (json) {
@@ -167,7 +176,7 @@ async function runConfig(action, { argv, cli, console, setExitCode }) {
 
 		switch (action) {
 			case 'set':
-				cfg.set(key, data.value);
+				await cfg.set(key, data.value);
 				break;
 
 			case 'delete':
@@ -175,19 +184,19 @@ async function runConfig(action, { argv, cli, console, setExitCode }) {
 				break;
 
 			case 'push':
-				cfg.push(key, data.value);
+				await cfg.push(key, data.value);
 				break;
 
 			case 'pop':
-				result = cfg.pop(key);
+				result = await cfg.pop(key);
 				break;
 
 			case 'shift':
-				result = cfg.shift(key);
+				result = await cfg.shift(key);
 				break;
 
 			case 'unshift':
-				cfg.unshift(key, data.value);
+				await cfg.unshift(key, data.value);
 				break;
 		}
 

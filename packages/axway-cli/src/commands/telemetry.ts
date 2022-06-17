@@ -1,3 +1,6 @@
+import { AxwayCLIContext, AxwayCLIState } from '../types.js';
+import { CLIHelpOptions } from 'cli-kit';
+
 export default {
 	desc: 'Opt-in or out of telemetry to improve Axway products',
 	extendedDesc: `The Axway CLI has a telemetry system that collects anonymous data which is used
@@ -13,10 +16,10 @@ Axway does not collect your personal information, link your activity to your
 Axway account, capture environment variables, or unique machine identifiers
 such as the MAC address or serial number.`,
 	help: {
-		header() {
+		header(this: AxwayCLIContext): string {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer(this: AxwayCLIContext, { style }: CLIHelpOptions) {
 			return `${this.extendedDesc}
 
 You may opt-out of telemetry by running ${style.highlight('axway telemetry --disable')} or setting
@@ -27,12 +30,12 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 		'--enable': 'Enables data collection',
 		'--disable': 'Disabled data collection and deletes any pending telemetry data'
 	},
-	async action({ argv, console, terminal }) {
+	async action({ argv, console, terminal }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg } = await import('snooplogg');
 		const { green, red } = snooplogg.styles;
 		const { loadConfig, telemetry } = await import('@axway/amplify-cli-utils');
 		const config = await loadConfig();
-		let enabled = telemetry.isEnabled();
+		let enabled = await telemetry.isEnabled();
 
 		if (argv.enable && !argv.disable) {
 			enabled = true;
@@ -48,10 +51,11 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 
 			if (terminal.stdout.isTTY) {
 				enabled = await new Promise(resolve => {
-					terminal.once('keypress', str => {
+					terminal.once('keypress', (str: string): void => {
 						terminal.stderr.cursorTo(0);
-						terminal.stderr.clearLine();
-						return resolve(str === 'y' || str === 'Y');
+						terminal.stderr.clearLine(0);
+						resolve(str === 'y' || str === 'Y');
+						return;
 					});
 					terminal.stderr.write('Do you want to enable telemetry? (y/N) ');
 				});
