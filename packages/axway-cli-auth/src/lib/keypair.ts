@@ -12,13 +12,18 @@ export interface GenerateKeypairOptions {
 }
 
 export interface KeyInfo {
+	cert?: string,
 	file: string,
 	label: string
 }
 
 export interface Keypair {
-	privateKey: KeyInfo,
-	publicKey: KeyInfo
+	privateKey?: KeyInfo,
+	publicKey?: KeyInfo
+}
+
+export interface KeypairResult extends Keypair {
+	cert?: string
 }
 
 /**
@@ -34,7 +39,7 @@ export interface Keypair {
  * files will assume the defaults. If the destination files exist, an error is thrown.
  * @returns {Promise<Object>} Resolves the generated `publicKey` and `privateKey`.
  */
-export async function generateKeypair(opts: GenerateKeypairOptions = {}): Promise<Keypair> {
+export async function generateKeypair(opts: GenerateKeypairOptions = {}): Promise<KeypairResult> {
 	if (!opts || typeof opts !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	}
@@ -43,7 +48,7 @@ export async function generateKeypair(opts: GenerateKeypairOptions = {}): Promis
 	const { sdk } = await initSDK();
 	const certs = await sdk.client.generateKeyPair();
 
-	const files = {
+	const files: Keypair = {
 		privateKey: await validate({
 			force,
 			initial: 'private_key.pem',
@@ -62,13 +67,17 @@ export async function generateKeypair(opts: GenerateKeypairOptions = {}): Promis
 	};
 
 	return Object.keys(files).reduce((result, type) => {
-		if (files[type as keyof Keypair]) {
-			writeFileSync(files[type as keyof Keypair].file, certs[type as keyof Keypair]);
-			result[type as keyof Keypair] = files[type as keyof Keypair];
-			result[type as keyof Keypair].cert = certs[type as keyof Keypair];
+		const info: KeyInfo | undefined = files[type as keyof Keypair];
+		if (info) {
+			writeFileSync(info.file, certs[type as keyof Keypair]);
+			result[type as keyof Keypair] = {
+				cert: certs[type as keyof Keypair],
+				file: info.file,
+				label: info.label
+			};
 		}
 		return result;
-	}, {} as Keypair);
+	}, {} as KeypairResult);
 }
 
 /**

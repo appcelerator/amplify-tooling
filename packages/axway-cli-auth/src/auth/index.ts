@@ -1,6 +1,4 @@
-import {
-	CLIHelpOptions
-} from 'cli-kit';
+import { CLIHelpOptions } from 'cli-kit';
 
 export default {
 	commands: [

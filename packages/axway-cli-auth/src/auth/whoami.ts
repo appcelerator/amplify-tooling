@@ -1,3 +1,9 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	args: [
 		{
@@ -9,17 +15,17 @@ export default {
 	help: 'Display the currently selected account, organizations, roles, and teams.',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs accounts as JSON'
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { getAuthConfigEnvSpecifier, initSDK } = await import('@axway/amplify-cli-utils');
 		const { renderAccountInfo } = await import('../lib/info');
 		const { config, sdk } = await initSDK({
-			baseUrl:  argv.baseUrl,
-			env:      argv.env,
-			realm:    argv.realm
+			baseUrl:  argv.baseUrl as string,
+			env:      argv.env as string,
+			realm:    argv.realm as string
 		});
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		let accounts = await sdk.auth.list({
@@ -56,7 +62,7 @@ export default {
 
 				console.log(await renderAccountInfo(account, config, sdk));
 			} else if (argv.accountName) {
-				console.log(`The account ${highlight(argv.accountName)} is not logged in.`);
+				console.log(`The account ${highlight(argv.accountName as string)} is not logged in.`);
 			} else {
 				console.log('You are not logged in.');
 			}

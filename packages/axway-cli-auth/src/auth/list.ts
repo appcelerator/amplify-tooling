@@ -1,3 +1,9 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all authenticated accounts',
@@ -6,18 +12,18 @@ organization, and the current team.`,
 	name: 'list',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs accounts as JSON'
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { createTable, getAuthConfigEnvSpecifier, initSDK } = await import('@axway/amplify-cli-utils');
 		const { default: snooplogg } = await import('snooplogg');
 
 		const { config, sdk } = await initSDK({
-			baseUrl:  argv.baseUrl,
-			env:      argv.env,
-			realm:    argv.realm
+			baseUrl:  argv.baseUrl as string,
+			env:      argv.env as string,
+			realm:    argv.realm as string
 		});
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 
@@ -49,11 +55,11 @@ organization, and the current team.`,
 			const { access, refresh } = auth.expires;
 			table.push([
 				`${def ? green(`${check} ${name}`) : `  ${name}`}`,
-				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
+				!org || !org.name ? 'n/a' : org.org_id ? `${org.name} (${org.org_id})` : org.name,
 				team ? `${team.name} (${team.guid})` : 'n/a',
 				org?.region || 'US',
 				isPlatform ? 'Platform' : 'Service',
-				pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 })
+				pretty((refresh || access) - now, { secondsDecimalDigits: 0, millisecondsDecimalDigits: 0 })
 			]);
 		}
 

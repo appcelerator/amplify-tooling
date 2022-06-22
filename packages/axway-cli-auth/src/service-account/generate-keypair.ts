@@ -1,10 +1,16 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	desc: 'Create a pem formatted public/private key pair',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   Create a keypair and be prompted for the output filenames:
@@ -26,21 +32,20 @@ export default {
 	options: {
 		'--yes': 'Automatic yes to overwrite existing output files and run non-interactively',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs result as JSON'
 		},
 		'--private-key [path]': 'The file to output the private key to',
 		'--public-key [path]': 'The file to output the public key to'
 	},
-	async action({ argv, console, terminal }) {
+	async action({ argv, console, terminal }: AxwayCLIState): Promise<void> {
 		const { generateKeypair } = await import('../lib/keypair');
 
 		const certs = await generateKeypair({
-			console,
-			force:      argv.yes,
-			publicKey:  argv.publicKey,
-			privateKey: argv.privateKey,
-			silent:     argv.json || !terminal.stdout.isTTY
+			force:      !!argv.yes,
+			publicKey:  argv.publicKey as string,
+			privateKey: argv.privateKey as string,
+			silent:     !!argv.json || !terminal.stdout.isTTY
 		});
 
 		if (argv.json) {

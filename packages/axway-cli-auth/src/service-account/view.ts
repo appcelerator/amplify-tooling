@@ -1,3 +1,10 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import { CLICommand } from 'cli-kit';
+
 export default {
 	args: [
 		{
@@ -10,22 +17,26 @@ export default {
 	aliases: [ 'v', '!info', '!show' ],
 	desc: 'View service account details',
 	help: {
-		header() {
+		header(this: CLICommand): string {
 			return `${this.desc}.`;
 		}
 	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs service account as JSON'
 		},
 		'--org [name|id|guid]': 'The organization name, id, or guid'
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const result = await sdk.client.find(account, org, argv.id);
+		const { account, org, sdk } = await initPlatformAccount(
+			argv.account as string,
+			argv.org as string,
+			argv.env as string
+		);
+		const result = await sdk.client.find(account, org, argv.id as string);
 
 		if (argv.json) {
 			console.log(JSON.stringify(result, null, 2));
@@ -62,32 +73,15 @@ export default {
 			console.log('  No roles found');
 		}
 
-		/*
-		const { teams } = await this.sdk.team.list(account, client.org_guid);
-		client.teams = [];
-		for (const team of teams) {
-			const user = team.users.find(u => u.type === 'client' && u.guid === (client as Client).guid);
-			if (user) {
-				client.teams.push({
-					...team,
-					roles: user.roles
-				});
-			}
-		}
-		*/
-
 		console.log('\nTEAMS');
 		if (client.teams.length) {
-			const table = createTable([ '  Name', 'Role', 'Description', 'Team GUID', 'User', 'Apps', 'Date Created' ]);
-			for (const { apps, created, desc, guid, name, roles, users } of client.teams) {
+			const table = createTable([ '  Name', 'Role', 'Description', 'Team GUID' ]);
+			for (const { desc, guid, name, roles } of client.teams) {
 				table.push([
 					`  ${name}`,
 					roles.join(', '),
 					desc || '',
-					guid,
-					users?.length || 0,
-					apps?.length || 0,
-					new Date(created).toLocaleDateString()
+					guid
 				]);
 			}
 			console.log(table.toString());

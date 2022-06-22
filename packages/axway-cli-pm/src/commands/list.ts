@@ -1,13 +1,18 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'ls' ],
 	desc: 'List all installed packages',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs packages as JSON'
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { default: semver }    = await import('semver');
 		const { default: snooplogg } = await import('snooplogg');
 		const { createTable }        = await import('@axway/amplify-cli-utils');
@@ -29,7 +34,7 @@ export default {
 		}
 
 		const table = createTable([ 'Name', 'Versions' ]);
-		const unmanaged = {};
+		const unmanaged: { [key: string]: number } = {};
 
 		for (const pkg of installed) {
 			const { version } = pkg;

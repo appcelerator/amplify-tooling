@@ -21,40 +21,6 @@ import Telemetry, {
 	TelemetryOptions
 } from './telemetry.js';
 
-import {
-	Account,
-	AccountAuthInfo,
-	ActivityEvent,
-	ActivityParams,
-	ActivityResult,
-	AmplifySDKOptions,
-	Client,
-	ClientRef,
-	ClientTeam,
-	DefaultTeams,
-	Entitlement,
-	Entitlements,
-	Environment,
-	Org,
-	OrgLike,
-	OrgPartner,
-	OrgRef,
-	OrgUser,
-	Role,
-	Subscription,
-	Team,
-	TeamInfo,
-	TeamInfoChanges,
-	TeamUser,
-	User,
-	UserChanges,
-	UserInfo,
-	UsageParams,
-	UsageParamsRange,
-	UsageParamsMonth,
-	UsageResult
-} from './types.js';
-
 export default AmplifySDK;
 
 export {
@@ -77,6 +43,43 @@ export {
 	getEndpoints
 };
 
+import {
+	Account,
+	AccountAuthInfo,
+	ActivityEvent,
+	ActivityParams,
+	ActivityResult,
+	AmplifySDKOptions,
+	AuthenticatorOptions,
+	Client,
+	ClientRef,
+	ClientTeam,
+	ClientUpdateParams,
+	DefaultTeams,
+	Entitlement,
+	Entitlements,
+	Environment,
+	ManualLoginResult,
+	Org,
+	OrgLike,
+	OrgPartner,
+	OrgRef,
+	OrgUser,
+	Role,
+	Subscription,
+	Team,
+	TeamInfo,
+	TeamInfoChanges,
+	TeamUser,
+	User,
+	UserChanges,
+	UserInfo,
+	UsageParams,
+	UsageParamsRange,
+	UsageParamsMonth,
+	UsageResult
+} from './types.js';
+
 export type {
 	Account,
 	AccountAuthInfo,
@@ -84,15 +87,18 @@ export type {
 	ActivityParams,
 	ActivityResult,
 	AmplifySDKOptions,
+	AuthenticatorOptions,
 	Client,
 	ClientRef,
 	ClientTeam,
+	ClientUpdateParams,
 	CrashPayload,
 	DefaultTeams,
 	Entitlement,
 	Entitlements,
 	Environment,
 	EventPayload,
+	ManualLoginResult,
 	Org,
 	OrgLike,
 	OrgPartner,

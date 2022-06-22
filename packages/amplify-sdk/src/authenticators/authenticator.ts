@@ -13,7 +13,7 @@ import TokenStore from '../stores/token-store.js';
 import * as environments from '../environments.js';
 import * as request from '@axway/amplify-request';
 
-import { Account, Org, User } from '../types.js';
+import { Account, AuthenticatorOptions, ManualLoginResult, Org, User } from '../types.js';
 import { createURL, md5, prepareForm } from '../util.js';
 import { fileURLToPath } from 'url';
 import { Got } from 'got';
@@ -22,27 +22,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { log, warn } = snooplogg('amplify-auth:authenticator');
 const { green, highlight, red, note } = snooplogg.styles;
-
-export interface AuthenticatorOptions {
-	accessType?: string;
-	baseUrl?: string;
-	clientId: string;
-	endpoints?: Endpoints;
-	env?: string;
-	persistSecrets?: boolean;
-	got?: Got;
-	platformUrl: string;
-	realm: string;
-	responseType?: string;
-	scope?: string;
-	tokenStore: TokenStore;
-}
-
-export interface ManualLoginResult {
-	cancel: () => Promise<void>,
-	promise: Promise<void>,
-	url: string
-}
 
 export type AuthenticatorParamsResult = { [key: string]: string } | null;
 export type AuthorizationUrlParamsResult = { [key: string]: string } | null;

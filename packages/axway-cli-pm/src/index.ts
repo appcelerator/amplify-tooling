@@ -1,11 +1,13 @@
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	commands: `${__dirname}/commands`,
 	desc: 'Package manager for Axway products',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   List all available packages:

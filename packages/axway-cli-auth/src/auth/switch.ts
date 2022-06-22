@@ -1,3 +1,13 @@
+import {
+	Account,
+	Team
+} from '@axway/amplify-sdk';
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	desc: 'Select default account, organization, and team',
 	help: `Once authenticated, the "switch" command allows you to change the default
@@ -14,26 +24,26 @@ more than one of org or team.`,
 	options: {
 		'--account [name]':     'The account to switch to',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Disables prompting and outputs selected account and org as JSON'
 		},
 		'--org [guid|id|name]': 'The platform organization to switch to',
 		'--team [guid|name]': 'The team to use for the selected account'
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg } = await import('snooplogg');
 		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
 		const { renderAccountInfo } = await import('../lib/info');
 		const { prompt } = await import('enquirer');
 		const { highlight, note } = snooplogg.styles;
 		const { config, sdk } = await initSDK({
-			baseUrl:  argv.baseUrl,
-			env:      argv.env,
-			realm:    argv.realm
+			baseUrl:  argv.baseUrl as string,
+			env:      argv.env as string,
+			realm:    argv.realm as string
 		});
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		const accounts = await sdk.auth.list({ validate: true });
-		let account;
+		let account: Account | undefined;
 
 		if (!accounts.length) {
 			throw new Error('No authenticated accounts found');
@@ -48,13 +58,7 @@ more than one of org or team.`,
 		}
 
 		if (argv.account) {
-			account = await sdk.auth.find(argv.account);
-			if (!account) {
-				const err = new Error(`Account "${argv.account}" not found`);
-				err.code = 'ERR_NOT_FOUND';
-				err.details = `Authenticated accounts:\n${accounts.map(a => `  ${highlight(a.name)}`).join('\n')}`;
-				throw err;
-			}
+			account = await sdk.auth.find(argv.account as string);
 		} else {
 			// pick account from the list of of authenticated accounts
 			let accountName = accounts[0]?.name;
@@ -62,7 +66,7 @@ more than one of org or team.`,
 			if (accounts.length > 1 && !argv.json) {
 				// we have more than one authenticated account, so we must prompt for which account
 				const defaultAccount = config.get(`${authConfigEnvSpecifier}.defaultAccount`);
-				const choices = accounts
+				const choices: any[] = accounts
 					.map(acct => ({ value: acct.name }))
 					.sort((a, b) => a.value.localeCompare(b.value));
 				const initial = choices.findIndex(a => a.value === defaultAccount);
@@ -83,6 +87,13 @@ more than one of org or team.`,
 			}
 		}
 
+		if (!account) {
+			const err: any = new Error(`Account "${argv.account}" not found`);
+			err.code = 'ERR_NOT_FOUND';
+			err.details = `Authenticated accounts:\n${accounts.map(a => `  ${highlight(a.name)}`).join('\n')}`;
+			throw err;
+		}
+
 		account.default = true;
 		config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
 		config.delete(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
@@ -94,9 +105,9 @@ more than one of org or team.`,
 			const o = account.org;
 			if (org
 				&& org.toLowerCase() !== o.guid?.toLowerCase()
-				&& org !== String(o.id)
+				&& org !== String(o.org_id)
 				&& (!o.name || org.toLowerCase() !== o.name.toLowerCase())) {
-				throw new Error(`Specified organization "${org}" does not match the service account's organization (${o.guid || o.id})`);
+				throw new Error(`Specified organization "${org}" does not match the service account's organization (${o.guid || o.org_id})`);
 			}
 		}
 
@@ -104,18 +115,18 @@ more than one of org or team.`,
 			// determine the org
 			const defaultOrg = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
 			const selectedOrg = argv.org || defaultOrg;
-			const org = selectedOrg && account.orgs.find(o => o.guid === selectedOrg || String(o.id) === selectedOrg || o.name.toLowerCase() === selectedOrg.toLowerCase());
+			const org = selectedOrg && account.orgs.find(o => o.guid === selectedOrg || String(o.org_id) === selectedOrg || o.name.toLowerCase() === selectedOrg.toLowerCase());
 
 			if (account.isPlatformTooling) {
 				if (argv.org && !org) {
 					// if there was an explicit --org or default org that wasn't found, then we error for tooling users as web doesn't care
-					const err = new Error(`Unable to find organization "${argv.org}"`);
+					const err: any = new Error(`Unable to find organization "${argv.org}"`);
 					err.code = 'ERR_NOT_FOUND';
 					err.details = `Available organizations:\n${account.orgs.map(a => `  ${highlight(a.name)}`).join('\n')}`;
 					throw err;
 				}
 			} else {
-				account = await sdk.auth.switchOrg(account, org?.id, {
+				account = await sdk.auth.switchOrg(account, org?.org_id, {
 					onOpenBrowser() {
 						if (isHeadless()) {
 							throw new Error('Switching default account and organization requires a web browser and is unsupported in headless environments');
@@ -123,7 +134,7 @@ more than one of org or team.`,
 							console.log('Launching web browser to switch organization...');
 						}
 					}
-				});
+				}) as Account;
 			}
 		}
 
@@ -131,12 +142,15 @@ more than one of org or team.`,
 			// determine the team
 			const defaultTeam = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
 			const selectedTeam = String(argv.team || defaultTeam || '');
-			let team = selectedTeam && account.org.teams.find(t => t.guid.toLowerCase() === selectedTeam.toLowerCase() || t.name.toLowerCase() === selectedTeam.toLowerCase());
+			let team: Team | undefined;
+			if (selectedTeam) {
+				team = account.org.teams.find(t => t.guid.toLowerCase() === selectedTeam.toLowerCase() || t.name.toLowerCase() === selectedTeam.toLowerCase());
+			}
 
 			if (!team) {
 				if (argv.team) {
 					// if there was an explicit --org that wasn't found, then we error for tooling users as web doesn't care
-					const err = `Unable to find team "${argv.team}"`;
+					const err: any = new Error(`Unable to find team "${argv.team}"`);
 					err.code = 'ERR_NOT_FOUND';
 					err.details = `Available teams:\n${account.org.teams.map(t => `  ${highlight(t.name)} ${note(`(${t.guid})`)}`).join('\n')}`;
 					throw err;
@@ -149,7 +163,7 @@ more than one of org or team.`,
 						throw new Error('Must specify --team when --json is set and the selected account has multiple teams');
 					}
 
-					const choices = account.org.teams
+					const choices: any[] = account.org.teams
 						.map(team => {
 							team.toString = () => team.name;
 							return {
@@ -163,7 +177,7 @@ more than one of org or team.`,
 
 					team = (await prompt({
 						choices,
-						format: function () {
+						format: function (this: any) {
 							// for some reason, enquirer doesn't print the selected value using the primary
 							// (green) color for select prompts, so we just force it for all prompts
 							return this.style(this.value);
@@ -172,27 +186,21 @@ more than one of org or team.`,
 						message: 'Select an team to use',
 						name: 'team',
 						styles: {
-							em(msg) {
+							em(this: any, msg: string): string {
 								// stylize emphasised text with just the primary color, no underline
 								return this.primary(msg);
 							}
 						},
 						type: 'select'
-					})).team;
+					} as any) as any).team as Team;
 
 					console.log();
 				}
 			}
 
 			if (team) {
-				account.team = {
-					default: team.default,
-					guid:    team.guid,
-					name:    team.name,
-					roles:   team.users?.find(u => u.guid === account.user.guid)?.roles || [],
-					tags:    team.tags
-				};
-				await sdk.authClient.updateAccount(account);
+				account.team = (await sdk.team.find(account, account.org, team.guid)).team;
+				await sdk.auth.client.updateAccount(account);
 			}
 		}
 

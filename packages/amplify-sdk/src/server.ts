@@ -97,7 +97,7 @@ export default class Server {
 					await this.stop();
 				}
 			},
-			start: () => new Promise((resolve, reject) => {
+			start: () => new Promise<{ result: any, url: string }>((resolve, reject) => {
 				this.pending.set(requestId, {
 					handler,
 					resolve,
@@ -220,7 +220,7 @@ export default class Server {
 					conn.destroy();
 				}
 				log('Closing HTTP server...');
-				await new Promise(resolve => this.close(resolve));
+				await new Promise<void>(resolve => this.close(() => resolve()));
 				log('HTTP server closed');
 			};
 

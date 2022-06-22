@@ -1,3 +1,7 @@
+import {
+	CLIHelpOptions
+} from 'cli-kit';
+
 export default {
 	commands: [
 		`${__dirname}/add-team.js`,
@@ -12,7 +16,7 @@ export default {
 	],
 	desc: 'Create and manage service accounts',
 	help: {
-		header({ style }) {
+		header({ style }: CLIHelpOptions): string {
 			return `Create and manage service accounts, generate public/private keypairs, and
 assign teams.
 
@@ -26,7 +30,7 @@ a SSH terminal, you must set the token store type to "file":
 
   ${style.highlight('axway config set auth.tokenStoreType file')}`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   List all service accounts:

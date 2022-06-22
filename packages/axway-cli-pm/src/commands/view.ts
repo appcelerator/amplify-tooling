@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'v', '!info', '!show' ],
 	args: [
@@ -11,7 +16,7 @@ export default {
 		{
 			name: 'filter',
 			hint: 'field[.subfield]',
-			callback: ({ ctx, value }) => {
+			callback({ ctx, value }: AxwayCLIOptionCallbackState) {
 				if (value) {
 					ctx.banner = false;
 				}
@@ -23,8 +28,8 @@ export default {
 	desc: 'Displays info for a specific package',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => {
-				ctx.jsonMode = value;
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => {
+				ctx.jsonMode = !!value;
 				if (value) {
 					ctx.banner = false;
 				}
@@ -32,12 +37,12 @@ export default {
 			desc: 'Outputs package info as JSON'
 		}
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { view } = await import('../pm');
-		let info = await view(argv.package);
+		let info: any = await view(argv.package);
 
 		if (argv.filter) {
-			for (const key of argv.filter.split('.')) {
+			for (const key of (argv.filter as string).split('.')) {
 				if (typeof info !== 'object') {
 					break;
 				}
@@ -63,8 +68,8 @@ export default {
 
 			const { createTable } = await import('@axway/amplify-cli-utils');
 			const semver = await import('semver');
-			const createVersionTable = (label, versions) => {
-				const majors = {};
+			const createVersionTable = (label: string, versions: string[]): string => {
+				const majors: { [type: string]: string[] } = {};
 
 				// sort versions into buckets by major version
 				for (const ver of versions) {

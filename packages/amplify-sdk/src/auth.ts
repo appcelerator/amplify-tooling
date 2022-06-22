@@ -1,6 +1,6 @@
 import E from './errors.js';
 
-import Authenticator, { AuthenticatorOptions } from './authenticators/authenticator.js';
+import Authenticator from './authenticators/authenticator.js';
 import ClientSecret, { ClientSecretOptions } from './authenticators/client-secret.js';
 import OwnerPassword, { OwnerPasswordOptions } from './authenticators/owner-password.js';
 import PKCE from './authenticators/pkce.js';
@@ -16,7 +16,7 @@ import snooplogg from 'snooplogg';
 
 import * as environments from './environments.js';
 import * as request from '@axway/amplify-request';
-import { Account, AccountAuthInfo } from './types.js';
+import { Account, AccountAuthInfo, AuthenticatorOptions } from './types.js';
 import { Got } from 'got/dist/source/types.js';
 
 const { log, warn } = snooplogg('amplify-sdk:auth');

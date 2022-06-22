@@ -4,7 +4,13 @@ import loadConfig, { Config } from '@axway/amplify-config';
 import Table from 'cli-table3';
 import snooplogg from 'snooplogg';
 import { ansi } from 'cli-kit';
-import { BuildAuthParamsOptions, InitPlatformAccountResult } from './types.js';
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState,
+	BuildAuthParamsOptions,
+	InitPlatformAccountResult
+} from './types.js';
 import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request.js';
 import * as environments from './environments.js';
 import * as locations from './locations.js';
@@ -23,6 +29,14 @@ export {
 	request,
 	Telemetry,
 	telemetry
+};
+
+export type {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState,
+	BuildAuthParamsOptions,
+	InitPlatformAccountResult
 };
 
 const { warn } = snooplogg('amplify-cli-utils');

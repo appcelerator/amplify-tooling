@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'i' ],
 	args: [
@@ -12,12 +17,12 @@ export default {
 	desc: 'Install a package',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Output installed package as JSON'
 		}
 	},
 	skipExtensionUpdateCheck: true,
-	async action({ argv, cli, console, exitCode }) {
+	async action({ argv, cli, console, exitCode }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg } = await import('snooplogg');
 		const { Extension }          = await import('cli-kit');
 		const { install }            = await import('../pm');
@@ -43,7 +48,7 @@ export default {
 				title: `Fetching metadata ${highlight(pkg)}`,
 				async task(ctx, task) {
 					try {
-						await new Promise((resolve, reject) => {
+						await new Promise<void>((resolve, reject) => {
 							install(pkg)
 								.on('download', ({ name, version }) => {
 									task.title = `Downloading ${highlight(`${name}@${version}`)}`;
@@ -61,7 +66,7 @@ export default {
 								})
 								.on('error', reject);
 						});
-					} catch (err) {
+					} catch (err: any) {
 						results.failures.push({
 							error: err.toString(),
 							package: pkg
@@ -77,7 +82,7 @@ export default {
 
 		try {
 			await runListr({ console, json: argv.json, tasks });
-		} catch (err) {
+		} catch (err: any) {
 			// errors are stored in the results
 		}
 

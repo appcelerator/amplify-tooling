@@ -33,7 +33,7 @@ export default {
 
 		console.log('ORGANIZATION');
 		console.log(`  Name:          ${highlight(org.name)}`);
-		console.log(`  Org ID:        ${highlight(org.id)}`);
+		console.log(`  Org ID:        ${highlight(org.org_id)}`);
 		console.log(`  Org GUID:      ${highlight(org.guid)}`);
 		console.log(`  Date Created:  ${highlight(new Date(org.created).toLocaleString())}`);
 		console.log(`  Active:        ${highlight(org.active ? 'Yes' : 'No')}`);

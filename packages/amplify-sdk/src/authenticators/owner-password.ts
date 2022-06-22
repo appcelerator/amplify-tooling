@@ -1,9 +1,9 @@
 import Authenticator, {
-	AuthenticatorOptions,
 	AuthenticatorParamsResult,
 	HashParamsResult,
 	TokenParamsResult
 } from './authenticator.js';
+import { AuthenticatorOptions } from '../types.js';
 import E from '../errors.js';
 
 export interface OwnerPasswordOptions extends AuthenticatorOptions {

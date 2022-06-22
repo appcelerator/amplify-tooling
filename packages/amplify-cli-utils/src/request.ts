@@ -14,7 +14,7 @@ import * as request from '@axway/amplify-request';
  * from disk.
  * @returns {Array.<String>}
  */
-export async function createNPMRequestArgs(opts: RequestOptions = {}, config: Config) {
+export async function createNPMRequestArgs(opts?: RequestOptions, config?: Config): Promise<string[]> {
 	const { ca, cert, key, proxy, strictSSL } = await createRequestOptions(opts, config);
 	const args = [];
 
@@ -44,7 +44,7 @@ export async function createNPMRequestArgs(opts: RequestOptions = {}, config: Co
  * from disk.
  * @returns {Function}
  */
-export async function createRequestClient(opts: RequestOptions = {}, config: Config): Promise<GotReturn> {
+export async function createRequestClient(opts: RequestOptions = {}, config?: Config): Promise<GotReturn> {
 	opts = await createRequestOptions(opts, config);
 	return request.init({
 		...opts,

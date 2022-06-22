@@ -12,12 +12,15 @@ declare module 'cli-kit' {
 	}
 
 	class CLIArgv {
-		[key: string]: string | number | boolean;
+		[key: string]: boolean | number | string | string[];
 	}
 
-	class CLICommand {
-		name: string;
-		prop: (key: string) => string | boolean;
+	type CLIBannerCallback = (state: CLIState) => string;
+	type CLIBannerAsyncCallback = (state: CLIState) => Promise<string>;
+
+	class CLICommand extends CLIContext {
+		parent: CLICommand;
+		prop: (key: string) => string | boolean | CLIBannerCallback | CLIBannerAsyncCallback;
 		skipExtensionUpdateCheck?: boolean; // this is an ad-hoc Axway CLI specific property
 	}
 
@@ -63,7 +66,7 @@ declare module 'cli-kit' {
 	}
 
 	class CLIOptions {
-		banner: () => string;
+		banner: CLIBannerCallback;
 		commands: string;
 		desc: string;
 		extensions: string[];
@@ -113,6 +116,7 @@ declare module 'cli-kit' {
 		ctx: CLIContext;
 		err?: Error;
 		exitCode: () => number;
+		help: () => Promise<string>;
 		setExitCode: (code: number) => number;
 		terminal: CLITerminal;
 		warnings: string[];
@@ -186,6 +190,8 @@ declare module 'cli-kit' {
 	};
 
 	export type {
+		CLIBannerCallback,
+		CLICommand,
 		CLIContext,
 		CLIError,
 		CLIHelpOptions,

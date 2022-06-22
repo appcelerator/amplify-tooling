@@ -5,11 +5,14 @@ import {
 	PlatformOrgUsageMetric,
 	PlatformRole
 } from './sdk/platform-types.js';
+import { Endpoints } from './endpoints.js';
 import { Got } from 'got/dist/source/types.js';
+import TokenStore from './stores/token-store.js';
 import * as request from '@axway/amplify-request';
 
 export interface Account {
 	auth: AccountAuthInfo,
+	default?: boolean,
 	hash: string,
 	isPlatform?: boolean,
 	isPlatformTooling?: boolean,
@@ -80,31 +83,61 @@ export interface AmplifySDKOptions {
 	username?: string
 }
 
+export interface AuthenticatorOptions {
+	accessType?: string;
+	baseUrl?: string;
+	clientId: string;
+	endpoints?: Endpoints;
+	env?: string;
+	persistSecrets?: boolean;
+	got?: Got;
+	platformUrl: string;
+	realm: string;
+	responseType?: string;
+	scope?: string;
+	tokenStore: TokenStore;
+}
+
 export interface Client {
 	client_id: string,
+	created: string,
 	description?: string,
 	guid: string,
 	method: string,
 	name: string,
 	org_guid: string,
+	roles: string[],
 	teams: ClientTeam[],
 	type: string
 }
 
 export interface ClientRef {
 	client_id: string,
+	created: string,
 	guid: string,
 	method: string,
 	name: string,
 	org_guid: string,
+	roles: string[],
 	team_count: number,
 	type: string
 }
 
 export interface ClientTeam {
+	desc?: string,
 	guid: string,
 	name?: string,
 	roles: string[]
+}
+
+export interface ClientUpdateParams {
+	client: Client | string,
+	desc?: string,
+	name?: string,
+	publicKey?: string,
+	roles?: string[],
+	secret?: string,
+	teams?: ClientTeam[]
 }
 
 export interface DefaultTeams {
@@ -119,6 +152,12 @@ export interface Environment {
 	guid?: string,
 	isProduction: boolean,
 	name: string
+}
+
+export interface ManualLoginResult {
+	cancel: () => Promise<void>,
+	promise: Promise<Account>,
+	url: string
 }
 
 export interface Org extends OrgRef {

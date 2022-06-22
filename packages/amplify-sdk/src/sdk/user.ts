@@ -107,7 +107,7 @@ export default class AmplifySDKUser extends Base {
 			});
 
 			log('Refreshing account information...');
-			const acct: Account | null = await this.sdk.auth.loadSession(account);
+			const acct: Account | undefined = await this.sdk.auth.loadSession(account);
 			user = acct?.user || null;
 		}
 

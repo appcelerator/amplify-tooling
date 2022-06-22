@@ -1,3 +1,12 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import {
+	CLIHelpOptions
+} from 'cli-kit';
+
 export default {
 	aliases: [ '!add', '!new' ],
 	desc: 'Create a service account',
@@ -14,7 +23,7 @@ If the service account name is not specified, then the command will
 interactively prompt for all values. If prompting is not available, then all
 required options must be passed in at execution.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   Create a service account and prompt for name, type, etc:
@@ -34,7 +43,7 @@ required options must be passed in at execution.`;
 		'--account [name]':     'The platform account to use',
 		'--desc [value]':       'The description of the service account',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs result as JSON'
 		},
 		'--name [value]':       'Friendly name to use for display',
@@ -47,7 +56,7 @@ required options must be passed in at execution.`;
 		},
 		'--secret [key]':       'A custom client secret key'
 	},
-	async action({ argv, cli, console, help, terminal }) {
+	async action({ argv, cli, console, help, terminal }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
 		const { existsSync, isFile }  = await import('@axway/amplify-utils');
 		const { generateKeypair }     = await import('../lib/keypair');
@@ -57,9 +66,13 @@ required options must be passed in at execution.`;
 		const { default: snooplogg }  = await import('snooplogg');
 		const { highlight, note }     = snooplogg.styles;
 
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(
+			argv.account as string,
+			argv.org as string,
+			argv.env as string
+		);
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!org.userRoles?.includes('administrator')) {
 			throw new Error(`You do not have administrative access to create a service account in the "${org.name}" organization`);
 		}
 
@@ -74,9 +87,15 @@ required options must be passed in at execution.`;
 			publicKey,
 			role: roles,
 			secret
-		} = argv;
+		} = argv as {
+			desc: string,
+			name: string,
+			publicKey: string,
+			role: string[],
+			secret: string
+		};
 		let prompted = false;
-		const doPrompt = opts => {
+		const doPrompt = (opts: any) => {
 			prompted = true;
 			return prompt(opts);
 		};
@@ -93,10 +112,10 @@ required options must be passed in at execution.`;
 				message: 'Display name',
 				name: 'name',
 				type: 'input',
-				validate(s) {
+				validate(s: string) {
 					return s ? true : 'Please enter a service account name';
 				}
-			}));
+			}) as any);
 		}
 
 		if (!desc && !argv.name) {
@@ -105,7 +124,7 @@ required options must be passed in at execution.`;
 				message: 'Description',
 				name: 'desc',
 				type: 'input'
-			}));
+			}) as any);
 		}
 
 		if (typeof secret === 'number') {
@@ -127,7 +146,7 @@ required options must be passed in at execution.`;
 				message: 'Authentication method',
 				name: 'type',
 				type: 'select'
-			});
+			}) as any;
 
 			if (type === 'auto') {
 				secret = uuid.v4();
@@ -136,16 +155,16 @@ required options must be passed in at execution.`;
 					message: 'Secret key',
 					name: 'secret',
 					type: 'password',
-					validate(s) {
+					validate(s: string) {
 						return s ? true : 'Please enter a client secret key';
 					}
-				}));
+				}) as any);
 			} else if (type === 'publicKey') {
 				({ publicKey } = await doPrompt({
 					message: 'Public key file path',
 					name: 'publicKey',
 					type: 'input',
-					validate(s) {
+					validate(s: string) {
 						if (!s) {
 							return 'Please enter the path to the PEM formatted public key file';
 						}
@@ -157,14 +176,13 @@ required options must be passed in at execution.`;
 						}
 						return true;
 					}
-				}));
+				}) as any);
 			} else if (type === 'generate') {
 				const certs = await generateKeypair({
-					console,
-					silent: argv.json || !terminal.stdout.isTTY
+					silent: !!argv.json || !terminal.stdout.isTTY
 				});
 
-				publicKey = certs.publicKey.file;
+				publicKey = certs.publicKey?.file as string;
 			}
 		}
 
@@ -176,7 +194,7 @@ required options must be passed in at execution.`;
 				message: 'Roles',
 				name: 'roles',
 				type: 'multiselect'
-			}));
+			}) as any);
 		}
 
 		// validate the public key
@@ -194,15 +212,21 @@ required options must be passed in at execution.`;
 			}
 		}
 
-		const results = await sdk.client.create(account, org, {
+		const { client } = await sdk.client.create(account, org, {
 			desc,
 			name,
 			publicKey,
 			secret,
 			roles
 		});
-		results.account = account.name;
-		results.client.secret = secret;
+		const results = {
+			client: {
+				...client,
+				secret
+			},
+			org,
+			account
+		};
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
@@ -211,7 +235,7 @@ required options must be passed in at execution.`;
 				console.log();
 			}
 
-			const { client_id } = results.client;
+			const { client_id } = client;
 			console.log('Successfully created service account\n');
 
 			if (secret) {

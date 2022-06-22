@@ -1,3 +1,10 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import { CLICommand } from 'cli-kit';
+
 export default {
 	aliases: [ 'rm' ],
 	args: [
@@ -10,27 +17,31 @@ export default {
 	],
 	desc: 'Remove a service account',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		}
 	},
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the result as JSON'
 		},
 		'--org [name|id|guid]': 'The organization name, id, or guid'
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(
+			argv.account as string,
+			argv.org as string,
+			argv.env as string
+		);
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!org.userRoles?.includes('administrator')) {
 			throw new Error(`You do not have administrative access to remove a service account in the "${org.name}" organization`);
 		}
 
-		const { client } = await sdk.client.remove(account, org, argv.clientId);
+		const { client } = await sdk.client.remove(account, org, argv.clientId as string);
 		const results = {
 			account: account.name,
 			org,

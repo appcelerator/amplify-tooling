@@ -1,5 +1,6 @@
 import snooplogg from 'snooplogg';
-import { createTable } from '@axway/amplify-cli-utils';
+import { Config, createTable } from '@axway/amplify-cli-utils';
+import AmplifySDK, { Account } from '@axway/amplify-sdk';
 
 const { green, highlight, note } = snooplogg.styles;
 const check = process.platform === 'win32' ? '√' : '✔';
@@ -10,17 +11,18 @@ const check = process.platform === 'win32' ? '√' : '✔';
  * @param {Object} account - The account object.
  * @param {Config} config - The Amplify config object.
  * @param {AmplifySDK} sdk - The Amplify SDK instance.
+ * @returns {String}
  */
-export async function renderAccountInfo(account, config, sdk) {
+export async function renderAccountInfo(account: Account, config: Config, sdk: AmplifySDK): Promise<string> {
 	let s = `The current region is set to ${highlight(config.get('region', account.org?.region || 'US'))}.`;
 
 	if (account.orgs?.length) {
 		const table = createTable([ 'Organization', 'GUID', 'ORG ID' ]);
-		for (const { default: def, guid, id, name } of account.orgs) {
+		for (const { default: def, guid, name, org_id } of account.orgs) {
 			table.push([
 				def ? green(`${check} ${name}`) : `  ${name}`,
 				guid,
-				id
+				org_id
 			]);
 		}
 		s += `\n\n${table.toString()}`;
@@ -42,7 +44,7 @@ export async function renderAccountInfo(account, config, sdk) {
 
 	if (account.team) {
 		const teams = account.org.teams.sort((a, b) => {
-			return a.guid === account.guid ? 1 : a.name.localeCompare(b.guid);
+			return a.guid === account.team?.guid ? 1 : a.name.localeCompare(b.guid);
 		});
 		const table = createTable([ account.org.name ? `"${account.org.name}" Teams` : 'Teams', 'GUID', 'Role' ]);
 		for (let i = 0; i < teams.length; i++) {

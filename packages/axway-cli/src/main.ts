@@ -9,8 +9,8 @@ import {
 	CLIParsedArgument,
 	CLIState
 } from 'cli-kit';
-import { AxwayCLIState } from './types.js';
 import {
+	AxwayCLIState,
 	Config,
 	createRequestOptions,
 	createTable,

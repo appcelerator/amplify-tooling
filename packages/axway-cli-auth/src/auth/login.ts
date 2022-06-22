@@ -1,16 +1,30 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import {
+	Account,
+	ManualLoginResult
+} from '@axway/amplify-sdk';
+import {
+	CLIBannerCallback,
+	CLIHelpOptions
+} from 'cli-kit';
+
 export default {
 	autoHideBanner: false,
-	async banner(state) {
+	async banner(state: AxwayCLIState) {
 		// this is a hack to conditionally render the banner based on the parsed args
 		const { argv, cmd } = state;
 		if (!argv.json && cmd.parent) {
-			const banner = cmd.parent.prop('banner');
+			const banner: CLIBannerCallback = cmd.parent.prop('banner') as CLIBannerCallback;
 			return typeof banner === 'function' ? await banner(state) : banner;
 		}
 	},
 	desc: 'Log in to the Axway Amplify Platform',
 	help: {
-		header({ style }) {
+		header({ style }: CLIHelpOptions): string {
 			return `Log in to the Axway Amplify Platform using your platform account as well as one
 or more service accounts at the same time.
 
@@ -27,7 +41,7 @@ store type to “file”:
 Once authenticated, the account's current team is set to its configured default
 team to use for "axway" commands.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   Log into a platform account using a web browser:
@@ -52,7 +66,7 @@ team to use for "axway" commands.`;
 		{
 			'--force':                   'Re-authenticate even if the account is already authenticated',
 			'--json': {
-				callback: ({ ctx, value }) => ctx.jsonMode = value,
+				callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 				desc: 'Outputs authenticated account as JSON'
 			},
 			'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser'
@@ -66,7 +80,7 @@ team to use for "axway" commands.`;
 			'-u, --username [email]':    'Your email address used to log into the Amplify Platform; requires --client-secret or --secret-file'
 		}
 	],
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg } = await import('snooplogg');
 		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
 		const { renderAccountInfo } = await import('../lib/info');
@@ -85,7 +99,7 @@ team to use for "axway" commands.`;
 					type: 'input',
 					name: 'username',
 					message: 'Username:',
-					validate(s) {
+					validate(s: string) {
 						return s ? true : 'Please enter your username';
 					}
 				});
@@ -96,7 +110,7 @@ team to use for "axway" commands.`;
 					type: 'password',
 					name: 'password',
 					message: 'Password:',
-					validate(s) {
+					validate(s: string) {
 						return s ? true : 'Please enter your password';
 					}
 				});
@@ -114,15 +128,15 @@ team to use for "axway" commands.`;
 		}
 
 		const { config, sdk } = await initSDK({
-			baseUrl:        argv.baseUrl,
-			clientId:       argv.clientId,
-			clientSecret:   argv.clientSecret,
-			env:            argv.env,
-			realm:          argv.realm,
-			secretFile:     argv.secretFile,
+			baseUrl:        argv.baseUrl as string,
+			clientId:       argv.clientId as string,
+			clientSecret:   argv.clientSecret as string,
+			env:            argv.env as string,
+			realm:          argv.realm as string,
+			secretFile:     argv.secretFile as string,
 			serviceAccount: !!argv.clientSecret
 		});
-		let account;
+		let account!: Account;
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		const { highlight, note } = snooplogg.styles;
 
@@ -132,11 +146,11 @@ team to use for "axway" commands.`;
 		// show the url and wait for the user to open it
 		try {
 			if (manual) {
-				account = await sdk.auth.login({ manual });
-				const { cancel, promise, url } = account;
+				const result = await sdk.auth.login({ manual }) as ManualLoginResult;
+				const { cancel, promise, url } = result;
 
 				if (promise) {
-					promise.catch(err => {
+					promise.catch((err: any) => {
 						console.error(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`);
 						process.exit(1);
 					});
@@ -144,11 +158,11 @@ team to use for "axway" commands.`;
 					process.on('SIGINT', () => cancel());
 
 					console.log(`Please open following link in your browser:\n\n  ${highlight(url)}\n`);
-					account = await sdk.auth.loadSession(await promise);
+					account = (await sdk.auth.loadSession(await promise)) as Account;
 				}
 			} else {
-				account = await sdk.auth.login({
-					force: argv.force,
+				account = (await sdk.auth.login({
+					force: !!argv.force,
 					onOpenBrowser() {
 						if (isHeadless()) {
 							throw new Error('Only authenticating with a service account is supported in headless environments');
@@ -156,26 +170,26 @@ team to use for "axway" commands.`;
 							console.log('Launching web browser to login...');
 						}
 					},
-					password: argv.password,
-					username: argv.username
-				});
+					password: argv.password as string,
+					username: argv.username as string
+				})) as Account;
 			}
-		} catch (err) {
+		} catch (err: any) {
 			if (err.code === 'EAUTHENTICATED') {
-				({ account } = err);
+				const acct = err.account;
 				if (argv.json) {
-					account.default = config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name;
-					console.log(JSON.stringify(account, null, 2));
+					acct.default = config.get(`${authConfigEnvSpecifier}.defaultAccount`) === acct.name;
+					console.log(JSON.stringify(acct, null, 2));
 					return;
 				}
 
-				if (account.isPlatform && account.org?.name) {
-					console.log(`You are already logged into a ${highlight('platform')} account in organization ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
+				if (acct.isPlatform && acct.org?.name) {
+					console.log(`You are already logged into a ${highlight('platform')} account in organization ${highlight(acct.org.name)} ${note(`(${acct.org.guid})`)} as ${highlight(acct.user.email || acct.name)}.`);
 				} else {
-					console.log(`You are already logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
+					console.log(`You are already logged into a ${highlight('service')} account as ${highlight(acct.user.email || acct.name)}.`);
 				}
 
-				console.log(await renderAccountInfo(account, config, sdk));
+				console.log(await renderAccountInfo(acct, config, sdk));
 				return;
 			}
 

@@ -1,7 +1,5 @@
-import Authenticator, {
-	AuthenticatorOptions,
-	TokenParamsResult
-} from './authenticator.js';
+import Authenticator, { TokenParamsResult } from './authenticator.js';
+import { AuthenticatorOptions } from '../types.js';
 import crypto from 'crypto';
 
 /**

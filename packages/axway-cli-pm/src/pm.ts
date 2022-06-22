@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import npa from 'npm-package-arg';
 import npmsearch from 'libnpmsearch';
-import pacote from 'pacote';
+import pacote, { Options } from 'pacote';
 import path from 'path';
 import promiseLimit from 'promise-limit';
 import semver from 'semver';
@@ -11,6 +11,8 @@ import which from 'which';
 import { createNPMRequestArgs, createRequestOptions, loadConfig, locations } from '@axway/amplify-cli-utils';
 import { EventEmitter } from 'events';
 import { isDir, isFile, mkdirpSync } from '@axway/amplify-utils';
+import { ConfigExtensions, PackageData } from './types.js';
+import { Readable } from 'stream';
 
 const scopedPackageRegex = /^@[a-z0-9][\w-.]+\/?/;
 const { error, log } = snooplogg('pm');
@@ -28,7 +30,7 @@ export const packagesDir = path.join(locations.axwayHome, 'axway-cli', 'packages
  * @param {String} packageName - The name of the package to find.
  * @returns {Object}
  */
-export async function find(packageName: string) {
+export async function find(packageName: string): Promise<PackageData | undefined> {
 	if (!packageName || typeof packageName !== 'string') {
 		throw new TypeError('Expected package name to be a non-empty string');
 	}
@@ -37,7 +39,7 @@ export async function find(packageName: string) {
 		return undefined;
 	}
 
-	const extensions = (await loadConfig()).get('extensions', {});
+	const extensions: ConfigExtensions = (await loadConfig()).get('extensions', {});
 
 	packageName = packageName.toLowerCase();
 
@@ -73,22 +75,22 @@ export async function find(packageName: string) {
  * @param {String} pkgName - The package and version to install.
  * @returns {EventEmitter}
  */
-export function install(pkgName: string) {
+export function install(pkgName: string): EventEmitter {
 	const emitter = new EventEmitter();
 
 	setImmediate(async () => {
 		let cfg = await loadConfig();
 		let previousActivePackage;
-		let info;
+		let info: any;
 
 		try {
 			info = await view(pkgName);
 
-			let npm;
+			let npm: string;
 			try {
 				npm = await which('npm');
-			} catch (e) {
-				const err = new Error('Unable to find the "npm" executable. Please ensure you have "npm" installed on your machine');
+			} catch (e: any) {
+				const err: any = new Error('Unable to find the "npm" executable. Please ensure you have "npm" installed on your machine');
 				err.code = 'ENONPM';
 				throw err;
 			}
@@ -99,7 +101,7 @@ export function install(pkgName: string) {
 			mkdirpSync(info.path);
 
 			emitter.emit('download', info);
-			await pacote.extract(`${info.name}@${info.version}`, info.path, await createRequestOptions());
+			await pacote.extract(`${info.name}@${info.version}`, info.path, (await createRequestOptions()) as Options);
 
 			emitter.emit('install', info);
 			const args = [
@@ -118,12 +120,12 @@ export function install(pkgName: string) {
 
 			log(`node ${highlight(process.version)} npm ${highlight(spawn.sync('npm', [ '-v' ], opts).stdout.toString().trim())}`);
 			log(`Running PWD=${info.path} ${highlight(`${npm} ${args.join(' ')}`)}`);
-			await new Promise(async (resolve, reject) => {
+			await new Promise<void>(async (resolve, reject) => {
 				let stderr = '';
 				const child = spawn(npm, args, opts);
 
-				child.stdout.on('data', (data: Buffer) => log(data.toString().trim()));
-				child.stderr.on('data', (data: Buffer) => {
+				(child.stdout as Readable).on('data', (data: Buffer) => log(data.toString().trim()));
+				(child.stderr as Readable).on('data', (data: Buffer) => {
 					const s = data.toString();
 					stderr += s;
 					log(s.trim());
@@ -144,7 +146,7 @@ export function install(pkgName: string) {
 			cfg.save();
 
 			emitter.emit('end', info);
-		} catch (err) {
+		} catch (err: any) {
 			if (info) {
 				if (previousActivePackage === info.path) {
 					// package was reinstalled, but failed and directory is in an unknown state
@@ -175,13 +177,13 @@ export function install(pkgName: string) {
  *
  * @returns {Promise<Array.<Object>>}
  */
-export async function list() {
+export async function list(): Promise<PackageData[]> {
 	if (!isDir(packagesDir)) {
 		return [];
 	}
 
 	const extensions = (await loadConfig()).get('extensions', {});
-	const packages = [];
+	const packages: PackageData[] = [];
 
 	for (const name of fs.readdirSync(packagesDir)) {
 		const pkgDir = path.join(packagesDir, name);
@@ -211,6 +213,16 @@ export async function list() {
 	return packages;
 }
 
+interface PurgeablePackageData extends PackageData {
+	managed: boolean;
+	path: string;
+	version: string;
+}
+
+interface PurgablePackageMap {
+	[name: string]: PurgeablePackageData[]
+}
+
 /**
  * Determines if there are any older versions of packages installed that could be purged.
  *
@@ -218,8 +230,8 @@ export async function list() {
  * packages.
  * @returns {Object}
  */
-export async function listPurgable(pkgName) {
-	let packages = [];
+export async function listPurgable(pkgName: string): Promise<PurgablePackageMap> {
+	let packages: PackageData[] = [];
 
 	if (pkgName) {
 		const pkg = await find(pkgName);
@@ -231,19 +243,19 @@ export async function listPurgable(pkgName) {
 		packages = await list();
 	}
 
-	const purgable = {};
+	const purgable: PurgablePackageMap = {};
 
 	for (const { name, version, versions } of packages) {
 		for (const [ ver, versionData ] of Object.entries(versions)) {
 			// if managed and not in use
-			if (versionData.managed && versionData.path.startsWith(packagesDir) && semver.neq(ver, version)) {
+			if (versionData.managed && versionData.path.startsWith(packagesDir) && version && semver.neq(ver, version)) {
 				if (!purgable[name]) {
 					purgable[name] = [];
 				}
 				purgable[name].push({
 					...versionData,
 					version: ver
-				});
+				} as PurgeablePackageData);
 			}
 		}
 	}
@@ -259,8 +271,8 @@ export async function listPurgable(pkgName) {
  * @param {String} pkgDir - The path to the package.
  * @returns {Object}
  */
-function loadPackageData(name, extensions, pkgDir) {
-	const packageData = {
+function loadPackageData(name: string, extensions: ConfigExtensions, pkgDir: string): PackageData {
+	const packageData: PackageData = {
 		name,
 		description: undefined,
 		version: undefined,
@@ -277,7 +289,7 @@ function loadPackageData(name, extensions, pkgDir) {
 				path: versionDir,
 				managed: true
 			};
-		} catch (e) {
+		} catch (e: any) {
 			// squelch
 		}
 	}
@@ -311,7 +323,7 @@ function loadPackageData(name, extensions, pkgDir) {
  * @param {String} dir - Path to the package to delete.
  * @returns {Promise}
  */
-export async function uninstallPackage(dir) {
+export async function uninstallPackage(dir: string): Promise<void> {
 	try {
 		const pkgJson = await fs.readJson(path.join(dir, 'package.json'));
 		if (pkgJson.scripts.uninstall) {
@@ -322,7 +334,7 @@ export async function uninstallPackage(dir) {
 				error(stderr);
 			}
 		}
-	} catch (e) {
+	} catch (e: any) {
 		// squelch
 	}
 
@@ -338,7 +350,11 @@ export async function uninstallPackage(dir) {
  * @param {String} [opts.type] - A package type to filter by.
  * @returns {Promse<Array.<Object>>}
  */
-export async function search({ keyword, limit, type } = {}) {
+export async function search({ keyword, limit, type }: {
+	keyword?: string,
+	limit?: string | number,
+	type?: string
+} = {}) {
 	const plimit = promiseLimit(10);
 	const requestOpts = await createRequestOptions();
 	const keywords = [ 'amplify-package' ];
@@ -350,18 +366,18 @@ export async function search({ keyword, limit, type } = {}) {
 	}
 	const packages = await npmsearch(keywords, {
 		...requestOpts,
-		limit: Math.max(limit && parseInt(limit, 10) || 50, 1)
-	});
-	const results = [];
+		limit: Math.max(limit && parseInt(limit as string, 10) || 50, 1)
+	} as any);
+	const results: PackageData[] = [];
 
-	await Promise.all(packages.map(({ name, version }) => {
-		return plimit(async () => {
+	await Promise.all<PackageData>(packages.map(async ({ name, version }): Promise<PackageData> => {
+		return await plimit(async () => {
 			try {
-				const pkg = await view(`${name}@${version}`, { requestOpts, type });
+				const pkg: PackageData = await view(`${name}@${version}`, { requestOpts, type });
 				if (pkg) {
 					results.push(pkg);
 				}
-			} catch (err) {
+			} catch (err: any) {
 				// squelch
 			}
 		});
@@ -378,7 +394,7 @@ export async function search({ keyword, limit, type } = {}) {
  * @param {Object} [opts.requestOpts] - HTTP request options.
  * @param {String} [opts.type] - The package type to filter by.
  */
-export async function view(pkgName, { requestOpts, type } = {}) {
+export async function view(pkgName: string, { requestOpts, type } = {}): Promise<PackageData> {
 	if (!pkgName || typeof pkgName !== 'string') {
 		throw new TypeError('Expected package name to be a non-empty string');
 	}
@@ -399,7 +415,7 @@ export async function view(pkgName, { requestOpts, type } = {}) {
 			...requestOpts,
 			fullMetadata: true
 		});
-	} catch (err) {
+	} catch (err: any) {
 		if (err.statusCode === 404) {
 			throw new Error(`Package "${pkgName}" not found`);
 		}
@@ -420,11 +436,11 @@ export async function view(pkgName, { requestOpts, type } = {}) {
 		throw new Error(`Package "${pkgName}" not found`);
 	}
 
-	const installed = find(pkg.name);
+	const installed = await find(pkg.name);
 
 	return {
 		description: pkg.description,
-		installed:   installed?.versions || false,
+		installed:   installed.versions || false,
 		name:        pkg.name,
 		type:        pkg.amplify.type,
 		version,

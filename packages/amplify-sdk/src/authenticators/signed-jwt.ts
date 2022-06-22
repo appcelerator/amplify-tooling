@@ -1,10 +1,10 @@
 import Authenticator, {
-	AuthenticatorOptions,
 	AuthenticatorParamsResult,
 	HashParamsResult,
 	TokenParamsResult,
 	RefreshTokenParamsResult
 } from './authenticator.js';
+import { AuthenticatorOptions } from '../types.js';
 import E from '../errors.js';
 import fs from 'fs';
 import jws from 'jws';

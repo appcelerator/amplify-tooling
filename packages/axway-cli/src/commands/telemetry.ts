@@ -1,4 +1,4 @@
-import { AxwayCLIContext, AxwayCLIState } from '../types.js';
+import { AxwayCLIContext, AxwayCLIState } from '@axway/amplify-cli-utils';
 import { CLIHelpOptions } from 'cli-kit';
 
 export default {
@@ -50,7 +50,7 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 			}
 
 			if (terminal.stdout.isTTY) {
-				enabled = await new Promise(resolve => {
+				enabled = await new Promise<boolean>(resolve => {
 					terminal.once('keypress', (str: string): void => {
 						terminal.stderr.cursorTo(0);
 						terminal.stderr.clearLine(0);

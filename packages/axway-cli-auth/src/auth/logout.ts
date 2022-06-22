@@ -1,3 +1,9 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ '!revoke' ],
 	args: [
@@ -9,24 +15,24 @@ export default {
 	desc: 'Log out all or specific accounts',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs revoked accounts as JSON'
 		}
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
 		const { default: snooplogg } = await import('snooplogg');
 
-		if (!argv.accounts.length) {
+		if (!(argv.accounts as string[]).length) {
 			argv.all = true;
 		}
 
 		const { highlight, warning } = snooplogg.styles;
 
 		const { sdk } = await initSDK({
-			baseUrl:  argv.baseUrl,
-			env:      argv.env,
-			realm:    argv.realm
+			baseUrl:  argv.baseUrl as string,
+			env:      argv.env as string,
+			realm:    argv.realm as string
 		});
 		const revoked = await sdk.auth.logout({
 			...argv,

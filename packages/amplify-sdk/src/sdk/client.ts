@@ -1,7 +1,16 @@
 import Base from './base.js';
 import crypto from 'crypto';
 import E from '../errors.js';
-import { Account, Client, ClientRef, ClientTeam, OrgLike, OrgRef, Team } from '../types.js';
+import {
+	Account,
+	Client,
+	ClientRef,
+	ClientTeam,
+	ClientUpdateParams,
+	OrgLike,
+	OrgRef,
+	Team
+} from '../types.js';
 import { PlatformClient } from './platform-types.js';
 import { promisify } from 'util';
 
@@ -108,6 +117,7 @@ export default class AmplifySDKClient extends Base {
 		return {
 			client: {
 				client_id:   client.client_id,
+				created:     client.created,
 				description: client.description,
 				guid:        client.guid,
 				method:      this.resolveType(client.type),
@@ -158,6 +168,7 @@ export default class AmplifySDKClient extends Base {
 			const user = team.users.find(u => u.guid === platformClient.guid);
 			if (user) {
 				teams.push({
+					desc:  team.desc,
 					guid:  team.guid,
 					name:  team.name,
 					roles: user.roles
@@ -168,11 +179,13 @@ export default class AmplifySDKClient extends Base {
 		return {
 			client: {
 				client_id:   platformClient.client_id,
+				created:     platformClient.created,
 				description: platformClient.description,
 				guid:        platformClient.guid,
 				method:      this.resolveType(platformClient.type),
 				name:        platformClient.name,
 				org_guid:    platformClient.org_guid,
+				roles:       platformClient.roles,
 				teams,
 				type:        platformClient.type
 			},
@@ -209,10 +222,12 @@ export default class AmplifySDKClient extends Base {
 			clients: clients
 				.map(c => ({
 					client_id:  c.client_id,
+					created:    c.created,
 					guid:       c.guid,
 					method:     this.resolveType(c.type),
 					name:       c.name,
 					org_guid:   c.org_guid,
+					roles:      c.roles,
 					team_count: c.teams,
 					type:       c.type
 				} as ClientRef))
@@ -340,15 +355,7 @@ export default class AmplifySDKClient extends Base {
 	 * properties.
 	 * @returns {Promise}
 	 */
-	async update(account: Account, org: OrgLike, opts: {
-		client: Client | string,
-		desc?: string,
-		name?: string,
-		publicKey?: string,
-		roles?: string[],
-		secret?: string,
-		teams?: ClientTeam[]
-	}): Promise<{ client: Client, org: OrgRef }> {
+	async update(account: Account, org: OrgLike, opts: ClientUpdateParams): Promise<{ client: Client, org: OrgRef }> {
 		const orgRef: OrgRef = this.sdk.org.resolve(account, org, true);
 
 		if (!opts || typeof opts !== 'object') {
@@ -424,11 +431,13 @@ export default class AmplifySDKClient extends Base {
 		return {
 			client: {
 				client_id:   platformClient.client_id,
+				created:     platformClient.created,
 				description: platformClient.description,
 				guid:        platformClient.guid,
 				method:      this.resolveType(platformClient.type),
 				name:        platformClient.name,
 				org_guid:    platformClient.org_guid,
+				roles:       platformClient.roles,
 				teams,
 				type:        platformClient.type
 			},

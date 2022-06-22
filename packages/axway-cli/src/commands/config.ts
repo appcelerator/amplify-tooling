@@ -2,7 +2,7 @@ import {
 	AxwayCLIContext,
 	AxwayCLIOptionCallbackState,
 	AxwayCLIState
-} from '../types.js';
+} from '@axway/amplify-cli-utils';
 import {
 	CLIHelpOptions
 } from 'cli-kit';

@@ -1,12 +1,30 @@
-import { Listr } from 'listr2';
 import { ansi } from 'cli-kit';
+import {
+	Listr,
+	ListrEvent,
+	ListrOptions,
+	ListrRenderer
+} from 'listr2';
+
+export interface AxwayRunListrOptions {
+	console: Console;
+	json: boolean;
+	tasks: any;
+}
+
+export interface AxwayListrOptions extends ListrOptions {
+	console: Console;
+}
 
 /**
  * Custom Listr renderer for non-TTY environments.
  */
-export class ListrTextRenderer {
-	constructor(tasks, options) {
-		this._tasks = tasks;
+export class ListrTextRenderer extends ListrRenderer {
+	_console: Console;
+	_tasks: any;
+
+	constructor(tasks: any, options: AxwayListrOptions) {
+		super(tasks, options);
 		this._console = options?.console || console;
 	}
 
@@ -14,12 +32,12 @@ export class ListrTextRenderer {
 		return true;
 	}
 
-	render() {
+	render = () => {
 		this._console.error(ansi.cursor.hide);
 
 		for (const task of this._tasks) {
 			task.subscribe(
-				event => {
+				(event: ListrEvent) => {
 					if (event.type === 'STATE') {
 						const message = task.isPending() ? 'started' : task.state.toLowerCase();
 						this._console.log(`${task.title} [${message}]`);
@@ -27,12 +45,12 @@ export class ListrTextRenderer {
 						this._console.log(task.title);
 					}
 				},
-				err => this._console.error(err)
+				(err: any) => this._console.error(err)
 			);
 		}
 	}
 
-	end() {
+	end = () => {
 		this._console.error(ansi.cursor.show);
 	}
 }
@@ -46,12 +64,12 @@ export class ListrTextRenderer {
  * @param {Array.<Object>} params.tasks - A list of tasks to execute.
  * @returns {Promise}
  */
-export async function runListr({ console, json, tasks }) {
+export async function runListr({ console, json, tasks }: AxwayRunListrOptions): Promise<void> {
 	await (new Listr(tasks, {
 		concurrent: 10,
 		console,
 		dateFormat: false,
 		exitOnError: false,
 		renderer: json ? 'silent' : process.stdout.isTTY === true ? 'default' : ListrTextRenderer
-	})).run();
+	} as AxwayListrOptions)).run();
 }

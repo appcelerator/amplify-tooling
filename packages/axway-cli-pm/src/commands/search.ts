@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 's', '!se' ],
 	args: [
@@ -10,13 +15,13 @@ export default {
 	desc: 'Searches registry for packages',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs packages as JSON'
 		},
 		'--limit [count]': { desc: 'The maximum number of packages to return (default: 50)', redact: false },
 		'--type [type]': { desc: 'Type of package to search', redact: false }
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { createTable } = await import('@axway/amplify-cli-utils');
 		const { search }      = await import('../pm');
 

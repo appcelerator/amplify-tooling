@@ -8,9 +8,8 @@ import open from 'open';
 import Server from '../server.js';
 import snooplogg from 'snooplogg';
 import * as environments from '../environments.js';
-import { Account, DefaultTeams, OrgLike, OrgRef } from '../types.js';
+import { Account, DefaultTeams, ManualLoginResult, OrgLike, OrgRef } from '../types.js';
 import { createURL } from '../util.js';
-import { ManualLoginResult } from '../authenticators/authenticator.js';
 import { PlatformSession } from './platform-types.js';
 
 const { error, log, warn } = snooplogg('amplify-sdk:auth');
@@ -66,9 +65,9 @@ export default class AmplifySDKAuth extends Base {
 	 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
 	 * @returns {Promise<Object>} Resolves the account info object.
 	 */
-	async find(accountName?: string, defaultTeams?: DefaultTeams): Promise<Account | null> {
+	async find(accountName?: string, defaultTeams?: DefaultTeams): Promise<Account | undefined> {
 		const account = await this.client.find(accountName);
-		return account ? await this.loadSession(account, defaultTeams) : null;
+		return account ? await this.loadSession(account, defaultTeams) : undefined;
 	}
 
 	/**
@@ -187,7 +186,7 @@ export default class AmplifySDKAuth extends Base {
 	 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
 	 * @returns {Promise<Object>} Resolves the original account info object.
 	 */
-	async loadSession(account: Account, defaultTeams?: DefaultTeams): Promise<Account | null> {
+	async loadSession(account: Account, defaultTeams?: DefaultTeams): Promise<Account | undefined> {
 		try {
 			// grab the org guid before findSession clobbers it
 			const { guid } = account.org;
@@ -210,7 +209,7 @@ export default class AmplifySDKAuth extends Base {
 					accounts: [ account.name ],
 					baseUrl: this.baseUrl
 				});
-				return null;
+				return;
 			}
 			throw err;
 		}
@@ -252,7 +251,7 @@ export default class AmplifySDKAuth extends Base {
 		password?: string,
 		secretFile?: string,
 		username?: string
-	} = {}): Promise<Account | ManualLoginResult | null> {
+	} = {}): Promise<Account | ManualLoginResult | undefined> {
 		let account: Account | ManualLoginResult | null | undefined;
 
 		// validate the username/password
@@ -407,7 +406,7 @@ export default class AmplifySDKAuth extends Base {
 	 */
 	async switchOrg(account?: Account, org?: OrgLike, opts: {
 		onOpenBrowser?: (p: { url: string }) => void
-	} = {}): Promise<Account | null> {
+	} = {}): Promise<Account | undefined> {
 		if (!account || account.auth.expired) {
 			log(`${account ? 'Account is expired' : 'No account specified'}, doing login`);
 			account = await this.client.login() as Account;

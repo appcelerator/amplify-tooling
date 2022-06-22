@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	args: [
 		{
@@ -9,7 +14,7 @@ export default {
 	desc: 'Removes all non-active, managed packages',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the purged packages as JSON'
 		},
 		'-y, --yes': {
@@ -18,7 +23,7 @@ export default {
 		}
 	},
 	skipExtensionUpdateCheck: true,
-	async action({ argv, cli, console, terminal }) {
+	async action({ argv, cli, console, terminal }: AxwayCLIState): Promise<void> {
 		const { createTable, loadConfig }        = await import('@axway/amplify-cli-utils');
 		const { default: snooplogg }             = await import('snooplogg');
 		const { listPurgable, uninstallPackage } = await import('../pm');
@@ -63,7 +68,7 @@ export default {
 		console.log(`The following packages can be purged:\n\n${purgeTable.toString()}\n`);
 
 		if (terminal.stdout.isTTY && !argv.yes && !argv.json) {
-			await new Promise(resolve => {
+			await new Promise<void>(resolve => {
 				terminal.once('keypress', str => {
 					terminal.stderr.cursorTo(0);
 					terminal.stderr.clearLine();
@@ -79,7 +84,7 @@ export default {
 		// step 3: run the tasks
 		try {
 			await runListr({ console, json: argv.json, tasks });
-		} catch (err) {
+		} catch (err: any) {
 			// errors are stored in the results
 		}
 

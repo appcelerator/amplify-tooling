@@ -1,11 +1,11 @@
 import Authenticator, {
-	AuthenticatorOptions,
 	AuthenticatorParamsResult,
 	AuthorizationUrlParamsResult,
 	HashParamsResult,
 	TokenParamsResult,
 	RefreshTokenParamsResult
 } from './authenticator.js';
+import { AuthenticatorOptions } from '../types.js';
 import E from '../errors.js';
 
 const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;

@@ -28,7 +28,7 @@ export default {
 			throw new Error('Managing identity provider settings requires a web browser and is unsupported in headless environments');
 		}
 
-		const url = `${sdk.platformUrl}#/org/${org.id}/settings/idp`;
+		const url = `${sdk.platformUrl}#/org/${org.org_id}/settings/idp`;
 		console.log(`Opening web browser to ${highlight(url)}`);
 		await open(url);
 	}

@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ '!un', '!unlink', '!r', 'rm', '!remove' ],
 	args: [
@@ -12,12 +17,12 @@ export default {
 	desc: 'Removes the specified package',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs removed packages as JSON'
 		}
 	},
 	skipExtensionUpdateCheck: true,
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { default: fs }        = await import('fs-extra');
 		const { default: npa }       = await import('npm-package-arg');
 		const { default: semver }    = await import('semver');
@@ -32,11 +37,11 @@ export default {
 		}  = await import('../pm');
 
 		const { highlight, note } = snooplogg.styles;
-		const { fetchSpec, name, type } = npa(argv.package);
+		const { fetchSpec, name, type } = npa(argv.package as string);
 		const installed = await find(name);
 
 		if (!installed) {
-			const err = new Error(`Package "${name}" is not installed`);
+			const err: any = new Error(`Package "${name}" is not installed`);
 			err.code = 'ENOTFOUND';
 			throw err;
 		}
@@ -72,7 +77,7 @@ export default {
 		}
 
 		if (!versions.length) {
-			const err = new Error(`"${name}${fetchSpec === 'latest' ? '' : `@${fetchSpec}`}" is not installed`);
+			const err: any = new Error(`"${name}${fetchSpec === 'latest' ? '' : `@${fetchSpec}`}" is not installed`);
 			err.code = 'ENOTFOUND';
 			throw err;
 		}
@@ -95,7 +100,7 @@ export default {
 		const tasks = [
 			{
 				title: `Unregistering ${highlight(name)} extension`,
-				task: () => {
+				task: async () => {
 					const cfg = await loadConfig();
 					if (replacement.path) {
 						cfg.set(`extensions.${name}`, replacement.path);
@@ -127,12 +132,12 @@ export default {
 		// run the tasks
 		if (tasks.length) {
 			try {
-				await runListr({ console, json: argv.json, tasks });
+				await runListr({ console, json: !!argv.json, tasks });
 
 				if (!argv.json && replacement.path) {
 					console.log(`\n${highlight(`${name}@${replacement.version}`)} is now the active version`);
 				}
-			} catch (err) {
+			} catch (err: any) {
 				// squelch
 			}
 		}

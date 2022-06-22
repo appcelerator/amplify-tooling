@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'up' ],
 	args: [
@@ -10,7 +15,7 @@ export default {
 	desc: 'Download updates for installed packages',
 	options: {
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs updated packages as JSON'
 		},
 		'-y, --yes': {
@@ -19,7 +24,7 @@ export default {
 		}
 	},
 	skipExtensionUpdateCheck: true,
-	async action({ argv, cli, console, exitCode, terminal }) {
+	async action({ argv, cli, console, exitCode, terminal }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg }                      = await import('snooplogg');
 		const { runListr }                                = await import('../utils');
 		const { createTable, hlVer, loadConfig }          = await import('@axway/amplify-cli-utils');
@@ -39,7 +44,7 @@ export default {
 
 		// get installed packages
 		if (argv.package) {
-			const pkg = await find(argv.package);
+			const pkg = await find(argv.package as string);
 			if (!pkg) {
 				throw new Error(`Package "${argv.package}" is not installed`);
 			}
@@ -87,7 +92,7 @@ export default {
 		console.log(`The following packages have updates available:\n\n${updateTable.toString()}\n`);
 
 		if (terminal.stdout.isTTY && !argv.yes && !argv.json) {
-			await new Promise(resolve => {
+			await new Promise<void>(resolve => {
 				terminal.once('keypress', str => {
 					terminal.stderr.cursorTo(0);
 					terminal.stderr.clearLine();
@@ -109,7 +114,9 @@ export default {
 					title: `${highlight(`${pkg.name}@${pkg.latest}`)} is installed, setting it as active`,
 					async task(ctx, task) {
 						results.selected.push(`${pkg.name}@${pkg.latest}`);
-						(await loadConfig()).set(`extensions.${pkg.name}`, versionData.path).save();
+						const config = await loadConfig();
+						await config.set(`extensions.${pkg.name}`, versionData.path);
+						await config.save();
 						task.title = `${highlight(`${pkg.name}@${pkg.latest}`)} set as active version`;
 					}
 				});
@@ -118,7 +125,7 @@ export default {
 					title: `Downloading and installing ${highlight(`${pkg.name}@${pkg.latest}`)}`,
 					async task(ctx, task) {
 						try {
-							await new Promise((resolve, reject) => {
+							await new Promise<void>((resolve, reject) => {
 								install(`${pkg.name}@${pkg.latest}`)
 									.on('download', ({ name, version }) => {
 										task.title = `Downloading ${highlight(`${name}@${version}`)}`;
@@ -136,7 +143,7 @@ export default {
 									})
 									.on('error', reject);
 							});
-						} catch (err) {
+						} catch (err: any) {
 							results.failures.push({
 								error: err.toString(),
 								package: pkg
@@ -156,7 +163,7 @@ export default {
 		// step 4: run the tasks
 		try {
 			await runListr({ console, json: argv.json, tasks });
-		} catch (err) {
+		} catch (err: any) {
 			// errors are stored in the results
 		}
 

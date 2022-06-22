@@ -1,3 +1,11 @@
+import {
+	AxwayCLIContext,
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import { ClientUpdateParams } from '@axway/amplify-sdk';
+import { CLIHelpOptions } from 'cli-kit';
+
 export default {
 	args: [
 		{
@@ -17,7 +25,7 @@ call.
 You cannot change a service account's authentication method from client secret
 to public key and vice versa.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   Change a service account name, description, and role:
@@ -34,7 +42,7 @@ to public key and vice versa.`;
 		'--account [name]':     'The platform account to use',
 		'--desc [value]':       'The description of the service account',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs service account as JSON'
 		},
 		'--name [value]':       'Friendly name to use for display',
@@ -47,38 +55,42 @@ to public key and vice versa.`;
 		},
 		'--secret [key]':       'A custom client secret key'
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
 		const { existsSync, isFile } = await import('@axway/amplify-utils');
 		const { readFileSync } = await import('fs');
 
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(
+			argv.account as string,
+			argv.org as string,
+			argv.env as string
+		);
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!org.userRoles?.includes('administrator')) {
 			throw new Error(`You do not have administrative access to update a service account in the "${org.name}" organization`);
 		}
 
-		const data = {
-			client: argv.id
+		const data: ClientUpdateParams = {
+			client: argv.id as string
 		};
 
 		if (argv.name !== undefined) {
-			data.name = argv.name;
+			data.name = argv.name as string;
 		}
 
 		if (argv.desc !== undefined) {
-			data.desc = argv.desc;
+			data.desc = argv.desc as string;
 		}
 
 		if (argv.publicKey !== undefined) {
-			if (!existsSync(argv.publicKey)) {
+			if (!existsSync(argv.publicKey as string)) {
 				throw new Error(`Public key ${argv.publicKey} does not exist`);
 			}
-			if (!isFile(argv.publicKey)) {
+			if (!isFile(argv.publicKey as string)) {
 				throw new Error(`Public key ${argv.publicKey} is not a file`);
 			}
 			const publicKeyFile = argv.publicKey;
-			data.publicKey = readFileSync(publicKeyFile, 'utf-8');
+			data.publicKey = readFileSync(publicKeyFile as string, 'utf-8');
 			if (!data.publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
 				throw new Error(`Public key ${publicKeyFile} is not a PEM formatted file`);
 			}
@@ -86,17 +98,20 @@ to public key and vice versa.`;
 
 		if (argv.role !== undefined) {
 			// filter out all falsey/empty roles or `true`
-			data.roles = argv.role.filter(r => r && r !== true);
+			// note that --role without an explicit value is set to `true`
+			data.roles = (argv.role as (string | boolean)[]).filter(r => r && r !== true) as string[];
 		}
 
 		if (typeof argv.secret === 'number') {
 			data.secret = String(argv.secret);
 		} else if (argv.secret !== undefined) {
-			data.secret = argv.secret;
+			data.secret = argv.secret as string;
 		}
 
-		const results = await sdk.client.update(account, org, data);
-		results.account = account.name;
+		const results = {
+			...(await sdk.client.update(account, org, data)),
+			account
+		};
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
