@@ -1,3 +1,5 @@
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	commands: [
 		`${__dirname}/activity.js`,
@@ -7,10 +9,10 @@ export default {
 	],
 	desc: 'Manage your user settings',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   You must be authenticated into an Amplify Platform account to view or update

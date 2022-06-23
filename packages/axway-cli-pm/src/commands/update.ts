@@ -2,6 +2,12 @@ import {
 	AxwayCLIOptionCallbackState,
 	AxwayCLIState
 } from '@axway/amplify-cli-utils';
+import { PackageData } from '../types.js';
+
+interface ExtendedPackageData extends PackageData {
+	current: string;
+	latest: string;
+}
 
 export default {
 	aliases: [ 'up' ],
@@ -34,26 +40,31 @@ export default {
 		const { default: semver }                         = await import('semver');
 
 		const { alert, bold, highlight } = snooplogg.styles;
-		const results = {
+		const results: {
+			alreadyActive: string[],
+			selected: string[],
+			installed: string[],
+			failures: { error: string, package: string }[]
+		} = {
 			alreadyActive: [],
 			selected: [],
 			installed: [],
 			failures: []
 		};
-		let packages = [];
+		let packageDatas: PackageData[] = [];
 
 		// get installed packages
 		if (argv.package) {
-			const pkg = await find(argv.package as string);
+			const pkg: PackageData | undefined = await find(argv.package as string);
 			if (!pkg) {
 				throw new Error(`Package "${argv.package}" is not installed`);
 			}
-			packages.push(pkg);
+			packageDatas.push(pkg);
 		} else {
-			packages = await list();
+			packageDatas = await list();
 		}
 
-		if (!packages.length) {
+		if (!packageDatas.length) {
 			if (argv.json) {
 				console.log(JSON.stringify(results, null, 2));
 			} else {
@@ -65,19 +76,22 @@ export default {
 		// step 1: check for updates
 		const plimit = promiseLimit(10);
 		const spinner = ora({ stream: terminal.stderr }).start('Checking packages for updates');
-		await Promise.all(packages.map(pkg => {
-			return plimit(async () => {
-				pkg.current = Object.keys(pkg.versions).sort(semver.rcompare)[0];
-				pkg.latest = (await view(pkg.name)).version;
-			});
+		const packages: ExtendedPackageData[] = await Promise.all<ExtendedPackageData>(packageDatas.map(async (pkg): Promise<ExtendedPackageData> => {
+			return await plimit(async () => {
+				return {
+					...pkg,
+					current: Object.keys(pkg.versions).sort(semver.rcompare)[0],
+					latest: (await view(pkg.name)).version
+				};
+			}) as ExtendedPackageData;
 		}));
 		spinner.stop();
 
 		const updateTable = createTable();
 		for (let i = 0; i < packages.length; i++) {
 			const pkg = packages[i];
-			if (semver.gt(pkg.latest, pkg.version)) {
-				updateTable.push([ `  ${bold(pkg.name)}`, pkg.version, '→', hlVer(pkg.latest, pkg.version) ]);
+			if (semver.gt(pkg.latest as string, pkg.version as string)) {
+				updateTable.push([ `  ${bold(pkg.name)}`, pkg.version, '→', hlVer(pkg.latest as string, pkg.version as string) ]);
 			} else {
 				results.alreadyActive.push(`${pkg.name}@${pkg.version}`);
 				packages.splice(i--, 1);
@@ -95,7 +109,7 @@ export default {
 			await new Promise<void>(resolve => {
 				terminal.once('keypress', str => {
 					terminal.stderr.cursorTo(0);
-					terminal.stderr.clearLine();
+					terminal.stderr.clearLine(0);
 					if (str === 'y' || str === 'Y') {
 						return resolve();
 					}
@@ -106,13 +120,13 @@ export default {
 		}
 
 		// step 3: create the tasks
-		const tasks = await packages.reduce(async (promise, list) => {
+		const tasks: any[] = packages.reduce((list: any[], pkg: ExtendedPackageData): any[] => {
 			const versionData = pkg.versions[pkg.latest];
 			if (versionData) {
 				// select it
 				list.push({
 					title: `${highlight(`${pkg.name}@${pkg.latest}`)} is installed, setting it as active`,
-					async task(ctx, task) {
+					async task(ctx: any, task: any) {
 						results.selected.push(`${pkg.name}@${pkg.latest}`);
 						const config = await loadConfig();
 						await config.set(`extensions.${pkg.name}`, versionData.path);
@@ -123,7 +137,7 @@ export default {
 			} else {
 				list.push({
 					title: `Downloading and installing ${highlight(`${pkg.name}@${pkg.latest}`)}`,
-					async task(ctx, task) {
+					async task(ctx: any, task: any) {
 						try {
 							await new Promise<void>((resolve, reject) => {
 								install(`${pkg.name}@${pkg.latest}`)
@@ -146,7 +160,7 @@ export default {
 						} catch (err: any) {
 							results.failures.push({
 								error: err.toString(),
-								package: pkg
+								package: pkg.name
 							});
 							task.title = alert(err.toString());
 							err.message = undefined; // prevent the error from rendering twice
@@ -158,24 +172,24 @@ export default {
 			}
 
 			return list;
-		}, Promise.resolve([]));
+		}, [] as any[]);
 
 		// step 4: run the tasks
 		try {
-			await runListr({ console, json: argv.json, tasks });
+			await runListr({ console, json: !!argv.json, tasks });
 		} catch (err: any) {
 			// errors are stored in the results
 		}
 
 		const cfg = await loadConfig();
 		cfg.delete('update.notified');
-		cfg.save();
+		await cfg.save();
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
 			// step 5: show packages that can be purged
-			const purgable = await listPurgable(argv.package);
+			const purgable = await listPurgable(argv.package as string);
 			if (Object.keys(purgable).length) {
 				const purgeTable = createTable();
 				for (const [ name, versions ] of Object.entries(purgable)) {

@@ -1,5 +1,11 @@
 /* eslint-disable no-loop-func */
 
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	args: [
 		{
@@ -9,10 +15,10 @@ export default {
 	],
 	desc: 'Display organization usage report',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Example:')}
 
   You must be authenticated into an Amplify Platform account to view or manage
@@ -35,7 +41,7 @@ export default {
 			redact: false
 		},
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the usage as JSON'
 		},
 		'--month [mm|yyyy-mm]': {
@@ -47,10 +53,10 @@ export default {
 			redact: false
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { formatDate } = await import('../lib/util');
 		const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		let { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 		const { bundle, from, to, usage } = await sdk.org.usage(account, org, argv);
 		const orgEnvs = await sdk.org.environments(account);
 		const maxEntitlement = 9999999999999;

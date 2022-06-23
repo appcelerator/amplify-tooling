@@ -1,17 +1,24 @@
 import fs from 'fs-extra';
 import npa from 'npm-package-arg';
 import npmsearch from 'libnpmsearch';
-import pacote, { Options } from 'pacote';
+import pacote, { Options, PacoteOptions } from 'pacote';
 import path from 'path';
 import promiseLimit from 'promise-limit';
 import semver from 'semver';
 import snooplogg from 'snooplogg';
 import spawn from 'cross-spawn';
 import which from 'which';
-import { createNPMRequestArgs, createRequestOptions, loadConfig, locations } from '@axway/amplify-cli-utils';
+import {
+	ConfigExtensions,
+	InstalledPackageDataDetailed,
+	PackageData,
+	PackageDataDetailed,
+	PurgeablePackageData,
+	PurgablePackageMap
+} from './types.js';
+import { createNPMRequestArgs, createRequestOptions, loadConfig, locations, request } from '@axway/amplify-cli-utils';
 import { EventEmitter } from 'events';
 import { isDir, isFile, mkdirpSync } from '@axway/amplify-utils';
-import { ConfigExtensions, PackageData } from './types.js';
 import { Readable } from 'stream';
 
 const scopedPackageRegex = /^@[a-z0-9][\w-.]+\/?/;
@@ -81,10 +88,11 @@ export function install(pkgName: string): EventEmitter {
 	setImmediate(async () => {
 		let cfg = await loadConfig();
 		let previousActivePackage;
-		let info: any;
+		let pkg: PackageDataDetailed;
+		let info: InstalledPackageDataDetailed;
 
 		try {
-			info = await view(pkgName);
+			pkg = await view(pkgName);
 
 			let npm: string;
 			try {
@@ -95,9 +103,12 @@ export function install(pkgName: string): EventEmitter {
 				throw err;
 			}
 
-			previousActivePackage = cfg.get(`extensions.${info.name}`);
+			previousActivePackage = cfg.get(`extensions.${pkg.name}`);
 
-			info.path = path.join(packagesDir, info.name, info.version);
+			info = {
+				...pkg,
+				path: path.join(packagesDir, pkg.name, pkg.version)
+			};
 			mkdirpSync(info.path);
 
 			emitter.emit('download', info);
@@ -147,7 +158,7 @@ export function install(pkgName: string): EventEmitter {
 
 			emitter.emit('end', info);
 		} catch (err: any) {
-			if (info) {
+			if (info!) {
 				if (previousActivePackage === info.path) {
 					// package was reinstalled, but failed and directory is in an unknown state
 					cfg = await loadConfig();
@@ -211,16 +222,6 @@ export async function list(): Promise<PackageData[]> {
 	}
 
 	return packages;
-}
-
-interface PurgeablePackageData extends PackageData {
-	managed: boolean;
-	path: string;
-	version: string;
-}
-
-interface PurgablePackageMap {
-	[name: string]: PurgeablePackageData[]
 }
 
 /**
@@ -354,7 +355,7 @@ export async function search({ keyword, limit, type }: {
 	keyword?: string,
 	limit?: string | number,
 	type?: string
-} = {}) {
+} = {}): Promise<PackageDataDetailed[]> {
 	const plimit = promiseLimit(10);
 	const requestOpts = await createRequestOptions();
 	const keywords = [ 'amplify-package' ];
@@ -364,16 +365,16 @@ export async function search({ keyword, limit, type }: {
 	if (keyword) {
 		keywords.push(keyword);
 	}
-	const packages = await npmsearch(keywords, {
+	const packages: npmsearch.Result[] = await npmsearch(keywords, {
 		...requestOpts,
 		limit: Math.max(limit && parseInt(limit as string, 10) || 50, 1)
-	} as any);
-	const results: PackageData[] = [];
+	} as npmsearch.Options);
+	const results: PackageDataDetailed[] = [];
 
-	await Promise.all<PackageData>(packages.map(async ({ name, version }): Promise<PackageData> => {
-		return await plimit(async () => {
+	await Promise.all<void>(packages.map(async ({ name, version }): Promise<void> => {
+		await plimit(async () => {
 			try {
-				const pkg: PackageData = await view(`${name}@${version}`, { requestOpts, type });
+				const pkg: PackageDataDetailed = await view(`${name}@${version}`, { requestOpts, type });
 				if (pkg) {
 					results.push(pkg);
 				}
@@ -386,6 +387,11 @@ export async function search({ keyword, limit, type }: {
 	return results.sort((a, b) => a.name.localeCompare(b.name));
 }
 
+interface ViewOptions {
+	requestOpts?: request.RequestOptions;
+	type?: string;
+}
+
 /**
  * Fetches package information directly from npm and checks that it's a valid package.
  *
@@ -394,7 +400,7 @@ export async function search({ keyword, limit, type }: {
  * @param {Object} [opts.requestOpts] - HTTP request options.
  * @param {String} [opts.type] - The package type to filter by.
  */
-export async function view(pkgName: string, { requestOpts, type } = {}): Promise<PackageData> {
+export async function view(pkgName: string, { requestOpts, type }: ViewOptions = {}): Promise<PackageDataDetailed> {
 	if (!pkgName || typeof pkgName !== 'string') {
 		throw new TypeError('Expected package name to be a non-empty string');
 	}
@@ -406,7 +412,7 @@ export async function view(pkgName: string, { requestOpts, type } = {}): Promise
 	const { name, fetchSpec } = npa(pkgName);
 	let info;
 
-	if (!name) {
+	if (!name || !fetchSpec) {
 		throw new Error(`Invalid package name "${pkgName}"`);
 	}
 
@@ -414,7 +420,7 @@ export async function view(pkgName: string, { requestOpts, type } = {}): Promise
 		info = await pacote.packument(name, {
 			...requestOpts,
 			fullMetadata: true
-		});
+		} as PacoteOptions);
 	} catch (err: any) {
 		if (err.statusCode === 404) {
 			throw new Error(`Package "${pkgName}" not found`);
@@ -423,7 +429,7 @@ export async function view(pkgName: string, { requestOpts, type } = {}): Promise
 	}
 
 	const version = info['dist-tags']?.[fetchSpec] || fetchSpec;
-	const pkg = info.versions[version];
+	const pkg = info.versions[version] as any;
 	const maintainers = [ 'appcelerator', 'axway-npm' ];
 
 	if (!pkg
@@ -431,7 +437,7 @@ export async function view(pkgName: string, { requestOpts, type } = {}): Promise
 		|| (type && pkg.amplify.type !== type)
 		|| (pkg.keywords.includes('amplify-test-package') && !process.env.TEST)
 		|| !pkg.keywords.includes('amplify-package')
-		|| !pkg.maintainers.some(m => maintainers.includes(m.name))
+		|| (Array.isArray(pkg.maintainers) && !pkg.maintainers.some((m: { name: string }) => maintainers.includes(m.name)))
 	) {
 		throw new Error(`Package "${pkgName}" not found`);
 	}
@@ -440,7 +446,7 @@ export async function view(pkgName: string, { requestOpts, type } = {}): Promise
 
 	return {
 		description: pkg.description,
-		installed:   installed.versions || false,
+		installed:   installed && Object.keys(installed.versions).length > 0,
 		name:        pkg.name,
 		type:        pkg.amplify.type,
 		version,

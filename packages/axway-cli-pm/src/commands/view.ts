@@ -39,7 +39,7 @@ export default {
 	},
 	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { view } = await import('../pm');
-		let info: any = await view(argv.package);
+		let info: any = await view(argv.package as string);
 
 		if (argv.filter) {
 			for (const key of (argv.filter as string).split('.')) {

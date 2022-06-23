@@ -37,7 +37,7 @@ export default {
 		}  = await import('../pm');
 
 		const { highlight, note } = snooplogg.styles;
-		const { fetchSpec, name, type } = npa(argv.package as string);
+		const { fetchSpec, name, type } = npa(argv.package as string) as any;
 		const installed = await find(name);
 
 		if (!installed) {
@@ -47,7 +47,10 @@ export default {
 		}
 
 		const installedVersions = Object.keys(installed.versions);
-		const replacement = {};
+		const replacement: {
+			path?: string,
+			version?: string
+		} = {};
 		const versions = [];
 
 		if (type === 'range') {
@@ -92,8 +95,10 @@ export default {
 					newVersion = ver;
 				}
 			}
-			replacement.path = installed.versions[newVersion].path;
-			replacement.version = newVersion;
+			if (newVersion) {
+				replacement.path = installed.versions[newVersion].path;
+				replacement.version = newVersion;
+			}
 		}
 
 		// unregister extension

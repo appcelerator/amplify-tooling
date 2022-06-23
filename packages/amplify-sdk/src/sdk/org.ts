@@ -140,7 +140,7 @@ export default class AmplifySDKOrg extends Base {
 	 * @param {String} [defaultOrg] - The name, id, or guid of the default organization.
 	 * @returns {Promise<Array>}
 	 */
-	async list(account: Account, defaultOrg?: string): Promise<OrgRef[]> {
+	async list(account: Account, defaultOrg?: OrgLike): Promise<OrgRef[]> {
 		const { guid } = this.resolve(account, defaultOrg, true);
 
 		return account.orgs

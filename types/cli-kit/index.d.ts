@@ -85,7 +85,7 @@ declare module 'cli-kit' {
 	class CLIOptionCallbackState {
 		ctx: CLIContext;
 		data: any;
-		exitCode: () => number;
+		exitCode: (code?: number) => number;
 		input: string[];
 		name: string;
 		next: CLINextIterator;
@@ -115,7 +115,7 @@ declare module 'cli-kit' {
 		contexts: CLIContext[];
 		ctx: CLIContext;
 		err?: Error;
-		exitCode: () => number;
+		exitCode: (code?: number) => number;
 		help: () => Promise<string>;
 		setExitCode: (code: number) => number;
 		terminal: CLITerminal;
@@ -126,6 +126,13 @@ declare module 'cli-kit' {
 		stdout: tty.WriteStream;
 		stderr: tty.WriteStream;
 		once(event: string, handler: (...args: any) => void): this;
+	}
+
+	class Extension {
+		exports: {
+			[cmd: string]: CLICommand
+		};
+		constructor(path: string);
 	}
 
 	const ansi: {
@@ -186,7 +193,8 @@ declare module 'cli-kit' {
 	export default CLI;
 	export {
 		ansi,
-		CLI
+		CLI,
+		Extension
 	};
 
 	export type {

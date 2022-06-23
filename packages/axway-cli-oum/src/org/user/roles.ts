@@ -1,14 +1,19 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	desc: 'View available organization user roles',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs roles as JSON'
 		},
 		'--org [name|id|guid]': 'The organization name, id, or guid; roles vary by org'
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const roles = (await sdk.role.list(account, { org }));

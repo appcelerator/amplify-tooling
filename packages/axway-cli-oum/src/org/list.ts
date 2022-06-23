@@ -1,16 +1,21 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'ls' ],
 	desc: 'List organizations',
 	options: {
 		'--account [name]': 'The account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the organizations as JSON'
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		const { account, org, sdk } = await initPlatformAccount(argv.account, null, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account as string, undefined, argv.env as string);
 		const orgs = await sdk.org.list(account, org);
 
 		if (argv.json) {
@@ -33,17 +38,13 @@ export default {
 		const table = createTable([ 'Organization', 'GUID', 'ORG ID' ]);
 		const check = process.platform === 'win32' ? '√' : '✔';
 
-		for (const { default: def, guid, id, name } of orgs) {
+		for (const { default: def, guid, org_id, name } of orgs) {
 			table.push([
 				def ? green(`${check} ${name}`) : `  ${name}`,
 				guid,
-				id
+				org_id
 			]);
 		}
 		console.log(table.toString());
-	},
-
-	myOtherFunction() {
-		console.log('hi from my other function!');
 	}
 };

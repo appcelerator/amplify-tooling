@@ -1,3 +1,5 @@
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	commands: [
 		`${__dirname}/activity.js`,
@@ -10,10 +12,10 @@ export default {
 	],
 	desc: 'Manage Amplify Platform organizations',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('General Organization Examples:')}
 
   You must be authenticated into an Amplify Platform account to view or manage

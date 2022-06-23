@@ -36,11 +36,13 @@ export default {
 		const { loadConfig }         = await import('@axway/amplify-cli-utils');
 
 		const { highlight } = snooplogg.styles;
-		let { fetchSpec, name, type } = npa(argv.package as string);
-		const installed = await find(name);
+		const packageInfo = npa(argv.package as string);
+		const { name, type } = packageInfo;
+		let { fetchSpec } = packageInfo;
+		const installed = await find(name as string);
 
 		if (!installed) {
-			const err = new Error(`Package "${name}" is not installed`);
+			const err: any = new Error(`Package "${name}" is not installed`);
 			err.code = 'ENOTFOUND';
 			err.detail = `Please run ${highlight(`"axway pm install ${name}"`)} to install it`;
 			throw err;
@@ -68,7 +70,7 @@ export default {
 		const info = installed.versions[version];
 
 		if (!info) {
-			const err = new Error(`Package "${name}@${version}" is not installed`);
+			const err: any = new Error(`Package "${name}@${version}" is not installed`);
 			err.code = 'ENOTFOUND';
 			err.detail = `Please run ${highlight(`"axway pm install ${name}@${version}"`)} to install it`;
 			throw err;
@@ -80,9 +82,9 @@ export default {
 		} else {
 			msg = `Set ${highlight(`${name}@${version}`)} as action version`;
 			installed.version = version;
-			(await loadConfig())
-				.set(`extensions.${name}`, info.path)
-				.save();
+			const config = await loadConfig();
+			await config.set(`extensions.${name}`, info.path);
+			await config.save();
 		}
 
 		if (argv.json) {

@@ -1,3 +1,5 @@
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	commands: [
 		`${__dirname}/create.js`,
@@ -9,10 +11,10 @@ export default {
 	],
 	desc: 'Manage Amplify organization teams',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('General Team Examples:')}
 
   You must be authenticated into an Amplify Platform account to view or manage

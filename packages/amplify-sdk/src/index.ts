@@ -46,6 +46,7 @@ export {
 import {
 	Account,
 	AccountAuthInfo,
+	ActivityChange,
 	ActivityEvent,
 	ActivityParams,
 	ActivityResult,
@@ -83,6 +84,7 @@ import {
 export type {
 	Account,
 	AccountAuthInfo,
+	ActivityChange,
 	ActivityEvent,
 	ActivityParams,
 	ActivityResult,

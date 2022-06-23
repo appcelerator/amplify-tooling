@@ -1,11 +1,17 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	aliases: [ '!up' ],
 	desc: 'Change your information',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   Update your first and last name:
@@ -19,7 +25,7 @@ export default {
 			desc: 'Your first name'
 		},
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the result as JSON'
 		},
 		'--lastname [value]': {
@@ -27,13 +33,13 @@ export default {
 			desc: 'Your last name'
 		}
 	},
-	async action({ argv, cli, console, help }) {
+	async action({ argv, cli, console, help }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 
 		const { changes, user } = await sdk.user.update(account, {
-			firstname: argv.firstname,
-			lastname:  argv.lastname
+			firstname: argv.firstname as string,
+			lastname:  argv.lastname as string
 		});
 		const results = {
 			account: account.name,
@@ -47,7 +53,9 @@ export default {
 		} else {
 			const { default: snooplogg } = await import('snooplogg');
 			const { highlight } = snooplogg.styles;
-			const labels = {
+			const labels: {
+				[key: string]: string
+			} = {
 				firstname: 'first name',
 				lastname:  'last name'
 			};

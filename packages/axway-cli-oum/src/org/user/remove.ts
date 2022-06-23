@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'rm' ],
 	args: [
@@ -16,13 +21,13 @@ export default {
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the result as JSON'
 		}
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		let { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 		const { default: snooplogg } = await import('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
@@ -31,7 +36,7 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const { user } = await sdk.org.user.remove(account, org, argv.user);
+		const { user } = await sdk.org.userRemove(account, org, argv.user as string);
 		const results = {
 			account: account.name,
 			org,

@@ -1,12 +1,14 @@
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	aliases: '!users',
 	commands: `${__dirname}/user`,
 	desc: 'Manage organization users',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Examples:')}
 
   You may specify an organization by name, id, or guid.

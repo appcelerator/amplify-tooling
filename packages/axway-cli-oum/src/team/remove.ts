@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'rm' ],
 	args: [
@@ -16,19 +21,19 @@ export default {
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the result as JSON'
 		}
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		let { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!org.userRoles?.includes('administrator')) {
 			throw new Error(`You do not have administrative access to remove a team from the "${org.name}" organization`);
 		}
 
-		const { team } = await sdk.team.remove(account, org, argv.team);
+		const { team } = await sdk.team.remove(account, org, argv.team as string);
 		const results = {
 			account: account.name,
 			org,

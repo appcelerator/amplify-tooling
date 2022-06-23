@@ -1,6 +1,8 @@
+import { AxwayCLIState } from '@axway/amplify-cli-utils';
+
 export default {
 	desc: 'Opens a web browser to the change your password page',
-	async action({ console }) {
+	async action({ console }: AxwayCLIState): Promise<void> {
 		const { initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
 		const { default: snooplogg }  = await import('snooplogg');
 		const { highlight }           = snooplogg.styles;

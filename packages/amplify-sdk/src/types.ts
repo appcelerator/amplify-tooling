@@ -1,4 +1,5 @@
 import {
+	PlatformActivityChange,
 	PlatformActivityEvent,
 	PlatformEntitlement,
 	PlatformEntitlements,
@@ -50,6 +51,8 @@ export interface AccountAuthInfo {
 	},
 	username?: string
 }
+
+export interface ActivityChange extends PlatformActivityChange {}
 
 export interface ActivityEvent extends PlatformActivityEvent {}
 

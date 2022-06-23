@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	args: [
 		{
@@ -15,7 +20,7 @@ export default {
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the result as JSON'
 		},
 		'--role [role]': {
@@ -24,13 +29,13 @@ export default {
 			redact: false
 		}
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		let { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 		const { default: snooplogg } = await import('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!org.userRoles?.includes('administrator')) {
 			throw new Error('You do not have administrative access to update an organization\'s user roles');
 		}
 
@@ -39,7 +44,7 @@ export default {
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 		}
 
-		const { roles, user } = await sdk.org.user.update(account, org, argv.user, argv.role);
+		const { roles, user } = await sdk.org.userUpdate(account, org, argv.user as string, argv.role as string[]);
 
 		const results = {
 			account: account.name,
@@ -50,7 +55,7 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const name = `${user.firstname} ${user.lastname}`.trim();
+			const name = `${user?.firstname} ${user?.lastname}`.trim();
 			console.log(`Successfully updated role${roles === 1 ? '' : 's'} for ${highlight(name)}`);
 		}
 

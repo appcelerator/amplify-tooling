@@ -2,6 +2,7 @@ import {
 	AxwayCLIOptionCallbackState,
 	AxwayCLIState
 } from '@axway/amplify-cli-utils';
+import { InstalledPackageDataDetailed } from '../types.js';
 
 export default {
 	aliases: [ 'i' ],
@@ -31,12 +32,15 @@ export default {
 
 		const { alert, highlight } = snooplogg.styles;
 		const tasks = [];
-		const results = {
+		const results: {
+			installed: InstalledPackageDataDetailed[],
+			failures: { error: string, package: string }[]
+		} = {
 			installed: [],
 			failures: []
 		};
 
-		const packages = (Array.isArray(argv.packages) ? argv.packages : [ argv.packages ]).filter(Boolean);
+		const packages: string[] = (Array.isArray(argv.packages) ? argv.packages : [ argv.packages as string ]).filter(Boolean);
 		if (!packages.length) {
 			throw new TypeError('Expected one or more package names');
 		}
@@ -46,7 +50,7 @@ export default {
 		for (const pkg of packages) {
 			tasks.push({
 				title: `Fetching metadata ${highlight(pkg)}`,
-				async task(ctx, task) {
+				async task(ctx: any, task: any) {
 					try {
 						await new Promise<void>((resolve, reject) => {
 							install(pkg)
@@ -81,7 +85,7 @@ export default {
 		}
 
 		try {
-			await runListr({ console, json: argv.json, tasks });
+			await runListr({ console, json: !!argv.json, tasks });
 		} catch (err: any) {
 			// errors are stored in the results
 		}

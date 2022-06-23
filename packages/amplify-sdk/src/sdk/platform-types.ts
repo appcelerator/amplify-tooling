@@ -1,3 +1,15 @@
+export interface PlatformActivityChange {
+	k: string,
+	v?: string | string[] | boolean,
+	o?: string | string[],
+	a?: number
+}
+
+export interface PlatformActivityDetail {
+	text: string,
+	title: string
+}
+
 export interface PlatformActivityEvent {
 	context: string, // 'api_central', 'auth', 'org', 'team'
 	data: {
@@ -51,18 +63,6 @@ export interface PlatformActivityEvent {
 	id: string,
 	message: string,
 	ts: number
-}
-
-export interface PlatformActivityChange {
-	k: string,
-	v?: string,
-	o?: string,
-	a?: number
-}
-
-export interface PlatformActivityDetail {
-	text: string,
-	title: string
 }
 
 export interface PlatformClient {
@@ -126,6 +126,7 @@ export interface PlatformEntitlements {
 	'Hub.Subscriptions'?: number,
 	'Hub.Transactions'?: number,
 	hyperloop?: boolean,
+	idp?: boolean,
 	limit_read_only_users?: number,
 	limit_users?: number,
 	nativeSDK?: boolean,

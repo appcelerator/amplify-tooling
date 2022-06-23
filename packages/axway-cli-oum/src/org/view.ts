@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ '!info' ],
 	args: [
@@ -10,13 +15,13 @@ export default {
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs organization info as JSON'
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		let { account, org } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 
 		if (argv.json) {
 			console.log(JSON.stringify({
@@ -35,7 +40,7 @@ export default {
 		console.log(`  Name:          ${highlight(org.name)}`);
 		console.log(`  Org ID:        ${highlight(org.org_id)}`);
 		console.log(`  Org GUID:      ${highlight(org.guid)}`);
-		console.log(`  Date Created:  ${highlight(new Date(org.created).toLocaleString())}`);
+		console.log(`  Date Created:  ${highlight(org.created ? new Date(org.created).toLocaleString() : 'n/a')}`);
 		console.log(`  Active:        ${highlight(org.active ? 'Yes' : 'No')}`);
 		console.log(`  Region:        ${highlight(org.region === 'US' ? 'United States' : org.region)}`);
 		console.log(`  Users:         ${highlight(`${org.userCount} user${org.userCount !== 1 ? 's' : ''}${org.seats ? ` / ${org.seats} seat${org.seats !== 1 ? 's' : ''}` : ''}`)}`);

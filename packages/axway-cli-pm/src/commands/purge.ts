@@ -2,6 +2,7 @@ import {
 	AxwayCLIOptionCallbackState,
 	AxwayCLIState
 } from '@axway/amplify-cli-utils';
+import { PackageData, PurgablePackageMap } from '../types';
 
 export default {
 	args: [
@@ -31,8 +32,10 @@ export default {
 
 		const { bold, highlight } = snooplogg.styles;
 		const purgeTable = createTable();
-		const purgable = await listPurgable(argv.package);
-		const removedPackages = {};
+		const purgable: PurgablePackageMap = await listPurgable(argv.package as string);
+		const removedPackages: {
+			[name: string]: PackageData[]
+		} = {};
 		const tasks = [];
 
 		// step 1: determine packages to remove
@@ -40,7 +43,7 @@ export default {
 			for (const pkg of versions) {
 				tasks.push({
 					title: `Purging ${highlight(`${name}@${pkg.version}`)}`,
-					task: async (ctx, task) => {
+					task: async (ctx: any, task: any) => {
 						await uninstallPackage(pkg.path);
 						task.title = `Purged ${highlight(`${name}@${pkg.version}`)}`;
 					}
@@ -71,7 +74,7 @@ export default {
 			await new Promise<void>(resolve => {
 				terminal.once('keypress', str => {
 					terminal.stderr.cursorTo(0);
-					terminal.stderr.clearLine();
+					terminal.stderr.clearLine(0);
 					if (str === 'y' || str === 'Y') {
 						return resolve();
 					}
@@ -83,14 +86,14 @@ export default {
 
 		// step 3: run the tasks
 		try {
-			await runListr({ console, json: argv.json, tasks });
+			await runListr({ console, json: !!argv.json, tasks });
 		} catch (err: any) {
 			// errors are stored in the results
 		}
 
 		const cfg = await loadConfig();
 		cfg.delete('update.notified');
-		cfg.save();
+		await cfg.save();
 
 		if (argv.json) {
 			console.log(JSON.stringify(removedPackages, null, 2));

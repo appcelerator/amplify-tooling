@@ -1,3 +1,5 @@
+import { AxwayCLIState } from '@axway/amplify-cli-utils';
+
 export default {
 	args: [
 		{
@@ -9,14 +11,14 @@ export default {
 	options: {
 		'--account [name]': 'The account to use'
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount, isHeadless } = await import('@axway/amplify-cli-utils');
 		const { default: snooplogg } = await import('snooplogg');
 		const { highlight } = snooplogg.styles;
-		const { org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 		const { default: open } = await import('open');
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!org.userRoles?.includes('administrator')) {
 			throw new Error('You do not have administrative access to configure this organization\'s identity provider');
 		}
 

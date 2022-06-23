@@ -1,16 +1,21 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ '!info' ],
 	desc: 'Display your user information',
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the info as JSON'
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		const { account } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 		const { user } = account;
 
 		if (argv.json) {
@@ -24,8 +29,7 @@ export default {
 		console.log(`First Name:   ${highlight(user.firstname)}`);
 		console.log(`Last Name:    ${highlight(user.lastname)}`);
 		console.log(`Email:        ${highlight(user.email)}`);
-		console.log(`Phone Number: ${highlight(user.phone)}`);
-		console.log(`Date Joined:  ${highlight(new Date(user.dateJoined).toLocaleDateString())}`);
+		console.log(`Date Joined:  ${highlight(user.dateJoined ? new Date(user.dateJoined).toLocaleDateString() : 'n/a')}`);
 		console.log(`GUID:         ${highlight(user.guid)}`);
 	}
 };

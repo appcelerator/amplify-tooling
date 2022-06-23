@@ -1,3 +1,21 @@
+import { Account, ActivityChange, ActivityResult, Org } from '@axway/amplify-sdk';
+
+interface ExActivityChange extends ActivityChange {
+	[key: string]: boolean | number | string | string[] | undefined;
+}
+
+export interface ActivityResults extends ActivityResult {
+	account: string;
+	org: Org;
+}
+
+export interface RenderActivityOptions {
+	account: Account,
+	console: Console,
+	json: boolean,
+	results: ActivityResults
+}
+
 /**
  * Renders org and user activity results.
  *
@@ -8,7 +26,7 @@
  * @param {Array.<Object>} params.results - The list of activity events.
  * @returns {Promise}
  */
-export async function renderActivity({ account, console, json, results }) {
+export async function renderActivity({ account, console, json, results }: RenderActivityOptions) {
 	if (json) {
 		console.log(JSON.stringify(results, null, 2));
 		return;
@@ -19,8 +37,10 @@ export async function renderActivity({ account, console, json, results }) {
 	const { highlight, note } = snooplogg.styles;
 	let { from, to, events } = results;
 
-	const formatDate = d => {
-		const dt = d ? new Date(d) : new Date();
+	const formatDate = (dt: Date | number): string => {
+		if (!(dt instanceof Date)) {
+			dt = new Date(dt);
+		}
 		return `${dt.getUTCMonth() + 1}/${dt.getUTCDate()}/${dt.getUTCFullYear()}`;
 	};
 
@@ -39,8 +59,9 @@ export async function renderActivity({ account, console, json, results }) {
 	for (const event of events) {
 		let changes = '';
 		if (event.data && Array.isArray(event.data.changes)) {
-			const t = str => str.toLowerCase().replace(/(?:^|\s|-)\S/g, c => c.toUpperCase());
-			changes = event.data.changes.map((c, i, arr) => {
+			const t = (str: string): string => str.toLowerCase().replace(/(?:^|\s|-)\S/g, c => c.toUpperCase());
+			changes = event.data.changes.map((change, i, arr) => {
+				const c: ExActivityChange = { ...change };
 				let unit;
 
 				if (c.k.startsWith('entitlements.')) {
@@ -53,14 +74,14 @@ export async function renderActivity({ account, console, json, results }) {
 
 				for (const prop of [ 'o', 'v' ]) {
 					if (Object.prototype.hasOwnProperty.call(c, prop)) {
-						const d = new Date(c[prop]);
-						if (!isNaN(d)) {
+						const d = new Date(c[prop] as string);
+						if (!isNaN(d.valueOf())) {
 							c[prop] = d.toLocaleDateString();
 							continue;
 						}
 
 						if (Array.isArray(c[prop])) {
-							c[prop] = c[prop].join(', ');
+							c[prop] = (c[prop] as string[]).join(', ');
 						}
 
 						if (unit) {

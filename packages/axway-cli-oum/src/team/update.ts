@@ -1,3 +1,9 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import { CLICommand, CLIHelpOptions } from 'cli-kit';
+
 export default {
 	aliases: [ '!up' ],
 	args: [
@@ -14,10 +20,10 @@ export default {
 	],
 	desc: 'Update team information',
 	help: {
-		header() {
+		header(this: CLICommand) {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer({ style }: CLIHelpOptions): string {
 			return `${style.heading('Example:')}
 
   You must be authenticated into an Amplify Platform account to view or manage
@@ -41,7 +47,7 @@ export default {
 		'--default':        'Set the team as the default team',
 		'--desc [value]':   'The description of the team',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the result as JSON'
 		},
 		'--name [value]':   'The team name',
@@ -51,19 +57,19 @@ export default {
 			multiple: true
 		}
 	},
-	async action({ argv, cli, console }) {
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		let { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!org.userRoles?.includes('administrator')) {
 			throw new Error(`You do not have administrative access to update a team in the "${org.name}" organization`);
 		}
 
-		const { changes, team } = await sdk.team.update(account, org, argv.team, {
-			desc:    argv.desc,
-			default: argv.default,
-			name:    argv.name,
-			tags:    argv.tag
+		const { changes, team } = await sdk.team.update(account, org, argv.team as string, {
+			desc:    argv.desc as string,
+			default: !!argv.default,
+			name:    argv.name as string,
+			tags:    argv.tag as string[]
 		});
 		const results = {
 			account: account.name,

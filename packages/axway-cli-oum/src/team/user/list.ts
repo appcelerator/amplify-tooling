@@ -1,3 +1,8 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+
 export default {
 	aliases: [ 'ls' ],
 	args: [
@@ -16,20 +21,20 @@ export default {
 	options: {
 		'--account [name]': 'The platform account to use',
 		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
 			desc: 'Outputs the list of users as JSON'
 		}
 	},
-	async action({ argv, console }) {
+	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const { team } = await sdk.team.find(account, org, argv.team);
+		const { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
+		const { team } = await sdk.team.find(account, org, argv.team as string);
 
 		if (!team) {
 			throw new Error(`Unable to find team "${argv.team}"`);
 		}
 
-		const { users } = await sdk.team.user.list(account, org, team.guid);
+		const { users } = await sdk.team.userList(account, org, team.guid);
 
 		if (argv.json) {
 			console.log(JSON.stringify({
