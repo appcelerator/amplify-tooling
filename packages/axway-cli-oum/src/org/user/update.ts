@@ -56,7 +56,7 @@ export default {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
 			const name = `${user?.firstname} ${user?.lastname}`.trim();
-			console.log(`Successfully updated role${roles === 1 ? '' : 's'} for ${highlight(name)}`);
+			console.log(`Successfully updated role${roles.length === 1 ? '' : 's'} for ${highlight(name)}`);
 		}
 
 		await cli.emitAction('axway:oum:org:user:update', results);

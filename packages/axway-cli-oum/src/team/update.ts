@@ -4,6 +4,15 @@ import {
 } from '@axway/amplify-cli-utils';
 import { CLICommand, CLIHelpOptions } from 'cli-kit';
 
+interface Labels {
+	default: string,
+	desc: string,
+	name: string,
+	tags: string
+}
+
+type ChangeValue = boolean | string | undefined;
+
 export default {
 	aliases: [ '!up' ],
 	args: [
@@ -59,7 +68,7 @@ export default {
 	},
 	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
+		const { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 
 		if (!org.userRoles?.includes('administrator')) {
 			throw new Error(`You do not have administrative access to update a team in the "${org.name}" organization`);
@@ -83,13 +92,13 @@ export default {
 		} else {
 			const { default: snooplogg } = await import('snooplogg');
 			const { highlight, note } = snooplogg.styles;
-			const labels = {
+			const labels: Labels = {
 				default: 'is default',
 				desc:    'description',
 				name:    'name',
 				tags:    'tags'
 			};
-			const format = it => {
+			const format = (it: ChangeValue | ChangeValue[]): string => {
 				return Array.isArray(it) ? `[${it.map(s => `"${s === undefined ? '' : s}"`).join(', ')}]` : `"${it === undefined ? '' : it}"`;
 			};
 
@@ -98,7 +107,7 @@ export default {
 
 			if (Object.keys(changes).length) {
 				for (const [ key, { v, p } ] of Object.entries(changes)) {
-					console.log(`Updated ${highlight(labels[key])} from ${highlight(format(p))} to ${highlight(format(v))}`);
+					console.log(`Updated ${highlight(labels[key as keyof Labels])} from ${highlight(format(p))} to ${highlight(format(v))}`);
 				}
 			} else {
 				console.log('No values were changed');

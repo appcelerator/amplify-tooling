@@ -44,15 +44,14 @@ export default {
 			return;
 		}
 
-		const table = createTable([ 'Name', 'Type', 'Email', 'GUID', 'Teams', 'Roles' ]);
+		const table = createTable([ 'Name', 'Type', 'Email', 'GUID', 'Roles' ]);
 
-		for (const { client_id, email, guid, name, roles, teams } of users) {
+		for (const { client_id, email, guid, name, roles } of users) {
 			table.push([
 				name,
 				client_id ? 'Service' : 'User',
 				email,
 				guid,
-				teams,
 				roles.length ? roles.join(', ') : note('n/a')
 			]);
 		}

@@ -1,19 +1,17 @@
-import { Account, ActivityChange, ActivityResult, Org } from '@axway/amplify-sdk';
+import { Account, ActivityChange, ActivityEvent, OrgRef } from '@axway/amplify-sdk';
 
 interface ExActivityChange extends ActivityChange {
 	[key: string]: boolean | number | string | string[] | undefined;
 }
 
-export interface ActivityResults extends ActivityResult {
-	account: string;
-	org: Org;
-}
-
 export interface RenderActivityOptions {
 	account: Account,
 	console: Console,
+	events: ActivityEvent[],
+	from: Date,
 	json: boolean,
-	results: ActivityResults
+	org?: OrgRef,
+	to: Date
 }
 
 /**
@@ -22,20 +20,28 @@ export interface RenderActivityOptions {
  * @param {Object} params - Various parameters.
  * @param {Object} params.account - The account the activity is for.
  * @param {Object} params.console - The console instance to write the output to.
+ * @param {Array.<Object>} params.events - The list of activity events.
+ * @param {Date} params.from - The date range starting date.
  * @param {Boolean} [params.json] - When `true`, outputs the results as JSON.
- * @param {Array.<Object>} params.results - The list of activity events.
+ * @param {Object} [params.org] The organization info, if applicable.
+ * @param {Date} params.to - The date range ending date.
  * @returns {Promise}
  */
-export async function renderActivity({ account, console, json, results }: RenderActivityOptions) {
+export async function renderActivity({ account, console, events, from, json, org, to }: RenderActivityOptions) {
 	if (json) {
-		console.log(JSON.stringify(results, null, 2));
+		console.log(JSON.stringify({
+			account,
+			org,
+			from,
+			to,
+			events
+		}, null, 2));
 		return;
 	}
 
 	const { createTable } = await import('@axway/amplify-cli-utils');
 	const { default: snooplogg } = await import('snooplogg');
 	const { highlight, note } = snooplogg.styles;
-	let { from, to, events } = results;
 
 	const formatDate = (dt: Date | number): string => {
 		if (!(dt instanceof Date)) {
@@ -45,8 +51,8 @@ export async function renderActivity({ account, console, json, results }: Render
 	};
 
 	console.log(`Account:      ${highlight(account.name)}`);
-	if (results.org) {
-		console.log(`Organization: ${highlight(results.org.name)} ${note(`(${results.org.guid})`)}`);
+	if (org) {
+		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
 	}
 	console.log(`Date Range:   ${highlight(formatDate(from))} - ${highlight(formatDate(to))}\n`);
 

@@ -1,11 +1,10 @@
 /* eslint-disable max-len */
 
 import http from 'http';
-import { Account } from '../src/types.js';
+import { Account, ManualLoginResult } from '../src/types.js';
 import { Auth, Authenticator } from '../src/index.js';
 import { createLoginServer, stopLoginServer } from './common.js';
 import { expect } from 'chai';
-import { ManualLoginResult } from '../src/authenticators/authenticator.js';
 
 const isCI = process.env.CI || process.env.JENKINS;
 

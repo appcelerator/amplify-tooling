@@ -45,7 +45,7 @@ export default {
 		const { team, user } = await sdk.team.userUpdate(account, org, argv.team as string, argv.user as string, argv.role as string[]);
 
 		const results = {
-			account: account.name,
+			account,
 			org,
 			team,
 			user
@@ -59,7 +59,7 @@ export default {
 
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-			console.log(`Successfully updated user role${results.roles === 1 ? '' : 's'}`);
+			console.log(`Successfully updated user role${user.roles.length === 1 ? '' : 's'}`);
 		}
 
 		await cli.emitAction('axway:oum:team:user:update', results);

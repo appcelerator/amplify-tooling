@@ -77,7 +77,7 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const name = `${results.user.firstname} ${results.user.lastname}`.trim();
+			const name = `${results.user?.firstname} ${results.user?.lastname}`.trim();
 			console.log(`Successfully added ${highlight(name)} to ${highlight(org.name)}`);
 		}
 

@@ -21,7 +21,7 @@ export default {
 	},
 	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
+		const { account, org } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 
 		if (argv.json) {
 			console.log(JSON.stringify({

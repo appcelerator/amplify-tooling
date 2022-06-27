@@ -254,12 +254,12 @@ export default class AmplifySDKOrg extends Base {
 
 		const { from, to } = resolveDateRange(params.from, params.to);
 
-		let url = `/api/v1/org/${org_id}/usage`;
+		let url = `/api/v1/org/${org_id}/usage?by_product=true`;
 		if (from) {
-			url += `?from=${from.toISOString()}`;
+			url += `&from=${from.toISOString()}`;
 		}
 		if (to) {
-			url += `${from ? '&' : '?'}to=${to.toISOString()}`;
+			url += `&to=${to.toISOString()}`;
 		}
 
 		const results: PlatformOrgUsage = await this.sdk.request(url, account, {

@@ -108,7 +108,7 @@ describe('amplify-sdk', () => {
 				const sdk = createSDK();
 
 				const account = await sdk.auth.find('bar');
-				expect(account).to.equal(null);
+				expect(account).to.equal(undefined);
 			});
 		});
 

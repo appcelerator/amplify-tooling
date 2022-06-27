@@ -54,10 +54,7 @@ export default {
 			account,
 			console,
 			json: !!argv.json,
-			results: {
-				account: account.name,
-				...(await sdk.user.activity(account, argv))
-			}
+			...(await sdk.user.activity(account, argv))
 		});
 	}
 };

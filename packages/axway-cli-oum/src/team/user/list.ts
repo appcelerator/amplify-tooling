@@ -59,15 +59,14 @@ export default {
 		}
 
 		const { createTable } = await import('@axway/amplify-cli-utils');
-		const table = createTable([ 'Name', 'Type', 'Email', 'GUID', 'Teams', 'Roles' ]);
+		const table = createTable([ 'Name', 'Type', 'Email', 'GUID', 'Roles' ]);
 
-		for (const { email, guid, name, roles, teams, type } of users) {
+		for (const { email, guid, name, roles, type } of users) {
 			table.push([
 				name,
 				type === 'client' ? 'Service' : type === 'user' ? 'User' : type,
 				email,
 				guid,
-				teams,
 				roles.length ? roles.join(', ') : note('n/a')
 			]);
 		}

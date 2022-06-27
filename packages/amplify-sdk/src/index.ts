@@ -75,9 +75,11 @@ import {
 	User,
 	UserChanges,
 	UserInfo,
+	UsageBundleMetric,
 	UsageParams,
 	UsageParamsRange,
 	UsageParamsMonth,
+	UsageProductMetric,
 	UsageResult
 } from './types.js';
 
@@ -116,8 +118,10 @@ export type {
 	User,
 	UserChanges,
 	UserInfo,
+	UsageBundleMetric,
 	UsageParams,
 	UsageParamsRange,
 	UsageParamsMonth,
+	UsageProductMetric,
 	UsageResult
 };

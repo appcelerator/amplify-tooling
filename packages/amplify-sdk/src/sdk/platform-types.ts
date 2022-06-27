@@ -256,8 +256,13 @@ export interface PlatformOrgUsage {
 	to: string, // ISO date
 	to_ts: number,
 	usage: {
-		[name: string]: {
-			[metric: string]: PlatformOrgUsageMetric
+		[product: string]: {
+			name: string,
+			governance: {
+				[name: string]: {
+					[metric: string]: PlatformOrgUsageMetric
+				}
+			}
 		}
 	}
 }
@@ -270,6 +275,7 @@ export interface PlatformOrgUsageMetric {
 	quota: number,
 	percent: number,
 	unit: string,
+	unlimited: boolean,
 	value: number
 }
 

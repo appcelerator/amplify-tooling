@@ -1,5 +1,5 @@
 import Base from './base.js';
-import { Account, ActivityParams, ActivityResult } from '../types.js';
+import { Account, ActivityParams, ActivityResult, OrgRef } from '../types.js';
 import { PlatformActivityEvent } from './platform-types.js';
 import { resolveDateRange, resolveMonthRange } from '../util.js';
 
@@ -26,9 +26,10 @@ export default class AmplifySDKActivity extends Base {
 		const { from, to } = resolveDateRange(params.from, params.to);
 		let url = '/api/v1/activity?data=true';
 
+		let org: OrgRef | undefined;
 		if (params.org) {
-			const { org_id } = this.sdk.org.resolve(account, params.org, true);
-			url += `&org_id=${org_id}`;
+			org = this.sdk.org.resolve(account, params.org, true);
+			url += `&org_id=${org.org_id}`;
 		}
 
 		if (params.userGuid) {
@@ -48,9 +49,10 @@ export default class AmplifySDKActivity extends Base {
 		});
 
 		return {
+			events,
 			from,
-			to,
-			events
+			org,
+			to
 		};
 	}
 }

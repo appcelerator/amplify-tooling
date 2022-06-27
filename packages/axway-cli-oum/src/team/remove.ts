@@ -27,7 +27,7 @@ export default {
 	},
 	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		let { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
+		const { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 
 		if (!org.userRoles?.includes('administrator')) {
 			throw new Error(`You do not have administrative access to remove a team from the "${org.name}" organization`);

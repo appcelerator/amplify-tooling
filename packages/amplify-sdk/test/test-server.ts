@@ -2,7 +2,7 @@ import got from 'got';
 import snooplogg from 'snooplogg';
 import { Auth } from '../src/index.js';
 import { expect } from 'chai';
-import { ManualLoginResult } from '../src/authenticators/authenticator.js';
+import { ManualLoginResult } from '../src/types.js';
 
 const { log } = snooplogg('test:amplify-sdk:server');
 const { highlight } = snooplogg.styles;

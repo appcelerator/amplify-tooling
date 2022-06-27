@@ -65,9 +65,10 @@ export interface ActivityParams {
 }
 
 export interface ActivityResult {
+	events: ActivityEvent[],
 	from: Date,
-	to: Date,
-	events: ActivityEvent[]
+	org?: OrgRef,
+	to: Date
 }
 
 export interface AmplifySDKOptions {
@@ -218,6 +219,8 @@ export interface Subscription {
 }
 
 export interface Team {
+	apps: string[],
+	created: string, // ISO date
 	default: boolean,
 	desc?: string,
 	guid: string,
@@ -273,6 +276,21 @@ export interface UserInfo {
 	lastname?: string
 }
 
+export interface UsageBundleMetric {
+	envs: {
+		[guid: string]: {
+			production: boolean,
+			quota: number,
+			tokens: number,
+			value: number
+		}
+	},
+	name: string,
+	tokens: number,
+	unit: string,
+	value: number
+}
+
 export type UsageParams = UsageParamsRange & UsageParamsMonth;
 
 export interface UsageParamsRange {
@@ -284,6 +302,9 @@ export interface UsageParamsMonth {
 	month: string | boolean
 }
 
+export type UsageProductMetric = PlatformOrgUsageMetric;
+
+
 // note: this interface is identical to PlatformOrgUsage except `from` and `to`
 // are Date objects instead of ISO strings
 export interface UsageResult {
@@ -292,20 +313,7 @@ export interface UsageResult {
 		edition: string,
 		end_date: string, // ISO date
 		metrics?: {
-			[metric: string]: {
-				envs: {
-					[guid: string]: {
-						production: boolean,
-						quota: number,
-						tokens: number,
-						value: number
-					}
-				},
-				name: string,
-				tokens: number,
-				unit: string,
-				value: number
-			}
+			[metric: string]: UsageBundleMetric
 		},
 		name: string,
 		plan: string, // 'trial'
@@ -323,8 +331,13 @@ export interface UsageResult {
 	to: Date
 	to_ts: number,
 	usage: {
-		[name: string]: {
-			[metric: string]: PlatformOrgUsageMetric
+		[product: string]: {
+			name: string,
+			governance: {
+				[name: string]: {
+					[metric: string]: UsageProductMetric
+				}
+			}
 		}
 	}
 }
