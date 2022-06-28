@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-auth",
-  "version": "4.0.0",
+  "version": "3.3.5",
   "publishConfig": {
     "access": "public"
   },
