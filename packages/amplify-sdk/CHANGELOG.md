@@ -1,3 +1,7 @@
+# v3.2.6 (Jun 29, 2022)
+
+ * chore: Updated dependencies.
+
 # v3.2.5 (May 11, 2022)
 
  * fix(auth): Don't redirect to org select when identity provider is 360.
