@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli-utils",
-  "version": "5.0.9",
+  "version": "5.0.10",
   "publishConfig": {
     "access": "public"
   },
@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "@axway/amplify-config": "^4.0.9",
-    "@axway/amplify-request": "^3.0.9",
-    "@axway/amplify-sdk": "^3.2.5",
+    "@axway/amplify-request": "^3.0.10",
+    "@axway/amplify-sdk": "^3.2.6",
     "boxen": "^5.1.2",
     "check-kit": "^1.2.1",
     "cli-kit": "^1.16.0",
