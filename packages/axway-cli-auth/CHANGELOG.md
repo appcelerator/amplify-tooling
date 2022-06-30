@@ -1,3 +1,7 @@
+# v3.3.6 (Jun 30, 2022)
+
+ * chore: Updated dependencies.
+
 # v3.3.5 (May 11, 2022)
 
  * fix(switch): Restict platform tooling accounts from being able to switch orgs since the
