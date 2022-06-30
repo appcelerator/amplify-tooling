@@ -50,25 +50,24 @@ type ConfigExtension = [ string, string ];
 		cfg = await new Config().init();
 	}
 
-	const externalExtensions: ConfigExtension[] = [] // Object.entries(cfg.get('extensions', {}));
+	const externalExtensions: ConfigExtension[] = Object.entries(cfg.get('extensions', {}));
 	const allExtensions: ConfigExtension[] = [ ...externalExtensions ];
-	// for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
-	// 	let { dir, root } = parse(__dirname);
-	// 	while (dir !== root) {
-	// 		const packageDir = resolve(dir, 'node_modules', name);
-	// 		const pkgJson = join(packageDir, 'package.json');
-	// 		if (existsSync(pkgJson)) {
-	// 			allExtensions.push([ name, packageDir ]);
-	// 			break;
-	// 		}
-	// 		dir = dirname(dir);
-	// 	}
-	// }
+	for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
+		let { dir, root } = parse(__dirname);
+		while (dir !== root) {
+			const packageDir = resolve(dir, 'node_modules', name);
+			const pkgJson = join(packageDir, 'package.json');
+			if (existsSync(pkgJson)) {
+				allExtensions.push([ name, packageDir ]);
+				break;
+			}
+			dir = dirname(dir);
+		}
+	}
 
 	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
 	let checkWait: Promise<(CheckKitResults | void)[]> | undefined;
 
-	console.log(CLI);
 	const cli = new CLI({
 		banner() {
 			const env = process.env.AXWAY_ENV;

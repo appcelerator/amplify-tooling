@@ -1,8 +1,9 @@
-const { cyan } = require('ansi-colors');
+const fs       = require('fs-extra');
 const https    = require('https');
 const semver   = require('semver');
 const tar      = require('tar-stream');
 const zlib     = require('zlib');
+const { cyan } = require('ansi-colors');
 
 const packages = {};
 const re = /^@axway\//;
@@ -13,6 +14,7 @@ const tempDir = tmp.dirSync({
 }).name;
 const cacheDir = path.join(__dirname, '.npm-info');
 
+await fs.remove(cacheDir);
 await fs.mkdirs(cacheDir);
 
 const fetch = async name => {
