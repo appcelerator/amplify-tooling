@@ -10,6 +10,11 @@ import * as locations from './locations.js';
 
 const { warn } = snooplogg('amplify-cli-utils:telemetry');
 const telemetryCacheDir = path.join(locations.axwayHome, 'axway-cli', 'telemetry');
+
+/**
+ * The cached telemetry instance.
+ * @type {Telemetry}
+ */
 let telemetryInst: Telemetry | null = null;
 
 interface InitOptions {
@@ -62,13 +67,13 @@ export async function init(opts?: InitOptions): Promise<Telemetry|void> {
 			return telemetryInst;
 		}
 
-		if (!opts || typeof opts !== 'object') {
-			throw new TypeError('Expected telemetry init options to be an object');
-		}
-
-		const config = opts.config || await loadConfig();
+		const config = opts?.config || await loadConfig();
 		if (!config.get('telemetry.enabled')) {
 			return;
+		}
+
+		if (!opts || typeof opts !== 'object') {
+			throw new TypeError('Expected telemetry init options to be an object');
 		}
 
 		if (!opts.appGuid || typeof opts.appGuid !== 'string') {

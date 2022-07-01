@@ -6,7 +6,6 @@
   },
   "description": "Package manager for Axway products",
   "type": "module",
-  "exports": "./dist/index.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"

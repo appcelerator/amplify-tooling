@@ -1,28 +1,15 @@
-'use strict';
+import fs from 'fs';
+import tmp from 'tmp';
 
-const ansiColors   = require('ansi-colors');
-const fs           = require('fs-extra');
-const gulp         = require('gulp');
-const log          = require('fancy-log');
-const path         = require('path');
-const tmp          = require('tmp');
+// exports.integration         = series(build, function test()     { return runTests(true); });
+// exports['integration-only'] = series(function test()     { return runTests(true); });
+// exports.test                = series(build, function coverage() { return runTests(true, true); });
 
-const { series } = gulp;
-const { cyan } = ansiColors;
-
-const nodeInfo = exports['node-info'] = async function nodeInfo() {
-	log(`Node.js ${process.version} (${process.platform})`);
-	log(process.env);
-};
-
-/*
- * test tasks
- */
 let origHomeDir = process.env.HOME;
 let tmpHomeDir = null;
 
 async function runTests(cover, all) {
-	try {
+    try {
 		await fs.remove(path.join(__dirname, '.nyc_output'));
 		await fs.remove(path.join(__dirname, 'coverage'));
 
@@ -40,15 +27,14 @@ async function runTests(cover, all) {
 			unsafeCleanup: true
 		}).name;
 
-		log(`Protecting home directory, overriding HOME with temp dir: ${cyan(tmpHomeDir)}`);
+		console.log(`Protecting home directory, overriding HOME with temp dir: ${cyan(tmpHomeDir)}`);
 		process.env.HOME = process.env.USERPROFILE = tmpHomeDir;
 		if (process.platform === 'win32') {
 			process.env.HOMEDRIVE = path.parse(tmpHomeDir).root.replace(/[\\/]/g, '');
 			process.env.HOMEPATH = tmpHomeDir.replace(process.env.HOMEDRIVE, '');
 		}
 
-		const runner = require('@axway/gulp-tasks/src/test-runner');
-		await runner.runTests({
+		console.log({
 			all,
 			cover,
 			projectDir: __dirname,
@@ -71,7 +57,3 @@ async function runTests(cover, all) {
 		process.env.HOME = origHomeDir;
 	}
 }
-
-exports.integration         = series(nodeInfo, build, function test()     { return runTests(true); });
-exports['integration-only'] = series(nodeInfo,        function test()     { return runTests(true); });
-exports.test                = series(nodeInfo, build, function coverage() { return runTests(true, true); });
