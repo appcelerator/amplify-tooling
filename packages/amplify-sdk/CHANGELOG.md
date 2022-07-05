@@ -6,6 +6,11 @@
    object.
  * BREAKING CHANGE: All `sdk.*.user.<action>()` functions have been renamed to
    `sdk.*.user<Action>()`.
+ * chore: Updated dependencies.
+
+# v3.2.6 (Jun 30, 2022)
+
+ * chore: Updated dependencies.
 
 # v3.2.5 (May 11, 2022)
 

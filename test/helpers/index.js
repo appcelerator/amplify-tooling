@@ -23,7 +23,7 @@ const { log } = logger;
 const { highlight } = snooplogg.styles;
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);
+const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/dist/main.js`);
 
 export function initHomeDir(templateDir) {
 	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
