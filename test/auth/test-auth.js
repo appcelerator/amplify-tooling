@@ -9,7 +9,7 @@ import {
 	runAxwaySync,
 	startServers,
 	stopServers
-} from '../helpers';
+} from '../helpers/index.js';
 import { isHeadless } from '@axway/amplify-cli-utils';
 
 const itSkipHeadless = isHeadless() ? it.skip : it;

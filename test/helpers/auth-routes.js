@@ -2,6 +2,9 @@ import fs from 'fs-extra';
 import jws from 'jws';
 import path from 'path';
 import Router from '@koa/router';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export function createAuthRoutes(server, opts = {}) {
 	const router = new Router();

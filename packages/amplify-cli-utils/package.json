@@ -30,8 +30,8 @@
   },
   "dependencies": {
     "@axway/amplify-config": "^4.0.9",
-    "@axway/amplify-request": "^3.0.9",
-    "@axway/amplify-sdk": "^3.2.5",
+    "@axway/amplify-request": "^3.0.10",
+    "@axway/amplify-sdk": "^3.2.6",
     "cli-kit": "^1.16.0",
     "cli-table3": "^0.6.2",
     "fs-extra": "^10.1.0",

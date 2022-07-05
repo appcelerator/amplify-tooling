@@ -26,7 +26,7 @@
     "test": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.9",
+    "@axway/amplify-cli-utils": "^5.0.10",
     "@axway/amplify-utils": "^1.0.9",
     "cli-kit": "^1.16.0",
     "enquirer": "^2.3.6",

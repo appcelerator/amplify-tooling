@@ -31,11 +31,11 @@
     "test": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.9",
+    "@axway/amplify-cli-utils": "^5.0.10",
     "@axway/amplify-utils": "^1.0.9",
-    "@axway/axway-cli-auth": "^3.3.5",
-    "@axway/axway-cli-oum": "^2.0.9",
-    "@axway/axway-cli-pm": "^4.0.9",
+    "@axway/axway-cli-auth": "^3.3.6",
+    "@axway/axway-cli-oum": "^2.0.10",
+    "@axway/axway-cli-pm": "^4.0.10",
     "boxen": "^7.0.0",
     "check-kit": "^2.0.0",
     "cli-kit": "^1.16.0",

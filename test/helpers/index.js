@@ -9,8 +9,9 @@ import path from 'path';
 import Router from '@koa/router';
 import session from 'koa-session';
 import snooplogg from 'snooplogg';
-import { createAuthRoutes } from './auth-routes';
-import { createPlatformRoutes } from './platform-routes';
+import { createAuthRoutes } from './auth-routes.js';
+import { createPlatformRoutes } from './platform-routes.js';
+import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
 
 const logger = snooplogg.config({
@@ -21,6 +22,7 @@ const logger = snooplogg.config({
 const { log } = logger;
 const { highlight } = snooplogg.styles;
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);
 
 export function initHomeDir(templateDir) {
