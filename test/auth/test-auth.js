@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import got from 'got';
 import path from 'path';
 import { expect } from 'chai';
+import { fileURLToPath } from 'url';
 import {
 	initHomeDir,
 	renderRegexFromFile,
@@ -13,6 +14,7 @@ import {
 } from '../helpers/index.js';
 import { isHeadless } from '@axway/amplify-cli-utils';
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const itSkipHeadless = isHeadless() ? it.skip : it;
 
 describe('axway auth', () => {

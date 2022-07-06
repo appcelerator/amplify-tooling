@@ -28,13 +28,13 @@ export function createAuthRoutes(server, opts = {}) {
 
 		state.accessToken = jws.sign({
 			header: { alg: 'HS256' },
-			payload: { email },
+			payload: { email, orgId: 100 },
 			secret: `access_secret`
 		});
 
 		state.refreshToken = jws.sign({
 			header: { alg: 'HS256' },
-			payload: { email },
+			payload: { email, orgId: 100 },
 			secret: `refresh_secret`
 		});
 

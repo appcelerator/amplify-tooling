@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
 import { expect } from 'chai';
+import { fileURLToPath } from 'url';
 import {
 	initHomeDir,
 	renderRegexFromFile,
@@ -10,6 +11,8 @@ import {
 	startServers,
 	stopServers
 } from '../helpers/index.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 tmp.setGracefulCleanup();
 

@@ -4,7 +4,7 @@
  * fake the browser interaction.
  */
 
-import got from 'got';
+import './arch-shim.js';
 
 export function resolve(specifier, context, defaultResolve) {
 	if (specifier === 'open') {

@@ -22,7 +22,6 @@ let tmpHomeDir = tmp.dirSync({
 if (all) {
 	process.env.AXWAY_TEST = '1'; // allow telemetry tests to run
 }
-process.env.AXWAY_TEST_GLOBAL_PACKAGE_DIR = path.join(root, 'packages');
 process.env.NODE_ENV = 'test'; // disables the update check
 // process.env.SNOOPLOGG = '*'; // uncomment to debug
 process.env.SNOOPLOGG_MIN_BRIGHTNESS = '100';

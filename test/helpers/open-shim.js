@@ -5,6 +5,7 @@
  */
 
 import got from 'got';
+import './arch-shim.js';
 
 export function resolve(specifier, context, defaultResolve) {
 	if (specifier === 'open') {
@@ -16,18 +17,19 @@ export function resolve(specifier, context, defaultResolve) {
 }
 
 export default async function shimmedOpen(url, opts) {
-	const response = await got(url);
-	const parsedUrl = new URL(response.url);
-	let { hash, origin } = parsedUrl;
-	if (hash) {
-		hash = hash.replace(/^#/, '');
-		if (!hash.startsWith('http')) {
-			hash = origin + hash;
-		}
-		const parsedHash = new URL(hash);
-		const redirect = parsedHash.searchParams.get('redirect');
-		if (redirect) {
-			await got(redirect);
-		}
-	}
-}
+     const response = await got(url);
+     const parsedUrl = new URL(response.url);
+     let { hash, origin } = parsedUrl;
+     if (hash) {
+         hash = hash.replace(/^#/, '');
+         if (!hash.startsWith('http')) {
+             hash = origin + hash;
+         }
+         const parsedHash = new URL(hash);
+         const redirect = parsedHash.searchParams.get('redirect');
+         if (redirect) {
+             await got(redirect);
+         }
+     }
+ }
+ 
