@@ -69,7 +69,7 @@ describe('axway org', () => {
 						"active": true,
 						"childOrgs": null,
 						"guid": "1000",
-						"id": 100,
+						"org_id": 100,
 						"name": "Foo org",
 						"entitlements": {
 							"_a": 10,
@@ -222,19 +222,19 @@ describe('axway org', () => {
 					{
 						"default": false,
 						"guid": "2000",
-						"id": 200,
+						"org_id": 200,
 						"name": "Bar org"
 					},
 					{
 						"default": false,
 						"guid": "3000",
-						"id": 300,
+						"org_id": 300,
 						"name": "Baz org"
 					},
 					{
 						"default": true,
 						"guid": "1000",
-						"id": 100,
+						"org_id": 100,
 						"name": "Foo org"
 					}
 				]
@@ -252,7 +252,7 @@ describe('axway org', () => {
 		//
 	});
 
-	describe('usage', () => {
+	describe.skip('usage', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
