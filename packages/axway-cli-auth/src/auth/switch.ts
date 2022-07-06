@@ -32,7 +32,7 @@ more than one of org or team.`,
 	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg } = await import('snooplogg');
 		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
-		const { renderAccountInfo } = await import('../lib/info');
+		const { renderAccountInfo } = await import('../lib/info.js');
 		const { prompt } = await import('enquirer');
 		const { highlight, note } = snooplogg.styles;
 		const { config, sdk } = await initSDK({

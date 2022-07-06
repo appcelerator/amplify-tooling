@@ -20,7 +20,7 @@ export default {
 	},
 	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { getAuthConfigEnvSpecifier, initSDK } = await import('@axway/amplify-cli-utils');
-		const { renderAccountInfo } = await import('../lib/info');
+		const { renderAccountInfo } = await import('../lib/info.js');
 		const { config, sdk } = await initSDK({
 			baseUrl:  argv.baseUrl as string,
 			env:      argv.env as string,

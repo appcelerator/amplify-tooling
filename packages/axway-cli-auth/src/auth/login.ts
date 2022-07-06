@@ -82,7 +82,7 @@ team to use for "axway" commands.`;
 	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg } = await import('snooplogg');
 		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = await import('@axway/amplify-cli-utils');
-		const { renderAccountInfo } = await import('../lib/info');
+		const { renderAccountInfo } = await import('../lib/info.js');
 		const { prompt } = await import('enquirer');
 
 		// prompt for the username and password

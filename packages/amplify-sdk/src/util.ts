@@ -28,7 +28,7 @@ export function md5(it: string | any) {
  * @param {Object} params - The query string parameters to stringify.
  * @returns {Object}
  */
-export function prepareForm(params: { [key: string]: string | number | undefined }) {
+export function prepareForm(params: { [key: string]: string | number | undefined }): URLSearchParams {
 	const form = new URLSearchParams();
 	for (const prop of (Object.keys(params).sort() as string[])) {
 		if (params[prop] !== undefined) {

@@ -19,9 +19,8 @@ describe('axway auth', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
-		it.only('should output the help screen with color', async () => {
+		it('should output the help screen with color', async () => {
 			const { status, stdout, stderr } = await runAxwaySync([ 'auth' ]);
-			console.log(stdout);
 			expect(stdout).to.match(renderRegexFromFile('help/help-with-color'));
 			expect(status).to.equal(2);
 		});
@@ -74,7 +73,7 @@ describe('axway auth', () => {
 			expect(status).to.equal(1);
 		});
 
-		itSkipHeadless('should log into platform account using PKCE, list account, and login again', async function () {
+		it('should log into platform account using PKCE, list account, and login again', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 

@@ -106,9 +106,8 @@ try {
 	// run!
 	console.log(`Running: ${chalk.cyan(`${process.execPath} ${args.join(' ')}`)}`);
 	if (spawnSync(process.execPath, args, { cwd: root, stdio: 'inherit' }).status) {
-		const err = new Error('At least one test failed :(');
-		err.showStack = false;
-		throw err;
+		console.error(chalk.red('At least one test failed :('));
+		process.exit(1);
 	}
 } finally {
 	// restore home directory so that we can delete the temp one

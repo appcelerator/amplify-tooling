@@ -47,7 +47,7 @@ export default {
 	},
 	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
-		const { renderActivity } = await import('../lib/activity');
+		const { renderActivity } = await import('../lib/activity.js');
 		const { account, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 
 		await renderActivity({

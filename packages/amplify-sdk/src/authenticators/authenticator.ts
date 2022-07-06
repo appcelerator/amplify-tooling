@@ -338,7 +338,7 @@ export default class Authenticator {
 				log(`Fetching token: ${highlight(url)}`);
 				log('Post form:', { ...params, password: '********' });
 				const response = await this.got.post(url, {
-					form: prepareForm(params as any),
+					form: Object.fromEntries(prepareForm(params as any).entries()),
 					responseType: 'json'
 				});
 				log(`${(response.statusCode >= 400 ? red : green)(String(response.statusCode))} ${highlight(url)}`);

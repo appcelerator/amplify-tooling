@@ -103,7 +103,7 @@ export default {
 		}
 	},
 	async action({ argv, console }: AxwayCLIState): Promise<void> {
-		// const { formatDate } = await import('../lib/util');
+		// const { formatDate } = await import('../lib/util.js');
 		// const { createTable, initPlatformAccount } = await import('@axway/amplify-cli-utils');
 		// let { account, org, sdk } = await initPlatformAccount(argv.account as string, argv.org as string, argv.env as string);
 		// const { bundle, from, to, usage } = await sdk.org.usage(account, org, {
