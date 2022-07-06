@@ -1,6 +1,4 @@
-import {
-	AxwayCLIState
-} from '@axway/amplify-cli-utils';
+import { AxwayCLIState } from '@axway/amplify-cli-utils';
 
 export default {
 	hidden: true,

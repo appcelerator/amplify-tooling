@@ -1,11 +1,8 @@
 import {
-	AxwayCLIContext,
 	AxwayCLIOptionCallbackState,
 	AxwayCLIState
 } from '@axway/amplify-cli-utils';
-import {
-	CLICommand
-} from 'cli-kit';
+import { CLICommand } from 'cli-kit';
 
 export default {
 	args: [

@@ -3,7 +3,6 @@ import {
 	Team
 } from '@axway/amplify-sdk';
 import {
-	AxwayCLIContext,
 	AxwayCLIOptionCallbackState,
 	AxwayCLIState
 } from '@axway/amplify-cli-utils';

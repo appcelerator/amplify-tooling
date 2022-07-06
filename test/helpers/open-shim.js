@@ -4,15 +4,18 @@
  * fake the browser interaction.
  */
 
-const got = require('got');
-const Module = require('module');
+import got from 'got';
 
-const origResolveFilename = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, isMain, options) {
-	return request === 'open' ? __filename : origResolveFilename(request, parent, isMain, options);
-};
+export function resolve(specifier, context, defaultResolve) {
+	if (specifier === 'open') {
+		return {
+			url: import.meta.url
+		};
+	}
+	return defaultResolve(specifier, context, defaultResolve);
+}
 
-module.exports = async (url, opts) => {
+export default async function shimmedOpen(url, opts) {
 	const response = await got(url);
 	const parsedUrl = new URL(response.url);
 	let { hash, origin } = parsedUrl;
@@ -27,4 +30,4 @@ module.exports = async (url, opts) => {
 			await got(redirect);
 		}
 	}
-};
+}

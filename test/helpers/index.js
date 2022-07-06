@@ -74,7 +74,7 @@ export function renderRegexFromFile(file, vars) {
 		file += '.mustache';
 	}
 	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
-		file = path.resolve(path.dirname(callerPath()), file);
+		file = path.resolve(path.dirname(fileURLToPath(callerPath())), file);
 	}
 	return renderRegex(fs.readFileSync(file, 'utf8').trim(), vars);
 }
@@ -110,13 +110,13 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 	args.unshift(axwayBin);
 
 	if (opts.passiveOpen) {
-		args.unshift('--require', path.join(__dirname, 'open-shim-passive.js'));
+		args.unshift('--loader', path.join(__dirname, 'open-shim-passive.js'));
 	} else {
-		args.unshift('--require', path.join(__dirname, 'open-shim.js'));
+		args.unshift('--loader', path.join(__dirname, 'open-shim.js'));
 	}
 
 	if (opts.shim) {
-		args.unshift('--require', path.join(__dirname, `${opts.shim}.js`));
+		args.unshift('--loader', path.join(__dirname, `${opts.shim}.js`));
 	}
 
 	log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);

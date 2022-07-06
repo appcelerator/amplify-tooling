@@ -1,5 +1,4 @@
 import {
-	AxwayCLIContext,
 	AxwayCLIOptionCallbackState,
 	AxwayCLIState
 } from '@axway/amplify-cli-utils';
