@@ -1,16 +1,16 @@
-# Amplify SDK
+# Amplify SDK.
 
 The Amplify SDK for Node.js is a set of APIs for authenticating, switching selected organization,
 creating MBS apps and users, and Titanium SDK support.
 
 ## Installation
 
-	npm i @axway/amplify-sdk --save
+    npm i @axway/amplify-sdk --save
 
 ## Usage
 
 ```js
-import AmplifySDK from '@axway/amplify-sdk';
+import AmplifySDK from "@axway/amplify-sdk";
 
 // opts can include `env` as well as any Amplify Auth SDK constructor opts
 // (see https://www.npmjs.com/package/@axway/amplify-auth-sdk)
@@ -75,15 +75,15 @@ The idea is you can pass in the entire `auth.defaultTeam` object from the Axway 
 
 ```js
 // no strictly required, but handy if you want to support preprod
-const { getAuthConfigEnvSpecifier } = require('@axway/amplify-cli-utils');
+const { getAuthConfigEnvSpecifier } = require("@axway/amplify-cli-utils");
 const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 const defaultTeams = config.get(`${authConfigEnvSpecifier}.defaultTeam`);
 
-const account = await sdk.auth.find('<client_id>:<email>', defaultTeams);
+const account = await sdk.auth.find("<client_id>:<email>", defaultTeams);
 
 const accounts = await sdk.auth.list({
-	defaultTeams,
-	validate: true
+  defaultTeams,
+  validate: true,
 });
 ```
 
@@ -95,12 +95,12 @@ const orgs = await sdk.org.list(account);
 console.log(orgs);
 
 // find a single org
-const org = await sdk.org.find(account, 'org name/id/guid');
+const org = await sdk.org.find(account, "org name/id/guid");
 
 // get org activity
-const { from, to, events } = await sdk.org.activity(account, 'org name/id/guid', {
-	from: '2021-01-01',
-	to: '2021-01-31'
+const { from, to, events } = await sdk.org.activity(account, "org name/id/guid", {
+  from: "2021-01-01",
+  to: "2021-01-31",
 });
 
 // retrieve a list of all available platform environments such
@@ -108,33 +108,33 @@ const { from, to, events } = await sdk.org.activity(account, 'org name/id/guid',
 const envs = await sdk.org.getEnvironments(account);
 
 // get org family including child orgs
-const family = await sdk.org.family(account, 'org name/id/guid');
+const family = await sdk.org.family(account, "org name/id/guid");
 
 // rename an org
-await sdk.org.rename(account, 'org name/id/guid', 'new org name');
+await sdk.org.rename(account, "org name/id/guid", "new org name");
 
 // get org usage
-const usage = await sdk.org.usage(account, 'org name/id/guid', {
-	from: '2021-01-01',
-	to: '2021-01-31'
+const usage = await sdk.org.usage(account, "org name/id/guid", {
+  from: "2021-01-01",
+  to: "2021-01-31",
 });
 
 // list all members of an org
-const { users } = await sdk.org.member.list(account, 'org name/id/guid');
+const { users } = await sdk.org.member.list(account, "org name/id/guid");
 
 // get info for an org member
-const user = await sdk.org.member.find(account, 'org name/id/guid', 'user guid or email');
+const user = await sdk.org.member.find(account, "org name/id/guid", "user guid or email");
 
 // add a user to an org
 // see https://platform.axway.com/api-docs.html#operation/org_userCreate
-const roles = [ 'administrator' ]; // 'developer', 'read_only', etc...
-await sdk.org.member.add(account, 'org name/id/guid', 'user guid or email', roles);
+const roles = ["administrator"]; // 'developer', 'read_only', etc...
+await sdk.org.member.add(account, "org name/id/guid", "user guid or email", roles);
 
 // change a member's role in an org
-await sdk.org.member.update(account, 'org name/id/guid', 'user guid or email', roles);
+await sdk.org.member.update(account, "org name/id/guid", "user guid or email", roles);
 
 // remove a member from an org
-await sdk.org.member.remove(account, 'org name/id/guid', 'user guid or email');
+await sdk.org.member.remove(account, "org name/id/guid", "user guid or email");
 ```
 
 ### Roles
@@ -150,65 +150,65 @@ const teamRoles = await sdk.role.list(account, { team: true });
 
 ```js
 // get all teams for an org
-const { teams } = await sdk.team.list(account, 'org name/id/guid');
+const { teams } = await sdk.team.list(account, "org name/id/guid");
 
 // get team info
-const { team } = await sdk.team.find(account, 'org name/id/guid', 'team name or guid');
+const { team } = await sdk.team.find(account, "org name/id/guid", "team name or guid");
 
 // create a new team
-await sdk.team.create(account, 'org name/id/guid', 'team name', {
-	// optional
-	desc: 'Tiger team',
-	default: false,
-	tags: [ 'foo', 'bar' ]
+await sdk.team.create(account, "org name/id/guid", "team name", {
+  // optional
+  desc: "Tiger team",
+  default: false,
+  tags: ["foo", "bar"],
 });
 
 // update team info
-const { changes, team } = await sdk.team.update(account, 'org name/id/guid', 'team name or guid', {
-	// optional
-	desc: 'Tiger team',
-	default: false,
-	tags: [ 'foo', 'bar' ]
+const { changes, team } = await sdk.team.update(account, "org name/id/guid", "team name or guid", {
+  // optional
+  desc: "Tiger team",
+  default: false,
+  tags: ["foo", "bar"],
 });
 
 // remove a team
-await sdk.team.remove(account, 'org name/id/guid', 'team name or guid');
+await sdk.team.remove(account, "org name/id/guid", "team name or guid");
 
 // list all members of a team
-const { users } = await sdk.team.member.list(account, 'org name/id/guid', 'team name or guid');
+const { users } = await sdk.team.member.list(account, "org name/id/guid", "team name or guid");
 
 // get info for an org member
-const user = await sdk.team.member.find(account, 'org name/id/guid', 'team name or guid', 'user guid or email');
+const user = await sdk.team.member.find(account, "org name/id/guid", "team name or guid", "user guid or email");
 
 // add a user to an org
 // see https://platform.axway.com/api-docs.html#operation/team_userAdd
-const roles = [ 'administrator' ]; // 'developer', 'read_only', etc...
-await sdk.team.member.add(account, 'org name/id/guid', 'team name or guid', 'user guid or email', roles);
+const roles = ["administrator"]; // 'developer', 'read_only', etc...
+await sdk.team.member.add(account, "org name/id/guid", "team name or guid", "user guid or email", roles);
 
 // change a member's role in a team
-await sdk.team.member.update(account, 'org name/id/guid', 'team name or guid', 'user guid or email', roles);
+await sdk.team.member.update(account, "org name/id/guid", "team name or guid", "user guid or email", roles);
 
 // remove a member from an org
-await sdk.team.member.remove(account, 'org name/id/guid', 'team name or guid', 'user guid or email');
+await sdk.team.member.remove(account, "org name/id/guid", "team name or guid", "user guid or email");
 ```
 
 ### User
 
 ```js
 // find a user
-const user = await sdk.user.find(account, 'org name/id/guid', 'user guid or email');
+const user = await sdk.user.find(account, "org name/id/guid", "user guid or email");
 
 // get user activity
 const activity = await sdk.user.activity(account, {
-	from: '2021-01-01',
-	to: '2021-01-31'
+  from: "2021-01-01",
+  to: "2021-01-31",
 });
 
 // update user info
 const { changes, user } = await sdk.user.update(account, {
-	firstname: 'Elite',
-	lastname: 'Coder',
-	phone: '555-1212'
+  firstname: "Elite",
+  lastname: "Coder",
+  phone: "555-1212",
 });
 ```
 
