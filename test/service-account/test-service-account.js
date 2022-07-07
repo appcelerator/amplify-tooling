@@ -16,7 +16,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 tmp.setGracefulCleanup();
 
-describe('axway service-account', () => {
+describe.only('axway service-account', () => {
 	describe('help', () => {
 		it('should output the help screen with color', async () => {
 			const { status, stdout } = await runAxwaySync([ 'service-account' ]);

@@ -2217,10 +2217,10 @@ check-error@^1.0.2:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   integrity sha512-BrgHpW9NURQgzoNyjfq0Wu6VFO6D7IZEmJNdtgNqpzGG8RuNFHt2jQxWlAs4HMe119chBnv+34syEZtc6IhLtA==
 
-check-kit@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/check-kit/-/check-kit-3.0.0.tgz#6b582fc8a878b560eb16b884fcaf2acde629d096"
-  integrity sha512-FcC5OgpAfs/NakpXvsEfMJpDnqZMCRX+p87GzYPYxPaQdT685pPClGgNQdfK8wFoZmZk0EXEGqVwfBX/vF6AhA==
+check-kit@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/check-kit/-/check-kit-3.0.1.tgz#2bb60af0a92231f54c434c3e62449f1c058ffeb5"
+  integrity sha512-LblKGe+PRJv/RS9Ge2kdXRnsNMlTLIaQ+eZlacw8kwxLR/E9+hJyk460ArUtDU7wf3HdT0KQl6hy89y3tYNZ0Q==
   dependencies:
     "@axway/amplify-request" "^3.0.10"
     ci-info "^3.3.2"
