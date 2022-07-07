@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-pm",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "publishConfig": {
     "access": "public"
   },
@@ -25,7 +25,7 @@
     "test": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.10",
+    "@axway/amplify-cli-utils": "^5.0.11",
     "@axway/amplify-utils": "^1.0.9",
     "cli-kit": "^2.0.2",
     "cross-spawn": "^7.0.3",
