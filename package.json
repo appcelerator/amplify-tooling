@@ -60,7 +60,7 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "test": "node scripts/run-tests.js --all --coverage"
+    "test": "turbo run build && node scripts/run-tests.js --all --coverage"
   },
   "workspaces": {
     "packages": [
