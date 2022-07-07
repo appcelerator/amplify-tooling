@@ -72,7 +72,7 @@ try {
 		console.error(chalk.red('Unable to find ts-mocha!'));
 		process.exit(1);
 	}
-	args.push(path.join(tsmocha, 'bin', 'ts-mocha'));
+	args.push(path.join(tsmocha, 'bin', 'ts-mocha'), '-n', 'loader=ts-node/esm');
 
 	// add --inspect
 	if (process.argv.includes('--debug') || process.argv.includes('--inspect') || process.argv.includes('--inspect-brk')) {

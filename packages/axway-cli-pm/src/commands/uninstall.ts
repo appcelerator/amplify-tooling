@@ -34,7 +34,7 @@ export default {
 			find,
 			packagesDir,
 			uninstallPackage
-		}  = await import('../pm');
+		}  = await import('../pm.js');
 
 		const { highlight, note } = snooplogg.styles;
 		const { fetchSpec, name, type } = npa(argv.package as string) as any;

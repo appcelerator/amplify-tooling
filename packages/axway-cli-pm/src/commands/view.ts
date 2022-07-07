@@ -67,7 +67,7 @@ export default {
 			}
 
 			const { createTable } = await import('@axway/amplify-cli-utils');
-			const semver = await import('semver');
+			const { default: semver } = await import('semver');
 			const createVersionTable = (label: string, versions: string[]): string => {
 				const majors: { [type: string]: string[] } = {};
 
@@ -104,7 +104,7 @@ export default {
 				console.log(createVersionTable('Available versions:', info.versions));
 			}
 
-			if (info.installed) {
+			if (info.installed?.length) {
 				console.log(createVersionTable('Installed versions:', Object.keys(info.installed)));
 			} else {
 				console.log(`To install this package, run:\n\n  ${highlight(`axway pm install ${info.name}`)}`);

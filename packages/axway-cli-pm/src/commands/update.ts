@@ -76,15 +76,19 @@ export default {
 		// step 1: check for updates
 		const plimit = promiseLimit(10);
 		const spinner = ora({ stream: terminal.stderr }).start('Checking packages for updates');
-		const packages: ExtendedPackageData[] = await Promise.all<ExtendedPackageData>(packageDatas.map(async (pkg): Promise<ExtendedPackageData> => {
+		const packages: ExtendedPackageData[] = (await Promise.all<ExtendedPackageData>(packageDatas.map(async (pkg): Promise<ExtendedPackageData> => {
 			return await plimit(async () => {
+				let latest = null;
+				try {
+					latest = (await view(pkg.name)).version;
+				} catch (e) {}
 				return {
 					...pkg,
 					current: Object.keys(pkg.versions).sort(semver.rcompare)[0],
-					latest: (await view(pkg.name)).version
+					latest
 				};
 			}) as ExtendedPackageData;
-		}));
+		}))).filter(p => p.latest);
 		spinner.stop();
 
 		const updateTable = createTable();

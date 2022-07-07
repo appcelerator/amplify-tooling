@@ -118,7 +118,7 @@ export function install(pkgName: string): EventEmitter {
 			const args = [
 				'install',
 				'--production',
-				'--force', // needed for npm 7
+				// '--force', // needed for npm 7, but prints an error other npm versions
 				...(await createNPMRequestArgs())
 			];
 			const opts = {
@@ -153,8 +153,8 @@ export function install(pkgName: string): EventEmitter {
 
 			emitter.emit('register', info);
 			cfg = await loadConfig();
-			cfg.set(`extensions.${info.name}`, info.path);
-			cfg.save();
+			await cfg.set(`extensions.${info.name}`, info.path);
+			await cfg.save();
 
 			emitter.emit('end', info);
 		} catch (err: any) {
@@ -163,12 +163,12 @@ export function install(pkgName: string): EventEmitter {
 					// package was reinstalled, but failed and directory is in an unknown state
 					cfg = await loadConfig();
 					cfg.delete(`extensions.${info.name}`);
-					cfg.save();
+					await cfg.save();
 				} else if (previousActivePackage) {
 					// restore the previous value
 					cfg = await loadConfig();
-					cfg.set(`extensions.${info.name}`, previousActivePackage);
-					cfg.save();
+					await cfg.set(`extensions.${info.name}`, previousActivePackage);
+					await cfg.save();
 				}
 
 				if (info.path) {
@@ -193,7 +193,8 @@ export async function list(): Promise<PackageData[]> {
 		return [];
 	}
 
-	const extensions = (await loadConfig()).get('extensions', {});
+	const cfg = await loadConfig();
+	const extensions = cfg.get('extensions', {});
 	const packages: PackageData[] = [];
 
 	for (const name of fs.readdirSync(packagesDir)) {
