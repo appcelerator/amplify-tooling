@@ -32,7 +32,7 @@ export default {
 		const { default: npa }       = await import('npm-package-arg');
 		const { default: semver }    = await import('semver');
 		const { default: snooplogg } = await import('snooplogg');
-		const { find }               = await import('../pm');
+		const { find }               = await import('../pm.js');
 		const { loadConfig }         = await import('@axway/amplify-cli-utils');
 
 		const { highlight } = snooplogg.styles;

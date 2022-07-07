@@ -3,7 +3,8 @@ import {
 	Listr,
 	ListrEvent,
 	ListrOptions,
-	ListrRenderer
+	ListrRenderer,
+	ListrTaskObject
 } from 'listr2';
 
 export interface AxwayRunListrOptions {
@@ -19,20 +20,19 @@ export interface AxwayListrOptions extends ListrOptions {
 /**
  * Custom Listr renderer for non-TTY environments.
  */
-export class ListrTextRenderer extends ListrRenderer {
+export class ListrTextRenderer implements ListrRenderer {
 	_console: Console;
 	_tasks: any;
+	static nonTTY = true;
+	static rendererOptions: never;
+	static rendererTaskOptions: never;
 
-	constructor(tasks: any, options: AxwayListrOptions) {
-		super(tasks, options);
+	constructor(tasks: ListrTaskObject<any, typeof ListrTextRenderer>[], options: AxwayListrOptions) {
 		this._console = options?.console || console;
+		this._tasks = tasks;
 	}
 
-	static get nonTTY() {
-		return true;
-	}
-
-	render = () => {
+	render() {
 		this._console.error(ansi.cursor.hide);
 
 		for (const task of this._tasks) {
@@ -50,7 +50,7 @@ export class ListrTextRenderer extends ListrRenderer {
 		}
 	}
 
-	end = () => {
+	end() {
 		this._console.error(ansi.cursor.show);
 	}
 }

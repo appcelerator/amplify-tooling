@@ -28,7 +28,7 @@ export default {
 		const { default: semver }    = await import('semver');
 		const { default: snooplogg } = await import('snooplogg');
 		const { dirname }            = await import('path');
-		const { runListr }           = await import('../utils');
+		const { runListr }           = await import('../utils.js');
 		const { loadConfig }         = await import('@axway/amplify-cli-utils');
 		const {
 			find,

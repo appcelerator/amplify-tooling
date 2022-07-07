@@ -5,7 +5,7 @@ import {
 	runAxwaySync
 } from '../helpers/index.js';
 
-describe('axway pm', () => {
+describe.only('axway pm', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
@@ -100,8 +100,8 @@ describe('axway pm', () => {
 			this.slow(60000);
 
 			let { status, stdout, stderr } = await runAxwaySync([ 'pm', 'install', 'acs' ]);
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('install/acs-installed'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
 			expect(status).to.equal(0);
@@ -109,7 +109,7 @@ describe('axway pm', () => {
 			expect(results).to.have.lengthOf(1);
 			expect(results[0].name).to.equal('acs');
 
-			({ status, stdout, stderr } = await runAxwaySync([ 'pm', 'view', 'acs' ]));
+			({ status, stdout } = await runAxwaySync([ 'pm', 'view', 'acs' ]));
 			expect(stdout).to.match(renderRegexFromFile('view/acs-installed'));
 			expect(status).to.equal(0);
 		});
@@ -292,8 +292,8 @@ describe('axway pm', () => {
 			this.slow(60000);
 
 			const { status, stderr } = await runAxwaySync([ 'pm', 'update', 'acs' ]);
-			expect(status).to.equal(1);
 			expect(stderr).to.match(renderRegexFromFile('update/not-installed'));
+			expect(status).to.equal(1);
 		});
 
 		it('should output update help', async () => {

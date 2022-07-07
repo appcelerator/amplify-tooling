@@ -32,9 +32,9 @@ export default {
 	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console, exitCode, terminal }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg }                      = await import('snooplogg');
-		const { runListr }                                = await import('../utils');
+		const { runListr }                                = await import('../utils.js');
 		const { createTable, hlVer, loadConfig }          = await import('@axway/amplify-cli-utils');
-		const { find, install, list, listPurgable, view } = await import('../pm');
+		const { find, install, list, listPurgable, view } = await import('../pm.js');
 		const { default: ora }                            = await import('ora');
 		const { default: promiseLimit }                   = await import('promise-limit');
 		const { default: semver }                         = await import('semver');

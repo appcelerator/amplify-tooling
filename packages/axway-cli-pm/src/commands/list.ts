@@ -16,7 +16,7 @@ export default {
 		const { default: semver }    = await import('semver');
 		const { default: snooplogg } = await import('snooplogg');
 		const { createTable }        = await import('@axway/amplify-cli-utils');
-		const { list, packagesDir }  = await import('../pm');
+		const { list, packagesDir }  = await import('../pm.js');
 
 		const installed = await list();
 

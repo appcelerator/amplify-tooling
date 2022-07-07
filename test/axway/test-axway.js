@@ -5,7 +5,7 @@ import {
 	runAxwaySync
 } from '../helpers/index.js';
 
-describe.only('axway', () => {
+describe('axway', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
@@ -15,7 +15,7 @@ describe.only('axway', () => {
 			expect(status).to.equal(2);
 		});
 
-		it.only('should output the help screen without color', async () => {
+		it.skip('should output the help screen without color', async () => {
 			const { status, stdout } = await runAxwaySync([ '--no-color' ]);
 			console.log('-'.repeat(100));
 			console.log(stdout);

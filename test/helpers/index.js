@@ -43,7 +43,7 @@ const defaultVars = {
 	nodeExperimentalWarning: '(?:\\(node:.+\\) ExperimentalWarning:.+\n\\(Use .+\\)\n)?',
 	startRed: '(?:\u001b\\[31m)?',
 	string: '[^\\s]+',
-	url: 'http[^\\s]+',
+	url: '(?:http[^\\s]+)',
 	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
 	versionList: '(?:\u001b\\[36m(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)*\\s*\u001b\\[39m\n+)+',
 	versionWithColor: '(?:(?:\u001b\\[\\d\\dm)?\\d+(?:\\.(?:\u001b\\[\\d\\dm)?\\d+){2}(?:-[^\\s]*)?(?:\u001b\\[39m)?\\s*)',

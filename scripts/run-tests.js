@@ -4,6 +4,7 @@ import path from 'path';
 import tmp from 'tmp';
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
+import { findUpSync } from 'find-up';
 import { spawnSync } from 'child_process';
 
 const { cyan } = chalk;
@@ -65,13 +66,13 @@ try {
 		process.env.AXWAY_COVERAGE = root;
 	}
 
-	// add mocha
-	const mocha = resolveModule(root, 'mocha');
-	if (!mocha) {
-		console.error(chalk.red('Unable to find mocha!'));
+	// add ts-mocha
+	const tsmocha = resolveModule(root, 'ts-mocha');
+	if (!tsmocha) {
+		console.error(chalk.red('Unable to find ts-mocha!'));
 		process.exit(1);
 	}
-	args.push(path.join(mocha, 'bin', 'mocha.js'));
+	args.push(path.join(tsmocha, 'bin', 'ts-mocha'));
 
 	// add --inspect
 	if (process.argv.includes('--debug') || process.argv.includes('--inspect') || process.argv.includes('--inspect-brk')) {
@@ -91,14 +92,14 @@ try {
 	p = process.argv.indexOf('--suite');
 	if (p !== -1 && p + 1 < process.argv.length) {
 		const suites = process.argv[p + 1].split(',');
-		args.push.apply(args, suites.map(s => `test/**/test-${s}.js`));
+		args.push.apply(args, suites.map(s => `test/**/test-${s}.{js,ts}`));
 		if (all) {
-			args.push.apply(args, suites.map(s => `packages/*/test/**/test-${s}.js`));
+			args.push.apply(args, suites.map(s => `packages/*/test/**/test-${s}.{js,ts}`));
 		}
 	} else {
-		args.push('test/**/test-*.js');
+		args.push('test/**/test-*.{js,ts}');
 		if (all) {
-			args.push('packages/*/test/**/test-*.js');
+			args.push('packages/*/test/**/test-*.{js,ts}');
 		}
 	}
 
@@ -135,7 +136,9 @@ function resolveModule(root, name) {
 
 	try {
 		const require = createRequire(import.meta.url);
-		return path.dirname(require.resolve(name));
+		const s = path.dirname(require.resolve(name));
+		const t = path.dirname(findUpSync('package.json', { cwd: s }));
+		return t;
 	} catch (e) {
 		return null;
 	}

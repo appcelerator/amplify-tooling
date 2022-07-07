@@ -26,9 +26,9 @@ export default {
 	async action({ argv, cli, console, exitCode }: AxwayCLIState): Promise<void> {
 		const { default: snooplogg } = await import('snooplogg');
 		const { Extension }          = await import('cli-kit');
-		const { install }            = await import('../pm');
+		const { install }            = await import('../pm.js');
 		const { loadConfig }         = await import('@axway/amplify-cli-utils');
-		const { runListr }           = await import('../utils');
+		const { runListr }           = await import('../utils.js');
 
 		const { alert, highlight } = snooplogg.styles;
 		const tasks = [];

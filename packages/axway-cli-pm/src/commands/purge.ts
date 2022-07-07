@@ -27,8 +27,8 @@ export default {
 	async action({ argv, cli, console, terminal }: AxwayCLIState): Promise<void> {
 		const { createTable, loadConfig }        = await import('@axway/amplify-cli-utils');
 		const { default: snooplogg }             = await import('snooplogg');
-		const { listPurgable, uninstallPackage } = await import('../pm');
-		const { runListr }                       = await import('../utils');
+		const { listPurgable, uninstallPackage } = await import('../pm.js');
+		const { runListr }                       = await import('../utils.js');
 
 		const { bold, highlight } = snooplogg.styles;
 		const purgeTable = createTable();

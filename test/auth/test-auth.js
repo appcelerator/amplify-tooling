@@ -287,7 +287,7 @@ describe('axway auth', () => {
 		afterEach(stopServers);
 		afterEach(resetHomeDir);
 
-		itSkipHeadless('should logout of platform account', async function () {
+		it('should logout of platform account', async function () {
 			initHomeDir('home-local');
 			this.servers = await startServers();
 
@@ -302,8 +302,8 @@ describe('axway auth', () => {
 			expect(accounts[0].name).to.equal('test_client:foo@bar.com');
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'logout' ]));
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('logout/success'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'auth', 'list', '--json' ]));
 			accounts = JSON.parse(stdout);

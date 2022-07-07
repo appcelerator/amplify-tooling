@@ -23,7 +23,7 @@ export default {
 	},
 	async action({ argv, console }: AxwayCLIState): Promise<void> {
 		const { createTable } = await import('@axway/amplify-cli-utils');
-		const { search }      = await import('../pm');
+		const { search }      = await import('../pm.js');
 
 		const results = await search(argv);
 

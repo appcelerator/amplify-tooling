@@ -30,7 +30,7 @@ import { serializeError } from 'serialize-error';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const { bold, cyan, gray, red, yellow } = snooplogg.styles;
+const { bold, cyan, gray, red, yellow } = snooplogg.chalk;
 const { log, warn } = snooplogg('axway');
 
 type ConfigExtension = [ string, string ];
