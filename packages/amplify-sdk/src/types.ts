@@ -7,7 +7,7 @@ import {
 	PlatformRole
 } from './sdk/platform-types.js';
 import { Endpoints } from './endpoints.js';
-import { Got } from 'got/dist/source/types.js';
+import { Got } from 'got';
 import TokenStore from './stores/token-store.js';
 import * as request from '@axway/amplify-request';
 
@@ -52,9 +52,9 @@ export interface AccountAuthInfo {
 	username?: string
 }
 
-export interface ActivityChange extends PlatformActivityChange {}
+export type ActivityChange = PlatformActivityChange;
 
-export interface ActivityEvent extends PlatformActivityEvent {}
+export type ActivityEvent = PlatformActivityEvent;
 
 export interface ActivityParams {
 	from?: string,
@@ -148,9 +148,9 @@ export interface DefaultTeams {
 	[hash: string]: string
 }
 
-export interface Entitlement extends PlatformEntitlement {}
+export type Entitlement = PlatformEntitlement;
 
-export interface Entitlements extends PlatformEntitlements {}
+export type Entitlements = PlatformEntitlements;
 
 export interface Environment {
 	guid?: string,
@@ -206,7 +206,7 @@ export interface OrgUser {
 	roles: string[]
 }
 
-export interface Role extends PlatformRole {}
+export type Role = PlatformRole;
 
 export interface Subscription {
 	category: string,
@@ -303,7 +303,6 @@ export interface UsageParamsMonth {
 }
 
 export type UsageProductMetric = PlatformOrgUsageMetric;
-
 
 // note: this interface is identical to PlatformOrgUsage except `from` and `to`
 // are Date objects instead of ISO strings

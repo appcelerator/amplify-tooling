@@ -17,7 +17,7 @@ import * as environments from './environments.js';
 import * as request from '@axway/amplify-request';
 import { Account, AmplifySDKOptions } from './types.js';
 import { fileURLToPath } from 'url';
-import { Got, HTTPAlias, OptionsOfJSONResponseBody } from 'got/dist/source/types.js';
+import { Got, HTTPAlias, OptionsOfJSONResponseBody } from 'got';
 import { redact } from '@axway/amplify-utils';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -131,7 +131,8 @@ export default class AmplifySDK {
 		method?: string,
 		resultKey?: string
 	} = {}) {
-		let { errorMsg, isToolingAuth, json, method, resultKey = 'result' } = opts;
+		const { errorMsg, isToolingAuth, json, resultKey = 'result' } = opts;
+		let { method } = opts;
 		try {
 			if (!account || typeof account !== 'object') {
 				throw new TypeError('Account required');

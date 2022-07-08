@@ -3,11 +3,10 @@ import E from './errors.js';
 import ejs from 'ejs';
 import fs from 'fs-extra';
 import getPort from 'get-port';
-import http from 'http';
+import http, { OutgoingHttpHeaders } from 'http';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import { fileURLToPath } from 'url';
-import { OutgoingHttpHeaders } from 'http';
 import { Socket } from 'net';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -51,7 +50,7 @@ export default class Server {
 	port: number | null;
 	server: CallbackServer | null;
 	serverURL: string | null;
-	timeout: number
+	timeout: number;
 
 	/**
 	 * Initializes the server.
@@ -143,7 +142,7 @@ export default class Server {
 				log(`Incoming request: ${highlight(url.pathname)}`);
 
 				const m = url.pathname.match(callbackRegExp);
-				let id: string | null = m && m[1];
+				const id: string | null = m && m[1];
 
 				try {
 					if (!id) {

@@ -17,7 +17,7 @@ import snooplogg from 'snooplogg';
 import * as environments from './environments.js';
 import * as request from '@axway/amplify-request';
 import { Account, AccountAuthInfo, AuthenticatorOptions } from './types.js';
-import { Got } from 'got/dist/source/types.js';
+import { Got } from 'got';
 
 const { log, warn } = snooplogg('amplify-sdk:auth');
 const { alert, highlight, magenta, note } = snooplogg.styles;
@@ -76,7 +76,7 @@ export interface LogoutOptions {
 }
 
 export interface ServerInfo {
-
+	[key: string]: string
 }
 
 export interface ServerInfoOptions {
@@ -120,7 +120,7 @@ export default class Auth {
 	 * @type {Number}
 	 * @access private
 	 */
-	tokenRefreshThreshold: number = 0;
+	tokenRefreshThreshold = 0;
 
 	/**
 	 * The store to persist the token.
@@ -407,8 +407,8 @@ export default class Auth {
 
 		// copy over the correct auth params
 		for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env', 'clientSecret', 'username', 'password', 'secret' ]) {
-			if (account.auth[prop as keyof AccountAuthInfo] &&
-				opts[prop as keyof DefaultOptions] !== account.auth[prop as keyof AccountAuthInfo]) {
+			if (account.auth[prop as keyof AccountAuthInfo]
+				&& opts[prop as keyof DefaultOptions] !== account.auth[prop as keyof AccountAuthInfo]) {
 
 				log(`Overriding "${prop}" auth param with account's: ${opts[prop as keyof DefaultOptions]} -> ${account.auth[prop as keyof AccountAuthInfo]}`);
 				opts[prop as keyof DefaultOptions] = account.auth[prop as keyof AccountAuthInfo] as any;
@@ -532,7 +532,7 @@ export default class Auth {
 		let accounts: string[] = [];
 
 		if (!all) {
-			if (!opts.accounts){ 
+			if (!opts.accounts) {
 				throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
 			}
 			if (typeof opts.accounts === 'string') {

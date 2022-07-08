@@ -1,2 +1,3 @@
 *.js text eol=lf
+*.md text eol=lf
 *.mustache text eol=lf

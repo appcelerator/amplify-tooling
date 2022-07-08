@@ -243,7 +243,7 @@ export default class Telemetry {
 					}
 
 					const filename = path.basename(m[1]);
-					let pkgDir = findDir(m[1], 'package.json');
+					const pkgDir = findDir(m[1], 'package.json');
 
 					if (!pkgDir) {
 						// no package.json
@@ -338,7 +338,7 @@ export default class Telemetry {
 			return;
 		}
 
-		const script = __filename.replace('/src/telemetry.ts', '/dist/telemetry.js');
+		const script = path.join(path.dirname(path.dirname(__filename)), 'dist', 'telemetry.js');
 		log(`Spawning: ${highlight(`${process.execPath} ${script}`)}`);
 		const child = spawn(process.execPath, [ script ], {
 			stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ],

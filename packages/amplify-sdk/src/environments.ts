@@ -27,17 +27,17 @@ export const environments: { [key: string]: EnvironmentProps } = {
 };
 
 const mapping: { [key: string]: string } = {
-	'dev':            'staging',
-	'development':    'staging',
-	'preprod':        'staging',
-	'preproduction':  'staging',
+	dev:              'staging',
+	development:      'staging',
+	preprod:          'staging',
+	preproduction:    'staging',
 	'pre-production': 'staging',
-	'production':     'prod',
-	'test':           'staging'
+	production:       'prod',
+	test:             'staging'
 };
 
 export function resolve(env?: string): EnvironmentInfo {
-	let environment: string = 'prod';
+	let environment = 'prod';
 	if (env) {
 		if (typeof env !== 'string') {
 			throw new TypeError('Expected environment to be a string');

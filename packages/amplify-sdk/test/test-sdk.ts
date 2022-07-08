@@ -270,7 +270,7 @@ describe('amplify-sdk', () => {
 			});
 
 			(isCI ? it.skip : it)('should fail to switch org if access token is bad', async function () {
-				this.timeout(10000);
+				this.timeout(20000);
 				this.server = await createServer();
 
 				const { account, tokenStore } = this.server.createTokenStore({
