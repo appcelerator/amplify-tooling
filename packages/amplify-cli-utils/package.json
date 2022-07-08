@@ -5,6 +5,9 @@
     "access": "public"
   },
   "description": "Common utils for Axway CLI packages",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Ewan Harris <eharris@axway.com>",
@@ -15,34 +18,29 @@
     "axway",
     "amplify"
   ],
-  "main": "./dist/index",
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "build": "tsc",
+    "coverage": "c8 npm run test",
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:test npm:lint:tsc",
+    "lint:src": "eslint src/**/*.ts",
+    "lint:test": "eslint --parser-options=project:'test/tsconfig.json' test/**/*.ts",
+    "lint:tsc": "tsc -p tsconfig.json",
+    "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
+    "test": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --require ../../test/setup.js --reporter spec"
   },
   "dependencies": {
     "@axway/amplify-config": "^4.0.9",
     "@axway/amplify-request": "^3.0.10",
-    "@axway/amplify-sdk": "^3.2.7",
-    "boxen": "^5.1.2",
-    "check-kit": "^1.2.1",
-    "cli-kit": "^1.16.0",
+    "@axway/amplify-sdk": "^3.2.6",
+    "cli-kit": "^2.0.2",
     "cli-table3": "^0.6.2",
     "fs-extra": "^10.1.0",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21"
-  },
-  "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "snooplogg": "^5.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-utils",
   "engines": {
-    "node": ">=12.13.0"
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+    "node": ">=14.15.0"
+  }
 }

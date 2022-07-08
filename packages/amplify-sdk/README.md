@@ -1,4 +1,4 @@
-# Amplify SDK.
+# Amplify SDK
 
 The Amplify SDK for Node.js is a set of APIs for authenticating, switching selected organization,
 creating MBS apps and users, and Titanium SDK support.
@@ -107,9 +107,12 @@ const { from, to, events } = await sdk.org.activity(account, "org name/id/guid",
 // as 'production' and 'development'
 const envs = await sdk.org.getEnvironments(account);
 
+<<<<<<< HEAD
+=======
 // get org family including child orgs
 const family = await sdk.org.family(account, "org name/id/guid");
 
+>>>>>>> master
 // rename an org
 await sdk.org.rename(account, "org name/id/guid", "new org name");
 
@@ -206,9 +209,14 @@ const activity = await sdk.user.activity(account, {
 
 // update user info
 const { changes, user } = await sdk.user.update(account, {
+<<<<<<< HEAD
+	firstname: 'Elite',
+	lastname: 'Coder'
+=======
   firstname: "Elite",
   lastname: "Coder",
   phone: "555-1212",
+>>>>>>> master
 });
 ```
 
@@ -245,7 +253,7 @@ account: {
 	name: 'amplify-cli:user@domain.com',
 	org: {
 		guid: '<GUID>',
-		id: 12345,
+		org_id: 12345,
 		name: 'Example Org'
 	},
 	orgs: [
@@ -253,13 +261,11 @@ account: {
 		{ /* org */ }
 	],
 	user: {
-		axwayId:      '<SNIP>',
 		email:        '',
-		firstName:    '',
+		firstname:    '',
 		guid:         '',
-		lastName:     '',
-		organization: '',
-		is2FAEnabled: true
+		lastname:     '',
+		organization: ''
 	},
 	sid: '<SNIP>'
 }

@@ -1,0 +1,22 @@
+{
+    "extends": [
+        "axway/env-node",
+        "axway/+mocha",
+        "axway/+chai",
+        "axway/+typescript"
+    ],
+    "rules": {
+        "no-confusing-arrow": "off",
+        "no-ex-assign": "off",
+        "node/no-unsupported-features/es-syntax": "off",
+        "node/no-unsupported-features/node-builtins": [
+            "warn",
+            {
+                "version": ">=14.15.0"
+            }
+        ],
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/no-empty-function": "off"
+    }
+}

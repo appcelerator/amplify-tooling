@@ -5,6 +5,7 @@
     "access": "public"
   },
   "description": "Axway Amplify platform organization and user management CLI",
+  "type": "module",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"
@@ -15,27 +16,25 @@
     "amplify"
   ],
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "build": "tsc",
+    "coverage": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1",
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:tsc",
+    "lint:src": "eslint src/**/*.ts",
+    "lint:tsc": "tsc -p tsconfig.json",
+    "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
+    "test": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.11",
-    "cli-kit": "^1.16.0",
+    "@axway/amplify-cli-utils": "^5.0.10",
+    "cli-kit": "^2.0.2",
     "open": "^8.4.0",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21"
-  },
-  "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "snooplogg": "^5.0.0"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-oum",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=14.15.0"
   },
   "cli-kit": {
     "exports": {
@@ -52,6 +51,5 @@
         "main": "./dist/user/index.js"
       }
     }
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+  }
 }

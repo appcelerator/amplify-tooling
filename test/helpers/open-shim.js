@@ -4,27 +4,32 @@
  * fake the browser interaction.
  */
 
-const got = require('got');
-const Module = require('module');
+import got from 'got';
+import './arch-shim.js';
 
-const origResolveFilename = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, isMain, options) {
-	return request === 'open' ? __filename : origResolveFilename(request, parent, isMain, options);
-};
-
-module.exports = async (url, opts) => {
-	const response = await got(url);
-	const parsedUrl = new URL(response.url);
-	let { hash, origin } = parsedUrl;
-	if (hash) {
-		hash = hash.replace(/^#/, '');
-		if (!hash.startsWith('http')) {
-			hash = origin + hash;
-		}
-		const parsedHash = new URL(hash);
-		const redirect = parsedHash.searchParams.get('redirect');
-		if (redirect) {
-			await got(redirect);
-		}
+export function resolve(specifier, context, defaultResolve) {
+	if (specifier === 'open') {
+		return {
+			url: import.meta.url
+		};
 	}
-};
+	return defaultResolve(specifier, context, defaultResolve);
+}
+
+export default async function shimmedOpen(url, opts) {
+     const response = await got(url);
+     const parsedUrl = new URL(response.url);
+     let { hash, origin } = parsedUrl;
+     if (hash) {
+         hash = hash.replace(/^#/, '');
+         if (!hash.startsWith('http')) {
+             hash = origin + hash;
+         }
+         const parsedHash = new URL(hash);
+         const redirect = parsedHash.searchParams.get('redirect');
+         if (redirect) {
+             await got(redirect);
+         }
+     }
+ }
+ 

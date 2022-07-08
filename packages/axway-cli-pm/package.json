@@ -5,6 +5,7 @@
     "access": "public"
   },
   "description": "Package manager for Axway products",
+  "type": "module",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"
@@ -15,41 +16,38 @@
     "amplify"
   ],
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "build": "tsc",
+    "coverage": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1",
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:tsc",
+    "lint:src": "eslint src/**/*.ts",
+    "lint:tsc": "tsc -p tsconfig.json",
+    "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
+    "test": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1"
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^5.0.11",
     "@axway/amplify-utils": "^1.0.9",
-    "cli-kit": "^1.16.0",
+    "cli-kit": "^2.0.2",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
-    "libnpmsearch": "^4.0.1",
+    "libnpmsearch": "^5.0.3",
     "listr2": "^4.0.5",
-    "npm-package-arg": "^9.0.2",
-    "ora": "^5.4.1",
-    "pacote": "^12.0.3",
+    "npm-package-arg": "^9.1.0",
+    "ora": "^6.1.2",
+    "pacote": "^13.6.1",
     "promise-limit": "^2.7.0",
     "semver": "^7.3.7",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21",
+    "snooplogg": "^5.0.0",
     "which": "^2.0.2"
-  },
-  "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-pm",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=14.15.0"
   },
   "cli-kit": {
     "main": "./dist/index.js",
     "name": "pm"
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+  }
 }

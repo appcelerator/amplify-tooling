@@ -9,8 +9,9 @@ import path from 'path';
 import Router from '@koa/router';
 import session from 'koa-session';
 import snooplogg from 'snooplogg';
-import { createAuthRoutes } from './auth-routes';
-import { createPlatformRoutes } from './platform-routes';
+import { createAuthRoutes } from './auth-routes.js';
+import { createPlatformRoutes } from './platform-routes.js';
+import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
 
 const logger = snooplogg.config({
@@ -21,7 +22,8 @@ const logger = snooplogg.config({
 const { log } = logger;
 const { highlight } = snooplogg.styles;
 
-const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/dist/main.js`);
 
 export function initHomeDir(templateDir) {
 	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
@@ -38,9 +40,10 @@ const defaultVars = {
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
 	nodeDeprecationWarning: '(?:\n*\u001b\\[33m ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\u001b\\[39m\n\u001b\\[33m ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\u001b\\[39m\n\u001b\\[33m ┃ Node\\.js to the latest LTS release: https://nodejs\\.org/\u001b\\[39m)?',
 	nodeDeprecationWarningNoColor: '(?:\n* ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\n ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\n ┃ Node\\.js to the latest LTS release: https://nodejs\\.org/)?',
+	nodeExperimentalWarning: '(?:\\(node:.+\\) ExperimentalWarning:.+\n\\(Use .+\\)\n)?',
 	startRed: '(?:\u001b\\[31m)?',
 	string: '[^\\s]+',
-	url: 'http[^\\s]+',
+	url: '(?:http[^\\s]+)',
 	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
 	versionList: '(?:\u001b\\[36m(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)*\\s*\u001b\\[39m\n+)+',
 	versionWithColor: '(?:(?:\u001b\\[\\d\\dm)?\\d+(?:\\.(?:\u001b\\[\\d\\dm)?\\d+){2}(?:-[^\\s]*)?(?:\u001b\\[39m)?\\s*)',
@@ -72,7 +75,7 @@ export function renderRegexFromFile(file, vars) {
 		file += '.mustache';
 	}
 	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
-		file = path.resolve(path.dirname(callerPath()), file);
+		file = path.resolve(path.dirname(fileURLToPath(callerPath())), file);
 	}
 	return renderRegex(fs.readFileSync(file, 'utf8').trim(), vars);
 }
@@ -98,7 +101,7 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 		if (args.includes('--no-color') || args.includes('--no-colors')) {
 			delete env.FORCE_COLOR;
 		}
-		// delete env.SNOOPLOGG;
+		delete env.SNOOPLOGG;
 	}
 
 	if (cfg) {
@@ -108,13 +111,13 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 	args.unshift(axwayBin);
 
 	if (opts.passiveOpen) {
-		args.unshift('--require', path.join(__dirname, 'open-shim-passive.js'));
+		args.unshift('--loader', path.join(__dirname, 'open-shim-passive.js'));
 	} else {
-		args.unshift('--require', path.join(__dirname, 'open-shim.js'));
+		args.unshift('--loader', path.join(__dirname, 'open-shim.js'));
 	}
 
-	if (opts.shim) {
-		args.unshift('--require', path.join(__dirname, `${opts.shim}.js`));
+	if (opts.arch) {
+		env.TEST_ARCH = opts.arch;
 	}
 
 	log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);

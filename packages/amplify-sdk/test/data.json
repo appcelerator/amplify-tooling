@@ -64,6 +64,10 @@
 					"guid": "50001",
 					"roles": [ "developer" ],
 					"primary": true
+				},
+				{
+					"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad",
+					"roles": [ "developer" ]
 				}
 			],
 			"entitlements": {
@@ -137,12 +141,13 @@
 			"users": [
 				{
 					"guid": "50000",
-					"roles": [ "administrator" ]
+					"roles": [ "administrator" ],
+					"type": "user"
 				},
 				{
 					"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad",
-					"type": "client",
-					"roles": [ "developer" ]
+					"roles": [ "developer" ],
+					"type": "client"
 				}
 			]
 		},
@@ -155,7 +160,8 @@
 			"users": [
 				{
 					"guid": "50000",
-					"roles": [ "administrator" ]
+					"roles": [ "administrator" ],
+					"type": "user"
 				}
 			]
 		},
@@ -168,7 +174,8 @@
 			"users": [
 				{
 					"guid": "50000",
-					"roles": [ "administrator" ]
+					"roles": [ "administrator" ],
+					"type": "user"
 				}
 			]
 		}
@@ -218,24 +225,21 @@
 			"email": "test1@domain.com",
 			"firstname": "Test1",
 			"lastname": "Tester1",
-			"phone": "555-5001"
+			"name": "Test1 Tester1"
 		},
 		{
 			"guid": "50001",
 			"email": "test2@domain.com",
 			"firstname": "Test2",
 			"lastname": "Tester2",
-			"phone": "555-5002"
+			"name": "Test2 Tester2"
 		},
 		{
 			"guid": "50002",
 			"email": "test3@domain.com",
 			"firstname": "Test3",
 			"lastname": "Tester3",
-			"phone": "555-5003"
-		},
-		{
-			"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad"
+			"name": "Test3 Tester3"
 		}
 	]
 }

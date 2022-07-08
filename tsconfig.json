@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
+		"declaration": true,
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"lib": [
+			"ES2019"
+		],
+		"module": "esnext",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"strict": true,
+		"target": "ES2019",
+		"typeRoots": [
+			"./node_modules/@types",
+			"./node_modules/http-proxy-agent/dist",
+			"./node_modules/https-proxy-agent/dist",
+			"./types"
+		]
+	},
+	"exclude": [ "node_modules" ]
+}

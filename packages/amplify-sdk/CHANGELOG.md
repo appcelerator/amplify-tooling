@@ -1,3 +1,13 @@
+# v4.0.0
+
+- BREAKING CHANGE: Dropped support for Node.js 12 and older.
+- BREAKING CHANGE: Removed `sdk.org.family()` from AmplifySDK.
+- BREAKING CHANGE: Removed deprecated `childOrgs` and `parentOrg` properties from the organization
+  object.
+- BREAKING CHANGE: All `sdk.*.user.<action>()` functions have been renamed to
+  `sdk.*.user<Action>()`.
+- chore: Updated dependencies.
+
 # v3.2.7 (Jul 7, 2022)
 
 - chore: Updated readme.

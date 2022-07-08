@@ -1,0 +1,41 @@
+import E from './errors.js';
+
+export interface Endpoints {
+	auth:      string;
+	certs:     string;
+	logout:    string;
+	token:     string;
+	userinfo:  string;
+	wellKnown: string;
+}
+
+/**
+ * Constructs all endpoints.
+ *
+ * @param {Object} params - Required parameters.
+ * @param {String} params.baseUrl - The base URL.
+ * @param {String} [params.platformUrl] - The platform URL.
+ * @param {String} params.realm - The authentication realm.
+ * @returns {Object}
+ */
+export default function getEndpoints({ baseUrl, realm }: { baseUrl?: string, realm?: string } = {}): Endpoints {
+	if (!baseUrl || typeof baseUrl !== 'string') {
+		throw E.INVALID_ARGUMENT('Expected baseUrl to be a non-empty string');
+	}
+
+	if (!realm || typeof realm !== 'string') {
+		throw E.INVALID_ARGUMENT('Expected realm to be a non-empty string');
+	}
+
+	// strip the trailing slashes
+	baseUrl = baseUrl.replace(/\/$/, '');
+
+	return {
+		auth:      `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/auth`,
+		certs:     `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/certs`,
+		logout:    `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/logout`,
+		token:     `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`,
+		userinfo:  `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/userinfo`,
+		wellKnown: `${baseUrl}/auth/realms/${realm}/.well-known/openid-configuration`
+	};
+}

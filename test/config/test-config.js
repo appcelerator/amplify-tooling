@@ -1,9 +1,10 @@
+import { expect } from 'chai';
 import {
 	initHomeDir,
 	renderRegexFromFile,
 	resetHomeDir,
 	runAxwaySync
-} from '../helpers';
+} from '../helpers/index.js';
 
 describe('axway config', () => {
 	describe('help', () => {

@@ -1,8 +1,9 @@
+import { expect } from 'chai';
 import {
 	renderRegexFromFile,
 	resetHomeDir,
 	runAxwaySync
-} from '../helpers';
+} from '../helpers/index.js';
 
 describe('axway pm', () => {
 	describe('help', () => {
@@ -99,8 +100,8 @@ describe('axway pm', () => {
 			this.slow(60000);
 
 			let { status, stdout, stderr } = await runAxwaySync([ 'pm', 'install', 'acs' ]);
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('install/acs-installed'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
 			expect(status).to.equal(0);
@@ -164,8 +165,8 @@ describe('axway pm', () => {
 			this.slow(60000);
 
 			let { status, stdout } = await runAxwaySync([ 'pm', 'install', 'acs' ]);
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('install/acs-installed'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
 			expect(status).to.equal(0);
@@ -174,10 +175,10 @@ describe('axway pm', () => {
 			expect(results[0].name).to.equal('acs');
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'uninstall', 'acs' ]));
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('uninstall/acs-uninstalled', {
 				packagePath: results[0].versions[results[0].version].path.replace(/\\/g, '\\\\')
 			}));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
 			expect(status).to.equal(0);
@@ -186,9 +187,9 @@ describe('axway pm', () => {
 		});
 
 		it('should error uninstalling a package that is not installed', async () => {
-			let { status, stderr } = await runAxwaySync([ 'pm', 'uninstall', 'acs' ]);
-			expect(status).to.equal(1);
+			const { status, stderr } = await runAxwaySync([ 'pm', 'uninstall', 'acs' ]);
 			expect(stderr).to.match(renderRegexFromFile('uninstall/not-installed'));
+			expect(status).to.equal(1);
 		});
 
 		it('should output uninstall help', async () => {
@@ -252,14 +253,14 @@ describe('axway pm', () => {
 		afterEach(resetHomeDir);
 
 		it('should handle update a package', async function () {
-			this.timeout(120000);
+			this.timeout(180000);
 			this.slow(60000);
 
 			await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
 
 			let { status, stdout } = await runAxwaySync([ 'pm', 'update' ]);
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('update/updated-acs'));
+			expect(status).to.equal(0);
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
 			expect(status).to.equal(0);
@@ -291,8 +292,8 @@ describe('axway pm', () => {
 			this.slow(60000);
 
 			const { status, stderr } = await runAxwaySync([ 'pm', 'update', 'acs' ]);
-			expect(status).to.equal(1);
 			expect(stderr).to.match(renderRegexFromFile('update/not-installed'));
+			expect(status).to.equal(1);
 		});
 
 		it('should output update help', async () => {
@@ -312,11 +313,11 @@ describe('axway pm', () => {
 			await runAxwaySync([ 'pm', 'install', 'acs@2.1.9' ]);
 			await runAxwaySync([ 'pm', 'install', 'acs@2.1.10' ]);
 
-			let { status, stdout } = await runAxwaySync([ 'pm', 'purge' ]);
-			expect(status).to.equal(0);
+			let { status, stdout, stderr } = await runAxwaySync([ 'pm', 'purge' ]);
 			expect(stdout).to.match(renderRegexFromFile('purge/purged-219'));
+			expect(status).to.equal(0);
 
-			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
+			({ status, stdout, stderr } = await runAxwaySync([ 'pm', 'list', '--json' ]));
 			expect(status).to.equal(0);
 			let results = JSON.parse(stdout);
 			expect(results).to.have.lengthOf(1);
@@ -394,8 +395,8 @@ describe('axway pm', () => {
 
 		it('should display info for a specific package version', async () => {
 			const { status, stdout } = await runAxwaySync([ 'pm', 'view', 'acs@2.1.9' ]);
-			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('view/acs-not-installed'));
+			expect(status).to.equal(0);
 		});
 
 		it('should error if package is not found', async () => {

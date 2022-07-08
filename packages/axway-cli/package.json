@@ -5,6 +5,8 @@
     "access": "public"
   },
   "description": "A unified CLI for the Axway Amplify platform.",
+  "type": "module",
+  "exports": "./dist/index.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>",
@@ -16,39 +18,35 @@
     "amplify"
   ],
   "bin": {
-    "axway": "./bin/axway"
+    "axway": "./bin/axway.js"
   },
   "preferGlobal": true,
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "postinstall": "node scripts/postinstall.js || node -e true",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "build": "tsc",
+    "coverage": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1",
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:tsc",
+    "lint:src": "eslint src/**/*.ts",
+    "lint:tsc": "tsc -p tsconfig.json",
+    "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
+    "test": "echo \"Error: Axway CLI tests are in the monorepo top-level\" && exit 1"
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^5.0.11",
     "@axway/amplify-utils": "^1.0.9",
-    "@axway/axway-cli-auth": "^3.3.7",
-    "@axway/axway-cli-oum": "^2.0.11",
-    "@axway/axway-cli-pm": "^4.0.11",
-    "boxen": "^5.1.2",
-    "check-kit": "^2.0.0",
-    "cli-kit": "^1.16.0",
-    "serialize-error": "^8.1.0",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21",
+    "@axway/axway-cli-auth": "^3.3.6",
+    "@axway/axway-cli-oum": "^2.0.10",
+    "@axway/axway-cli-pm": "^4.0.10",
+    "boxen": "^7.0.0",
+    "check-kit": "^3.0.1",
+    "cli-kit": "^2.0.2",
+    "serialize-error": "^11.0.0",
+    "snooplogg": "^5.0.0",
     "v8-compile-cache": "^2.3.0"
-  },
-  "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli",
   "engines": {
-    "node": ">=12.13.0"
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+    "node": ">=14.15.0"
+  }
 }

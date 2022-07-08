@@ -4,13 +4,17 @@
  * fake the browser interaction.
  */
 
-const got = require('got');
-const Module = require('module');
+import './arch-shim.js';
 
-const origResolveFilename = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, isMain, options) {
-	return request === 'open' ? __filename : origResolveFilename(request, parent, isMain, options);
-};
+export function resolve(specifier, context, defaultResolve) {
+	if (specifier === 'open') {
+		return {
+			url: import.meta.url
+		};
+	}
+	return defaultResolve(specifier, context, defaultResolve);
+}
 
-// this is the passive version which will not simulate the browser being opened
-module.exports = async () => {};
+export default async function shimmedPassiveOpen(url, opts) {
+	// do nothing
+}

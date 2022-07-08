@@ -1,0 +1,248 @@
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
+
+import E from '../errors.js';
+import pluralize from 'pluralize';
+import snooplogg from 'snooplogg';
+import { Account } from '../types.js';
+
+const { log } = snooplogg('amplify-sdk:auth:token-store');
+const { highlight } = snooplogg.styles;
+
+export interface StoreMutateResult {
+	entries: Account[],
+	removed: Account[]
+}
+
+/**
+ * A regex to match a URL protocol.
+ * @type {RegExp}
+ */
+const protoRegExp = /^.*\/\//;
+
+/**
+ * Base class for token storage backends.
+ */
+export default class TokenStore {
+	/**
+	 * Initializes the file store.
+	 *
+	 * @param {Object} [opts] - Various options.
+	 * @access public
+	 */
+	constructor(opts = {}) {
+		if (!opts || typeof opts !== 'object') {
+			throw E.INVALID_ARGUMENT('Expected options to be an object');
+		}
+	}
+
+	/* istanbul ignore next */
+	/**
+	 * Removes all tokens. This method is intended to be overwritten.
+	 *
+	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise<Array>}
+	 * @access public
+	 */
+	async clear(baseUrl?: string): Promise<Account[]> {
+		return [];
+	}
+
+	/**
+	 * Removes all tokens.
+	 *
+	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise<Array>}
+	 * @access public
+	 */
+	async _clear(baseUrl?: string): Promise<StoreMutateResult> {
+		const entries = await this.list();
+
+		if (!baseUrl) {
+			for (const entry of entries) {
+				Object.defineProperty(entry.auth, 'expired', { value: true });
+			}
+			return { entries: [], removed: entries };
+		}
+
+		const removed = [];
+		baseUrl = baseUrl.replace(protoRegExp, '');
+		for (let i = 0; i < entries.length; i++) {
+			if (entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl) {
+				const entry = entries.splice(i--, 1)[0];
+				Object.defineProperty(entry.auth, 'expired', { value: true });
+				removed.push(entry);
+			}
+		}
+
+		return { entries, removed };
+	}
+
+	/* istanbul ignore next */
+	/**
+	 * Deletes a token from the store. This method is intended to be overwritten.
+	 *
+	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
+ 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise}
+	 * @access public
+	 */
+	async delete(accounts: string | string[], baseUrl?: string): Promise<Account[]> {
+		return [];
+	}
+
+	/**
+	 * Deletes a token from the store.
+	 *
+	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
+ 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
+	 * @returns {Promise}
+	 * @access public
+	 */
+	async _delete(accounts: string | string[], baseUrl?: string): Promise<StoreMutateResult> {
+		const entries = await this.list();
+		const removed = [];
+
+		if (baseUrl) {
+			baseUrl = baseUrl.replace(protoRegExp, '');
+		}
+
+		if (!Array.isArray(accounts)) {
+			accounts = [ accounts ];
+		}
+
+		for (let i = 0; i < entries.length; i++) {
+			if ((accounts.includes(entries[i].hash) || accounts.includes(entries[i].name)) && (!baseUrl || entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl)) {
+				const entry = entries.splice(i--, 1)[0];
+				Object.defineProperty(entry.auth, 'expired', { value: true });
+				removed.push(entry);
+			}
+		}
+
+		return { entries, removed };
+	}
+
+	/**
+	 * Retreives a token from the store.
+	 *
+	 * @param {Object} params - Various parameters.
+	 * @param {String} params.accountName - The account name to get.
+	 * @param {String} [params.baseUrl] - The base URL used to filter accounts.
+	 * @param {string} params.hash - The authenticator hash derived from the client id, base url,
+	 * realm, and authentication parameters.
+	 * @returns {Promise} Resolves the token or `undefined` if not set.
+	 * @access public
+	 */
+	async get({ accountName, baseUrl, hash }: { accountName?: string, baseUrl?: string, hash?: string } = {}): Promise<Account | null> {
+		const entries = await this.list();
+
+		if (baseUrl) {
+			baseUrl = baseUrl.replace(protoRegExp, '').replace(/\/$/, '');
+		}
+
+		if (!accountName && !hash) {
+			throw E.MISSING_REQUIRED_PARAMETER('Must specify either the account name or authenticator hash');
+		}
+
+		const len = entries.length;
+		log(`Scanning ${highlight(len)} ${pluralize('token', len)} for accountName=${highlight(accountName)} hash=${highlight(hash)} baseUrl=${highlight(baseUrl)}`);
+
+		for (let i = 0; i < len; i++) {
+			const bu = entries[i].auth.baseUrl.replace(protoRegExp, '').replace(/\/$/, '');
+			log(`  ${i}: ${entries[i].name || 'unknown'} (${entries[i].hash || 'no hash'}) ${bu}`);
+			if (((accountName && entries[i].name === accountName) || (hash && entries[i].hash === hash)) && (!baseUrl || bu === baseUrl)) {
+				log(`Found account tokens: ${highlight(entries[i].name)}`);
+				return entries[i];
+			}
+		}
+
+		log('Token not found');
+
+		return null;
+	}
+
+	/**
+	 * Retreives all tokens from the store. This method is intended to be overwritten.
+	 *
+	 * @returns {Promise<Array>} Resolves an array of tokens.
+	 * @access public
+	 */
+	async list(): Promise<Account[]> {
+		return [];
+	}
+
+	/**
+	 * Ensures list of tokens is valid and does not contain any expired tokens.
+	 *
+	 * @param {Array.<Object>} entries - An array of tokens.
+	 * @returns {Array.<Object>}
+	 * @access private
+	 */
+	purge(entries: Account[]) {
+		if (!entries) {
+			return [];
+		}
+
+		let count = 0;
+
+		// loop over each entry and remove any expired tokens
+		// NOTE: this code intentionally checkes `entries.length` each loop instead of caching the
+		// length since splice() shrinks the array length
+		for (let i = 0; i < entries.length; i++) {
+			const expires = entries[i].auth?.expires;
+			const now = Date.now();
+			if (expires && ((expires.access > now) || (expires.refresh && expires.refresh > now))) {
+				// not expired
+				if (!Object.getOwnPropertyDescriptor(entries[i].auth, 'expired')) {
+					Object.defineProperty(entries[i].auth, 'expired', {
+						configurable: true,
+						get() {
+							return this.expires.access < Date.now();
+						}
+					});
+				}
+				continue;
+			}
+			count++;
+			entries.splice(i--, 1);
+		}
+
+		if (count) {
+			log(`Purged ${highlight(count)} ${pluralize('entry', count)}`);
+		}
+
+		return entries;
+	}
+
+	/* istanbul ignore next */
+	/**
+	 * Saves account credentials. This method is intended to be overwritten.
+	 *
+	 * @param {Object} data - The token data.
+	 * @returns {Promise}
+	 * @access private
+	 */
+	async set(data: Account): Promise<void> {
+		// noop
+	}
+
+	/**
+	 * Saves account credentials. If exists, the old one is deleted.
+	 *
+	 * @param {Object} data - The token data.
+	 * @returns {Promise}
+	 * @access private
+	 */
+	async _set(data: Account) {
+		const entries = await this.list();
+
+		for (let i = 0, len = entries.length; i < len; i++) {
+			if (entries[i].auth.baseUrl === data.auth.baseUrl && entries[i].name === data.name) {
+				entries.splice(i, 1);
+				break;
+			}
+		}
+
+		entries.push(data);
+		return entries;
+	}
+}

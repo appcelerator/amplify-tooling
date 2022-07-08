@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import {
 	initHomeDir,
 	renderRegexFromFile,
@@ -5,7 +6,7 @@ import {
 	runAxwaySync,
 	startServers,
 	stopServers
-} from '../helpers';
+} from '../helpers/index.js';
 
 describe('axway user', () => {
 	describe('help', () => {
@@ -132,18 +133,18 @@ describe('axway user', () => {
 			await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
 
 			let { status, stdout, stderr } = await runAxwaySync([ 'user', 'activity', '--from', 'foo' ]);
-			expect(status).to.equal(1);
 			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-from-date'));
+			expect(status).to.equal(1);
 
 			({ status, stderr } = await runAxwaySync([ 'user', 'activity', '--to', 'bar' ]));
-			expect(status).to.equal(1);
 			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-to-date'));
+			expect(status).to.equal(1);
 		});
 
 		it('should output activity help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'user', 'activity', '--help' ]);
-			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('activity/help'));
+			expect(status).to.equal(2);
 		});
 	});
 

@@ -2,7 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import Router from '@koa/router';
 import snooplogg from 'snooplogg';
+import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 const logger = snooplogg.config({
 	minBrightness: 80,

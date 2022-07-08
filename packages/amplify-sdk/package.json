@@ -5,6 +5,9 @@
     "access": "public"
   },
   "description": "Axway Amplify SDK for Node.js",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
     "Chris Barber <cbarber@axway.com>"
@@ -14,35 +17,36 @@
     "axway",
     "amplify"
   ],
-  "main": "./dist/index",
   "scripts": {
-    "build": "gulp build",
-    "coverage": "gulp coverage",
-    "docs": "gulp docs",
-    "prepare": "gulp build",
-    "test": "gulp test"
+    "build": "tsc",
+    "coverage": "c8 npm run test",
+    "lint": "concurrently -s all -m 1 npm:lint:src npm:lint:test npm:lint:tsc",
+    "lint:src": "eslint src/**/*.ts",
+    "lint:test": "eslint --parser-options=project:'test/tsconfig.json' test/**/*.ts",
+    "lint:tsc": "tsc -p tsconfig.json",
+    "prepublishOnly": "concurrently -s all -m 1 npm:lint:src npm:build",
+    "test": "concurrently -s all -m 1 npm:build npm:test:mocha",
+    "test:mocha": "ts-mocha -n loader=ts-node/esm test/**/test-*.ts --require ../../test/setup.js --reporter spec"
   },
   "dependencies": {
     "@axway/amplify-request": "^3.0.10",
     "@axway/amplify-utils": "^1.0.9",
-    "ci-info": "^3.3.1",
-    "ejs": "^3.1.7",
+    "ci-info": "^3.3.2",
+    "ejs": "^3.1.8",
     "fs-extra": "^10.1.0",
-    "get-port": "^5.1.1",
+    "get-port": "^6.1.2",
     "jws": "^4.0.0",
     "keytar": "7.9.0",
     "open": "^8.4.0",
     "pluralize": "^8.0.0",
-    "serialize-error": "^8.1.0",
-    "set-cookie-parser": "^2.4.8",
-    "snooplogg": "^3.0.2",
-    "source-map-support": "^0.5.21",
+    "serialize-error": "^11.0.0",
+    "set-cookie-parser": "^2.5.0",
+    "snooplogg": "^5.0.0",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4",
-    "@koa/router": "^10.1.1",
+    "@koa/router": "^11.0.1",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "koa-session": "^6.2.0"
@@ -51,7 +55,6 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-sdk",
   "engines": {
-    "node": ">=12.13.0"
-  },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+    "node": ">=14.15.0"
+  }
 }

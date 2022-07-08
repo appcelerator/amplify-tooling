@@ -1,0 +1,81 @@
+import {
+	AxwayCLIOptionCallbackState,
+	AxwayCLIState
+} from '@axway/amplify-cli-utils';
+import { CLICommand } from 'cli-kit';
+
+export default {
+	args: [
+		{
+			desc: 'The service account client id or name',
+			hint: 'client-id/name',
+			name: 'client-id',
+			required: true
+		},
+		{
+			desc: 'The team name or guid',
+			hint: 'team-guid/name',
+			name: 'team-guid',
+			required: true
+		}
+	],
+	desc: 'Remove a team from a service account',
+	help: {
+		header(this: CLICommand) {
+			return `${this.desc}.`;
+		}
+	},
+	options: {
+		'--account [name]': 'The platform account to use',
+		'--json': {
+			callback: ({ ctx, value }: AxwayCLIOptionCallbackState) => ctx.jsonMode = !!value,
+			desc: 'Outputs the result as JSON'
+		},
+		'--org [name|id|guid]': 'The organization name, id, or guid'
+	},
+	async action({ argv, cli, console }: AxwayCLIState): Promise<void> {
+		const { initPlatformAccount } = await import('@axway/amplify-cli-utils');
+		const { account, org, sdk } = await initPlatformAccount(
+			argv.account as string,
+			argv.org as string,
+			argv.env as string
+		);
+
+		if (!org.userRoles?.includes('administrator')) {
+			throw new Error(`You do not have administrative access to modify a service account in the "${org.name}" organization`);
+		}
+
+		// get the service account and team
+		const { client: existing } = await sdk.client.find(account, org, argv.clientId as string);
+		const { team } = await sdk.team.find(account, org, argv.teamGuid as string);
+
+		// add the team to the existing list of teams
+		const teams = (existing.teams || [])
+			.map(({ guid, roles }) => ({ guid, roles }))
+			.filter(t => t.guid !== team.guid);
+
+		// update the service account
+		const results = {
+			...(await sdk.client.update(account, org, {
+				client: existing,
+				teams
+			})),
+			account
+		};
+
+		if (argv.json) {
+			console.log(JSON.stringify(results, null, 2));
+		} else {
+			const { default: snooplogg } = await import('snooplogg');
+			const { highlight, note } = snooplogg.styles;
+
+			console.log(`Account:      ${highlight(account.name)}`);
+			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+
+			const { client_id, name } = results.client;
+			console.log(`Successfully removed team ${highlight(team.name)} from service account ${highlight(name)} ${note(`(${client_id})`)}`);
+		}
+
+		await cli.emitAction('axway:auth:service-account:remove-team', results);
+	}
+};

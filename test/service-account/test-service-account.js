@@ -1,3 +1,8 @@
+import fs from 'fs-extra';
+import path from 'path';
+import tmp from 'tmp';
+import { expect } from 'chai';
+import { fileURLToPath } from 'url';
 import {
 	initHomeDir,
 	renderRegexFromFile,
@@ -5,10 +10,9 @@ import {
 	runAxwaySync,
 	startServers,
 	stopServers
-} from '../helpers';
-import fs from 'fs-extra';
-import path from 'path';
-import tmp from 'tmp';
+} from '../helpers/index.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 tmp.setGracefulCleanup();
 
