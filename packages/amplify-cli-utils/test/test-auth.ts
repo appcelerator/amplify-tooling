@@ -211,12 +211,12 @@ describe('auth', () => {
 	it('should not find an access token by auth params', async () => {
 		const { sdk } = await initSDK({ tokenStore: new MemoryStore() }, await new Config().init());
 		const account = await sdk.auth.find();
-		expect(account).to.equal(null);
+		expect(account).to.equal(undefined);
 	});
 
 	it('should not find an access token by id', async () => {
 		const { sdk } = await initSDK({ tokenStore: new MemoryStore() }, await new Config().init());
 		const account = await sdk.auth.find('foo');
-		expect(account).to.equal(null);
+		expect(account).to.equal(undefined);
 	});
 });
