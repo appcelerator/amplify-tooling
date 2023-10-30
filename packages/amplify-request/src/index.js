@@ -96,7 +96,7 @@ export function options(opts = {}) {
 			key:                opts.https.key,
 			path,
 			port,
-			auth: username && password ?`${username}:${password}` : null,
+			auth: username && password ? `${username}:${password}` : null,
 			protocol,
 			rejectUnauthorized: opts.https.rejectUnauthorized
 		};
