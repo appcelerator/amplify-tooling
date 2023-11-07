@@ -62,7 +62,7 @@ const { log, warn } = snooplogg('axway');
 			const env = process.env.AXWAY_ENV;
 			const title = process.env.AXWAY_ENV_TITLE;
 			let str = `${cyan('AXWAY CLI')}, version ${version}${!env || env === 'prod' ? '' : ` ${yellow(title.toUpperCase())}`}
-Copyright (c) 2018-2022, Axway, Inc. All Rights Reserved.`;
+Copyright (c) 2018-2023, Axway, Inc. All Rights Reserved.`;
 
 			if (process.versions.node.split('.')[0] < 12) {
 				str += '\n\n' + yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
