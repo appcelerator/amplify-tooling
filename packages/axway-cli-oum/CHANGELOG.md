@@ -1,3 +1,7 @@
+# v2.0.12 (Nov 8, 2023)
+
+- chore: Updated dependencies.
+
 # v2.0.11 (Jul 7, 2022)
 
 - chore: Updated dependencies.
