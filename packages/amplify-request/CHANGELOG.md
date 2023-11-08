@@ -2,6 +2,7 @@
 
 - fix: Added a fix that requires proxy authentication for Axway CLI.
   ([APIGOV-25399](https://jira.axway.com/browse/APIGOV-25399))
+- fix: regenerated test certs
 
 # v3.0.10 (Jun 30, 2022)
 

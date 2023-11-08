@@ -1,3 +1,7 @@
+# v3.2.8 (Nov 8, 2023)
+
+- fix: Updated year to '2023' to fix the test failures.
+
 # v3.2.7 (Jul 7, 2022)
 
 - chore: Updated dependencies.
