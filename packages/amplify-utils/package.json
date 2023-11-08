@@ -39,5 +39,6 @@
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-utils",
   "engines": {
     "node": ">=12.13.0"
-  }
+  },
+  "gitHead": "1ce344de06b229479fb3a5aebe0ccb9259aa5ddd"
 }
