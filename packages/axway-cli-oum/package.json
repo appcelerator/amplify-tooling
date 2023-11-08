@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-oum",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "publishConfig": {
     "access": "public"
   },
@@ -22,7 +22,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.13",
+    "@axway/amplify-cli-utils": "^5.0.14",
     "cli-kit": "^1.16.0",
     "open": "^8.4.0",
     "snooplogg": "^3.0.2",
@@ -53,5 +53,5 @@
       }
     }
   },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+  "gitHead": "ee0b7118bd3d1ea4e4115e3d9e5b482d2241b9d5"
 }

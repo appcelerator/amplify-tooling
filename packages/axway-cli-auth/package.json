@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-auth",
-  "version": "3.3.9",
+  "version": "3.3.10",
   "publishConfig": {
     "access": "public"
   },
@@ -23,8 +23,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.13",
-    "@axway/amplify-utils": "^1.0.9",
+    "@axway/amplify-cli-utils": "^5.0.14",
+    "@axway/amplify-utils": "^1.0.10",
     "cli-kit": "^1.16.0",
     "enquirer": "^2.3.6",
     "pretty-ms": "^7.0.1",
@@ -56,5 +56,5 @@
       }
     }
   },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+  "gitHead": "ee0b7118bd3d1ea4e4115e3d9e5b482d2241b9d5"
 }

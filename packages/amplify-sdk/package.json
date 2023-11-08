@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-sdk",
-  "version": "3.2.9",
+  "version": "3.2.10",
   "publishConfig": {
     "access": "public"
   },
@@ -23,8 +23,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-request": "^3.1.0",
-    "@axway/amplify-utils": "^1.0.9",
+    "@axway/amplify-request": "^3.1.1",
+    "@axway/amplify-utils": "^1.0.10",
     "ci-info": "^3.3.1",
     "ejs": "^3.1.7",
     "fs-extra": "^10.1.0",
@@ -53,5 +53,5 @@
   "engines": {
     "node": ">=12.13.0"
   },
-  "gitHead": "9cc288d8ee067fb3444920aad11c53899455ad9c"
+  "gitHead": "ee0b7118bd3d1ea4e4115e3d9e5b482d2241b9d5"
 }
