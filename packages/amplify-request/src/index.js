@@ -88,7 +88,7 @@ export function options(opts = {}) {
 	});
 
 	if (proxy) {
-		const { hostname: host, pathname: path, port, protocol } = new URL(proxy);
+		const { hostname: host, pathname: path, port, protocol, username, password } = new URL(proxy);
 		const agentOpts = {
 			ca:                 opts.https.certificateAuthority,
 			cert:               opts.https.certificate,
@@ -96,6 +96,7 @@ export function options(opts = {}) {
 			key:                opts.https.key,
 			path,
 			port,
+			auth: username && password ? `${username}:${password}` : null,
 			protocol,
 			rejectUnauthorized: opts.https.rejectUnauthorized
 		};
