@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli-utils",
-  "version": "5.0.11",
+  "version": "5.0.12",
   "publishConfig": {
     "access": "public"
   },
@@ -24,9 +24,9 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-config": "^4.0.9",
-    "@axway/amplify-request": "^3.0.10",
-    "@axway/amplify-sdk": "^3.2.7",
+    "@axway/amplify-config": "^4.0.10",
+    "@axway/amplify-request": "^3.1.0",
+    "@axway/amplify-sdk": "^3.2.8",
     "boxen": "^5.1.2",
     "check-kit": "^1.2.1",
     "cli-kit": "^1.16.0",
