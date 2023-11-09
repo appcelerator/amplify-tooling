@@ -1,3 +1,15 @@
+# v5.0.15 (Nov 8, 2023)
+
+- chore: Updated dependencies.
+
+# v5.0.14 (Nov 8, 2023)
+
+- chore: Updated dependencies.
+
+# v5.0.13 (Nov 8, 2023)
+
+- chore: Updated dependencies.
+
 # v5.0.12 (Nov 8, 2023)
 
 - chore: Updated dependencies.

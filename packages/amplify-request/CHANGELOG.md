@@ -1,3 +1,11 @@
+# v3.1.2 (Nov 8, 2023)
+
+- chore: Updated dependencies.
+
+# v3.1.1 (Nov 8, 2023)
+
+- chore: Updated dependencies.
+
 # v3.1.0 (Nov 8, 2023)
 
 - fix: Added a fix that requires proxy authentication for Axway CLI.
