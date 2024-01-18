@@ -493,12 +493,14 @@ export default class Authenticator {
 				Location: this.platformUrl
 			});
 			const template = path.resolve(__dirname, '../../templates/auth.html.ejs');
+			const latestAccount = await this.getToken(undefined, undefined, true);
 			res.end(ejs.render(await fs.readFile(template, 'utf-8'), {
 				title: 'Authorization Successful!',
 				message: 'Please return to the console.'
 			}));
-		});
 
+			return latestAccount;
+		});
 		const codeCallback = await server.createCallback(async (req, res, { searchParams }) => {
 			const code = searchParams.get('code');
 			if (!code) {
@@ -521,8 +523,7 @@ export default class Authenticator {
 				Location: redirect
 			});
 			res.end();
-
-			return account;
+			return;
 		});
 
 		const authorizationUrl = createURL(this.endpoints.auth, Object.assign({
@@ -535,12 +536,14 @@ export default class Authenticator {
 
 		log(`Starting ${opts.manual ? 'manual ' : ''}login request clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
-		const promise = codeCallback.start()
-			.then(async ({ result: account }) => {
-				await orgSelectedCallback.start();
-				return account;
-			})
-			.finally(() => server.stop());
+		const promise = codeCallback.start().then(async () => {
+			const loginAccount = await orgSelectedCallback.start()
+				.then(({ result: account }) => {
+					return account;
+				});
+			console.log(loginAccount);
+			return loginAccount;
+		}).finally(() => server.stop());
 
 		// if manual, return now with the auth url
 		if (opts.manual) {
