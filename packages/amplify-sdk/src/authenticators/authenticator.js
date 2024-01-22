@@ -523,7 +523,6 @@ export default class Authenticator {
 				Location: redirect
 			});
 			res.end();
-			return;
 		});
 
 		const authorizationUrl = createURL(this.endpoints.auth, Object.assign({
@@ -536,20 +535,18 @@ export default class Authenticator {
 
 		log(`Starting ${opts.manual ? 'manual ' : ''}login request clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
 
-		const promise = codeCallback.start().then(async () => {
-			const loginAccount = await orgSelectedCallback.start()
+		const loginAccount = codeCallback.start().then(async () => {
+			return await orgSelectedCallback.start()
 				.then(({ result: account }) => {
 					return account;
 				});
-			console.log(loginAccount);
-			return loginAccount;
 		}).finally(() => server.stop());
 
 		// if manual, return now with the auth url
 		if (opts.manual) {
 			return {
 				cancel: () => Promise.all([ codeCallback.cancel(), orgSelectedCallback.cancel() ]),
-				promise,
+				loginAccount,
 				url: authorizationUrl
 			};
 		}
@@ -567,7 +564,7 @@ export default class Authenticator {
 		}
 
 		// wait for authentication to succeed or fail
-		return promise;
+		return loginAccount;
 	}
 
 	/* istanbul ignore next */
