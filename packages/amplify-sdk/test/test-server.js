@@ -103,12 +103,12 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel, promise, url } = await auth.login({ manual: true });
+		const { cancel, loginAccount, url } = await auth.login({ manual: true });
 		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
 		const redirectUrl = `${redirect_uri}?code=123`;
 
 		// squeltch unhandled rejections
-		promise.catch(() => {});
+		loginAccount.catch(() => {});
 
 		try {
 			log(`Requesting: ${highlight(redirectUrl)}`);
@@ -166,10 +166,10 @@ describe('Server', () => {
 			tokenStoreType: null
 		});
 
-		const { cancel, promise } = await auth.login({ manual: true });
+		const { cancel, loginAccount } = await auth.login({ manual: true });
 
 		await cancel();
 
-		expect(promise).to.eventually.be.rejectedWith(Error, 'Expected promise to be rejected with server stopped error');
+		expect(loginAccount).to.eventually.be.rejectedWith(Error, 'Expected promise to be rejected with server stopped error');
 	});
 });
