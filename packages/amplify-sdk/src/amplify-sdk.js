@@ -485,6 +485,7 @@ export default class AmplifySDK {
 
 						log(`Waiting for browser to be redirected to: ${highlight(redirect)}`);
 						await start();
+						account = await this.authClient.createAuthenticator(this.authClient.applyDefaults()).getToken(undefined, undefined, true);
 					} finally {
 						await server.stop();
 					}

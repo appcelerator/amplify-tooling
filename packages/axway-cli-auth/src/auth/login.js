@@ -133,10 +133,10 @@ team to use for "axway" commands.`;
 		try {
 			if (manual) {
 				account = await sdk.auth.login({ manual });
-				const { cancel, promise, url } = account;
+				const { cancel, loginAccount, url } = account;
 
-				if (promise) {
-					promise.catch(err => {
+				if (loginAccount) {
+					loginAccount.catch(err => {
 						console.error(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`);
 						process.exit(1);
 					});
@@ -144,7 +144,7 @@ team to use for "axway" commands.`;
 					process.on('SIGINT', () => cancel());
 
 					console.log(`Please open following link in your browser:\n\n  ${highlight(url)}\n`);
-					account = await sdk.auth.loadSession(await promise);
+					account = await sdk.auth.loadSession(await loginAccount);
 				}
 			} else {
 				account = await sdk.auth.login({
