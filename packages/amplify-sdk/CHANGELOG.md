@@ -1,3 +1,8 @@
+# v3.2.12 (Jan 23, 2024)
+
+- fix: Unable to switch Org with axway CLI.
+  ([APIGOV-26888](https://jira.axway.com/browse/APIGOV-26888))
+
 # v3.2.11 (Nov 8, 2023)
 
 - chore: Updated dependencies.

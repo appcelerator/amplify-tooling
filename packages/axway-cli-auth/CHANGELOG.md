@@ -1,4 +1,8 @@
-# v3.311 (Nov 8, 2023)
+# v3.3.12 (Jan 23, 2024)
+
+- chore: Updated dependencies.
+
+# v3.3.11 (Nov 8, 2023)
 
 - chore: Updated dependencies.
 
