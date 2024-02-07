@@ -1213,7 +1213,6 @@ export default class AmplifySDK {
 			 * Get all roles.
 			 * @param {Object} account - The account object.
 			 * @param {Object} [params] - Various parameters.
-			 * @param {Boolean} [params.client] - When `true`, returns client specific roles.
 			 * @param {Boolean} [params.default] - When `true`, returns default roles only.
 			 * @param {Object|String|Number} [params.org] - The organization object, name, id, or guid.
 			 * @param {Boolean} [params.team] - When `true`, returns team specific roles.
