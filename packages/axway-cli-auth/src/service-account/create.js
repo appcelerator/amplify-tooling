@@ -165,7 +165,7 @@ required options must be passed in at execution.`;
 		}
 
 		if (!roles.length && !argv.name) {
-			const availableRoles = await sdk.role.list(account, { client: true, org });
+			const availableRoles = await sdk.role.list(account, { org });
 			({ roles } = await doPrompt({
 				choices: availableRoles.map(role => ({ name: role.name })),
 				hint: 'Use ↑ and ↓ then \'space\' to select one or more roles',
