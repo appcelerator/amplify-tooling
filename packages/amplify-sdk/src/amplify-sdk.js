@@ -1241,10 +1241,6 @@ export default class AmplifySDK {
 					});
 				}
 
-				if (params.client) {
-					roles = roles.filter(r => r.client);
-				}
-
 				if (params.default) {
 					roles = roles.filter(r => r.default);
 				}
