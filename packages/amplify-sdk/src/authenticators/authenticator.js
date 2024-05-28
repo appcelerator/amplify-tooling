@@ -493,13 +493,12 @@ export default class Authenticator {
 				Location: this.platformUrl
 			});
 			const template = path.resolve(__dirname, '../../templates/auth.html.ejs');
-			const latestAccount = await this.getToken(undefined, undefined, true);
 			res.end(ejs.render(await fs.readFile(template, 'utf-8'), {
 				title: 'Authorization Successful!',
 				message: 'Please return to the console.'
 			}));
 
-			return latestAccount;
+			return true;
 		});
 		const codeCallback = await server.createCallback(async (req, res, { searchParams }) => {
 			const code = searchParams.get('code');
@@ -537,8 +536,11 @@ export default class Authenticator {
 
 		const loginAccount = codeCallback.start().then(async () => {
 			return await orgSelectedCallback.start()
-				.then(({ result: account }) => {
-					return account;
+				.then(async (res) => {
+					if (res) {
+						await this.timeout();
+						return await this.getToken(undefined, undefined, true);
+					}
 				});
 		}).finally(() => server.stop());
 
@@ -565,6 +567,10 @@ export default class Authenticator {
 
 		// wait for authentication to succeed or fail
 		return loginAccount;
+	}
+
+	async timeout() {
+		return new Promise(resolve => setTimeout(resolve, 3000));
 	}
 
 	/* istanbul ignore next */
