@@ -486,13 +486,8 @@ export default class AmplifySDK {
 						log(`Waiting for browser to be redirected to: ${highlight(redirect)}`);
 						await start();
 						const authenticator = this.authClient.createAuthenticator(this.authClient.applyDefaults());
-						const tempAccount = await authenticator.getToken(undefined, undefined, true);
-						while (tempAccount.org === account.org) {
-							// setting a 3 second timeout and retries on switch until the target org is pulled correctly
-							// eslint-disable-next-line no-loop-func
-							await new Promise(resolve => setTimeout(resolve, 3000));
-							account = await authenticator.getToken(undefined, undefined, true);
-						}
+						await new Promise(resolve => setTimeout(resolve, 3000));
+						account = await authenticator.getToken(undefined, undefined, true);
 					} finally {
 						await server.stop();
 					}
