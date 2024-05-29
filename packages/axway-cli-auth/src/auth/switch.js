@@ -104,8 +104,8 @@ more than one of org or team.`,
 			// determine the org
 			const defaultOrg = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
 			const selectedOrg = argv.org || defaultOrg;
-			const org = selectedOrg && account.orgs.find(o => o.guid === selectedOrg || String(o.id) === selectedOrg || o.name.toLowerCase() === selectedOrg.toLowerCase());
-
+			const org = selectedOrg && account.orgs.find(o => String(o.guid) === String(selectedOrg) ||
+						String(o.id) === String(selectedOrg) || o.name.toLowerCase() === String(selectedOrg).toLowerCase());
 			if (account.isPlatformTooling) {
 				if (argv.org && !org) {
 					// if there was an explicit --org or default org that wasn't found, then we error for tooling users as web doesn't care
