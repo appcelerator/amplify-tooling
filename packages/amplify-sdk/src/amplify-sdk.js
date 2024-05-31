@@ -469,7 +469,7 @@ export default class AmplifySDK {
 
 					try {
 						const url = createURL(`${this.platformUrl}/#/auth/org.select`, {
-							org_id: org?.id,
+							org_hint: org?.id,
 							redirect
 						});
 						log(`Launching default web browser: ${highlight(url)}`);
@@ -485,7 +485,9 @@ export default class AmplifySDK {
 
 						log(`Waiting for browser to be redirected to: ${highlight(redirect)}`);
 						await start();
-						account = await this.authClient.createAuthenticator(this.authClient.applyDefaults()).getToken(undefined, undefined, true);
+						const authenticator = this.authClient.createAuthenticator(this.authClient.applyDefaults());
+						await new Promise(resolve => setTimeout(resolve, 3000));
+						account = await authenticator.getToken(undefined, undefined, true);
 					} finally {
 						await server.stop();
 					}
@@ -504,6 +506,10 @@ export default class AmplifySDK {
 				}
 
 				throw new Error('Failed to switch organization');
+			},
+
+			async timeout() {
+				return new Promise(resolve => setTimeout(resolve, 3000));
 			}
 		};
 

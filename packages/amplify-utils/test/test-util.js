@@ -17,7 +17,7 @@ describe('util', () => {
 
 		it('should detect the system architecture', () => {
 			const a = util.arch();
-			expect(a).to.be.oneOf([ 'x86', 'x64' ]);
+			expect(a).to.be.oneOf([ 'x86', 'x64', 'arm64' ]);
 		});
 
 		it('should cache the architecture', () => {
