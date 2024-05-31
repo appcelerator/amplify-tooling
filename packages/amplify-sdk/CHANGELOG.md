@@ -1,3 +1,8 @@
+# v3.2.13 (May 31, 2024)
+
+- fix: CLI - Change organization issues.
+  ([APIGOV-27315](https://jira.axway.com/browse/APIGOV-27315))
+
 # v3.2.12 (Jan 23, 2024)
 
 - fix: Unable to switch Org with axway CLI.

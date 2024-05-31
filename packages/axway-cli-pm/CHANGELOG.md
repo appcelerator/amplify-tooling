@@ -1,3 +1,7 @@
+# v4.0.17 (May 31, 2024)
+
+- chore: Updated dependencies.
+
 # v4.0.16 (Jan 23, 2024)
 
 - chore: Updated dependencies.
