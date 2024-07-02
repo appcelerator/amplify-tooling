@@ -411,7 +411,7 @@ export async function view(pkgName, { requestOpts = createRequestOptions(), type
 		|| (type && pkg.amplify.type !== type)
 		|| (pkg.keywords.includes('amplify-test-package') && !process.env.TEST)
 		|| !pkg.keywords.includes('amplify-package')
-		|| !pkg.maintainers.some(m => maintainers.includes(m.name))
+		|| !info?.maintainers.some(m => maintainers.includes(m.name))
 	) {
 		throw new Error(`Package "${pkgName}" not found`);
 	}
