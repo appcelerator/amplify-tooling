@@ -1,3 +1,8 @@
+# v4.0.18 (July 3, 2024)
+
+- fix: NPM issue - Unable to install axway-central-cli.
+  ([APIGOV-28296](https://jira.axway.com/browse/APIGOV-28296))
+
 # v4.0.17 (May 31, 2024)
 
 - chore: Updated dependencies.
