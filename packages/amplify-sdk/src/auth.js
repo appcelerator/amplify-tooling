@@ -455,7 +455,8 @@ export default class Auth {
 			for (const entry of revoked) {
 				// don't logout of platform accounts here, it's done in the Amplify SDK by opening the browser
 				if (!entry.isPlatform) {
-					const url = `${getEndpoints(entry.auth).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
+					const { platformUrl } = environments.resolve(entry.auth.env);
+					const url = `${getEndpoints({ baseUrl: entry.auth.baseUrl, platformUrl: platformUrl, realm: entry.auth.realm }).logout}?id_token_hint=${entry.auth.tokens.id_token}`;
 					try {
 						const { statusCode } = await this.got(url, { responseType: 'json', retry: 0 });
 						log(`Successfully logged out ${highlight(entry.name)} ${magenta(statusCode)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);

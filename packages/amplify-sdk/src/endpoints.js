@@ -9,7 +9,7 @@ import E from './errors';
  * @param {String} params.realm - The authentication realm.
  * @returns {Object}
  */
-export default function getEndpoints({ baseUrl, realm } = {}) {
+export default function getEndpoints({ baseUrl, platformUrl, realm } = {}) {
 	if (!baseUrl || typeof baseUrl !== 'string') {
 		throw E.INVALID_ARGUMENT('Expected baseUrl to be a non-empty string');
 	}
@@ -21,10 +21,12 @@ export default function getEndpoints({ baseUrl, realm } = {}) {
 	// strip the trailing slashes
 	baseUrl = baseUrl.replace(/\/$/, '');
 
+	platformUrl = platformUrl.replace(/\/$/, '');
+
 	return {
 		auth:      `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/auth`,
 		certs:     `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/certs`,
-		logout:    `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/logout`,
+		logout:    `${platformUrl}/auth/signout`,
 		token:     `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`,
 		userinfo:  `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/userinfo`,
 		wellKnown: `${baseUrl}/auth/realms/${realm}/.well-known/openid-configuration`

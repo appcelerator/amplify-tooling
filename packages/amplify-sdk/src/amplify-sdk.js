@@ -405,9 +405,9 @@ export default class AmplifySDK {
 					if (account.isPlatform && !account.isPlatformTooling) {
 						// note: there should only be 1 platform account in the accounts list
 						const { platformUrl } = environments.resolve(account.auth.env);
-						const { logout } = getEndpoints({ baseUrl: account.auth.baseUrl, realm: account.auth.realm });
-						const redirect = `${logout}?redirect_uri=${platformUrl}/signed.out?msg=signout`;
-						const url = `${platformUrl}/api/v1/auth/logout?redirect=${encodeURIComponent(redirect)}`;
+						const { logout } = getEndpoints({ baseUrl: account.auth.baseUrl, platformUrl: platformUrl, realm: account.auth.realm });
+						const redirect = `${platformUrl}/signed.out?msg=signout`;
+						const url = `${logout}?redirect=${encodeURIComponent(redirect)}`;
 						if (typeof opts.onOpenBrowser === 'function') {
 							await opts.onOpenBrowser({ url });
 						}
