@@ -54,7 +54,6 @@ describe('Endpoints', () => {
 		expect(endpoints).to.deep.equal({
 			auth:              'http://localhost/auth/realms/test_realm/protocol/openid-connect/auth',
 			certs:             'http://localhost/auth/realms/test_realm/protocol/openid-connect/certs',
-			logout:            'http://localhost/auth/realms/test_realm/protocol/openid-connect/logout',
 			token:             'http://localhost/auth/realms/test_realm/protocol/openid-connect/token',
 			userinfo:          'http://localhost/auth/realms/test_realm/protocol/openid-connect/userinfo',
 			wellKnown:         'http://localhost/auth/realms/test_realm/.well-known/openid-configuration'

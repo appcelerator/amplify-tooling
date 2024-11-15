@@ -942,7 +942,7 @@ export async function createLoginServer(opts = {}) {
 					}));
 					break;
 
-				case '/auth/realms/test_realm/protocol/openid-connect/logout':
+				case '/auth/signout':
 					if (typeof opts.logout === 'function') {
 						opts.logout(post, req, res);
 					}
