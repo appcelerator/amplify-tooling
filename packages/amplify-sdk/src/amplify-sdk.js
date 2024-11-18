@@ -4,7 +4,6 @@ import Auth from './auth';
 import crypto from 'crypto';
 import E from './errors';
 import fs from 'fs-extra';
-import getEndpoints from './endpoints';
 import open from 'open';
 import path from 'path';
 import Server from './server';
