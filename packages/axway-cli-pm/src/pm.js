@@ -358,7 +358,6 @@ export async function search({ keyword, limit, type } = {}) {
 	await Promise.all(packages.map(({ name, version }) => {
 		return plimit(async () => {
 			try {
-				console.log(name);
 				const pkg = await view(`${name}@${version}`, { requestOpts, type });
 				if (pkg) {
 					results.push(pkg);
@@ -383,7 +382,6 @@ export async function view(pkgName, { requestOpts = createRequestOptions(), type
 	if (!pkgName || typeof pkgName !== 'string') {
 		throw new TypeError('Expected package name to be a non-empty string');
 	}
-	console.log(pkgName);
 
 	const { name, fetchSpec } = npa(pkgName);
 	let info;
