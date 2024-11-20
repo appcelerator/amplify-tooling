@@ -5,7 +5,6 @@ import E from './errors';
  *
  * @param {Object} params - Required parameters.
  * @param {String} params.baseUrl - The base URL.
- * @param {String} [params.platformUrl] - The platform URL.
  * @param {String} params.realm - The authentication realm.
  * @returns {Object}
  */
@@ -24,7 +23,6 @@ export default function getEndpoints({ baseUrl, realm } = {}) {
 	return {
 		auth:      `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/auth`,
 		certs:     `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/certs`,
-		logout:    `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/logout`,
 		token:     `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`,
 		userinfo:  `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/userinfo`,
 		wellKnown: `${baseUrl}/auth/realms/${realm}/.well-known/openid-configuration`

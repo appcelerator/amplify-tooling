@@ -341,14 +341,15 @@ export async function uninstallPackage(dir) {
 export async function search({ keyword, limit, type } = {}) {
 	const plimit = promiseLimit(10);
 	const requestOpts = createRequestOptions();
-	const keywords = [ 'amplify-package' ];
+	const keywords = [ '"amplify-package"' ];
 	if (process.env.TEST) {
-		keywords.push('amplify-test-package');
+		keywords.push('"amplify-test-package"');
 	}
 	if (keyword) {
-		keywords.push(keyword);
+		keywords.push('"' + keyword + '"');
 	}
-	const packages = await npmsearch(keywords, {
+	const q = 'keywords:' + keywords.join(',');
+	const packages = await npmsearch(q, {
 		...requestOpts,
 		limit: Math.max(limit && parseInt(limit, 10) || 50, 1)
 	});
@@ -366,7 +367,6 @@ export async function search({ keyword, limit, type } = {}) {
 			}
 		});
 	}));
-
 	return results.sort((a, b) => a.name.localeCompare(b.name));
 }
 

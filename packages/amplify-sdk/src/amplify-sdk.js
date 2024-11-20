@@ -4,7 +4,6 @@ import Auth from './auth';
 import crypto from 'crypto';
 import E from './errors';
 import fs from 'fs-extra';
-import getEndpoints from './endpoints';
 import open from 'open';
 import path from 'path';
 import Server from './server';
@@ -405,9 +404,8 @@ export default class AmplifySDK {
 					if (account.isPlatform && !account.isPlatformTooling) {
 						// note: there should only be 1 platform account in the accounts list
 						const { platformUrl } = environments.resolve(account.auth.env);
-						const { logout } = getEndpoints({ baseUrl: account.auth.baseUrl, realm: account.auth.realm });
-						const redirect = `${logout}?redirect_uri=${platformUrl}/signed.out?msg=signout`;
-						const url = `${platformUrl}/api/v1/auth/logout?redirect=${encodeURIComponent(redirect)}`;
+						const redirect = `${platformUrl}/signed.out?msg=signout`;
+						const url = `${platformUrl}/auth/signout?redirect=${encodeURIComponent(redirect)}`;
 						if (typeof opts.onOpenBrowser === 'function') {
 							await opts.onOpenBrowser({ url });
 						}
