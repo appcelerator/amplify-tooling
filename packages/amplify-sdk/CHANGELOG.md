@@ -1,3 +1,8 @@
+# v3.2.15 (Nov 21, 2024)
+
+- fix: Remove Platform logout confirmation dialog when using axway cli auth logout.
+  ([APIGOV-29233](https://jira.axway.com/browse/APIGOV-29233))
+
 # v3.2.14 (July 3, 2024)
 
 - chore: Updated dependencies.

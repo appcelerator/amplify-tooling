@@ -1,3 +1,7 @@
+# v3.3.15 (Nov 21, 2024)
+
+- chore: Updated dependencies.
+
 # v3.3.14 (July 3, 2024)
 
 - chore: Updated dependencies.

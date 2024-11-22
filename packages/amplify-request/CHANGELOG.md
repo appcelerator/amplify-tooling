@@ -1,3 +1,7 @@
+# v3.1.6 (Nov 21, 2024)
+
+- chore: Updated dependencies.
+
 # v3.1.5 (July 3, 2024)
 
 - chore: Updated dependencies.

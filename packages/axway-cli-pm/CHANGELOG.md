@@ -1,3 +1,7 @@
+# v4.0.19 (Nov 21, 2024)
+
+- chore: Updated dependencies.
+
 # v4.0.18 (July 3, 2024)
 
 - fix: NPM issue - Unable to install axway-central-cli.
