@@ -235,9 +235,10 @@ export function hlVer(toVer, fromVer) {
  * @param {String} [accountName] - The name of the platform account to use.
  * @param {String} [org] - The name, id, or guid of the default organization.
  * @param {String} [env] - The environment name.
+ * @param {boolean} [bypassPlatformAccountCheck] - Optional parameter to bypass check if the account is platform
  * @returns {Promise<Object>}
  */
-export async function initPlatformAccount(accountName, org, env) {
+export async function initPlatformAccount(accountName, org, env, bypassPlatformAccountCheck = false) {
 	const { config, sdk } = initSDK({ env });
 	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvSpecifier}.defaultAccount`));
@@ -245,10 +246,8 @@ export async function initPlatformAccount(accountName, org, env) {
 	if (accountName) {
 		if (!account) {
 			throw new Error(`Account "${accountName}" not found`);
-		} else if (!account.isPlatform) {
-			throw new Error(`Account "${accountName}" is not a platform account\n\nTo login, run: axway auth login`);
 		}
-	} else if (!account || !account.isPlatform) {
+	} else if (!account || (!bypassPlatformAccountCheck && !account.isPlatform)) {
 		throw new Error('You must be logged into a platform account\n\nTo login, run: axway auth login');
 	}
 
