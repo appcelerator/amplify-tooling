@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-pm",
-  "version": "4.0.19",
+  "version": "4.0.20",
   "publishConfig": {
     "access": "public"
   },
@@ -22,8 +22,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.19",
-    "@axway/amplify-utils": "^1.0.15",
+    "@axway/amplify-cli-utils": "^5.0.20",
+    "@axway/amplify-utils": "^1.0.16",
     "cli-kit": "^1.16.0",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
