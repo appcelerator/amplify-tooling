@@ -16,7 +16,7 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env, true);
 		const { teams } = await sdk.team.list(account, org);
 
 		if (argv.json) {
@@ -49,7 +49,7 @@ export default {
 				desc || note('n/a'),
 				guid,
 				users.length,
-				apps.length,
+				apps?.length,
 				new Date(created).toLocaleDateString()
 			]);
 		}

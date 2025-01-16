@@ -341,12 +341,12 @@ export async function uninstallPackage(dir) {
 export async function search({ keyword, limit, type } = {}) {
 	const plimit = promiseLimit(10);
 	const requestOpts = createRequestOptions();
-	const keywords = [ '"amplify-package"' ];
+	const keywords = [ 'amplify-package' ];
 	if (process.env.TEST) {
-		keywords.push('"amplify-test-package"');
+		keywords.push('amplify-test-package');
 	}
 	if (keyword) {
-		keywords.push('"' + keyword + '"');
+		keywords.push(keyword);
 	}
 	const q = 'keywords:' + keywords.join(',');
 	const packages = await npmsearch(q, {

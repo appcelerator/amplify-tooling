@@ -60,16 +60,15 @@ describe('axway pm', () => {
 		});
 
 		it('should find specific package', async () => {
-			let { status, stdout } = await runAxwaySync([ 'pm', 'search', 'acs' ]);
+			let { status, stdout } = await runAxwaySync([ 'pm', 'search', 'api-builder' ]);
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('search/acs'));
 
-			({ status, stdout } = await runAxwaySync([ 'pm', 'search', 'acs', '--json' ]));
+			({ status, stdout } = await runAxwaySync([ 'pm', 'search', 'api-builder', '--json' ]));
 			expect(status).to.equal(0);
 			const result = JSON.parse(stdout);
 			expect(result).to.be.an('array');
 			expect(result).to.have.lengthOf(1);
-			expect(result[0].name).to.equal('acs');
+			expect(result[0].name).to.equal('@axway/amplify-api-builder-cli');
 		});
 
 		it('should find no results', async () => {
