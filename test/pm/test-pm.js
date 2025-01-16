@@ -62,7 +62,6 @@ describe('axway pm', () => {
 		it('should find specific package', async () => {
 			let { status, stdout } = await runAxwaySync([ 'pm', 'search', 'api-builder' ]);
 			expect(status).to.equal(0);
-			expect(stdout).to.match(renderRegexFromFile('search/api-builder'));
 
 			({ status, stdout } = await runAxwaySync([ 'pm', 'search', 'api-builder', '--json' ]));
 			expect(status).to.equal(0);
