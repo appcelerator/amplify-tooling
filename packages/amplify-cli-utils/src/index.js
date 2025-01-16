@@ -246,7 +246,7 @@ export async function initPlatformAccount(accountName, org, env, bypassPlatformA
 	if (accountName) {
 		if (!account) {
 			throw new Error(`Account "${accountName}" not found`);
-		} else if (!account.isPlatform) {
+		} else if (!bypassPlatformAccountCheck && !account.isPlatform) {
 			throw new Error(`Account "${accountName}" is not a platform account\n\nTo login, run: axway auth login`);
 		}
 	} else if (!account || (!bypassPlatformAccountCheck && !account.isPlatform)) {
