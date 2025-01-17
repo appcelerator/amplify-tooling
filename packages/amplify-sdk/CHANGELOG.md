@@ -1,3 +1,7 @@
+# v3.2.16 (Jan 16, 2025)
+
+- chore: Updated dependencies.
+
 # v3.2.15 (Nov 21, 2024)
 
 - fix: Remove Platform logout confirmation dialog when using axway cli auth logout.

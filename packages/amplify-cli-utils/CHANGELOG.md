@@ -1,3 +1,8 @@
+# v5.0.20 (Jan 16, 2025)
+
+- fix: Added a fix for listing teams with a service account
+  ([APIGOV-27713](https://jira.axway.com/browse/APIGOV-27713))
+
 # v5.0.19 (Nov 21, 2024)
 
 - chore: Updated dependencies.
