@@ -1,7 +1,9 @@
 import path from 'path';
 import { existsSync, writeFileSync } from '@axway/amplify-utils';
 import { initSDK } from '@axway/amplify-cli-utils';
-import { prompt } from 'enquirer';
+import pkg from 'enquirer';
+
+const { prompt } = pkg;
 
 /**
  * Generates a public/private keypair. It prompts for the output filenames and whether to overwrite

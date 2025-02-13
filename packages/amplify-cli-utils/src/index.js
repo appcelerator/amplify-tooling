@@ -1,6 +1,7 @@
+import sourceMapSupport from 'source-map-support';
 /* istanbul ignore if */
 if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
+	sourceMapSupport.install();
 }
 
 import AmplifySDK, { Telemetry } from '@axway/amplify-sdk';
@@ -9,12 +10,13 @@ import check from 'check-kit';
 import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
 import snooplogg from 'snooplogg';
+import Table from 'cli-table3';
 import { ansi } from 'cli-kit';
-import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request';
-import * as environments from './environments';
-import * as locations from './locations';
+import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request.js';
+import * as environments from './environments.js';
+import * as locations from './locations.js';
 import * as request from '@axway/amplify-request';
-import * as telemetry from './telemetry';
+import * as telemetry from './telemetry.js';
 
 export {
 	AmplifySDK,
@@ -40,13 +42,13 @@ const { cyan, gray, green } = snooplogg.chalk;
  * @param {Config} [config] - The Amplify config object.
  * @returns {Object}
  */
-export function buildAuthParams(opts = {}, config) {
+export async function buildAuthParams(opts = {}, config) {
 	if (!opts || typeof opts !== 'object') {
 		throw new Error('Expected options to be an object');
 	}
 
 	if (!config) {
-		config = loadConfig();
+		config = await loadConfig();
 	}
 
 	const env = environments.resolve(opts.env || config.get('env'));
@@ -122,7 +124,7 @@ export { buildAuthParams as buildParams };
  * @returns {String}
  */
 export async function checkForUpdate(opts, config) {
-	opts = createRequestOptions(opts, config || loadConfig());
+	opts = createRequestOptions(opts, config || await loadConfig());
 
 	const {
 		current,
@@ -151,7 +153,6 @@ export async function checkForUpdate(opts, config) {
  * @returns {Table}
  */
 export function createTable(head, indent = 0) {
-	const Table = require('cli-table3');
 	return new Table({
 		chars: {
 			bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
@@ -281,14 +282,13 @@ export async function initPlatformAccount(accountName, org, env, bypassPlatformA
  * @returns {Object} Returns an object containing the Axway CLI config and an initialized
  * Amplify SDK instance.
  */
-export function initSDK(opts = {}, config) {
+export async function initSDK(opts = {}, config) {
 	if (!config) {
-		config = loadConfig();
+		config = await loadConfig();
 	}
-
 	return {
 		config,
-		sdk: new AmplifySDK(buildAuthParams(opts, config))
+		sdk: new AmplifySDK(await buildAuthParams(opts, config))
 	};
 }
 

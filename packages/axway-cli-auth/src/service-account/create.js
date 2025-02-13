@@ -1,3 +1,13 @@
+import { initPlatformAccount } from '@axway/amplify-cli-utils';
+import { existsSync, isFile } from '@axway/amplify-utils';
+import { generateKeypair } from '../lib/keypair.js';
+import { prompt } from 'enquirer';
+import { readFileSync } from 'fs';
+import snooplogg from 'snooplogg';
+import pkg from 'uuid';
+
+const { uuid } = pkg;
+
 export default {
 	aliases: [ '!add', '!new' ],
 	desc: 'Create a service account',
@@ -48,13 +58,6 @@ required options must be passed in at execution.`;
 		'--secret [key]':       'A custom client secret key'
 	},
 	async action({ argv, cli, console, help, terminal }) {
-		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { existsSync, isFile } = require('@axway/amplify-utils');
-		const { generateKeypair } = require('../lib/keypair');
-		const { prompt } = require('enquirer');
-		const { readFileSync } = require('fs');
-		const uuid = require('uuid');
-		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);

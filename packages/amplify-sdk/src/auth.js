@@ -1,20 +1,20 @@
-import E from './errors';
+import E from './errors.js';
 
-import Authenticator from './authenticators/authenticator';
-import ClientSecret from './authenticators/client-secret';
-import OwnerPassword from './authenticators/owner-password';
-import PKCE from './authenticators/pkce';
-import SignedJWT from './authenticators/signed-jwt';
+import Authenticator from './authenticators/authenticator.js';
+import ClientSecret from './authenticators/client-secret.js';
+import OwnerPassword from './authenticators/owner-password.js';
+import PKCE from './authenticators/pkce.js';
+import SignedJWT from './authenticators/signed-jwt.js';
 
-import FileStore from './stores/file-store';
-import MemoryStore from './stores/memory-store';
-import SecureStore from './stores/secure-store';
-import TokenStore from './stores/token-store';
+import FileStore from './stores/file-store.js';
+import MemoryStore from './stores/memory-store.js';
+import SecureStore from './stores/secure-store.js';
+import TokenStore from './stores/token-store.js';
 
-import getEndpoints from './endpoints';
+import getEndpoints from './endpoints.js';
 import snooplogg from 'snooplogg';
 
-import * as environments from './environments';
+import * as environments from './environments.js';
 import * as request from '@axway/amplify-request';
 
 const { log, warn } = snooplogg('amplify-sdk:auth');

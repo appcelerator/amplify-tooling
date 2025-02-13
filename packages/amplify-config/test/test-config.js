@@ -1,8 +1,12 @@
 import path from 'path';
 import fs from 'fs-extra';
 
-import loadConfig, { Config, configFile } from '../dist/index';
+import loadConfig, { Config, configFile } from '../src/index.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const fixturesDir = path.join(__dirname, 'fixtures', 'config');
 const temp = path.join(__dirname, 'fixtures', 'axway-config.json');
 

@@ -1,18 +1,23 @@
-import E from '../errors';
+import E from '../errors.js';
 import ejs from 'ejs';
 import fs from 'fs-extra';
-import getEndpoints from '../endpoints';
+import getEndpoints from '../endpoints.js';
 import jws from 'jws';
 import open from 'open';
-import path from 'path';
+import path, { dirname } from 'path';
 import snooplogg from 'snooplogg';
-import TokenStore from '../stores/token-store';
+import TokenStore from '../stores/token-store.js';
 
-import * as environments from '../environments';
+import * as environments from '../environments.js';
 import * as request from '@axway/amplify-request';
-import Server from '../server';
+import Server from '../server.js';
 
-import { createURL, md5, prepareForm } from '../util';
+import { createURL, md5, prepareForm } from '../util.js';
+
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const { log, warn } = snooplogg('amplify-auth:authenticator');
 const { green, highlight, red, note } = snooplogg.styles;
@@ -488,7 +493,7 @@ export default class Authenticator {
 		});
 
 		const orgSelectedCallback = await server.createCallback(async (req, res) => {
-			res.writeHead(302, {
+			await res.writeHead(302, {
 				'Content-Type': 'text/html',
 				Location: this.platformUrl
 			});

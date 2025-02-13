@@ -1,3 +1,10 @@
+import snooplogg from 'snooplogg';
+import { getAuthConfigEnvSpecifier, initSDK, isHeadless } from '@axway/amplify-cli-utils';
+import { renderAccountInfo } from '../lib/info.js';
+import pkg from 'enquirer';
+
+const { prompt } = pkg;
+
 export default {
 	desc: 'Select default account, organization, and team',
 	help: `Once authenticated, the "switch" command allows you to change the default
@@ -21,10 +28,6 @@ more than one of org or team.`,
 		'--team [guid|name]': 'The team to use for the selected account'
 	},
 	async action({ argv, cli, console }) {
-		const { default: snooplogg } = require('snooplogg');
-		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
-		const { renderAccountInfo } = require('../lib/info');
-		const { prompt } = require('enquirer');
 		const { highlight, note } = snooplogg.styles;
 		const { config, sdk } = initSDK({
 			baseUrl:  argv.baseUrl,
@@ -160,7 +163,6 @@ more than one of org or team.`,
 						})
 						.sort((a, b) => a.message.localeCompare(b.message));
 					const initial = choices.findIndex(team => team.guid === defaultTeam);
-					const { prompt } = require('enquirer');
 
 					team = (await prompt({
 						choices,

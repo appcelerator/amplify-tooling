@@ -1,20 +1,23 @@
 /* eslint-disable promise/no-nesting */
 
-import Auth from './auth';
+import Auth from './auth.js';
 import crypto from 'crypto';
-import E from './errors';
+import E from './errors.js';
 import fs from 'fs-extra';
 import open from 'open';
-import path from 'path';
-import Server from './server';
+import path, { dirname } from 'path';
+import Server from './server.js';
 import setCookie from 'set-cookie-parser';
 import snooplogg from 'snooplogg';
-import * as environments from './environments';
+import * as environments from './environments.js';
 import * as request from '@axway/amplify-request';
-import { createURL } from './util';
+import { createURL } from './util.js';
 import { promisify } from 'util';
 import { redact } from '@axway/amplify-utils';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const { error, log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;
 

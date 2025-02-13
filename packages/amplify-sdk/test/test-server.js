@@ -1,5 +1,5 @@
 import got from 'got';
-import { Auth } from '../dist/index';
+import { Auth } from '../src/index.js';
 import snooplogg from 'snooplogg';
 
 const { log } = snooplogg('test:amplify-sdk:server');

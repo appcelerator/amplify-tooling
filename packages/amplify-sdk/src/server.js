@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import E from './errors';
+import E from './errors.js';
 import ejs from 'ejs';
 import fs from 'fs-extra';
 import getPort from 'get-port';

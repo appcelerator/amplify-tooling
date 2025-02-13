@@ -1,6 +1,6 @@
 import path from 'path';
 
-import * as util from '../dist/index';
+import * as util from '../src/index.js';
 
 describe('util', () => {
 

@@ -4,6 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "description": "Axway Amplify utility library",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -14,7 +15,7 @@
     "axway",
     "amplify"
   ],
-  "main": "./dist/index",
+  "exports": "./src/index.js",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -38,7 +39,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-utils",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=20.18.2"
   },
   "gitHead": "1ce344de06b229479fb3a5aebe0ccb9259aa5ddd"
 }

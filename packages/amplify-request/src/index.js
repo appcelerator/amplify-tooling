@@ -1,6 +1,7 @@
+import sourceMapSupport from 'source-map-support';
 /* istanbul ignore if */
 if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
+	sourceMapSupport.install();
 }
 
 import fs from 'fs';

@@ -1,6 +1,7 @@
+import sourceMapSupport from 'source-map-support';
 /* istanbul ignore if */
 if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
+	sourceMapSupport.install();
 }
 
 import check from 'check-kit';
@@ -20,9 +21,13 @@ import { dirname, join, parse, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { redact } from '@axway/amplify-utils';
 import { serializeError } from 'serialize-error';
+import { fileURLToPath } from 'url';
+import * as Boxen from 'boxen';
 
 const { bold, cyan, gray, red, yellow } = snooplogg.styles;
 const { log, warn } = snooplogg('axway');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 (async () => {
 	const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
@@ -32,13 +37,12 @@ const { log, warn } = snooplogg('axway');
 
 	let cfg;
 	try {
-		cfg = loadConfig();
+		cfg = await loadConfig();
 	} catch (err) {
 		// config failed to load, reset to defaults
 		warn(err);
-		cfg = new Config();
+		cfg = await new Config().init();
 	}
-
 	const externalExtensions = Object.entries(cfg.get('extensions', {}));
 	const allExtensions = [ ...externalExtensions ];
 	for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
@@ -200,7 +204,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		if (checkWait && cmd.prop('banner')) {
 			const results = (await checkWait).filter(p => p?.updateAvailable);
 			if (results.length) {
-				const boxen = require('boxen');
+				const boxen = Boxen;
 				let msg = '';
 				let axway = '';
 				const exts = createTable();

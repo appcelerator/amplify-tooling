@@ -1,3 +1,8 @@
+import snooplogg from 'snooplogg';
+import { getAuthConfigEnvSpecifier, initSDK, isHeadless } from '@axway/amplify-cli-utils';
+import { renderAccountInfo } from '../lib/info.js';
+import prompt from 'enquirer';
+
 export default {
 	autoHideBanner: false,
 	async banner(state) {
@@ -67,11 +72,6 @@ team to use for "axway" commands.`;
 		}
 	],
 	async action({ argv, cli, console }) {
-		const { default: snooplogg } = require('snooplogg');
-		const { getAuthConfigEnvSpecifier, initSDK, isHeadless } = require('@axway/amplify-cli-utils');
-		const { renderAccountInfo } = require('../lib/info');
-		const { prompt } = require('enquirer');
-
 		// prompt for the username and password
 		if (argv.username !== undefined) {
 			if (!argv.clientSecret && !argv.secretFile) {
@@ -113,7 +113,7 @@ team to use for "axway" commands.`;
 			}
 		}
 
-		const { config, sdk } = initSDK({
+		const { config, sdk } = await initSDK({
 			baseUrl:        argv.baseUrl,
 			clientId:       argv.clientId,
 			clientSecret:   argv.clientSecret,

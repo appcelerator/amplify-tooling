@@ -9,9 +9,11 @@ import path from 'path';
 import Router from '@koa/router';
 import session from 'koa-session';
 import snooplogg from 'snooplogg';
-import { createAuthRoutes } from './auth-routes';
-import { createPlatformRoutes } from './platform-routes';
+import { createAuthRoutes } from './auth-routes.js';
+import { createPlatformRoutes } from './platform-routes.js';
 import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const logger = snooplogg.config({
 	minBrightness: 80,
@@ -19,6 +21,8 @@ const logger = snooplogg.config({
 	theme: 'detailed'
 })('test');
 const { log } = logger;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const { highlight } = snooplogg.styles;
 
 const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);

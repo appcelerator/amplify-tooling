@@ -4,6 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "description": "Axway Amplify SDK for Node.js",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -14,7 +15,7 @@
     "axway",
     "amplify"
   ],
-  "main": "./dist/index",
+  "exports": "./src/index.js",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
@@ -35,7 +36,7 @@
     "pluralize": "^8.0.0",
     "serialize-error": "^8.1.0",
     "set-cookie-parser": "^2.4.8",
-    "snooplogg": "^3.0.2",
+    "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2"
@@ -51,7 +52,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-sdk",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=20.18.2"
   },
   "gitHead": "1ce344de06b229479fb3a5aebe0ccb9259aa5ddd"
 }

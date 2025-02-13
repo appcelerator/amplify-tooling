@@ -1,6 +1,6 @@
 import path from 'path';
-import { Auth, Authenticator, SignedJWT } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
+import { Auth, Authenticator, SignedJWT } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
 
 describe('Signed JWT', () => {
 	describe('Constructor', () => {

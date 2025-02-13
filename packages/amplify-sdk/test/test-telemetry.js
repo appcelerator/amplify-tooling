@@ -1,8 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
-import { createTelemetryServer, stopServer } from './common';
-import { Telemetry } from '../dist/index';
+import { createTelemetryServer, stopServer } from './common.js';
+import { Telemetry } from '../src/index.js';
 
 tmp.setGracefulCleanup();
 

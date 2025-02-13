@@ -7,7 +7,7 @@ import path from 'path';
 import Router from '@koa/router';
 import session from 'koa-session';
 import snooplogg from 'snooplogg';
-import { MemoryStore } from '../dist/index';
+import { MemoryStore } from '../src/index.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const { error, log } = snooplogg('test:amplify-auth:common');

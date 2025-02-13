@@ -1,3 +1,7 @@
+import { createTable, getAuthConfigEnvSpecifier, initSDK } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+import * as Pretty from 'pretty-ms';
+
 export default {
 	aliases: [ 'ls' ],
 	desc: 'Lists all authenticated accounts',
@@ -11,10 +15,7 @@ organization, and the current team.`,
 		}
 	},
 	async action({ argv, console }) {
-		const { createTable, getAuthConfigEnvSpecifier, initSDK } = require('@axway/amplify-cli-utils');
-		const { default: snooplogg } = require('snooplogg');
-
-		const { config, sdk } = initSDK({
+		const { config, sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm
@@ -42,7 +43,7 @@ organization, and the current team.`,
 		const { green } = snooplogg.styles;
 		const check = process.platform === 'win32' ? '√' : '✔';
 		const now = Date.now();
-		const pretty = require('pretty-ms');
+		const pretty = Pretty;
 		const table = createTable([ 'Account Name', 'Organization', 'Current Team', 'Region', 'Type', 'Expires' ]);
 
 		for (const { default: def, auth, isPlatform, name, org, team } of accounts) {

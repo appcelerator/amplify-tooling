@@ -238,7 +238,7 @@ your CLI outside of the Axway CLI:
 
 ```js
 #!/usr/bin/env node
-require('../dist/main');
+require('../src/main');
 ```
 
 #### Step 3

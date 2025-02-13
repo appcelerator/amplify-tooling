@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import tmp from 'tmp';
 import _path from 'path';
 
-import * as path from '../dist/index';
+import * as path from '../src/index.js';
 
 const isWin = /^win/.test(process.platform);
 

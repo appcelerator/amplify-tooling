@@ -1,9 +1,13 @@
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import init from '../dist';
+import init from '../src/index.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const sslDir = path.join(__dirname, 'fixtures', 'ssl');
 
 describe('init', () => {

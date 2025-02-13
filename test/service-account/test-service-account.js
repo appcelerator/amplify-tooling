@@ -5,7 +5,7 @@ import {
 	runAxwaySync,
 	startServers,
 	stopServers
-} from '../helpers';
+} from '../helpers/index.js';
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
