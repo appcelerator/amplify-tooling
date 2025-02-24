@@ -15,20 +15,6 @@ import runner from '@axway/gulp-tasks/src/test-runner.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-// const ansiColors   = require('ansi-colors');
-// const chug         = require('gulp-chug');
-// // const debug        = require('gulp-debug');
-// const fs           = require('fs-extra');
-// // const gulp         = require('gulp');
-// const log          = require('fancy-log');
-// const path         = require('path');
-// const plumber      = require('gulp-plumber');
-// const semver       = require('semver');
-// const spawnSync    = require('child_process').spawnSync;
-// const tmp          = require('tmp');
-
-
-
 const { red, yellow, green, cyan, magenta, gray } = ansiColors;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

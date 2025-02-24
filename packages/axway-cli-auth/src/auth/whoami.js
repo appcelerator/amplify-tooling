@@ -25,11 +25,11 @@ export default {
 		});
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		let accounts = await sdk.auth.list({
-			defaultTeams: config.get(`${authConfigEnvSpecifier}.defaultTeam`),
+			defaultTeams: await config.get(`${authConfigEnvSpecifier}.defaultTeam`),
 			validate: true
 		});
 		for (const account of accounts) {
-			account.default = account.name === config.get(`${authConfigEnvSpecifier}.defaultAccount`);
+			account.default = account.name === await config.get(`${authConfigEnvSpecifier}.defaultAccount`);
 		}
 
 		if (argv.accountName) {
@@ -41,7 +41,7 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(accounts, null, 2));
 		} else {
-			const { highlight, note } = snooplogg.default.styles;
+			const { highlight, note } = snooplogg.styles;
 
 			if (accounts.length) {
 				let account = accounts.find(a => a.default);

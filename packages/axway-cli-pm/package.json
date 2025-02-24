@@ -49,7 +49,7 @@
     "node": ">=20.18.2"
   },
   "cli-kit": {
-    "main": "./dist/index.js",
+    "main": "./src/index.js",
     "name": "pm"
   },
   "gitHead": "1ce344de06b229479fb3a5aebe0ccb9259aa5ddd"

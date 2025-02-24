@@ -1,7 +1,9 @@
 import snooplogg from 'snooplogg';
 import { getAuthConfigEnvSpecifier, initSDK, isHeadless } from '@axway/amplify-cli-utils';
 import { renderAccountInfo } from '../lib/info.js';
-import prompt from 'enquirer';
+import pkg from 'enquirer';
+
+const { prompt } = pkg;
 
 export default {
 	autoHideBanner: false,
@@ -164,7 +166,7 @@ team to use for "axway" commands.`;
 			if (err.code === 'EAUTHENTICATED') {
 				({ account } = err);
 				if (argv.json) {
-					account.default = config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name;
+					account.default = await config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name;
 					console.log(JSON.stringify(account, null, 2));
 					return;
 				}
@@ -186,18 +188,18 @@ team to use for "axway" commands.`;
 		// note: do not validate the account we just logged in as
 		const accounts = await sdk.auth.list({ validate: true, skip: [ account.name ] });
 		if (accounts.length === 1) {
-			config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
-			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
+			await config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
+			await config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
 
 			if (account.team) {
-				config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
+				await config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
 			} else {
-				config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
+				await config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
 			}
 
-			config.save();
+			await config.save();
 			account.default = true;
-		} else if (config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name) {
+		} else if (await config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name) {
 			account.default = true;
 		} else {
 			account.default = false;

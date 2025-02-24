@@ -1,12 +1,12 @@
 import { initPlatformAccount } from '@axway/amplify-cli-utils';
 import { existsSync, isFile } from '@axway/amplify-utils';
 import { generateKeypair } from '../lib/keypair.js';
-import { prompt } from 'enquirer';
 import { readFileSync } from 'fs';
 import snooplogg from 'snooplogg';
-import pkg from 'uuid';
+import * as uuid from 'uuid';
+import pkg from 'enquirer';
 
-const { uuid } = pkg;
+const { prompt } = pkg;
 
 export default {
 	aliases: [ '!add', '!new' ],

@@ -111,7 +111,7 @@ describe('Auth', () => {
 				tokenStoreType: null
 			});
 			await expect(auth.serverInfo({ url: 'http://127.0.0.1:1337/auth/realms/test_realm/.well-known/openid-configuration' }))
-				.to.eventually.be.rejectedWith(Error, /^Unexpected token {/);
+				.to.eventually.be.rejectedWith(Error, /Expected property name or \'}\' in JSON/);
 		});
 
 		it('should throw error applying defaults if env is invalid', async () => {

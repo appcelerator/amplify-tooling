@@ -5,7 +5,7 @@ if (!Error.prepareStackTrace) {
 }
 
 import AmplifySDK, { Telemetry } from '@axway/amplify-sdk';
-import boxen from 'boxen';
+import * as Boxen from 'boxen';
 import check from 'check-kit';
 import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
@@ -17,6 +17,8 @@ import * as environments from './environments.js';
 import * as locations from './locations.js';
 import * as request from '@axway/amplify-request';
 import * as telemetry from './telemetry.js';
+
+const boxen = Boxen;
 
 export {
 	AmplifySDK,
@@ -51,7 +53,7 @@ export async function buildAuthParams(opts = {}, config) {
 		config = await loadConfig();
 	}
 
-	const env = environments.resolve(opts.env || config.get('env'));
+	const env = environments.resolve(opts.env || await config.get('env'));
 
 	const { clientId, realm } = env.auth;
 	const params = {};
@@ -78,15 +80,15 @@ export async function buildAuthParams(opts = {}, config) {
 	};
 
 	for (const prop of Object.keys(props)) {
-		params[prop] = opts[prop] !== undefined ? opts[prop] : config.get(`auth.${prop}`, props[prop]);
+		params[prop] = opts[prop] !== undefined ? opts[prop] : await config.get(`auth.${prop}`, props[prop]);
 	}
 
 	// detect if we're headless and default token store type to `file`
 	if (params.tokenStoreType === undefined && isHeadless()) {
 		params.tokenStoreType = 'file';
-		config.set('auth.tokenStoreType', 'file');
+		await config.set('auth.tokenStoreType', 'file');
 		try {
-			config.save();
+			await config.save();
 		} catch (err) {
 			warn(err);
 		}
@@ -179,7 +181,7 @@ export function createTable(head, indent = 0) {
  * @returns {String}
  *
  * @example
- *   config.get(`${getAuthConfigEnvSpecifier(sdk.env.name)}.defaultAccount`);
+ *   await config.get(`${getAuthConfigEnvSpecifier(sdk.env.name)}.defaultAccount`);
  */
 export function getAuthConfigEnvSpecifier(env) {
 	return !env || env === 'prod' ? 'auth' : `auth.environment.${env}`;
@@ -240,9 +242,9 @@ export function hlVer(toVer, fromVer) {
  * @returns {Promise<Object>}
  */
 export async function initPlatformAccount(accountName, org, env, bypassPlatformAccountCheck = false) {
-	const { config, sdk } = initSDK({ env });
+	const { config, sdk } = await initSDK({ env });
 	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
-	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvSpecifier}.defaultAccount`));
+	const account = await sdk.auth.find(accountName || await config.get(`${authConfigEnvSpecifier}.defaultAccount`));
 
 	if (accountName) {
 		if (!account) {
@@ -259,7 +261,7 @@ export async function initPlatformAccount(accountName, org, env, bypassPlatformA
 	} else {
 		try {
 			// check the config for a default org for this account
-			org = await sdk.org.find(account, config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
+			org = await sdk.org.find(account, await config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
 		} catch (err) {
 			// default org was stale, auto detect the default from the account orgs
 			org = await sdk.org.find(account);
@@ -278,7 +280,7 @@ export async function initPlatformAccount(accountName, org, env, bypassPlatformA
  * Loads the config and creates an Amplify SDK object, then returns both of them.
  *
  * @param {Object} [opts] - SDK options including `env` and auth options.
- * @param {Object} [config] - The Amplify config. If not passed in, the config file is loaded.
+ * @param {Object} [config] - The Amplify await config. If not passed in, the config file is loaded.
  * @returns {Object} Returns an object containing the Axway CLI config and an initialized
  * Amplify SDK instance.
  */

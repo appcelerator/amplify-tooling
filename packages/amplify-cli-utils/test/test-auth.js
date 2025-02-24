@@ -1,6 +1,6 @@
 import http from 'http';
 
-import Config from '@axway/amplify-config';
+import { Config } from '@axway/amplify-config';
 import { initSDK } from '../src/index.js';
 import { MemoryStore } from '@axway/amplify-sdk';
 
@@ -130,7 +130,7 @@ describe('auth', () => {
 		const tokenStore = new MemoryStore();
 		await tokenStore.set(token);
 
-		const { sdk } = initSDK({
+		const { sdk } = await initSDK({
 			baseUrl:      'http://127.0.0.1:1337/',
 			clientId:     'test',
 			clientSecret: 'shhhh',
@@ -138,7 +138,7 @@ describe('auth', () => {
 			platformUrl:  'http://127.0.0.1:1337/',
 			realm:        'baz',
 			tokenStore
-		}, new Config({ env: 'preprod' }));
+		}, await new Config().init({ env: 'preprod' }));
 
 		const account = await sdk.auth.find();
 		expect(account).to.deep.equal(token);
@@ -166,7 +166,7 @@ describe('auth', () => {
 		const tokenStore = new MemoryStore();
 		await tokenStore.set(token);
 
-		const { sdk } = initSDK({
+		const { sdk } = await initSDK({
 			clientId:     'test',
 			env:          'preprod',
 			baseUrl:      'http://127.0.0.1:1337/',
@@ -181,13 +181,13 @@ describe('auth', () => {
 	});
 
 	it('should not find an access token by auth params', async () => {
-		const { sdk } = initSDK({ tokenStore: new MemoryStore() }, await new Config().init());
+		const { sdk } = await initSDK({ tokenStore: new MemoryStore() }, await new Config().init());
 		const account = await sdk.auth.find();
 		expect(account).to.equal(null);
 	});
 
 	it('should not find an access token by id', async () => {
-		const { sdk } = initSDK({ tokenStore: new MemoryStore() }, await new Config().init());
+		const { sdk } = await initSDK({ tokenStore: new MemoryStore() }, await new Config().init());
 		const account = await sdk.auth.find('foo');
 		expect(account).to.equal(null);
 	});

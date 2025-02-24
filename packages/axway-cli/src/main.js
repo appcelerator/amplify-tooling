@@ -97,8 +97,8 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		version
 	});
 
-	cli.on('banner', ({ argv }) => {
-		if (cfg.get('update.check') === false || argv.json) {
+	cli.on('banner', async ({ argv }) => {
+		if (await cfg.get('update.check') === false || argv.json) {
 			log('Skipping update check');
 			return;
 		}
@@ -160,7 +160,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 
 		if (state?.err) {
 			// an error occurred and the help screen was displayed instead of being thrown
-			telemetry.addCrash({
+			await telemetry.addCrash({
 				message: 'Unknown error',
 				...serializeError(state.err),
 				argv:     scrubArgv(state.__argv),
@@ -170,7 +170,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 				warnings: state.warnings
 			});
 		} else {
-			telemetry.addEvent({
+			await telemetry.addEvent({
 				argv:       scrubArgv(state.__argv),
 				contexts,
 				duration:   longRunning ? undefined : Date.now() - state.startTime,
@@ -214,8 +214,9 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 				if (ts && (Date.now() - ts) < 3600000) {
 					return;
 				}
-
-				loadConfig().set('update.notified', Date.now()).save();
+				const config = await loadConfig();
+				await config.set('update.notified', Date.now());
+				await config.save();
 
 				// remove axway package and treat it special
 				for (let i = 0; i < results.length; i++) {
@@ -251,7 +252,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		const exitCode = err.exitCode || 1;
 
 		// record the crash
-		telemetry.addCrash({
+		await telemetry.addCrash({
 			message: 'Unknown error',
 			...serializeError(err),
 			argv:     state ? scrubArgv(state.__argv) : undefined,

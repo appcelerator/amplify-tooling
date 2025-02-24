@@ -1,3 +1,9 @@
+import snooplogg from 'snooplogg';
+import { Extension } from 'cli-kit';
+import { install } from '../pm.js';
+import { loadConfig } from '@axway/amplify-cli-utils';
+import { runListr } from '../utils.js';
+
 export default {
 	aliases: [ 'i' ],
 	args: [
@@ -18,12 +24,6 @@ export default {
 	},
 	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console, exitCode }) {
-		const { default: snooplogg } = require('snooplogg');
-		const { Extension }          = require('cli-kit');
-		const { install }            = require('../pm');
-		const { loadConfig }         = require('@axway/amplify-cli-utils');
-		const { runListr }           = require('../utils');
-
 		const { alert, highlight } = snooplogg.styles;
 		const tasks = [];
 		const results = {
@@ -81,9 +81,9 @@ export default {
 			// errors are stored in the results
 		}
 
-		const cfg = loadConfig();
-		cfg.delete('update.notified');
-		cfg.save();
+		const cfg = await loadConfig();
+		await cfg.delete('update.notified');
+		await cfg.save();
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));

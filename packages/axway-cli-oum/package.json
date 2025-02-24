@@ -42,15 +42,15 @@
     "exports": {
       "org": {
         "desc": "Manage Amplify platform organizations",
-        "main": "./dist/org/index.js"
+        "main": "./src/org/index.js"
       },
       "team": {
         "desc": "Manage Amplify organization teams",
-        "main": "./dist/team/index.js"
+        "main": "./src/team/index.js"
       },
       "user": {
         "desc": "Manage your user settings",
-        "main": "./dist/user/index.js"
+        "main": "./src/user/index.js"
       }
     }
   },

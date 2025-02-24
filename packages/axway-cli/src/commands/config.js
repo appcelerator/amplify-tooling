@@ -26,7 +26,7 @@ export default {
 		},
 		'pop <~key>': {
 			desc: 'Remove the last value in a list',
-			action: ctx => runConfig('pop', ctx)
+			action: async ctx => await runConfig('pop', ctx)
 		},
 		'shift <~key>': {
 			desc: 'Remove the first value in a list',
@@ -105,7 +105,7 @@ ${style.heading('Settings:')}
 
 async function runConfig(action, { argv, cli, console, setExitCode }) {
 	let { json, key, value } = argv;
-	const cfg = loadConfig(argv);
+	const cfg = await loadConfig(argv);
 	const data = { action, key, value };
 	const filter = key && key.split(/\.|\//).filter(Boolean).join('.') || undefined;
 
@@ -160,7 +160,7 @@ async function runConfig(action, { argv, cli, console, setExitCode }) {
 	};
 
 	if (action === 'get') {
-		const value = cfg.get(filter);
+		const value = await cfg.get(filter);
 		print({ code: value === undefined ? 6 : 0, key: filter || key, value });
 	} else {
 		// it's a write operation
@@ -168,31 +168,31 @@ async function runConfig(action, { argv, cli, console, setExitCode }) {
 
 		switch (action) {
 			case 'set':
-				cfg.set(key, data.value);
+				await cfg.set(key, data.value);
 				break;
 
 			case 'delete':
-				cfg.delete(key);
+				await cfg.delete(key);
 				break;
 
 			case 'push':
-				cfg.push(key, data.value);
+				await cfg.push(key, data.value);
 				break;
 
 			case 'pop':
-				result = cfg.pop(key);
+				result = await cfg.pop(key);
 				break;
 
 			case 'shift':
-				result = cfg.shift(key);
+				result = await cfg.shift(key);
 				break;
 
 			case 'unshift':
-				cfg.unshift(key, data.value);
+				await cfg.unshift(key, data.value);
 				break;
 		}
 
-		cfg.save();
+		await cfg.save();
 
 		await cli.emitAction('axway:config:save', cfg);
 

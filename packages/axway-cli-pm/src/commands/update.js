@@ -1,3 +1,11 @@
+import snooplogg from 'snooplogg';
+import { runListr } from '../utils.js';
+import { createTable, hlVer, loadConfig } from '@axway/amplify-cli-utils';
+import { find, install, list, listPurgable, view } from '../pm.js';
+import ora from 'ora';
+import promiseLimit from 'promise-limit';
+import semver from 'semver';
+
 export default {
 	aliases: [ 'up' ],
 	args: [
@@ -20,14 +28,6 @@ export default {
 	},
 	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console, exitCode, terminal }) {
-		const { default: snooplogg }                      = require('snooplogg');
-		const { runListr }                                = require('../utils');
-		const { createTable, hlVer, loadConfig }          = require('@axway/amplify-cli-utils');
-		const { find, install, list, listPurgable, view } = require('../pm');
-		const ora                                         = require('ora');
-		const promiseLimit                                = require('promise-limit');
-		const semver                                      = require('semver');
-
 		const { alert, bold, highlight } = snooplogg.styles;
 		const results = {
 			alreadyActive: [],
@@ -109,7 +109,9 @@ export default {
 					title: `${highlight(`${pkg.name}@${pkg.latest}`)} is installed, setting it as active`,
 					async task(ctx, task) {
 						results.selected.push(`${pkg.name}@${pkg.latest}`);
-						loadConfig().set(`extensions.${pkg.name}`, versionData.path).save();
+						const config = await loadConfig();
+						await config.set(`extensions.${pkg.name}`, versionData.path);
+						await config.save();
 						task.title = `${highlight(`${pkg.name}@${pkg.latest}`)} set as active version`;
 					}
 				};
@@ -158,9 +160,9 @@ export default {
 			// errors are stored in the results
 		}
 
-		const cfg = loadConfig();
-		cfg.delete('update.notified');
-		cfg.save();
+		const cfg = await loadConfig();
+		await cfg.delete('update.notified');
+		await cfg.save();
 
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));

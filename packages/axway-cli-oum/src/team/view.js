@@ -1,3 +1,6 @@
+import { initPlatformAccount } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+
 export default {
 	aliases: [ '!info' ],
 	args: [
@@ -21,7 +24,6 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const { team } = await sdk.team.find(account, org, argv.team);
 
@@ -34,7 +36,6 @@ export default {
 			return;
 		}
 
-		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
 		console.log(`Account:      ${highlight(account.name)}`);

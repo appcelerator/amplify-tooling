@@ -18,9 +18,10 @@ let telemetryInst = null;
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export function addEvent(payload, opts) {
+export async function addEvent(payload, opts) {
 	// eslint-disable-next-line no-unused-expressions
-	init(opts)?.addEvent(payload);
+	const initialize = await init(opts);
+	initialize?.addEvent(payload);
 }
 
 /**
@@ -30,9 +31,10 @@ export function addEvent(payload, opts) {
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export function addCrash(payload, opts) {
+export async function addCrash(payload, opts) {
 	// eslint-disable-next-line no-unused-expressions
-	init(opts)?.addCrash(payload);
+	const initialize = await init(opts);
+	initialize?.addCrash(payload);
 }
 
 /**
@@ -47,14 +49,14 @@ export function addCrash(payload, opts) {
  * @param {String} [opts.url] - The platform analytics endpoint URL.
  * @returns {Telemetry}
  */
-export function init(opts = {}) {
+export async function init(opts = {}) {
 	try {
 		if (telemetryInst) {
 			return telemetryInst;
 		}
 
-		const config = opts.config || loadConfig();
-		if (!config.get('telemetry.enabled')) {
+		const config = opts.config || await loadConfig();
+		if (!await config.get('telemetry.enabled')) {
 			return;
 		}
 
@@ -62,7 +64,7 @@ export function init(opts = {}) {
 			throw new Error('Expected telemetry app guid to be a non-empty string');
 		}
 
-		const env = environments.resolve(opts.env || config.get('env'));
+		const env = environments.resolve(opts.env || await config.get('env'));
 
 		telemetryInst = new Telemetry({
 			appGuid:        opts.appGuid,
@@ -93,8 +95,9 @@ export function init(opts = {}) {
  *
  * @returns {Boolean}
  */
-export function isEnabled() {
-	return !!loadConfig().get('telemetry.enabled');
+export async function isEnabled() {
+	const config = await loadConfig();
+	return !!await config.get('telemetry.enabled');
 }
 
 /**

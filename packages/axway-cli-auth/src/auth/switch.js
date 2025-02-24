@@ -29,7 +29,7 @@ more than one of org or team.`,
 	},
 	async action({ argv, cli, console }) {
 		const { highlight, note } = snooplogg.styles;
-		const { config, sdk } = initSDK({
+		const { config, sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm
@@ -64,7 +64,7 @@ more than one of org or team.`,
 
 			if (accounts.length > 1 && !argv.json) {
 				// we have more than one authenticated account, so we must prompt for which account
-				const defaultAccount = config.get(`${authConfigEnvSpecifier}.defaultAccount`);
+				const defaultAccount = await config.get(`${authConfigEnvSpecifier}.defaultAccount`);
 				const choices = accounts
 					.map(acct => ({ value: acct.name }))
 					.sort((a, b) => a.value.localeCompare(b.value));
@@ -87,10 +87,10 @@ more than one of org or team.`,
 		}
 
 		account.default = true;
-		config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
-		config.delete(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
-		config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
-		config.save();
+		await config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
+		await config.delete(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
+		await config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
+		await config.save();
 
 		if (account.isPlatformTooling) {
 			const org = argv.org && String(argv.org);
@@ -105,7 +105,7 @@ more than one of org or team.`,
 
 		if (account.isPlatform) {
 			// determine the org
-			const defaultOrg = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
+			const defaultOrg = account?.hash && await config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
 			const selectedOrg = argv.org || defaultOrg;
 			const org = selectedOrg && account.orgs.find(o => String(o.guid) === String(selectedOrg)
 						|| String(o.id) === String(selectedOrg) || o.name.toLowerCase() === String(selectedOrg).toLowerCase());
@@ -132,7 +132,7 @@ more than one of org or team.`,
 
 		if (account.org?.teams) {
 			// determine the team
-			const defaultTeam = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
+			const defaultTeam = account?.hash && await config.get(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
 			const selectedTeam = String(argv.team || defaultTeam || '');
 			let team = selectedTeam && account.org.teams.find(t => t.guid.toLowerCase() === selectedTeam.toLowerCase() || t.name.toLowerCase() === selectedTeam.toLowerCase());
 
@@ -200,13 +200,13 @@ more than one of org or team.`,
 		}
 
 		if (account.org) {
-			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
+			await config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
 		}
 		if (account.team) {
-			config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
+			await config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
 		}
 		if (account.org || account.team) {
-			config.save();
+			await config.save();
 		}
 
 		await cli.emitAction('axway:auth:switch', account);

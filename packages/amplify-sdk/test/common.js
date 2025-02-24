@@ -9,9 +9,13 @@ import session from 'koa-session';
 import snooplogg from 'snooplogg';
 import { MemoryStore } from '../src/index.js';
 import { v4 as uuidv4 } from 'uuid';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const { error, log } = snooplogg('test:amplify-auth:common');
 const { highlight, note } = snooplogg.styles;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function createAPIRoutes(server, data) {
 	const router = new Router();

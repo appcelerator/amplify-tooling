@@ -32,7 +32,7 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 	},
 	async action({ argv, console, terminal }) {
 		const { green, red } = snooplogg.default.styles;
-		const config = loadConfig();
+		const config = await loadConfig();
 		let enabled = telemetry.isEnabled();
 
 		if (argv.enable && !argv.disable) {
@@ -59,8 +59,8 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 			}
 		}
 
-		config.set('telemetry.enabled', enabled);
-		config.save();
+		await config.set('telemetry.enabled', enabled);
+		await config.save();
 
 		if (enabled) {
 			console.log(`Telemetry has been ${green('enabled')}.\n`);

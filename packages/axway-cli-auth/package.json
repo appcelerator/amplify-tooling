@@ -53,7 +53,7 @@
           "!serviceaccount"
         ],
         "desc": "Create and manage service accounts",
-        "main": "./dist/service-account/index.js"
+        "main": "./src/service-account/index.js"
       }
     }
   },

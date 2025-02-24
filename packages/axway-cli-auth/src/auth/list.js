@@ -1,6 +1,6 @@
 import { createTable, getAuthConfigEnvSpecifier, initSDK } from '@axway/amplify-cli-utils';
 import snooplogg from 'snooplogg';
-import * as Pretty from 'pretty-ms';
+import prettyMilliseconds from 'pretty-ms';
 
 export default {
 	aliases: [ 'ls' ],
@@ -43,7 +43,6 @@ organization, and the current team.`,
 		const { green } = snooplogg.styles;
 		const check = process.platform === 'win32' ? '√' : '✔';
 		const now = Date.now();
-		const pretty = Pretty;
 		const table = createTable([ 'Account Name', 'Organization', 'Current Team', 'Region', 'Type', 'Expires' ]);
 
 		for (const { default: def, auth, isPlatform, name, org, team } of accounts) {
@@ -54,7 +53,7 @@ organization, and the current team.`,
 				team ? `${team.name} (${team.guid})` : 'n/a',
 				org?.region || 'US',
 				isPlatform ? 'Platform' : 'Service',
-				pretty((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 })
+				prettyMilliseconds((refresh || access) - now, { secDecimalDigits: 0, msDecimalDigits: 0 })
 			]);
 		}
 

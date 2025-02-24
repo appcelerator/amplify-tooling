@@ -1,7 +1,7 @@
 import bodyParser from 'koa-bodyparser';
 import callerPath from 'caller-path';
 import chalk from 'chalk';
-import fs from 'fs-extra';
+import pkg from 'fs-extra';
 import Koa from 'koa';
 import Mustache from 'mustache';
 import os from 'os';
@@ -24,17 +24,18 @@ const { log } = logger;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const { highlight } = snooplogg.styles;
+const { readFileSync, existsSync, readdirSync, copySync, removeSync } = pkg;
 
 const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);
 
 export function initHomeDir(templateDir) {
-	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
+	if (!existsSync(templateDir) && !path.isAbsolute(templateDir)) {
 		templateDir = path.resolve(__dirname, templateDir);
 	}
 
 	const homeDir = path.join(os.homedir(), '.axway', 'axway-cli');
 	log(`Copying ${highlight(templateDir)} => ${highlight(homeDir)}`);
-	fs.copySync(templateDir, homeDir);
+	copySync(templateDir, homeDir);
 }
 
 const defaultVars = {
@@ -72,13 +73,13 @@ export function renderRegex(str, vars) {
 }
 
 export function renderRegexFromFile(file, vars) {
-	if (!fs.existsSync(file) && !/\.mustache$/.test(file)) {
+	if (!existsSync(file) && !/\.mustache$/.test(file)) {
 		file += '.mustache';
 	}
-	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
-		file = path.resolve(path.dirname(callerPath()), file);
+	if (!existsSync(file) && !path.isAbsolute(file)) {
+		file = path.resolve(path.dirname(callerPath().replace("file://", "")), file);
 	}
-	return renderRegex(fs.readFileSync(file, 'utf8').trim(), vars);
+	return renderRegex(readFileSync(file, 'utf8').trim(), vars);
 }
 
 export function resetHomeDir() {
@@ -88,8 +89,8 @@ export function resetHomeDir() {
 	const homedir = os.homedir();
 	if (homedir.startsWith(os.tmpdir())) {
 		log(`Emptying temp home directory: ${highlight(homedir)}`);
-		for (const name of fs.readdirSync(homedir)) {
-			fs.removeSync(path.join(homedir, name));
+		for (const name of readdirSync(homedir)) {
+			removeSync(path.join(homedir, name));
 		}
 	} else {
 		log(`Refusing to empty home directory! ${highlight(homedir)}`);
@@ -112,13 +113,13 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 	args.unshift(axwayBin);
 
 	if (opts.passiveOpen) {
-		args.unshift('--require', path.join(__dirname, 'open-shim-passive.js'));
+		args.unshift('--import', path.join(__dirname, 'open-shim-passive.js'));
 	} else {
-		args.unshift('--require', path.join(__dirname, 'open-shim.js'));
+		args.unshift('--import', path.join(__dirname, 'open-shim.js'));
 	}
 
 	if (opts.shim) {
-		args.unshift('--require', path.join(__dirname, `${opts.shim}.js`));
+		args.unshift('--import', path.join(__dirname, `${opts.shim}.js`));
 	}
 
 	log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);

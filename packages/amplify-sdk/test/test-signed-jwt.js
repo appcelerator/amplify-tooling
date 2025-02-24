@@ -1,6 +1,11 @@
 import path from 'path';
 import { Auth, Authenticator, SignedJWT } from '../src/index.js';
 import { createLoginServer, stopLoginServer } from './common.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 describe('Signed JWT', () => {
 	describe('Constructor', () => {

@@ -1,3 +1,6 @@
+import { createTable, initPlatformAccount } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+
 export default {
 	aliases: [ '!info' ],
 	args: [
@@ -15,7 +18,6 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, org } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (argv.json) {
@@ -26,7 +28,6 @@ export default {
 			return;
 		}
 
-		const { default: snooplogg } = require('snooplogg');
 		const { green, highlight, note } = snooplogg.styles;
 
 		console.log(`Account: ${highlight(account.name)}\n`);

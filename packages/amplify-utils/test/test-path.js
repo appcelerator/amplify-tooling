@@ -3,8 +3,11 @@ import tmp from 'tmp';
 import _path from 'path';
 
 import * as path from '../src/index.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const isWin = /^win/.test(process.platform);
+const __filename = fileURLToPath(import.meta.url);
 
 describe('path', () => {
 	describe('expandPath()', () => {
