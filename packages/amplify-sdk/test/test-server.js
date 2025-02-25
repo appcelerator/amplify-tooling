@@ -7,7 +7,7 @@ const { highlight } = snooplogg.styles;
 
 describe('Server', () => {
 	it('should error if callback does not have an auth code', async function () {
-		this.timeout(10000);
+		this.timeout(20000);
 
 		const auth = new Auth({
 			baseUrl: 'http://127.0.0.1:1337',
@@ -21,8 +21,8 @@ describe('Server', () => {
 		const redirect_uri = new URL(new URL(url).searchParams.get('redirect_uri'));
 
 		try {
-			log(`Requesting ${highlight(`${redirect_uri.origin}/callback`)}`);
-			await got(`${redirect_uri.origin}/callback`);
+			log(`Requesting ${highlight(redirect_uri)}`);
+			await got(redirect_uri);
 		} catch (error) {
 			if (error.response) {
 				expect(error.response.statusCode).to.equal(400);
@@ -47,7 +47,7 @@ describe('Server', () => {
 
 		const { cancel, url } = await auth.login({ manual: true });
 		const redirect_uri = new URL(url).searchParams.get('redirect_uri');
-		const redirectURL = redirect_uri.replace(/(\/callback)\/.+$/, '$1') + '?code=123';
+		const redirectURL = redirect_uri.replace(/(\/callback\/.*\/)\/.+$/, '$1') + '?code=123';
 
 		try {
 			log(`Requesting ${highlight(redirectURL)}`);

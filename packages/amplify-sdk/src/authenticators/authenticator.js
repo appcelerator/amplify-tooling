@@ -508,6 +508,7 @@ export default class Authenticator {
 		const codeCallback = await server.createCallback(async (req, res, { searchParams }) => {
 			const code = searchParams.get('code');
 			if (!code) {
+				res.end();
 				throw new Error('Invalid auth code');
 			}
 
