@@ -6,12 +6,8 @@ on:
 jobs:
   Lint:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read # access to check out code and install dependencies
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
@@ -24,8 +20,6 @@ jobs:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: read # access to check out code and install dependencies
     strategy:
       fail-fast: false
       matrix:
@@ -33,11 +27,29 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.nodeVersion }}
+      - name: Install dependencies
+        run: yarn
+      - name: Run tests
+        run: yarn run test
+  Test:
+    needs: Lint
+    name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        nodeVersion: ["20.18.2", "22.13.1"]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.nodeVersion }}
+      - name: Install libsecret
+        run: sudo apt-get install -y libsecret-1-0
       - name: Install dependencies
         run: yarn
       - name: Run tests
