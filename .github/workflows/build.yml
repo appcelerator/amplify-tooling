@@ -34,7 +34,7 @@ jobs:
         run: yarn
       - name: Run tests
         run: yarn run test
-  Test:
+  UbuntuTest:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
     runs-on: ${{ matrix.os }}
