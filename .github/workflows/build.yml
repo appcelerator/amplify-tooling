@@ -6,6 +6,8 @@ on:
 jobs:
   Lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # access to check out code and install dependencies
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,6 +24,8 @@ jobs:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read # access to check out code and install dependencies
     strategy:
       fail-fast: false
       matrix:
