@@ -16,7 +16,7 @@ jobs:
       - name: Lint
         run: yarn run gulp lint
 
-  Test:
+  MacOsTest:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
     runs-on: ${{ matrix.os }}
@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         nodeVersion: ["20.18.2", "22.13.1"]
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,6 +34,26 @@ jobs:
         run: yarn
       - name: Run tests
         run: yarn run test
+
+  WindowsTest:
+    needs: Lint
+    name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        nodeVersion: ["20.18.2", "22.13.1"]
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.nodeVersion }}
+      - name: Install dependencies
+        run: yarn
+      - name: Run tests
+        run: yarn run test
+
   UbuntuTest:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
