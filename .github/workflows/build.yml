@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         nodeVersion: ["20.18.2", "22.13.1"]
-        os: [macos-latest, windows-latest]
+        os: [macos-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
       matrix:
         nodeVersion: ["20.18.2", "22.13.1"]
-        os: [macos-latest, windows-latest]
+        os: [windows-latest]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
