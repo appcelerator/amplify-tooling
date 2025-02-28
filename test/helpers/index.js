@@ -12,7 +12,7 @@ import snooplogg from 'snooplogg';
 import { createAuthRoutes } from './auth-routes.js';
 import { createPlatformRoutes } from './platform-routes.js';
 import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname } from 'path';
 
 const logger = snooplogg.config({
@@ -77,7 +77,18 @@ export function renderRegexFromFile(file, vars) {
 		file += '.mustache';
 	}
 	if (!existsSync(file) && !path.isAbsolute(file)) {
-		file = path.resolve(path.dirname(callerPath().replace("file://", "")), file);
+		var cp = callerPath();
+		switch (process.platform) {
+		case 'win32': {
+				cp = cp.replace("file:///", "");
+			}
+			break;
+		default: {
+				cp = cp.replace("file://", "");
+			}
+			break;
+		}
+		file = path.resolve(path.dirname(cp), file);
 	}
 	return renderRegex(readFileSync(file, 'utf8').trim(), vars);
 }
@@ -113,13 +124,13 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 	args.unshift(axwayBin);
 
 	if (opts.passiveOpen) {
-		args.unshift('--import', path.join(__dirname, 'open-shim-passive.js'));
+		args.unshift('--import', pathToFileURL(path.join(__dirname, 'open-shim-passive.js')));
 	} else {
-		args.unshift('--import', path.join(__dirname, 'open-shim.js'));
+		args.unshift('--import', pathToFileURL(path.join(__dirname, 'open-shim.js')));
 	}
 
 	if (opts.shim) {
-		args.unshift('--import', path.join(__dirname, `${opts.shim}.js`));
+		args.unshift('--import', pathToFileURL(path.join(__dirname, `${opts.shim}.js`)));
 	}
 
 	log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);

@@ -9,7 +9,7 @@ import log from 'fancy-log';
 import path from 'path';
 import plumber from 'gulp-plumber';
 import semver from 'semver';
-import { spawnSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import tmp from 'tmp';
 import runner from '@axway/gulp-tasks/src/test-runner.js';
 import { fileURLToPath } from 'url';
@@ -163,7 +163,7 @@ async function runTests(cover, all) {
 
 export async function integration() { gulp.series(nodeInfo, build, async function test()     { return await runTests(true); });}
 export async function integrationOnly() { gulp.series(nodeInfo,        async function test()     { return await runTests(true); });}
-export async function test(){ return runTests(true, true);}
+export async function test(){ return await runTests(true, true);}
 
 /*
  * watch task
@@ -214,11 +214,9 @@ async function runLernaBuild(scope) {
 		args.push('--scope', scope);
 	}
 
-	log(`Running ${execPath} ${args.join(' ')}`);
-	const { status } = spawnSync(execPath, args, { stdio: 'inherit' });
-	if (status) {
-		throw new Error(`lerna build failed ${scope ? `for ${scope}` : ''}`);
-	}
+	const cmd = `${execPath} ${args.join(' ')}` 
+	log(`Running ${cmd}`);
+	execSync(cmd, { stdio: 'inherit' });
 }
 
 export async function releaseNotes() {

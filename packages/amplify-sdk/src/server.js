@@ -7,12 +7,11 @@ import http from 'http';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const { error, log } = snooplogg('amplify-auth:server');
 const { green, highlight, red } = snooplogg.styles;
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const defaultPort = 3000;
 const defaultTimeout = 120000; // 2 minutes
