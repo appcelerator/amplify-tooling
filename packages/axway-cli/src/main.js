@@ -22,7 +22,7 @@ import { existsSync, readFileSync } from 'fs';
 import { redact } from '@axway/amplify-utils';
 import { serializeError } from 'serialize-error';
 import { fileURLToPath } from 'url';
-import * as Boxen from 'boxen';
+import boxen from 'boxen';
 
 const { bold, cyan, gray, red, yellow } = snooplogg.styles;
 const { log, warn } = snooplogg('axway');
@@ -204,7 +204,6 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		if (checkWait && cmd.prop('banner')) {
 			const results = (await checkWait).filter(p => p?.updateAvailable);
 			if (results.length) {
-				const boxen = Boxen;
 				let msg = '';
 				let axway = '';
 				const exts = createTable();

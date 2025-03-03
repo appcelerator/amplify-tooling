@@ -205,39 +205,39 @@ describe('Telemetry', () => {
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid, debug.log
 		});
 
-		// it('should add an event and send', async function () {
-		// 	this.timeout(10000);
-		// 	this.slow(8000);
+		it('should add an event and send', async function () {
+			this.timeout(10000);
+			this.slow(8000);
 
-		// 	const posts = [];
-		// 	this.server = await createTelemetryServer({
-		// 		onEvent(payload) {
-		// 			posts.push(payload);
-		// 		}
-		// 	});
+			const posts = [];
+			this.server = await createTelemetryServer({
+				onEvent(payload) {
+					posts.push(payload);
+				}
+			});
 
-		// 	process.env.AXWAY_CLI = 'x.y.z';
+			process.env.AXWAY_CLI = 'x.y.z';
 
-		// 	const { appDir, telemetry } = createTelemetry();
+			const { appDir, telemetry } = createTelemetry();
 
-		// 	telemetry.addEvent({
-		// 		event: 'foo.bar',
-		// 		meaningOfLife: 42
-		// 	});
+			telemetry.addEvent({
+				event: 'foo.bar',
+				meaningOfLife: 42
+			});
 
-		// 	let files = fs.readdirSync(appDir);
-		// 	expect(files).to.have.lengthOf(4);
+			let files = fs.readdirSync(appDir);
+			expect(files).to.have.lengthOf(4);
 
-		// 	telemetry.send();
-		// 	await new Promise(resolve => setTimeout(() => resolve(), 5000));
-		// 	expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
+			telemetry.send({ wait: true });
+			await new Promise(resolve => setTimeout(() => resolve(), 5000));
+			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
-		// 	expect(posts).to.have.lengthOf(1);
-		// 	const events = posts[0];
-		// 	expect(events[0].event).to.equal('session.start');
-		// 	expect(events[1].event).to.equal('foo.bar');
-		// 	expect(events[1].data).to.deep.equal({ meaningOfLife: 42 });
-		// });
+			expect(posts).to.have.lengthOf(1);
+			const events = posts[0];
+			expect(events[0].event).to.equal('session.start');
+			expect(events[1].event).to.equal('foo.bar');
+			expect(events[1].data).to.deep.equal({ meaningOfLife: 42 });
+		});
 
 		it('should add many events and send 2 batches', async function () {
 			this.timeout(5000);

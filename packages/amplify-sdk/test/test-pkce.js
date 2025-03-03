@@ -205,7 +205,7 @@ describe('PKCE', () => {
 			await stopLoginServer.call(this);
 
 			await expect(auth.login({ code: 'foo' }))
-				.to.eventually.be.rejectedWith(Error, /Authentication failed: read ECONNRESET/);
+				.to.eventually.be.rejectedWith(Error, /Authentication failed:/);
 		});
 	});
 

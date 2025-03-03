@@ -5,7 +5,7 @@ if (!Error.prepareStackTrace) {
 }
 
 import AmplifySDK, { Telemetry } from '@axway/amplify-sdk';
-import * as Boxen from 'boxen';
+import boxen from 'boxen';
 import check from 'check-kit';
 import fs from 'fs';
 import loadConfig, { Config } from '@axway/amplify-config';
@@ -17,8 +17,6 @@ import * as environments from './environments.js';
 import * as locations from './locations.js';
 import * as request from '@axway/amplify-request';
 import * as telemetry from './telemetry.js';
-
-const boxen = Boxen;
 
 export {
 	AmplifySDK,

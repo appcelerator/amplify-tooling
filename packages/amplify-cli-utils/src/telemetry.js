@@ -77,7 +77,7 @@ export async function init(opts = {}) {
 
 		process.on('exit', () => {
 			try {
-				telemetryInst.send();
+				telemetryInst.send({ wait: true });
 			} catch (err) {
 				warn(err);
 			}

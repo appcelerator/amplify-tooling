@@ -22,6 +22,7 @@ const __dirname = dirname(__filename);
 export async function nodeInfo() {
 	log(`Node.js ${process.version} (${process.platform})`);
 	log(process.env);
+	return true;
 };
 
 // checks to see if a package requires a node version that is less than a dependencies node requirement
@@ -163,7 +164,7 @@ async function runTests(cover, all) {
 
 export async function integration() { gulp.series(nodeInfo, build, async function test()     { return await runTests(true); });}
 export async function integrationOnly() { gulp.series(nodeInfo,        async function test()     { return await runTests(true); });}
-export async function test(){ return await runTests(true, true);}
+export async function test() { await nodeInfo().then(async () => { await build().then(async () => { return await runTests(true, true);})})};
 
 /*
  * watch task
