@@ -23,6 +23,11 @@
     "mocha": "^11.1.0",
     "mustache": "^4.2.0",
     "pretty-log": "^0.1.0",
+    "rollup": "^4.34.9",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-commonjs": "28.0.2",
+    "@rollup/plugin-json": "^6.1.0",
+    "@yelo/rollup-node-external": "^1.0.1",
     "semver": "^7.7.1",
     "tar-stream": "^3.1.7",
     "uuid": "^11.0.5"

@@ -204,7 +204,8 @@ export async function watch() { gulp.series(build, async function watch() {
 
 async function runLernaBuild(scope) {
 	let { execPath } = process;
-	const args = [ './node_modules/.bin/lerna', 'run', 'build', '--parallel' ];
+	const args = [ './node_modules/.bin/lerna', 'run', 'build', '--parallel', '&&', 'rollup', '-c', "--bundleConfigAsCjs" ];
+	// const args = [ './node_modules/.bin/lerna', 'run', 'build', '--parallel' ];
 
 	if (process.platform === 'win32') {
 		args.shift();
