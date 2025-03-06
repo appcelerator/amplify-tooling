@@ -26,7 +26,7 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^6.0.0-alpha.0",
     "@axway/amplify-utils": "^2.0.0-alpha.0",
-    "cli-kit": "^2.0.2",
+    "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
     "enquirer": "^2.3.6",
     "pretty-ms": "^7.0.1",
     "snooplogg": "^5.1.0",
@@ -46,14 +46,14 @@
     "exports": {
       "auth": {
         "desc": "Authenticate with the Axway Amplify platform",
-        "main": "./src/auth/index.js"
+        "main": "./dist/auth/index.js"
       },
       "service-account": {
         "aliases": [
           "!serviceaccount"
         ],
         "desc": "Create and manage service accounts",
-        "main": "./src/service-account/index.js"
+        "main": "./dist/service-account/index.js"
       }
     }
   },

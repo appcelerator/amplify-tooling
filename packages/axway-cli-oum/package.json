@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^6.0.0-alpha.0",
-    "cli-kit": "^2.0.2",
+    "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
     "open": "^8.4.0",
     "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21"
@@ -42,15 +42,15 @@
     "exports": {
       "org": {
         "desc": "Manage Amplify platform organizations",
-        "main": "./src/org/index.js"
+        "main": "./dist/org/index.js"
       },
       "team": {
         "desc": "Manage Amplify organization teams",
-        "main": "./src/team/index.js"
+        "main": "./dist/team/index.js"
       },
       "user": {
         "desc": "Manage your user settings",
-        "main": "./src/user/index.js"
+        "main": "./dist/user/index.js"
       }
     }
   },
