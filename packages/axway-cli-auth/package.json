@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-auth",
-  "version": "4.0.0-alpha.3",
+  "version": "4.0.0-alpha.4",
   "publishConfig": {
     "access": "public"
   },
@@ -23,8 +23,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^6.0.0-alpha.3",
-    "@axway/amplify-utils": "^2.0.0-alpha.3",
+    "@axway/amplify-cli-utils": "^6.0.0-alpha.4",
+    "@axway/amplify-utils": "^2.0.0-alpha.4",
     "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
     "enquirer": "^2.3.6",
     "pretty-ms": "^7.0.1",

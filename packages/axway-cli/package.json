@@ -1,6 +1,6 @@
 {
   "name": "axway",
-  "version": "4.0.0-alpha.3",
+  "version": "4.0.0-alpha.4",
   "publishConfig": {
     "access": "public"
   },
@@ -28,11 +28,11 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^6.0.0-alpha.3",
-    "@axway/amplify-utils": "^2.0.0-alpha.3",
-    "@axway/axway-cli-auth": "^4.0.0-alpha.3",
-    "@axway/axway-cli-oum": "^3.0.0-alpha.3",
-    "@axway/axway-cli-pm": "^5.0.0-alpha.3",
+    "@axway/amplify-cli-utils": "^6.0.0-alpha.4",
+    "@axway/amplify-utils": "^2.0.0-alpha.4",
+    "@axway/axway-cli-auth": "^4.0.0-alpha.4",
+    "@axway/axway-cli-oum": "^3.0.0-alpha.4",
+    "@axway/axway-cli-pm": "^5.0.0-alpha.4",
     "boxen": "^8.0.1",
     "check-kit": "^3.0.1",
     "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
