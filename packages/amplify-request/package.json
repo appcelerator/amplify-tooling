@@ -20,7 +20,7 @@
     "https",
     "proxy"
   ],
-  "main": "./src/index.js",
+  "exports": "./dist/index.js",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
