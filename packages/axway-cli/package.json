@@ -25,7 +25,6 @@
     "coverage": "gulp coverage",
     "docs": "gulp docs",
     "postinstall": "node scripts/postinstall.js || node -e true",
-    "prepare": "gulp build",
     "test": "gulp test"
   },
   "dependencies": {
