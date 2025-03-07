@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-cli-utils",
-  "version": "6.0.0-alpha.2",
+  "version": "6.0.0-alpha.3",
   "publishConfig": {
     "access": "public"
   },
@@ -24,9 +24,9 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-config": "^5.0.0-alpha.2",
-    "@axway/amplify-request": "^4.0.0-alpha.2",
-    "@axway/amplify-sdk": "^4.0.0-alpha.2",
+    "@axway/amplify-config": "^5.0.0-alpha.3",
+    "@axway/amplify-request": "^4.0.0-alpha.3",
+    "@axway/amplify-sdk": "^4.0.0-alpha.3",
     "boxen": "^8.0.1",
     "check-kit": "^3.0.1",
     "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
