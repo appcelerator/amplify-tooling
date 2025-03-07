@@ -28,7 +28,6 @@ export default [
           resolve(),
           commonjs(),
           json(),
-          resolve(),
         ],
       },
       {
@@ -52,7 +51,6 @@ export default [
           resolve(),
           commonjs(),
           json(),
-          resolve(),
         ],
       },
       {
@@ -76,7 +74,6 @@ export default [
           resolve(),
           commonjs(),
           json(),
-          resolve(),
         ],
       },
       {
@@ -100,7 +97,6 @@ export default [
           resolve(),
           commonjs(),
           json(),
-          resolve(),
         ],
       },
       {
@@ -124,7 +120,6 @@ export default [
           resolve(),
           commonjs(),
           json(),
-          resolve(),
         ],
       },
       {
@@ -148,7 +143,6 @@ export default [
         resolve(),
         commonjs(),
         json(),
-        resolve(),
       ],
     },
     {
@@ -172,7 +166,6 @@ export default [
           resolve(),
           commonjs(),
           json(),
-          resolve(),
         ],
       },
       {
@@ -196,7 +189,6 @@ export default [
           resolve(),
           commonjs(),
           json(),
-          resolve(),
         ],
       },
       {
@@ -220,7 +212,6 @@ export default [
           resolve(),
           commonjs(),
           json(),
-          resolve(),
         ],
       },
   ];

@@ -16,7 +16,7 @@
     "axway",
     "amplify"
   ],
-  "exports": "./src/index.js",
+  "exports": "./dist/index.js",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
