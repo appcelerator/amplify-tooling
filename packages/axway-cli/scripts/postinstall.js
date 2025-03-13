@@ -1,7 +1,7 @@
-import { snooplogg } from 'snooplogg';
+import snooplogg from 'snooplogg';
 import telemetry from '@axway/amplify-cli-utils'
 
-const { cyan, green, red } = snooplogg.default.chalk;
+const { cyan, green, red } = snooplogg.chalk;
 const telemetryEnabled = telemetry.isEnabled();
 
 console.log(`

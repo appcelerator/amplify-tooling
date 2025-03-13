@@ -31,7 +31,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/examples/action-example",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=20.18.2"
   },
   "amplify": {
     "type": "amplify-cli-plugin"

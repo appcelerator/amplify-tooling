@@ -51,8 +51,8 @@ export default {
 				def ? green(`  ${check} ${name}`) : `    ${name}`,
 				desc || note('n/a'),
 				guid,
-				users.length,
-				apps.length,
+				users?.length,
+				apps?.length,
 				new Date(created).toLocaleDateString()
 			]);
 		}

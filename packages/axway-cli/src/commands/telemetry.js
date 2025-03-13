@@ -31,7 +31,7 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 		'--disable': 'Disabled data collection and deletes any pending telemetry data'
 	},
 	async action({ argv, console, terminal }) {
-		const { green, red } = snooplogg.default.styles;
+		const { green, red } = snooplogg.styles;
 		const config = await loadConfig();
 		let enabled = telemetry.isEnabled();
 
