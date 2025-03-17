@@ -123,8 +123,8 @@ describe('axway pm', () => {
 			({ status, stdout } = await runAxwaySync([ 'pm', 'list', '--json' ]));
 			expect(status).to.equal(0);
 			const results = JSON.parse(stdout);
-			expect(results).to.have.lengthOf(1);
 			expect(results[0].name).to.equal('acs');
+			expect(results).to.have.lengthOf(1);
 		});
 
 		it('should error if package not found', async function () {
