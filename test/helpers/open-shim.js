@@ -1,18 +1,18 @@
+import got from 'got';
+import Module from 'module';
+
 /**
  * This is a shim for the `open` package which would open the web browser, but since we don't want
  * a bunch of browser tabs to be opened and we want to support CI environments, we shim `open` and
  * fake the browser interaction.
  */
 
-const got = require('got');
-const Module = require('module');
-
 const origResolveFilename = Module._resolveFilename;
 Module._resolveFilename = function (request, parent, isMain, options) {
 	return request === 'open' ? __filename : origResolveFilename(request, parent, isMain, options);
 };
 
-module.exports = async (url, opts) => {
+export default async (url, opts) => {
 	const response = await got(url);
 	const parsedUrl = new URL(response.url);
 	let { hash, origin } = parsedUrl;

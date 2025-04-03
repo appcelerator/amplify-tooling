@@ -1,6 +1,7 @@
 {
   "name": "@axway/action-example",
   "version": "1.0.0",
+  "type": "module",
   "description": "This package demonstrates the power of Axway CLI actions",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -13,16 +14,15 @@
   "bin": {
     "action-example": "./bin/action-example"
   },
-  "main": "./dist/main",
+  "exports": "./dist/main",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
     "docs": "gulp docs",
-    "prepare": "gulp build",
     "test": "gulp test"
   },
   "dependencies": {
-    "cli-kit": "^1.14.1"
+    "cli-kit": "^2.0.2"
   },
   "devDependencies": {
     "@axway/gulp-tasks": "^4.0.3"
@@ -31,7 +31,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/examples/action-example",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=20.18.2"
   },
   "amplify": {
     "type": "amplify-cli-plugin"

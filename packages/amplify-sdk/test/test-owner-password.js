@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-expressions */
 
 import tmp from 'tmp';
-import { Auth, Authenticator, MemoryStore, OwnerPassword } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
+import { Auth, Authenticator, MemoryStore, OwnerPassword } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
 
 describe('Owner Password', () => {
 	describe('Constructor', () => {

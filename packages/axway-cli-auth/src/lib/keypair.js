@@ -1,7 +1,9 @@
 import path from 'path';
 import { existsSync, writeFileSync } from '@axway/amplify-utils';
 import { initSDK } from '@axway/amplify-cli-utils';
-import { prompt } from 'enquirer';
+import pkg from 'enquirer';
+
+const { prompt } = pkg;
 
 /**
  * Generates a public/private keypair. It prompts for the output filenames and whether to overwrite
@@ -22,7 +24,7 @@ export async function generateKeypair(opts = {}) {
 	}
 
 	const { force, publicKey, privateKey, silent } = opts;
-	const { sdk } = initSDK();
+	const { sdk } = await initSDK();
 	const certs = await sdk.client.generateKeyPair();
 
 	const files = {

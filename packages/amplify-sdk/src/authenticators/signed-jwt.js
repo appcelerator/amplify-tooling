@@ -1,5 +1,5 @@
-import Authenticator from './authenticator';
-import E from '../errors';
+import Authenticator from './authenticator.js';
+import E from '../errors.js';
 import fs from 'fs';
 import jws from 'jws';
 

@@ -1,3 +1,6 @@
+import { generateKeypair } from '../lib/keypair.js';
+import snooplogg from 'snooplogg';
+
 export default {
 	desc: 'Create a pem formatted public/private key pair',
 	help: {
@@ -33,8 +36,6 @@ export default {
 		'--public-key [path]': 'The file to output the public key to'
 	},
 	async action({ argv, console, terminal }) {
-		const { generateKeypair } = require('../lib/keypair');
-
 		const certs = await generateKeypair({
 			console,
 			force:      argv.yes,
@@ -46,7 +47,6 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(certs, null, 2));
 		} else {
-			const { default: snooplogg } = require('snooplogg');
 			const { highlight } = snooplogg.styles;
 			for (const { file, label } of Object.values(certs)) {
 				console.log(`Wrote ${label.toLowerCase()}: ${highlight(file)}`);

@@ -5,7 +5,7 @@ import {
 	runAxwaySync,
 	startServers,
 	stopServers
-} from '../helpers';
+} from '../helpers/index.js';
 
 describe('axway team', () => {
 	describe('help', () => {

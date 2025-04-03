@@ -1,3 +1,12 @@
+import fs from 'fs-extra';
+import npa from 'npm-package-arg';
+import semver from 'semver';
+import snooplogg from 'snooplogg';
+import { dirname } from 'path';
+import { runListr } from '../utils.js';
+import { loadConfig } from '@axway/amplify-cli-utils';
+import { find, packagesDir, uninstallPackage } from '../pm.js';
+
 export default {
 	aliases: [ '!un', '!unlink', '!r', 'rm', '!remove' ],
 	args: [
@@ -18,22 +27,9 @@ export default {
 	},
 	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console }) {
-		const fs                     = require('fs-extra');
-		const npa                    = require('npm-package-arg');
-		const semver                 = require('semver');
-		const { default: snooplogg } = require('snooplogg');
-		const { dirname }            = require('path');
-		const { runListr }           = require('../utils');
-		const { loadConfig }         = require('@axway/amplify-cli-utils');
-		const {
-			find,
-			packagesDir,
-			uninstallPackage
-		}  = require('../pm');
-
 		const { highlight, note } = snooplogg.styles;
 		const { fetchSpec, name, type } = npa(argv.package);
-		const installed = find(name);
+		const installed = await find(name);
 
 		if (!installed) {
 			const err = new Error(`Package "${name}" is not installed`);
@@ -95,14 +91,14 @@ export default {
 		const tasks = [
 			{
 				title: `Unregistering ${highlight(name)} extension`,
-				task: () => {
-					const cfg = loadConfig();
+				task: async () => {
+					const cfg = await loadConfig();
 					if (replacement.path) {
-						cfg.set(`extensions.${name}`, replacement.path);
+						await cfg.set(`extensions.${name}`, replacement.path);
 					} else {
-						cfg.delete(`extensions.${name}`);
+						await cfg.delete(`extensions.${name}`);
 					}
-					cfg.save();
+					await cfg.save();
 				}
 			}
 		];
@@ -137,9 +133,9 @@ export default {
 			}
 		}
 
-		const cfg = loadConfig();
-		cfg.delete('update.notified');
-		cfg.save();
+		const cfg = await loadConfig();
+		await cfg.delete('update.notified');
+		await cfg.save();
 
 		const results = {
 			installed,

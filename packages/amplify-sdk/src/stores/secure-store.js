@@ -1,10 +1,11 @@
 /* eslint-disable security/detect-non-literal-require */
 
 import crypto from 'crypto';
-import E from '../errors';
-import FileStore from './file-store';
+import E from '../errors.js';
+import FileStore from './file-store.js';
 import path from 'path';
 import snooplogg from 'snooplogg';
+import keytar from 'keytar';
 
 const { log, warn } = snooplogg('amplify-sdk:auth:secure-store');
 
@@ -41,7 +42,7 @@ export default class SecureStore extends FileStore {
 
 		super(opts);
 
-		this.keytar = require('keytar');
+		this.keytar = keytar;
 		this.serviceName = opts.secureServiceName || 'Axway AMPLIFY Auth';
 		this.tokenStoreFile = path.join(this.tokenStoreDir, this.filename);
 	}

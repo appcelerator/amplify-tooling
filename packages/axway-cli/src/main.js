@@ -1,6 +1,7 @@
+import sourceMapSupport from 'source-map-support';
 /* istanbul ignore if */
 if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
+	sourceMapSupport.install();
 }
 
 import check from 'check-kit';
@@ -20,9 +21,13 @@ import { dirname, join, parse, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { redact } from '@axway/amplify-utils';
 import { serializeError } from 'serialize-error';
+import { fileURLToPath } from 'url';
+import boxen from 'boxen';
 
 const { bold, cyan, gray, red, yellow } = snooplogg.styles;
 const { log, warn } = snooplogg('axway');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 (async () => {
 	const pkgJson = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json')));
@@ -32,13 +37,12 @@ const { log, warn } = snooplogg('axway');
 
 	let cfg;
 	try {
-		cfg = loadConfig();
+		cfg = await loadConfig();
 	} catch (err) {
 		// config failed to load, reset to defaults
 		warn(err);
-		cfg = new Config();
+		cfg = await new Config().init();
 	}
-
 	const externalExtensions = Object.entries(cfg.get('extensions', {}));
 	const allExtensions = [ ...externalExtensions ];
 	for (const name of [ '@axway/axway-cli-auth', '@axway/axway-cli-oum', '@axway/axway-cli-pm' ]) {
@@ -93,8 +97,8 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		version
 	});
 
-	cli.on('banner', ({ argv }) => {
-		if (cfg.get('update.check') === false || argv.json) {
+	cli.on('banner', async ({ argv }) => {
+		if (await cfg.get('update.check') === false || argv.json) {
 			log('Skipping update check');
 			return;
 		}
@@ -156,7 +160,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 
 		if (state?.err) {
 			// an error occurred and the help screen was displayed instead of being thrown
-			telemetry.addCrash({
+			await telemetry.addCrash({
 				message: 'Unknown error',
 				...serializeError(state.err),
 				argv:     scrubArgv(state.__argv),
@@ -166,7 +170,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 				warnings: state.warnings
 			});
 		} else {
-			telemetry.addEvent({
+			await telemetry.addEvent({
 				argv:       scrubArgv(state.__argv),
 				contexts,
 				duration:   longRunning ? undefined : Date.now() - state.startTime,
@@ -200,7 +204,6 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		if (checkWait && cmd.prop('banner')) {
 			const results = (await checkWait).filter(p => p?.updateAvailable);
 			if (results.length) {
-				const boxen = require('boxen');
 				let msg = '';
 				let axway = '';
 				const exts = createTable();
@@ -210,8 +213,9 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 				if (ts && (Date.now() - ts) < 3600000) {
 					return;
 				}
-
-				loadConfig().set('update.notified', Date.now()).save();
+				const config = await loadConfig();
+				await config.set('update.notified', Date.now());
+				await config.save();
 
 				// remove axway package and treat it special
 				for (let i = 0; i < results.length; i++) {
@@ -247,7 +251,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		const exitCode = err.exitCode || 1;
 
 		// record the crash
-		telemetry.addCrash({
+		await telemetry.addCrash({
 			message: 'Unknown error',
 			...serializeError(err),
 			argv:     state ? scrubArgv(state.__argv) : undefined,

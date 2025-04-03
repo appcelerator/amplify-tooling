@@ -1,6 +1,6 @@
-import { Auth } from '../dist/index';
-import { createServer, stopServer } from './common';
-import serverInfo from './server-info.json';
+import { Auth } from '../src/index.js';
+import { createServer, stopServer } from './common.js';
+import serverInfo from './server-info.json' with { type: "json" };
 
 describe('Server Info', () => {
 	afterEach(stopServer);

@@ -4,7 +4,7 @@ The Axway CLI is the unified CLI for the Axway Amplify platform.
 
 ## Prerequisites
 
-The Axway CLI requires [Node.js][1] 12.13.0 or newer.
+The Axway CLI requires [Node.js][1] 20.18.2 or newer.
 
 ## Installation
 
@@ -238,7 +238,7 @@ your CLI outside of the Axway CLI:
 
 ```js
 #!/usr/bin/env node
-require('../dist/main');
+require('../src/main');
 ```
 
 #### Step 3

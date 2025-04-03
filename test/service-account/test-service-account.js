@@ -5,10 +5,15 @@ import {
 	runAxwaySync,
 	startServers,
 	stopServers
-} from '../helpers';
+} from '../helpers/index.js';
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 tmp.setGracefulCleanup();
 

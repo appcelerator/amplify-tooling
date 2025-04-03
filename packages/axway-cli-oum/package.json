@@ -1,9 +1,10 @@
 {
   "name": "@axway/axway-cli-oum",
-  "version": "2.0.20",
+  "version": "3.0.0-alpha.5",
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "description": "Axway Amplify platform organization and user management CLI",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -18,14 +19,13 @@
     "build": "gulp build",
     "coverage": "gulp coverage",
     "docs": "gulp docs",
-    "prepare": "gulp build",
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.20",
-    "cli-kit": "^1.16.0",
+    "@axway/amplify-cli-utils": "^6.0.0-alpha.5",
+    "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
     "open": "^8.4.0",
-    "snooplogg": "^3.0.2",
+    "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {
@@ -35,7 +35,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-oum",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=20.18.2"
   },
   "cli-kit": {
     "exports": {

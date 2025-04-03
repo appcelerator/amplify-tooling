@@ -1,4 +1,4 @@
-import E from './errors';
+import E from './errors.js';
 
 /**
  * Constructs all endpoints.
