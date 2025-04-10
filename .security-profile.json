@@ -1,0 +1,18 @@
+{
+	"version": "1.0",
+	"project": "Catalog Commons - Axway CLI",
+	"repo_url": "https://github.com/appcelerator/amplify-tooling",
+	"security_guide": "https://docs.axway.com/bundle/axway_resources/page/amplify_api_management_platform_security_white_paper.html",
+	"requirements": {
+		"fortify": true,
+		"irius-risk": false,
+		"pentest": false,
+		"twistlock": false,
+		"blackduck": false,
+		"third-party-policy-violation": false,
+		"appspider": false,
+		"insightvm": false
+	},
+	"suppressions": [
+	]
+}
