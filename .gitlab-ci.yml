@@ -7,7 +7,7 @@ variables:
   FORTIFY_PROJECT: "10424"
   FORTIFY_BUILD_ID: "axway-cli"
   FORTIFY_INCLUDE: "packages/**/*.js"
-  FORTIFY_EXCLUDE: "**/test/**"
+  FORTIFY_EXCLUDE: "**/test/**/*.js"
 
   # Blackduck
   BLACKDUCK_PROJECT_NAME: "Catalog Commons - Axway CLI"
