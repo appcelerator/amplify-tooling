@@ -56,4 +56,6 @@ blackduck:
   before_script:
     - node -v
     - npm -v
+    - apt install npm
+    - npm -v
     - npm i lerna
