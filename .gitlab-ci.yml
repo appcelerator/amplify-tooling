@@ -54,4 +54,6 @@ blackduck:
   rules:
     - when: always
   before_script:
+    - node -v
+    - npm -v
     - npm i lerna
