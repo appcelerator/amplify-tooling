@@ -49,3 +49,5 @@ fetch-fortify:
 blackduck:
   rules:
     - when: always
+  before_script:
+    - npm i lerna
