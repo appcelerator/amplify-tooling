@@ -60,3 +60,4 @@ blackduck:
     - lerna --help
     - which lerna
     - echo $PATH
+    - lerna ls --all --json
