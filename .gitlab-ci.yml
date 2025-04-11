@@ -48,7 +48,7 @@ fortify:
 
 fetch-fortify:
   rules:
-    - when: always
+    - when: never
 
 blackduck:
   rules:
