@@ -39,31 +39,6 @@ stages:
   - security-scans
   - security-review
 
-# sonar_preview:
-#   rules:
-#     - when: never
-
-# fortify:
-#   rules:
-#     - when: always
-
-# fetch-fortify:
-#   rules:
-#     - when: always
-
-blackduck:
-  before_script:
-    # - apk update && apk add npm yarn
-    # - npm i -g lerna
-    # - lerna --help
-    # - which lerna
-    - echo $PATH
-    # - lerna ls --all --json
-
-# upload-files-to-srm:
-#   rules:
-#     - when: never
-
 # For these 2, override the 'needs' from base
 report-latest:
   needs:
@@ -73,11 +48,3 @@ report-snapshot-and-push:
   needs:
     - fetch-fortify
     - fetch-third-party
-
-# fetch-third-party:
-#   rules:
-#     - when: always
-
-# report-snapshot-and-push:
-#   rules:
-#     - when: always
