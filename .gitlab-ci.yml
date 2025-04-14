@@ -43,29 +43,41 @@ sonar_preview:
   rules:
     - when: never
 
-fortify:
-  rules:
-    - when: always
+# fortify:
+#   rules:
+#     - when: always
 
-fetch-fortify:
-  rules:
-    - when: always
+# fetch-fortify:
+#   rules:
+#     - when: always
 
 blackduck:
-  rules:
-    - when: always
   before_script:
-    - apk update && apk add npm yarn
+    # - apk update && apk add npm yarn
     # - npm i -g lerna
     # - lerna --help
     # - which lerna
-    # - echo $PATH
+    - echo $PATH
     # - lerna ls --all --json
 
-fetch-third-party:
-  rules:
-    - when: always
+# upload-files-to-srm:
+#   rules:
+#     - when: never
+
+# For these 2, override the 'needs' from base
+report-latest:
+  needs:
+    - fetch-blackduck:on-schedule
 
 report-snapshot-and-push:
-  rules:
-    - when: always
+  needs:
+    - fetch-fortify
+    - fetch-third-party
+
+# fetch-third-party:
+#   rules:
+#     - when: always
+
+# report-snapshot-and-push:
+#   rules:
+#     - when: always
