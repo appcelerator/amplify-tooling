@@ -39,9 +39,9 @@ stages:
   - security-scans
   - security-review
 
-sonar_preview:
-  rules:
-    - when: never
+# sonar_preview:
+#   rules:
+#     - when: never
 
 # fortify:
 #   rules:
