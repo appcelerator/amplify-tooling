@@ -7,10 +7,10 @@ jobs:
   Lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
           node-version: '12.x'
       - name: Install dependencies
@@ -25,34 +25,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nodeVersion: [ '16.8.0' ]
+        nodeVersion: [ '16.8.0', '14.15.1']
         os: [ macos-latest, ubuntu-latest, windows-latest ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.nodeVersion }}
-      - name: Install dependencies
-        run: yarn
-      - name: Run tests
-        run: yarn run test
-
-  Test-Deprecated:
-    needs: Lint
-    name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        nodeVersion: [ '12.18.0', '14.15.1' ]
-        os: [ macos-12, ubuntu-latest, windows-latest ]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.nodeVersion }}
       - name: Install dependencies
