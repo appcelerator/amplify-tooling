@@ -45,19 +45,27 @@ sonar_preview:
 
 fortify:
   rules:
-    - when: never
+    - when: always
 
 fetch-fortify:
   rules:
-    - when: never
+    - when: always
 
 blackduck:
   rules:
     - when: always
   before_script:
     - apk update && apk add npm yarn
-    - npm i -g lerna
-    - lerna --help
-    - which lerna
-    - echo $PATH
+    # - npm i -g lerna
+    # - lerna --help
+    # - which lerna
+    # - echo $PATH
     # - lerna ls --all --json
+
+fetch-third-party:
+  rules:
+    - when: always
+
+report-snapshot-and-push:
+  rules:
+    - when: always
