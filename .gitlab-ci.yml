@@ -69,10 +69,7 @@ unit_tests:
     script:
       - npm install gulp -g
       - gulp --version
-      # - npm run test
       - npx gulp test
-    retry:
-        max: 2
     except:
         - schedules
 
