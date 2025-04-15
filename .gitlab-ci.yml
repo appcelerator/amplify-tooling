@@ -68,6 +68,7 @@ unit_tests:
       - npx --version
       - npm instal --global gulp-cli
       - gulp --version
+      - npm install gulp
       - npm run test
     retry:
         max: 2
