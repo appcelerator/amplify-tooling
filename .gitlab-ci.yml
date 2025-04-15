@@ -64,10 +64,10 @@ unit_tests:
     stage: test
     script:
       - npm install gulp-cli -g
-      - npm install gulp -g
+      - npm install gulp
       - gulp --version
-      - npx gulp test
-      # - npm run test
+      # - npx gulp test
+      - npm run test
     except:
         - schedules
     allow_failure: true
