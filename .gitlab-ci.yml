@@ -46,6 +46,10 @@ report-latest:
   needs:
     - fetch-blackduck:on-schedule
 
+blackduck:
+  rules:
+    - when: always
+
 report-snapshot-and-push:
   needs:
     - fetch-fortify
@@ -63,13 +67,10 @@ unit_tests:
     image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
     stage: test
     script:
-      - node --version
-      - npm --version
-      - npx --version
-      - npm instal --global gulp-cli
+      - npm install gulp -g
       - gulp --version
-      - npm install gulp
-      - npm run test
+      # - npm run test
+      - npx gulp test
     retry:
         max: 2
     except:
