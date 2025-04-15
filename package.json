@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "lerna exec gulp build",
-    "test": "yarn run gulp test",
+    "test": "yarn run gulp test"
   },
   "workspaces": {
     "packages": [
