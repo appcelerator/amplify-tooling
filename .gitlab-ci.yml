@@ -55,15 +55,20 @@ install_dependencies:
     image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
     stage: install
     script:
-        - npm install
+      - npm install
     except:
-        - schedules
+      - schedules
 
 unit_tests:
     image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
     stage: test
     script:
-        - npm run test
+      - node --version
+      - npm --version
+      - npx --version
+      - npm instal --global gulp-cli
+      - gulp --version
+      - npm run test
     retry:
         max: 2
     except:
