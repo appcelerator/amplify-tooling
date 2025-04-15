@@ -29,7 +29,6 @@
   "scripts": {
     "build": "lerna exec gulp build",
     "test": "yarn run gulp test",
-    "coverage": "yarn run gulp coverage"
   },
   "workspaces": {
     "packages": [
