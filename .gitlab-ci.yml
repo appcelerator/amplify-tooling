@@ -48,3 +48,22 @@ report-snapshot-and-push:
   needs:
     - fetch-fortify
     - fetch-third-party
+
+install_dependencies:
+    image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+    stage: install
+    script:
+        - npm install
+    except:
+        - schedules
+
+unit_tests:
+    image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+    stage: test
+    script:
+        - npm run test
+    retry:
+        max: 2
+    except:
+        - schedules
+
