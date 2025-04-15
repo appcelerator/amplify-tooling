@@ -66,9 +66,13 @@ unit_tests:
       - npm install gulp-cli -g
       - npm install gulp
       - gulp --version
-      # - npx gulp test
-      - npm run test
+      - npx gulp coverage
+      # - npm run test
+      - ls -la .
     except:
         - schedules
     allow_failure: true
+    artifacts:
+      paths:
+        - .coverage/
 
