@@ -63,11 +63,12 @@ unit_tests:
     image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
     stage: test
     script:
-      - npm install gulp-cli -g
+      # - npm install gulp-cli -g
       - npm install gulp
       - gulp --version
-      - npx gulp coverage
+      # - npx gulp test
       # - npm run test
+      - npx gulp coverage
       - ls -la .
     except:
         - schedules
