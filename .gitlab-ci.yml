@@ -70,6 +70,8 @@ unit_tests:
       # - npm run test
       # - npx gulp coverage
       - ls -la .
+      - ls -la ./coverage
+      - ls -la ./.nyc_output
     except:
         - schedules
     allow_failure: true
