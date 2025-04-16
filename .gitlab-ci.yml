@@ -77,5 +77,5 @@ unit_tests:
     allow_failure: true
     artifacts:
       paths:
-        - .coverage/
+        - coverage/
 
