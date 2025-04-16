@@ -66,11 +66,6 @@ unit_tests:
       - npm install gulp-cli -g
       - npm install gulp
       - npx gulp test
-      # - npm run test
-      # - npx gulp coverage
-      - ls -la .
-      - ls -la ./coverage
-      - ls -la ./.nyc_output
     except:
         - schedules
     allow_failure: true
