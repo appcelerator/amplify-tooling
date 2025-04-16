@@ -65,7 +65,6 @@ unit_tests:
     script:
       - npm install gulp-cli -g
       - npm install gulp
-      - gulp --version
       - npx gulp test
       # - npm run test
       # - npx gulp coverage
@@ -76,6 +75,7 @@ unit_tests:
         - schedules
     allow_failure: true
     artifacts:
+      when: always
       paths:
         - coverage/
 
