@@ -95,3 +95,5 @@ blackduck:on-schedule:
     - *get-last-git-tag
     - *get-last
     - echo "THERE"
+  script:
+    - echo "nothing"
