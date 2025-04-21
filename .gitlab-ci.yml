@@ -90,6 +90,8 @@ unit_tests:
 
 # override to set tag because the format is different
 blackduck:on-schedule:
+  rules:
+    - when: always
   before_script:
     - echo "HEERE"
     - *get-last-git-tag
