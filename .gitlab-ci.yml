@@ -74,3 +74,13 @@ unit_tests:
       paths:
         - coverage/
 
+.get-last-git-tag: &get-last-git-tag |
+  GIT_SSL_NO_VERIFY=true
+  git fetch --tags
+  export LAST_TAG_VERSION=$(git tag -l --sort="version:refname" | grep -Eo '^axway@[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(-.*)?$' | tail -1)
+  echo "get-last-git-tag set LAST_TAG_VERSION=$LAST_TAG_VERSION"
+
+# override to set tag because the format is different
+blackduck:on-schedule:
+  before_script:
+    - *get-last-git-tag
