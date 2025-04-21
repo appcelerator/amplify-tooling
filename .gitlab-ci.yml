@@ -75,14 +75,6 @@ unit_tests:
         - coverage/
 
 .get-last-git-tag: &get-last-git-tag |
-  echo "MY tag"
-  GIT_SSL_NO_VERIFY=true
-  git fetch --tags
-  export LAST_TAG_VERSION=$(git tag -l --sort="version:refname" | grep -Eo '^axway@[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(-.*)?$' | tail -1)
-  echo "get-last-git-tag set LAST_TAG_VERSION=$LAST_TAG_VERSION"
-
-.get-last: &get-last |
-  echo "MY tag2"
   GIT_SSL_NO_VERIFY=true
   git fetch --tags
   export LAST_TAG_VERSION=$(git tag -l --sort="version:refname" | grep -Eo '^axway@[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(-.*)?$' | tail -1)
@@ -90,12 +82,5 @@ unit_tests:
 
 # override to set tag because the format is different
 blackduck:on-schedule:
-  rules:
-    - when: always
   before_script:
-    - echo "HEERE"
     - *get-last-git-tag
-    - *get-last
-    - echo "THERE"
-  script:
-    - echo "nothing"
