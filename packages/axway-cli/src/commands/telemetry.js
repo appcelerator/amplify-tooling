@@ -1,3 +1,6 @@
+import snooplogg from 'snooplogg';
+import { loadConfig, telemetry } from '@axway/amplify-cli-utils';
+
 export default {
 	desc: 'Opt-in or out of telemetry to improve Axway products',
 	extendedDesc: `The Axway CLI has a telemetry system that collects anonymous data which is used
@@ -28,10 +31,8 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 		'--disable': 'Disabled data collection and deletes any pending telemetry data'
 	},
 	async action({ argv, console, terminal }) {
-		const { default: snooplogg } = require('snooplogg');
 		const { green, red } = snooplogg.styles;
-		const { loadConfig, telemetry } = require('@axway/amplify-cli-utils');
-		const config = loadConfig();
+		const config = await loadConfig();
 		let enabled = telemetry.isEnabled();
 
 		if (argv.enable && !argv.disable) {
@@ -58,8 +59,8 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 			}
 		}
 
-		config.set('telemetry.enabled', enabled);
-		config.save();
+		await config.set('telemetry.enabled', enabled);
+		await config.save();
 
 		if (enabled) {
 			console.log(`Telemetry has been ${green('enabled')}.\n`);

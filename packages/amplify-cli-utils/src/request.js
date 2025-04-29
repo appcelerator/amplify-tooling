@@ -78,14 +78,14 @@ export function createRequestOptions(opts = {}, config) {
 		throw new TypeError('Expected config to be an Amplify Config instance');
 	}
 
-	const load = (src, dest) => {
+	const load = async (src, dest) => {
 		if (opts[dest] !== undefined) {
 			return;
 		}
 		if (!config) {
-			config = loadConfig();
+			config = await loadConfig();
 		}
-		const value = config.get(src);
+		const value = await config.get(src);
 		if (value === undefined) {
 			return;
 		}

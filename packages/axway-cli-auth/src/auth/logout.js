@@ -28,7 +28,7 @@ export default {
 
 		const { highlight, warning } = snooplogg.styles;
 
-		const { sdk } = initSDK({
+		const { sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm

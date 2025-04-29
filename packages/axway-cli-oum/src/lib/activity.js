@@ -1,3 +1,6 @@
+import { createTable } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+
 /**
  * Renders org and user activity results.
  *
@@ -14,8 +17,6 @@ export async function renderActivity({ account, console, json, results }) {
 		return;
 	}
 
-	const { createTable } = require('@axway/amplify-cli-utils');
-	const { default: snooplogg } = require('snooplogg');
 	const { highlight, note } = snooplogg.styles;
 	let { from, to, events } = results;
 

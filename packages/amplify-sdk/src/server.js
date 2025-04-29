@@ -1,14 +1,17 @@
 import crypto from 'crypto';
-import E from './errors';
+import E from './errors.js';
 import ejs from 'ejs';
 import fs from 'fs-extra';
 import getPort from 'get-port';
 import http from 'http';
 import path from 'path';
 import snooplogg from 'snooplogg';
+import { fileURLToPath } from 'url';
 
 const { error, log } = snooplogg('amplify-auth:server');
 const { green, highlight, red } = snooplogg.styles;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const defaultPort = 3000;
 const defaultTimeout = 120000; // 2 minutes

@@ -2,7 +2,7 @@
 library 'pipeline-library'
 
 runNPMPackage {
-  nodeVersions = [ '12.18.0', '14.15.1' ]
+  nodeVersions = [ '20.18.2', '22.13.1' ]
   packageJsonPath = 'packages/axway-cli/package.json'
   platforms = [ 'linux', 'osx' ]
   publish = false

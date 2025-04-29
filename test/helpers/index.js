@@ -1,7 +1,7 @@
 import bodyParser from 'koa-bodyparser';
 import callerPath from 'caller-path';
 import chalk from 'chalk';
-import fs from 'fs-extra';
+import pkg from 'fs-extra';
 import Koa from 'koa';
 import Mustache from 'mustache';
 import os from 'os';
@@ -9,9 +9,11 @@ import path from 'path';
 import Router from '@koa/router';
 import session from 'koa-session';
 import snooplogg from 'snooplogg';
-import { createAuthRoutes } from './auth-routes';
-import { createPlatformRoutes } from './platform-routes';
+import { createAuthRoutes } from './auth-routes.js';
+import { createPlatformRoutes } from './platform-routes.js';
 import { spawn } from 'child_process';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { dirname } from 'path';
 
 const logger = snooplogg.config({
 	minBrightness: 80,
@@ -19,18 +21,21 @@ const logger = snooplogg.config({
 	theme: 'detailed'
 })('test');
 const { log } = logger;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const { highlight } = snooplogg.styles;
+const { readFileSync, existsSync, readdirSync, copySync, removeSync } = pkg;
 
 const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);
 
 export function initHomeDir(templateDir) {
-	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
+	if (!existsSync(templateDir) && !path.isAbsolute(templateDir)) {
 		templateDir = path.resolve(__dirname, templateDir);
 	}
 
 	const homeDir = path.join(os.homedir(), '.axway', 'axway-cli');
 	log(`Copying ${highlight(templateDir)} => ${highlight(homeDir)}`);
-	fs.copySync(templateDir, homeDir);
+	copySync(templateDir, homeDir);
 }
 
 const defaultVars = {
@@ -68,13 +73,24 @@ export function renderRegex(str, vars) {
 }
 
 export function renderRegexFromFile(file, vars) {
-	if (!fs.existsSync(file) && !/\.mustache$/.test(file)) {
+	if (!existsSync(file) && !/\.mustache$/.test(file)) {
 		file += '.mustache';
 	}
-	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
-		file = path.resolve(path.dirname(callerPath()), file);
+	if (!existsSync(file) && !path.isAbsolute(file)) {
+		var cp = callerPath();
+		switch (process.platform) {
+		case 'win32': {
+				cp = cp.replace("file:///", "");
+			}
+			break;
+		default: {
+				cp = cp.replace("file://", "");
+			}
+			break;
+		}
+		file = path.resolve(path.dirname(cp), file);
 	}
-	return renderRegex(fs.readFileSync(file, 'utf8').trim(), vars);
+	return renderRegex(readFileSync(file, 'utf8').trim(), vars);
 }
 
 export function resetHomeDir() {
@@ -84,8 +100,8 @@ export function resetHomeDir() {
 	const homedir = os.homedir();
 	if (homedir.startsWith(os.tmpdir())) {
 		log(`Emptying temp home directory: ${highlight(homedir)}`);
-		for (const name of fs.readdirSync(homedir)) {
-			fs.removeSync(path.join(homedir, name));
+		for (const name of readdirSync(homedir)) {
+			removeSync(path.join(homedir, name));
 		}
 	} else {
 		log(`Refusing to empty home directory! ${highlight(homedir)}`);
@@ -108,13 +124,13 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 	args.unshift(axwayBin);
 
 	if (opts.passiveOpen) {
-		args.unshift('--require', path.join(__dirname, 'open-shim-passive.js'));
+		args.unshift('--import', pathToFileURL(path.join(__dirname, 'open-shim-passive.js')));
 	} else {
-		args.unshift('--require', path.join(__dirname, 'open-shim.js'));
+		args.unshift('--import', pathToFileURL(path.join(__dirname, 'open-shim.js')));
 	}
 
 	if (opts.shim) {
-		args.unshift('--require', path.join(__dirname, `${opts.shim}.js`));
+		args.unshift('--import', pathToFileURL(path.join(__dirname, `${opts.shim}.js`)));
 	}
 
 	log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);

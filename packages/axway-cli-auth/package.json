@@ -1,9 +1,10 @@
 {
   "name": "@axway/axway-cli-auth",
-  "version": "3.3.16",
+  "version": "4.0.0-alpha.5",
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "description": "Authenticate machines with the Axway Amplify platform",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -19,16 +20,15 @@
     "build": "gulp build",
     "coverage": "gulp coverage",
     "docs": "gulp docs",
-    "prepare": "gulp build",
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.20",
-    "@axway/amplify-utils": "^1.0.16",
-    "cli-kit": "^1.16.0",
+    "@axway/amplify-cli-utils": "^6.0.0-alpha.5",
+    "@axway/amplify-utils": "^2.0.0-alpha.5",
+    "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
     "enquirer": "^2.3.6",
     "pretty-ms": "^7.0.1",
-    "snooplogg": "^3.0.2",
+    "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21",
     "uuid": "^8.3.2"
   },
@@ -39,7 +39,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-auth",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=20.18.2"
   },
   "cli-kit": {
     "exports": {

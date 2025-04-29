@@ -1,9 +1,10 @@
+import sourceMapSupport from 'source-map-support';
 /* istanbul ignore if */
 if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
+	sourceMapSupport.install();
 }
 
-export * from './fs';
-export * from './path';
-export * from './util';
+export * from './fs.js';
+export * from './path.js';
+export * from './util.js';
 

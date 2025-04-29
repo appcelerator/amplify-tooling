@@ -1,3 +1,6 @@
+import { createTable } from '@axway/amplify-cli-utils';
+import { search } from '../pm.js';
+
 export default {
 	aliases: [ 's', '!se' ],
 	args: [
@@ -17,9 +20,6 @@ export default {
 		'--type [type]': { desc: 'Type of package to search', redact: false }
 	},
 	async action({ argv, console }) {
-		const { createTable } = require('@axway/amplify-cli-utils');
-		const { search }      = require('../pm');
-
 		const results = await search(argv);
 
 		if (argv.json) {

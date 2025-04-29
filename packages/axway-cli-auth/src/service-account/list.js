@@ -1,3 +1,6 @@
+import { createTable, initPlatformAccount } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+
 export default {
 	aliases: [ 'ls' ],
 	desc: 'List all service accounts',
@@ -15,7 +18,6 @@ export default {
 		'--org [name|id|guid]': 'The organization name, id, or guid'
 	},
 	async action({ argv, console }) {
-		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const { clients } = await sdk.client.list(account, org);
 
@@ -28,7 +30,6 @@ export default {
 			return;
 		}
 
-		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
 		console.log(`Account:      ${highlight(account.name)}`);

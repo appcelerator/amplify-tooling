@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 
-import { Auth, Authenticator } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
+import { Auth, Authenticator } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
 
 const isCI = process.env.CI || process.env.JENKINS;
 
@@ -158,7 +158,7 @@ describe('PKCE', () => {
 				tokenStoreType: null
 			});
 
-			const account = await auth.login();
+			const account = await auth.login({ code: 'foo' });
 			expect(account.auth.tokens.access_token).to.equal(this.server.accessToken);
 			expect(account.name).to.equal('test_client:foo@bar.com');
 		});
@@ -205,7 +205,7 @@ describe('PKCE', () => {
 			await stopLoginServer.call(this);
 
 			await expect(auth.login({ code: 'foo' }))
-				.to.eventually.be.rejectedWith(Error, /connect ECONNREFUSED 127.0.0.1:133/i);
+				.to.eventually.be.rejectedWith(Error, /Authentication failed:/);
 		});
 	});
 

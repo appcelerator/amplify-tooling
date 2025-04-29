@@ -11,7 +11,10 @@ import {
 	moveSync,
 	readdirScopedSync,
 	writeFileSync
-} from '../dist/index';
+} from '../src/index.js';
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const {
 	name: tmpDir,
@@ -21,6 +24,8 @@ const {
 	prefix: 'amplify-utils-fs-test-',
 	unsafeCleanup: true
 });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 describe('fs', () => {
 	after(() => removeCallback());
