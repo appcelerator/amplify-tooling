@@ -2,7 +2,7 @@
 
 import crypto from 'crypto';
 import fs from 'fs';
-import { get, set } from 'lodash';
+import pkg from 'lodash';
 import semver from 'semver';
 
 import { ChildProcess, execSync, spawnSync } from 'child_process';
@@ -22,6 +22,7 @@ function getBinding(name) {
 }
 const { FSEvent } = getBinding('fs_event_wrap');
 const { Timer } = getBinding('timer_wrap');
+const { get, set } = pkg;
 
 let archCache = null;
 
