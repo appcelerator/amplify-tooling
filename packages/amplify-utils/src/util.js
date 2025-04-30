@@ -2,8 +2,7 @@
 
 import crypto from 'crypto';
 import fs from 'fs';
-import get from 'lodash.get';
-import set from 'lodash.set';
+import { get, set } from 'lodash';
 import semver from 'semver';
 
 import { ChildProcess, execSync, spawnSync } from 'child_process';
@@ -257,8 +256,7 @@ export function formatNumber(n) {
 /**
  * Re-export of lodash's `get()` function.
  *
- * For more information, visit {@link https://www.npmjs.com/package/lodash.get} or
- * {@link https://lodash.com/docs/4.17.15#get}.
+ * For more information, visit {@link https://www.npmjs.com/package/lodash}
  *
  * @param {Object} obj - The object to query.
  * @param {Array.<String>|String} [path] - The path of the property to get.
@@ -720,8 +718,7 @@ export function redact(data, opts = {}) {
 /**
  * Re-export of lodash's `set()` function.
  *
- * For more information, visit {@link https://www.npmjs.com/package/lodash.set} or
- * {@link https://lodash.com/docs/4.17.15#set}.
+ * For more information, visit {@link https://www.npmjs.com/package/lodash}
  *
  * @param {Object} obj - The object to modify.
  * @param {Array.<String>|String} [path] - The path of the property to set.

@@ -23,8 +23,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "lodash.get": "^4.4.2",
-    "lodash.set": "^4.3.2",
+    "lodash": "^4.17.21",
     "semver": "^7.3.7",
     "source-map-support": "^0.5.21",
     "tmp": "^0.2.1"
