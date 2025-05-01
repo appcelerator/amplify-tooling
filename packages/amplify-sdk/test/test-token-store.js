@@ -2,8 +2,9 @@
 
 import fs from 'fs-extra';
 import tmp from 'tmp';
-import { Auth, MemoryStore, TokenStore } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
+import { Auth, MemoryStore, TokenStore } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
+import keytar from 'keytar';
 
 const isCI = process.env.CI || process.env.JENKINS;
 
@@ -335,7 +336,7 @@ describe('Token Store', () => {
 
 		afterEach(async () => {
 			if (!isCI || process.platform !== 'linux') {
-				await require('keytar').deletePassword(secureServiceName, secureServiceName);
+				await keytar.deletePassword(secureServiceName, secureServiceName);
 			}
 		});
 

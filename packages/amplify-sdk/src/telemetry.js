@@ -1,6 +1,6 @@
 import ci from 'ci-info';
 import fs from 'fs-extra';
-import path from 'path';
+import path, { dirname } from 'path';
 import os from 'os';
 import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
 import * as request from '@axway/amplify-request';
@@ -8,6 +8,10 @@ import * as uuid from 'uuid';
 import { arch as _arch, isDir, osInfo, redact, writeFileSync } from '@axway/amplify-utils';
 import { serializeError } from 'serialize-error';
 import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const logger = snooplogg('amplify-sdk:telemetry');
 const { log } = logger;
@@ -277,7 +281,7 @@ export default class Telemetry {
 			return;
 		}
 
-		const child = spawn(process.execPath, [ module.filename ], {
+		const child = spawn(process.execPath, [ __filename ], {
 			stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ],
 			windowsHide: true
 		});

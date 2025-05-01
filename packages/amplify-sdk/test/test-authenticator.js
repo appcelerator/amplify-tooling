@@ -1,4 +1,4 @@
-import { Authenticator } from '../dist/index';
+import { Authenticator } from '../src/index.js';
 
 describe('Authenticator', () => {
 	describe('Constructor', () => {

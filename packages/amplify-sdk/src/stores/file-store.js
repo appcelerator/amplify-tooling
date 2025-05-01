@@ -1,9 +1,9 @@
 import crypto from 'crypto';
-import E from '../errors';
+import E from '../errors.js';
 import fs from 'fs-extra';
 import path from 'path';
 import snooplogg from 'snooplogg';
-import TokenStore from './token-store';
+import TokenStore from './token-store.js';
 import { writeFileSync } from '@axway/amplify-utils';
 
 const { log, warn } = snooplogg('amplify-auth:file-store');

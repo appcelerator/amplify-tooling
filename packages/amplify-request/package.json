@@ -1,9 +1,10 @@
 {
   "name": "@axway/amplify-request",
-  "version": "3.1.7",
+  "version": "4.0.0-alpha.5",
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "description": "HTTP request library for Axway CLI packages",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -19,31 +20,30 @@
     "https",
     "proxy"
   ],
-  "main": "./dist/index",
+  "exports": "./dist/index.js",
   "scripts": {
     "build": "gulp build",
     "coverage": "gulp coverage",
     "docs": "gulp docs",
-    "prepare": "gulp build",
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-utils": "^1.0.16",
+    "@axway/amplify-utils": "^2.0.0-alpha.5",
     "got": "^11.8.5",
     "http-proxy-agent": "^5.0.0",
     "https-proxy-agent": "^5.0.1",
     "pretty-bytes": "^5.6.0",
-    "snooplogg": "^3.0.2",
+    "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "@axway/gulp-tasks": "^5.0.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-request",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=20.18.2"
   },
   "gitHead": "1ce344de06b229479fb3a5aebe0ccb9259aa5ddd"
 }

@@ -2,15 +2,15 @@
 
 import crypto from 'crypto';
 import fs from 'fs';
-import get from 'lodash.get';
-import set from 'lodash.set';
+import pkg from 'lodash';
 import semver from 'semver';
 
 import { ChildProcess, execSync, spawnSync } from 'child_process';
 import { EventEmitter } from 'events';
 import { homedir } from 'os';
-import { isFile } from './fs';
+import { isFile } from './fs.js';
 import { Server, Socket } from 'net';
+import * as asyncHooks from 'async_hooks';
 
 function getBinding(name) {
 	try {
@@ -22,6 +22,7 @@ function getBinding(name) {
 }
 const { FSEvent } = getBinding('fs_event_wrap');
 const { Timer } = getBinding('timer_wrap');
+const { get, set } = pkg;
 
 let archCache = null;
 
@@ -256,8 +257,7 @@ export function formatNumber(n) {
 /**
  * Re-export of lodash's `get()` function.
  *
- * For more information, visit {@link https://www.npmjs.com/package/lodash.get} or
- * {@link https://lodash.com/docs/4.17.15#get}.
+ * For more information, visit {@link https://www.npmjs.com/package/lodash}
  *
  * @param {Object} obj - The object to query.
  * @param {Array.<String>|String} [path] - The path of the property to get.
@@ -719,8 +719,7 @@ export function redact(data, opts = {}) {
 /**
  * Re-export of lodash's `set()` function.
  *
- * For more information, visit {@link https://www.npmjs.com/package/lodash.set} or
- * {@link https://lodash.com/docs/4.17.15#set}.
+ * For more information, visit {@link https://www.npmjs.com/package/lodash}
  *
  * @param {Object} obj - The object to modify.
  * @param {Array.<String>|String} [path] - The path of the property to set.
@@ -835,7 +834,7 @@ export function trackTimers() {
 	if (!trackTimerAsyncHook) {
 		try {
 			// try to initialize the async hook
-			trackTimerAsyncHook = require('async_hooks')
+			trackTimerAsyncHook = asyncHooks
 				.createHook({
 					init(asyncId, type, triggerAsyncId, resource) {
 						if (type === 'Timeout') {

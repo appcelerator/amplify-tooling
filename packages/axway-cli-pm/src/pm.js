@@ -28,7 +28,7 @@ export const packagesDir = path.join(locations.axwayHome, 'axway-cli', 'packages
  * @param {String} packageName - The name of the package to find.
  * @returns {Object}
  */
-export function find(packageName) {
+export async function find(packageName) {
 	if (!packageName || typeof packageName !== 'string') {
 		throw new TypeError('Expected package name to be a non-empty string');
 	}
@@ -36,8 +36,8 @@ export function find(packageName) {
 	if (!isDir(packagesDir)) {
 		return undefined;
 	}
-
-	const extensions = loadConfig().get('extensions', {});
+	const config = await loadConfig();
+	const extensions = await config.get('extensions', {});
 
 	packageName = packageName.toLowerCase();
 
@@ -77,7 +77,7 @@ export function install(pkgName) {
 	const emitter = new EventEmitter();
 
 	setImmediate(async () => {
-		let cfg = loadConfig();
+		let cfg = await loadConfig();
 		let previousActivePackage;
 		let info;
 
@@ -93,7 +93,7 @@ export function install(pkgName) {
 				throw err;
 			}
 
-			previousActivePackage = cfg.get(`extensions.${info.name}`);
+			previousActivePackage = await cfg.get(`extensions.${info.name}`);
 
 			info.path = path.join(packagesDir, info.name, info.version);
 			mkdirpSync(info.path);
@@ -139,23 +139,23 @@ export function install(pkgName) {
 			});
 
 			emitter.emit('register', info);
-			cfg = loadConfig();
-			cfg.set(`extensions.${info.name}`, info.path);
-			cfg.save();
+			cfg = await loadConfig();
+			await cfg.set(`extensions.${info.name}`, info.path);
+			await cfg.save();
 
 			emitter.emit('end', info);
 		} catch (err) {
 			if (info) {
 				if (previousActivePackage === info.path) {
 					// package was reinstalled, but failed and directory is in an unknown state
-					cfg = loadConfig();
-					cfg.delete(`extensions.${info.name}`);
-					cfg.save();
+					cfg = await loadConfig();
+					await cfg.delete(`extensions.${info.name}`);
+					await cfg.save();
 				} else if (previousActivePackage) {
 					// restore the previous value
-					cfg = loadConfig();
-					cfg.set(`extensions.${info.name}`, previousActivePackage);
-					cfg.save();
+					cfg = await loadConfig();
+					await cfg.set(`extensions.${info.name}`, previousActivePackage);
+					await cfg.save();
 				}
 
 				if (info.path) {
@@ -180,7 +180,8 @@ export async function list() {
 		return [];
 	}
 
-	const extensions = loadConfig().get('extensions', {});
+	const config = await loadConfig();
+	const extensions = await config.get('extensions', {});
 	const packages = [];
 
 	for (const name of fs.readdirSync(packagesDir)) {
@@ -416,7 +417,7 @@ export async function view(pkgName, { requestOpts = createRequestOptions(), type
 		throw new Error(`Package "${pkgName}" not found`);
 	}
 
-	const installed = find(pkg.name);
+	const installed = await find(pkg.name);
 
 	return {
 		description: pkg.description,

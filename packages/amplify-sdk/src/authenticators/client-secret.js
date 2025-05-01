@@ -1,5 +1,5 @@
-import Authenticator from './authenticator';
-import E from '../errors';
+import Authenticator from './authenticator.js';
+import E from '../errors.js';
 
 const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
 

@@ -4,12 +4,18 @@ import Router from '@koa/router';
 import snooplogg from 'snooplogg';
 import { v4 as uuidv4 } from 'uuid';
 
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 const logger = snooplogg.config({
 	minBrightness: 80,
 	maxBrightness: 210,
 	theme: 'detailed'
 })('test-platform');
 const { log } = logger;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export function createPlatformRoutes(server, opts = {}) {
 	const router = new Router();

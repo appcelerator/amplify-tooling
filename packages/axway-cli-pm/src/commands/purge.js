@@ -1,3 +1,8 @@
+import { createTable, loadConfig } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+import { listPurgable, uninstallPackage } from '../pm.js';
+import { runListr } from '../utils.js';
+
 export default {
 	args: [
 		{
@@ -19,11 +24,6 @@ export default {
 	},
 	skipExtensionUpdateCheck: true,
 	async action({ argv, cli, console, terminal }) {
-		const { createTable, loadConfig }        = require('@axway/amplify-cli-utils');
-		const { default: snooplogg }             = require('snooplogg');
-		const { listPurgable, uninstallPackage } = require('../pm');
-		const { runListr }                       = require('../utils');
-
 		const { bold, highlight } = snooplogg.styles;
 		const purgeTable = createTable();
 		const purgable = await listPurgable(argv.package);
@@ -83,9 +83,9 @@ export default {
 			// errors are stored in the results
 		}
 
-		const cfg = loadConfig();
-		cfg.delete('update.notified');
-		cfg.save();
+		const cfg = await loadConfig();
+		await cfg.delete('update.notified');
+		await cfg.save();
 
 		if (argv.json) {
 			console.log(JSON.stringify(removedPackages, null, 2));

@@ -3,7 +3,7 @@ export default {
 	name: 'server-info',
 	async action({ argv, console }) {
 		const { initSDK } = await import('@axway/amplify-cli-utils');
-		const { sdk } = initSDK({
+		const { sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm

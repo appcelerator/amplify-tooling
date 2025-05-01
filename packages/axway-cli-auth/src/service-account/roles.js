@@ -1,3 +1,6 @@
+import { createTable, initPlatformAccount } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+
 export default {
 	desc: 'View available service account roles',
 	help: {
@@ -14,7 +17,6 @@ export default {
 		'--org [name|id|guid]': 'The organization name, id, or guid; roles vary by org'
 	},
 	async action({ argv, console }) {
-		const { createTable, initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const orgRoles = await sdk.role.list(account, { client: true, org });
 		const teamRoles = await sdk.role.list(account, { team: true, org });
@@ -29,7 +31,6 @@ export default {
 			return;
 		}
 
-		const { default: snooplogg } = require('snooplogg');
 		const { highlight, note } = snooplogg.styles;
 
 		console.log(`Account:      ${highlight(account.name)}`);

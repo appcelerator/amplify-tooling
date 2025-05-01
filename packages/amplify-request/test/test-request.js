@@ -1,9 +1,13 @@
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import init from '../dist';
+import init from '../src/index.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const sslDir = path.join(__dirname, 'fixtures', 'ssl');
 
 describe('init', () => {
@@ -94,7 +98,7 @@ describe('init', () => {
 		try {
 			await init()('http://127.0.0.1:1337', { responseType: 'json' });
 		} catch (err) {
-			expect(err.message).to.include('Unexpected token { in JSON');
+			expect(err.message).to.include('Expected property name or \'}\' in JSON');
 			return;
 		}
 
@@ -135,7 +139,7 @@ describe('init', () => {
 		try {
 			await init({ strictSSL: true })('https://127.0.0.1:1337');
 		} catch (err) {
-			expect(err.message).to.match(/self signed/);
+			expect(err.message).to.match(/self-signed certificate in certificate chain/);
 			return;
 		}
 	});
