@@ -25,7 +25,7 @@
     "cli-kit": "^2.0.2"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.0.3"
+    "@axway/gulp-tasks": "^5.0.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

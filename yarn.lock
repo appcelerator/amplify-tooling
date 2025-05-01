@@ -34,9 +34,10 @@
     source-map-support "^0.5.21"
     tmp "^0.2.1"
 
-"@axway/gulp-tasks@^4.1.4", "@axway/gulp-tasks@github:kasuvy/axway-gulp-tasks#APIGOV-29723":
-  version "4.1.4"
-  resolved "https://codeload.github.com/kasuvy/axway-gulp-tasks/tar.gz/8bc461a6329b0da0f6ccd137f40ab5a6778da835"
+"@axway/gulp-tasks@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@axway/gulp-tasks/-/gulp-tasks-5.0.1.tgz#04d197b4ebe8e6ecb38487c00ef39a31a14aa496"
+  integrity sha512-iagwnIe8cD91ahbgioH4wdmAjWtlEfImZwP5hRn+H7y+OjcN5MgllpOyDZOFuaQjEgS3x159eGmi1yOAzRPK5g==
   dependencies:
     "@babel/core" "^7.17.2"
     "@babel/eslint-parser" "^7.17.0"

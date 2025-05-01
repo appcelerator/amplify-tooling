@@ -24,7 +24,7 @@
 		"cli-kit": "1.14.1"
 	},
 	"devDependencies": {
-		"@axway/gulp-tasks": "^4.0.3"
+		"@axway/gulp-tasks": "^5.0.1"
 	},
 	"homepage": "",
 	"bugs": "",
