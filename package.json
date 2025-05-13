@@ -19,7 +19,7 @@
     "jws": "^4.0.0",
     "koa": "^2.15.3",
     "koa-bodyparser": "^4.4.1",
-    "lerna": "^8.1.9",
+    "lerna": "^8.2.0",
     "mocha": "^11.1.0",
     "mustache": "^4.2.0",
     "pretty-log": "^0.1.0",
