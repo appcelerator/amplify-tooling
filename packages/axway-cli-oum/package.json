@@ -23,13 +23,13 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^6.0.0-alpha.5",
-    "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
+    "cli-kit": "^2.1.0",
     "open": "^8.4.0",
     "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "@axway/gulp-tasks": "^5.0.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

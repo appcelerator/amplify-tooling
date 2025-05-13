@@ -35,14 +35,14 @@
     "@axway/axway-cli-pm": "^5.0.0-alpha.5",
     "boxen": "^8.0.1",
     "check-kit": "^3.0.1",
-    "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
+    "cli-kit": "^2.1.0",
     "serialize-error": "^8.1.0",
     "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21",
     "v8-compile-cache": "^2.3.0"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "@axway/gulp-tasks": "^5.0.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",

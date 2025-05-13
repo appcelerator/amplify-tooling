@@ -24,14 +24,14 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^6.0.0-alpha.5",
     "@axway/amplify-utils": "^2.0.0-alpha.5",
-    "cli-kit": "github:kasuvy/cli-kit#APIGOV-29723",
+    "cli-kit": "^2.1.0",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
-    "libnpmsearch": "^4.0.1",
+    "libnpmsearch": "^9.0.0",
     "listr2": "^4.0.5",
     "npm-package-arg": "^9.0.2",
     "ora": "^5.4.1",
-    "pacote": "^12.0.3",
+    "pacote": "^21.0.0",
     "promise-limit": "^2.7.0",
     "semver": "^7.3.7",
     "snooplogg": "^5.1.0",
@@ -39,7 +39,7 @@
     "which": "^2.0.2"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "@axway/gulp-tasks": "^5.0.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
