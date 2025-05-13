@@ -1,0 +1,86 @@
+image: docker:dind
+
+variables:
+  PROJECT: 'amplify-tooling'
+
+  # Fortify
+  FORTIFY_PROJECT: "10424"
+  FORTIFY_BUILD_ID: "axway-cli"
+  FORTIFY_INCLUDE: "packages/**/*.js"
+  FORTIFY_EXCLUDE: "**/test/**/*.js"
+
+  # Blackduck
+  BLACKDUCK_PROJECT_NAME: "Catalog Commons - Axway CLI"
+  BLACKDUCK_EXTRA_OPTIONS: "--detect.excluded.detector.types=LERNA"
+
+  # SRM
+  SRM_PROJECT_NAME: "$BLACKDUCK_PROJECT_NAME"
+  SRM_PROJECT_ID: "11"
+
+########################################
+# set up custom names for the pipelines of releases and nightly schedules
+########################################
+  PIPELINE_NAME: "$CI_COMMIT_MESSAGE"
+
+include:
+  - project: "apigov/gitlabci"
+    ref: master
+    file: "/.gitlab-ci-sonar.yml"
+  - project: 'scurity/gitlabci'
+    ref: $SCURITY_GREEN
+    file:
+      - '/.gitlab-ci-fortify.yml'
+      - "/.gitlab-ci-blackduck.yml"
+      - "/.gitlab-ci-security.yml"
+
+stages:
+  - install
+  - test
+  - sonar-preview
+  - sonar-publish
+  - security-scans
+  - security-review
+
+# For these 2, override the 'needs' from base
+report-latest:
+  needs:
+    - fetch-blackduck:on-schedule
+
+report-snapshot-and-push:
+  needs:
+    - fetch-fortify
+    - fetch-third-party
+
+install_dependencies:
+    image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+    stage: install
+    script:
+      - npm install
+    except:
+      - schedules
+
+unit_tests:
+    image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+    stage: test
+    script:
+      - npm install gulp-cli -g
+      - npm install gulp
+      - npx gulp test
+    except:
+        - schedules
+    allow_failure: true
+    artifacts:
+      when: always
+      paths:
+        - coverage/
+
+.get-last-git-tag: &get-last-git-tag |
+  GIT_SSL_NO_VERIFY=true
+  git fetch --tags
+  export LAST_TAG_VERSION=$(git tag -l --sort="version:refname" | grep -Eo '^axway@[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(-.*)?$' | tail -1)
+  echo "get-last-git-tag set LAST_TAG_VERSION=$LAST_TAG_VERSION"
+
+# override to set tag because the format is different
+blackduck:on-schedule:
+  before_script:
+    - *get-last-git-tag
