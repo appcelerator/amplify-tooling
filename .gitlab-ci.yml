@@ -24,7 +24,7 @@ variables:
 
 include:
   - project: "apigov/gitlabci"
-    ref: master
+    ref: $GITLAB_CICD_BLUE
     file: "/.gitlab-ci-sonar.yml"
   - project: 'scurity/gitlabci'
     ref: $SCURITY_GREEN
@@ -36,8 +36,7 @@ include:
 stages:
   - install
   - test
-  - sonar-preview
-  - sonar-publish
+  - sonar
   - security-scans
   - security-review
 
