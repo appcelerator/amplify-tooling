@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"@axway/amplify-cli-utils": "^5.0.0",
-		"cli-kit": "2.1.0"
+		"cli-kit": "2.1.1"
 	},
 	"devDependencies": {
 		"@axway/gulp-tasks": "^5.0.1"

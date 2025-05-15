@@ -68,7 +68,6 @@ export function renderRegex(str, vars) {
 	str = str.replace(/([()[\]?])/g, '\\$1');
 	str = Mustache.render(str, Object.assign({}, defaultVars, vars));
 	str = str.replace(/\n/g, '\\s*\n');
-	// console.log(JSON.stringify(str));
 	return new RegExp(str);
 }
 

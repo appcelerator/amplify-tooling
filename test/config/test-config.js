@@ -41,14 +41,6 @@ describe('axway config', () => {
 			});
 		});
 
-		// it('should handle bad config', async () => {
-		// 	initHomeDir('home-bad-config');
-		// 	const { status, stderr } = await runAxwaySync([ 'config', 'list' ]);
-		// 	expect(status).to.equal(1);
-		// 	console.log(stderr);
-		// 	expect(stderr.toString()).to.match(renderRegexFromFile('list/bad-config'));
-		// });
-
 		it('should display list help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'config', 'list', '--help' ]);
 			expect(status).to.equal(2);
