@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-sdk",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "publishConfig": {
     "access": "public"
   },
@@ -23,8 +23,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-request": "^4.0.1",
-    "@axway/amplify-utils": "^2.0.1",
+    "@axway/amplify-request": "^4.0.2",
+    "@axway/amplify-utils": "^2.0.2",
     "ci-info": "^3.3.1",
     "ejs": "^3.1.10",
     "fs-extra": "^10.1.0",
