@@ -1,3 +1,7 @@
+# v4.0.0 (May 16, 2025)
+
+- BREAKING CHANGE: Node JS Upgrade.
+
 # v3.2.16 (Jan 16, 2025)
 
 - chore: Updated dependencies.
