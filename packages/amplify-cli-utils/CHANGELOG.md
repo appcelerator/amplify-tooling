@@ -1,3 +1,8 @@
+# v6.0.0 (May 16, 2025)
+
+- BREAKING CHANGE: Node.js version upgrade to 20.18.2 (minimum) and conversion to ES Modules.
+  ([APIGOV-27923](https://jira.axway.com/browse/APIGOV-29723))
+
 # v5.0.20 (Jan 16, 2025)
 
 - fix: Added a fix for listing teams with a service account
