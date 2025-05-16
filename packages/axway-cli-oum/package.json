@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-oum",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "publishConfig": {
     "access": "public"
   },
@@ -22,7 +22,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^6.0.0",
+    "@axway/amplify-cli-utils": "^6.0.1",
     "cli-kit": "^2.1.1",
     "open": "^8.4.0",
     "snooplogg": "^5.1.0",
