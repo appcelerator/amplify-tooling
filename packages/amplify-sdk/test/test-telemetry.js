@@ -1,8 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
-import { createTelemetryServer, stopServer } from './common';
-import { Telemetry } from '../dist/index';
+import { createTelemetryServer, stopServer } from './common.js';
+import { Telemetry } from '../src/index.js';
 
 tmp.setGracefulCleanup();
 
@@ -228,7 +228,7 @@ describe('Telemetry', () => {
 			let files = fs.readdirSync(appDir);
 			expect(files).to.have.lengthOf(4);
 
-			telemetry.send();
+			telemetry.send({ wait: true });
 			await new Promise(resolve => setTimeout(() => resolve(), 5000));
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 

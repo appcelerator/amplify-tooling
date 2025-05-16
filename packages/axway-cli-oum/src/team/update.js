@@ -1,3 +1,6 @@
+import { initPlatformAccount } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+
 export default {
 	aliases: [ '!up' ],
 	args: [
@@ -52,7 +55,6 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (!org.userRoles.includes('administrator')) {
@@ -75,7 +77,6 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const { default: snooplogg } = require('snooplogg');
 			const { highlight, note } = snooplogg.styles;
 			const labels = {
 				default: 'is default',

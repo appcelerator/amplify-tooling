@@ -1,4 +1,4 @@
-import Authenticator from './authenticator';
+import Authenticator from './authenticator.js';
 import crypto from 'crypto';
 
 /**

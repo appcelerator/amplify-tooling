@@ -1,8 +1,13 @@
-import AmplifySDK from '../dist/index';
+import AmplifySDK from '../src/index.js';
 import fs from 'fs';
 import path from 'path';
-import { createServer, stopServer } from './common';
-import { resovleMonthRange } from '../dist/amplify-sdk';
+import { createServer, stopServer } from './common.js';
+import { resovleMonthRange } from '../src/amplify-sdk.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const baseUrl = 'http://127.0.0.1:1337';
 const isCI = process.env.CI || process.env.JENKINS;

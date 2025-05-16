@@ -1,14 +1,16 @@
+import sourceMapSupport from 'source-map-support';
 /* istanbul ignore if */
 if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
+	sourceMapSupport.install();
 }
 
-import Config from 'config-kit';
+import { Config } from 'config-kit';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { expandPath, isFile, writeFileSync } from '@axway/amplify-utils';
 
+// const { expandPath, isFile, writeFileSync } = pkg;
 const axwayHome = path.join(os.homedir(), '.axway');
 
 export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
@@ -23,7 +25,7 @@ export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
  * @param {String} [opts.configFile] - The path to a .js or .json config file to load.
  * @returns {Config}
  */
-export function loadConfig(opts = {}) {
+export async function loadConfig(opts = {}) {
 	// validate the config options
 	if (opts.config && (typeof opts.config !== 'object' || Array.isArray(opts.config))) {
 		throw new TypeError('Expected config to be an object');
@@ -41,8 +43,7 @@ export function loadConfig(opts = {}) {
 		json.extensions = {};
 		writeFileSync(configFile, JSON.stringify(json, null, 2));
 	}
-
-	return new Config({
+	return await new Config().init({
 		data: opts.config,
 		file: expandPath(opts.configFile || configFile)
 	});

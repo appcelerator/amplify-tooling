@@ -1,6 +1,7 @@
 {
 	"name": "auth-example",
 	"version": "0.0.0",
+	"type": "module",
 	"description": "",
 	"author": "",
 	"maintainers": [],
@@ -11,26 +12,25 @@
 	"bin": {
 		"auth-example": "./bin/auth-example"
 	},
-	"main": "./dist/main",
+	"exports": "./dist/main",
 	"scripts": {
 		"build": "gulp build",
 		"coverage": "gulp coverage",
 		"docs": "gulp docs",
-		"prepare": "gulp build",
 		"test": "gulp test"
 	},
 	"dependencies": {
 		"@axway/amplify-cli-utils": "^5.0.0",
-		"cli-kit": "1.14.1"
+		"cli-kit": "2.1.1"
 	},
 	"devDependencies": {
-		"@axway/gulp-tasks": "^4.0.3"
+		"@axway/gulp-tasks": "^5.0.1"
 	},
 	"homepage": "",
 	"bugs": "",
 	"repository": "",
 	"engines": {
-		"node": ">=12.13.0"
+		"node": ">=20.18.2"
 	},
 	"amplify": {
 		"type": "amplify-cli-plugin"

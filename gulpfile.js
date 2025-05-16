@@ -1,27 +1,32 @@
 'use strict';
 
-const ansiColors   = require('ansi-colors');
-const chug         = require('gulp-chug');
-const debug        = require('gulp-debug');
-const fs           = require('fs-extra');
-const gulp         = require('gulp');
-const log          = require('fancy-log');
-const path         = require('path');
-const plumber      = require('gulp-plumber');
-const semver       = require('semver');
-const spawnSync    = require('child_process').spawnSync;
-const tmp          = require('tmp');
+import ansiColors from 'ansi-colors';
+import chug from 'gulp-chug';
+import debug from 'gulp-debug';
+import fs from 'fs-extra';
+import gulp from 'gulp';
+import log from 'fancy-log';
+import path from 'path';
+import plumber from 'gulp-plumber';
+import semver from 'semver';
+import { execSync, spawnSync } from 'child_process';
+import tmp from 'tmp';
+import runner from '@axway/gulp-tasks/src/test-runner.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const { series } = gulp;
 const { red, yellow, green, cyan, magenta, gray } = ansiColors;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-const nodeInfo = exports['node-info'] = async function nodeInfo() {
+export async function nodeInfo() {
 	log(`Node.js ${process.version} (${process.platform})`);
 	log(process.env);
+	return true;
 };
 
 // checks to see if a package requires a node version that is less than a dependencies node requirement
-exports['check-engines'] = async function checkEngines() {
+export async function checkEngines() {
 	const cache = {};
 	const issues = [];
 
@@ -83,7 +88,7 @@ exports['check-engines'] = async function checkEngines() {
 /*
  * lint tasks
  */
-exports.lint = function lint() {
+export async function lint() {
 	return gulp
 		.src([
 			path.join(__dirname, 'packages/*/gulpfile.js')
@@ -96,7 +101,7 @@ exports.lint = function lint() {
 /*
  * build tasks
  */
-const build = exports.build = async function build() {
+export async function build() {
 	return runLernaBuild();
 };
 
@@ -132,7 +137,7 @@ async function runTests(cover, all) {
 			process.env.HOMEPATH = tmpHomeDir.replace(process.env.HOMEDRIVE, '');
 		}
 
-		const runner = require('@axway/gulp-tasks/src/test-runner');
+		// const runner = require('@axway/gulp-tasks/src/test-runner');
 		await runner.runTests({
 			all,
 			cover,
@@ -157,14 +162,14 @@ async function runTests(cover, all) {
 	}
 }
 
-exports.integration         = series(nodeInfo, build, function test()     { return runTests(true); });
-exports['integration-only'] = series(nodeInfo,        function test()     { return runTests(true); });
-exports.test                = series(nodeInfo, build, function coverage() { return runTests(true, true); });
+export async function integration() { gulp.series(nodeInfo, build, async function test()     { return await runTests(true); });}
+export async function integrationOnly() { gulp.series(nodeInfo,        async function test()     { return await runTests(true); });}
+export async function test() { await nodeInfo().then(async () => { await build().then(async () => { return await runTests(true, true);})})};
 
 /*
  * watch task
  */
-exports.watch = series(build, async function watch() {
+export async function watch() { gulp.series(build, async function watch() {
 	const srcWatcher = gulp
 		.watch(`${__dirname}/packages/*/src/**/*.js`)
 		.on('all', (type, path) => {
@@ -195,10 +200,12 @@ exports.watch = series(build, async function watch() {
 		});
 	});
 });
+}
 
 async function runLernaBuild(scope) {
 	let { execPath } = process;
-	const args = [ './node_modules/.bin/lerna', 'run', 'build', '--parallel' ];
+	const args = [ './node_modules/.bin/lerna', 'run', 'build', '--parallel', '&&', 'rollup', '-c', "--bundleConfigAsCjs" ];
+	// const args = [ './node_modules/.bin/lerna', 'run', 'build', '--parallel' ];
 
 	if (process.platform === 'win32') {
 		args.shift();
@@ -209,14 +216,12 @@ async function runLernaBuild(scope) {
 		args.push('--scope', scope);
 	}
 
-	log(`Running ${execPath} ${args.join(' ')}`);
-	const { status } = spawnSync(execPath, args, { stdio: 'inherit' });
-	if (status) {
-		throw new Error(`lerna build failed ${scope ? `for ${scope}` : ''}`);
-	}
+	const cmd = `${execPath} ${args.join(' ')}` 
+	log(`Running ${cmd}`);
+	execSync(cmd, { stdio: 'inherit' });
 }
 
-exports['release-notes'] = async function releaseNotes() {
+export async function releaseNotes() {
 	const { cyan } = require('ansi-colors');
 	const https    = require('https');
 	const semver   = require('semver');

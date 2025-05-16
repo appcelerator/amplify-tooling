@@ -1,3 +1,9 @@
+import npa from 'npm-package-arg';
+import semver from 'semver';
+import snooplogg from 'snooplogg';
+import { find } from '../pm.js';
+import { loadConfig } from '@axway/amplify-cli-utils';
+
 /**
  * Examples:
  * 	amplify pm use <pkg>
@@ -24,15 +30,9 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const npa                    = require('npm-package-arg');
-		const semver                 = require('semver');
-		const { default: snooplogg } = require('snooplogg');
-		const { find }               = require('../pm');
-		const { loadConfig }         = require('@axway/amplify-cli-utils');
-
 		const { highlight } = snooplogg.styles;
 		let { fetchSpec, name, type } = npa(argv.package);
-		const installed = find(name);
+		const installed = await find(name);
 
 		if (!installed) {
 			const err = new Error(`Package "${name}" is not installed`);
@@ -75,9 +75,9 @@ export default {
 		} else {
 			msg = `Set ${highlight(`${name}@${version}`)} as action version`;
 			installed.version = version;
-			loadConfig()
-				.set(`extensions.${name}`, info.path)
-				.save();
+			const config = await loadConfig();
+			await config.set(`extensions.${name}`, info.path);
+			await config.save();
 		}
 
 		if (argv.json) {

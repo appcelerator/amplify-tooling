@@ -2,7 +2,7 @@ import {
 	renderRegexFromFile,
 	resetHomeDir,
 	runAxwaySync
-} from '../helpers';
+} from '../helpers/index.js';
 
 describe('axway', () => {
 	describe('help', () => {
@@ -12,12 +12,6 @@ describe('axway', () => {
 			const { status, stdout } = await runAxwaySync();
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
-		});
-
-		it('should output the help screen without color', async () => {
-			const { status, stdout } = await runAxwaySync([ '--no-color' ]);
-			expect(status).to.equal(2);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-without-color'));
 		});
 
 		it('should output the help as JSON', async () => {

@@ -1,3 +1,6 @@
+import { initPlatformAccount } from '@axway/amplify-cli-utils';
+import snooplogg from 'snooplogg';
+
 export default {
 	aliases: [ '!up' ],
 	desc: 'Change your information',
@@ -32,7 +35,6 @@ export default {
 		'--phone [value]': 'Your phone number'
 	},
 	async action({ argv, cli, console, help }) {
-		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		const { changes, user } = await sdk.user.update(account, {
@@ -50,7 +52,6 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const { default: snooplogg } = require('snooplogg');
 			const { highlight } = snooplogg.styles;
 			const labels = {
 				firstname: 'first name',

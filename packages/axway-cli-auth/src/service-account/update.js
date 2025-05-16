@@ -1,3 +1,8 @@
+import { initPlatformAccount } from '@axway/amplify-cli-utils';
+import { existsSync, isFile } from '@axway/amplify-utils';
+import { readFileSync } from 'fs';
+import snooplogg from 'snooplogg';
+
 export default {
 	args: [
 		{
@@ -48,10 +53,6 @@ to public key and vice versa.`;
 		'--secret [key]':       'A custom client secret key'
 	},
 	async action({ argv, cli, console }) {
-		const { initPlatformAccount } = require('@axway/amplify-cli-utils');
-		const { existsSync, isFile } = require('@axway/amplify-utils');
-		const { readFileSync } = require('fs');
-
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (!org.userRoles.includes('administrator')) {
@@ -99,7 +100,6 @@ to public key and vice versa.`;
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const { default: snooplogg } = require('snooplogg');
 			const { highlight, note } = snooplogg.styles;
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);

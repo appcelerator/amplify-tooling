@@ -1,3 +1,8 @@
+import { view } from '../pm.js';
+import snooplogg from 'snooplogg';
+import { createTable } from '@axway/amplify-cli-utils';
+import semver from 'semver';
+
 export default {
 	aliases: [ 'v', '!info', '!show' ],
 	args: [
@@ -33,7 +38,6 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		const { view } = require('../pm');
 		let info = await view(argv.package);
 
 		if (argv.filter) {
@@ -51,7 +55,6 @@ export default {
 			return;
 		}
 
-		const { default: snooplogg } = require('snooplogg');
 		const { green, highlight } = snooplogg.styles;
 
 		if (info) {
@@ -61,8 +64,6 @@ export default {
 				console.log(desc + '\n');
 			}
 
-			const { createTable } = require('@axway/amplify-cli-utils');
-			const semver = require('semver');
 			const createVersionTable = (label, versions) => {
 				const majors = {};
 

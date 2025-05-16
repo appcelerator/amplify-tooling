@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 
-import { Auth, Authenticator, ClientSecret } from '../dist/index';
-import { createLoginServer, stopLoginServer } from './common';
+import { Auth, Authenticator, ClientSecret } from '../src/index.js';
+import { createLoginServer, stopLoginServer } from './common.js';
 
 const isCI = process.env.CI || process.env.JENKINS;
 

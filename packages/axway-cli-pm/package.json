@@ -1,9 +1,10 @@
 {
   "name": "@axway/axway-cli-pm",
-  "version": "4.0.20",
+  "version": "5.0.0-alpha.5",
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
   "description": "Package manager for Axway products",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "maintainers": [
@@ -18,34 +19,33 @@
     "build": "gulp build",
     "coverage": "gulp coverage",
     "docs": "gulp docs",
-    "prepare": "gulp build",
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^5.0.20",
-    "@axway/amplify-utils": "^1.0.16",
-    "cli-kit": "^1.16.0",
+    "@axway/amplify-cli-utils": "^6.0.0-alpha.5",
+    "@axway/amplify-utils": "^2.0.0-alpha.5",
+    "cli-kit": "^2.1.1",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
-    "libnpmsearch": "^4.0.1",
+    "libnpmsearch": "^9.0.0",
     "listr2": "^4.0.5",
     "npm-package-arg": "^9.0.2",
     "ora": "^5.4.1",
-    "pacote": "^12.0.3",
+    "pacote": "^21.0.0",
     "promise-limit": "^2.7.0",
     "semver": "^7.3.7",
-    "snooplogg": "^3.0.2",
+    "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21",
     "which": "^2.0.2"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^4.1.4"
+    "@axway/gulp-tasks": "^5.0.1"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-pm",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=20.18.2"
   },
   "cli-kit": {
     "main": "./dist/index.js",

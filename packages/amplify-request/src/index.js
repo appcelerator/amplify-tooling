@@ -1,6 +1,7 @@
+import sourceMapSupport from 'source-map-support';
 /* istanbul ignore if */
 if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
+	sourceMapSupport.install();
 }
 
 import fs from 'fs';
@@ -100,7 +101,6 @@ export function options(opts = {}) {
 			protocol,
 			rejectUnauthorized: opts.https.rejectUnauthorized
 		};
-		// console.log(agentOpts);
 		opts.agent = {
 			...opts.agent,
 			http: opts.agent?.http || new HttpProxyAgent(agentOpts),
@@ -108,7 +108,6 @@ export function options(opts = {}) {
 		};
 	}
 
-	// console.log(opts);
 	return opts;
 }
 
