@@ -1,3 +1,8 @@
+# v2.0.2 (May 16, 2025)
+
+- BREAKING CHANGE: Node.js version upgrade to 20.18.2 (minimum) and conversion to ES Modules.
+  ([APIGOV-27923](https://jira.axway.com/browse/APIGOV-29723))
+
 # v2.0.1 (May 16, 2025)
 
 - BREAKING CHANGE: Node.js version upgrade to 20.18.2 (minimum) and conversion to ES Modules.

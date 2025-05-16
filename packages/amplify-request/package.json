@@ -1,6 +1,6 @@
 {
   "name": "@axway/amplify-request",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "publishConfig": {
     "access": "public"
   },
@@ -28,7 +28,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-utils": "^2.0.1",
+    "@axway/amplify-utils": "^2.0.2",
     "got": "^11.8.5",
     "http-proxy-agent": "^5.0.0",
     "https-proxy-agent": "^5.0.1",
@@ -45,5 +45,5 @@
   "engines": {
     "node": ">=20.18.2"
   },
-  "gitHead": "1ce344de06b229479fb3a5aebe0ccb9259aa5ddd"
+  "gitHead": "911132219b963f56dfc1f9820a743b4e55e1355d"
 }

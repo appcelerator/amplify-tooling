@@ -1,6 +1,6 @@
 {
   "name": "@axway/axway-cli-pm",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "publishConfig": {
     "access": "public"
   },
@@ -22,8 +22,8 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@axway/amplify-cli-utils": "^6.0.1",
-    "@axway/amplify-utils": "^2.0.1",
+    "@axway/amplify-cli-utils": "^6.0.2",
+    "@axway/amplify-utils": "^2.0.2",
     "cli-kit": "^2.1.1",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
@@ -51,5 +51,5 @@
     "main": "./dist/index.js",
     "name": "pm"
   },
-  "gitHead": "1ce344de06b229479fb3a5aebe0ccb9259aa5ddd"
+  "gitHead": "911132219b963f56dfc1f9820a743b4e55e1355d"
 }
