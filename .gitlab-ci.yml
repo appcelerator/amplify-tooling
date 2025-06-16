@@ -1,7 +1,7 @@
 image: docker:dind
 
 variables:
-  PROJECT: 'amplify-tooling'
+  PROJECT: "amplify-tooling"
 
   # Fortify
   FORTIFY_PROJECT: "10424"
@@ -11,25 +11,25 @@ variables:
 
   # Blackduck
   BLACKDUCK_PROJECT_NAME: "Catalog Commons - Axway CLI"
-  BLACKDUCK_EXTRA_OPTIONS: "--detect.excluded.detector.types=LERNA"
+  BLACKDUCK_CUSTOM_OPTIONS: "--detect.excluded.detector.types=LERNA"
 
   # SRM
   SRM_PROJECT_NAME: "$BLACKDUCK_PROJECT_NAME"
   SRM_PROJECT_ID: "11"
 
-########################################
-# set up custom names for the pipelines of releases and nightly schedules
-########################################
+  ########################################
+  # set up custom names for the pipelines of releases and nightly schedules
+  ########################################
   PIPELINE_NAME: "$CI_COMMIT_MESSAGE"
 
 include:
   - project: "apigov/gitlabci"
     ref: $GITLAB_CICD_BLUE
     file: "/.gitlab-ci-sonar.yml"
-  - project: 'scurity/gitlabci'
+  - project: "scurity/gitlabci"
     ref: $SCURITY_GREEN
     file:
-      - '/.gitlab-ci-fortify.yml'
+      - "/.gitlab-ci-fortify.yml"
       - "/.gitlab-ci-blackduck.yml"
       - "/.gitlab-ci-security.yml"
 
@@ -51,27 +51,27 @@ report-snapshot-and-push:
     - fetch-third-party
 
 install_dependencies:
-    image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
-    stage: install
-    script:
-      - npm install
-    except:
-      - schedules
+  image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+  stage: install
+  script:
+    - npm install
+  except:
+    - schedules
 
 unit_tests:
-    image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
-    stage: test
-    script:
-      - npm install gulp-cli -g
-      - npm install gulp
-      - npx gulp test
-    except:
-        - schedules
-    allow_failure: true
-    artifacts:
-      when: always
-      paths:
-        - coverage/
+  image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+  stage: test
+  script:
+    - npm install gulp-cli -g
+    - npm install gulp
+    - npx gulp test
+  except:
+    - schedules
+  allow_failure: true
+  artifacts:
+    when: always
+    paths:
+      - coverage/
 
 .get-last-git-tag: &get-last-git-tag |
   GIT_SSL_NO_VERIFY=true
