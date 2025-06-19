@@ -153,6 +153,12 @@ describe('axway user', () => {
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('credentials/open-browser'));
 		});
+
+		it('should output credentials help', async function () {
+			const { status, stdout } = await runAxwaySync([ 'user', 'credentials', '--help']);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('credentials/help'));
+		});
 	});
 
 	describe('update', () => {
