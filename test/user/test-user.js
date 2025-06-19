@@ -148,6 +148,8 @@ describe('axway user', () => {
 	});
 
 	describe('credentials', () => {
+		after(resetHomeDir);
+		
 		it('should open browser to /user/credentials endpoint regardless of authentication', async function () {
 			const { status, stdout } = await runAxwaySync([ 'user', 'credentials']);
 			expect(status).to.equal(0);
