@@ -148,9 +148,8 @@ describe('axway user', () => {
 	});
 
 	describe('credentials', () => {
-		after(resetHomeDir);
-		
-		it('should open browser to /user/credentials endpoint regardless of authentication', async function () {
+
+		it('should open browser to update credentials page', async function () {
 			const { status, stdout } = await runAxwaySync([ 'user', 'credentials']);
 			expect(status).to.equal(0);
 			expect(stdout.toString()).to.match(renderRegexFromFile('credentials/open-browser'));
