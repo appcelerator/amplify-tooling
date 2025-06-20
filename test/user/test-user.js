@@ -160,6 +160,18 @@ describe('axway user', () => {
 			expect(status).to.equal(2);
 			expect(stdout.toString()).to.match(renderRegexFromFile('credentials/help'));
 		});
+
+		(process.platform === 'win32' ? it.skip : it)('should error if env is headless', async function () {
+			initHomeDir('home-local');
+
+			let { status, stderr } = await runAxwaySync([ 'user', 'credentials' ], {
+				env: {
+					SSH_TTY: '1'
+				}
+			});
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('credentials/headless'));
+		});
 	});
 
 	describe('update', () => {
