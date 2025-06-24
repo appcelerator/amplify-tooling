@@ -11,7 +11,7 @@ variables:
 
   # Blackduck
   BLACKDUCK_PROJECT_NAME: "Catalog Commons - Axway CLI"
-  BLACKDUCK_CUSTOM_OPTIONS: "--detect.excluded.detector.types=LERNA"
+  BLACKDUCK_CUSTOM_OPTIONS: --detect.excluded.detector.types=LERNA
 
   # SRM
   SRM_PROJECT_NAME: "$BLACKDUCK_PROJECT_NAME"
