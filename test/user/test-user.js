@@ -148,7 +148,30 @@ describe('axway user', () => {
 	});
 
 	describe('credentials', () => {
-		//
+
+		it('should open browser to update credentials page', async function () {
+			const { status, stdout } = await runAxwaySync([ 'user', 'credentials']);
+			expect(status).to.equal(0);
+			expect(stdout.toString()).to.match(renderRegexFromFile('credentials/open-browser'));
+		});
+
+		it('should output credentials help', async function () {
+			const { status, stdout } = await runAxwaySync([ 'user', 'credentials', '--help']);
+			expect(status).to.equal(2);
+			expect(stdout.toString()).to.match(renderRegexFromFile('credentials/help'));
+		});
+
+		(process.platform === 'win32' ? it.skip : it)('should error if env is headless', async function () {
+			initHomeDir('home-local');
+
+			let { status, stderr } = await runAxwaySync([ 'user', 'credentials' ], {
+				env: {
+					SSH_TTY: '1'
+				}
+			});
+			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('credentials/headless'));
+		});
 	});
 
 	describe('update', () => {
