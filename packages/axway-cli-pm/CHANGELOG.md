@@ -1,3 +1,8 @@
+# v5.0.3 (June 26, 2025)
+
+- chore: Security Updates.
+  ([APIGOV-30670](https://jira.axway.com/browse/APIGOV-30670))
+
 # v5.0.2 (May 16, 2025)
 
 - BREAKING CHANGE: Node.js version upgrade to 20.18.2 (minimum) and conversion to ES Modules.

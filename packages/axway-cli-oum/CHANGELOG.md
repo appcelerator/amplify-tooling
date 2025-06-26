@@ -1,3 +1,10 @@
+# v3.0.3 (June 26, 2025)
+
+- chore: Security Updates.
+- chore: Fixed Issue with "axway user credentials" command.
+  ([APIGOV-30670](https://jira.axway.com/browse/APIGOV-30670))
+  ([APIGOV-30622](https://jira.axway.com/browse/APIGOV-30622))
+
 # v3.0.2 (May 16, 2025)
 
 - BREAKING CHANGE: Node.js version upgrade to 20.18.2 (minimum) and conversion to ES Modules.
