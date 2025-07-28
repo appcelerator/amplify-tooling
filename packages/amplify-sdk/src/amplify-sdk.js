@@ -1232,7 +1232,12 @@ export default class AmplifySDK {
 					account,
 					{ errorMsg: 'Failed to get roles' }
 				);
-
+				if (params.team) {
+					return roles.filter(r => r.team);
+				}
+				if (params.client) {
+					return roles.filter(r => r.client);
+				}
 				let org = params.org || account.org?.guid;
 				if (org) {
 					org = await this.org.find(account, org);
@@ -1248,18 +1253,9 @@ export default class AmplifySDK {
 					});
 				}
 
-				if (params.client) {
-					roles = roles.filter(r => r.client);
-				}
-
 				if (params.default) {
-					roles = roles.filter(r => r.default);
+					return roles.filter(r => r.default);
 				}
-
-				if (params.team) {
-					roles = roles.filter(r => r.team);
-				}
-
 				return roles;
 			},
 
