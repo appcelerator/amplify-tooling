@@ -1,3 +1,8 @@
+# v4.0.4 (July 28, 2025)
+
+- chore: Fixed Issue with "axway team user add" command.
+  ([APIGOV-30889](https://jira.axway.com/browse/APIGOV-30889))
+
 # v4.0.3 (July 28, 2025)
 
 - chore: Fixed Issue with "axway org user list" command.
