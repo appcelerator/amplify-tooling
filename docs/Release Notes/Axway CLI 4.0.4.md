@@ -1,4 +1,4 @@
-# Axway CLI 4.0.3
+# Axway CLI 4.0.4
 
 ## July 28, 2025
 
@@ -7,7 +7,7 @@ This is a patch release to include a fix to honor the cookie changes on platform
 ### Installation
 
 ```
-npm i -g axway@4.0.3
+npm i -g axway@4.0.4
 ```
 
 ### axway
