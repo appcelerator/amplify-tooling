@@ -1887,7 +1887,7 @@ export default class AmplifySDK {
 			}
 
 			const cookies = response.headers['set-cookie'];
-			const connectSid = cookies && setCookie.parse(cookies).find(c => c.name === 'connect.sid')?.value;
+			const connectSid = cookies && setCookie.parse(cookies).find(c => c.name === 'connect.sid' && c.value)?.value;
 			if (connectSid) {
 				log(`Setting sid: ${highlight(connectSid)}`);
 				account.sid = connectSid;
