@@ -1,3 +1,8 @@
+# v4.0.3 (July 28, 2025)
+
+- chore: Fixed Issue with "axway org user list" command.
+  ([APIGOV-30670](https://jira.axway.com/browse/APIGOV-30907))
+
 # v4.0.2 (June 26, 2025)
 
 - chore: Security Updates.
