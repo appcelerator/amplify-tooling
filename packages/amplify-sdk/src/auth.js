@@ -49,6 +49,7 @@ export default class Auth {
 	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `staging` or `prod`.
+	 * @param {String} [opts.region=us] - The region name. Must be `us` or `eu`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Function} [opts.got] - A reference to a `got` HTTP client. If not defined, the
 	 * default `got` instance will be used.
@@ -118,7 +119,8 @@ export default class Auth {
 			username:       { value: opts.username }
 		});
 
-		this.env = environments.resolve(opts.env).name;
+		this.env = environments.resolve(opts.env, opts.region).name;
+		this.region = opts.region;
 
 		if (opts.tokenStore) {
 			if (!(opts.tokenStore instanceof TokenStore)) {
@@ -188,7 +190,8 @@ export default class Auth {
 		}
 
 		const name = opts.env || this.env;
-		const env = environments.resolve(name);
+		const region = opts.region || this.region;
+		const env = environments.resolve(name, region);
 		if (!env) {
 			throw E.INVALID_VALUE(`Invalid environment: ${name}`);
 		}
@@ -206,6 +209,7 @@ export default class Auth {
 			persistSecrets: opts.persistSecrets !== undefined ? opts.persistSecrets : this.persistSecrets,
 			platformUrl:    opts.platformUrl || this.platformUrl,
 			realm:          opts.realm || this.realm,
+			region:		 	region,
 			secretFile:     opts.secretFile || this.secretFile,
 			serviceAccount: opts.serviceAccount || this.serviceAccount,
 			timeout:        opts.timeout || opts.interactiveLoginTimeout || this.interactiveLoginTimeout,
@@ -455,7 +459,7 @@ export default class Auth {
 			for (const entry of revoked) {
 				// don't logout of platform accounts here, it's done in the Amplify SDK by opening the browser
 				if (!entry.isPlatform) {
-					const { platformUrl } = environments.resolve(entry.auth.env);
+					const { platformUrl } = environments.resolve(entry.auth.env, this.region);
 					const url = `${platformUrl}/auth/signout?id_token_hint=${entry.auth.tokens.id_token}`;
 					try {
 						const { statusCode } = await this.got(url, { responseType: 'json', retry: 0 });
