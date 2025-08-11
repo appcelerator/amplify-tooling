@@ -96,6 +96,7 @@ export default class Authenticator {
 	 * endpoints are: `auth`, `certs`, `logout`, `token`, `userinfo`, and `wellKnown`.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `staging` or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {String} [opts.region=us] - The region name. Must be `us` or `eu`.
 	 * @param {Boolean} [opts.persistSecrets] - When `true`, adds the authenticator params
 	 * (client secret, private key, username/password) to the authenticated account object so that
 	 * the access token can be refreshed when a refresh token is not available.
@@ -113,7 +114,7 @@ export default class Authenticator {
 		}
 
 		// check the environment
-		this.env = environments.resolve(opts.env);
+		this.env = environments.resolve(opts.env, opts.region);
 
 		// process the base URL
 		if (opts.baseUrl) {
