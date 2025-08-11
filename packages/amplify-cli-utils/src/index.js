@@ -50,6 +50,7 @@ export function buildAuthParams(opts = {}, config) {
 	}
 
 	const env = environments.resolve(opts.env || config.get('env'));
+	const region = opts.region || config.get('region');
 
 	const { clientId, realm } = env.auth;
 	const params = {};
@@ -64,6 +65,7 @@ export function buildAuthParams(opts = {}, config) {
 		persistSecrets:          undefined,
 		platformUrl:             undefined,
 		realm,
+		region:                  region,
 		secretFile:              undefined,
 		serverHost:              undefined,
 		serverPort:              undefined,

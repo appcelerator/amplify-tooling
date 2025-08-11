@@ -104,7 +104,7 @@ export function install(pkgName) {
 			emitter.emit('install', info);
 			const args = [
 				'install',
-				'--production',
+				'--omit=dev',
 				'--force', // needed for npm 7
 				...createNPMRequestArgs()
 			];

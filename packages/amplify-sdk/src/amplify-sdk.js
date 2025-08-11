@@ -27,6 +27,7 @@ export default class AmplifySDK {
 	 *
 	 * @param {Object} opts - Authentication options.
 	 * @param {Object} [opts.env=prod] - The environment name.
+	 * @param {Object} [opts.region=us] - The region name.
 	 * @param {Object} [opts.requestOptions] - HTTP request options with proxy settings and such to
 	 * create a `got` HTTP client.
 	 * @access public
@@ -48,7 +49,7 @@ export default class AmplifySDK {
 		 * Resolved environment-specific settings.
 		 * @type {Object}
 		 */
-		this.env = environments.resolve(opts.env);
+		this.env = environments.resolve(opts.env, opts.region);
 
 		// set the defaults based on the environment
 		for (const prop of [ 'baseUrl', 'platformUrl', 'realm' ]) {
@@ -403,7 +404,7 @@ export default class AmplifySDK {
 				for (const account of accounts) {
 					if (account.isPlatform && !account.isPlatformTooling) {
 						// note: there should only be 1 platform account in the accounts list
-						const { platformUrl } = environments.resolve(account.auth.env);
+						const { platformUrl } = environments.resolve(account.auth.env, this.opts.region);
 						const redirect = `${platformUrl}/signed.out?msg=signout`;
 						const url = `${platformUrl}/auth/signout?redirect=${encodeURIComponent(redirect)}`;
 						if (typeof opts.onOpenBrowser === 'function') {
