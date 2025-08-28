@@ -10,9 +10,16 @@ export const environments = {
 		realm:       'Broker'
 	},
 	prod: {
-		baseUrl:     'https://login.axway.com',
-		platformUrl: 'https://platform.axway.com',
-		realm:       'Broker'
+		us: {
+			baseUrl:     'https://login.axway.com',
+			platformUrl: 'https://platform.axway.com',
+			realm:       'Broker'
+		},
+		eu: {
+			baseUrl:     'https://login.eu-fr.axway.com',
+			platformUrl: 'https://platform.eu-fr.axway.com',
+			realm:       'Broker'
+		},
 	}
 };
 
@@ -26,8 +33,9 @@ const mapping = {
 	test: 'staging'
 };
 
-export function resolve(env) {
+export function resolve(env, reg) {
 	let environment = 'prod';
+	let region = 'us';
 	if (env) {
 		if (typeof env !== 'string') {
 			throw new TypeError('Expected environment to be a string');
@@ -38,9 +46,18 @@ export function resolve(env) {
 			throw new Error(`Invalid environment "${env}"`);
 		}
 	}
+	if (reg) {
+		if (typeof reg !== 'string') {
+			throw new TypeError('Expected region to be a string');
+		}
+		region = reg.toLowerCase();
+		if (!environments[environment][region]) {
+			throw new Error(`Invalid region "${reg}" for environment "${env}"`);
+		}
+	}
 
 	return {
 		name: environment,
-		...environments[environment]
+		...environments[environment][region]
 	};
 }
