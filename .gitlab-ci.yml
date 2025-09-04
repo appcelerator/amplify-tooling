@@ -83,3 +83,4 @@ unit_tests:
 blackduck:on-schedule:
   before_script:
     - *get-last-git-tag
+#
