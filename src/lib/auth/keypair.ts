@@ -1,5 +1,5 @@
 import path from 'path';
-import { existsSync, writeFileSync } from '../utils/fs.js';
+import { existsSync, writeFileSync } from '../fs.js';
 import { initSDK } from '../cli-utils/index.js';
 import pkg from 'enquirer';
 

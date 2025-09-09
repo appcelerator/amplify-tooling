@@ -8,8 +8,8 @@ import { Config } from 'config-kit';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { expandPath } from './utils/path.js';
-import { isFile, writeFileSync } from './utils/fs.js';
+import { expandPath } from './path.js';
+import { isFile, writeFileSync } from './fs.js';
 
 // const { expandPath, isFile, writeFileSync } = pkg;
 const axwayHome = path.join(os.homedir(), '.axway');

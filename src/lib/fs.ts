@@ -97,42 +97,6 @@ export function isFile(file) {
 }
 
 /**
- * Scan a directory for a specified file.
- *
- * @param {String} dir - The directory to start searching from.
- * @param {String|RegExp} filename - The name of the file to look for.
- * @param {Number} depth - Optional search depth, default 1 level.
- * @returns {String|null}
- */
-export function locate(dir, filename, depth) {
-	try {
-		if (fs.statSync(dir).isDirectory()) {
-			for (const name of fs.readdirSync(dir)) {
-				const file = path.join(dir, name);
-				try {
-					/* eslint-disable max-depth */
-					if (fs.statSync(file).isDirectory()) {
-						if (typeof depth === 'undefined' || depth > 0) {
-							const result = locate(file, filename, typeof depth === 'undefined' ? undefined : depth - 1);
-							if (result) {
-								return result;
-							}
-						}
-					} else if ((typeof filename === 'string' && name === filename) || (filename instanceof RegExp && filename.test(name))) {
-						return file;
-					}
-				} catch (e) {
-					// probably a permission issue, go to next file
-				}
-			}
-		}
-	} catch (e) {
-		// dir does not exist or permission issue
-	}
-	return null;
-}
-
-/**
  * Creates a directory and any parent directories if needed.
  *
  * @param {String} dest - The directory path to create.
@@ -146,54 +110,6 @@ export function mkdirpSync(dest, opts = {}) {
 	execute(dest, opts, opts => {
 		fs.mkdirSync(dest, { mode: 0o777, ...opts, recursive: true });
 	});
-}
-
-/**
- * Moves a file.
- *
- * @param {String} src - The file or directory to move.
- * @param {String} dest - The destination to move the file or directory to.
- * @param {Object} [opts] - Various options plus options to pass into `fs.mkdirSync()` and
- * `fs.renameSync()`.
- * @param {Boolean} [opts.applyOwner=true] - When `true`, determines the owner of the closest
- * existing parent directory and apply the owner to the file and any newly created directories.
- * @param {Number} [opts.gid] - The group id to apply to the file when assigning an owner.
- * @param {Number} [opts.uid] - The user id to apply to the file when assigning an owner.
- */
-export function moveSync(src, dest, opts = {}) {
-	execute(dest, opts, opts => {
-		mkdirpSync(path.dirname(dest), opts);
-		fs.renameSync(src, dest);
-	});
-}
-
-/**
- * Read a directory including scoped packages as a single entry in the Array
- * and filtering out all files.
- *
- * @param {String} dir - Directory to read.
- * @returns {Array}
- */
-export function readdirScopedSync(dir) {
-	const children = [];
-
-	for (const name of fs.readdirSync(dir)) {
-		const childPath = path.join(dir, name);
-		if (!isDir(childPath)) {
-			continue;
-		}
-		if (name.charAt(0) === '@') {
-			for (const scopedPackage of fs.readdirSync(childPath)) {
-				if (isDir(path.join(childPath, scopedPackage))) {
-					children.push(`${name}/${scopedPackage}`);
-				}
-			}
-		} else {
-			children.push(name);
-		}
-	}
-
-	return children;
 }
 
 /**

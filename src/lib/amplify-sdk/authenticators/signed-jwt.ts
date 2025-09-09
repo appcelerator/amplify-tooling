@@ -3,7 +3,7 @@ import E from '../errors.js';
 import fs from 'fs';
 import jws from 'jws';
 
-import { isFile } from '../../utils/fs.js';
+import { isFile } from '../../fs.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;

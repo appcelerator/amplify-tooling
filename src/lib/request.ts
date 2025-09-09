@@ -4,13 +4,14 @@ if (!Error.prepareStackTrace) {
 	sourceMapSupport.install();
 }
 
+import * as _ from 'lodash';
 import fs from 'fs';
 import got from 'got';
 import prettyBytes from 'pretty-bytes';
 import snooplogg from 'snooplogg';
 import httpProxyAgentPkg from 'http-proxy-agent';
 import httpsProxyAgentPkg from 'https-proxy-agent';
-import { mergeDeep } from './utils/util.js';
+import loadConfig, { Config } from './config.js';
 
 const { HttpProxyAgent } = httpProxyAgentPkg;
 const { HttpsProxyAgent } = httpsProxyAgentPkg;
@@ -68,7 +69,7 @@ export function options(opts: any = {}) {
 
 	const load = it => Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : undefined;
 
-	opts.hooks = mergeDeep(opts.hooks, {
+	opts.hooks = _.merge(opts.hooks, {
 		afterResponse: [
 			response => {
 				const { headers, request, statusCode, url } = response;
@@ -84,7 +85,7 @@ export function options(opts: any = {}) {
 		]
 	});
 
-	opts.https = mergeDeep(opts.https, {
+	opts.https = _.merge(opts.https, {
 		certificate:          load(opts.https?.certificate || cert || certFile),
 		certificateAuthority: load(opts.https?.certificateAuthority || ca || caFile),
 		key:                  load(opts.https?.key || key || keyFile),
@@ -135,3 +136,79 @@ export function init(opts = {}) {
 }
 
 export default init;
+
+/**
+ * Load the config file and initializes a `got` instance for making HTTP calls using the network
+ * settings from the Axway CLI config file.
+ *
+ * @param {Object} [opts] - `got` option to override the Axway CLI config settings.
+ * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
+ * from disk.
+ * @returns {Function}
+ */
+export function createRequestClient(opts, config) {
+	opts = createRequestOptions(opts, config);
+	return init({
+		...opts,
+		https: {
+			certificate: opts.cert,
+			key: opts.key,
+			...opts.https
+		}
+	});
+}
+
+/**
+ * Loads the Axway CLI config file and construct the options for the various Node.js HTTP clients
+ * including `pacote`, `npm-registry-fetch`, `make-fetch-happen`, and `request`.
+ *
+ * @param {Object} [opts] - Request configuration options to override the Axway CLI config
+ * settings.
+ * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
+ * from disk.
+ * @returns {Object}
+ */
+export function createRequestOptions(opts = {}, config?): any {
+	if (opts instanceof Config) {
+		config = opts;
+		opts = {};
+	} else if (!opts && typeof opts !== 'object') {
+		throw new TypeError('Expected options to be an object');
+	} else {
+		opts = { ...opts };
+	}
+
+	if (config && !(config instanceof Config)) {
+		throw new TypeError('Expected config to be an Amplify Config instance');
+	}
+
+	const load = async (src, dest) => {
+		if (opts[dest] !== undefined) {
+			return;
+		}
+		if (!config) {
+			config = await loadConfig();
+		}
+		const value = await config.get(src);
+		if (value === undefined) {
+			return;
+		}
+		if (dest === 'proxy') {
+			opts[dest] = value;
+		} else if (dest === 'strictSSL') {
+			opts[dest] = !!value !== false;
+		} else {
+			opts[dest] = fs.readFileSync(value);
+		}
+	};
+
+	load('network.caFile',     'ca');
+	load('network.certFile',   'cert');
+	load('network.keyFile',    'key');
+	load('network.proxy',      'proxy');
+	load('network.httpsProxy', 'proxy');
+	load('network.httpProxy',  'proxy');
+	load('network.strictSSL',  'strictSSL');
+
+	return opts;
+}

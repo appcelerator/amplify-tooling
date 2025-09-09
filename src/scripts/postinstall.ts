@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as telemetry from '../lib/cli-utils/telemetry.js';
+import * as telemetry from '../lib/telemetry.js';
 
 const { cyan, green, red } = chalk;
 const telemetryEnabled = telemetry.isEnabled();

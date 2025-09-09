@@ -1,5 +1,5 @@
 import snooplogg from 'snooplogg';
-import { createTable } from '../cli-utils/index.js';
+import { createTable } from '../formatter.js';
 
 const { green, highlight, note } = snooplogg.styles;
 const check = process.platform === 'win32' ? '√' : '✔';

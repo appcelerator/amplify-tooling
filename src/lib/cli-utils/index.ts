@@ -4,39 +4,19 @@ if (!Error.prepareStackTrace) {
 	sourceMapSupport.install();
 }
 
-import AmplifySDK, { Telemetry } from '../amplify-sdk/index.js';
-import boxen from 'boxen';
-import check from 'check-kit';
+import AmplifySDK from '../amplify-sdk/index.js';
 import fs from 'fs';
-import loadConfig, { Config } from '../config.js';
+import loadConfig from '../config.js';
 import snooplogg from 'snooplogg';
-import Table from 'cli-table3';
-import { ansi } from 'cli-kit';
-import { createNPMRequestArgs, createRequestClient, createRequestOptions } from './request.js';
-import * as environments from './environments.js';
-import * as locations from './locations.js';
+import * as environments from '../environments.js';
 import * as request from '../request.js';
-import * as telemetry from './telemetry.js';
-
-export {
-	AmplifySDK,
-	Config,
-	createNPMRequestArgs,
-	createRequestClient,
-	createRequestOptions,
-	environments,
-	loadConfig,
-	locations,
-	request,
-	Telemetry,
-	telemetry
-};
+import { axwayHome } from '../path.js';
 
 const { warn } = snooplogg('amplify-cli-utils');
-const { cyan, gray, green } = snooplogg.chalk;
 
 /**
  * Constructs a parameters object to pass into an Auth instance.
+ * TODO: This is only used to prime the amplify sdk in initSDK. Should this and that function consolidate into it?
  *
  * @param {Object} [opts] - User option overrides.
  * @param {Config} [config] - The Amplify config object.
@@ -77,7 +57,7 @@ export async function buildAuthParams(opts: any = {}, config) {
 		username?: string;
 		requestOptions?: any;
 	}
-	const params: AuthParams = {} as AuthParams;
+	const params = {} as AuthParams;
 
 	const props = {
 		baseUrl:                 undefined,
@@ -85,7 +65,7 @@ export async function buildAuthParams(opts: any = {}, config) {
 		clientSecret:            undefined,
 		env:                     env.name,
 		interactiveLoginTimeout: undefined,
-		homeDir:                 locations.axwayHome,
+		homeDir:                 axwayHome,
 		password:                undefined,
 		persistSecrets:          undefined,
 		platformUrl:             undefined,
@@ -96,7 +76,7 @@ export async function buildAuthParams(opts: any = {}, config) {
 		serviceAccount:          undefined,
 		tokenRefreshThreshold:   15 * 60, // 15 minutes
 		tokenStore:              undefined,
-		tokenStoreDir:           locations.axwayHome,
+		tokenStoreDir:           axwayHome,
 		tokenStoreType:          undefined,
 		username:                undefined
 	};
@@ -116,88 +96,13 @@ export async function buildAuthParams(opts: any = {}, config) {
 		}
 	}
 
-	params.requestOptions = createRequestOptions(opts, config);
+	params.requestOptions = request.createRequestOptions(opts, config);
 
 	return params;
 }
 
-// `buildParams()` is too ambiguous, so it was renamed to `buildAuthParams()`, but we still need to
-// maintain backwards compatibility
-export { buildAuthParams as buildParams };
-
 /**
- * Checks if a new version of an npm package is available and returns a string with the formatted
- * update message.
- *
- * @param {Object} [opts] - Check update and request configuration options.
- * @param {Number} [opts.checkInterval=3600000] - The amount of time in milliseconds before
- * checking for an update. Defaults to 1 hour.
- * @param {String} [opts.cwd] - The current working directory used to locate the `package.json` if
- * `pkg` is not specified.
- * @param {String} [opts.distTag='latest'] - The tag to check for the latest version.
- * @param {Boolean} [opts.force=false] - Forces an update check.
- * @param {String} [opts.metaDir] - The directory to store package update information.
- * @param {Object|String} [opts.pkg] - The parsed `package.json`, path to the package.json file, or
- * falsey and it will scan parent directories looking for a package.json.
- * @param {String} [opts.registryUrl] - The npm registry URL. By default, it will autodetect the
- * URL based on the package name/scope.
- * @param {Number} [opts.timeout=1000] - The number of milliseconds to wait to query npm before
- * timing out.
- * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
- * from disk.
- * @returns {String}
- */
-export async function checkForUpdate(opts, config) {
-	opts = createRequestOptions(opts, config || await loadConfig());
-
-	const {
-		current,
-		latest,
-		name,
-		updateAvailable
-	} = await check(opts);
-
-	if (!updateAvailable) {
-		return '';
-	}
-	const msg = `Update available ${gray(current)} → ${green(latest)}\nRun ${cyan(`npm i -g ${name}`)} to update`;
-	return boxen(msg, {
-		align: 'center',
-		borderColor: 'yellow',
-		borderStyle: 'round',
-		margin: { bottom: 1, left: 4, right: 4, top: 1 },
-		padding: { bottom: 1, left: 4, right: 4, top: 1 }
-	});
-}
-
-/**
- * Creates a table with default styles and padding.
- *
- * @param {Array.<String>} head - One or more headings.
- * @param {Number} [indent] - The number of spaces to indent the table.
- * @returns {Table}
- */
-export function createTable(head?, indent = 0) {
-	return new Table({
-		chars: {
-			bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
-			left: ' '.repeat(indent), 'left-mid': '',
-			mid: '', 'mid-mid': '', middle: '  ',
-			right: '', 'right-mid': '',
-			top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
-		},
-		head: Array.isArray(head) ? head.map(ansi.toUpperCase) : head,
-		style: {
-			border: [],
-			head: [],
-			'padding-left': 0,
-			'padding-right': 0
-		}
-	});
-}
-
-/**
- * Resovles the "auth.*" config key based on your environment. This is used to get or set the
+ * Resolves the "auth.*" config key based on your environment. This is used to get or set the
  * default account and org.
  *
  * @param {String} env - The resolved environment name.
@@ -211,52 +116,8 @@ export function getAuthConfigEnvSpecifier(env) {
 }
 
 /**
- * Highlights the difference between two versions.
- *
- * @param {String} toVer - The latest version.
- * @param {String} fromVer - The current version.
- * @returns {String}
- */
-export function hlVer(toVer, fromVer) {
-	const { green } = snooplogg.styles;
-	const version = [];
-
-	let [ from, fromTag ] = fromVer.split(/-(.+)/);
-	from = from.replace(/[^.\d]/g, '').split('.').map(x => parseInt(x));
-
-	let [ to, toTag ] = toVer.split(/-(.+)/);
-	const toMatch = to.match(/^([^\d]+)?(.+)$/);
-	to = (toMatch ? toMatch[2] : to).split('.').map(x => parseInt(x));
-
-	const tag = () => {
-		if (toTag) {
-			const toNum = toTag.match(/\d+$/);
-			const fromNum = fromTag && fromTag.match(/\d+$/);
-			if (fromNum && parseInt(fromNum[0]) >= parseInt(toNum)) {
-				return `-${toTag}`;
-			} else {
-				return green(`-${toTag}`);
-			}
-		}
-		return '';
-	};
-
-	while (to.length) {
-		if (to[0] > from[0]) {
-			if (version.length) {
-				return (toMatch && toMatch[1] || '') + version.concat(green(to.join('.') + tag())).join('.');
-			}
-			return green((toMatch && toMatch[1] || '') + to.join('.') + tag());
-		}
-		version.push(to.shift());
-		from.shift();
-	}
-
-	return (toMatch && toMatch[1] || '') + version.join('.') + tag();
-}
-
-/**
  * Initializes the Amplify SDK, loads an account, and finds the default org id.
+ * TODO: Platform user auth is being removed with 5.0, so this should be able to be removed
  *
  * @param {String} [accountName] - The name of the platform account to use.
  * @param {String} [org] - The name, id, or guid of the default organization.
@@ -319,6 +180,7 @@ export async function initSDK(opts = {}, config?) {
 
 /**
  * Detects if the current terminal is headless (e.g. a Docker container or SSH session).
+ * TODO: All use should be headless with 5.0 so this should be able to be removed
  *
  * @returns {Boolean}
  */

@@ -1,4 +1,5 @@
-import { createTable, initPlatformAccount } from '../../lib/cli-utils/index.js';
+import { initPlatformAccount } from '../../lib/cli-utils/index.js';
+import { createTable } from '../../lib/formatter.js';
 import snooplogg from 'snooplogg';
 import { formatDate } from '../../lib/oum/util.js';
 

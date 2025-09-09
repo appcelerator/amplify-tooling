@@ -1,29 +1,21 @@
+// TODO: Merge this with lib/environments
+
 /**
  * Environment specific default settings.
  *
  * @type {Object}
  */
 export const environments = {
-	staging: {
-		baseUrl:     'https://login.axwaytest.net',
-		platformUrl: 'https://platform.axwaytest.net',
-		realm:       'Broker'
-	},
 	prod: {
 		baseUrl:     'https://login.axway.com',
 		platformUrl: 'https://platform.axway.com',
 		realm:       'Broker'
 	}
+	// TODO: Add EU2 environment definition
 };
 
 const mapping = {
-	dev: 'staging',
-	development: 'staging',
-	preprod: 'staging',
-	preproduction: 'staging',
-	'pre-production': 'staging',
-	production: 'prod',
-	test: 'staging'
+	production: 'prod'
 };
 
 export function resolve(env) {

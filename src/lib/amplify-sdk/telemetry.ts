@@ -5,10 +5,10 @@ import os from 'os';
 import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
 import * as request from '../request.js';
 import * as uuid from 'uuid';
-import { isDir, writeFileSync } from '../utils/fs.js';
-import { arch as _arch, osInfo, redact } from '../utils/util.js';
+import { isDir, writeFileSync, isFile } from '../fs.js';
+import { redact } from '../redact.js';
 import { serializeError } from 'serialize-error';
-import { spawn } from 'child_process';
+import { execSync, spawnSync, spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -538,4 +538,105 @@ function findDir(dir, file) {
  */
 function isTelemetryDisabled() {
 	return process.env.AXWAY_TELEMETRY_DISABLED === '1' || (!process.env.AXWAY_TEST && ci.isCI);
+}
+
+
+let archCache = null;
+
+/**
+ * Returns the current machine's architecture. Possible values are `x64` for 64-bit and `x86` for
+ * 32-bit (i386/ia32) systems.
+ *
+ * @param {Boolean} [bypassCache] - When true, re-detects the system architecture, though it
+ * will never change.
+ * @returns {String}
+ */
+function _arch(bypassCache?) {
+	if (archCache && !bypassCache) {
+		return archCache;
+	}
+
+	// we cache the architecture since it never changes
+	const platform = process.env.AXWAY_TEST_PLATFORM || process.platform;
+	archCache = process.env.AXWAY_TEST_ARCH || process.arch;
+
+	if (archCache === 'ia32') {
+		if ((platform === 'win32' && process.env.PROCESSOR_ARCHITEW6432)
+			|| (platform === 'linux' && /64/.test(String(execSync('getconf LONG_BIT'))))) {
+			// it's actually 64-bit
+			archCache = 'x64';
+		} else {
+			archCache = 'x86';
+		}
+	}
+
+	return archCache;
+}
+
+/**
+ * Tries to resolve the operating system name and version.
+ *
+ * @returns {Object}
+ */
+function osInfo() {
+	let name = null;
+	let version = null;
+
+	switch (process.platform) {
+		case 'darwin':
+			{
+				const stdout = spawnSync('sw_vers').stdout.toString();
+				let m = stdout.match(/ProductName:\s+(.+)/i);
+				if (m) {
+					name = m[1];
+				}
+				m = stdout.match(/ProductVersion:\s+(.+)/i);
+				if (m) {
+					version = m[1];
+				}
+			}
+			break;
+
+		case 'linux':
+			name = 'GNU/Linux';
+
+			if (isFile('/etc/lsb-release')) {
+				const contents = fs.readFileSync('/etc/lsb-release', 'utf8');
+				let m = contents.match(/DISTRIB_DESCRIPTION=(.+)/i);
+				if (m) {
+					name = m[1].replace(/"/g, '');
+				}
+				m = contents.match(/DISTRIB_RELEASE=(.+)/i);
+				if (m) {
+					version = m[1].replace(/"/g, '');
+				}
+			} else if (isFile('/etc/system-release')) {
+				const parts = fs.readFileSync('/etc/system-release', 'utf8').split(' ');
+				if (parts[0]) {
+					name = parts[0];
+				}
+				if (parts[2]) {
+					version = parts[2];
+				}
+			}
+			break;
+
+		case 'win32':
+			{
+				const stdout = spawnSync('wmic', [ 'os', 'get', 'Caption,Version' ]).stdout.toString();
+				const s = stdout.split('\n')[1].split(/ {2,}/);
+				if (s.length > 0) {
+					name = s[0].trim() || 'Windows';
+				}
+				if (s.length > 1) {
+					version = s[1].trim() || '';
+				}
+			}
+			break;
+	}
+
+	return {
+		name,
+		version
+	};
 }

@@ -1,4 +1,4 @@
-import { createTable } from '../cli-utils/index.js';
+import { createTable } from '../formatter.js';
 import snooplogg from 'snooplogg';
 
 /**

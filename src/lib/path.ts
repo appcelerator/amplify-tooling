@@ -1,0 +1,29 @@
+import os from 'os';
+import path from 'path';
+
+const homeDirRegExp = /^~([\\|/].*)?$/;
+const winRegExp = /^win/;
+const winEnvVarRegExp = /(%([^%]*)%)/g;
+
+// Directories
+export const axwayHome = path.join(os.homedir(), '.axway');
+
+// Files
+export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
+
+/**
+ * Resolves a path into an absolute path.
+ *
+ * @param {...String} segments - The path segments to join and resolve.
+ * @returns {String}
+ */
+export function expandPath(...segments) {
+	const platform = process.env.AXWAY_TEST_PLATFORM || process.platform;
+	segments[0] = segments[0].replace(homeDirRegExp, (process.env.HOME || process.env.USERPROFILE) + '$1');
+	if (winRegExp.test(platform)) {
+		return path.resolve(path.join.apply(null, segments).replace(winEnvVarRegExp, (_s, m, n) => {
+			return process.env[n] || m;
+		}));
+	}
+	return path.resolve.apply(null, segments);
+}

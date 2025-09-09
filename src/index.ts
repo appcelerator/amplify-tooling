@@ -6,18 +6,14 @@ if (!Error.prepareStackTrace) {
 
 import check from 'check-kit';
 import CLI from 'cli-kit';
-import {
-	Config,
-	createRequestOptions,
-	createTable,
-	environments,
-	hlVer,
-	loadConfig,
-	locations,
-	telemetry
-} from './lib/cli-utils/index.js';
+import { createTable } from './lib/formatter.js';
+import * as telemetry from './lib/telemetry.js';
+import loadConfig, { Config } from './lib/config.js';
 import snooplogg from 'snooplogg';
-import { redact } from './lib/utils/util.js';
+import { createRequestOptions } from './lib/request.js';
+import { axwayHome } from './lib/path.js';
+import { redact } from './lib/redact.js';
+import * as environments from './lib/environments.js';
 
 import { dirname, join, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
@@ -47,7 +43,7 @@ const __dirname = dirname(__filename);
 	const externalExtensions : [string,string][] = Object.entries(cfg.get('extensions', {}));
 	const allExtensions = [ ...externalExtensions ];
 
-	const packagesDir = resolve(locations.axwayHome, 'axway-cli', 'packages');
+	const packagesDir = resolve(axwayHome, 'axway-cli', 'packages');
 	let checkWait;
 
 	const cli = new CLI({
@@ -94,7 +90,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		}
 
 		const opts = createRequestOptions({
-			metaDir: resolve(locations.axwayHome, 'axway-cli', 'update'),
+			metaDir: resolve(axwayHome, 'axway-cli', 'update'),
 			timeout: 4000
 		}, cfg);
 
@@ -217,11 +213,11 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 				for (let i = 0; i < results.length; i++) {
 					if (results[i].name === 'axway') {
 						axway += yellow('Axway CLI Update Available'.toUpperCase()) + '\n';
-						axway += `${bold('Axway CLI')} ${gray(results[i].current)} →  ${hlVer(results[i].latest, results[i].current)}\n`;
+						axway += `${bold('Axway CLI')} ${gray(results[i].current)} →  ${_hlVer(results[i].latest, results[i].current)}\n`;
 						axway += `Run ${cyan('npm i -g axway')} to update`;
 						results.splice(i--, 1);
 					} else {
-						exts.push([ bold(results[i].name), gray(results[i].current), '→', hlVer(results[i].latest, results[i].current) ]);
+						exts.push([ bold(results[i].name), gray(results[i].current), '→', _hlVer(results[i].latest, results[i].current) ]);
 					}
 				}
 
@@ -307,4 +303,49 @@ function scrubArgv(argv) {
 		}
 	}
 	return scrubbed;
+}
+
+/**
+ * Highlights the difference between two versions.
+ *
+ * @param {String} toVer - The latest version.
+ * @param {String} fromVer - The current version.
+ * @returns {String}
+ */
+function _hlVer(toVer, fromVer) {
+	const { green } = snooplogg.styles;
+	const version = [];
+
+	let [ from, fromTag ] = fromVer.split(/-(.+)/);
+	from = from.replace(/[^.\d]/g, '').split('.').map(x => parseInt(x));
+
+	let [ to, toTag ] = toVer.split(/-(.+)/);
+	const toMatch = to.match(/^([^\d]+)?(.+)$/);
+	to = (toMatch ? toMatch[2] : to).split('.').map(x => parseInt(x));
+
+	const tag = () => {
+		if (toTag) {
+			const toNum = toTag.match(/\d+$/);
+			const fromNum = fromTag && fromTag.match(/\d+$/);
+			if (fromNum && parseInt(fromNum[0]) >= parseInt(toNum)) {
+				return `-${toTag}`;
+			} else {
+				return green(`-${toTag}`);
+			}
+		}
+		return '';
+	};
+
+	while (to.length) {
+		if (to[0] > from[0]) {
+			if (version.length) {
+				return (toMatch && toMatch[1] || '') + version.concat(green(to.join('.') + tag())).join('.');
+			}
+			return green((toMatch && toMatch[1] || '') + to.join('.') + tag());
+		}
+		version.push(to.shift());
+		from.shift();
+	}
+
+	return (toMatch && toMatch[1] || '') + version.join('.') + tag();
 }

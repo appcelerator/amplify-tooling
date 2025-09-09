@@ -1,5 +1,5 @@
 import { initPlatformAccount } from '../../lib/cli-utils/index.js';
-import { existsSync, isFile } from '../../lib/utils/fs.js';
+import { existsSync, isFile } from '../../lib/fs.js';
 import { readFileSync } from 'fs';
 import snooplogg from 'snooplogg';
 

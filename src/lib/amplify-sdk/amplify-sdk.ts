@@ -13,7 +13,7 @@ import * as environments from './environments.js';
 import * as request from '../request.js';
 import { createURL } from './util.js';
 import { promisify } from 'util';
-import { redact } from '../utils/util.js';
+import { redact } from '../redact.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);

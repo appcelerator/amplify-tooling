@@ -4,26 +4,6 @@
  * @type {Object}
  */
 export const environments = {
-	dev: {
-		auth: {
-			clientId: 'cli-test-public',
-			realm: 'Broker'
-		},
-		registry: {
-			url: 'http://localhost:8082'
-		},
-		title: 'Development'
-	},
-	staging: {
-		auth: {
-			clientId: 'amplify-cli',
-			realm: 'Broker'
-		},
-		registry: {
-			url: 'https://registry.axwaytest.net'
-		},
-		title: 'Staging'
-	},
 	prod: {
 		auth: {
 			clientId: 'amplify-cli',
@@ -34,15 +14,11 @@ export const environments = {
 		},
 		title: 'Production'
 	}
+	// TODO: Add EU2 environment definition
 };
 
 const mapping = {
-	development: 'dev',
-	preprod: 'staging',
-	preproduction: 'staging',
-	'pre-production': 'staging',
-	production: 'prod',
-	test: 'staging'
+	production: 'prod'
 };
 
 export function resolve(env) {

@@ -1,5 +1,6 @@
 import snooplogg from 'snooplogg';
-import { loadConfig, telemetry } from '../lib/cli-utils/index.js';
+import loadConfig from '../lib/config.js';
+import * as telemetry from '../lib/telemetry.js';
 
 export default {
 	desc: 'Opt-in or out of telemetry to improve Axway products',
