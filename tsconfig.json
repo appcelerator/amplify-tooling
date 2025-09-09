@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"esModuleInterop": true,
+		"module": "es2022",
+		"moduleResolution": "node",
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"outDir": "./dist",
+		"resolveJsonModule": true,
+		"target": "es2022",
+		// "noEmit": true,
+		// "sourceMap": true,
+		// "noImplicitAny": true,
+		// "strict": true,
+	},
+	"include": [ "./src/**/*" ]
+}

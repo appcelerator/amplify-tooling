@@ -1,52 +1,63 @@
 {
-  "name": "amplify-tooling",
+  "name": "axway",
   "version": "0.0.0",
-  "private": true,
+  "description": "A unified CLI for the Axway Amplify platform.",
+  "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "type": "module",
+  "license": "Apache-2.0",
+  "keywords": [
+    "axway",
+    "amplify"
+  ],
+  "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
+  "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
+  "repository": "https://github.com/appcelerator/amplify-tooling",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "postinstall": "node dist/scripts/postinstall.js || node -e true"
+  },
   "dependencies": {
-    "@koa/router": "^13.1.0",
-    "ansi-colors": "^4.1.3",
-    "caller-path": "^4.0.0",
+    "boxen": "^8.0.1",
     "chalk": "^5.4.1",
+    "check-kit": "^4.0.0",
+    "cli-kit": "^2.1.1",
+    "cli-table3": "^0.6.2",
+    "config-kit": "^2.1.0",
+    "ejs": "^3.1.10",
+    "enquirer": "^2.3.6",
     "fs-extra": "^11.3.0",
+    "get-port": "^5.1.1",
     "got": "^11.8.5",
+    "http-proxy-agent": "^5.0.0",
+    "https-proxy-agent": "^5.0.1",
     "jws": "^4.0.0",
-    "koa": "^2.15.3",
-    "koa-bodyparser": "^4.4.1",
-    "mustache": "^4.2.0",
-    "pretty-log": "^0.1.0",
+    "keytar": "7.9.0",
+    "lodash": "^4.17.21",
+    "open": "^8.4.0",
+    "pretty-bytes": "^5.6.0",
+    "pretty-ms": "^7.0.1",
     "semver": "^7.7.1",
-    "tar-stream": "^3.1.7",
-    "uuid": "^11.0.5"
+    "serialize-error": "^8.1.0",
+    "set-cookie-parser": "^2.7.1",
+    "snooplogg": "^5.1.0",
+    "source-map-support": "^0.5.21",
+    "uuid": "^11.0.5",
+    "v8-compile-cache": "^2.3.0"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^5.0.1",
-     "lerna": "^8.1.9",
-     "mocha": "^11.1.0",
-     "chai": "^5.1.2",
-     "gulp": "^5.0.0",
-     "gulp-chug": "^0.5.1",
-     "gulp-debug": "^5.0.1",
-     "gulp-plumber": "^1.2.1",
-     "rollup": "^4.34.9",
-     "@rollup/plugin-node-resolve": "^16.0.0",
-     "@rollup/plugin-commonjs": "28.0.2",
-     "@rollup/plugin-json": "^6.1.0",
-     "@yelo/rollup-node-external": "^1.0.1"
+    "@koa/router": "^13.1.0",
+    "@types/node": "^22",
+    "caller-path": "^4.0.0",
+    "chai": "^6.0.1",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "mocha": "^11.1.0",
+    "mustache": "^4.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   },
-  "scripts": {
-    "build": "lerna exec gulp build",
-    "test": "yarn run gulp test"
-  },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
-  "resolutions": {
-    "minimist": "1.2.6",
-    "tough-cookie": "4.1.3",
-    "@xmldom/xmldom": "0.9.8",
-    "semver": "^7.7.1"
+  "engines": {
+    "node": ">=20.18.2"
   }
 }

@@ -1,6 +1,0 @@
-{
-	"rules": {
-		"no-confusing-arrow": "off",
-		"no-ex-assign": "off"
-	}
-}
