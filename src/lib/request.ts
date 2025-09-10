@@ -1,9 +1,3 @@
-import sourceMapSupport from 'source-map-support';
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	sourceMapSupport.install();
-}
-
 import * as _ from 'lodash';
 import fs from 'fs';
 import got from 'got';

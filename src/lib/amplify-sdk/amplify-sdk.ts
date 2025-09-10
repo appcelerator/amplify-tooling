@@ -3,7 +3,6 @@
 import Auth from './auth.js';
 import crypto from 'crypto';
 import E from './errors.js';
-import fs from 'fs-extra';
 import open from 'open';
 import path, { dirname } from 'path';
 import Server from './server.js';
@@ -12,9 +11,10 @@ import snooplogg from 'snooplogg';
 import * as environments from './environments.js';
 import * as request from '../request.js';
 import { createURL } from './util.js';
-import { promisify } from 'util';
-import { redact } from '../redact.js';
 import { fileURLToPath } from 'url';
+import { promisify } from 'util';
+import { readJsonSync } from '../fs.js';
+import { redact } from '../redact.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -104,7 +104,7 @@ export default class AmplifySDK {
 		 */
 		this.realm = opts.realm;
 
-		const { version } = fs.readJsonSync(path.resolve(__dirname, '../../../package.json'));
+		const { version } = readJsonSync(path.resolve(__dirname, '../../../package.json'));
 
 		/**
 		 * The Axway ID realm.

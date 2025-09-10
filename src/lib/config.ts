@@ -1,15 +1,8 @@
-import sourceMapSupport from 'source-map-support';
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	sourceMapSupport.install();
-}
-
 import { Config } from 'config-kit';
-import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
 import { expandPath } from './path.js';
-import { isFile, writeFileSync } from './fs.js';
+import { isFile, readJsonSync, writeFileSync } from './fs.js';
 
 // const { expandPath, isFile, writeFileSync } = pkg;
 const axwayHome = path.join(os.homedir(), '.axway');
@@ -36,11 +29,12 @@ export async function loadConfig(opts: any = {}) {
 		throw new TypeError('Expected config file to be a string');
 	}
 
+	// TODO: Remove this pre-2.1.0 conf file handling as we're now moving to 5.0.0?
 	// in v2.1.0, the config file was moved to keep the ~/.axway directory tidy as other Axway
 	// CLI's are added
 	const legacyConfigFile = path.join(axwayHome, 'amplify-cli.json');
 	if (!isFile(configFile) && isFile(legacyConfigFile)) {
-		const json = fs.readJsonSync(legacyConfigFile);
+		const json = readJsonSync(legacyConfigFile);
 		json.extensions = {};
 		writeFileSync(configFile, JSON.stringify(json, null, 2));
 	}

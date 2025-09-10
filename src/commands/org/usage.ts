@@ -1,7 +1,6 @@
-import { initPlatformAccount } from '../../lib/cli-utils/index.js';
+import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import snooplogg from 'snooplogg';
-import { formatDate } from '../../lib/oum/util.js';
 
 /* eslint-disable no-loop-func */
 
@@ -203,3 +202,16 @@ export default {
 		}
 	}
 };
+
+/**
+ * Formats a date in the format "m/d/yyyy".
+ * TODO: Replace this with Intl for locale-relative date formatting, or use yyyy-mm-dd to match args
+ * @param {Date|Number} dt - The date to format.
+ * @returns {String}
+ */
+export function formatDate(dt) {
+	if (!(dt instanceof Date)) {
+		dt = new Date(dt);
+	}
+	return `${dt.getUTCMonth() + 1}/${dt.getUTCDate()}/${dt.getUTCFullYear()}`;
+}

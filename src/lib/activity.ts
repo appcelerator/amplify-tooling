@@ -1,4 +1,4 @@
-import { createTable } from '../formatter.js';
+import { createTable } from './formatter.js';
 import snooplogg from 'snooplogg';
 
 /**
@@ -20,6 +20,7 @@ export async function renderActivity({ account, console, json, results }) {
 	const { highlight, note } = snooplogg.styles;
 	let { from, to, events } = results;
 
+	// TODO: Replace this with Intl for locale-relative date formatting, or use yyyy-mm-dd to match args
 	const formatDate = d => {
 		const dt = d ? new Date(d) : new Date();
 		return `${dt.getUTCMonth() + 1}/${dt.getUTCDate()}/${dt.getUTCFullYear()}`;

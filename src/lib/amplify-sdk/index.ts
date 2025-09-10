@@ -1,9 +1,3 @@
-import sourceMapSupport from 'source-map-support';
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	sourceMapSupport.install();
-}
-
 import AmplifySDK from './amplify-sdk.js';
 import Auth from './auth.js';
 import Telemetry from './telemetry.js';

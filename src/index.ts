@@ -1,9 +1,3 @@
-import sourceMapSupport from 'source-map-support';
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	sourceMapSupport.install();
-}
-
 import check from 'check-kit';
 import CLI from 'cli-kit';
 import { createTable } from './lib/formatter.js';

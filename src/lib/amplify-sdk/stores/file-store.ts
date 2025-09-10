@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import E from '../errors.js';
-import fs from 'fs-extra';
+import fs from 'fs';
 import path from 'path';
 import snooplogg from 'snooplogg';
 import TokenStore from './token-store.js';
@@ -193,7 +193,7 @@ export default class FileStore extends TokenStore {
 		for (let ver = 1; ver <= 2; ver++) {
 			const file = ver === 2 ? this.tokenStoreFile : path.join(this.homeDir, this.filename.replace(/\.v2$/, ''));
 			log(`Removing ${highlight(file)}`);
-			await fs.remove(file);
+			fs.rmSync(file, { force: true });
 		}
 	}
 

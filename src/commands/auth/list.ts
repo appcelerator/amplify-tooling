@@ -1,4 +1,4 @@
-import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/cli-utils/index.js';
+import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import snooplogg from 'snooplogg';
 import prettyMilliseconds from 'pretty-ms';

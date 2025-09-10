@@ -1,16 +1,10 @@
-import sourceMapSupport from 'source-map-support';
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	sourceMapSupport.install();
-}
-
-import AmplifySDK from '../amplify-sdk/index.js';
+import AmplifySDK from './amplify-sdk/index.js';
 import fs from 'fs';
-import loadConfig from '../config.js';
+import loadConfig from './config.js';
 import snooplogg from 'snooplogg';
-import * as environments from '../environments.js';
-import * as request from '../request.js';
-import { axwayHome } from '../path.js';
+import * as environments from './environments.js';
+import * as request from './request.js';
+import { axwayHome } from './path.js';
 
 const { warn } = snooplogg('amplify-cli-utils');
 

@@ -1,4 +1,4 @@
-import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/cli-utils/index.js';
+import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import snooplogg from 'snooplogg';
 

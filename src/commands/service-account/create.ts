@@ -1,7 +1,7 @@
-import { initPlatformAccount } from '../../lib/cli-utils/index.js';
-import { existsSync, isFile } from '../../lib/fs.js';
+import { initPlatformAccount } from '../../lib/utils.js';
+import { isFile } from '../../lib/fs.js';
 import { generateKeypair } from '../../lib/auth/keypair.js';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import snooplogg from 'snooplogg';
 import * as uuid from 'uuid';
 import pkg from 'enquirer';

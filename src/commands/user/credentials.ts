@@ -1,4 +1,4 @@
-import { initSDK, isHeadless } from '../../lib/cli-utils/index.js';
+import { initSDK, isHeadless } from '../../lib/utils.js';
 import snooplogg from 'snooplogg';
 import pkg from 'open';
 

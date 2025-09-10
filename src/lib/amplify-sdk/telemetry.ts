@@ -1,11 +1,11 @@
 import ci from 'ci-info';
-import fs from 'fs-extra';
+import fs from 'fs';
 import path, { dirname } from 'path';
 import os from 'os';
 import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
 import * as request from '../request.js';
 import * as uuid from 'uuid';
-import { isDir, writeFileSync, isFile } from '../fs.js';
+import { isDir, writeFileSync, readJsonSync, isFile } from '../fs.js';
 import { redact } from '../redact.js';
 import { serializeError } from 'serialize-error';
 import { execSync, spawnSync, spawn } from 'child_process';
@@ -393,7 +393,7 @@ process.on('message', async (msg: any) => {
 		if (process.env.AXWAY_CLI) {
 			log(`Axway CLI, version ${process.env.AXWAY_CLI}`);
 		}
-		log(`Amplify SDK, version ${fs.readJsonSync(path.resolve(__dirname, '..', 'package.json')).version}`);
+		log(`Amplify SDK, version ${readJsonSync(path.resolve(__dirname, '..', 'package.json')).version}`);
 		log(`PID: ${process.pid}`);
 		log(`Batch size: ${sendBatchSize}`);
 
@@ -413,7 +413,7 @@ process.on('message', async (msg: any) => {
 					// istanbul ignore next
 					if (isNaN(pid)) {
 						log(`Attempt ${i}: Lock file exists, but has bad pid: "${contents}"`);
-						fs.removeSync(lockFile);
+						fs.rmSync(lockFile, { force: true });
 					} else {
 						try {
 							// check if pid is still running
@@ -422,7 +422,7 @@ process.on('message', async (msg: any) => {
 							return false;
 						} catch (e2) {
 							log(`Attempt ${i}: Lock file exists, but has stale pid, continuing...`);
-							fs.removeSync(lockFile);
+							fs.rmSync(lockFile, { force: true });
 						}
 					}
 
@@ -459,7 +459,7 @@ process.on('message', async (msg: any) => {
 			for (const filename of events) {
 				const file = path.join(appDir, filename);
 				try {
-					const event = fs.readJsonSync(file);
+					const event = readJsonSync(file);
 					if (!event.event) {
 						throw new Error('Incomplete event data');
 					}
@@ -470,7 +470,7 @@ process.on('message', async (msg: any) => {
 					}
 				} catch (err) {
 					warn(`Batch ${batchCounter}: Bad event ${filename}, deleting`);
-					fs.removeSync(file);
+					fs.rmSync(file, { force: true });
 				}
 			}
 
@@ -490,7 +490,7 @@ process.on('message', async (msg: any) => {
 			try {
 				for (const { file } of batch) {
 					log(`Removing ${file}`);
-					fs.removeSync(file);
+					fs.rmSync(file, { force: true });
 				}
 			} catch (err) {
 				// istanbul ignore next
@@ -501,7 +501,7 @@ process.on('message', async (msg: any) => {
 		error(err);
 		process.exitCode = exitCodes.ERROR;
 	} finally {
-		fs.removeSync(lockFile);
+		fs.rmSync(lockFile, { force: true });
 		log(`Finished in ${((Date.now() - startTime) / 1000).toFixed(1)} seconds`);
 		logFile.close();
 		if (wait) {

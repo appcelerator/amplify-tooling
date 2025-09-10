@@ -19,7 +19,7 @@ export default {
 			{ initSDK, isHeadless },
 			{ default: snooplogg }
 		] = await Promise.all([
-			import('../../lib/cli-utils/index.js'),
+			import('../../lib/utils.js'),
 			import('snooplogg')
 		]);
 

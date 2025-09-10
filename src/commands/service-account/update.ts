@@ -1,6 +1,6 @@
-import { initPlatformAccount } from '../../lib/cli-utils/index.js';
-import { existsSync, isFile } from '../../lib/fs.js';
-import { readFileSync } from 'fs';
+import { initPlatformAccount } from '../../lib/utils.js';
+import { isFile } from '../../lib/fs.js';
+import { existsSync, readFileSync } from 'fs';
 import snooplogg from 'snooplogg';
 
 export default {

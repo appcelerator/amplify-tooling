@@ -1,6 +1,6 @@
 import E from '../errors.js';
 import ejs from 'ejs';
-import fs from 'fs-extra';
+import fs from 'fs';
 import getEndpoints from '../endpoints.js';
 import jws from 'jws';
 import open from 'open';
@@ -507,7 +507,7 @@ export default class Authenticator {
 				Location: this.platformUrl
 			});
 			const template = path.resolve(__dirname, '../../templates/auth.html.ejs');
-			res.end(ejs.render(await fs.readFile(template, 'utf-8'), {
+			res.end(ejs.render(fs.readFileSync(template, 'utf-8'), {
 				title: 'Authorization Successful!',
 				message: 'Please return to the console.'
 			}));

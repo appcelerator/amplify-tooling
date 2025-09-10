@@ -52,21 +52,6 @@ function execute(dest, opts, fn) {
 }
 
 /**
- * Determines if a file or directory exists.
- *
- * @param {String} file - The full path to check if exists.
- * @returns {Boolean}
- */
-export function existsSync(file) {
-	try {
-		fs.statSync(file);
-		return true;
-	} catch (e) {
-		return false;
-	}
-}
-
-/**
  * Determines if a directory exists and that it is indeed a directory.
  *
  * @param {String} dir - The directory to check.
@@ -129,4 +114,16 @@ export function writeFileSync(dest, contents, opts = {}) {
 		mkdirpSync(path.dirname(dest), { ...opts, mode: undefined });
 		fs.writeFileSync(dest, contents, opts);
 	});
+}
+
+/**
+ * Reads a JSON file synchronously.
+ *
+ * @param {String} file The path to the JSON file.
+ * @returns {Object} The file contents in JSON format.
+ * @throws {SyntaxError} If text is not valid JSON.
+ */
+export function readJsonSync(file) {
+	const fileContent = fs.readFileSync(file, 'utf8');
+	return JSON.parse(fileContent);
 }

@@ -1,4 +1,4 @@
-import { initPlatformAccount } from '../../lib/cli-utils/index.js';
+import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import snooplogg from 'snooplogg';
 

@@ -1,5 +1,5 @@
-import { initPlatformAccount } from '../../lib/cli-utils/index.js';
-import { renderActivity } from '../../lib/oum/activity.js';
+import { initPlatformAccount } from '../../lib/utils.js';
+import { renderActivity } from '../../lib/activity.js';
 
 export default {
 	desc: 'Display your activity',

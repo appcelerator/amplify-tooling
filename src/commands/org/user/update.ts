@@ -1,4 +1,4 @@
-import { initPlatformAccount } from '../../../lib/cli-utils/index.js';
+import { initPlatformAccount } from '../../../lib/utils.js';
 import snooplogg from 'snooplogg';
 
 export default {

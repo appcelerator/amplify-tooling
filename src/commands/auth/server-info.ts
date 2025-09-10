@@ -3,7 +3,7 @@ export default {
 	name: 'server-info',
 	async action({ argv, console }) {
 		// TODO: again, why?
-		const { initSDK } = await import('../../lib/cli-utils/index.js');
+		const { initSDK } = await import('../../lib/utils.js');
 		const { sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,

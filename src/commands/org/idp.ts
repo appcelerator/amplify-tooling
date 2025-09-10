@@ -1,4 +1,4 @@
-import { initPlatformAccount, isHeadless } from '../../lib/cli-utils/index.js';
+import { initPlatformAccount, isHeadless } from '../../lib/utils.js';
 import snooplogg from 'snooplogg';
 import pkg from 'open';
 

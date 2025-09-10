@@ -1,6 +1,7 @@
 import path from 'path';
-import { existsSync, writeFileSync } from '../fs.js';
-import { initSDK } from '../cli-utils/index.js';
+import { existsSync } from 'fs';
+import { writeFileSync } from '../fs.js';
+import { initSDK } from '../utils.js';
 import pkg from 'enquirer';
 
 const { prompt } = pkg;

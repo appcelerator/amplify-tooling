@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import E from './errors.js';
 import ejs from 'ejs';
-import fs from 'fs-extra';
+import fs from 'fs';
 import getPort from 'get-port';
 import http from 'http';
 import path from 'path';
@@ -174,7 +174,7 @@ export default class Server {
 
 					res.writeHead(err.status || 400, { 'Content-Type': 'text/html' });
 					const template = path.resolve(__dirname, '../templates/error.html.ejs');
-					res.end(ejs.render(await fs.readFile(template, 'utf-8'), {
+					res.end(ejs.render(fs.readFileSync(template, 'utf-8'), {
 						title: 'Error',
 						message: err.message
 					}));

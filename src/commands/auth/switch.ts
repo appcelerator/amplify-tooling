@@ -1,5 +1,5 @@
 import snooplogg from 'snooplogg';
-import { getAuthConfigEnvSpecifier, initSDK, isHeadless } from '../../lib/cli-utils/index.js';
+import { getAuthConfigEnvSpecifier, initSDK, isHeadless } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import pkg from 'enquirer';
 

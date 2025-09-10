@@ -1,4 +1,4 @@
-import fs from 'fs-extra';
+import fs from 'fs';
 import loadConfig from './config.js';
 import path from 'path';
 import snooplogg from 'snooplogg';
@@ -104,5 +104,5 @@ export async function isEnabled() {
  * Nukes the telemetry data directory, if exists.
  */
 export function nukeData() {
-	fs.removeSync(telemetryCacheDir);
+	fs.rmSync(telemetryCacheDir, { recursive: true, force: true });
 }
