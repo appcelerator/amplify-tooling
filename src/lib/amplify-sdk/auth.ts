@@ -2,7 +2,6 @@ import E from './errors.js';
 
 import Authenticator from './authenticators/authenticator.js';
 import ClientSecret from './authenticators/client-secret.js';
-import OwnerPassword from './authenticators/owner-password.js';
 import PKCE from './authenticators/pkce.js';
 import SignedJWT from './authenticators/signed-jwt.js';
 
@@ -18,7 +17,7 @@ import * as environments from './environments.js';
 import * as request from '../request.js';
 
 const { log, warn } = snooplogg('amplify-sdk:auth');
-const { alert, highlight, magenta, note } = snooplogg.styles;
+const { highlight } = snooplogg.styles;
 
 /**
  * Authenticates the machine and retrieves the auth token.
@@ -45,15 +44,11 @@ export default class Auth {
 	clientId: string | undefined;
 	clientSecret: string | undefined;
 	got: any;
-	interactiveLoginTimeout: number | undefined;
 	messages: any;
-	password: string | undefined;
 	realm: string | undefined;
 	persistSecrets: boolean | undefined;
 	platformUrl: string | undefined;
 	secretFile: string | undefined;
-	serviceAccount: boolean | undefined;
-	username: string | undefined;
 	env: string | undefined;
 
 	/**
@@ -71,11 +66,8 @@ export default class Auth {
 	 * @param {String} [opts.homeDir] - The path to the home directory containing the `lib`
 	 * directory where `keytar` is located. This option is required when `tokenStoreType` is set to
 	 * `secure`, which is the default.
-	 * @param {Number} [opts.interactiveLoginTimeout] - The number of milliseconds to wait before
-	 * timing out.
-	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
 	 * @param {Boolean} [opts.persistSecrets] - When `true`, adds the authenticator params
-	 * (client secret, private key, username/password) to the authenticated account object so that
+	 * (client secret, private key) to the authenticated account object so that
 	 * the access token can be refreshed when a refresh token is not available.
 	 * @param {String} [opts.platformUrl] - The URL to redirect the browser to after a
 	 * successful login.
@@ -86,8 +78,6 @@ export default class Auth {
 	 * the JWT.
 	 * @param {String} [opts.secureServiceName="Axway AMPLIFY Auth"] - The name of the consumer
 	 * using this library when using the "secure" token store.
-	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
-	 * requested by a service instead of a user.
 	 * @param {Boolean} [opts.tokenRefreshThreshold=0] - The number of seconds before the access
 	 * token expires and should be refreshed.
 	 * @param {TokenStore} [opts.tokenStore] - A token store instance for persisting the tokens.
@@ -97,7 +87,6 @@ export default class Auth {
 	 * Possible values include: `auto`, `secure`, `file`, or `memory`. If value is `auto`, it will
 	 * attempt to use `secure`, then `file`, then `memory`. If set to `null`, then it will not
 	 * persist the access token.
-	 * @param {String} [opts.username] - The username used to authenticate. Requires a `password`.
 	 * @access public
 	 */
 	constructor(opts: any = {}) {
@@ -123,15 +112,11 @@ export default class Auth {
 			clientId:       { value: opts.clientId },
 			clientSecret:   { value: opts.clientSecret },
 			got:            { value: opts.got || request.init(opts.requestOptions) },
-			interactiveLoginTimeout: { value: opts.interactiveLoginTimeout },
 			messages:       { value: opts.messages },
-			password:       { value: opts.password },
 			realm:          { value: opts.realm },
 			persistSecrets: { writable: true, value: opts.persistSecrets },
 			platformUrl:    { value: opts.platformUrl },
-			secretFile:     { value: opts.secretFile },
-			serviceAccount: { value: opts.serviceAccount },
-			username:       { value: opts.username }
+			secretFile:     { value: opts.secretFile }
 		});
 
 		this.env = environments.resolve(opts.env).name;
@@ -218,15 +203,11 @@ export default class Auth {
 			env:            env.name,
 			got:            opts.got || this.got,
 			messages:       opts.messages || this.messages,
-			password:       opts.password || this.password,
 			persistSecrets: opts.persistSecrets !== undefined ? opts.persistSecrets : this.persistSecrets,
 			platformUrl:    opts.platformUrl || this.platformUrl,
 			realm:          opts.realm || this.realm,
 			secretFile:     opts.secretFile || this.secretFile,
-			serviceAccount: opts.serviceAccount || this.serviceAccount,
-			timeout:        opts.timeout || opts.interactiveLoginTimeout || this.interactiveLoginTimeout,
 			tokenStore:     this.tokenStore,
-			username:       opts.username || this.username
 		};
 	}
 
@@ -237,18 +218,14 @@ export default class Auth {
 	 * @param {Authenticator} [opts.authenticator] - An authenticator instance to use. If not
 	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
-	 * @param {String} [opts.password] - The password used to authenticate. Requires a `username`.
 	 * @param {String} [opts.secretFile] - The path to the jwt secret file.
-	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
-	 * requested by a service instead of a user.
-	 * @param {String} [opts.username] - The username used to authenticate. Requires a `password`.
 	 * @returns {Authenticator}
 	 * @access public
 	 */
 	createAuthenticator(opts: any = {}) {
 		if (opts.authenticator) {
 			if (!(opts.authenticator instanceof Authenticator)) {
-				throw E.INVALID_ARUGMENT('Expected authenticator to be an Authenticator instance.');
+				throw E.INVALID_ARGUMENT('Expected authenticator to be an Authenticator instance.');
 			}
 			log(`Using existing ${highlight(opts.authenticator.constructor.name)} authenticator`);
 			return opts.authenticator;
@@ -259,8 +236,7 @@ export default class Auth {
 		}
 
 		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
-			log(`Creating ${highlight('OwnerPassword')} authenticator`);
-			return new OwnerPassword(opts);
+			throw E.INVALID_ARGUMENT('Platform Username and Password authentication is deprecated. Use a different authentication method.');
 		}
 
 		if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
@@ -325,7 +301,7 @@ export default class Auth {
 		}
 
 		// copy over the correct auth params
-		for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env', 'clientSecret', 'username', 'password', 'secret' ]) {
+		for (const prop of [ 'baseUrl', 'clientId', 'realm', 'env', 'clientSecret', 'secret' ]) {
 			if (account.auth[prop] && opts[prop] !== account.auth[prop]) {
 				log(`Overriding "${prop}" auth param with account's: ${opts[prop]} -> ${account.auth[prop]}`);
 				opts[prop] = account.auth[prop];
@@ -413,8 +389,6 @@ export default class Auth {
 	 * @param {String} [opts.code] - The authentication code from a successful interactive login.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `staging` or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
-	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
-	 * launching the auth URL in the default browser.
 	 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to be
 	 * launched.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
@@ -460,30 +434,10 @@ export default class Auth {
 			}
 		}
 
-		let revoked;
 		if (all) {
-			revoked = await this.tokenStore.clear(baseUrl);
-		} else {
-			revoked = await this.tokenStore.delete(accounts, baseUrl);
+			return this.tokenStore.clear(baseUrl);
 		}
-
-		if (Array.isArray(revoked)) {
-			for (const entry of revoked) {
-				// don't logout of platform accounts here, it's done in the Amplify SDK by opening the browser
-				if (!entry.isPlatform) {
-					const { platformUrl } = environments.resolve(entry.auth.env);
-					const url = `${platformUrl}/auth/signout?id_token_hint=${entry.auth.tokens.id_token}`;
-					try {
-						const { statusCode } = await this.got(url, { responseType: 'json', retry: 0 });
-						log(`Successfully logged out ${highlight(entry.name)} ${magenta(statusCode)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
-					} catch (err) {
-						log(`Failed to log out ${highlight(entry.name)} ${alert(err.status)} ${note(`(${entry.auth.baseUrl}, ${entry.auth.realm})`)}`);
-					}
-				}
-			}
-		}
-
-		return revoked;
+		return this.tokenStore.delete(accounts, baseUrl);
 	}
 
 	/**

@@ -3,14 +3,10 @@
 import Auth from './auth.js';
 import crypto from 'crypto';
 import E from './errors.js';
-import open from 'open';
 import path, { dirname } from 'path';
-import Server from './server.js';
-import setCookie from 'set-cookie-parser';
 import snooplogg from 'snooplogg';
 import * as environments from './environments.js';
 import * as request from '../request.js';
-import { createURL } from './util.js';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 import { readJsonSync } from '../fs.js';
@@ -18,7 +14,7 @@ import { redact } from '../redact.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const { error, log, warn } = snooplogg('amplify-sdk');
+const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;
 
 /**
@@ -141,12 +137,9 @@ export default class AmplifySDK {
 					throw E.INVALID_ARGUMENT('Expected default teams to be an object');
 				}
 
-				const result = await this.request('/api/v1/auth/findSession', account, {
-					errorMsg: 'Failed to find session'
-				});
-				account.isPlatform = !!result;
-
-				const populateOrgs = (org, orgs) => {
+				if (account.org?.id) {
+					const org = await this.org.find(account, account.org.guid);
+					org.org_id = org.org_id || org.id;
 					account.org = {
 						entitlements: Object
 							.entries(org.entitlements || {})
@@ -164,35 +157,13 @@ export default class AmplifySDK {
 						teams:         []
 					};
 
-					account.orgs = orgs.map(({ guid, name, org_id }) => ({
-						default: org_id === org.org_id,
-						guid,
-						id: org_id,
-						name
-					}));
-				};
-
-				if (result) {
-					const { org, orgs, role, roles, user } = result;
-					populateOrgs(org, orgs);
-
-					account.role = role;
-					account.roles = roles;
-
-					account.user = Object.assign({}, account.user, {
-						axwayId:      user.axway_id,
-						dateJoined:   user.date_activated,
-						email:        user.email,
-						firstname:    user.firstname,
-						guid:         user.guid,
-						lastname:     user.lastname,
-						organization: user.organization,
-						phone:        user.phone
-					});
-				} else if (account.org?.id) {
-					const org = await this.org.find(account, account.org.guid);
-					org.org_id = org.org_id || org.id;
-					populateOrgs(org, [ org ]);
+					// TODO: Service accounts can only be part of one org, so remove orgs array?
+					account.orgs = [{
+						default: true,
+						guid: org.guid,
+						id: org.org_id,
+						name: org.name
+					} ];
 				}
 
 				account.team = undefined;
@@ -264,20 +235,7 @@ export default class AmplifySDK {
 			 */
 			loadSession: async (account, defaultTeams) => {
 				try {
-					// grab the org guid before findSession clobbers it
-					const { guid } = account.org;
-
 					account = await this.auth.findSession(account, defaultTeams);
-
-					// validate the service account
-					if (account.isPlatformTooling) {
-						const filteredOrgs = account.orgs.filter(o => o.guid === guid);
-						if (!filteredOrgs.length) {
-							error(`Service account belongs to org "${guid}", but platform account belongs to:\n${account.orgs.map(o => `  "${o.guid}"`).join('\n')}`);
-							throw new Error('The service account\'s organization does not match the specified platform account\'s organizations');
-						}
-						account.orgs = filteredOrgs;
-					}
 				} catch (err) {
 					if (err.code === 'ERR_SESSION_INVALIDATED') {
 						warn(`Detected invalidated session, purging account ${highlight(account.name)}`);
@@ -291,14 +249,6 @@ export default class AmplifySDK {
 				}
 
 				await this.authClient.updateAccount(account);
-
-				if (account.isPlatform) {
-					log(`Current org: ${highlight(account.org.name)} ${note(`(${account.org.guid})`)}`);
-					log('Available orgs:');
-					for (const org of account.orgs) {
-						log(`  ${highlight(org.name)} ${note(`(${org.guid})`)}`);
-					}
-				}
 
 				delete account.auth.clientSecret;
 				delete account.auth.password;
@@ -324,24 +274,6 @@ export default class AmplifySDK {
 			login: async (opts: any = {}) => {
 				let account;
 
-				// validate the username/password
-				const { password, username } = opts;
-				if (username || password) {
-					const clientSecret = opts.clientSecret || this.opts.clientSecret;
-					const secretFile   = opts.secretFile || this.opts.secretFile;
-					if (!clientSecret && !secretFile) {
-						throw new Error('Username/password can only be specified when using client secret or secret file');
-					}
-					if (!username || typeof username !== 'string') {
-						throw new TypeError('Expected username to be an email address');
-					}
-					if (!password || typeof password !== 'string') {
-						throw new TypeError('Expected password to be a non-empty string');
-					}
-					delete opts.username;
-					delete opts.password;
-				}
-
 				// check if already logged in
 				if (!opts?.force) {
 					account = await this.authClient.find(opts);
@@ -361,39 +293,7 @@ export default class AmplifySDK {
 
 				// do the login
 				account = await this.authClient.login(opts);
-
-				// if we're in manual mode (e.g. --no-launch-browser), then return now
-				if (opts.manual) {
-					// account is actually an object containing `cancel`, `promise`, and `url`
-					return account;
-				}
-
-				try {
-					// upgrade the service account with the platform tooling account
-					if (username && password) {
-						// request() will set the sid and update the account in the token store
-						await this.request('/api/v1/auth/login', account, {
-							errorMsg: 'Failed to authenticate',
-							isToolingAuth: true,
-							json: {
-								from: 'cli',
-								username,
-								password
-							}
-						});
-
-						account.isPlatformTooling = true;
-					}
-
-					return await this.auth.loadSession(account);
-				} catch (err) {
-					// something happened, revoke the access tokens we just got and rethrow
-					await this.authClient.logout({
-						accounts: [ account.name ],
-						baseUrl: this.baseUrl
-					});
-					throw err;
-				}
+				return await this.auth.loadSession(account);
 			},
 
 			/**
@@ -420,24 +320,6 @@ export default class AmplifySDK {
 					accounts = (await this.authClient.list()).filter(account => accounts.includes(account.name));
 				}
 
-				for (const account of accounts) {
-					if (account.isPlatform && !account.isPlatformTooling) {
-						// note: there should only be 1 platform account in the accounts list
-						const { platformUrl } = environments.resolve(account.auth.env);
-						const redirect = `${platformUrl}/signed.out?msg=signout`;
-						const url = `${platformUrl}/auth/signout?redirect=${encodeURIComponent(redirect)}`;
-						if (typeof opts.onOpenBrowser === 'function') {
-							await opts.onOpenBrowser({ url });
-						}
-						try {
-							await open(url);
-						} catch (err) {
-							const m = err.message.match(/Exited with code (\d+)/i);
-							throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
-						}
-					}
-				}
-
 				return await this.authClient.logout({ accounts: accounts.map(account => account.hash), baseUrl });
 			},
 
@@ -448,83 +330,6 @@ export default class AmplifySDK {
 			 * @returns {Promise<object>}
 			 */
 			serverInfo: opts => this.authClient.serverInfo(opts),
-
-			/**
-			 * Switches your current organization.
-			 * @param {Object} [account] - The account object. Note that this object reference will
-			 * be updated with new org info.
-			 * @param {Object|String|Number} [org] - The organization object, name, guid, or id.
-			 * @param {Object} [opts] - Various options.
-			 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to
-			 * be launched.
-			 * @returns {Promise<Object>} Resolves the updated account object.
-			 */
-			switchOrg: async (account, org, opts: any = {}) => {
-				if (!account || account.auth.expired) {
-					log(`${account ? 'Account is expired' : 'No account specified'}, doing login`);
-					account = await this.authClient.login();
-				} else {
-					try {
-						org = this.resolvePlatformOrg(account, org);
-					} catch (err) {
-						if (err.code !== 'ERR_INVALID_ACCOUNT' && err.code !== 'ERR_INVALID_PLATFORM_ACCOUNT' && err.code !== 'ERR_INVALID_ARGUMENT') {
-							// probably org not found
-							throw err;
-						}
-						org = undefined;
-					}
-
-					log(`Switching ${highlight(account.name)} to org ${highlight(org.name)} (${org.guid})`);
-
-					const server = new Server();
-					const { start, url: redirect } = await server.createCallback((_req, res) => {
-						log(`Telling browser to redirect to ${highlight(this.platformUrl)}`);
-						res.writeHead(302, {
-							Location: this.platformUrl
-						});
-						res.end();
-					});
-
-					try {
-						const url = createURL(`${this.platformUrl}/#/auth/org.select`, {
-							org_hint: org?.id,
-							redirect
-						});
-						log(`Launching default web browser: ${highlight(url)}`);
-						if (typeof opts.onOpenBrowser === 'function') {
-							await opts.onOpenBrowser({ url });
-						}
-						try {
-							await open(url);
-						} catch (err) {
-							const m = err.message.match(/Exited with code (\d+)/i);
-							throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
-						}
-
-						log(`Waiting for browser to be redirected to: ${highlight(redirect)}`);
-						await start();
-						const authenticator = this.authClient.createAuthenticator(this.authClient.applyDefaults());
-						await new Promise(resolve => setTimeout(resolve, 3000));
-						account = await authenticator.getToken(undefined, undefined, true);
-					} finally {
-						await server.stop();
-					}
-				}
-
-				try {
-					log('Refreshing the account session...');
-					if (account.sid) {
-						log(`Deleting sid ${account.sid}`);
-						delete account.sid;
-					}
-					return await this.auth.loadSession(account);
-				} catch (e) {
-					// squelch
-					log(e);
-				}
-
-				throw new Error('Failed to switch organization');
-			},
 
 			async timeout() {
 				return new Promise(resolve => setTimeout(resolve, 3000));
@@ -547,7 +352,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			create: async (account, org, opts: any = {}) => {
-				org = this.resolvePlatformOrg(account, org);
+				org = this.resolveOrg(account, org);
 
 				if (!opts || typeof opts !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
@@ -611,18 +416,11 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			find: async (account, org, clientId) => {
-				assertPlatformAccount(account);
-
 				const { clients } = await this.client.list(account, org);
 
-				// first try to find the service account by guid, then client id, then name
-				let client = clients.find(c => c.guid === clientId);
-				if (!client) {
-					client = clients.find(c => c.client_id === clientId);
-				}
-				if (!client) {
-					client = clients.find(c => c.name === clientId);
-				}
+				// first try to find the service account by guid or client id, then name
+				const client = clients.find(c => c.guid === clientId || c.client_id === clientId)
+					|| clients.find(c => c.name === clientId);
 
 				// if still not found, error
 				if (!client) {
@@ -673,7 +471,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>} Resolves the service account that was removed.
 			 */
 			list: async (account, org) => {
-				org = this.resolvePlatformOrg(account, org);
+				org = this.resolveOrg(account, org);
 				const clients = await this.request(`/api/v1/client?org_id=${org.id}`, account, {
 					errorMsg: 'Failed to get service accounts'
 				});
@@ -730,9 +528,8 @@ export default class AmplifySDK {
 			 * Validates a list of teams for the given org.
 			 * @param {Object} account - The account object.
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {Array<Object>} [teams] - A list of objects containing `guid` and `roles`
-			 * properties.
-			 * @returns {Array<String>} An aray of team guids.
+			 * @param {Array<Object>} [teams] - A list of objects containing `guid` and `roles` properties.
+			 * @returns {Array<String>} An array of team guids.
 			 */
 			resolveTeams: async (account, org, teams) => {
 				if (!Array.isArray(teams)) {
@@ -807,7 +604,7 @@ export default class AmplifySDK {
 			 * @returns {Promise}
 			 */
 			update: async (account, org, opts: any = {}) => {
-				org = this.resolvePlatformOrg(account, org);
+				org = this.resolveOrg(account, org);
 
 				if (!opts || typeof opts !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
@@ -895,17 +692,15 @@ export default class AmplifySDK {
 		 * @returns {Promise<Object>}
 		 */
 		const getActivity = async (account, params: any = {}) => {
-			assertPlatformAccount(account);
-
 			if (params.month !== undefined) {
-				Object.assign(params, resovleMonthRange(params.month));
+				Object.assign(params, resolveMonthRange(params.month));
 			}
 
 			let { from, to } = resolveDateRange(params.from, params.to);
 			let url = '/api/v1/activity?data=true';
 
 			if (params.org) {
-				const { id } = this.resolvePlatformOrg(account, params.org);
+				const { id } = this.resolveOrg(account, params.org);
 				url += `&org_id=${id}`;
 			}
 
@@ -932,7 +727,7 @@ export default class AmplifySDK {
 
 		this.org = {
 			/**
-			 * Retieves organization activity.
+			 * Reteives organization activity.
 			 * @param {Object} account - The account object.
 			 * @param {Object|String|Number} org - The organization object, name, guid, or id.
 			 * @param {Object} [params] - Various parameters.
@@ -953,22 +748,8 @@ export default class AmplifySDK {
 			 * @returns {Promise<Array>}
 			 */
 			environments: async account => {
-				assertPlatformAccount(account);
 				return await this.request('/api/v1/org/env', account, {
 					errorMsg: 'Failed to get organization environments'
-				});
-			},
-
-			/**
-			 * Retrieves the organization family used to determine the child orgs.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @returns {Promise<Object>}
-			 */
-			family: async (account, org) => {
-				const { id } = this.resolvePlatformOrg(account, org);
-				return await this.request(`/api/v1/org/${id}/family`, account, {
-					errorMsg: 'Failed to get organization family'
 				});
 			},
 
@@ -999,15 +780,11 @@ export default class AmplifySDK {
 				const result = {
 					active:           org.active,
 					created:          org.created,
-					childOrgs:        null, // deprecated
 					guid:             org.guid,
 					id:               id,
 					name:             org.name,
 					entitlements:     org.entitlements,
-					parentOrg:        null, // deprecated
 					region:           org.region,
-					insightUserCount: ~~org.entitlements.limit_read_only_users,
-					seats:            org.entitlements.limit_users === 10000 ? null : org.entitlements.limit_users,
 					subscriptions,
 					teams,
 					teamCount:        teams.length,
@@ -1031,9 +808,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Array>}
 			 */
 			list: async (account, defaultOrg) => {
-				assertPlatformAccount(account);
-
-				const { guid } = this.resolvePlatformOrg(account, defaultOrg);
+				const { guid } = this.resolveOrg(account, defaultOrg);
 
 				return account.orgs.map(o => ({
 					...o,
@@ -1051,7 +826,7 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				add: async (account, org, email, roles) => {
-					org = this.resolvePlatformOrg(account, org);
+					org = this.resolveOrg(account, org);
 					const { guid } = await this.request(`/api/v1/org/${org.id}/user`, account, {
 						errorMsg: 'Failed to add user to organization',
 						json: {
@@ -1086,7 +861,7 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				list: async (account, org) => {
-					org = this.resolvePlatformOrg(account, org);
+					org = this.resolveOrg(account, org);
 					const users = await this.request(`/api/v1/org/${org.id}/user?clients=1`, account, {
 						errorMsg: 'Failed to get organization users'
 					});
@@ -1111,7 +886,7 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				remove: async (account, org, user) => {
-					org = this.resolvePlatformOrg(account, org);
+					org = this.resolveOrg(account, org);
 					const found = await this.org.user.find(account, org.guid, user);
 
 					if (!found) {
@@ -1137,7 +912,7 @@ export default class AmplifySDK {
 				 * @returns {Promise<Object>}
 				 */
 				update: async (account, org, user, roles) => {
-					org = this.resolvePlatformOrg(account, org);
+					org = this.resolveOrg(account, org);
 					const found = await this.org.user.find(account, org.guid, user);
 
 					if (!found) {
@@ -1168,7 +943,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			rename: async (account, org, name) => {
-				const { id, name: oldName } = this.resolvePlatformOrg(account, org);
+				const { id, name: oldName } = this.resolveOrg(account, org);
 
 				if (typeof name !== 'string' || !(name = name.trim())) {
 					throw E.INVALID_ARGUMENT('Organization name must be a non-empty string');
@@ -1196,10 +971,10 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			usage: async (account, org, params: any = {}) => {
-				const { id } = this.resolvePlatformOrg(account, org);
+				const { id } = this.resolveOrg(account, org);
 
 				if (params.month !== undefined) {
-					Object.assign(params, resovleMonthRange(params.month));
+					Object.assign(params, resolveMonthRange(params.month));
 				}
 
 				const { from, to } = resolveDateRange(params.from, params.to);
@@ -1401,7 +1176,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			create: async (account, org, name, info) => {
-				org = this.resolvePlatformOrg(account, org);
+				org = this.resolveOrg(account, org);
 
 				if (!name || typeof name !== 'string') {
 					throw E.INVALID_ARGUMENT('Expected name to be a non-empty string');
@@ -1428,7 +1203,7 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			find: async (account, org, team) => {
-				org = this.resolvePlatformOrg(account, org);
+				org = this.resolveOrg(account, org);
 
 				if (!team || typeof team !== 'string') {
 					throw E.INVALID_ARGUMENT('Expected team to be a name or guid');
@@ -1745,8 +1520,6 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>}
 			 */
 			update: async (account, info: any = {}) => {
-				assertPlatformAccount(account);
-
 				if (!info || typeof info !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected user info to be an object');
 				}
@@ -1822,7 +1595,6 @@ export default class AmplifySDK {
 	 * @param {String} path - The path to append to the URL.
 	 * @param {Object} account - The account object.
 	 * @param {Object} [opts] - Various options.
-	 * @param {Boolean} [opts.isToolingAuth] - When `true`, bypasses the the no sid/token check.
 	 * @param {Object} [opts.json] - A JSON payload to send.
 	 * @param {String} [opts.method] - The HTTP method to use. If not set, then uses `post` if
 	 * `opts.json` is set, otherwise `get`.
@@ -1830,29 +1602,23 @@ export default class AmplifySDK {
 	 * @returns {Promise} Resolves the JSON-parsed result.
 	 * @access private
 	 */
-	async request(path, account, { errorMsg, isToolingAuth, json, method, resultKey = 'result' } = {} as any) {
+	async request(path, account, { errorMsg, json, method, resultKey = 'result' } = {} as any) {
 		try {
 			if (!account || typeof account !== 'object') {
 				throw new TypeError('Account required');
 			}
 
-			const { sid } = account;
 			const token = account.auth?.tokens?.access_token;
-			if (!sid && !token && !isToolingAuth) {
+			if (!token) {
 				throw new Error('Invalid/expired account');
 			}
 
 			const url = `${this.platformUrl || this.env.platformUrl}${path}`;
 			const headers: any = {
 				Accept: 'application/json',
-				'User-Agent': this.userAgent
+				'User-Agent': this.userAgent,
+				Authorization: `Bearer ${token}`
 			};
-
-			if (account.sid) {
-				headers.Cookie = `connect.sid=${account.sid}`;
-			} else if (token) {
-				headers.Authorization = `Bearer ${token}`;
-			}
 
 			if (!method) {
 				method = json ? 'post' : 'get';
@@ -1868,7 +1634,7 @@ export default class AmplifySDK {
 			let error;
 
 			try {
-				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
+				log(`${method.toUpperCase()} ${highlight(url)} ${note(`(token ${token}`)}`);
 				if (opts.json) {
 					log(redact(opts.json, { clone: true }));
 				}
@@ -1881,30 +1647,8 @@ export default class AmplifySDK {
 				}
 			}
 
-			if (error || (path === '/api/v1/auth/findSession' && response.body?.[resultKey] === null)) {
-				if ((!error || (error.code && error.code > 400)) && account.sid) {
-					// sid is probably bad, try again with the token
-					warn('Platform session was invalidated, trying again to reinitialize session with token');
-					headers.Authorization = `Bearer ${token}`;
-					delete headers.Cookie;
-					log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
-					try {
-						response = await this.got[method](url, opts);
-					} catch (err) {
-						// access token is invalid
-						throw E.SESSION_INVALIDATED('Platform session has been invalidated');
-					}
-				} else if (error) {
-					throw error;
-				}
-			}
-
-			const cookies = response.headers['set-cookie'];
-			const connectSid = cookies && setCookie.parse(cookies).find(c => c.name === 'connect.sid' && c.value)?.value;
-			if (connectSid) {
-				log(`Setting sid: ${highlight(connectSid)}`);
-				account.sid = connectSid;
-				await this.authClient.updateAccount(account);
+			if (error) {
+				throw error;
 			}
 
 			return response.body?.[resultKey];
@@ -1959,35 +1703,6 @@ export default class AmplifySDK {
 
 		return found;
 	}
-
-	/**
-	 * Asserts the account is a platform account, then resolves an org by name, id, org guid using
-	 * the specified account.
-	 *
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} [org] - The organization object, name, guid, or id.
-	 * @returns {Promise<Object>} Resolves the org info from the account object.
-	 * @access public
-	 */
-	resolvePlatformOrg(account, org) {
-		assertPlatformAccount(account);
-		return this.resolveOrg(account, org);
-	}
-}
-
-/**
- * Checks that the specified account is a platform account.
- *
- * @param {Object} account - The account object.
- */
-function assertPlatformAccount(account) {
-	if (!account || typeof account !== 'object') {
-		throw E.INVALID_ACCOUNT('Account required');
-	}
-
-	if (!account.isPlatform) {
-		throw E.INVALID_PLATFORM_ACCOUNT('Account must be a platform account');
-	}
 }
 
 /**
@@ -2033,8 +1748,7 @@ function resolveDateRange(from, to) {
  * month, to create a date range from.
  * @return {Object}
  */
-// TODO: Fix the typo in this function name
-export function resovleMonthRange(month) {
+export function resolveMonthRange(month) {
 	const now = new Date();
 	let year = now.getUTCFullYear();
 	let monthIdx = now.getUTCMonth();

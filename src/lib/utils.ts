@@ -1,5 +1,4 @@
 import AmplifySDK from './amplify-sdk/index.js';
-import fs from 'fs';
 import loadConfig from './config.js';
 import snooplogg from 'snooplogg';
 import * as environments from './environments.js';
@@ -34,7 +33,6 @@ export async function buildAuthParams(opts: any = {}, config) {
 		clientId: string;
 		clientSecret?: string;
 		env: string;
-		interactiveLoginTimeout?: number;
 		homeDir: string;
 		password?: string;
 		persistSecrets?: boolean;
@@ -43,7 +41,6 @@ export async function buildAuthParams(opts: any = {}, config) {
 		secretFile?: string;
 		serverHost?: string;
 		serverPort?: number;
-		serviceAccount?: string;
 		tokenRefreshThreshold?: number;
 		tokenStore?: string;
 		tokenStoreDir: string;
@@ -58,7 +55,6 @@ export async function buildAuthParams(opts: any = {}, config) {
 		clientId,
 		clientSecret:            undefined,
 		env:                     env.name,
-		interactiveLoginTimeout: undefined,
 		homeDir:                 axwayHome,
 		password:                undefined,
 		persistSecrets:          undefined,
@@ -67,7 +63,6 @@ export async function buildAuthParams(opts: any = {}, config) {
 		secretFile:              undefined,
 		serverHost:              undefined,
 		serverPort:              undefined,
-		serviceAccount:          undefined,
 		tokenRefreshThreshold:   15 * 60, // 15 minutes
 		tokenStore:              undefined,
 		tokenStoreDir:           axwayHome,
@@ -79,8 +74,8 @@ export async function buildAuthParams(opts: any = {}, config) {
 		params[prop] = opts[prop] !== undefined ? opts[prop] : await config.get(`auth.${prop}`, props[prop]);
 	}
 
-	// detect if we're headless and default token store type to `file`
-	if (params.tokenStoreType === undefined && isHeadless()) {
+	// default token store type to `file`
+	if (params.tokenStoreType === undefined) {
 		params.tokenStoreType = 'file';
 		await config.set('auth.tokenStoreType', 'file');
 		try {
@@ -111,27 +106,23 @@ export function getAuthConfigEnvSpecifier(env) {
 
 /**
  * Initializes the Amplify SDK, loads an account, and finds the default org id.
- * TODO: Platform user auth is being removed with 5.0, so this should be able to be removed
+ * TODO: Platform user auth is being removed with 5.0, so this should be renamed
  *
  * @param {String} [accountName] - The name of the platform account to use.
  * @param {String} [org] - The name, id, or guid of the default organization.
  * @param {String} [env] - The environment name.
- * @param {boolean} [bypassPlatformAccountCheck] - Optional parameter to bypass check if the account is platform
  * @returns {Promise<Object>}
  */
-export async function initPlatformAccount(accountName, org, env, bypassPlatformAccountCheck = false) {
+export async function initPlatformAccount(accountName, org, env) {
 	const { config, sdk } = await initSDK({ env });
 	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 	const account = await sdk.auth.find(accountName || await config.get(`${authConfigEnvSpecifier}.defaultAccount`));
 
-	if (accountName) {
-		if (!account) {
+	if (!account) {
+		if (accountName) {
 			throw new Error(`Account "${accountName}" not found`);
-		} else if (!bypassPlatformAccountCheck && !account.isPlatform) {
-			throw new Error(`Account "${accountName}" is not a platform account\n\nTo login, run: axway auth login`);
 		}
-	} else if (!account || (!bypassPlatformAccountCheck && !account.isPlatform)) {
-		throw new Error('You must be logged into a platform account\n\nTo login, run: axway auth login');
+		throw new Error('You must be authenticated\n\nTo login, run: axway auth login');
 	}
 
 	if (org) {
@@ -170,25 +161,4 @@ export async function initSDK(opts = {}, config?) {
 		config,
 		sdk: new AmplifySDK(await buildAuthParams(opts, config))
 	};
-}
-
-/**
- * Detects if the current terminal is headless (e.g. a Docker container or SSH session).
- * TODO: All use should be headless with 5.0 so this should be able to be removed
- *
- * @returns {Boolean}
- */
-export function isHeadless() {
-	try {
-		if (process.platform === 'linux' && (process.env.SSH_TTY || !process.env.DISPLAY || /docker|lxc/.test(fs.readFileSync('/proc/1/cgroup', 'utf8')))) {
-			return true;
-		}
-		if (process.platform === 'darwin' && process.env.SSH_TTY) {
-			return true;
-		}
-	} catch (e) {
-		// do nothing
-	}
-
-	return false;
 }

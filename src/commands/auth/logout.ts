@@ -16,7 +16,7 @@ export default {
 	async action({ argv, cli, console }) {
 		// TODO: ...why?
 		const [
-			{ initSDK, isHeadless },
+			{ initSDK },
 			{ default: snooplogg }
 		] = await Promise.all([
 			import('../../lib/utils.js'),
@@ -27,25 +27,14 @@ export default {
 			argv.all = true;
 		}
 
-		const { highlight, warning } = snooplogg.styles;
+		const { highlight } = snooplogg.styles;
 
 		const { sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,
 			realm:    argv.realm
 		});
-		const revoked = await sdk.auth.logout({
-			...argv,
-			onOpenBrowser({ url }) {
-				if (!argv.json) {
-					console.log(`Launching default web browser: ${highlight(url)}`);
-					if (isHeadless()) {
-						console.log(warning(' ┃ Logging out of a platform account requires a web browser and is unsupported'));
-						console.log(warning(' ┃ in headless environments.\n'));
-					}
-				}
-			}
-		});
+		const revoked = await sdk.auth.logout(argv);
 
 		await cli.emitAction('axway:auth:logout', revoked);
 

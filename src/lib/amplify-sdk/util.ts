@@ -2,6 +2,7 @@ import crypto from 'crypto';
 
 /**
  * Appends query string parameters to a URL.
+//  * TODO: Can the use of this be replaced with node:url?
  *
  * @param {String} url - The URL.
  * @param {Object} params - A map of query string parameters.
@@ -23,6 +24,7 @@ export function md5(it) {
 
 /**
  * Copies all params into a new object and converts camelcase property names to underscore case.
+ * TODO: Figure out why this is modifying property keys
  *
  * @param {Object} params - The query string parameters to stringify.
  * @returns {Object}

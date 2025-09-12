@@ -1,8 +1,8 @@
 import snooplogg from 'snooplogg';
-import { getAuthConfigEnvSpecifier, initSDK, isHeadless } from '../../lib/utils.js';
+import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
-import pkg from 'enquirer';
 
+import pkg from 'enquirer';
 const { prompt } = pkg;
 
 export default {
@@ -17,19 +17,9 @@ export default {
 	},
 	desc: 'Log in to the Axway Amplify Platform',
 	help: {
-		header({ style }) {
-			return `Log in to the Axway Amplify Platform using your platform account as well as one
-or more service accounts at the same time.
-
-To log in using a platform account, a desktop web browser is required. Headless
-environments, such as a SSH terminal, are not supported when authenticating
-into platform accounts.
-
-A service account can be used for both desktop and headless environments.
-However, if authenticating in a headless environment, you must set the token
-store type to “file”:
-
-  ${style.highlight('axway config set auth.tokenStoreType file')}
+		header() {
+			return `Log in to the Axway Amplify Platform using one or more service accounts at
+the same time.
 
 Once authenticated, the account's current team is set to its configured default
 team to use for "axway" commands.`;
@@ -37,21 +27,14 @@ team to use for "axway" commands.`;
 		footer({ style }) {
 			return `${style.heading('Examples:')}
 
-  Log into a platform account using a web browser:
+  Log in with authentication method prompts:
     ${style.highlight('axway auth login')}
 
   Log into a service account using a PEM formatted secret key:
     ${style.highlight('axway auth login --client-id <id> --secret-file <path>')}
 
   Log into a service account using a client secret:
-    ${style.highlight('axway auth login --client-id <id> --client-secret <token>')}
-
-  Log into a service account with platform tooling credentials:
-    ${style.highlight('axway auth login --client-id <id> --secret-file <path> --username <email>')}
-  or
-    ${style.highlight('axway auth login --client-id <id> --client-secret <key> --username <email>')}
-
-  To set your Platform Tooling password, visit https://platform.axway.com/#/user/credentials`;
+    ${style.highlight('axway auth login --client-id <id> --client-secret <token>')}`;
 		}
 	},
 	options: [
@@ -62,57 +45,70 @@ team to use for "axway" commands.`;
 				callback: ({ ctx, value }) => ctx.jsonMode = value,
 				desc: 'Outputs authenticated account as JSON'
 			},
-			'--no-launch-browser':       'Display the authentication URL instead of opening it in the default web browser'
 		},
 		'Service Accounts',
 		{
 			'--client-id [id]':          'The CLI specific client ID',
 			'-c, --client-secret [key]': 'The service account\'s client secret key',
-			'-p, --password [pass]':     'Your Platform Tooling password; requires --client-secret or --secret-file',
 			'-s, --secret-file [path]':  'Path to the PEM formatted private key',
-			'-u, --username [email]':    'Your email address used to log into the Amplify Platform; requires --client-secret or --secret-file'
 		}
 	],
 	async action({ argv, cli, console }) {
 		// prompt for the username and password
 		if (argv.username !== undefined) {
-			if (!argv.clientSecret && !argv.secretFile) {
-				throw new Error('Username/password can only be specified when using --client-secret or --secret-file');
+			throw new Error('Platform Username and Password authentication is deprecated. Use a different authentication method.')
+		}
+
+		if (!argv.clientSecret && !argv.secretFile) {
+			if (argv.json) {
+				console.error(JSON.stringify({ error: '--client-id and either --client-secret or --secret-file are required when --json is set' }, null, 2));
+				process.exit(1);
 			}
 
 			const questions = [];
 
-			if (!argv.username || typeof argv.username !== 'string') {
+			const { authMethod } = await prompt([{
+				type: 'select',
+				name: 'authMethod',
+				message: 'Select authentication method:',
+				choices: [ 'Client Secret', 'Client Certificate' ]
+			}]) as any;
+
+			if (!argv.clientId || typeof argv.clientId !== 'string') {
 				questions.push({
 					type: 'input',
-					name: 'username',
-					message: 'Username:',
+					name: 'clientId',
+					message: 'Client ID:',
 					validate(s) {
-						return s ? true : 'Please enter your username';
+						return s ? true : 'Please enter your client ID';
 					}
 				});
 			}
 
-			if (!argv.password || typeof argv.password !== 'string') {
+			if (authMethod === 'Client Secret' && (!argv.clientSecret || typeof argv.clientSecret !== 'string')) {
 				questions.push({
 					type: 'password',
-					name: 'password',
-					message: 'Password:',
+					name: 'clientSecret',
+					message: 'Client Secret:',
 					validate(s) {
-						return s ? true : 'Please enter your password';
+						return s ? true : 'Please enter your client secret';
 					}
 				});
 			}
 
-			if (questions.length) {
-				if (argv.json) {
-					console.error(JSON.stringify({ error: '--username and --password are required when --json is set' }, null, 2));
-					process.exit(1);
-				}
-
-				Object.assign(argv, await prompt(questions));
-				console.log();
+			if (authMethod === 'Client Certificate' && (!argv.secretFile || typeof argv.secretFile !== 'string')) {
+				questions.push({
+					type: 'input',
+					name: 'secretFile',
+					message: 'Path to the PEM formatted private key:',
+					validate(s) {
+						return s ? true : 'Please enter the path to your PEM formatted private key file';
+					}
+				});
 			}
+
+			Object.assign(argv, await prompt(questions));
+			console.log();
 		}
 
 		const { config, sdk } = await initSDK({
@@ -121,47 +117,15 @@ team to use for "axway" commands.`;
 			clientSecret:   argv.clientSecret,
 			env:            argv.env,
 			realm:          argv.realm,
-			secretFile:     argv.secretFile,
-			serviceAccount: !!argv.clientSecret
+			secretFile:     argv.secretFile
 		});
 		let account;
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
-		const { highlight, note } = snooplogg.styles;
+		const { highlight } = snooplogg.styles;
 
-		// perform the login
-		const manual = !argv.launchBrowser;
-
-		// show the url and wait for the user to open it
+		// Attempt to log in using the provided credentials
 		try {
-			if (manual) {
-				account = await sdk.auth.login({ manual });
-				const { cancel, loginAccount, url } = account;
-
-				if (loginAccount) {
-					loginAccount.catch(err => {
-						console.error(`${process.platform === 'win32' ? 'x' : '✖'} ${err.toString()}`);
-						process.exit(1);
-					});
-
-					process.on('SIGINT', () => cancel());
-
-					console.log(`Please open following link in your browser:\n\n  ${highlight(url)}\n`);
-					account = await sdk.auth.loadSession(await loginAccount);
-				}
-			} else {
-				account = await sdk.auth.login({
-					force: argv.force,
-					onOpenBrowser() {
-						if (isHeadless()) {
-							throw new Error('Only authenticating with a service account is supported in headless environments');
-						} else if (!argv.json) {
-							console.log('Launching web browser to login...');
-						}
-					},
-					password: argv.password,
-					username: argv.username
-				});
-			}
+			account = await sdk.auth.login({ force: argv.force });
 		} catch (err) {
 			if (err.code === 'EAUTHENTICATED') {
 				({ account } = err);
@@ -171,12 +135,7 @@ team to use for "axway" commands.`;
 					return;
 				}
 
-				if (account.isPlatform && account.org?.name) {
-					console.log(`You are already logged into a ${highlight('platform')} account in organization ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
-				} else {
-					console.log(`You are already logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
-				}
-
+				console.log(`You are already logged into a ${highlight('service')} account as ${highlight(account.name)}.`);
 				console.log(await renderAccountInfo(account, config, sdk));
 				return;
 			}
@@ -212,12 +171,7 @@ team to use for "axway" commands.`;
 			return;
 		}
 
-		if (account.isPlatform && account.org?.name) {
-			console.log(`You are logged into a ${highlight('platform')} account in organization ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
-		} else {
-			console.log(`You are logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
-		}
-
+		console.log(`You are logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
 		console.log(await renderAccountInfo(account, config, sdk));
 
 		// set the current

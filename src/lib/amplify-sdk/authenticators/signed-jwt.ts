@@ -12,7 +12,6 @@ const { JWTAssertion, ClientCredentials } = Authenticator.GrantTypes;
  * Authentication scheme using a JSON Web Token (JWT).
  */
 export default class SignedJWT extends Authenticator {
-	shouldFetchOrgs: boolean;
 	secret: string;
 	signedJWT?: string;
 	secretFile?: string;
@@ -51,8 +50,6 @@ export default class SignedJWT extends Authenticator {
 		}
 
 		super(opts);
-
-		this.shouldFetchOrgs = false;
 
 		if (!/^-----BEGIN (RSA )?PRIVATE KEY-----/.test(secret)) {
 			throw new Error(`Private key file ${opts.secretFile} is not a PEM formatted file`);

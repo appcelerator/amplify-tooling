@@ -1,24 +1,13 @@
 import E from '../errors.js';
-import ejs from 'ejs';
-import fs from 'fs';
 import getEndpoints from '../endpoints.js';
 import jws from 'jws';
-import open from 'open';
-import path, { dirname } from 'path';
 import snooplogg from 'snooplogg';
 import TokenStore from '../stores/token-store.js';
 
 import * as environments from '../environments.js';
 import * as request from '../../request.js';
-// TODO: Replace the use of server as we're removing user auth support
-import Server from '../server.js';
 
-import { createURL, md5, prepareForm } from '../util.js';
-
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { md5, prepareForm } from '../util.js';
 
 const { log, warn } = snooplogg('amplify-auth:authenticator');
 const { green, highlight, red, note } = snooplogg.styles;
@@ -36,7 +25,6 @@ export default class Authenticator {
 	static GrantTypes = {
 		AuthorizationCode: 'authorization_code',
 		ClientCredentials: 'client_credentials',
-		Password:          'password',
 		RefreshToken:      'refresh_token',
 		JWTAssertion:      'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
 	};
@@ -255,7 +243,7 @@ export default class Authenticator {
 	 * @returns {Promise<Object>} Resolves the account object.
 	 * @access private
 	 */
-	async getToken(code, redirectUri?, force?) {
+	async getToken(code, force?) {
 		let now = Date.now();
 		let expires;
 		let tokens;
@@ -285,7 +273,7 @@ export default class Authenticator {
 		const fetchTokens = async params => {
 			try {
 				log(`Fetching token: ${highlight(url)}`);
-				log('Post form:', { ...params, password: '********' });
+				log('Post form:', params);
 				const response = await this.got.post(url, {
 					form: prepareForm(params),
 					responseType: 'json'
@@ -333,14 +321,6 @@ export default class Authenticator {
 				scope:    this.scope
 			}, this.tokenParams);
 
-			if (this.interactive) {
-				if (!code || typeof code !== 'string') {
-					throw E.MISSING_AUTH_CODE('Expected code for interactive authentication to be a non-empty string');
-				}
-				params.code = code;
-				params.redirectUri = redirectUri;
-			}
-
 			response = await fetchTokens(params);
 		}
 
@@ -349,7 +329,6 @@ export default class Authenticator {
 		log(`Authentication successful ${note(`(${response.headers['content-type']})`)}`);
 		log(tokens);
 
-		let email;
 		let guid;
 		let idp;
 		let org;
@@ -361,11 +340,8 @@ export default class Authenticator {
 				info.payload = JSON.parse(info.payload);
 			}
 			log(info);
-			email = (info.payload.email || '').trim();
 			guid = info.payload.guid;
-			if (email) {
-				name = `${this.clientId}:${email}`;
-			}
+			name = this.clientId; // TODO: Source the client's friendly name from platform?
 			idp = info.payload.identity_provider;
 			const { orgId } = info.payload;
 			if (orgId) {
@@ -399,16 +375,13 @@ export default class Authenticator {
 			orgs:              org ? [ org ] : [],
 			user: {
 				axwayId:       undefined,
-				email,
-				firstName:     undefined,
 				guid,
-				lastName:      undefined,
 				organization:  undefined
 			}
 		});
 
 		if (this.persistSecrets) {
-			// add the secrets to the acount object so that they can be used to refresh the access
+			// add the secrets to the account object so that they can be used to refresh the access
 			// token when there's no refresh token.
 			log('Persisting secrets in token store');
 			Object.assign(account.auth, this.authenticatorParams);
@@ -469,13 +442,7 @@ export default class Authenticator {
 	 * @param {Object} [opts] - Various options.
 	 * @param {String|Array.<String>} [opt.app] - Specify the app to open the `target` with, or an
 	 * array with the app and app arguments.
-	 * @param {String} [opts.code] - The authentication code from a successful interactive login.
-	 * @param {Boolean} [opts.manual=false] - When `true`, it will return the auth URL instead of
-	 * launching the auth URL in the default browser.
-	 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to be
-	 * launched.
-	 * @param {Number} [opts.timeout=120000] - The number of milliseconds to wait before timing
-	 * out.
+	 * @param {Number} [opts.timeout=120000] - The number of milliseconds to wait before timing out.
 	 * @returns {Promise<Object>} In `manual` mode, then resolves an object containing the
 	 * authentication `url`, a `promise` that is resolved once the browser redirects to the local
 	 * web server after authenticating, and a `cancel` method to abort the authentication and stop
@@ -484,104 +451,11 @@ export default class Authenticator {
 	 * @access public
 	 */
 	async login(opts: any = {}) {
-		if (!this.interactive || opts.code !== undefined) {
-			if (this.interactive) {
-				log('Retrieving tokens using auth code');
-			} else if (opts.manual) {
-				throw new Error('Manual mode is only supported with PKCE interactive authentication');
-			} else {
-				log('Retrieving tokens non-interactively');
-			}
+		if (opts.code !== undefined) {
+			log('Retrieving tokens using auth code');
 			return await this.getToken(opts.code);
 		}
-
-		// we're interactive, so we either are manual or starting a web server
-
-		const server = new Server({
-			timeout: opts.timeout
-		});
-
-		const orgSelectedCallback = await server.createCallback(async (_req, res) => {
-			await res.writeHead(302, {
-				'Content-Type': 'text/html',
-				Location: this.platformUrl
-			});
-			const template = path.resolve(__dirname, '../../templates/auth.html.ejs');
-			res.end(ejs.render(fs.readFileSync(template, 'utf-8'), {
-				title: 'Authorization Successful!',
-				message: 'Please return to the console.'
-			}));
-
-			return true;
-		});
-		const codeCallback = await server.createCallback(async (_req, res, { searchParams }) => {
-			const code = searchParams.get('code');
-			if (!code) {
-				res.end();
-				throw new Error('Invalid auth code');
-			}
-
-			log(`Getting token using code: ${highlight(code)}`);
-			const account = await this.getToken(code, codeCallback.url);
-
-			let redirect = orgSelectedCallback.url;
-			// if we just authenticated using a IdP user (e.g. not 360)
-			if (account.auth.idp !== '360') {
-				redirect = createURL(`${this.platformUrl}/#/auth/org.select`, {
-					redirect: orgSelectedCallback.url
-				});
-			}
-
-			log(`Waiting for platform org select to finish and redirect to ${highlight(redirect)}`);
-			res.writeHead(302, {
-				Location: redirect
-			});
-			res.end();
-		});
-
-		const authorizationUrl = createURL(this.endpoints.auth, Object.assign({
-			accessType:   this.accessType,
-			clientId:     this.clientId,
-			scope:        this.scope,
-			responseType: this.responseType,
-			redirectUri:  codeCallback.url
-		}, this.authorizationUrlParams));
-
-		log(`Starting ${opts.manual ? 'manual ' : ''}login request clientId=${highlight(this.clientId)} realm=${highlight(this.realm)}`);
-
-		const loginAccount = codeCallback.start().then(async () => {
-			return await orgSelectedCallback.start()
-				.then(async (res) => {
-					if (res) {
-						await this.timeout();
-						return await this.getToken(undefined, undefined, true);
-					}
-				});
-		}).finally(() => server.stop());
-
-		// if manual, return now with the auth url
-		if (opts.manual) {
-			return {
-				cancel: () => Promise.all([ codeCallback.cancel(), orgSelectedCallback.cancel() ]),
-				loginAccount,
-				url: authorizationUrl
-			};
-		}
-
-		// launch the default web browser
-		log(`Launching default web browser: ${highlight(authorizationUrl)}`);
-		if (typeof opts.onOpenBrowser === 'function') {
-			await opts.onOpenBrowser({ url: authorizationUrl });
-		}
-		try {
-			await open(authorizationUrl, opts);
-		} catch (err) {
-			const m = err.message.match(/Exited with code (\d+)/i);
-			throw m ? new Error(`Failed to open web browser (code ${m[1]})`) : err;
-		}
-
-		// wait for authentication to succeed or fail
-		return loginAccount;
+		return this.getToken(undefined, true);
 	}
 
 	async timeout() {

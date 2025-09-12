@@ -4,7 +4,6 @@ import Telemetry from './telemetry.js';
 
 import Authenticator from './authenticators/authenticator.js';
 import ClientSecret from './authenticators/client-secret.js';
-import OwnerPassword from './authenticators/owner-password.js';
 import PKCE from './authenticators/pkce.js';
 import SignedJWT from './authenticators/signed-jwt.js';
 
@@ -25,7 +24,6 @@ export {
 
 	Authenticator,
 	ClientSecret,
-	OwnerPassword,
 	PKCE,
 	SignedJWT,
 

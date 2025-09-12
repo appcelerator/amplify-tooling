@@ -1,30 +1,26 @@
 import snooplogg from 'snooplogg';
-import { getAuthConfigEnvSpecifier, initSDK, isHeadless } from '../../lib/utils.js';
+import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import pkg from 'enquirer';
 
 const { prompt } = pkg;
 
 export default {
-	desc: 'Select default account, organization, and team',
+	desc: 'Select default account and team',
 	help: `Once authenticated, the "switch" command allows you to change the default
-account, organization, and current team to use for "axway" commands.
-
-Only platform accounts have organizations. If the selected account is a service
-account, then the organization selection is skipped.
+account and current team to use for "axway" commands.
 
 Changing the current team will only affect your local machine and does not
 change the actual default team.
 
-The --org and --team options are required when --json flag is set and there are
-more than one of org or team.`,
+The --team option is required when --json flag is set and there is more
+than one team.`,
 	options: {
 		'--account [name]':     'The account to switch to',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Disables prompting and outputs selected account and org as JSON'
 		},
-		'--org [guid|id|name]': 'The platform organization to switch to',
 		'--team [guid|name]': 'The team to use for the selected account'
 	},
 	async action({ argv, cli, console }) {
@@ -46,8 +42,9 @@ more than one of org or team.`,
 			throw new Error('Must specify --account when --json is set and there are multiple authenticated accounts');
 		}
 
-		if (!argv.org && argv.json) {
-			throw new Error('Must specify --org when --json is set');
+		// Log if the deprecated org param is used
+		if (argv.org) {
+			throw new Error('Service account\'s are only associated to a single organization. To access a different org, please authenticate with another service account in that organization');
 		}
 
 		if (argv.account) {
@@ -91,44 +88,6 @@ more than one of org or team.`,
 		await config.delete(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
 		await config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
 		await config.save();
-
-		if (account.isPlatformTooling) {
-			const org = argv.org && String(argv.org);
-			const o = account.org;
-			if (org
-				&& org.toLowerCase() !== o.guid?.toLowerCase()
-				&& org !== String(o.id)
-				&& (!o.name || org.toLowerCase() !== o.name.toLowerCase())) {
-				throw new Error(`Specified organization "${org}" does not match the service account's organization (${o.guid || o.id})`);
-			}
-		}
-
-		if (account.isPlatform) {
-			// determine the org
-			const defaultOrg = account?.hash && await config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
-			const selectedOrg = argv.org || defaultOrg;
-			const org = selectedOrg && account.orgs.find(o => String(o.guid) === String(selectedOrg)
-						|| String(o.id) === String(selectedOrg) || o.name.toLowerCase() === String(selectedOrg).toLowerCase());
-			if (account.isPlatformTooling) {
-				if (argv.org && !org) {
-					// if there was an explicit --org or default org that wasn't found, then we error for tooling users as web doesn't care
-					const err = new Error(`Unable to find organization "${argv.org}"`) as any;
-					err.code = 'ERR_NOT_FOUND';
-					err.details = `Available organizations:\n${account.orgs.map(a => `  ${highlight(a.name)}`).join('\n')}`;
-					throw err;
-				}
-			} else {
-				account = await sdk.auth.switchOrg(account, org?.id, {
-					onOpenBrowser() {
-						if (isHeadless()) {
-							throw new Error('Switching default account and organization requires a web browser and is unsupported in headless environments');
-						} else if (!argv.json) {
-							console.log('Launching web browser to switch organization...');
-						}
-					}
-				});
-			}
-		}
 
 		if (account.org?.teams) {
 			// determine the team
@@ -213,10 +172,8 @@ more than one of org or team.`,
 
 		if (argv.json) {
 			console.log(JSON.stringify(account, null, 2));
-		} else if (account.isPlatform && account.org?.name) {
-			console.log(`Default account set to ${highlight(account.user.email || account.name)} in ${highlight(account.org.name)} ${note(`(${account.org.guid})`)}`);
 		} else {
-			console.log(`Default account set to ${highlight(account.user.email || account.name)}`);
+			console.log(`Default account set to ${highlight(account.name)}`);
 		}
 
 		console.log(await renderAccountInfo(account, config, sdk));

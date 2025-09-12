@@ -8,16 +8,13 @@ const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
  * interactive unless it is a service account.
  */
 export default class ClientSecret extends Authenticator {
-	shouldFetchOrgs: boolean;
 	clientSecret: string;
 
 	/**
-	 * Initializes an client secret authentication instance.
+	 * Initializes a client secret authentication instance.
 	 *
 	 * @param {Object} opts - Various options.
 	 * @param {String} opts.clientSecret - The secret token to use to authenticate.
-	 * @param {Boolean} [opts.serviceAccount=false] - When `true`, indicates authentication is being
-	 * requested by a service instead of a user.
 	 * @access public
 	 */
 	constructor(opts) {
@@ -30,8 +27,6 @@ export default class ClientSecret extends Authenticator {
 		}
 
 		super(opts);
-
-		this.shouldFetchOrgs = !opts.serviceAccount;
 
 		Object.defineProperty(this, 'clientSecret', { value: opts.clientSecret });
 	}

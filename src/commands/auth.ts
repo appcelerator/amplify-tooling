@@ -32,9 +32,6 @@ store type to “file”:
 		footer({ style }) {
 			return `${style.heading('Examples:')}
 
-  Log into a platform account using a web browser:
-    ${style.highlight('axway auth login')}
-
   Log into a service account using a PEM formatted secret key:
     ${style.highlight('axway auth login --client-id <id> --secret-file <path>')}
 

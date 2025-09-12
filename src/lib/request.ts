@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import _ from 'lodash';
 import fs from 'fs';
 import got from 'got';
 import prettyBytes from 'pretty-bytes';
