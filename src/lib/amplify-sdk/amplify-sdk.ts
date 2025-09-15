@@ -5,8 +5,9 @@ import crypto from 'crypto';
 import E from './errors.js';
 import path, { dirname } from 'path';
 import snooplogg from 'snooplogg';
-import * as environments from './environments.js';
+import * as environments from '../environments.js';
 import * as request from '../request.js';
+import _ from 'lodash';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 import { readJsonSync } from '../fs.js';
@@ -57,6 +58,7 @@ export default class AmplifySDK {
 		 * @type {Object}
 		 */
 		this.opts = { ...opts };
+		// TODO: These can be removed in a future version
 		delete this.opts.username;
 		delete this.opts.password;
 
@@ -67,9 +69,9 @@ export default class AmplifySDK {
 		this.env = environments.resolve(opts.env);
 
 		// set the defaults based on the environment
-		for (const prop of [ 'baseUrl', 'platformUrl', 'realm' ]) {
+		for (const prop of [ 'baseUrl', 'platformUrl', 'auth.realm' ]) {
 			if (!opts[prop]) {
-				opts[prop] = this.env[prop];
+				opts[prop] = _.get(this.env, prop);
 			}
 		}
 
@@ -103,7 +105,7 @@ export default class AmplifySDK {
 		const { version } = readJsonSync(path.resolve(__dirname, '../../../package.json'));
 
 		/**
-		 * The Axway ID realm.
+		 * The user agent to use in outgoing requests.
 		 *
 		 * IMPORTANT! Platform explicitly checks this user agent, so do NOT change the name or case.
 		 *
@@ -409,22 +411,22 @@ export default class AmplifySDK {
 			},
 
 			/**
-			 * Finds a service account by client id.
+			 * Finds a service account by guid, client_id, or name.
 			 * @param {Object} account - The account object.
 			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
 			 * @param {String} clientId - The service account's client id.
 			 * @returns {Promise<Object>}
 			 */
-			find: async (account, org, clientId) => {
+			find: async (account, org, term) => {
 				const { clients } = await this.client.list(account, org);
 
 				// first try to find the service account by guid or client id, then name
-				const client = clients.find(c => c.guid === clientId || c.client_id === clientId)
-					|| clients.find(c => c.name === clientId);
+				const client = clients.find(c => c.guid === term || c.client_id === term)
+					|| clients.find(c => c.name === term);
 
 				// if still not found, error
 				if (!client) {
-					throw new Error(`Service account "${clientId}" not found`);
+					throw new Error(`Service account "${term}" not found`);
 				}
 
 				// get service account description

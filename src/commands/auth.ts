@@ -12,16 +12,12 @@ export default {
 		`${__dirname}/auth/switch.js`,
 		`${__dirname}/auth/whoami.js`
 	],
-	desc: 'The Axway Auth CLI authenticates with the Axway Amplify Platform, manages access tokens, and retreives user information',
+	desc: 'The Axway Auth CLI authenticates with the Axway Amplify Platform, manages access tokens, and retrieves account information',
 	help: {
 		header({ style }) {
 			return `The Axway CLI auth command allows you to authenticate with the Amplify platform
-under one or more accounts and switch between them. You can log in using your
-platform account as well as one or more service accounts at the same time.
-
-To log in using a platform account, a desktop web browser is required. Headless
-environments, such as a SSH terminal, are not supported when authenticating
-into platform accounts.
+under one or more accounts and switch between them. You can log in using
+one or more service accounts at the same time.
 
 A service account can be used for both desktop and headless environments.
 However, if authenticating in a headless environment, you must set the token

@@ -1,11 +1,10 @@
 import Authenticator from './authenticator.js';
 import E from '../errors.js';
 
-const { AuthorizationCode, ClientCredentials } = Authenticator.GrantTypes;
+const { ClientCredentials } = Authenticator.GrantTypes;
 
 /**
- * Authentication scheme using a pre-shared secret token. By default, the authentication process is
- * interactive unless it is a service account.
+ * Authentication scheme using a pre-shared secret token.
  */
 export default class ClientSecret extends Authenticator {
 	clientSecret: string;
@@ -45,18 +44,6 @@ export default class ClientSecret extends Authenticator {
 	}
 
 	/**
-	 * Parameters to include in the interactive authorization URL.
-	 *
-	 * @type {Object}
-	 * @access private
-	 */
-	override get authorizationUrlParams() {
-		return {
-			grantType: this.interactive ? AuthorizationCode : ClientCredentials
-		};
-	}
-
-	/**
 	 * Parameters to base the authenticator hash on.
 	 *
 	 * @type {Object}
@@ -77,7 +64,7 @@ export default class ClientSecret extends Authenticator {
 	override get tokenParams() {
 		return {
 			clientSecret: this.clientSecret,
-			grantType:    this.interactive ? AuthorizationCode : ClientCredentials
+			grantType:    ClientCredentials
 		};
 	}
 

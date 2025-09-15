@@ -17,8 +17,7 @@ export default class SignedJWT extends Authenticator {
 	secretFile?: string;
 
 	/**
-	 * TODO: Replace this copy/paste description
-	 * Initializes an PKCE authentication instance.
+	 * Initializes a client certificate authentication instance.
 	 *
 	 * @param {Object} opts - Various options.
 	 * @param {String} [opts.secret] - The private key when `secretFile` is not set.

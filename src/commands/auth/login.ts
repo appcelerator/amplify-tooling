@@ -56,7 +56,7 @@ team to use for "axway" commands.`;
 	async action({ argv, cli, console }) {
 		// prompt for the username and password
 		if (argv.username !== undefined) {
-			throw new Error('Platform Username and Password authentication is deprecated. Use a different authentication method.')
+			throw new Error('Platform Username and Password authentication is no longer supported. Use a different authentication method.')
 		}
 
 		if (!argv.clientSecret && !argv.secretFile) {

@@ -8,89 +8,6 @@ import { axwayHome } from './path.js';
 const { warn } = snooplogg('amplify-cli-utils');
 
 /**
- * Constructs a parameters object to pass into an Auth instance.
- * TODO: This is only used to prime the amplify sdk in initSDK. Should this and that function consolidate into it?
- *
- * @param {Object} [opts] - User option overrides.
- * @param {Config} [config] - The Amplify config object.
- * @returns {Object}
- */
-export async function buildAuthParams(opts: any = {}, config) {
-	if (!opts || typeof opts !== 'object') {
-		throw new Error('Expected options to be an object');
-	}
-
-	if (!config) {
-		config = await loadConfig();
-	}
-
-	const env = environments.resolve(opts.env || await config.get('env'));
-
-	const { clientId, realm } = env.auth;
-
-	interface AuthParams {
-		baseUrl?: string;
-		clientId: string;
-		clientSecret?: string;
-		env: string;
-		homeDir: string;
-		password?: string;
-		persistSecrets?: boolean;
-		platformUrl?: string;
-		realm: string;
-		secretFile?: string;
-		serverHost?: string;
-		serverPort?: number;
-		tokenRefreshThreshold?: number;
-		tokenStore?: string;
-		tokenStoreDir: string;
-		tokenStoreType?: string;
-		username?: string;
-		requestOptions?: any;
-	}
-	const params = {} as AuthParams;
-
-	const props = {
-		baseUrl:                 undefined,
-		clientId,
-		clientSecret:            undefined,
-		env:                     env.name,
-		homeDir:                 axwayHome,
-		password:                undefined,
-		persistSecrets:          undefined,
-		platformUrl:             undefined,
-		realm,
-		secretFile:              undefined,
-		serverHost:              undefined,
-		serverPort:              undefined,
-		tokenRefreshThreshold:   15 * 60, // 15 minutes
-		tokenStore:              undefined,
-		tokenStoreDir:           axwayHome,
-		tokenStoreType:          undefined,
-		username:                undefined
-	};
-
-	for (const prop of Object.keys(props)) {
-		params[prop] = opts[prop] !== undefined ? opts[prop] : await config.get(`auth.${prop}`, props[prop]);
-	}
-
-	// default token store type to `file`
-	if (params.tokenStoreType === undefined) {
-		params.tokenStoreType = 'file';
-		await config.set('auth.tokenStoreType', 'file');
-		try {
-			await config.save();
-		} catch (err) {
-			warn(err);
-		}
-	}
-
-	params.requestOptions = request.createRequestOptions(opts, config);
-
-	return params;
-}
-
-/**
  * Resolves the "auth.*" config key based on your environment. This is used to get or set the
  * default account and org.
  *
@@ -153,12 +70,80 @@ export async function initPlatformAccount(accountName, org, env) {
  * @returns {Object} Returns an object containing the Axway CLI config and an initialized
  * Amplify SDK instance.
  */
-export async function initSDK(opts = {}, config?) {
+export async function initSDK(opts: any = {}, config?) {
+	if (!opts || typeof opts !== 'object') {
+		throw new Error('Expected options to be an object');
+	}
+
 	if (!config) {
 		config = await loadConfig();
 	}
+
+	const env = environments.resolve(opts.env || await config.get('env'));
+
+	const { clientId, realm } = env.auth;
+
+	interface AuthParams {
+		baseUrl?: string;
+		clientId: string;
+		clientSecret?: string;
+		env: string;
+		homeDir: string;
+		password?: string;
+		persistSecrets?: boolean;
+		platformUrl?: string;
+		realm: string;
+		secretFile?: string;
+		serverHost?: string;
+		serverPort?: number;
+		tokenRefreshThreshold?: number;
+		tokenStore?: string;
+		tokenStoreDir: string;
+		tokenStoreType?: string;
+		username?: string;
+		requestOptions?: any;
+	}
+	const params = {} as AuthParams;
+
+	const props = {
+		baseUrl:                 undefined,
+		clientId,
+		clientSecret:            undefined,
+		env:                     env.name,
+		homeDir:                 axwayHome,
+		password:                undefined,
+		persistSecrets:          undefined,
+		platformUrl:             undefined,
+		realm,
+		secretFile:              undefined,
+		serverHost:              undefined,
+		serverPort:              undefined,
+		tokenRefreshThreshold:   15 * 60, // 15 minutes
+		tokenStore:              undefined,
+		tokenStoreDir:           axwayHome,
+		tokenStoreType:          undefined,
+		username:                undefined
+	};
+
+	for (const prop of Object.keys(props)) {
+		params[prop] = opts[prop] !== undefined ? opts[prop] : await config.get(`auth.${prop}`, props[prop]);
+	}
+
+	// default token store type to `auto`
+	if (params.tokenStoreType === undefined) {
+		params.tokenStoreType = 'auto';
+		await config.set('auth.tokenStoreType', 'auto');
+		try {
+			await config.save();
+		} catch (err) {
+			warn(err);
+		}
+	}
+
+	params.requestOptions = request.createRequestOptions(opts, config);
+
 	return {
 		config,
-		sdk: new AmplifySDK(await buildAuthParams(opts, config))
+		sdk: new AmplifySDK(params)
 	};
 }

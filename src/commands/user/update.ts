@@ -1,6 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
-import snooplogg from 'snooplogg';
-
 export default {
 	aliases: [ '!up' ],
 	desc: 'Change your information',
@@ -34,44 +31,7 @@ export default {
 		},
 		'--phone [value]': 'Your phone number'
 	},
-	async action({ argv, cli, console, help }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-
-		const { changes, user } = await sdk.user.update(account, {
-			firstname: argv.firstname,
-			lastname:  argv.lastname,
-			phone:     argv.phone
-		});
-		const results = {
-			account: account.name,
-			changes,
-			org,
-			user
-		};
-
-		if (argv.json) {
-			console.log(JSON.stringify(results, null, 2));
-		} else {
-			const { highlight } = snooplogg.styles;
-			const labels = {
-				firstname: 'first name',
-				lastname:  'last name',
-				phone:     'phone number'
-			};
-
-			if (Object.keys(changes).length) {
-				for (const [ key, { v, p } ] of Object.entries(changes) as any) {
-					const from = `"${p === undefined ? '' : p}"`;
-					const to = `"${v === undefined ? '' : v}"`;
-					console.log(`Updated ${highlight(labels[key])} from ${highlight(from)} to ${highlight(to)}`);
-				}
-			} else {
-				console.log(await help());
-			}
-		}
-
-		if (Object.keys(changes).length) {
-			await cli.emitAction('axway:oum:user:update', results);
-		}
+	async action() {
+		throw new Error('The "user" commands are no longer supported as of version 5.0.0. Their references will be removed in a subsequent release.');
 	}
 };

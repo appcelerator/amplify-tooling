@@ -4,16 +4,12 @@ import Telemetry from './telemetry.js';
 
 import Authenticator from './authenticators/authenticator.js';
 import ClientSecret from './authenticators/client-secret.js';
-import PKCE from './authenticators/pkce.js';
 import SignedJWT from './authenticators/signed-jwt.js';
 
 import FileStore from './stores/file-store.js';
 import MemoryStore from './stores/memory-store.js';
 import SecureStore from './stores/secure-store.js';
 import TokenStore from './stores/token-store.js';
-
-import * as environments from './environments.js';
-import getEndpoints from './endpoints.js';
 
 export default AmplifySDK;
 
@@ -24,14 +20,10 @@ export {
 
 	Authenticator,
 	ClientSecret,
-	PKCE,
 	SignedJWT,
 
 	FileStore,
 	MemoryStore,
 	SecureStore,
-	TokenStore,
-
-	environments,
-	getEndpoints
+	TokenStore
 };

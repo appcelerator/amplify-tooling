@@ -1,10 +1,10 @@
 import E from '../errors.js';
-import getEndpoints from '../endpoints.js';
+import getEndpoints from '../../auth/endpoints.js';
 import jws from 'jws';
 import snooplogg from 'snooplogg';
 import TokenStore from '../stores/token-store.js';
 
-import * as environments from '../environments.js';
+import * as environments from '../../environments.js';
 import * as request from '../../request.js';
 
 import { md5, prepareForm } from '../util.js';
@@ -23,7 +23,6 @@ export default class Authenticator {
 	 * @access public
 	 */
 	static GrantTypes = {
-		AuthorizationCode: 'authorization_code',
 		ClientCredentials: 'client_credentials',
 		RefreshToken:      'refresh_token',
 		JWTAssertion:      'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
@@ -36,15 +35,6 @@ export default class Authenticator {
 	 * @access private
 	 */
 	accessType = 'offline';
-
-	/**
-	 * Defines if this authentication method is interactive. If `true`, then it will not attempt to
-	 * automatically reinitialize expired tokens.
-	 *
-	 * @type {Boolean}
-	 * @access private
-	 */
-	interactive = false;
 
 	/**
 	 * When `true`, adds the authenticator params (client secret, private key, username/password)
@@ -176,17 +166,6 @@ export default class Authenticator {
 		this.got = opts.got || request.got;
 	}
 
-	/* istanbul ignore next */
-	/**
-	 * This property is meant to be overridden by authenticator implementations.
-	 *
-	 * @type {?Object}
-	 * @access private
-	 */
-	get authorizationUrlParams() {
-		return null;
-	}
-
 	/**
 	 * Populates the latest user and session info into an account object.
 	 *
@@ -232,18 +211,12 @@ export default class Authenticator {
 	/**
 	 * Authenticates with the server and retrieves the access and refresh tokens.
 	 *
-	 * The `code` is undefined when doing a non-interactive login.
-	 *
-	 * @param {String} [code] - When present, adds the code to the payload along with a redirect
-	 * URL.
-	 * @param {String} [redirectUri] - The redirect URI that was passed in when first retrieving
-	 * the code.
 	 * @param {Boolean} [force] - When `true`, bypasses an existing valid token and gets a new
 	 * token using the existing token.
 	 * @returns {Promise<Object>} Resolves the account object.
 	 * @access private
 	 */
-	async getToken(code, force?) {
+	async getToken(force?) {
 		let now = Date.now();
 		let expires;
 		let tokens;
@@ -251,7 +224,7 @@ export default class Authenticator {
 
 		// if you have a code, then you probably don't want to have gone through all the hassle of
 		// getting the code to only return the existing access token from the store
-		if (!code && this.tokenStore) {
+		if (this.tokenStore) {
 			log(`Searching for existing tokens: ${highlight(this.hash)}`);
 			for (const entry of await this.tokenStore.list()) {
 				if (entry.hash === this.hash) {
@@ -437,25 +410,12 @@ export default class Authenticator {
 	}
 
 	/**
-	 * Orchestrates an interactive login flow or retrieves the access token non-interactively.
-	 *
-	 * @param {Object} [opts] - Various options.
-	 * @param {String|Array.<String>} [opt.app] - Specify the app to open the `target` with, or an
-	 * array with the app and app arguments.
-	 * @param {Number} [opts.timeout=120000] - The number of milliseconds to wait before timing out.
-	 * @returns {Promise<Object>} In `manual` mode, then resolves an object containing the
-	 * authentication `url`, a `promise` that is resolved once the browser redirects to the local
-	 * web server after authenticating, and a `cancel` method to abort the authentication and stop
-	 * the local web server. When not using `manual` mode, the `account` info is resolved after
-	 * successfully authenticating.
+	 * Fetches an access token from the configured AxwayID instance for use in future requests.
+	 * @returns {Promise<Object>} The `account` info after successfully authenticating.
 	 * @access public
 	 */
-	async login(opts: any = {}) {
-		if (opts.code !== undefined) {
-			log('Retrieving tokens using auth code');
-			return await this.getToken(opts.code);
-		}
-		return this.getToken(undefined, true);
+	async login() {
+		return this.getToken(true);
 	}
 
 	async timeout() {

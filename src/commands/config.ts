@@ -58,7 +58,7 @@ export default {
 
 ${style.heading('Settings:')}
 
-  ${style.highlight('auth.tokenStoreType')} ${style.note('[string] (default: "secure")')}
+  ${style.highlight('auth.tokenStoreType')} ${style.note('[string] (default: "auto")')}
     After authenticating, access tokens are encrypted and stored in a file
     called the token store. Access to this file is restricted to only the owner
     (the current user). By default, the encryption key is stored in the

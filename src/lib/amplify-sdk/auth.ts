@@ -2,7 +2,6 @@ import E from './errors.js';
 
 import Authenticator from './authenticators/authenticator.js';
 import ClientSecret from './authenticators/client-secret.js';
-import PKCE from './authenticators/pkce.js';
 import SignedJWT from './authenticators/signed-jwt.js';
 
 import FileStore from './stores/file-store.js';
@@ -10,10 +9,10 @@ import MemoryStore from './stores/memory-store.js';
 import SecureStore from './stores/secure-store.js';
 import TokenStore from './stores/token-store.js';
 
-import getEndpoints from './endpoints.js';
+import getEndpoints from '../auth/endpoints.js';
 import snooplogg from 'snooplogg';
 
-import * as environments from './environments.js';
+import * as environments from '../environments.js';
 import * as request from '../request.js';
 
 const { log, warn } = snooplogg('amplify-sdk:auth');
@@ -236,7 +235,7 @@ export default class Auth {
 		}
 
 		if (typeof opts.username === 'string' && opts.username && typeof opts.password === 'string') {
-			throw E.INVALID_ARGUMENT('Platform Username and Password authentication is deprecated. Use a different authentication method.');
+			throw E.INVALID_ARGUMENT('Platform Username and Password authentication is no longer supported. Use a different authentication method.');
 		}
 
 		if (typeof opts.clientSecret === 'string' && opts.clientSecret) {
@@ -249,8 +248,8 @@ export default class Auth {
 			return new SignedJWT(opts);
 		}
 
-		log(`Creating ${highlight('PKCE')} authenticator`);
-		return new PKCE(opts);
+		log(`Creating ${highlight('Base')} authenticator`);
+		return new Authenticator(opts);
 	}
 
 	/**
@@ -330,7 +329,7 @@ export default class Auth {
 		if (doRefresh) {
 			try {
 				log(`Refreshing access token for account ${highlight(account.name || account.hash)}`);
-				return await authenticator.getToken(null, null, true);
+				return await authenticator.getToken(true);
 			} catch (err) {
 				if (err.code !== 'EINVALIDGRANT') {
 					throw err;
@@ -386,7 +385,6 @@ export default class Auth {
 	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
 	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
-	 * @param {String} [opts.code] - The authentication code from a successful interactive login.
 	 * @param {String} [opts.env=prod] - The environment name. Must be `staging` or `prod`.
 	 * The environment is a shorthand way of specifying a Axway default base URL.
 	 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to be
@@ -400,7 +398,7 @@ export default class Auth {
 	async login(opts = {}) {
 		opts = this.applyDefaults(opts);
 		const authenticator = this.createAuthenticator(opts);
-		return await authenticator.login(opts);
+		return await authenticator.login();
 	}
 
 	/**

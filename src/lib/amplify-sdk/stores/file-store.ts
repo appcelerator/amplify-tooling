@@ -232,7 +232,7 @@ export default class FileStore extends TokenStore {
 			}));
 			const file = ver === 2 ? this.tokenStoreFile : path.join(this.homeDir, this.filename.replace(/\.v2$/, ''));
 			log(`Writing ${highlight(file)}`);
-			writeFileSync(file, data, { mode: 384 /* 600 */ });
+			writeFileSync(file, data, { mode: 0o600 });
 		}
 	}
 

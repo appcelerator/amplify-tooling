@@ -27,7 +27,7 @@ export default {
 		}
 	},
 	options: {
-		'--yes': 'Automatic yes to overwrite existing output files and run non-interactively',
+		'--yes': 'Automatic yes to overwrite existing output files',
 		'--json': {
 			callback: ({ ctx, value }) => ctx.jsonMode = value,
 			desc: 'Outputs result as JSON'

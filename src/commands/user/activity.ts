@@ -1,6 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
-import { renderActivity } from '../../lib/activity.js';
-
 export default {
 	desc: 'Display your activity',
 	help: {
@@ -10,8 +7,8 @@ export default {
 		footer({ style }) {
 			return `${style.heading('Example:')}
 
-  You must be authenticated into an Amplify Platform account to view or manage
-  organizations. Run ${style.highlight('"axway auth login"')} to authenticate.
+  You must be authenticated to view or manage organizations.
+  Run ${style.highlight('"axway auth login"')} to authenticate.
 
   Display your user activity for the past 14 days:
     ${style.highlight('axway user activity')}
@@ -42,17 +39,7 @@ export default {
 			redact: false
 		}
 	},
-	async action({ argv, console }) {
-		const { account, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-
-		await renderActivity({
-			account,
-			console,
-			json: argv.json,
-			results: {
-				account: account.name,
-				...(await sdk.user.activity(account, argv))
-			}
-		});
+	async action() {
+		throw new Error('The "user" commands are no longer supported as of version 5.0.0. Their references will be removed in a subsequent release.');
 	}
 };

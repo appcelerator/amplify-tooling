@@ -1,6 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
-import snooplogg from 'snooplogg';
-
 export default {
 	aliases: [ '!info' ],
 	desc: 'Display your user information',
@@ -11,22 +8,7 @@ export default {
 			desc: 'Outputs the info as JSON'
 		}
 	},
-	async action({ argv, console }) {
-		const { account } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const { user } = account;
-
-		if (argv.json) {
-			console.log(JSON.stringify(user, null, 2));
-			return;
-		}
-
-		const { highlight } = snooplogg.styles;
-
-		console.log(`First Name:   ${highlight(user.firstname)}`);
-		console.log(`Last Name:    ${highlight(user.lastname)}`);
-		console.log(`Email:        ${highlight(user.email)}`);
-		console.log(`Phone Number: ${highlight(user.phone)}`);
-		console.log(`Date Joined:  ${highlight(new Date(user.dateJoined).toLocaleDateString())}`);
-		console.log(`GUID:         ${highlight(user.guid)}`);
+	async action() {
+		throw new Error('The "user" commands are no longer supported as of version 5.0.0. Their references will be removed in a subsequent release.');
 	}
 };

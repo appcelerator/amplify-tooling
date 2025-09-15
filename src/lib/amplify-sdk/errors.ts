@@ -1,4 +1,49 @@
-const errors: any = {};
+interface AmplifyErrors {
+	/** Authentication failed. */
+	AUTH_FAILED: (msg?: string, meta?: any) => Error & { code?: string; statusCode?: number; statusMessage?: string; body?: any };
+	/** Authentication timed out. */
+	AUTH_TIMEOUT: (msg?: string, meta?: any) => Error;
+	/** The account is invalid. */
+	INVALID_ACCOUNT: (msg?: string, meta?: any) => TypeError;
+	/** An invalid argument was provided. */
+	INVALID_ARGUMENT: (msg?: string, meta?: any) => TypeError;
+	/** The file is invalid. */
+	INVALID_FILE: (msg?: string, meta?: any) => Error;
+	/** An invalid parameter was provided. */
+	INVALID_PARAMETER: (msg?: string, meta?: any) => TypeError;
+	/** The platform account is invalid. */
+	INVALID_PLATFORM_ACCOUNT: (msg?: string, meta?: any) => Error;
+	/** The value is out of range. */
+	INVALID_RANGE: (msg?: string, meta?: any) => RangeError;
+	/** The token is invalid. */
+	INVALID_TOKEN: (msg?: string, meta?: any) => Error;
+	/** The value is invalid. */
+	INVALID_VALUE: (msg?: string, meta?: any) => Error;
+	/** Login is required. */
+	LOGIN_REQUIRED: (msg?: string, meta?: any) => Error;
+	/** Keytar module not found. */
+	KEYTAR_NOT_FOUND: (msg?: string, meta?: any) => Error;
+	/** Missing authentication code. */
+	MISSING_AUTH_CODE: (msg?: string, meta?: any) => TypeError;
+	/** A required parameter is missing. */
+	MISSING_REQUIRED_PARAMETER: (msg?: string, meta?: any) => TypeError;
+	/** An NPM error occurred. */
+	NPM_ERROR: (msg?: string, meta?: any) => Error;
+	/** Organization switch failed. */
+	ORG_SWITCH_FAILED: (msg?: string, meta?: any) => Error;
+	/** The request failed. */
+	REQUEST_FAILED: (msg?: string, meta?: any) => Error;
+	/** Secure store is unavailable. */
+	SECURE_STORE_UNAVAILABLE: (msg?: string, meta?: any) => Error;
+	/** Sending authentication code failed. */
+	SEND_AUTH_CODE_FAILED: (msg?: string, meta?: any) => Error;
+	/** The session has been invalidated. */
+	SESSION_INVALIDATED: (msg?: string, meta?: any) => Error;
+	/** The token has expired. */
+	TOKEN_EXPIRED: (msg?: string, meta?: any) => Error;
+}
+
+const errors: AmplifyErrors = {} as AmplifyErrors;
 export default errors;
 
 createError('AUTH_FAILED',                Error,      'Authorization failed');

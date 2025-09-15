@@ -1,7 +1,7 @@
-import E from './errors.js';
+import E from '../amplify-sdk/errors.js';
 
 /**
- * Constructs all endpoints.
+ * Constructs OIDC authentication endpoints.
  *
  * @param {Object} params - Required parameters.
  * @param {String} params.baseUrl - The base URL.

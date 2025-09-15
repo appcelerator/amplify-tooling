@@ -44,7 +44,7 @@ than one team.`,
 
 		// Log if the deprecated org param is used
 		if (argv.org) {
-			throw new Error('Service account\'s are only associated to a single organization. To access a different org, please authenticate with another service account in that organization');
+			throw new Error('Service account\'s are only associated to a single organization. To access a different org, please authenticate using a service account in that organization');
 		}
 
 		if (argv.account) {

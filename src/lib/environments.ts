@@ -5,6 +5,8 @@
  */
 export const environments = {
 	prod: {
+		baseUrl:     'https://login.axway.com',
+		platformUrl: 'https://platform.axway.com',
 		auth: {
 			clientId: 'amplify-cli',
 			realm: 'Broker'

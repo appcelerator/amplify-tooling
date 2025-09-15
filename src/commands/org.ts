@@ -22,8 +22,8 @@ export default {
 		footer({ style }) {
 			return `${style.heading('General Organization Examples:')}
 
-  You must be authenticated into an Amplify Platform account to view or manage
-  organizations. Run ${style.highlight('"axway auth login"')} to authenticate.
+  You must be authenticated to view or manage organizations.
+  Run ${style.highlight('"axway auth login"')} to authenticate.
 
   You may specify an organization by name, id, or guid.
 
@@ -45,7 +45,7 @@ export default {
   View usage report for a specific organization:
     ${style.highlight('axway org usage <org>')}
 
-  Open web browser to view or change identity provider (idp) settings:
+  Output link to platform URL to view or change identity provider (idp) settings:
     ${style.highlight('axway org idp <org>')}
 
 ${style.heading('Organization User Management Examples:')}

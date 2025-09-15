@@ -21,8 +21,8 @@ export default {
 		footer({ style }) {
 			return `${style.heading('General Team Examples:')}
 
-  You must be authenticated into an Amplify Platform account to view or manage
-  organization teams. Run ${style.highlight('"axway auth login"')} to authenticate.
+  You must be authenticated to view or manage organization teams.
+  Run ${style.highlight('"axway auth login"')} to authenticate.
 
   You may specify an organization by name, id, or guid as well as the team by
   name or guid.

@@ -16,8 +16,8 @@ export default {
 		footer({ style }) {
 			return `${style.heading('Example:')}
 
-  You must be authenticated into an Amplify Platform account to view or manage
-  organizations. Run ${style.highlight('"axway auth login"')} to authenticate.
+  You must be authenticated to view or manage organizations.
+  Run ${style.highlight('"axway auth login"')} to authenticate.
 
   Display organization activity for the past 14 days:
     ${style.highlight('axway org activity <org>')}
