@@ -5,7 +5,7 @@ import * as environments from './environments.js';
 import * as request from './request.js';
 import { axwayHome } from './path.js';
 
-const { warn } = snooplogg('amplify-cli-utils');
+const { warn } = snooplogg('axway-cli');
 
 /**
  * Resolves the "auth.*" config key based on your environment. This is used to get or set the

@@ -1,18 +1,6 @@
 import crypto from 'crypto';
 
 /**
- * Appends query string parameters to a URL.
-//  * TODO: Can the use of this be replaced with node:url?
- *
- * @param {String} url - The URL.
- * @param {Object} params - A map of query string parameters.
- * @returns {String}
- */
-export function createURL(url, params) {
-	return `${url}${url.includes('?') ? '&' : '?'}${prepareForm(params).toString()}`;
-}
-
-/**
  * Returns a hex encoded md5 hash of a string or object.
  *
  * @param {String|Object} it - The object to serialize and hash.

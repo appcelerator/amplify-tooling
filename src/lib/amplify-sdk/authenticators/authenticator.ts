@@ -9,7 +9,7 @@ import * as request from '../../request.js';
 
 import { md5, prepareForm } from '../util.js';
 
-const { log, warn } = snooplogg('amplify-auth:authenticator');
+const { log, warn } = snooplogg('amplify-sdk:authenticator');
 const { green, highlight, red, note } = snooplogg.styles;
 
 /**

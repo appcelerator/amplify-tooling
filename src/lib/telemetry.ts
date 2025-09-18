@@ -7,7 +7,7 @@ import { Telemetry } from './amplify-sdk/index.js';
 import { axwayHome } from './path.js';
 import * as environments from './environments.js';
 
-const { warn } = snooplogg('amplify-cli-utils:telemetry');
+const { warn } = snooplogg('axway-cli:telemetry');
 const telemetryCacheDir = path.join(axwayHome, 'axway-cli', 'telemetry');
 let telemetryInst = null;
 

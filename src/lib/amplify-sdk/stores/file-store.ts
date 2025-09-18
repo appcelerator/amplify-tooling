@@ -6,7 +6,7 @@ import snooplogg from 'snooplogg';
 import TokenStore from './token-store.js';
 import { writeFileSync } from '../../fs.js';
 
-const { log, warn } = snooplogg('amplify-auth:file-store');
+const { log, warn } = snooplogg('amplify-sdk:auth:file-store');
 const { highlight } = snooplogg.styles;
 
 /**

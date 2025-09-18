@@ -107,7 +107,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		]);
 	});
 
-	// initialize the telemetry instance in amplify-cli-utils
+	// initialize the telemetry instance for the Axway CLI
 	telemetry.init({
 		appGuid: '0049ef76-0557-4b83-985c-a1d29c280227',
 		appVersion: version

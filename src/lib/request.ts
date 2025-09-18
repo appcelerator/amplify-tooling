@@ -10,7 +10,7 @@ import loadConfig, { Config } from './config.js';
 const { HttpProxyAgent } = httpProxyAgentPkg;
 const { HttpsProxyAgent } = httpsProxyAgentPkg;
 
-const { log } = snooplogg('amplify-request');
+const { log } = snooplogg('axway-cli:request');
 const { alert, highlight, magenta, ok, note } = snooplogg.styles;
 
 export { got };

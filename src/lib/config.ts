@@ -4,7 +4,6 @@ import path from 'path';
 import { expandPath } from './path.js';
 import { isFile, readJsonSync, writeFileSync } from './fs.js';
 
-// const { expandPath, isFile, writeFileSync } = pkg;
 const axwayHome = path.join(os.homedir(), '.axway');
 
 export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
