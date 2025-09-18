@@ -312,7 +312,8 @@ export default class Auth {
 		let doRefresh = account.auth.expired;
 		if (doRefresh) {
 			log(`Access token for account ${highlight(account.name || account.hash)} has expired`);
-			if ((refresh || access) < Date.now()) {
+			// If there is no valid refresh token, and no client secret or private key to re-authenticate, then we can't refresh the token
+			if ((refresh || access) < Date.now() && !(account.auth.clientSecret || account.auth.secret)) {
 				log(`Unable to refresh access token for account ${highlight(account.name || account.hash)} because refresh token is also expired`);
 				return;
 			}
