@@ -48,7 +48,7 @@ export async function initPlatformAccount(accountName, org, env) {
 		try {
 			// check the config for a default org for this account
 			org = await sdk.org.find(account, await config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
-		} catch (err) {
+		} catch (_err) {
 			// default org was stale, auto detect the default from the account orgs
 			org = await sdk.org.find(account);
 		}

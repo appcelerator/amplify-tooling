@@ -196,7 +196,7 @@ export default class Telemetry {
 					}
 
 					const filename = path.basename(m[1]);
-					let pkgDir = findDir(m[1], 'package.json');
+					const pkgDir = findDir(m[1], 'package.json');
 
 					if (!pkgDir) {
 						// no package.json
@@ -268,7 +268,7 @@ export default class Telemetry {
 				prev = id;
 				throw new Error();
 			}
-		} catch (err) {
+		} catch (_err) {
 			id = uuid.v4();
 			ts = null;
 		}
@@ -406,7 +406,7 @@ process.on('message', async (msg: any) => {
 					writeFileSync(lockFile, String(process.pid), { flag: 'wx' });
 					log(`Attempt ${i}: Successfully acquired lock`);
 					return true;
-				} catch (e) {
+				} catch (_e) {
 					const contents = fs.readFileSync(lockFile, 'utf-8').trim();
 					const pid = parseInt(contents, 10);
 
@@ -420,7 +420,7 @@ process.on('message', async (msg: any) => {
 							process.kill(pid, 0);
 							log(`Attempt ${i}: Another send process (pid: ${pid}) is currently running`);
 							return false;
-						} catch (e2) {
+						} catch (_e2) {
 							log(`Attempt ${i}: Lock file exists, but has stale pid, continuing...`);
 							fs.rmSync(lockFile, { force: true });
 						}
@@ -468,7 +468,7 @@ process.on('message', async (msg: any) => {
 					if (batch.length >= sendBatchSize) {
 						break;
 					}
-				} catch (err) {
+				} catch (_err) {
 					warn(`Batch ${batchCounter}: Bad event ${filename}, deleting`);
 					fs.rmSync(file, { force: true });
 				}
@@ -539,7 +539,6 @@ function findDir(dir, file) {
 function isTelemetryDisabled() {
 	return process.env.AXWAY_TELEMETRY_DISABLED === '1' || (!process.env.AXWAY_TEST && ci.isCI);
 }
-
 
 let archCache = null;
 

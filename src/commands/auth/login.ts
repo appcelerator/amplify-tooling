@@ -55,7 +55,7 @@ team to use for "axway" commands.`;
 	async action({ argv, cli, console }) {
 		// prompt for the username and password
 		if (argv.username !== undefined) {
-			throw new Error('Platform Username and Password authentication is no longer supported. Use a different authentication method.')
+			throw new Error('Platform Username and Password authentication is no longer supported. Use a different authentication method.');
 		}
 
 		if (!argv.clientSecret && !argv.secretFile) {
@@ -72,21 +72,21 @@ team to use for "axway" commands.`;
 			if (!argv.clientId || typeof argv.clientId !== 'string') {
 				argv.clientId = await input({
 					message: 'Client ID:',
-					validate: s => s ? true : 'Please enter your client ID'
+					validate: s => (s ? true : 'Please enter your client ID')
 				});
 			}
 
 			if (authMethod === 'Client Secret' && (!argv.clientSecret || typeof argv.clientSecret !== 'string')) {
 				argv.clientSecret = await password({
 					message: 'Client Secret:',
-					validate: s => s ? true : 'Please enter your client secret'
+					validate: s => (s ? true : 'Please enter your client secret')
 				});
 			}
 
 			if (authMethod === 'Client Certificate' && (!argv.secretFile || typeof argv.secretFile !== 'string')) {
 				argv.secretFile = await input({
 					message: 'Path to the PEM formatted private key:',
-					validate: s => s ? true : 'Please enter the path to your PEM formatted private key file'
+					validate: s => (s ? true : 'Please enter the path to your PEM formatted private key file')
 				});
 			}
 			console.log();

@@ -19,7 +19,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		let { account, org } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (argv.json) {
 			console.log(JSON.stringify({

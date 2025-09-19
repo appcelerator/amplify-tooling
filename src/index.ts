@@ -34,7 +34,7 @@ const __dirname = dirname(__filename);
 		warn(err);
 		cfg = await new Config().init();
 	}
-	const externalExtensions : [string,string][] = Object.entries(cfg.get('extensions', {}));
+	const externalExtensions : [string, string][] = Object.entries(cfg.get('extensions', {}));
 	const allExtensions = [ ...externalExtensions ];
 
 	const packagesDir = resolve(axwayHome, 'axway-cli', 'packages');

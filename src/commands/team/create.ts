@@ -31,7 +31,7 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to add a new team to the "${org.name}" organization`);

@@ -24,7 +24,7 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const { highlight, note } = snooplogg.styles;
 
 		if (!argv.json) {

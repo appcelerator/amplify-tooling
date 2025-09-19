@@ -52,7 +52,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const { bundle, from, to, usage } = await sdk.org.usage(account, org, argv);
 		const orgEnvs = await sdk.org.environments(account);
 		const maxEntitlement = 9999999999999;
@@ -126,7 +126,7 @@ export default {
 		};
 
 		const renderPercent = percent => {
-			let label = `${percent}%`.padStart(saasPercentPadding + 1);
+			const label = `${percent}%`.padStart(saasPercentPadding + 1);
 			return (percent > 85 ? red(label) : percent > 65 ? yellow(label) : label);
 		};
 

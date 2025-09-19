@@ -27,7 +27,7 @@ export default {
 		'--org [name|id|guid]': 'The organization name, id, or guid'
 	},
 	async action({ argv, console }) {
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const result = await sdk.client.find(account, org, argv.id);
 
 		if (argv.json) {

@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 import E from '../errors.js';
 import pluralize from 'pluralize';
 import snooplogg from 'snooplogg';

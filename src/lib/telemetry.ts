@@ -19,7 +19,7 @@ let telemetryInst = null;
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
 export async function addEvent(payload, opts?) {
-	// eslint-disable-next-line no-unused-expressions
+
 	const initialize = await init(opts);
 	initialize?.addEvent(payload);
 }
@@ -32,7 +32,7 @@ export async function addEvent(payload, opts?) {
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
 export async function addCrash(payload, opts?) {
-	// eslint-disable-next-line no-unused-expressions
+
 	const initialize = await init(opts);
 	initialize?.addCrash(payload);
 }

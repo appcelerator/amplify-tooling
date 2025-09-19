@@ -104,7 +104,7 @@ ${style.heading('Settings:')}
 };
 
 async function runConfig(action, { argv, cli, console, setExitCode }) {
-	let { json, key, value } = argv;
+	const { json, key, value } = argv;
 	const cfg = await loadConfig(argv);
 	const data = { action, key, value };
 	const filter = key && key.split(/\.|\//).filter(Boolean).join('.') || undefined;
@@ -112,7 +112,7 @@ async function runConfig(action, { argv, cli, console, setExitCode }) {
 	if (typeof data.value === 'string') {
 		try {
 			data.value = JSON.parse(data.value);
-		} catch (e) {
+		} catch (_e) {
 			// squelch
 		}
 	}

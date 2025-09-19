@@ -49,7 +49,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		await renderActivity({
 			account,

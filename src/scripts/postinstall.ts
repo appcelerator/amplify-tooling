@@ -42,11 +42,11 @@ TELEMETRY:
   The Axway CLI collects data which is used to improve our products. Telemetry
   is currently ${telemetryEnabled ? green('enabled') : red('disabled')}.
 
-  ${telemetryEnabled ?
-  `You can opt-out of telemetry by running:
+  ${telemetryEnabled
+		? `You can opt-out of telemetry by running:
 
-     ${cyan('axway telemetry --disable')}` :
+     ${cyan('axway telemetry --disable')}`
 
-  `You can change your telemetry preference by running:
+		: `You can change your telemetry preference by running:
      ${cyan('axway telemetry --enable')}`}
 `);

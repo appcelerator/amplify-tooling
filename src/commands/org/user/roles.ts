@@ -13,7 +13,7 @@ export default {
 		'--org [name|id|guid]': 'The organization name, id, or guid; roles vary by org'
 	},
 	async action({ argv, console }) {
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const roles = (await sdk.role.list(account, { org }));
 
 		if (argv.json) {

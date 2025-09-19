@@ -30,7 +30,7 @@ function execute(dest, opts, fn) {
 					opts = Object.assign({}, opts, { gid: st.gid, uid: st.uid });
 					break;
 				}
-			} catch (err) {
+			} catch (_err) {
 				// continue
 			}
 		}
@@ -45,7 +45,7 @@ function execute(dest, opts, fn) {
 			chownSync(dest, opts.uid, opts.gid);
 			dest = path.dirname(dest);
 			stat = fs.lstatSync(dest);
-		} catch (e) {
+		} catch (_e) {
 			break;
 		}
 	}
@@ -60,7 +60,7 @@ function execute(dest, opts, fn) {
 export function isDir(dir) {
 	try {
 		return fs.statSync(dir).isDirectory();
-	} catch (e) {
+	} catch (_e) {
 		// squelch
 	}
 	return false;
@@ -75,7 +75,7 @@ export function isDir(dir) {
 export function isFile(file) {
 	try {
 		return fs.statSync(file).isFile();
-	} catch (e) {
+	} catch (_e) {
 		// squelch
 	}
 	return false;

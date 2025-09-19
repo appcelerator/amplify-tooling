@@ -161,7 +161,7 @@ export default class AmplifySDK {
 					};
 
 					// TODO: Service accounts can only be part of one org, so remove orgs array?
-					account.orgs = [{
+					account.orgs = [ {
 						default: true,
 						guid: org.guid,
 						id: org.org_id,
@@ -176,9 +176,9 @@ export default class AmplifySDK {
 						{ teams },
 						client
 					] = await Promise.all([
-						 this.team.list(account, account.org?.id, account.user.guid),
-						 this.request(`/api/v1/client/${account.user.guid}`, account, {
-							 errorMsg: 'Failed to fetch service account'
+						this.team.list(account, account.org?.id, account.user.guid),
+						this.request(`/api/v1/client/${account.user.guid}`, account, {
+							errorMsg: 'Failed to fetch service account'
 						})
 					]);
 					account.org.teams = teams;
@@ -715,7 +715,7 @@ export default class AmplifySDK {
 				Object.assign(params, resolveMonthRange(params.month));
 			}
 
-			let { from, to } = resolveDateRange(params.from, params.to);
+			const { from, to } = resolveDateRange(params.from, params.to);
 			let url = '/api/v1/activity?data=true';
 
 			if (params.org) {

@@ -73,7 +73,7 @@ async function validate({ force, initial, label, silent, value }) {
 			value = await input({
 				message: `${label} output file`,
 				default: initial,
-				validate: s => s ? true : `Please enter the ${label.toLowerCase()} output file`
+				validate: s => (s ? true : `Please enter the ${label.toLowerCase()} output file`)
 			});
 		}
 	}

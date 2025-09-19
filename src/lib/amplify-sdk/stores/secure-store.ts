@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-require */
-
 import crypto from 'crypto';
 import E from '../errors.js';
 import FileStore from './file-store.js';

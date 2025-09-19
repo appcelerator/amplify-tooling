@@ -24,7 +24,7 @@ export default {
 		}
 	},
 	async action({ argv, console }) {
-		let { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 		const { team } = await sdk.team.find(account, org, argv.team);
 
 		if (argv.json) {

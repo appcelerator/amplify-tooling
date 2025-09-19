@@ -18,7 +18,7 @@ export async function renderActivity({ account, console, json, results }) {
 	}
 
 	const { highlight, note } = snooplogg.styles;
-	let { from, to, events } = results;
+	const { from, to, events } = results;
 
 	const formatDate = d => {
 		const dt = d ? new Date(d) : new Date();

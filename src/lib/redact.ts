@@ -77,6 +77,7 @@ export function redact(data, opts:any = {}) {
 		if (Array.isArray(opts[key]) || opts[key] instanceof Set) {
 			for (const item of opts[key]) {
 				if (item && typeof item === 'string') {
+					// eslint-disable-next-line no-new-func
 					value.push(new Function('s', `return s === ${JSON.stringify(item.toLowerCase())}`));
 				} else if (item instanceof RegExp) {
 					value.push(item.test.bind(item));
