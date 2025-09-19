@@ -14,9 +14,9 @@ export default {
 	},
 	async action({ argv, console }) {
 		const { highlight } = snooplogg.styles;
-		const { org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to configure this organization\'s identity provider');
 		}
 

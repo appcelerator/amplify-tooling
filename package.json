@@ -19,13 +19,13 @@
     "postinstall": "node dist/scripts/postinstall.js || node -e true"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.8.6",
     "boxen": "^8.0.1",
     "chalk": "^5.4.1",
     "check-kit": "^4.0.0",
     "cli-kit": "^2.1.1",
     "cli-table3": "^0.6.2",
     "config-kit": "^2.1.0",
-    "enquirer": "^2.3.6",
     "got": "^11.8.5",
     "http-proxy-agent": "^5.0.0",
     "https-proxy-agent": "^5.0.1",

@@ -2,8 +2,7 @@ import snooplogg from 'snooplogg';
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 
-import pkg from 'enquirer';
-const { prompt } = pkg;
+import { input, password, select } from '@inquirer/prompts';
 
 export default {
 	autoHideBanner: false,
@@ -65,49 +64,31 @@ team to use for "axway" commands.`;
 				process.exit(1);
 			}
 
-			const questions = [];
-
-			const { authMethod } = await prompt([{
-				type: 'select',
-				name: 'authMethod',
+			const authMethod = await select<string>({
 				message: 'Select authentication method:',
 				choices: [ 'Client Secret', 'Client Certificate' ]
-			}]) as any;
+			});
 
 			if (!argv.clientId || typeof argv.clientId !== 'string') {
-				questions.push({
-					type: 'input',
-					name: 'clientId',
+				argv.clientId = await input({
 					message: 'Client ID:',
-					validate(s) {
-						return s ? true : 'Please enter your client ID';
-					}
+					validate: s => s ? true : 'Please enter your client ID'
 				});
 			}
 
 			if (authMethod === 'Client Secret' && (!argv.clientSecret || typeof argv.clientSecret !== 'string')) {
-				questions.push({
-					type: 'password',
-					name: 'clientSecret',
+				argv.clientSecret = await password({
 					message: 'Client Secret:',
-					validate(s) {
-						return s ? true : 'Please enter your client secret';
-					}
+					validate: s => s ? true : 'Please enter your client secret'
 				});
 			}
 
 			if (authMethod === 'Client Certificate' && (!argv.secretFile || typeof argv.secretFile !== 'string')) {
-				questions.push({
-					type: 'input',
-					name: 'secretFile',
+				argv.secretFile = await input({
 					message: 'Path to the PEM formatted private key:',
-					validate(s) {
-						return s ? true : 'Please enter the path to your PEM formatted private key file';
-					}
+					validate: s => s ? true : 'Please enter the path to your PEM formatted private key file'
 				});
 			}
-
-			Object.assign(argv, await prompt(questions));
 			console.log();
 		}
 

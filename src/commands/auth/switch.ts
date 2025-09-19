@@ -1,9 +1,7 @@
 import snooplogg from 'snooplogg';
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
-import pkg from 'enquirer';
-
-const { prompt } = pkg;
+import { select } from '@inquirer/prompts';
 
 export default {
 	desc: 'Select default account and team',
@@ -31,7 +29,9 @@ than one team.`,
 			realm:    argv.realm
 		});
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
-		const accounts = await sdk.auth.list({ validate: true });
+		// Fetch all accounts, including any stored credentials.
+		// This ensure the `updateAccount` call later does not remove them from the store.
+		const accounts = await sdk.auth.list({ validate: true, sanitize: false });
 		let account;
 
 		if (!accounts.length) {
@@ -67,19 +67,17 @@ than one team.`,
 					.sort((a, b) => a.value.localeCompare(b.value));
 				const initial = choices.findIndex(a => a.value === defaultAccount);
 
-				({ accountName } = await prompt({
-					choices,
-					initial,
+				accountName = await select({
 					message: 'Please choose an account',
-					name:    'accountName',
-					type:    'select'
-				}));
+					default: initial >= 0 ? choices[initial].value : undefined,
+					choices: choices.map(c => ({ name: c.value, value: c.value }))
+				});
 
 				console.log();
 			}
 
 			if (accountName) {
-				account = await sdk.auth.find(accountName);
+				account = await sdk.auth.find(accountName, undefined, false);
 			}
 		}
 
@@ -123,24 +121,11 @@ than one team.`,
 						.sort((a, b) => a.message.localeCompare(b.message));
 					const initial = choices.findIndex(team => team.guid === defaultTeam);
 
-					team = (await prompt({
-						choices,
-						format: function () {
-							// for some reason, enquirer doesn't print the selected value using the primary
-							// (green) color for select prompts, so we just force it for all prompts
-							return this.style(this.value);
-						},
-						initial,
-						message: 'Select an team to use',
-						name: 'team',
-						styles: {
-							em(msg) {
-								// stylize emphasised text with just the primary color, no underline
-								return this.primary(msg);
-							}
-						},
-						type: 'select'
-					} as any) as any).team;
+					team = await select({
+						message: 'Select a team to use',
+						default: initial >= 0 ? choices[initial].value : undefined,
+						choices: choices.map(c => ({ name: c.message, value: c.value }))
+					});
 
 					console.log();
 				}

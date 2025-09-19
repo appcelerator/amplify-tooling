@@ -120,11 +120,12 @@ export default class AmplifySDK {
 			 * automatically get a valid access token.
 			 * @param {String} accountName - The name of the account including the client id prefix.
 			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
+			 * @param {Boolean} [sanitize=true] - When `false`, does not sanitize sensitive auth info.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
-			find: async (accountName, defaultTeams) => {
+			find: async (accountName, defaultTeams, sanitize) => {
 				const account = await this.authClient.find(accountName);
-				return account ? await this.auth.loadSession(account, defaultTeams) : null;
+				return account ? await this.auth.loadSession(account, defaultTeams, sanitize) : null;
 			},
 
 			/**
@@ -171,8 +172,17 @@ export default class AmplifySDK {
 				account.team = undefined;
 
 				if (account.user.guid) {
-					const { teams } = await this.team.list(account, account.org?.id, account.user.guid);
+					const [
+						{ teams },
+						client
+					] = await Promise.all([
+						 this.team.list(account, account.org?.id, account.user.guid),
+						 this.request(`/api/v1/client/${account.user.guid}`, account, {
+							 errorMsg: 'Failed to fetch service account'
+						})
+					]);
 					account.org.teams = teams;
+					account.user.roles = client.roles || [];
 
 					const selectedTeamGuid = defaultTeams?.[account.hash];
 
@@ -198,6 +208,7 @@ export default class AmplifySDK {
 			 * @param {Array.<String>} [opts.skip] - A list of accounts to skip validation for.
 			 * @param {Boolean} [opts.validate] - When `true`, checks to see if each account has an
 			 * active access token and session.
+			 * @param {Boolean} [opts.sanitize=true] - When `false`, does not sanitize sensitive auth info.
 			 * @returns {Promise<Array>}
 			 */
 			list: async (opts: any = {}) => {
@@ -210,16 +221,19 @@ export default class AmplifySDK {
 						return promise.then(async list => {
 							if (opts.validate && (!opts.skip || !opts.skip.includes(account.name))) {
 								try {
-									account = await this.auth.find(account.name, opts.defaultTeams);
+									account = await this.auth.find(account.name, opts.defaultTeams, opts.sanitize);
 								} catch (err) {
 									warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
 								}
 							}
-							if (account?.auth) {
+							// Sanitize sensitive auth info unless requested otherwise
+							if (account?.auth && opts.sanitize !== false) {
 								delete account.auth.clientSecret;
 								delete account.auth.password;
 								delete account.auth.secret;
 								delete account.auth.username;
+							}
+							if (account?.auth) {
 								list.push(account);
 							}
 							return list;
@@ -233,9 +247,10 @@ export default class AmplifySDK {
 			 * information.
 			 * @param {Object} account - The account object.
 			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
+			 * @param {Boolean} [sanitize=true] - When `false`, does not sanitize sensitive auth info.
 			 * @returns {Promise<Object>} Resolves the original account info object.
 			 */
-			loadSession: async (account, defaultTeams) => {
+			loadSession: async (account, defaultTeams, sanitize) => {
 				try {
 					account = await this.auth.findSession(account, defaultTeams);
 				} catch (err) {
@@ -252,10 +267,12 @@ export default class AmplifySDK {
 
 				await this.authClient.updateAccount(account);
 
-				delete account.auth.clientSecret;
-				delete account.auth.password;
-				delete account.auth.secret;
-				delete account.auth.username;
+				if (sanitize !== false) {
+					delete account.auth.clientSecret;
+					delete account.auth.password;
+					delete account.auth.secret;
+					delete account.auth.username;
+				}
 
 				return account;
 			},
@@ -790,8 +807,7 @@ export default class AmplifySDK {
 					subscriptions,
 					teams,
 					teamCount:        teams.length,
-					userCount:        org.users.length,
-					userRoles:        org.users.find(u => u.guid === account.user.guid)?.roles || []
+					userCount:        org.users.length
 				};
 
 				if (org.entitlements?.partners) {

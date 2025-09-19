@@ -2,9 +2,7 @@ import path from 'path';
 import { existsSync } from 'fs';
 import { writeFileSync } from '../fs.js';
 import { initSDK } from '../utils.js';
-import pkg from 'enquirer';
-
-const { prompt } = pkg;
+import { input, confirm } from '@inquirer/prompts';
 
 /**
  * Generates a public/private keypair. It prompts for the output filenames and whether to overwrite
@@ -71,17 +69,12 @@ export async function generateKeypair(opts: any = {}) {
 async function validate({ force, initial, label, silent, value }) {
 	if (!value) {
 		value = initial;
-
 		if (!silent) {
-			({ value } = await prompt({
-				initial,
+			value = await input({
 				message: `${label} output file`,
-				name: 'value',
-				type: 'input',
-				validate(s) {
-					return s ? true : `Please enter the ${label.toLowerCase()} output file`;
-				}
-			}));
+				default: initial,
+				validate: s => s ? true : `Please enter the ${label.toLowerCase()} output file`
+			});
 		}
 	}
 
@@ -93,11 +86,9 @@ async function validate({ force, initial, label, silent, value }) {
 			err.showHelp = false;
 			throw err;
 		}
-		const { overwrite } = await prompt({
-			message: `"${file}" already exists, overwrite?`,
-			name: 'overwrite',
-			type: 'confirm'
-		}) as any;
+		const overwrite = await confirm({
+			message: `"${file}" already exists, overwrite?`
+		});
 		if (!overwrite) {
 			return {};
 		}

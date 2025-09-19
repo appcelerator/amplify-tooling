@@ -4,9 +4,7 @@ import { generateKeypair } from '../../lib/auth/keypair.js';
 import { existsSync, readFileSync } from 'fs';
 import snooplogg from 'snooplogg';
 import * as uuid from 'uuid';
-import pkg from 'enquirer';
-
-const { prompt } = pkg;
+import { input, select, password, checkbox } from '@inquirer/prompts';
 
 export default {
 	aliases: [ '!add', '!new' ],
@@ -62,7 +60,7 @@ required options must be passed in at execution.`;
 
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
-		if (!org.userRoles.includes('administrator')) {
+		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to create a service account in the "${org.name}" organization`);
 		}
 
@@ -81,7 +79,30 @@ required options must be passed in at execution.`;
 		let prompted = false;
 		const doPrompt = opts => {
 			prompted = true;
-			return prompt(opts);
+			if (opts.type === 'input') {
+				return input({
+					message: opts.message,
+					default: opts.initial,
+					validate: opts.validate
+				});
+			} else if (opts.type === 'select') {
+				return select({
+					message: opts.message,
+					choices: opts.choices,
+					default: opts.initial
+				});
+			} else if (opts.type === 'password') {
+				return password({
+					message: opts.message,
+					validate: opts.validate
+				});
+			} else if (opts.type === 'checkbox') {
+				return checkbox({
+					message: opts.message,
+					choices: opts.choices
+				});
+			}
+			throw new Error('Unsupported prompt type');
 		};
 
 		if (!name) {
@@ -91,24 +112,21 @@ required options must be passed in at execution.`;
 				return;
 			}
 
-			({ name } = await doPrompt({
+			name = await doPrompt({
 				hint: 'A friendly name used for display',
 				message: 'Display name',
-				name: 'name',
 				type: 'input',
 				validate(s) {
 					return s ? true : 'Please enter a service account name';
 				}
-			}) as any);
+			});
 		}
 
 		if (!desc && !argv.name) {
-			({ desc } = await doPrompt({
-				hint: 'Press enter to skip',
-				message: 'Description',
-				name: 'desc',
+			desc = await doPrompt({
+				message: `Description ${snooplogg.styles.note('(optional)')}`,
 				type: 'input'
-			}) as any);
+			});
 		}
 
 		if (!secret && !publicKey) {
@@ -116,33 +134,30 @@ required options must be passed in at execution.`;
 				throw new Error('Missing required --secret <key> or --public-key <path>');
 			}
 
-			const { type } = await doPrompt({
-				choices: [
-					{ message: 'Auto-generated client secret key', value: 'auto' },
-					{ message: 'Custom client secret key', value: 'secret' },
-					{ message: 'Specify PEM formatted public key file', value: 'publicKey' },
-					{ message: 'Generate a new public/private key pair', value: 'generate' }
-				],
+			const type = await doPrompt({
 				message: 'Authentication method',
-				name: 'type',
-				type: 'select'
-			}) as any;
+				type: 'select',
+				choices: [
+					{ name: 'Auto-generated client secret key', value: 'auto' },
+					{ name: 'Custom client secret key', value: 'secret' },
+					{ name: 'Specify PEM formatted public key file', value: 'publicKey' },
+					{ name: 'Generate a new public/private key pair', value: 'generate' }
+				]
+			});
 
 			if (type === 'auto') {
 				secret = uuid.v4();
 			} else if (type === 'secret') {
-				({ secret } = await doPrompt({
+				secret = await doPrompt({
 					message: 'Secret key',
-					name: 'secret',
 					type: 'password',
 					validate(s) {
 						return s ? true : 'Please enter a client secret key';
 					}
-				}) as any);
+				});
 			} else if (type === 'publicKey') {
-				({ publicKey } = await doPrompt({
+				publicKey = await doPrompt({
 					message: 'Public key file path',
-					name: 'publicKey',
 					type: 'input',
 					validate(s) {
 						if (!s) {
@@ -156,7 +171,7 @@ required options must be passed in at execution.`;
 						}
 						return true;
 					}
-				}) as any);
+				});
 			} else if (type === 'generate') {
 				const certs = await generateKeypair({
 					console,
@@ -169,13 +184,11 @@ required options must be passed in at execution.`;
 
 		if (!roles.length && !argv.name) {
 			const availableRoles = await sdk.role.list(account, { client: true, org });
-			({ roles } = await doPrompt({
-				choices: availableRoles.map(role => ({ name: role.name })),
-				hint: 'Use ↑ and ↓ then \'space\' to select one or more roles',
+			roles = await doPrompt({
+				choices: availableRoles.map(role => ({ name: role.name, value: role.id })),
 				message: 'Roles',
-				name: 'roles',
-				type: 'multiselect'
-			}) as any);
+				type: 'checkbox'
+			});
 		}
 
 		// validate the public key
