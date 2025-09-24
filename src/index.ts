@@ -1,6 +1,5 @@
 import check from 'check-kit';
 import CLI from 'cli-kit';
-import { createTable } from './lib/formatter.js';
 import * as telemetry from './lib/telemetry.js';
 import loadConfig, { Config } from './lib/config.js';
 import snooplogg from 'snooplogg';
@@ -10,7 +9,7 @@ import { redact } from './lib/redact.js';
 import * as environments from './lib/environments.js';
 
 import { dirname, join, resolve } from 'path';
-import { existsSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { serializeError } from 'serialize-error';
 import { fileURLToPath } from 'url';
 import boxen from 'boxen';
@@ -34,8 +33,7 @@ const __dirname = dirname(__filename);
 		warn(err);
 		cfg = await new Config().init();
 	}
-	const externalExtensions : [string, string][] = Object.entries(cfg.get('extensions', {}));
-	const allExtensions = [ ...externalExtensions ];
+	const allExtensions: [ string, string ][] = Object.entries(cfg.get('extensions', {}));
 
 	const packagesDir = resolve(axwayHome, 'axway-cli', 'packages');
 	let checkWait;
@@ -48,9 +46,9 @@ const __dirname = dirname(__filename);
 			let str = `${cyan('AXWAY CLI')}, version ${version}${!env || env === 'prod' ? '' : ` ${yellow(title.toUpperCase())}`}
 Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 
-			if (Number(process.versions.node.split('.')[0]) < 12) {
+			if (Number(process.versions.node.split('.')[0]) < 20) {
 				str += '\n\n' + yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
- ┃ deprecated and is unsupported in Axway CLI v3 and newer. Please upgrade
+ ┃ deprecated and is unsupported in Axway CLI v5 and newer. Please upgrade
  ┃ Node.js to the latest LTS release: https://nodejs.org/`);
 			}
 
@@ -83,28 +81,14 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 			return;
 		}
 
-		const opts = createRequestOptions({
-			metaDir: resolve(axwayHome, 'axway-cli', 'update'),
-			timeout: 4000
-		}, cfg);
-
 		// store the check promise and let it continue asynchronously
-		checkWait = Promise.all([
-			// check the Axway CLI for updates
-			check({
-				...opts,
-				pkg: pkgJson
-			}).catch(() => {}),
-
-			// check all CLI extensions for updates
-			...(externalExtensions
-				.map(ext => join(ext[1], 'package.json'))
-				.filter(ext => ext.startsWith(packagesDir) && existsSync(ext))
-				.map(pkg => check({
-					...opts,
-					pkg
-				}).catch(() => {})))
-		]);
+		checkWait = check({
+			...createRequestOptions({
+				metaDir: resolve(axwayHome, 'axway-cli', 'update'),
+				timeout: 4000
+			}, cfg),
+			pkg: pkgJson
+		}).catch(() => {});
 	});
 
 	// initialize the telemetry instance for the Axway CLI
@@ -187,51 +171,30 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 
 		// now that the command is done, wait for the check to finish and display it's message,
 		// if there is one
-		if (checkWait && cmd.prop('banner')) {
-			const results = (await checkWait).filter(p => p?.updateAvailable);
-			if (results.length) {
-				let msg = '';
-				let axway = '';
-				const exts = createTable();
-				const ts = cfg.get('update.notified');
+		const result = await checkWait;
+		if (result?.updateAvailable && cmd.prop('banner')) {
+			let msg = '';
+			const ts = cfg.get('update.notified');
 
-				// only show update notifications once every hour
-				if (ts && (Date.now() - ts) < 3600000) {
-					return;
-				}
-				const config = await loadConfig();
-				await config.set('update.notified', Date.now());
-				await config.save();
-
-				// remove axway package and treat it special
-				for (let i = 0; i < results.length; i++) {
-					if (results[i].name === 'axway') {
-						axway += yellow('Axway CLI Update Available'.toUpperCase()) + '\n';
-						axway += `${bold('Axway CLI')} ${gray(results[i].current)} →  ${_hlVer(results[i].latest, results[i].current)}\n`;
-						axway += `Run ${cyan('npm i -g axway')} to update`;
-						results.splice(i--, 1);
-					} else {
-						exts.push([ bold(results[i].name), gray(results[i].current), '→', _hlVer(results[i].latest, results[i].current) ]);
-					}
-				}
-
-				if (axway) {
-					msg += axway;
-				}
-				if (exts.length && !cmd.skipExtensionUpdateCheck) {
-					msg += `${axway ? '\n\n' : ''}${yellow(`Package Update${results.length > 1 ? 's' : ''} Available`.toUpperCase())}\n${exts.toString()}\nRun ${cyan('axway pm update')} to update`;
-				}
-
-				if (msg) {
-					console.log('\n' + boxen(msg, {
-						align: 'center',
-						borderColor: 'yellow',
-						borderStyle: 'round',
-						margin: { bottom: 1, left: 4, right: 4, top: 1 },
-						padding: { bottom: 1, left: 4, right: 4, top: 1 }
-					}));
-				}
+			// only show update notifications once every hour
+			if (ts && (Date.now() - ts) < 3600000) {
+				return;
 			}
+			const config = await loadConfig();
+			await config.set('update.notified', Date.now());
+			await config.save();
+
+			msg += yellow('Axway CLI Update Available'.toUpperCase()) + '\n';
+			msg += `${bold('Axway CLI')} ${gray(result.current)} →  ${_hlVer(result.latest, result.current)}\n`;
+			msg += `Run ${cyan('npm i -g axway')} to update`;
+
+			console.log('\n' + boxen(msg, {
+				align: 'center',
+				borderColor: 'yellow',
+				borderStyle: 'round',
+				margin: { bottom: 1, left: 4, right: 4, top: 1 },
+				padding: { bottom: 1, left: 4, right: 4, top: 1 }
+			}));
 		}
 	} catch (err) {
 		const exitCode = err.exitCode || 1;
