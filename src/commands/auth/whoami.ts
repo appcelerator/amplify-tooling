@@ -41,7 +41,7 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(accounts, null, 2));
 		} else {
-			const { highlight, note } = snooplogg.styles;
+			const { highlight } = snooplogg.styles;
 
 			if (accounts.length) {
 				let account = accounts.find(a => a.default);
@@ -49,11 +49,7 @@ export default {
 					account = accounts[0];
 				}
 
-				if (account.isPlatform && account.org?.name) {
-					console.log(`You are logged into a ${highlight('platform')} account in organization ${highlight(account.org.name)} ${note(`(${account.org.guid})`)} as ${highlight(account.user.email || account.name)}.`);
-				} else {
-					console.log(`You are logged into a ${highlight('service')} account as ${highlight(account.user.email || account.name)}.`);
-				}
+				console.log(`You are authenticated using the ${highlight(account.name)} service account.`);
 
 				console.log(await renderAccountInfo(account, config, sdk));
 			} else if (argv.accountName) {

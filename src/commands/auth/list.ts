@@ -44,17 +44,19 @@ organization, and the current team.`,
 		const { green } = snooplogg.styles;
 		const check = process.platform === 'win32' ? '√' : '✔';
 		const now = Date.now();
-		const table = createTable([ 'Account Name', 'Organization', 'Current Team', 'Region', 'Type', 'Expires' ]);
+		const table = createTable([ 'Account Name', 'Organization', 'Current Team', 'Region', 'Expires' ]);
 
-		for (const { default: def, auth, isPlatform, name, org, team } of accounts) {
+		for (const { default: def, auth,  name, org, team } of accounts) {
 			const { access, refresh } = auth.expires;
+			const expiresMS = (refresh || access) - now;
 			table.push([
 				`${def ? green(`${check} ${name}`) : `  ${name}`}`,
 				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
 				team ? `${team.name} (${team.guid})` : 'n/a',
 				org?.region || 'US',
-				isPlatform ? 'Platform' : 'Service',
-				prettyMilliseconds((refresh || access) - now, { secondsDecimalDigits: 0, millisecondsDecimalDigits: 0 })
+				expiresMS > 0
+					? prettyMilliseconds(expiresMS, { secondsDecimalDigits: 0, millisecondsDecimalDigits: 0 })
+					: 'Expired'
 			]);
 		}
 
