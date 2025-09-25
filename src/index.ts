@@ -94,7 +94,8 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 	// initialize the telemetry instance for the Axway CLI
 	telemetry.init({
 		appGuid: '0049ef76-0557-4b83-985c-a1d29c280227',
-		appVersion: version
+		appVersion: version,
+		config: cfg
 	});
 
 	// local ref so we can include argv and the context chain in the crash report
@@ -230,7 +231,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 			}
 		}
 
-		process.exit(exitCode);
+		process.exitCode = exitCode;
 	}
 })();
 

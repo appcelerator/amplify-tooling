@@ -1,6 +1,6 @@
 import ci from 'ci-info';
 import fs from 'fs';
-import path, { dirname } from 'path';
+import path from 'path';
 import os from 'os';
 import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
 import * as request from '../request.js';
@@ -12,7 +12,6 @@ import { execSync, spawnSync, spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const logger = snooplogg('amplify-sdk:telemetry');
 const { log } = logger;
@@ -393,7 +392,6 @@ process.on('message', async (msg: any) => {
 		if (process.env.AXWAY_CLI) {
 			log(`Axway CLI, version ${process.env.AXWAY_CLI}`);
 		}
-		log(`Amplify SDK, version ${readJsonSync(path.resolve(__dirname, '..', 'package.json')).version}`);
 		log(`PID: ${process.pid}`);
 		log(`Batch size: ${sendBatchSize}`);
 
@@ -479,12 +477,18 @@ process.on('message', async (msg: any) => {
 			}
 
 			log(`Batch ${batchCounter}: Sending batch with ${batch.length} event${batch.length !== 1 ? 's' : ''}`);
-			await got.post({
-				json: batch.map(b => b.event),
-				retry: 0,
-				timeout: 10000,
-				url
-			});
+			try {
+				await got.post({
+					json: batch.map(b => b.event),
+					retry: 0,
+					timeout: 10000,
+					url
+				});
+			} catch (err) {
+				error(`Batch ${batchCounter}: Failed to send batch: ${err.message}`);
+				process.exitCode = exitCodes.ERROR;
+				break;
+			}
 			log(`Batch ${batchCounter}: Successfully sent ${batch.length} event${batch.length !== 1 ? 's' : ''}`);
 
 			try {

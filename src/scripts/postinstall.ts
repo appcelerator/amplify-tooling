@@ -2,9 +2,10 @@ import chalk from 'chalk';
 import * as telemetry from '../lib/telemetry.js';
 
 const { cyan, green, red } = chalk;
-const telemetryEnabled = telemetry.isEnabled();
 
-console.log(`
+(async () => {
+  const telemetryEnabled = await telemetry.isEnabled();
+  console.log(`
 ${green('Axway CLI successfully installed!')}
 
 GETTING HELP:
@@ -20,7 +21,7 @@ GETTING HELP:
 
 AUTHENTICATION:
 
-  To log into the AMPLIFY Platform, run:
+  To log into the Axway Platform, run:
 
     ${cyan('axway auth login')}
 
@@ -28,14 +29,13 @@ AUTHENTICATION:
 
     ${cyan('axway service-account create')}
 
-ORGANIZATION, USER, AND TEAM MANAGEMENT:
+ORGANIZATION, AND TEAM MANAGEMENT:
 
-  Once authenticated as a platform user, you may manage organizations, teams,
-  and your user information using the following commands:
+  Once authenticated as a platform service account, you may manage organizations
+  and teams using the following commands:
 
     ${cyan('axway org')}
     ${cyan('axway team')}
-    ${cyan('axway user')}
 
 TELEMETRY:
 
@@ -43,10 +43,11 @@ TELEMETRY:
   is currently ${telemetryEnabled ? green('enabled') : red('disabled')}.
 
   ${telemetryEnabled
-		? `You can opt-out of telemetry by running:
+    ? `You can opt-out of telemetry by running:
 
      ${cyan('axway telemetry --disable')}`
 
-		: `You can change your telemetry preference by running:
+    : `You can change your telemetry preference by running:
      ${cyan('axway telemetry --enable')}`}
 `);
+})();
