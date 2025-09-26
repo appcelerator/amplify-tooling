@@ -1,17 +1,29 @@
 import _ from 'lodash';
 import fs from 'fs';
 import got from 'got';
-import prettyBytes from 'pretty-bytes';
-import snooplogg from 'snooplogg';
 import httpProxyAgentPkg from 'http-proxy-agent';
 import httpsProxyAgentPkg from 'https-proxy-agent';
 import loadConfig, { Config } from './config.js';
+import path from 'path';
+import prettyBytes from 'pretty-bytes';
+import snooplogg from 'snooplogg';
+import { fileURLToPath } from 'url';
+import { readJsonSync } from './fs.js';
 
 const { HttpProxyAgent } = httpProxyAgentPkg;
 const { HttpsProxyAgent } = httpsProxyAgentPkg;
 
 const { log } = snooplogg('axway-cli:request');
 const { alert, highlight, magenta, ok, note } = snooplogg.styles;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const { version } = readJsonSync(path.resolve(__dirname, '../../package.json'));
+/**
+ * The user agent to use in outgoing requests.
+ * IMPORTANT! Platform explicitly checks this user agent, so do NOT change the name or case.
+ */
+const userAgent = `Axway CLI/${version} (${process.platform}; ${process.arch}; node:${process.versions.node})`;
 
 export { got };
 
@@ -60,6 +72,11 @@ export function options(opts: any = {}) {
 	delete opts.keyFile;
 	delete opts.proxy;
 	delete opts.strictSSL;
+
+	// Default all requests to use the custom CLI user agent
+	opts.headers = {
+		'User-Agent': userAgent
+	}
 
 	const load = it => (Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : undefined);
 

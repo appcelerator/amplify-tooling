@@ -63,6 +63,7 @@ export async function init(opts: any = {}) {
 		}
 
 		const env = environments.resolve(opts.env || await config.get('env'));
+		const platformUrl = config.get('auth.platformUrl');
 
 		telemetryInst = new Telemetry({
 			appGuid:        opts.appGuid,
@@ -70,16 +71,19 @@ export async function init(opts: any = {}) {
 			cacheDir:       telemetryCacheDir,
 			environment:    env === 'staging' ? 'preproduction' : 'production',
 			requestOptions: createRequestOptions(config),
-			url:            opts.url
+			url:            opts.url || (platformUrl + '/api/v1/analytics')
 		});
 
+		// Wire up the event sending in a beforeExit handler to ensure we send all events before the process ends.
 		process.on('beforeExit', async () => {
 			try {
 				await telemetryInst.send({ wait: true });
-				process.exit();
 			} catch (err) {
 				warn(err);
 			}
+			// Ensure we call process.exit() after sending the telemetry data otherwise if any events
+			// failed to send, the process will repeat the hook and try to send again indefinitely.
+			process.exit();
 		});
 
 		return telemetryInst;

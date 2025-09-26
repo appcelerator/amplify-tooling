@@ -3,18 +3,13 @@
 import Auth from './auth.js';
 import crypto from 'crypto';
 import E from './errors.js';
-import path, { dirname } from 'path';
 import snooplogg from 'snooplogg';
 import * as environments from '../environments.js';
 import * as request from '../request.js';
 import _ from 'lodash';
-import { fileURLToPath } from 'url';
 import { promisify } from 'util';
-import { readJsonSync } from '../fs.js';
 import { redact } from '../redact.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const { log, warn } = snooplogg('amplify-sdk');
 const { highlight, note } = snooplogg.styles;
 
@@ -29,7 +24,6 @@ export default class AmplifySDK {
 	baseUrl: string | null;
 	platformUrl: string | null;
 	realm: string;
-	userAgent: string;
 	auth: any;
 	client: any;
 	entitlement: any;
@@ -101,17 +95,6 @@ export default class AmplifySDK {
 		 * @type {String}
 		 */
 		this.realm = opts.realm;
-
-		const { version } = readJsonSync(path.resolve(__dirname, '../../../package.json'));
-
-		/**
-		 * The user agent to use in outgoing requests.
-		 *
-		 * IMPORTANT! Platform explicitly checks this user agent, so do NOT change the name or case.
-		 *
-		 * @type {String}
-		 */
-		this.userAgent = `AMPLIFY SDK/${version} (${process.platform}; ${process.arch}; node:${process.versions.node})${process.env.AXWAY_CLI ? ` Axway CLI/${process.env.AXWAY_CLI}` : ''}`;
 
 		this.auth = {
 			/**
@@ -1634,7 +1617,6 @@ export default class AmplifySDK {
 			const url = `${this.platformUrl || this.env.platformUrl}${path}`;
 			const headers: any = {
 				Accept: 'application/json',
-				'User-Agent': this.userAgent,
 				Authorization: `Bearer ${token}`
 			};
 

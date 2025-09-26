@@ -79,6 +79,7 @@ team to use for "axway" commands.`;
 			if (authMethod === 'Client Secret' && (!argv.clientSecret || typeof argv.clientSecret !== 'string')) {
 				argv.clientSecret = await password({
 					message: 'Client Secret:',
+					mask: true,
 					validate: s => (s ? true : 'Please enter your client secret')
 				});
 			}

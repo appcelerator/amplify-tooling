@@ -12,6 +12,7 @@ import { execSync, spawnSync, spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
+const rootDir = path.resolve(__filename, '../../../..');
 
 const logger = snooplogg('amplify-sdk:telemetry');
 const { log } = logger;
@@ -171,43 +172,18 @@ export default class Telemetry {
 			throw new TypeError('Expected crash payload to have a message');
 		}
 
-		const homeDir = os.homedir();
-
 		if (typeof payload.stack === 'string') {
 			payload.stack = [
-				payload.stack.split(/\r\n|\n/).map((line, i) => {
-					if (!i) {
-						return line;
-					}
-
-					// node internal module
-					if (/ \(node:/.test(line)) {
-						return line;
-					}
-
-					let m = line.match(/\(([^:)]*:)/);
-					// istanbul ignore if
-					if (!m) {
-						m = line.match(/at ([^:]*:)/);
-						if (!m) {
-							return redact(line);
-						}
-					}
-
-					const filename = path.basename(m[1]);
-					const pkgDir = findDir(m[1], 'package.json');
-
-					if (!pkgDir) {
-						// no package.json
-						return `${m[1].startsWith(homeDir) ? '<HOME>' : ''}/<REDACTED>/${filename}`;
-					}
-
-					// we have an node package
-					const parent = path.dirname(pkgDir);
-					const clean = parent.replace(homeDir, '<HOME>').replace(/\/.*$/, '/<REDACTED>');
-					const scrubbed = pkgDir.replace(parent, clean);
-					return line.replace(pkgDir, scrubbed);
-				}).join('\n')
+				payload.stack
+					.split(/\r\n|\n/)
+					// Sanitize the stack trace to remove any sensitive data
+					.map(line => redact(line
+						// As well as user specific paths
+						.replaceAll(rootDir, '')
+						// And clear out any build-specific protocol injection
+						.replace('file://', '')
+					))
+					.join('\n')
 			];
 		} else if (payload.stack && !Array.isArray(payload.stack)) {
 			payload.stack = [ payload.stack ];
@@ -479,7 +455,9 @@ process.on('message', async (msg: any) => {
 			log(`Batch ${batchCounter}: Sending batch with ${batch.length} event${batch.length !== 1 ? 's' : ''}`);
 			try {
 				await got.post({
-					json: batch.map(b => b.event),
+					json: {
+						events: batch.map(b => b.event)
+					},
 					retry: 0,
 					timeout: 10000,
 					url
@@ -513,27 +491,6 @@ process.on('message', async (msg: any) => {
 		}
 	}
 });
-
-/**
- * Scans up the directory tree looking for a specific file.
- *
- * @param {String} dir - The directory to start in.
- * @param {String} file - The filename to locate.
- * @returns {String}
- */
-function findDir(dir, file) {
-	const { root } = path.parse(dir);
-	let cur = dir;
-	let it;
-
-	do {
-		it = path.join(cur, file);
-		if (fs.existsSync(it)) {
-			return cur;
-		}
-		cur = path.dirname(cur);
-	} while (cur !== root);
-}
 
 /**
  * Checks the environment variables to see if telemetry should be disabled.

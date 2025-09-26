@@ -66,8 +66,6 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		extensions:       allExtensions.map(ext => ext[1]),
 		help:             true,
 		helpExitCode:     2,
-		// TODO: Replace the following, unless we want to use a bundler as `tsc` doesn't copy any non-js/json files unto build dir
-		// helpTemplateFile: resolve(__dirname, '../templates/help.tpl'),
 		name:             'axway',
 		options: {
 			'--env [name]': { hidden: true, redact: false }
@@ -139,7 +137,7 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 				argv:       scrubArgv(state.__argv),
 				contexts,
 				duration:   longRunning ? undefined : Date.now() - state.startTime,
-				event:      contexts.length ? [ 'cli', ...contexts.slice(1) ].join('.') : 'cli.exec',
+				event:      `telemetry.${contexts.length ? [ 'cli', ...contexts.slice(1) ].join('.') : 'cli.exec'}`,
 				exitCode:   state?.exitCode() || 0,
 				extensions: allExtensions
 					.map(([ name, ext ]) => {
