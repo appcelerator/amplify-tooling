@@ -1,3 +1,6 @@
+import { enableCompileCache } from 'module';
+enableCompileCache();
+
 import check from 'check-kit';
 import CLI from 'cli-kit';
 import * as telemetry from './lib/telemetry.js';

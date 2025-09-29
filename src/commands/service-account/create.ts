@@ -3,7 +3,7 @@ import { isFile } from '../../lib/fs.js';
 import { generateKeypair } from '../../lib/auth/keypair.js';
 import { existsSync, readFileSync } from 'fs';
 import snooplogg from 'snooplogg';
-import * as uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { input, select, password, checkbox } from '@inquirer/prompts';
 
 export default {
@@ -146,7 +146,7 @@ required options must be passed in at execution.`;
 			});
 
 			if (type === 'auto') {
-				secret = uuid.v4();
+				secret = uuidv4();
 			} else if (type === 'secret') {
 				secret = await doPrompt({
 					message: 'Secret key',

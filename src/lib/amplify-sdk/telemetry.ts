@@ -4,7 +4,7 @@ import path from 'path';
 import os from 'os';
 import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
 import * as request from '../request.js';
-import * as uuid from 'uuid';
+import { v4 as uuidv4, validate as validateUUID } from 'uuid';
 import { isDir, writeFileSync, readJsonSync, isFile } from '../fs.js';
 import { redact } from '../redact.js';
 import { serializeError } from 'serialize-error';
@@ -234,7 +234,7 @@ export default class Telemetry {
 		try {
 			({ id, ts } = JSON.parse(fs.readFileSync(file, 'utf-8')));
 			ts = Date.parse(ts);
-			if (!uuid.validate(id) || isNaN(ts)) {
+			if (!validateUUID(id) || isNaN(ts)) {
 				throw new Error();
 			}
 			if ((Date.now() - ts) > sessionTimeout) {
@@ -242,7 +242,7 @@ export default class Telemetry {
 				throw new Error();
 			}
 		} catch (_err) {
-			id = uuid.v4();
+			id = uuidv4();
 			ts = null;
 		}
 		log(`Initializing id ${id}: ${highlight(file)}`);
@@ -303,7 +303,7 @@ export default class Telemetry {
 	 * @access private
 	 */
 	writeEvent(event, data) {
-		const id = uuid.v4();
+		const id = uuidv4();
 		const now = new Date();
 		const ts = `${now.toISOString().replace(/[\WZ]*/ig, '').replace('T', '-')}-${String(++this.count).padStart(4, '0')}`;
 		const file = path.join(this.appDir, `${ts}.json`);

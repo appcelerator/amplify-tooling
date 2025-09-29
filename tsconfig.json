@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"allowJs": true,
 		"esModuleInterop": true,
-		"module": "es2022",
+		"module": "preserve",
 		"moduleResolution": "node",
 		// "noImplicitAny": true,
 		"noImplicitOverride": true,
@@ -13,7 +13,7 @@
 		"resolveJsonModule": true,
 		"sourceMap": true,
 		// "strict": true,
-		"target": "es2022",
+		"target": "es2024",
 	},
 	"include": [ "./src/**/*" ]
 }
