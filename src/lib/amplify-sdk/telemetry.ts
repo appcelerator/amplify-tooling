@@ -43,12 +43,6 @@ const sessionTimeout = 24 * 60 * 60 * 1000; // 1 day
 const sendBatchSize = 10;
 
 /**
- * The default URL to send the data to. Telemetry should always send data to production.
- * @type {String}
- */
-const telemetryUrl = 'https://gatekeeper.platform.axway.com/v4/event';
-
-/**
  * Sends anonymous telemetry events for Axway products to help improve our software.
  * Spec: https://techweb.axway.com/confluence/display/analytics/Analytics+JSON+Payload+V4
  */
@@ -88,6 +82,10 @@ export default class Telemetry {
 			throw new TypeError('Expected app version to be a non-empty string');
 		}
 
+		if (!opts.url || typeof opts.url !== 'string') {
+			throw new TypeError('Expected telemetry URL to be a non-empty string');
+		}
+
 		if (!opts.cacheDir || typeof opts.cacheDir !== 'string') {
 			throw new TypeError('Expected telemetry cache dir to be a non-empty string');
 		}
@@ -102,7 +100,7 @@ export default class Telemetry {
 
 		this.appDir         = path.join(opts.cacheDir, opts.appGuid);
 		this.requestOptions = opts.requestOptions;
-		this.url            = opts.url || telemetryUrl;
+		this.url            = opts.url;
 
 		const arch = _arch();
 		const { id, prev, ts }  = this.initId('.sid');

@@ -1,7 +1,7 @@
 import Authenticator from './authenticator.js';
 import E from '../errors.js';
 import fs from 'fs';
-import jws from 'jws';
+import { importPKCS8, SignJWT } from 'jose';
 
 import { isFile } from '../../fs.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -62,26 +62,26 @@ export default class SignedJWT extends Authenticator {
 	 * @returns {String}
 	 * @access private
 	 */
-	getSignedJWT() {
+	async getSignedJWT() {
 		if (this.signedJWT) {
 			return this.signedJWT;
 		}
 
 		const issuedAt = Math.floor(Date.now() / 1000);
-
 		try {
-			return this.signedJWT = jws.sign({
-				header:  { alg: 'RS256', typ: 'JWT' },
-				payload: {
-					aud: this.endpoints.token,
-					exp: issuedAt + (60 * 60), // 1 hour (exp is in seconds)
-					iat: issuedAt,
-					iss: this.clientId,
-					jti: uuidv4(),
-					sub: this.clientId
-				},
-				secret:  this.secret
-			});
+			const secret = await importPKCS8(this.secret, 'RS256');
+			const payload = {
+				aud: this.endpoints.token,
+				exp: issuedAt + (60 * 60), // 1 hour (exp is in seconds)
+				iat: issuedAt,
+				iss: this.clientId,
+				jti: uuidv4(),
+				sub: this.clientId
+			};
+			const jwt = await new SignJWT(payload)
+				.setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+				.sign(secret);
+			return this.signedJWT = jwt;
 		} catch (err) {
 			err.message = `Bad secret file "${this.secretFile}" (${err.message})`;
 			throw err;
@@ -120,10 +120,10 @@ export default class SignedJWT extends Authenticator {
 	 * @access private
 	 */
 	override get refreshTokenParams() {
-		return {
-			clientAssertion:     this.getSignedJWT(),
+		return (async () => ({
+			clientAssertion:     await this.getSignedJWT(),
 			clientAssertionType: JWTAssertion
-		};
+		}))();
 	}
 
 	/**
@@ -133,10 +133,10 @@ export default class SignedJWT extends Authenticator {
 	 * @access private
 	 */
 	override get tokenParams() {
-		return {
-			clientAssertion:     this.getSignedJWT(),
+		return (async () => ({
+			clientAssertion:     await this.getSignedJWT(),
 			clientAssertionType: JWTAssertion,
 			grantType:           ClientCredentials
-		};
+		}))();
 	}
 }

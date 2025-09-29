@@ -1,6 +1,6 @@
 import E from '../errors.js';
 import getEndpoints from '../../auth/endpoints.js';
-import jws from 'jws';
+import { decodeJwt } from 'jose';
 import snooplogg from 'snooplogg';
 import TokenStore from '../stores/token-store.js';
 
@@ -285,14 +285,14 @@ export default class Authenticator {
 				clientId:     this.clientId,
 				grantType:    Authenticator.GrantTypes.RefreshToken,
 				refreshToken: tokens.refresh_token
-			}, this.refreshTokenParams));
+			}, await this.refreshTokenParams));
 
 		} else {
 			// get new token using the code
 			const params = Object.assign({
 				clientId: this.clientId,
 				scope:    this.scope
-			}, this.tokenParams);
+			}, await this.tokenParams);
 
 			response = await fetchTokens(params);
 		}
@@ -308,15 +308,12 @@ export default class Authenticator {
 		let name = this.hash;
 
 		try {
-			const info = jws.decode(tokens.id_token || tokens.access_token);
-			if (typeof info.payload === 'string') {
-				info.payload = JSON.parse(info.payload);
-			}
+			const info = decodeJwt(tokens.id_token || tokens.access_token);
 			log(info);
-			guid = info.payload.guid;
+			guid = info.guid;
 			name = this.clientId; // TODO: Source the client's friendly name from platform?
-			idp = info.payload.identity_provider;
-			const { orgId } = info.payload;
+			idp = info.identity_provider;
+			const orgId = info.orgId;
 			if (orgId) {
 				org = { name: orgId, id: orgId };
 			}
