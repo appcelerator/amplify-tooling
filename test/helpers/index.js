@@ -170,6 +170,7 @@ function createServer({ port }) {
 		const sessions = {};
 
 		app.use(bodyParser());
+		// TODO: Replace the session store as its not valid any more with pure service auth
 		app.use(session({
 			key: 'connect.sid',
 			signed: false,
@@ -235,11 +236,6 @@ export async function startServers() {
 
 export async function stopServers() {
 	this.timeout(10000);
-
-	// we need to wait 1 second because after logging in, the browser is redirect to platform and
-	// even though this is a test, we should avoid the browser erroring because we killed the
-	// server too soon
-	await new Promise(resolve => setTimeout(resolve, 1000));
 
 	if (this.servers) {
 		log(`Stopping ${this.servers.length} server${this.servers.length === 1 ? '' : 's'}...`);
