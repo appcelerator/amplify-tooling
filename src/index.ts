@@ -171,6 +171,12 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 		// execute the command
 		const { cmd, console } = await cli.exec();
 
+		// Ensure the expected exit code is set on process exit
+		const exitCode = state?.exitCode() || 0;
+		if (exitCode !== 0) {
+			process.exitCode = exitCode;
+		}
+
 		// now that the command is done, wait for the check to finish and display it's message,
 		// if there is one
 		const result = await checkWait;

@@ -2,5 +2,7 @@
 	"[mustache]": {
 		"files.trimTrailingWhitespace": false,
 		"editor.trimAutoWhitespace": false
-	}
+	},
+	"mochaExplorer.require": "test/helpers/setup.js",
+	"mochaExplorer.timeout": 40000
 }

@@ -97,7 +97,7 @@ export function resetHomeDir() {
 
 	// sanity check that we're not nuking the real home directory
 	const homedir = os.homedir();
-	if (homedir.startsWith(os.tmpdir())) {
+	if (homedir.includes(os.tmpdir())) {
 		log(`Emptying temp home directory: ${highlight(homedir)}`);
 		for (const name of readdirSync(homedir)) {
 			removeSync(path.join(homedir, name));
