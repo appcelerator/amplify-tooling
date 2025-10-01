@@ -26,7 +26,7 @@ const __dirname = dirname(__filename);
 const { highlight } = snooplogg.styles;
 const { readFileSync, existsSync, readdirSync, copySync, removeSync } = pkg;
 
-const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);
+const axwayBin = path.resolve(__dirname, `../../${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/index.js`);
 
 export function initHomeDir(templateDir) {
 	if (!existsSync(templateDir) && !path.isAbsolute(templateDir)) {
@@ -121,12 +121,6 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 	}
 
 	args.unshift(axwayBin);
-
-	if (opts.passiveOpen) {
-		args.unshift('--import', pathToFileURL(path.join(__dirname, 'open-shim-passive.js')));
-	} else {
-		args.unshift('--import', pathToFileURL(path.join(__dirname, 'open-shim.js')));
-	}
 
 	if (opts.shim) {
 		args.unshift('--import', pathToFileURL(path.join(__dirname, `${opts.shim}.js`)));

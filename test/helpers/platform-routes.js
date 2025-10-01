@@ -20,83 +20,6 @@ const __dirname = dirname(__filename);
 export function createPlatformRoutes(server, opts = {}) {
 	const router = new Router();
 	const data = opts.data || JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json')));
-	const state = opts.state || {};
-
-	router.get('/v1/auth/findSession', async (ctx, next) => {
-		const { authorization } = ctx.req.headers;
-		const p = authorization ? authorization.indexOf(' ') : -1;
-		const token = p !== -1 ? authorization.substring(p + 1) : null;
-
-		log(`Finding session using token "${token}" or cookie "${ctx.cookies.get('connect.sid')}"`);
-		const tokens = state.sessions?.find(t => t.accessToken === token);
-
-		if (tokens && !tokens.isServiceAccount) {
-			const user = data.users.find(u => u.guid === '50000');
-			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
-			const roles = orgs[0].users.find(u => u.guid === '50000')?.roles || [];
-
-			ctx.body = {
-				success: true,
-				result: {
-					org: orgs[0],
-					orgs,
-					role: roles[0],
-					roles,
-					user
-				}
-			};
-		} else if (tokens && tokens.isServiceAccount) {
-			ctx.body = {
-				success: true,
-				result: null
-			};
-		} else if (ctx.session?.userGuid) {
-			const user = data.users.find(u => u.guid === ctx.session.userGuid);
-			const orgs = data.orgs.filter(o => o.users.find(u => u.guid === user.guid));
-			const roles = orgs[0].users.find(u => u.guid === user.guid)?.roles || [];
-
-			ctx.body = {
-				success: true,
-				result: {
-					org: orgs[0],
-					orgs,
-					role: roles[0],
-					roles,
-					user
-				}
-			};
-		} else {
-			await next();
-		}
-	});
-
-	router.post('/v1/auth/login', async ctx => {
-		const { username, password } = ctx.request.body;
-
-		const user = data.users.find(u => u.email === username);
-		if (user && password === 'bar') {
-			ctx.session.userGuid = user.guid;
-			ctx.body = {
-				success: true,
-				result: user
-			};
-			return;
-		}
-
-		ctx.throw(401);
-	});
-
-	router.get('/v1/auth/logout', async ctx => {
-		const { redirect } = ctx.query;
-		if (redirect) {
-			ctx.redirect(redirect);
-		} else {
-			ctx.body = {
-				success: true,
-				result: null
-			};
-		}
-	});
 
 	router.get('/v1/activity', ctx => {
 		let { from, org_id, to, user_guid } = ctx.query;
@@ -807,35 +730,4 @@ export function createPlatformRoutes(server, opts = {}) {
 	});
 
 	server.router.use('/api', router.routes());
-
-	server.router.get('/signed.out', ctx => {
-		ctx.body = `<html>
-<head>
-<title>Logout successful!</title>
-</head>
-<body>
-<h1>You have logged out</h1>
-<p>Have a nice day!</p>
-</body>
-</html>`;
-	})
-
-	server.router.get([ '/', '/success' ], ctx => {
-		ctx.body = `<html>
-<head>
-<title>Test successful!</title>
-</head>
-<body>
-<h1>Test successful!</h1>
-<p>You can close this browser window</p>
-<script>
-let u = new URL(location.href);
-let m = u.hash && u.hash.match(/redirect=(.+)/);
-if (m) {
-	location.href = decodeURIComponent(m[1]);
-}
-</script>
-</body>
-</html>`;
-	});
 }

@@ -2,12 +2,8 @@
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
 
 The Axway CLI auth command allows you to authenticate with the Amplify platform
-under one or more accounts and switch between them. You can log in using your
-platform account as well as one or more service accounts at the same time.
-
-To log in using a platform account, a desktop web browser is required. Headless
-environments, such as a SSH terminal, are not supported when authenticating
-into platform accounts.
+under one or more accounts and switch between them. You can log in using
+one or more service accounts at the same time.
 
 A service account can be used for both desktop and headless environments.
 However, if authenticating in a headless environment, you must set the token
@@ -21,7 +17,7 @@ AUTH COMMANDS:
   {{#cyan}}ls, list     {{/cyan}}  Lists all authenticated accounts
   {{#cyan}}login        {{/cyan}}  Log in to the Axway Amplify Platform
   {{#cyan}}logout       {{/cyan}}  Log out all or specific accounts
-  {{#cyan}}switch       {{/cyan}}  Select default account, organization, and team
+  {{#cyan}}switch       {{/cyan}}  Select default account and team
   {{#cyan}}whoami       {{/cyan}}  Display info for an authenticated account
 
 GLOBAL OPTIONS:
@@ -31,9 +27,6 @@ GLOBAL OPTIONS:
   {{#cyan}}-v, --version{{/cyan}}  Outputs the version
 
 EXAMPLES:
-
-  Log into a platform account using a web browser:
-    {{#cyan}}axway auth login{{/cyan}}
 
   Log into a service account using a PEM formatted secret key:
     {{#cyan}}axway auth login --client-id <id> --secret-file <path>{{/cyan}}
