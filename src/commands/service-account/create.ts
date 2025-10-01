@@ -202,7 +202,7 @@ required options must be passed in at execution.`;
 			const publicKeyFile = publicKey;
 			publicKey = readFileSync(publicKeyFile, 'utf-8');
 			if (!publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
-				throw new Error(`Public key ${publicKeyFile} is not a PEM formatted file`);
+				throw new Error(`Public key ${publicKeyFile} is not a PKCS#8 PEM formatted file`);
 			}
 		}
 

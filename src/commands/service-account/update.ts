@@ -81,7 +81,7 @@ to public key and vice versa.`;
 			const publicKeyFile = argv.publicKey;
 			data.publicKey = readFileSync(publicKeyFile, 'utf-8');
 			if (!data.publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
-				throw new Error(`Public key ${publicKeyFile} is not a PEM formatted file`);
+				throw new Error(`Public key ${publicKeyFile} is not a PKCS#8 PEM formatted file`);
 			}
 		}
 

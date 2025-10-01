@@ -37,6 +37,11 @@ team to use for "axway" commands.`;
 		}
 	},
 	options: [
+		{
+			'--client-id [id]':          'The service account\'s client ID',
+			'-c, --client-secret [key]': 'The service account\'s client secret key',
+			'-s, --secret-file [path]':  'Path to the PEM formatted private key',
+		},
 		'General',
 		{
 			'--force':                   'Re-authenticate even if the account is already authenticated',
@@ -44,12 +49,6 @@ team to use for "axway" commands.`;
 				callback: ({ ctx, value }) => ctx.jsonMode = value,
 				desc: 'Outputs authenticated account as JSON'
 			},
-		},
-		'Service Accounts',
-		{
-			'--client-id [id]':          'The CLI specific client ID',
-			'-c, --client-secret [key]': 'The service account\'s client secret key',
-			'-s, --secret-file [path]':  'Path to the PEM formatted private key',
 		}
 	],
 	async action({ argv, cli, console }) {
@@ -58,23 +57,23 @@ team to use for "axway" commands.`;
 			throw new Error('Platform Username and Password authentication is no longer supported. Use a different authentication method.');
 		}
 
-		if (!argv.clientSecret && !argv.secretFile) {
-			if (argv.json) {
-				console.error(JSON.stringify({ error: '--client-id and either --client-secret or --secret-file are required when --json is set' }, null, 2));
-				process.exit(1);
-			}
+		if (argv.json && (!argv.clientId || (!argv.clientSecret && !argv.secretFile))) {
+			console.error(JSON.stringify({ error: '--client-id and either --client-secret or --secret-file are required when --json is set' }, null, 2));
+			process.exit(1);
+		}
 
+		if (!argv.clientId || typeof argv.clientId !== 'string') {
+			argv.clientId = await input({
+				message: 'Client ID:',
+				validate: s => (s ? true : 'Please enter your client ID')
+			});
+		}
+
+		if (!argv.clientSecret && !argv.secretFile) {
 			const authMethod = await select<string>({
 				message: 'Select authentication method:',
 				choices: [ 'Client Secret', 'Client Certificate' ]
 			});
-
-			if (!argv.clientId || typeof argv.clientId !== 'string') {
-				argv.clientId = await input({
-					message: 'Client ID:',
-					validate: s => (s ? true : 'Please enter your client ID')
-				});
-			}
 
 			if (authMethod === 'Client Secret' && (!argv.clientSecret || typeof argv.clientSecret !== 'string')) {
 				argv.clientSecret = await password({

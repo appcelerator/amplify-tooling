@@ -50,9 +50,10 @@ export default class SignedJWT extends Authenticator {
 
 		super(opts);
 
-		if (!/^-----BEGIN (RSA )?PRIVATE KEY-----/.test(secret)) {
-			throw new Error(`Private key file ${opts.secretFile} is not a PEM formatted file`);
+		if (!/^-----BEGIN PRIVATE KEY-----/.test(secret)) {
+			throw new Error(`Private key file ${opts.secretFile} is not a PKCS#8 PEM formatted file`);
 		}
+		Object.defineProperty(this, 'secretFile', { value: opts.secretFile });
 		Object.defineProperty(this, 'secret', { value: secret });
 	}
 
