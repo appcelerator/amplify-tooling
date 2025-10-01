@@ -42,25 +42,25 @@ const __dirname = dirname(__filename);
 	let checkWait;
 
 	const cli = new CLI({
-		banner() {
+		banner({ styles }) {
 			const env = process.env.AXWAY_ENV;
 			const title = process.env.AXWAY_ENV_TITLE;
 			const year = new Date(Date.now()).getFullYear().toString();
-			let str = `${cyan('AXWAY CLI')}, version ${version}${!env || env === 'prod' ? '' : ` ${yellow(title.toUpperCase())}`}
+			let str = `${styles.highlight('AXWAY CLI')}, version ${version}${!env || env === 'prod' ? '' : ` ${styles.yellow(title.toUpperCase())}`}
 Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 
 			if (Number(process.versions.node.split('.')[0]) < 20) {
-				str += '\n\n' + yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
+				str += '\n\n' + styles.yellow(` ┃ ATTENTION! The Node.js version you are currently using (${process.version}) has been
  ┃ deprecated and is unsupported in Axway CLI v5 and newer. Please upgrade
  ┃ Node.js to the latest LTS release: https://nodejs.org/`);
 			}
 
 			const { arch } = process;
 			if (arch === 'ia32') {
-				str += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" has been deprecated and is unsupported
+				str += '\n\n' + styles.yellow(` ┃ ATTENTION! Your current architecture "${arch}" has been deprecated and is unsupported
  ┃ in Axway CLI v3 and newer.`);
 			} else if (arch !== 'x64' && arch !== 'arm64') {
-				str += '\n\n' + yellow(` ┃ ATTENTION! Your current architecture "${arch}" is not supported.`);
+				str += '\n\n' + styles.yellow(` ┃ ATTENTION! Your current architecture "${arch}" is not supported.`);
 			}
 			return str;
 		},
