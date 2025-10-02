@@ -63,7 +63,7 @@ describe('axway user', () => {
 			expect(status).to.equal(0);
 			const result = JSON.parse(stdout);
 			expect(result).to.deep.equal({
-				"account": "test_client:foo@bar.com",
+				"account": "test-auth-client",
 				"from": "2021-02-01T00:00:00.000Z",
 				"to": "2021-02-28T23:59:59.000Z",
 				"events": [

@@ -89,6 +89,16 @@
 	],
 	"clients": [
 		{
+			"client_id": "test-auth-client",
+			"created": "2025-10-01T13:37:00.567Z",
+			"description": "Authenticating service account",
+			"guid": "2c033616-d195-4a2e-9562-568f5ec71821",
+			"name": "Test Auth Client",
+			"org_guid": "1000",
+			"roles": [ "administrator" ],
+			"type": "secret"
+		},
+		{
 			"client_id": "test_629e1705-9cd7-4db7-9dfe-08aa47b0f3ad",
 			"created": "2021-03-24T13:13:11.567Z",
 			"description": "Test service account",
@@ -106,7 +116,6 @@
 			"org_id": 100,
 			"active": true,
 			"apps": [],
-			"children": [ "2000" ],
 			"users": [
 				{
 					"guid": "50000",
@@ -131,7 +140,6 @@
 			"org_id": 200,
 			"active": true,
 			"apps": [],
-			"parent_org_guid": "1000",
 			"users": [
 				{
 					"guid": "50000",

@@ -1,18 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import Router from '@koa/router';
-import snooplogg from 'snooplogg';
 import { v4 as uuidv4 } from 'uuid';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-
-const logger = snooplogg.config({
-	minBrightness: 80,
-	maxBrightness: 210,
-	theme: 'detailed'
-})('test-platform');
-const { log } = logger;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -80,7 +72,7 @@ export function createPlatformRoutes(server, opts = {}) {
 	});
 
 	router.get('/v1/client/:id', ctx => {
-		const result = data.clients.find(c => c.client_id === ctx.params.id);
+		const result = data.clients.find(c => c.client_id === ctx.params.id || c.guid === ctx.params.id);
 		if (result) {
 			ctx.body = {
 				success: true,
@@ -269,22 +261,6 @@ export function createPlatformRoutes(server, opts = {}) {
 				}
 			]
 		};
-	});
-
-	router.get('/v1/org/:id/family', ctx => {
-		let org = data.orgs.find(o => String(o.org_id) === ctx.params.id);
-		if (org?.parent_org_guid) {
-			org = data.orgs.find(o => o.org_id === org.parent_org_guid);
-		}
-		if (org) {
-			ctx.body = {
-				success: true,
-				result: {
-					...org,
-					children: org.children.map(c => data.orgs.find(o => o.guid === c))
-				}
-			};
-		}
 	});
 
 	router.get('/v1/org/:id/usage', ctx => {
