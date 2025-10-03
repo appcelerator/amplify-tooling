@@ -10,7 +10,11 @@ const __dirname = dirname(__filename);
 
 export function createAuthRoutes(server, opts = {}) {
 	const router = new Router();
-	const state = opts.state || {};
+	let state = opts.state || {};
+
+	server.resetState = data => {
+		state = data || opts.state || {};
+	};
 
 	router.get('/realms/test_realm/protocol/openid-connect/auth', ctx => {
 		const { redirect_uri } = ctx.query;

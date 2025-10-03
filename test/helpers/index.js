@@ -258,6 +258,12 @@ export async function stopServers() {
 	}
 }
 
+export function resetServers(data) {
+	for (const server of this.servers || []) {
+		server.resetState(data);
+	}
+}
+
 export function stripColors(s) {
 	return s.replace(/\x1B\[\d+m/g, '');
 }

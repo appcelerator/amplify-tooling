@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
 import Router from '@koa/router';
@@ -9,9 +10,15 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const defaultData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json')));
+
 export function createPlatformRoutes(server, opts = {}) {
 	const router = new Router();
-	const data = opts.data || JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json')));
+	let data = _.cloneDeep(opts.data || defaultData);
+
+	server.resetState = state => {
+		data = _.cloneDeep(state || opts.data || defaultData);
+	};
 
 	router.get('/v1/activity', ctx => {
 		let { from, org_id, to, user_guid } = ctx.query;
