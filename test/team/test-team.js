@@ -1,5 +1,6 @@
 import {
 	initHomeDir,
+	loginCLISync,
 	renderRegexFromFile,
 	resetHomeDir,
 	runAxwaySync,
@@ -60,7 +61,7 @@ describe('axway team', () => {
 			it('should add a user to a team by email address', async function () {
 				initHomeDir('home-local');
 				this.servers = await startServers();
-				await runAxwaySync([ 'auth', 'login' ], { env: { DISPLAY: 1 } });
+				await loginCLISync();
 
 				let { status, stdout } = await runAxwaySync([ 'team', 'user', 'add', 'foo org', 'a team', 'test2@domain.com', '--role', 'developer' ]);
 				expect(status).to.equal(0);

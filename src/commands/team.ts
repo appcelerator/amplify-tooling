@@ -13,7 +13,7 @@ export default {
 		`${__dirname}/team/user.js`,
 		`${__dirname}/team/view.js`
 	],
-	desc: 'Manage Amplify organization teams',
+	desc: 'Manage Amplify Platform organization teams',
 	help: {
 		header() {
 			return `${this.desc}.`;
