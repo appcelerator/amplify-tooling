@@ -127,3 +127,13 @@ export function readJsonSync(file) {
 	const fileContent = fs.readFileSync(file, 'utf8');
 	return JSON.parse(fileContent);
 }
+
+/**
+ * Writes a JSON file synchronously.
+ *
+ * @param {String} file The path to the JSON file.
+ * @param {Object} data The data to write to the file.
+ */
+export function writeJsonSync(file, data) {
+	fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8');
+}

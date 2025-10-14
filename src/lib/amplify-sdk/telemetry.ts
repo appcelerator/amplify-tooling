@@ -82,10 +82,6 @@ export default class Telemetry {
 			throw new TypeError('Expected app version to be a non-empty string');
 		}
 
-		if (!opts.url || typeof opts.url !== 'string') {
-			throw new TypeError('Expected telemetry URL to be a non-empty string');
-		}
-
 		if (!opts.cacheDir || typeof opts.cacheDir !== 'string') {
 			throw new TypeError('Expected telemetry cache dir to be a non-empty string');
 		}
@@ -96,6 +92,10 @@ export default class Telemetry {
 
 		if (opts.requestOptions && typeof opts.requestOptions !== 'object') {
 			throw new TypeError('Expected telemetry request options to be an object');
+		}
+
+		if (!opts.url || typeof opts.url !== 'string') {
+			throw new TypeError('Expected telemetry URL to be a non-empty string');
 		}
 
 		this.appDir         = path.join(opts.cacheDir, opts.appGuid);

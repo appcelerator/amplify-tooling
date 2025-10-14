@@ -1,14 +1,15 @@
+import fs from 'fs';
 import bodyParser from 'koa-bodyparser';
 import callerPath from 'caller-path';
 import chalk from 'chalk';
-import pkg from 'fs-extra';
 import Koa from 'koa';
 import Mustache from 'mustache';
 import os from 'os';
 import path from 'path';
 import Router from '@koa/router';
-import session from 'koa-session';
 import snooplogg from 'snooplogg';
+import AmplifySDK from '../../dist/lib/amplify-sdk/index.js';
+import { Auth, MemoryStore } from '../../dist/lib/amplify-sdk/index.js';
 import { createAuthRoutes } from './auth-routes.js';
 import { createPlatformRoutes } from './platform-routes.js';
 import { spawn } from 'child_process';
@@ -24,18 +25,17 @@ const { log } = logger;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const { highlight } = snooplogg.styles;
-const { readFileSync, existsSync, readdirSync, copySync, removeSync } = pkg;
 
 const axwayBin = path.resolve(__dirname, `../../${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/index.js`);
 
 export function initHomeDir(templateDir) {
-	if (!existsSync(templateDir) && !path.isAbsolute(templateDir)) {
+	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
 		templateDir = path.resolve(__dirname, templateDir);
 	}
 
 	const homeDir = path.join(os.homedir(), '.axway', 'axway-cli');
 	log(`Copying ${highlight(templateDir)} => ${highlight(homeDir)}`);
-	copySync(templateDir, homeDir);
+	fs.cpSync(templateDir, homeDir, { recursive: true });
 }
 
 const defaultVars = {
@@ -73,10 +73,10 @@ export function renderRegex(str, vars) {
 }
 
 export function renderRegexFromFile(file, vars) {
-	if (!existsSync(file) && !/\.mustache$/.test(file)) {
+	if (!fs.existsSync(file) && !/\.mustache$/.test(file)) {
 		file += '.mustache';
 	}
-	if (!existsSync(file) && !path.isAbsolute(file)) {
+	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
 		var cp = callerPath();
 		switch (process.platform) {
 		case 'win32': {
@@ -90,7 +90,7 @@ export function renderRegexFromFile(file, vars) {
 		}
 		file = path.resolve(path.dirname(cp), file);
 	}
-	return renderRegex(readFileSync(file, 'utf8').trim(), vars);
+	return renderRegex(fs.readFileSync(file, 'utf8').trim(), vars);
 }
 
 export function resetHomeDir() {
@@ -100,8 +100,8 @@ export function resetHomeDir() {
 	const homedir = os.homedir();
 	if (homedir.includes(os.tmpdir())) {
 		log(`Emptying temp home directory: ${highlight(homedir)}`);
-		for (const name of readdirSync(homedir)) {
-			removeSync(path.join(homedir, name));
+		for (const name of fs.readdirSync(homedir)) {
+			fs.rmSync(path.join(homedir, name), { recursive: true, force: true });
 		}
 	} else {
 		log(`Refusing to empty home directory! ${highlight(homedir)}`);
@@ -169,32 +169,63 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
  * @returns {Promise<{status: number, stdout: string, stderr: string}>}
  */
 export async function loginCLISync() {
-	return runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client', '--client-secret', 'shhhh' ]);
+	return runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--client-secret', 'shhhh' ]);
+}
+
+/**
+ * Creates an AmplifySDK instance and logs in with the default test service account.
+ * @param {boolean|object} authenticated If truthy then the SDK will be authenticated. If an object then it is used as the login options.
+ * @returns {Promise<{
+ * 	auth: Auth,
+ * 	account: import('../../dist/lib/amplify-sdk/auth').Account,
+ * 	sdk: AmplifySDK,
+ * 	tokenStore: MemoryStore
+ * }>}
+ */
+export async function createSdkSync(authenticated) {
+	const tokenStore = new MemoryStore();
+	let auth;
+	let account;
+
+	// If authentication is requested, create an Auth instance and log in
+	if (authenticated) {
+		auth = new Auth({
+			baseUrl: 'http://127.0.0.1:8555',
+			clientId: 'test_client',
+			realm: 'test_realm',
+			tokenStore
+		});
+		// If authenticated is an object then use it as the login options
+		account = await auth.login(typeof authenticated === 'object' ? authenticated : {
+			clientId: 'test-auth-client-secret',
+			clientSecret: 'shhhh'
+		});
+	}
+
+	// Create the SDK instance
+	const sdk = new AmplifySDK({
+		baseUrl: 'http://127.0.0.1:8555',
+		clientId: 'test_client',
+		platformUrl: 'http://127.0.0.1:8666',
+		realm: 'test_realm',
+		tokenStore,
+		tokenStoreType: 'memory'
+	});
+
+	// If we authenticated above then find the session to populate the SDK with the necessary session info
+	if (authenticated && account) {
+		await sdk.auth.findSession(account);
+	}
+
+	return { auth, account, sdk, tokenStore };
 }
 
 function createServer({ port }) {
 	return new Promise((resolve, reject) => {
 		const app = new Koa();
 		const router = new Router();
-		const sessions = {};
 
 		app.use(bodyParser());
-		// TODO: Replace the session store as its not valid any more with pure service auth
-		app.use(session({
-			key: 'connect.sid',
-			signed: false,
-			store: {
-				get(key) {
-					return sessions[key];
-				},
-				set(key, value) {
-					sessions[key] = value;
-				},
-				destroy(key) {
-					sessions[key] = undefined;
-				}
-			}
-		}, app));
 		app.use(async (ctx, next) => {
 			log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
 			await next();

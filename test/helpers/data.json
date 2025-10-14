@@ -89,11 +89,11 @@
 	],
 	"clients": [
 		{
-			"client_id": "test-auth-client",
+			"client_id": "test-auth-client-secret",
 			"created": "2025-10-01T13:37:00.567Z",
-			"description": "Authenticating service account",
+			"description": "Authenticating client secret service account",
 			"guid": "2c033616-d195-4a2e-9562-568f5ec71821",
-			"name": "Test Auth Client",
+			"name": "Test Client Secret",
 			"org_guid": "1000",
 			"roles": [ "administrator" ],
 			"type": "secret"
@@ -107,6 +107,16 @@
 			"org_guid": "1000",
 			"roles": [ "some_admin" ],
 			"type": "secret"
+		},
+		{
+			"client_id": "test-auth-client-cert",
+			"created": "2025-10-61T11:23:58.132Z",
+			"description": "Authenticating client cert service account",
+			"guid": "b2b71b26-11fd-47df-a774-ad78119cf856",
+			"name": "Test Client Certificate",
+			"org_guid": "2000",
+			"roles": [ "administrator" ],
+			"type": "certificate"
 		}
 	],
 	"orgs": [
@@ -116,6 +126,7 @@
 			"org_id": 100,
 			"active": true,
 			"apps": [],
+			"support_access_code": "12345",
 			"users": [
 				{
 					"guid": "50000",
@@ -124,8 +135,7 @@
 				},
 				{
 					"guid": "50001",
-					"roles": [ "developer" ],
-					"primary": true
+					"roles": [ "developer" ]
 				}
 			],
 			"entitlements": {
@@ -140,6 +150,7 @@
 			"org_id": 200,
 			"active": true,
 			"apps": [],
+			"support_access_code": "54321",
 			"users": [
 				{
 					"guid": "50000",
@@ -432,22 +443,19 @@
 			"guid": "50000",
 			"email": "test1@domain.com",
 			"firstname": "Test1",
-			"lastname": "Tester1",
-			"phone": "555-5001"
+			"lastname": "Tester1"
 		},
 		{
 			"guid": "50001",
 			"email": "test2@domain.com",
 			"firstname": "Test2",
-			"lastname": "Tester2",
-			"phone": "555-5002"
+			"lastname": "Tester2"
 		},
 		{
 			"guid": "50002",
 			"email": "test3@domain.com",
 			"firstname": "Test3",
-			"lastname": "Tester3",
-			"phone": "555-5003"
+			"lastname": "Tester3"
 		},
 		{
 			"guid": "629e1705-9cd7-4db7-9dfe-08aa47b0f3ad"

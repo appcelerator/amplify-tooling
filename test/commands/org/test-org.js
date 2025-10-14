@@ -57,7 +57,7 @@ describe('axway org', () => {
 			const { status, stdout } = await runAxwaySync(['org', 'activity', '--from', '2021-02-01', '--to', '2021-02-28', '--json']);
 			const result = JSON.parse(stdout);
 			expect(result).to.deep.equal({
-				"account": "test-auth-client",
+				"account": "test-auth-client-secret",
 				"org": {
 					"active": true,
 					"guid": "1000",
@@ -190,7 +190,7 @@ describe('axway org', () => {
 			const { status, stdout } = await runAxwaySync(['org', 'list', '--json']);
 			const result = JSON.parse(stdout);
 			expect(result).to.deep.equal({
-				"account": "test-auth-client",
+				"account": "test-auth-client-secret",
 				"orgs": [
 					{
 						"default": true,

@@ -68,7 +68,7 @@ export async function init(opts: any = {}) {
 		telemetryInst = new Telemetry({
 			appGuid:        opts.appGuid,
 			appVersion:     opts.appVersion,
-			cacheDir:       telemetryCacheDir,
+			cacheDir:       opts.cacheDir || telemetryCacheDir,
 			environment:    env === 'staging' ? 'preproduction' : 'production',
 			requestOptions: createRequestOptions(config),
 			url:            opts.url || (platformUrl + '/api/v1/analytics')

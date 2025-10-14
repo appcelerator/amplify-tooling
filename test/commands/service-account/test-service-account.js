@@ -5,7 +5,7 @@ import {
 	resetHomeDir,
 	runAxwaySync
 } from '../../helpers/index.js';
-import fs from 'fs-extra';
+import fs from 'fs';
 import path from 'path';
 import tmp from 'tmp';
 import { fileURLToPath } from 'url';
@@ -76,11 +76,11 @@ describe('axway service-account', () => {
 					method: 'Client Secret'
 				},
 				{
-					client_id: 'test-auth-client',
+					client_id: 'test-auth-client-secret',
 					created: '2025-10-01T13:37:00.567Z',
 					guid: '2c033616-d195-4a2e-9562-568f5ec71821',
 					method: 'Client Secret',
-					name: 'Test Auth Client',
+					name: 'Test Client Secret',
 					org_guid: '1000',
 					roles: [
 						'administrator'

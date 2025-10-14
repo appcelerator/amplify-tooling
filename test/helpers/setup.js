@@ -2,11 +2,10 @@ import path from 'path';
 import { rmSync } from 'fs';
 import { fileURLToPath } from 'url';
 
-import tmp from 'tmp';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import sinonChai from 'sinon-chai';
-import sinon from 'sinon';
+import nock from 'nock';
+import tmp from 'tmp';
 
 import { startServers, stopServers, resetServers } from './index.js';
 
@@ -15,33 +14,29 @@ const __dirname = path.dirname(__filename);
 
 global.chai = chai;
 global.chai.use(chaiAsPromised);
-global.chai.use(sinonChai);
 global.expect = global.chai.expect;
-global.sinon = sinon;
 
 export const mochaHooks = {
 	beforeAll: async function () {
 		this.servers = await startServers();
 		this.resetServers = resetServers.bind(this);
+		// Make it easy to get the telemetry events received by the platform server
+		this.getTelemetryEvents = () => this.servers[1].telemetryEvents || [];
 	},
 
 	beforeEach: function () {
 		this.resetServers();
-		this.sandbox = global.sinon.createSandbox();
-		global.spy = this.sandbox.spy.bind(this.sandbox);
-		global.stub = this.sandbox.stub.bind(this.sandbox);
 	},
 
 	afterEach: function () {
 		this.resetServers();
-		delete global.spy;
-		delete global.stub;
-		this.sandbox.restore();
+		// Clean up all nock interceptors
+		nock.cleanAll();
 	},
 
 	afterAll: async function () {
 		await stopServers.call(this);
-	},
+	}
 };
 
 rmSync(path.join(__dirname, '.nyc_output'), { force: true });

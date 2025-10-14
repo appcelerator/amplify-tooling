@@ -15,9 +15,11 @@ const defaultData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json')
 export function createPlatformRoutes(server, opts = {}) {
 	const router = new Router();
 	let data = _.cloneDeep(opts.data || defaultData);
+	server.telemetryEvents = [];
 
 	server.resetState = state => {
 		data = _.cloneDeep(state || opts.data || defaultData);
+		server.telemetryEvents = [];
 	};
 
 	router.get('/v1/activity', ctx => {
@@ -54,6 +56,20 @@ export function createPlatformRoutes(server, opts = {}) {
 					(!user_guid || a.user_guid === user_guid);
 			})
 		};
+	});
+
+	router.post('/v1/analytics', ctx => {
+		// Add the event set to the server's list of received events
+		server.telemetryEvents.push(ctx.request.body.events);
+
+		// Telemetry API returns 202 "Accepted" with an array of event IDs
+		const mockResponse = [];
+		for (let i = 0; i < ctx.request.body.events?.length || 0; i++) {
+			// The actual event IDs are nanoids, but UUIDs are close enough for the tests
+			mockResponse.push(uuidv4());
+		}
+		ctx.status = 202;
+		ctx.body = { success: true, result: mockResponse };
 	});
 
 	router.get('/v1/client', ctx => {
@@ -400,8 +416,7 @@ export function createPlatformRoutes(server, opts = {}) {
 
 			org.users.push({
 				guid: user.guid,
-				roles,
-				primary: true
+				roles
 			})
 
 			ctx.body = {
@@ -542,7 +557,6 @@ export function createPlatformRoutes(server, opts = {}) {
 
 			team.users.push({
 				guid: user.guid,
-				primary: true,
 				roles: ctx.request.body.roles,
 				type: 'user'
 			})

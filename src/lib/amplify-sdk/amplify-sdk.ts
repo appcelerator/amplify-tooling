@@ -119,6 +119,9 @@ export default class AmplifySDK {
 			 * @returns {Promise<Object>} Resolves the original account info object.
 			 */
 			findSession: async (account, defaultTeams) => {
+				if (!account || typeof account !== 'object') {
+					throw new TypeError('Account required');
+				}
 				if (defaultTeams && typeof defaultTeams !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected default teams to be an object');
 				}
@@ -262,15 +265,11 @@ export default class AmplifySDK {
 
 			/**
 			 * Authenticates a user, retrieves the access tokens, populates the session id and
-			 * org info, and returns it.
+			 * org info, and returns it. TODO: document the client id and secret params
 			 * @param {Object} opts - Various authentication options to override the defaults set
 			 * via the `Auth` constructor.
-			 * @param {String} [opts.password] - The platform tooling password used to
-			 * authenticate. Requires a `username` and `clientSecret` or `secretFile`.
 			 * @param {String} [opts.secretFile] - The path to the PEM formatted private key used
 			 * to sign the JWT.
-			 * @param {String} [opts.username] - The platform tooling username used to
-			 * authenticate. Requires a `password` and `clientSecret` or `secretFile`.
 			 * @returns {Promise<Object>} Resolves the account info object.
 			 */
 			login: async (opts: any = {}) => {
@@ -1466,18 +1465,12 @@ export default class AmplifySDK {
 		this.user = {
 			/**
 			 * Retrieves an account's user's activity.
-			 * @param {Object} account - The account object.
-			 * @param {Object} [params] - Various parameters.
-			 * @param {String} [params.from] - The start date in ISO format.
-			 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
-			 * `from`. If `true`, uses current month.
-			 * @param {String} [params.to] - The end date in ISO format.
-			 * @returns {Promise<Object>}
+			 * @deprecated
+			 * @returns {Promise}
 			 */
-			activity: (account, params) => getActivity(account, {
-				...params,
-				userGuid: account.user.guid
-			}),
+			activity: async () => {
+				throw new Error('Platform user activity can no longer be requested via the SDK.');
+			},
 
 			/**
 			 * Retrieves a user's information.
@@ -1513,60 +1506,11 @@ export default class AmplifySDK {
 
 			/**
 			 * Updates an account's user's information.
-			 * @param {Object} account - The account object.
-			 * @param {Object} [info] - Various user fields.
-			 * @param {String} [info.firstname] - The user's first name.
-			 * @param {String} [info.lastname] - The user's last name.
-			 * @param {String} [info.phone] - The user's phone number.
-			 * @returns {Promise<Object>}
+			 * @deprecated
+			 * @returns {Promise}
 			 */
-			update: async (account, info: any = {}) => {
-				if (!info || typeof info !== 'object') {
-					throw E.INVALID_ARGUMENT('Expected user info to be an object');
-				}
-
-				const changes = {};
-				const json: any = {};
-				let { user } = account;
-
-				// populate data
-				if (info.firstname !== undefined) {
-					json.firstname = String(info.firstname).trim();
-				}
-				if (info.lastname !== undefined) {
-					json.lastname = String(info.lastname).trim();
-				}
-				if (info.phone !== undefined) {
-					json.phone = String(info.phone).trim();
-				}
-
-				// remove unchanged
-				for (const key of Object.keys(json)) {
-					if (json[key] === user[key]) {
-						delete json[key];
-					} else {
-						changes[key] = {
-							v: json[key],
-							p: user[key]
-						};
-					}
-				}
-
-				if (Object.keys(json).length) {
-					await this.request(`/api/v1/user/profile/${user.guid}`, account, {
-						errorMsg: 'Failed to update user information',
-						json,
-						method: 'put'
-					});
-
-					log('Refreshing account information...');
-					({ user } = await this.auth.loadSession(account));
-				}
-
-				return {
-					changes,
-					user
-				};
+			update: async () => {
+				throw new Error('Platform user records can no longer be updated via the SDK.');
 			}
 		};
 	}

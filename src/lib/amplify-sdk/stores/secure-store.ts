@@ -42,7 +42,7 @@ export default class SecureStore extends FileStore {
 
 		super(opts);
 
-		this.keytar = keytar;
+		this.keytar = opts.keytar || keytar;
 		this.serviceName = opts.secureServiceName || 'Axway AMPLIFY Auth';
 		this.tokenStoreFile = path.join(this.tokenStoreDir, this.filename);
 	}
