@@ -7,7 +7,7 @@ import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 import tmp from 'tmp';
 
-import { startServers, stopServers, resetServers } from './index.js';
+import { startServers, stopServers, resetServers } from './servers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

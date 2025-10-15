@@ -1,27 +1,21 @@
 import fs from 'fs';
-import bodyParser from 'koa-bodyparser';
 import callerPath from 'caller-path';
 import chalk from 'chalk';
-import Koa from 'koa';
 import Mustache from 'mustache';
 import os from 'os';
 import path from 'path';
-import Router from '@koa/router';
 import snooplogg from 'snooplogg';
 import AmplifySDK from '../../dist/lib/amplify-sdk/index.js';
 import { Auth, MemoryStore } from '../../dist/lib/amplify-sdk/index.js';
-import { createAuthRoutes } from './auth-routes.js';
-import { createPlatformRoutes } from './platform-routes.js';
 import { spawn } from 'child_process';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname } from 'path';
 
-const logger = snooplogg.config({
+const { log } = snooplogg.config({
 	minBrightness: 80,
 	maxBrightness: 210,
 	theme: 'detailed'
 })('test');
-const { log } = logger;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const { highlight } = snooplogg.styles;
@@ -218,81 +212,6 @@ export async function createSdkSync(authenticated) {
 	}
 
 	return { auth, account, sdk, tokenStore };
-}
-
-function createServer({ port }) {
-	return new Promise((resolve, reject) => {
-		const app = new Koa();
-		const router = new Router();
-
-		app.use(bodyParser());
-		app.use(async (ctx, next) => {
-			log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
-			await next();
-		});
-		app.use(router.routes())
-
-
-		const server = app.listen(port, '127.0.0.1');
-		server.__connections = {};
-		server.router = router;
-
-		server.on('connection', conn => {
-			const key = conn.remoteAddress + ':' + conn.remotePort;
-			log(`${highlight(key)} connected`);
-			server.__connections[key] = conn;
-			conn.on('close', () => {
-				delete server.__connections[key];
-				log(`${highlight(key)} disconnected`);
-			});
-		});
-		server.on('listening', () => {
-			log(`Started test server: http://127.0.0.1:${port}`);
-			resolve(server);
-		});
-		server.on('error', reject);
-	});
-}
-
-export async function startAuthServer(opts = {}) {
-	const server = await createServer({ port: 8555 });
-	await createAuthRoutes(server, opts);
-	return server;
-}
-
-export async function startPlatformServer(opts = {}) {
-	const server = await createServer({ port: 8666 });
-	await createPlatformRoutes(server, opts);
-	return server;
-}
-
-export async function startServers() {
-	const state = {};
-	return [
-		await startAuthServer({ state }),
-		await startPlatformServer({ state })
-	];
-}
-
-export async function stopServers() {
-	this.timeout(10000);
-
-	if (this.servers) {
-		log(`Stopping ${this.servers.length} server${this.servers.length === 1 ? '' : 's'}...`);
-		for (const server of this.servers) {
-			for (const conn of Object.values(server.__connections)) {
-				conn.destroy();
-			}
-			await new Promise(resolve => server.close(resolve));
-		}
-		this.servers = null;
-	}
-}
-
-export function resetServers(data) {
-	for (const server of this.servers || []) {
-		server.resetState(data);
-	}
 }
 
 export function stripColors(s) {
