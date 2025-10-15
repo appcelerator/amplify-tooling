@@ -96,12 +96,13 @@ export function options(opts: any = {}) {
 		]
 	});
 
-	opts.https = _.merge(opts.https, {
+	opts.https = {
+		...opts.https || {},
 		certificate:          load(opts.https?.certificate || cert || certFile),
 		certificateAuthority: load(opts.https?.certificateAuthority || ca || caFile),
 		key:                  load(opts.https?.key || key || keyFile),
 		rejectUnauthorized:   opts.https?.rejectUnauthorized !== undefined ? opts.https.rejectUnauthorized : !!strictSSL !== false
-	});
+	};
 
 	if (proxy) {
 		const { hostname: host, pathname: path, port, protocol, username, password } = new URL(proxy);
@@ -116,11 +117,9 @@ export function options(opts: any = {}) {
 			protocol,
 			rejectUnauthorized: opts.https.rejectUnauthorized
 		};
-		opts.agent = {
-			...opts.agent,
-			http: opts.agent?.http || new HttpProxyAgent(agentOpts),
-			https: opts.agent?.https || new HttpsProxyAgent(agentOpts)
-		};
+		opts.agent ||= {};
+		opts.agent.http ||= new HttpProxyAgent(agentOpts);
+		opts.agent.https ||= new HttpsProxyAgent(agentOpts);
 	}
 
 	return opts;
