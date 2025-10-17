@@ -4,10 +4,18 @@ const completionZsh = `###-begin-axway-cli-completions-###
 _axway_cli_completions() {
 	local cur
 	cur=\${words[CURRENT]}
+	local prev
+	prev=\${words[CURRENT-1]}
 	local options
-	options="$(${baseCliCommand} completion --get-completions "\${words[@]}")"
-	options=("\${(@f)options}")
-	_describe 'values' options
+
+	# If previous argument ends with -file, complete with file paths
+	if [[ "\${prev}" == *-file ]]; then
+		_files
+	else
+		options="$(AXWAY_TELEMETRY_DISABLED=1 NO_UPDATE_NOTIFIER=1 ${baseCliCommand} completion --get-completions "\${words[@]}")"
+		options=("\${(@f)options}")
+		_describe 'values' options
+	fi
 }
 compdef _axway_cli_completions ${baseCliCommand}
 ###-end-axway-cli-completions-###
@@ -16,9 +24,15 @@ compdef _axway_cli_completions ${baseCliCommand}
 const completionBash = `###-begin-axway-cli-completions-###
 _axway_cli_completions() {
 	local cur="\${COMP_WORDS[COMP_CWORD]}"
-	local options=$(${baseCliCommand} completion --get-completions \${COMP_WORDS[@]})
+	local prev="\${COMP_WORDS[COMP_CWORD-1]}"
+	local options=$(AXWAY_TELEMETRY_DISABLED=1 NO_UPDATE_NOTIFIER=1 ${baseCliCommand} completion --get-completions \${COMP_WORDS[@]})
 
-	COMPREPLY=($(compgen -W "$options" -- "$cur"));
+	# If previous argument ends with -file, complete with file paths
+	if [[ "\${prev}" == *-file ]]; then
+		COMPREPLY=(\$(compgen -f -- "\${cur}"))
+	else
+		COMPREPLY=(\$(compgen -W "\${options}" -- "\${cur}"))
+	fi
 }
 complete -F _axway_cli_completions ${baseCliCommand}
 ###-end-axway-cli-completions-###
@@ -69,7 +83,6 @@ commands and options.`;
 		},
 	},
 	action: function ({ argv, console }: { argv: any; console: Console }) {
-		// process.stderr.write(JSON.stringify(argv) + '\n');
 		if (argv.zsh) {
 			return console.log(completionZsh);
 		}
