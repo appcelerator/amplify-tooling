@@ -1,21 +1,25 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import addTeam from './service-account/add-team.js';
+import create from './service-account/create.js';
+import generateKeypair from './service-account/generate-keypair.js';
+import list from './service-account/list.js';
+import remove from './service-account/remove.js';
+import removeTeam from './service-account/remove-team.js';
+import roles from './service-account/roles.js';
+import update from './service-account/update.js';
+import view from './service-account/view.js';
 
 export default {
-	commands: [
-		`${__dirname}/service-account/add-team.js`,
-		`${__dirname}/service-account/create.js`,
-		`${__dirname}/service-account/generate-keypair.js`,
-		`${__dirname}/service-account/list.js`,
-		`${__dirname}/service-account/remove.js`,
-		`${__dirname}/service-account/remove-team.js`,
-		`${__dirname}/service-account/roles.js`,
-		`${__dirname}/service-account/update.js`,
-		`${__dirname}/service-account/view.js`
-	],
+	commands: {
+		'add-team': addTeam,
+		create,
+		'generate-keypair': generateKeypair,
+		list,
+		remove,
+		'remove-team': removeTeam,
+		roles,
+		update,
+		view
+	},
 	desc: 'Create and manage service accounts',
 	help: {
 		header({ style }) {
@@ -59,6 +63,6 @@ a SSH terminal, you must set the token store type to "file":
 	name: 'service-account',
 	options: {
 		'--base-url [url]': { hidden: true, redact: false },
-		'--realm [realm]':  { hidden: true, redact: false }
+		'--realm [realm]': { hidden: true, redact: false }
 	}
 };

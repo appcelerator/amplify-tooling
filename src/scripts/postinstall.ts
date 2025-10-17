@@ -37,6 +37,12 @@ ORGANIZATION, AND TEAM MANAGEMENT:
     ${cyan('axway org')}
     ${cyan('axway team')}
 
+SHELL COMPLETION:
+
+  To enable shell completion for the Axway CLI, run:
+
+    ${cyan('axway completion --help')}
+
 TELEMETRY:
 
   The Axway CLI collects data which is used to improve our products. Telemetry

@@ -1,21 +1,31 @@
 import { enableCompileCache } from 'module';
 enableCompileCache();
 
-import check from 'check-kit';
-import CLI from 'cli-kit';
-import * as telemetry from './lib/telemetry.js';
-import loadConfig, { Config } from './lib/config.js';
-import snooplogg from 'snooplogg';
-import { createRequestOptions } from './lib/request.js';
-import { axwayHome } from './lib/path.js';
-import { redact } from './lib/redact.js';
-import * as environments from './lib/environments.js';
-
 import { dirname, join, resolve } from 'path';
 import { readFileSync } from 'fs';
-import { serializeError } from 'serialize-error';
 import { fileURLToPath } from 'url';
+
+import CLI from 'cli-kit';
 import boxen from 'boxen';
+import check from 'check-kit';
+import snooplogg from 'snooplogg';
+import { serializeError } from 'serialize-error';
+
+import * as environments from './lib/environments.js';
+import * as telemetry from './lib/telemetry.js';
+import loadConfig, { Config } from './lib/config.js';
+import { axwayHome } from './lib/path.js';
+import { createRequestOptions } from './lib/request.js';
+import { redact } from './lib/redact.js';
+
+import authCmd from './commands/auth.js';
+import completionCmd from './commands/completion.js';
+import configCmd from './commands/config.js';
+import orgCmd from './commands/org.js';
+import serviceAccountCmd from './commands/service-account.js';
+import teamCmd from './commands/team.js';
+import telemetryCmd from './commands/telemetry.js';
+import userCmd from './commands/user.js';
 
 const { bold, cyan, gray, red, yellow } = snooplogg.styles;
 const { log, warn } = snooplogg('axway');
@@ -64,12 +74,21 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 			}
 			return str;
 		},
-		commands:         `${__dirname}/commands`,
-		desc:             'The Axway CLI is a unified command line interface for the Axway Amplify Platform.',
-		extensions:       allExtensions.map(ext => ext[1]),
-		help:             true,
-		helpExitCode:     2,
-		name:             'axway',
+		commands: {
+			auth: authCmd,
+			completion: completionCmd,
+			config: configCmd,
+			org: orgCmd,
+			'service-account': serviceAccountCmd,
+			team: teamCmd,
+			telemetry: telemetryCmd,
+			user: userCmd
+		},
+		desc: 'The Axway CLI is a unified command line interface for the Axway Amplify Platform.',
+		extensions: allExtensions.map(ext => ext[1]),
+		help: true,
+		helpExitCode: 2,
+		name: 'axway',
 		options: {
 			'--env [name]': { hidden: true, redact: false }
 		},

@@ -1,17 +1,19 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import list from './auth/list.js';
+import login from './auth/login.js';
+import logout from './auth/logout.js';
+import serverInfo from './auth/server-info.js';
+import switchCmd from './auth/switch.js';
+import whoami from './auth/whoami.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 export default {
-	commands: [
-		`${__dirname}/auth/list.js`,
-		`${__dirname}/auth/login.js`,
-		`${__dirname}/auth/logout.js`,
-		`${__dirname}/auth/server-info.js`,
-		`${__dirname}/auth/switch.js`,
-		`${__dirname}/auth/whoami.js`
-	],
+	commands: {
+		list,
+		login,
+		logout,
+		'server-info': serverInfo,
+		switch: switchCmd,
+		whoami
+	},
 	desc: 'The Axway Auth CLI authenticates with the Axway Amplify Platform, manages access tokens, and retrieves account information',
 	help: {
 		header({ style }) {
@@ -50,6 +52,6 @@ store type to “file”:
 	name: 'auth',
 	options: {
 		'--base-url [url]': { hidden: true, redact: false },
-		'--realm [realm]':  { hidden: true, redact: false }
+		'--realm [realm]': { hidden: true, redact: false }
 	}
 };

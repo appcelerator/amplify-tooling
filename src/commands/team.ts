@@ -1,18 +1,19 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import create from './team/create.js';
+import list from './team/list.js';
+import remove from './team/remove.js';
+import update from './team/update.js';
+import user from './team/user.js';
+import view from './team/view.js';
 
 export default {
-	commands: [
-		`${__dirname}/team/create.js`,
-		`${__dirname}/team/list.js`,
-		`${__dirname}/team/remove.js`,
-		`${__dirname}/team/update.js`,
-		`${__dirname}/team/user.js`,
-		`${__dirname}/team/view.js`
-	],
+	commands: {
+		create,
+		list,
+		remove,
+		update,
+		user,
+		view
+  },
 	desc: 'Manage Amplify Platform organization teams',
 	help: {
 		header() {

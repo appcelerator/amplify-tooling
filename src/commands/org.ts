@@ -1,19 +1,21 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import activity from './org/activity.js';
+import idp from './org/idp.js';
+import list from './org/list.js';
+import rename from './org/rename.js';
+import usage from './org/usage.js';
+import user from './org/user.js';
+import view from './org/view.js';
 
 export default {
-	commands: [
-		`${__dirname}/org/activity.js`,
-		`${__dirname}/org/idp.js`,
-		`${__dirname}/org/list.js`,
-		`${__dirname}/org/rename.js`,
-		`${__dirname}/org/usage.js`,
-		`${__dirname}/org/user.js`,
-		`${__dirname}/org/view.js`
-	],
+	commands: {
+		activity,
+		idp,
+		list,
+		rename,
+		usage,
+		user,
+		view
+  	},
 	desc: 'Manage Amplify Platform organizations',
 	help: {
 		header() {

@@ -211,7 +211,7 @@ describe('request', () => {
 
 			const got = init({ proxy: 'http://127.0.0.1:1337' });
 
-			const response = await got('http://127.0.0.1:1338', { agent: { http: got.defaults.options.agent.http } });
+			const response = await got('http://127.0.0.1:1338');
 
 			expect(response.statusCode).to.equal(200);
 			expect(parseInt(response.headers['content-length'])).to.equal(4);

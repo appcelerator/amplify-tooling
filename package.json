@@ -12,9 +12,12 @@
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling",
+  "bin": {
+    "axway": "./bin/axway"
+  },
   "scripts": {
     "debug": "node --inspect=9254 --enable-source-maps dist/index.js",
-    "start": "node --enable-source-maps dist/index.js",
+    "start": "./bin/axway",
     "build": "tsc",
     "test": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test",
     "lint": "eslint src",

@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+node --enable-source-maps "$SCRIPT_DIR/../dist/index.js" "$@"
