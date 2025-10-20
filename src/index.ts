@@ -7,12 +7,12 @@ import { fileURLToPath } from 'url';
 
 import CLI from 'cli-kit';
 import boxen from 'boxen';
-import check from 'check-kit';
 import snooplogg from 'snooplogg';
 import { serializeError } from 'serialize-error';
 
 import * as environments from './lib/environments.js';
 import * as telemetry from './lib/telemetry.js';
+import check from './lib/update.js';
 import loadConfig, { Config } from './lib/config.js';
 import { axwayHome } from './lib/path.js';
 import { createRequestOptions } from './lib/request.js';

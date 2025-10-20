@@ -28,7 +28,7 @@
     "@inquirer/prompts": "^7.8.6",
     "boxen": "^8.0.1",
     "chalk": "^5.4.1",
-    "check-kit": "^4.0.0",
+    "ci-info": "^4.3.1",
     "cli-kit": "^2.1.1",
     "cli-table3": "^0.6.2",
     "config-kit": "^2.1.0",
@@ -40,6 +40,7 @@
     "lodash": "^4.17.21",
     "pretty-bytes": "^7.1.0",
     "pretty-ms": "^9.3.0",
+    "semver": "^7.7.3",
     "serialize-error": "^12.0.0",
     "snooplogg": "^5.1.0",
     "uuid": "^13.0.0"
@@ -63,6 +64,6 @@
     "typescript": "^5.9.2"
   },
   "engines": {
-    "node": ">=20.18.2"
+    "node": ">=22.11.0"
   }
 }
