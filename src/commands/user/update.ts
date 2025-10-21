@@ -1,3 +1,5 @@
+import { heading, highlight } from '../../lib/logger.js';
+
 export default {
 	aliases: [ '!up' ],
 	desc: 'Change your information',
@@ -5,14 +7,14 @@ export default {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   Update your first and last name:
-    ${style.highlight('axway user update --firstname <name> --lastname <name>')}
+    ${highlight('axway user update --firstname <name> --lastname <name>')}
 
   Update your phone number:
-    ${style.highlight('axway user update --phone <number>')}`;
+    ${highlight('axway user update --phone <number>')}`;
 		}
 	},
 	options: {

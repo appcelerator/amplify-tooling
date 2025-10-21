@@ -1,5 +1,5 @@
 import { initPlatformAccount } from '../../lib/utils.js';
-import { highlight, note } from '../../lib/logger.js';
+import { heading, highlight, note } from '../../lib/logger.js';
 
 export default {
 	aliases: [ '!up' ],
@@ -20,23 +20,23 @@ export default {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Example:')}
+		footer() {
+			return `${heading('Example:')}
 
   You must be authenticated to view or manage organizations.
-  Run ${style.highlight('"axway auth login"')} to authenticate.
+  Run ${highlight('"axway auth login"')} to authenticate.
 
   You may specify an organization by name, id, or guid as well as the team by
   name or guid.
 
   Rename the team:
-    ${style.highlight('axway team update <org> <team> --name <new name>')}
+    ${highlight('axway team update <org> <team> --name <new name>')}
 
   Update the team description:
-    ${style.highlight('axway team update <org> <team> --desc <new description>')}
+    ${highlight('axway team update <org> <team> --desc <new description>')}
 
   Redefine the team tags:
-    ${style.highlight('axway team update <org> <team> --tag <tag1> --tag <tag2>')}`;
+    ${highlight('axway team update <org> <team> --tag <tag1> --tag <tag2>')}`;
 		}
 	},
 	options: {

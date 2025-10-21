@@ -1,5 +1,5 @@
 import { generateKeypair } from '../../lib/auth/keypair.js';
-import { highlight } from '../../lib/logger.js';
+import { heading, highlight } from '../../lib/logger.js';
 
 export default {
 	desc: 'Create a pem formatted public/private key pair',
@@ -7,23 +7,23 @@ export default {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   Create a keypair and be prompted for the output filenames:
-    ${style.highlight('axway service-account generate-keypair')}
+    ${highlight('axway service-account generate-keypair')}
 
   Create a keypair and use the default output filenames and overwrite existing files:
-    ${style.highlight('axway service-account generate-keypair --yes')}
+    ${highlight('axway service-account generate-keypair --yes')}
 
   Create a keypair and write the files using specific names:
-    ${style.highlight('axway service-account generate-keypair --public-key public.pem --private-key private.pem')}
+    ${highlight('axway service-account generate-keypair --public-key public.pem --private-key private.pem')}
 
   Create a keypair and output to screen as JSON instead of writing to files:
-    ${style.highlight('axway service-account generate-keypair --json')}
+    ${highlight('axway service-account generate-keypair --json')}
 
   Create a keypair and output to screen as JSON and write them to files:
-    ${style.highlight('axway service-account generate-keypair --json --yes')}`;
+    ${highlight('axway service-account generate-keypair --json --yes')}`;
 		}
 	},
 	options: {

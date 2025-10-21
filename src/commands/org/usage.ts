@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
-import { highlight, note } from '../../lib/logger.js';
+import { heading, highlight, note } from '../../lib/logger.js';
 
 export default {
 	args: [
@@ -15,20 +15,20 @@ export default {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Example:')}
+		footer() {
+			return `${heading('Example:')}
 
   You must be authenticated to view or manage organizations.
-  Run ${style.highlight('"axway auth login"')} to authenticate.
+  Run ${highlight('"axway auth login"')} to authenticate.
 
   Display organization usage for the past 14 days:
-    ${style.highlight('axway org usage <org>')}
+    ${highlight('axway org usage <org>')}
 
   Display organization usage for a specific date range:
-    ${style.highlight('axway org usage <org> --from 2021-04-01 --to 2021-04-30')}
+    ${highlight('axway org usage <org> --from 2021-04-01 --to 2021-04-30')}
 
   Display organization usage for the current month:
-    ${style.highlight('axway org usage <org> --month')}`;
+    ${highlight('axway org usage <org> --month')}`;
 		}
 	},
 	options: {

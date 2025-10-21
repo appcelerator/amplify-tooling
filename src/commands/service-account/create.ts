@@ -2,7 +2,7 @@ import { initPlatformAccount } from '../../lib/utils.js';
 import { isFile } from '../../lib/fs.js';
 import { generateKeypair } from '../../lib/auth/keypair.js';
 import { existsSync, readFileSync } from 'fs';
-import { highlight, note } from '../../lib/logger.js';
+import { heading, highlight, note } from '../../lib/logger.js';
 import { v4 as uuidv4 } from 'uuid';
 import { input, select, password, checkbox } from '@inquirer/prompts';
 
@@ -22,20 +22,20 @@ If the service account name is not specified, then the command will
 interactively prompt for all values. If prompting is not available, then all
 required options must be passed in at execution.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   Create a service account and prompt for name, type, etc:
-    ${style.highlight('axway service-account create')}
+    ${highlight('axway service-account create')}
 
   Create a service account with a auto-generated client secret key:
-    ${style.highlight('axway service-account create --name foo')}
+    ${highlight('axway service-account create --name foo')}
 
   Create a service account with a custom client secret key:
-    ${style.highlight('axway service-account create --name foo --secret bar')}
+    ${highlight('axway service-account create --name foo --secret bar')}
 
   Create a service account with a PEM formatted public key:
-    ${style.highlight('axway service-account create --name foo --public-key /path/to/public_key.pem')}`;
+    ${highlight('axway service-account create --name foo --public-key /path/to/public_key.pem')}`;
 		}
 	},
 	options: {

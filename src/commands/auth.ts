@@ -4,6 +4,7 @@ import logout from './auth/logout.js';
 import serverInfo from './auth/server-info.js';
 import switchCmd from './auth/switch.js';
 import whoami from './auth/whoami.js';
+import { heading, highlight } from '../lib/logger.js';
 
 export default {
 	commands: {
@@ -16,7 +17,7 @@ export default {
 	},
 	desc: 'The Axway Auth CLI authenticates with the Axway Amplify Platform, manages access tokens, and retrieves account information',
 	help: {
-		header({ style }) {
+		header() {
 			return `The Axway CLI auth command allows you to authenticate with the Amplify platform
 under one or more accounts and switch between them. You can log in using
 one or more service accounts at the same time.
@@ -25,28 +26,28 @@ A service account can be used for both desktop and headless environments.
 However, if authenticating in a headless environment, you must set the token
 store type to “file”:
 
-  ${style.highlight('axway config set auth.tokenStoreType file')}`;
+  ${highlight('axway config set auth.tokenStoreType file')}`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   Log into a service account using a PEM formatted secret key:
-    ${style.highlight('axway auth login --client-id <id> --secret-file <path>')}
+    ${highlight('axway auth login --client-id <id> --secret-file <path>')}
 
   Log into a service account using a client secret:
-    ${style.highlight('axway auth login --client-id <id> --client-secret <token>')}
+    ${highlight('axway auth login --client-id <id> --client-secret <token>')}
 
   List all authenticated accounts:
-    ${style.highlight('axway auth list')}
+    ${highlight('axway auth list')}
 
   Show the current default selected account:
-    ${style.highlight('axway auth whoami')}
+    ${highlight('axway auth whoami')}
 
   Switch default account and org:
-    ${style.highlight('axway auth switch')}
+    ${highlight('axway auth switch')}
 
   Log out of an account:
-    ${style.highlight('axway auth logout')}`;
+    ${highlight('axway auth logout')}`;
 		}
 	},
 	name: 'auth',

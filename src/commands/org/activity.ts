@@ -1,5 +1,6 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { renderActivity } from '../../lib/activity.js';
+import { heading, highlight } from '../../lib/logger.js';
 
 export default {
 	args: [
@@ -13,20 +14,20 @@ export default {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Example:')}
+		footer() {
+			return `${heading('Example:')}
 
   You must be authenticated to view or manage organizations.
-  Run ${style.highlight('"axway auth login"')} to authenticate.
+  Run ${highlight('"axway auth login"')} to authenticate.
 
   Display organization activity for the past 14 days:
-    ${style.highlight('axway org activity <org>')}
+    ${highlight('axway org activity <org>')}
 
   Display organization activity for a specific date range:
-    ${style.highlight('axway org activity <org> --from 2021-04-01 --to 2021-04-30')}
+    ${highlight('axway org activity <org> --from 2021-04-01 --to 2021-04-30')}
 
   Display organization activity for the current month:
-    ${style.highlight('axway org activity <org> --month')}`;
+    ${highlight('axway org activity <org> --month')}`;
 		}
 	},
 	options: {

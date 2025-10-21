@@ -1,4 +1,6 @@
+import chalk from 'chalk';
 import { loadConfig } from '../lib/config.js';
+import { heading, highlight, note } from '../lib/logger.js';
 
 export default {
 	aliases: [ '!conf' ],
@@ -42,23 +44,23 @@ export default {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer: ({ style }) => `${style.heading('Examples:')}
+		footer: () => `${heading('Examples:')}
 
   List all config settings:
-    ${style.highlight('axway config ls')}
+    ${highlight('axway config ls')}
 
   Return the config as JSON:
-    ${style.highlight('axway config ls --json')}
+    ${highlight('axway config ls --json')}
 
   Get a specific config setting:
-    ${style.highlight('axway config get home')}
+    ${highlight('axway config get home')}
 
   Set a config setting:
-    ${style.highlight('axway config set env production')}
+    ${highlight('axway config set env production')}
 
-${style.heading('Settings:')}
+${heading('Settings:')}
 
-  ${style.highlight('auth.tokenStoreType')} ${style.note('[string] (default: "auto")')}
+  ${highlight('auth.tokenStoreType')} ${note('[string] (default: "auto")')}
     After authenticating, access tokens are encrypted and stored in a file
     called the token store. Access to this file is restricted to only the owner
     (the current user). By default, the encryption key is stored in the
@@ -66,24 +68,24 @@ ${style.heading('Settings:')}
     environments such as SSH terminals and this setting must be set to "file".
 
     Allowed values:
-      ${style.magenta('"auto"')}    Attempts to use the "secure" store, but falls back to "file" if
+      ${chalk.magenta('"auto"')}    Attempts to use the "secure" store, but falls back to "file" if
                 secure store is unavailable.
-      ${style.magenta('"secure"')}  Encrypts the access token and using a generated key which is
+      ${chalk.magenta('"secure"')}  Encrypts the access token and using a generated key which is
                 stored in the system's keychain.
-      ${style.magenta('"file"')}    Encrypts the access token using the embedded key.
-      ${style.magenta('"memory"')}  Stores the access token in memory instead of on disk. The
+      ${chalk.magenta('"file"')}    Encrypts the access token using the embedded key.
+      ${chalk.magenta('"memory"')}  Stores the access token in memory instead of on disk. The
                 access tokens are lost when the process exits. This is intended
                 for testing purposes only.
-      ${style.magenta('"null"')}    Disables all forms of token persistence and simply returns the
+      ${chalk.magenta('"null"')}    Disables all forms of token persistence and simply returns the
                 access token. Subsequent calls to login in the same process
                 will force the authentication flow. This is intended for
                 migration scripts and testing purposes only.
 
-  ${style.highlight('network.caFile')} ${style.note('[string]')}
+  ${highlight('network.caFile')} ${note('[string]')}
     The path to a PEM formatted certificate authority bundle used to validate
     untrusted SSL certificates.
 
-  ${style.highlight('network.proxy')} ${style.note('[string]')}
+  ${highlight('network.proxy')} ${note('[string]')}
     The URL of the proxy server. This proxy server URL is used for both HTTP
     and HTTPS requests.
 
@@ -91,7 +93,7 @@ ${style.heading('Settings:')}
     the network.caFile, set network.strictSSL to false, or set the environment
     variable NODE_TLS_REJECT_UNAUTHORIZED=0.
 
-  ${style.highlight('network.strictSSL')} ${style.note('[bool] (default: true)')}
+  ${highlight('network.strictSSL')} ${note('[bool] (default: true)')}
     Enforces valid TLS certificates on all outbound HTTPS requests. Set this to
     false if you are behind a proxy server with a self signed certificate.`
 	},

@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import loadConfig from '../lib/config.js';
 import * as telemetry from '../lib/telemetry.js';
+import { highlight } from '../lib/logger.js';
 
 export default {
 	desc: 'Opt-in or out of telemetry to improve Axway products',
@@ -20,11 +21,11 @@ such as the MAC address or serial number.`,
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
+		footer() {
 			return `${this.extendedDesc}
 
-You may opt-out of telemetry by running ${style.highlight('axway telemetry --disable')} or setting
-the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${style.highlight('1')}.`;
+You may opt-out of telemetry by running ${highlight('axway telemetry --disable')} or setting
+the environment variable ${highlight('AXWAY_TELEMETRY_DISABLED')} to ${highlight('1')}.`;
 		}
 	},
 	options: {

@@ -1,8 +1,8 @@
-import { highlight } from '../../lib/logger.js';
+import { input, password, select } from '@inquirer/prompts';
+
+import { heading, highlight } from '../../lib/logger.js';
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
-
-import { input, password, select } from '@inquirer/prompts';
 
 export default {
 	autoHideBanner: false,
@@ -23,17 +23,17 @@ the same time.
 Once authenticated, the account's current team is set to its configured default
 team to use for "axway" commands.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   Log in with authentication method prompts:
-    ${style.highlight('axway auth login')}
+    ${highlight('axway auth login')}
 
   Log into a service account using a PEM formatted secret key:
-    ${style.highlight('axway auth login --client-id <id> --secret-file <path>')}
+    ${highlight('axway auth login --client-id <id> --secret-file <path>')}
 
   Log into a service account using a client secret:
-    ${style.highlight('axway auth login --client-id <id> --client-secret <token>')}`;
+    ${highlight('axway auth login --client-id <id> --client-secret <token>')}`;
 		}
 	},
 	options: [

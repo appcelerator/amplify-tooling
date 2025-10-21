@@ -1,3 +1,5 @@
+import { heading, highlight } from '../lib/logger.js';
+
 const baseCliCommand = 'axway';
 
 const completionZsh = `###-begin-axway-cli-completions-###
@@ -58,14 +60,14 @@ changes to take effect.
 Once enabled, you can type part of a command and press tab to see available
 commands and options.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   Add autocompletion for bash:
-    ${style.highlight('echo "source <(axway completion --bash)" >> ~/.bashrc')}
+    ${highlight('echo "source <(axway completion --bash)" >> ~/.bashrc')}
 
   Add autocompletion for zsh:
-    ${style.highlight('echo "source <(axway completion --zsh)" >> ~/.zshrc')}`;
+    ${highlight('echo "source <(axway completion --zsh)" >> ~/.zshrc')}`;
 		}
 	},
 	options: {

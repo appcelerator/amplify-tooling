@@ -1,7 +1,7 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { isFile } from '../../lib/fs.js';
 import { existsSync, readFileSync } from 'fs';
-import { highlight, note } from '../../lib/logger.js';
+import { heading, highlight, note } from '../../lib/logger.js';
 
 export default {
 	args: [
@@ -22,17 +22,17 @@ call.
 You cannot change a service account's authentication method from client secret
 to public key and vice versa.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   Change a service account name, description, and role:
-    ${style.highlight('axway service-account update <name/client-id> --name <new_name> --desc <desc> --role administrator')}
+    ${highlight('axway service-account update <name/client-id> --name <new_name> --desc <desc> --role administrator')}
 
   Update a service account's client secret key:
-    ${style.highlight('axway service-account update <name/client-id> --secret <new_secret>')}
+    ${highlight('axway service-account update <name/client-id> --secret <new_secret>')}
 
   Update a service account's public key:
-    ${style.highlight('axway service-account update <name/client-id> --public-key /path/to/public_key.pem')}`;
+    ${highlight('axway service-account update <name/client-id> --public-key /path/to/public_key.pem')}`;
 		}
 	},
 	options: {

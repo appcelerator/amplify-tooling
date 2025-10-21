@@ -1,5 +1,5 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
-import { highlight, note } from '../../../lib/logger.js';
+import { heading, highlight, note } from '../../../lib/logger.js';
 
 export default {
 	args: [
@@ -24,20 +24,20 @@ export default {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   You may specify an organization by name, id, or guid.
 
   The user must already be a platform user.
 
   An team user must be assigned a platform role and optionally a product
-  specific role. You may specify the roles with multiple ${style.highlight('--role "role"')} options
-  or a single ${style.highlight('--role "role1,role2,role3"')} option with a comma-separated list of
-  roles. To view available user roles, run: ${style.highlight('axway team user roles')}
+  specific role. You may specify the roles with multiple ${highlight('--role "role"')} options
+  or a single ${highlight('--role "role1,role2,role3"')} option with a comma-separated list of
+  roles. To view available user roles, run: ${highlight('axway team user roles')}
 
   Add a user to an organization with administrator privileges.
-    ${style.highlight('axway team user add <org> <email> --role administrator')}`;
+    ${highlight('axway team user add <org> <email> --role administrator')}`;
 		}
 	},
 	options: {

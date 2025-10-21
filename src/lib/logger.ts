@@ -21,9 +21,11 @@ function formatArgs(args) {
 export interface Logger {
 	(...args: any[]): void;
 	log: (...args: any[]) => void;
+	debug: (...args: any[]) => void;
 	info: (...args: any[]) => void;
 	warn: (...args: any[]) => void;
 	error: (...args: any[]) => void;
+	fatal: (...args: any[]) => void;
 }
 /**
  * Create a logger instance.
@@ -42,6 +44,10 @@ export default function logger(namespace: string): Logger {
 		debug(...args);
 	}
 
+	log.debug = function(...args: any[]) {
+		debug(chalk.magenta('debug'), ...args);
+	}
+
 	log.error = function(...args: any[]) {
 		debug(chalk.red('error'), ...args);
 	};
@@ -51,12 +57,17 @@ export default function logger(namespace: string): Logger {
 	};
 
 	log.info = function(...args: any[]) {
-		debug(chalk.blue('info'), ...args);
+		debug(chalk.green('info'), ...args);
+	};
+
+	log.fatal = function(...args: any[]) {
+		debug(chalk.white.bgRed('fatal'), ...args);
 	};
 
 	return log;
 }
 
+// Semantic aliases for chalk styles
 export const active = chalk.green;
 export const alert = chalk.red;
 export const highlight = chalk.cyan;
@@ -64,3 +75,10 @@ export const lowlight = chalk.blue;
 export const note = chalk.gray;
 export const notice = chalk.yellow;
 export const ok = chalk.green;
+
+// Semantic aliases for CLI output formatting
+export const heading = (text: string) => String(text || '').toUpperCase();
+export const uppercase = (text: string) => String(text || '').toUpperCase();
+export const lowercase = (text: string) => String(text || '').toLowerCase();
+export const bracket = (text: string) => `[${String(text || '')}]`;
+export const paren = (text: string) => `(${String(text || '')})`;

@@ -1,23 +1,25 @@
+import { heading, highlight } from '../../lib/logger.js';
+
 export default {
 	desc: 'Display your activity',
 	help: {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Example:')}
+		footer() {
+			return `${heading('Example:')}
 
   You must be authenticated to view or manage organizations.
-  Run ${style.highlight('"axway auth login"')} to authenticate.
+  Run ${highlight('"axway auth login"')} to authenticate.
 
   Display your user activity for the past 14 days:
-    ${style.highlight('axway user activity')}
+    ${highlight('axway user activity')}
 
   Display your activity for a specific date range:
-    ${style.highlight('axway user activity --from 2021-04-01 --to 2021-04-30')}
+    ${highlight('axway user activity --from 2021-04-01 --to 2021-04-30')}
 
   Display your activity for the current month:
-    ${style.highlight('axway user activity <org> --month')}`;
+    ${highlight('axway user activity <org> --month')}`;
 		}
 	},
 	options: {

@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import activity from './user/activity.js';
 import credentials from './user/credentials.js';
 import update from './user/update.js';
@@ -12,8 +13,8 @@ export default {
 	},
 	desc: 'User commands are no longer supported as of version 5.0.0. Their references will be removed in a subsequent release.',
 	help: {
-		header({ style }) {
-			return style.red(this.desc);
+		header() {
+			return chalk.red(this.desc);
 		}
 	}
 };

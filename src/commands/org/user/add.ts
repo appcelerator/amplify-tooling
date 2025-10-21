@@ -1,5 +1,5 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
-import { highlight, note } from '../../../lib/logger.js';
+import { heading, highlight, note } from '../../../lib/logger.js';
 
 export default {
 	args: [
@@ -19,8 +19,8 @@ export default {
 		header() {
 			return `${this.desc}.`;
 		},
-		footer({ style }) {
-			return `${style.heading('Examples:')}
+		footer() {
+			return `${heading('Examples:')}
 
   You may specify an organization by name, id, or guid.
 
@@ -28,12 +28,12 @@ export default {
   invited to create a platform account and join the organization.
 
   An organization user must be assigned a platform role and optionally a
-  product specific role. You may specify the roles with multiple ${style.highlight('--role "role"')}
-  options or a single ${style.highlight('--role "role1,role2,role3"')} option with a comma-separated
-  list of roles. To view available user roles, run: ${style.highlight('axway org user roles')}
+  product specific role. You may specify the roles with multiple ${highlight('--role "role"')}
+  options or a single ${highlight('--role "role1,role2,role3"')} option with a comma-separated
+  list of roles. To view available user roles, run: ${highlight('axway org user roles')}
 
   Add a user to an organization with administrator privileges.
-    ${style.highlight('axway org user add <org> <email> --role administrator')}`;
+    ${highlight('axway org user add <org> <email> --role administrator')}`;
 		}
 	},
 	options: {
