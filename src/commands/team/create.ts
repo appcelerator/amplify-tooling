@@ -1,5 +1,5 @@
 import { initPlatformAccount } from '../../lib/utils.js';
-import snooplogg from 'snooplogg';
+import { highlight, note } from '../../lib/logger.js';
 
 export default {
 	aliases: [ '!add', '!new' ],
@@ -51,7 +51,6 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(results, null, 2));
 		} else {
-			const { highlight, note } = snooplogg.styles;
 			console.log(`Account:      ${highlight(account.name)}`);
 			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 			console.log(`Successfully created team ${highlight(team.name)} ${note(`(${team.guid})`)}`);

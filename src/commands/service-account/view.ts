@@ -1,6 +1,6 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
-import snooplogg from 'snooplogg';
+import { highlight, note } from '../../lib/logger.js';
 
 export default {
 	args: [
@@ -35,7 +35,6 @@ export default {
 			return;
 		}
 
-		const { highlight, note } = snooplogg.styles;
 		const { client } = result;
 
 		console.log(`Account:      ${highlight(account.name)}`);

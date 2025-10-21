@@ -1,15 +1,11 @@
 import bodyParser from 'koa-bodyparser';
 import Koa from 'koa';
 import Router from '@koa/router';
-import snooplogg from 'snooplogg';
+import logger, { highlight } from '../../dist/lib/logger.js';
 import { createAuthRoutes } from './auth-routes.js';
 import { createPlatformRoutes } from './platform-routes.js';
 
-const { log } = snooplogg.config({
-	minBrightness: 80,
-	maxBrightness: 210,
-	theme: 'detailed'
-})('test:servers');
+const { log } = logger('test:servers');
 
 function createServer({ port }) {
 	return new Promise((resolve, reject) => {
@@ -18,11 +14,10 @@ function createServer({ port }) {
 
 		app.use(bodyParser());
 		app.use(async (ctx, next) => {
-			log(`Incoming request: ${snooplogg.styles.highlight(`${ctx.method} ${ctx.url}`)}`);
+			log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
 			await next();
 		});
 		app.use(router.routes())
-
 
 		const server = app.listen(port, '127.0.0.1');
 		server.__connections = {};
@@ -30,11 +25,11 @@ function createServer({ port }) {
 
 		server.on('connection', conn => {
 			const key = conn.remoteAddress + ':' + conn.remotePort;
-			log(`${snooplogg.styles.highlight(key)} connected`);
+			log(`${highlight(key)} connected`);
 			server.__connections[key] = conn;
 			conn.on('close', () => {
 				delete server.__connections[key];
-				log(`${snooplogg.styles.highlight(key)} disconnected`);
+				log(`${highlight(key)} disconnected`);
 			});
 		});
 		server.on('listening', () => {

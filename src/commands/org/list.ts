@@ -1,6 +1,6 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
-import snooplogg from 'snooplogg';
+import { active, highlight } from '../../lib/logger.js';
 
 export default {
 	aliases: [ 'ls' ],
@@ -24,7 +24,6 @@ export default {
 			return;
 		}
 
-		const { green, highlight } = snooplogg.styles;
 		console.log(`Account: ${highlight(account.name)}\n`);
 
 		if (!orgs.length) {
@@ -37,7 +36,7 @@ export default {
 
 		for (const { default: def, guid, id, name } of orgs) {
 			table.push([
-				def ? green(`${check} ${name}`) : `  ${name}`,
+				def ? active(`${check} ${name}`) : `  ${name}`,
 				guid,
 				id
 			]);

@@ -1,20 +1,20 @@
 import _ from 'lodash';
 import fs from 'fs';
+import chalk from 'chalk';
 import got from 'got';
 import httpProxyAgentPkg from 'http-proxy-agent';
 import httpsProxyAgentPkg from 'https-proxy-agent';
 import loadConfig, { Config } from './config.js';
 import path from 'path';
 import prettyBytes from 'pretty-bytes';
-import snooplogg from 'snooplogg';
+import logger, { alert, highlight, ok, note } from './logger.js';
 import { fileURLToPath } from 'url';
 import { readJsonSync } from './fs.js';
 
 const { HttpProxyAgent } = httpProxyAgentPkg;
 const { HttpsProxyAgent } = httpsProxyAgentPkg;
 
-const { log } = snooplogg('axway-cli:request');
-const { alert, highlight, magenta, ok, note } = snooplogg.styles;
+const { log } = logger('axway-cli:request');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,7 +88,7 @@ export function options(opts: any = {}) {
 					request.options.method,
 					highlight(url),
 					proxy && note(`[proxy ${proxy}]`),
-					Object.prototype.hasOwnProperty.call(headers, 'content-length') && magenta(`(${prettyBytes(~~headers['content-length'])})`),
+					Object.prototype.hasOwnProperty.call(headers, 'content-length') && chalk.magenta(`(${prettyBytes(~~headers['content-length'])})`),
 					statusCode < 400 ? ok(statusCode) : alert(statusCode)
 				].filter(Boolean).join(' '));
 				return response; // note: this must return response

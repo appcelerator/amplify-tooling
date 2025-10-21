@@ -2,10 +2,10 @@ import crypto from 'crypto';
 import E from '../errors.js';
 import FileStore from './file-store.js';
 import path from 'path';
-import snooplogg from 'snooplogg';
+import logger from '../../logger.js';
 import keytar from 'keytar';
 
-const { log, warn } = snooplogg('amplify-sdk:auth:secure-store');
+const { log, warn } = logger('amplify-sdk:auth:secure-store');
 
 /**
  * A operating-specific secure token store.

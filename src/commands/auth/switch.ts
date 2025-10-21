@@ -1,4 +1,4 @@
-import snooplogg from 'snooplogg';
+import { highlight, note } from '../../lib/logger.js';
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import { select } from '@inquirer/prompts';
@@ -22,7 +22,6 @@ than one team.`,
 		'--team [guid|name]': 'The team to use for the selected account'
 	},
 	async action({ argv, cli, console }) {
-		const { highlight, note } = snooplogg.styles;
 		const { config, sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,
 			env:      argv.env,

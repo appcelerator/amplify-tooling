@@ -1,7 +1,6 @@
-import snooplogg from 'snooplogg';
+import { active, highlight, note } from '../../lib/logger.js';
 import { createTable } from '../formatter.js';
 
-const { green, highlight, note } = snooplogg.styles;
 const check = process.platform === 'win32' ? '√' : '✔';
 
 /**
@@ -18,7 +17,7 @@ export async function renderAccountInfo(account, config, sdk) {
 		const table = createTable([ 'Organization', 'GUID', 'ORG ID' ]);
 		for (const { default: def, guid, id, name } of account.orgs) {
 			table.push([
-				def ? green(`${check} ${name}`) : `  ${name}`,
+				def ? active(`${check} ${name}`) : `  ${name}`,
 				guid,
 				id
 			]);
@@ -48,7 +47,7 @@ export async function renderAccountInfo(account, config, sdk) {
 		for (let i = 0; i < teams.length; i++) {
 			const current = teams[i].guid === account.team.guid;
 			table.push([
-				current ? green(`${check} ${teams[i].name}`) : `  ${teams[i].name}`,
+				current ? active(`${check} ${teams[i].name}`) : `  ${teams[i].name}`,
 				teams[i].guid,
 				account.user.guid && teams[i].users.find(u => u.guid === account.user.guid)?.roles.join(', ') || note('n/a')
 			]);

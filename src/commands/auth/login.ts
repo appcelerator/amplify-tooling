@@ -1,4 +1,4 @@
-import snooplogg from 'snooplogg';
+import { highlight } from '../../lib/logger.js';
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 
@@ -102,7 +102,6 @@ team to use for "axway" commands.`;
 		});
 		let account;
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
-		const { highlight } = snooplogg.styles;
 
 		// Attempt to log in using the provided credentials
 		try {

@@ -3,15 +3,14 @@
 import Auth from './auth.js';
 import crypto from 'crypto';
 import E from './errors.js';
-import snooplogg from 'snooplogg';
+import logger, { highlight, note } from '../logger.js';
 import * as environments from '../environments.js';
 import * as request from '../request.js';
 import _ from 'lodash';
 import { promisify } from 'util';
 import { redact } from '../redact.js';
 
-const { log, warn } = snooplogg('amplify-sdk');
-const { highlight, note } = snooplogg.styles;
+const { log, warn } = logger('amplify-sdk');
 
 /**
  * An SDK for accessing Amplify API's.
@@ -1477,7 +1476,7 @@ export default class AmplifySDK {
 			 * @param {Object} account - The account object.
 			 * @param {String} user - The user email or guid.
 			 * @returns {Promise<Object>}
-			 */
+			*/
 			find: async (account, user) => {
 				if (typeof user === 'object' && user?.guid) {
 					return user;

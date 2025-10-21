@@ -10,13 +10,12 @@ import SecureStore from './stores/secure-store.js';
 import TokenStore from './stores/token-store.js';
 
 import getEndpoints from '../auth/endpoints.js';
-import snooplogg from 'snooplogg';
+import logger, { highlight } from '../logger.js';
 
 import * as environments from '../environments.js';
 import * as request from '../request.js';
 
-const { log, warn } = snooplogg('amplify-sdk:auth');
-const { highlight } = snooplogg.styles;
+const { log, warn } = logger('amplify-sdk:auth');
 
 /**
  * Authenticates the machine and retrieves the auth token.

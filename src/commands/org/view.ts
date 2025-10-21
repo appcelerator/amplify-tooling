@@ -1,6 +1,6 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
-import snooplogg from 'snooplogg';
+import { active, highlight, note } from '../../lib/logger.js';
 
 export default {
 	aliases: [ '!info' ],
@@ -29,8 +29,6 @@ export default {
 			return;
 		}
 
-		const { green, highlight, note } = snooplogg.styles;
-
 		console.log(`Account: ${highlight(account.name)}\n`);
 
 		console.log('ORGANIZATION');
@@ -49,7 +47,7 @@ export default {
 		const check = process.platform === 'win32' ? '√' : '✔';
 		for (const { apps, created, default: def, desc, guid, name, users } of org.teams) {
 			teams.push([
-				def ? green(`  ${check} ${name}`) : `    ${name}`,
+				def ? active(`  ${check} ${name}`) : `    ${name}`,
 				desc || note('n/a'),
 				guid,
 				users?.length,

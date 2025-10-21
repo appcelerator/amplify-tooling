@@ -1,8 +1,7 @@
+import chalk from 'chalk';
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
-import snooplogg from 'snooplogg';
-
-/* eslint-disable no-loop-func */
+import { highlight, note } from '../../lib/logger.js';
 
 export default {
 	args: [
@@ -113,26 +112,24 @@ export default {
 			return;
 		}
 
-		const { bold, gray, green, highlight, note, red, yellow } = snooplogg.styles;
-
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
 		console.log(`Date Range:   ${highlight(formatDate(from))} and ${highlight(formatDate(to))}`);
 
 		const renderBar = (percent, width) => {
 			const used = Math.ceil(width * Math.min(percent, 100) / 100);
-			const color = percent > 85 ? red : percent > 65 ? yellow : green;
-			return `${color('\u25A0'.repeat(used))}${gray('⠂'.repeat(width - used))} ${renderPercent(percent)}`;
+			const color = percent > 85 ? chalk.red : percent > 65 ? chalk.yellow : chalk.green;
+			return `${color('\u25A0'.repeat(used))}${chalk.gray('⠂'.repeat(width - used))} ${renderPercent(percent)}`;
 		};
 
 		const renderPercent = percent => {
 			const label = `${percent}%`.padStart(saasPercentPadding + 1);
-			return (percent > 85 ? red(label) : percent > 65 ? yellow(label) : label);
+			return (percent > 85 ? chalk.red(label) : percent > 65 ? chalk.yellow(label) : label);
 		};
 
 		// API Management Platform Usage
 		if (bundle) {
-			console.log(`\n${bold(bundle.name)} - ${highlight(bundle.edition)}`);
+			console.log(`\n${chalk.bold(bundle.name)} - ${highlight(bundle.edition)}`);
 			console.log(
 				`  ${highlight(`${format(bundle.value)} / ${format(bundle.quota)}`)} ${bundle.units}`
 				+ `  ${renderBar(bundle.percent, 40)}`
@@ -141,7 +138,7 @@ export default {
 			const table = createTable();
 			for (const [ name, metric ] of Object.entries(bundle.metrics) as any) {
 				table.push([
-					`  ${bold(metric.name || name)}`,
+					`  ${chalk.bold(metric.name || name)}`,
 					'',
 					{ content: `${highlight(format(metric.value))} ${bundle.units}`, hAlign: 'right' }
 				]);
@@ -152,7 +149,7 @@ export default {
 				for (let i = 0, len = metric.envs.length; i < len; i++) {
 					const env = metric.envs[i];
 					table.push([
-						`  ${i + 1 === len ? '└─' : '├─'} ${env.name} ${env.production ? gray('Production') : ''}`,
+						`  ${i + 1 === len ? '└─' : '├─'} ${env.name} ${env.production ? chalk.gray('Production') : ''}`,
 						`${highlight(format(env.value).padStart(bundleValuePadding))} Transactions${env.tokens && ratio !== 1 ? highlight(` x ${(ratio / 100).toFixed(1)}`) : ''}`,
 						env.tokens ? { content: `${highlight(format(env.tokens))} ${bundle.units}`, hAlign: 'right' } : ''
 					]);
@@ -172,12 +169,12 @@ export default {
 				continue;
 			}
 
-			table.push([ `\n${bold(label)}` ]);
+			table.push([ `\n${chalk.bold(label)}` ]);
 
 			// print the usage
 			for (const { envs, formatted, name, percent, unit, unlimited } of metrics) {
 				table.push([
-					`  ${bold(name)}`,
+					`  ${chalk.bold(name)}`,
 					`${highlight(formatted.padStart(saasValuePadding))} ${unit}`,
 					unlimited || typeof percent !== 'number' ? '' : `${renderBar(percent, 20)}`
 				]);
@@ -187,7 +184,7 @@ export default {
 					const { formatted, name, production } = envs[i];
 					if (name !== 'default') {
 						table.push([
-							`  ${i + 1 === len ? '└─' : '├─'} ${name} ${production ? gray('Production') : ''}`,
+							`  ${i + 1 === len ? '└─' : '├─'} ${name} ${production ? chalk.gray('Production') : ''}`,
 							`${highlight(formatted.padStart(saasValuePadding))} ${unit}`,
 							''
 						]);

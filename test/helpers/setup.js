@@ -54,6 +54,5 @@ if (process.platform === 'win32') {
 }
 
 process.env.NODE_ENV = 'test'; // disables the update check
-process.env.FORCE_COLOR = 1;
-process.env.SNOOPLOGG_MIN_BRIGHTNESS = '100';
+process.env.FORCE_COLOR = '3';
 process.env.AXWAY_TEST = '1';

@@ -1,13 +1,12 @@
 import path from 'path';
 import semver from 'semver';
-import snooplogg from 'snooplogg';
+import logger, { highlight } from './logger.js';
 import * as request from './request.js';
 import { isCI } from 'ci-info';
 import tmp from 'tmp';
 import { readJsonSync, writeFileSync } from './fs.js';
 
-const { error, log, warn } = snooplogg('check-kit');
-const { highlight } = snooplogg.styles;
+const { error, log, warn } = logger('update');
 
 /**
  * Checks if there's an new version of a package is available.

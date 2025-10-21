@@ -1,3 +1,6 @@
+import { highlight } from '../../lib/logger.js';
+import { initSDK } from '../../lib/utils.js';
+
 export default {
 	aliases: [ '!revoke' ],
 	args: [
@@ -14,20 +17,9 @@ export default {
 		}
 	},
 	async action({ argv, cli, console }) {
-		// TODO: ...why?
-		const [
-			{ initSDK },
-			{ default: snooplogg }
-		] = await Promise.all([
-			import('../../lib/utils.js'),
-			import('snooplogg')
-		]);
-
 		if (!argv.accounts.length) {
 			argv.all = true;
 		}
-
-		const { highlight } = snooplogg.styles;
 
 		const { sdk } = await initSDK({
 			baseUrl:  argv.baseUrl,

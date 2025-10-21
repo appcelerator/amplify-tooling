@@ -1,6 +1,6 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
 import { createTable } from '../../../lib/formatter.js';
-import snooplogg from 'snooplogg';
+import { highlight, note } from '../../../lib/logger.js';
 
 export default {
 	desc: 'View available team user roles',
@@ -25,7 +25,6 @@ export default {
 			return;
 		}
 
-		const { highlight, note } = snooplogg.styles;
 		const table = createTable([ '  Role', 'Description' ]);
 
 		for (const role of roles) {

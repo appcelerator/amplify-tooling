@@ -1,22 +1,22 @@
-import ci from 'ci-info';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import snooplogg, { createInstanceWithDefaults, StripColors } from 'snooplogg';
+import { stripVTControlCharacters } from 'util';
+import { fileURLToPath } from 'url';
+import { execSync, spawnSync, spawn } from 'child_process';
+
+import ci from 'ci-info';
+import logger, { highlight } from '../logger.js';
 import * as request from '../request.js';
 import { v4 as uuidv4, validate as validateUUID } from 'uuid';
 import { isDir, writeFileSync, readJsonSync, isFile } from '../fs.js';
 import { redact } from '../redact.js';
 import { serializeError } from 'serialize-error';
-import { execSync, spawnSync, spawn } from 'child_process';
-import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const rootDir = path.resolve(__filename, '../../../..');
 
-const logger = snooplogg('amplify-sdk:telemetry');
-const { log } = logger;
-const { highlight } = snooplogg.styles;
+const { log } = logger('amplify-sdk:telemetry');
 
 /**
  * A map of known send process exit codes.
@@ -253,12 +253,10 @@ export default class Telemetry {
 	/**
 	 * Spawns a child process to send any pending telemetry events.
 	 *
-	 * @param {Object} [opts] - Various options.
-	 * @param {Boolean} [opts.wait] - When `true`, blocks until the send process exits.
 	 * @returns {Promise}
 	 * @access public
 	 */
-	async send(opts) {
+	async send() {
 		if (isTelemetryDisabled()) {
 			return;
 		}
@@ -267,31 +265,51 @@ export default class Telemetry {
 			stdio: [ 'pipe', 'pipe', 'pipe', 'ipc' ],
 			windowsHide: true
 		});
+
 		const { pid } = child;
 
-		child.send({
-			appDir: this.appDir,
-			requestOptions: this.requestOptions,
-			url: this.url,
-			wait: opts?.wait
-		});
+		try {
+			// Debug outputs to stderr, so pipe it to our log file
+			const logFile = fs.createWriteStream(path.join(this.appDir, `debug-${pid}.log`));
+			// If the log file errors, log to our main logger and end the file stream
+			logFile.on('error', function (err) {
+				logger(`amplify-sdk:telemetry:${pid}`).error(err);
+				logFile.end();
+			});
 
-		if (opts?.wait) {
+			child.stderr.on('data', (chunk) => {
+				logFile.write(stripVTControlCharacters(chunk.toString()));
+			});
+
+			child.send({
+				appDir: this.appDir,
+				requestOptions: this.requestOptions,
+				url: this.url
+			});
+
 			log(`Forked send process (pid: ${pid}), waiting for exit... `);
 			await new Promise<void>(resolve => {
 				child.on('close', code => {
-					const debugLog = path.join(this.appDir, `debug-${pid}.log`);
-					if (fs.existsSync(debugLog)) {
-						logger(`send-${pid}`).log(fs.readFileSync(debugLog, 'utf-8').trim());
-						fs.renameSync(debugLog, path.join(this.appDir, 'debug.log'));
-					}
-					log(`Send process ${pid} exited with code ${code} (${exitCodes[code] || 'Unknown'})`);
-					resolve();
+					logFile.close(() => {
+						const debugLog = path.join(this.appDir, `debug-${pid}.log`);
+						if (fs.existsSync(debugLog)) {
+							logger(`amplify-sdk:telemetry:${pid}`).log(fs.readFileSync(debugLog, 'utf-8').trim());
+							fs.renameSync(debugLog, path.join(this.appDir, 'debug.log'));
+						}
+						log(`Send process ${pid} exited with code ${code} (${exitCodes[code] || 'Unknown'})`);
+						resolve();
+					});
 				});
 			});
-		} else {
-			log(`Forked send process (pid: ${pid}), unreferencing child process... `);
-			child.unref();
+		} catch (err) {
+			console.log('HERE')
+			logger(`amplify-sdk:telemetry:${pid}`).error(err);
+		} finally {
+			try {
+				child.kill();
+			} catch (_err) {
+				// ignore
+			}
 		}
 	}
 
@@ -331,8 +349,8 @@ export default class Telemetry {
  * and other info so that it can send the actual messages without blocking the parent.
  *
  * This child process will not exit until the IPC tunnel has been closed via process.disconnect().
- * The only way to get output from this child process is to either set SNOOPLOGG=* and call
- * Telemetry::send({ wait: true }) -or- look in the app's telemetry data dir for the debug.log file.
+ * The only way to get output from this child process is to either set DEBUG=* and call
+ * Telemetry::send() -or- look in the app's telemetry data dir for the debug.log file.
  */
 process.on('message', async (msg: any) => {
 	// istanbul ignore if
@@ -341,27 +359,12 @@ process.on('message', async (msg: any) => {
 		return;
 	}
 
-	const { appDir, requestOptions, url, wait } = msg;
+	const { appDir, requestOptions, url } = msg;
 	const lockFile = path.join(appDir, '.lock');
 	const startTime = Date.now();
-	const logFile = fs.createWriteStream(path.join(appDir, wait ? `debug-${process.pid}.log` : 'debug.log'));
-	const formatter = new StripColors();
-	formatter.pipe(logFile);
-	const logger = createInstanceWithDefaults()
-		.config({ theme: 'detailed' })
-		.enable('*')
-		.pipe(formatter, { flush: true })
-		.snoop()
-		.ns('amplify-sdk:telemetry:send');
-	const { error, log, warn } = logger;
+	const { error, log, warn } = logger('amplify-sdk:telemetry:send');
 
 	try {
-		// if the parent isn't waiting for us, disconnect so the IPC tunnel will be closed and this
-		// process can exit gracefully
-		if (!wait) {
-			process.disconnect();
-		}
-
 		log('Telemetry Send Debug Log');
 		if (process.env.AXWAY_CLI) {
 			log(`Axway CLI, version ${process.env.AXWAY_CLI}`);
@@ -483,10 +486,7 @@ process.on('message', async (msg: any) => {
 	} finally {
 		fs.rmSync(lockFile, { force: true });
 		log(`Finished in ${((Date.now() - startTime) / 1000).toFixed(1)} seconds`);
-		logFile.close();
-		if (wait) {
-			process.disconnect();
-		}
+		process.disconnect();
 	}
 });
 

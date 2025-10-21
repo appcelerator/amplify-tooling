@@ -32,6 +32,7 @@
     "cli-kit": "^2.1.1",
     "cli-table3": "^0.6.2",
     "config-kit": "^2.1.0",
+    "debug": "^4.4.3",
     "got": "^11.8.5",
     "http-proxy-agent": "^5.0.0",
     "https-proxy-agent": "^5.0.1",
@@ -42,7 +43,6 @@
     "pretty-ms": "^9.3.0",
     "semver": "^7.7.3",
     "serialize-error": "^12.0.0",
-    "snooplogg": "^5.1.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

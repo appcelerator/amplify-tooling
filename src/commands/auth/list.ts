@@ -1,6 +1,6 @@
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
-import snooplogg from 'snooplogg';
+import chalk from 'chalk';
 import prettyMilliseconds from 'pretty-ms';
 
 export default {
@@ -41,7 +41,6 @@ organization, and the current team.`,
 			return;
 		}
 
-		const { green } = snooplogg.styles;
 		const check = process.platform === 'win32' ? '√' : '✔';
 		const now = Date.now();
 		const table = createTable([ 'Account Name', 'Organization', 'Current Team', 'Region', 'Expires' ]);
@@ -50,7 +49,7 @@ organization, and the current team.`,
 			const { access, refresh } = auth.expires;
 			const expiresMS = (refresh || access) - now;
 			table.push([
-				`${def ? green(`${check} ${name}`) : `  ${name}`}`,
+				`${def ? chalk.green(`${check} ${name}`) : `  ${name}`}`,
 				!org || !org.name ? 'n/a' : org.id ? `${org.name} (${org.id})` : org.name,
 				team ? `${team.name} (${team.guid})` : 'n/a',
 				org?.region || 'US',

@@ -1,5 +1,5 @@
 import { initPlatformAccount } from '../../lib/utils.js';
-import snooplogg from 'snooplogg';
+import { highlight } from '../../lib/logger.js';
 
 export default {
 	args: [
@@ -13,7 +13,6 @@ export default {
 		'--account [name]': 'The account to use'
 	},
 	async action({ argv, console }) {
-		const { highlight } = snooplogg.styles;
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (!account.user.roles.includes('administrator')) {

@@ -4,21 +4,16 @@ import chalk from 'chalk';
 import Mustache from 'mustache';
 import os from 'os';
 import path from 'path';
-import snooplogg from 'snooplogg';
+import logger, { highlight } from '../../dist/lib/logger.js';
 import AmplifySDK from '../../dist/lib/amplify-sdk/index.js';
 import { Auth, MemoryStore } from '../../dist/lib/amplify-sdk/index.js';
 import { spawn } from 'child_process';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname } from 'path';
 
-const { log } = snooplogg.config({
-	minBrightness: 80,
-	maxBrightness: 210,
-	theme: 'detailed'
-})('test');
+const { log } = logger('test');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const { highlight } = snooplogg.styles;
 
 const axwayBin = path.resolve(__dirname, `../../${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/index.js`);
 
@@ -108,7 +103,6 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 		if (args.includes('--no-color') || args.includes('--no-colors')) {
 			delete env.FORCE_COLOR;
 		}
-		// delete env.SNOOPLOGG;
 	}
 
 	if (cfg) {

@@ -1,5 +1,5 @@
 import { createTable } from './formatter.js';
-import snooplogg from 'snooplogg';
+import { highlight, note } from './logger.js';
 
 /**
  * Renders org and user activity results.
@@ -17,7 +17,6 @@ export async function renderActivity({ account, console, json, results }) {
 		return;
 	}
 
-	const { highlight, note } = snooplogg.styles;
 	const { from, to, events } = results;
 
 	const formatDate = d => {

@@ -1,11 +1,11 @@
 import AmplifySDK from './amplify-sdk/index.js';
 import loadConfig from './config.js';
-import snooplogg from 'snooplogg';
+import logger from './logger.js';
 import * as environments from './environments.js';
 import * as request from './request.js';
 import { axwayHome } from './path.js';
 
-const { warn } = snooplogg('axway-cli');
+const { warn } = logger('utils');
 
 /**
  * Resolves the "auth.*" config key based on your environment. This is used to get or set the

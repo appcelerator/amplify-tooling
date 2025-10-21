@@ -1,6 +1,6 @@
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
-import snooplogg from 'snooplogg';
+import { highlight } from '../../lib/logger.js';
 
 export default {
 	args: [
@@ -41,8 +41,6 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(accounts, null, 2));
 		} else {
-			const { highlight } = snooplogg.styles;
-
 			if (accounts.length) {
 				let account = accounts.find(a => a.default);
 				if (!account) {

@@ -1,5 +1,5 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
-import snooplogg from 'snooplogg';
+import { highlight, note } from '../../../lib/logger.js';
 
 export default {
 	args: [
@@ -29,7 +29,6 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const { highlight, note } = snooplogg.styles;
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to update an organization\'s user roles');

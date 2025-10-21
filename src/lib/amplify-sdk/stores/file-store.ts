@@ -2,12 +2,11 @@ import crypto from 'crypto';
 import E from '../errors.js';
 import fs from 'fs';
 import path from 'path';
-import snooplogg from 'snooplogg';
+import logger, { highlight } from '../../logger.js';
 import TokenStore from './token-store.js';
 import { writeFileSync } from '../../fs.js';
 
-const { log, warn } = snooplogg('amplify-sdk:auth:file-store');
-const { highlight } = snooplogg.styles;
+const { log, warn } = logger('amplify-sdk:auth:file-store');
 
 /**
  * The algorithm for encrypting and decrypting.

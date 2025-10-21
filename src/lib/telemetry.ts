@@ -1,13 +1,13 @@
 import fs from 'fs';
 import loadConfig from './config.js';
 import path from 'path';
-import snooplogg from 'snooplogg';
+import logger from './logger.js';
 import { createRequestOptions } from './request.js';
 import { Telemetry } from './amplify-sdk/index.js';
 import { axwayHome } from './path.js';
 import * as environments from './environments.js';
 
-const { warn } = snooplogg('axway-cli:telemetry');
+const { warn } = logger('telemetry');
 const telemetryCacheDir = path.join(axwayHome, 'axway-cli', 'telemetry');
 let telemetryInst = null;
 
@@ -77,7 +77,7 @@ export async function init(opts: any = {}) {
 		// Wire up the event sending in a beforeExit handler to ensure we send all events before the process ends.
 		process.on('beforeExit', async () => {
 			try {
-				await telemetryInst.send({ wait: true });
+				await telemetryInst.send();
 			} catch (err) {
 				warn(err);
 			}

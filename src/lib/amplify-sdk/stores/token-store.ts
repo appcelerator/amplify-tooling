@@ -1,9 +1,8 @@
 import E from '../errors.js';
 import pluralize from 'pluralize';
-import snooplogg from 'snooplogg';
+import logger, { highlight } from '../../logger.js';
 
-const { log } = snooplogg('amplify-sdk:auth:token-store');
-const { highlight } = snooplogg.styles;
+const { log } = logger('amplify-sdk:auth:token-store');
 
 /**
  * A regex to match a URL protocol.

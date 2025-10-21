@@ -1,6 +1,6 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
 import { createTable } from '../../../lib/formatter.js';
-import snooplogg from 'snooplogg';
+import { highlight, note } from '../../../lib/logger.js';
 
 export default {
 	aliases: [ 'ls' ],
@@ -43,8 +43,6 @@ export default {
 			}, null, 2));
 			return;
 		}
-
-		const { highlight, note } = snooplogg.styles;
 
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);

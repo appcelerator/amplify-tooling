@@ -7,9 +7,10 @@ import { fileURLToPath } from 'url';
 
 import CLI from 'cli-kit';
 import boxen from 'boxen';
-import snooplogg from 'snooplogg';
+import chalk from 'chalk';
 import { serializeError } from 'serialize-error';
 
+import logger from './lib/logger.js';
 import * as environments from './lib/environments.js';
 import * as telemetry from './lib/telemetry.js';
 import check from './lib/update.js';
@@ -27,8 +28,7 @@ import teamCmd from './commands/team.js';
 import telemetryCmd from './commands/telemetry.js';
 import userCmd from './commands/user.js';
 
-const { bold, cyan, gray, red, yellow } = snooplogg.styles;
-const { log, warn } = snooplogg('axway');
+const { log, warn } = logger('index');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -211,9 +211,9 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 			await config.set('update.notified', Date.now());
 			await config.save();
 
-			msg += yellow('Axway CLI Update Available'.toUpperCase()) + '\n';
-			msg += `${bold('Axway CLI')} ${gray(result.current)} →  ${_hlVer(result.latest, result.current)}\n`;
-			msg += `Run ${cyan('npm i -g axway')} to update`;
+			msg += chalk.yellow('Axway CLI Update Available'.toUpperCase()) + '\n';
+			msg += `${chalk.bold('Axway CLI')} ${chalk.gray(result.current)} →  ${_hlVer(result.latest, result.current)}\n`;
+			msg += `Run ${chalk.cyan('npm i -g axway')} to update`;
 
 			console.log('\n' + boxen(msg, {
 				align: 'center',
@@ -247,12 +247,12 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 			const msg = `${process.platform === 'win32' ? 'x' : '✖'} ${err}`;
 			for (let line of msg.split(/\r\n|\n/)) {
 				line = line.trim();
-				console.error(line ? red(line) : '');
+				console.error(line ? chalk.red(line) : '');
 			}
 			if (err.detail) {
 				console.error('');
 				for (const line of String(err.detail).split(/\r\n|\n/)) {
-					console.error(red(line));
+					console.error(chalk.red(line));
 				}
 			}
 		}
@@ -297,7 +297,6 @@ function scrubArgv(argv) {
  * @returns {String}
  */
 function _hlVer(toVer, fromVer) {
-	const { green } = snooplogg.styles;
 	const version = [];
 
 	let [ from, fromTag ] = fromVer.split(/-(.+)/);
@@ -314,7 +313,7 @@ function _hlVer(toVer, fromVer) {
 			if (fromNum && parseInt(fromNum[0]) >= parseInt(toNum)) {
 				return `-${toTag}`;
 			} else {
-				return green(`-${toTag}`);
+				return chalk.green(`-${toTag}`);
 			}
 		}
 		return '';
@@ -323,9 +322,9 @@ function _hlVer(toVer, fromVer) {
 	while (to.length) {
 		if (to[0] > from[0]) {
 			if (version.length) {
-				return (toMatch && toMatch[1] || '') + version.concat(green(to.join('.') + tag())).join('.');
+				return (toMatch && toMatch[1] || '') + version.concat(chalk.green(to.join('.') + tag())).join('.');
 			}
-			return green((toMatch && toMatch[1] || '') + to.join('.') + tag());
+			return chalk.green((toMatch && toMatch[1] || '') + to.join('.') + tag());
 		}
 		version.push(to.shift());
 		from.shift();

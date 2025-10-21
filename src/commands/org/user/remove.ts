@@ -1,5 +1,5 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
-import snooplogg from 'snooplogg';
+import { highlight, note } from '../../../lib/logger.js';
 
 export default {
 	aliases: [ 'rm' ],
@@ -25,7 +25,6 @@ export default {
 	},
 	async action({ argv, cli, console }) {
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const { highlight, note } = snooplogg.styles;
 
 		if (!argv.json) {
 			console.log(`Account:      ${highlight(account.name)}`);

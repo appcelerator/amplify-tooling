@@ -418,7 +418,6 @@ describe('amplify-sdk', () => {
 
 				const orgs = await sdk.org.list(account);
 				expect(orgs).to.have.lengthOf(1);
-				console.log(orgs);
 				expect(orgs[0].guid).to.equal('1000');
 				expect(orgs[0].name).to.equal('Foo org');
 				expect(orgs[0].default).to.equal(true);
@@ -459,7 +458,6 @@ describe('amplify-sdk', () => {
 				const { auth, account, sdk, tokenStore } = await createSdkSync(true);
 
 				const envs = await sdk.org.environments(account);
-				console.log(envs)
 				expect(envs).to.deep.equal([
 					{
 						name: 'production',

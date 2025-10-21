@@ -1,6 +1,6 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
-import snooplogg from 'snooplogg';
+import { active, highlight, note } from '../../lib/logger.js';
 
 export default {
 	aliases: [ 'ls' ],
@@ -31,8 +31,6 @@ export default {
 			return;
 		}
 
-		const { green, highlight, note } = snooplogg.styles;
-
 		console.log(`Account:      ${highlight(account.name)}`);
 		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
@@ -46,7 +44,7 @@ export default {
 
 		for (const { apps, created, default: def, desc, guid, name, users } of teams) {
 			table.push([
-				def ? green(`${check} ${name}`) : `  ${name}`,
+				def ? active(`${check} ${name}`) : `  ${name}`,
 				desc || note('n/a'),
 				guid,
 				users.length,

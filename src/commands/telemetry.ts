@@ -1,4 +1,4 @@
-import snooplogg from 'snooplogg';
+import chalk from 'chalk';
 import loadConfig from '../lib/config.js';
 import * as telemetry from '../lib/telemetry.js';
 
@@ -32,7 +32,6 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 		'--disable': 'Disabled data collection and deletes any pending telemetry data'
 	},
 	async action({ argv, console, terminal }) {
-		const { green, red } = snooplogg.styles;
 		const config = await loadConfig();
 		let enabled = await telemetry.isEnabled();
 
@@ -42,7 +41,7 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 			enabled = false;
 		} else {
 			console.log(this.extendedDesc);
-			console.log(`\nTelemetry is currently ${enabled ? green('enabled') : red('disabled')}\n`);
+			console.log(`\nTelemetry is currently ${enabled ? chalk.green('enabled') : chalk.red('disabled')}\n`);
 
 			if (enabled) {
 				console.log('Note: Disabling telemetry will delete any pending telemetry data.\n');
@@ -64,11 +63,11 @@ the environment variable ${style.highlight('AXWAY_TELEMETRY_DISABLED')} to ${sty
 		await config.save();
 
 		if (enabled) {
-			console.log(`Telemetry has been ${green('enabled')}.\n`);
+			console.log(`Telemetry has been ${chalk.green('enabled')}.\n`);
 			console.log('Thank you for helping Axway!');
 		} else {
 			telemetry.nukeData();
-			console.log(`Telemetry has been ${red('disabled')} and the telemetry data directory has been deleted.`);
+			console.log(`Telemetry has been ${chalk.red('disabled')} and the telemetry data directory has been deleted.`);
 		}
 	}
 };

@@ -1,5 +1,5 @@
 import { generateKeypair } from '../../lib/auth/keypair.js';
-import snooplogg from 'snooplogg';
+import { highlight } from '../../lib/logger.js';
 
 export default {
 	desc: 'Create a pem formatted public/private key pair',
@@ -47,7 +47,6 @@ export default {
 		if (argv.json) {
 			console.log(JSON.stringify(certs, null, 2));
 		} else {
-			const { highlight } = snooplogg.styles;
 			for (const { file, label } of Object.values(certs) as any) {
 				console.log(`Wrote ${label.toLowerCase()}: ${highlight(file)}`);
 			}

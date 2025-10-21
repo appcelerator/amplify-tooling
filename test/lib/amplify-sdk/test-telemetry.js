@@ -199,19 +199,19 @@ describe('Telemetry', () => {
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid, session.start
 
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 			expect(this.getTelemetryEvents()).to.have.lengthOf(1);
 			expect(this.getTelemetryEvents()[0]).to.have.lengthOf(1);
 			expect(this.getTelemetryEvents()[0][0].event).to.equal('session.start');
 
 			this.resetServers();
 
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 			expect(this.getTelemetryEvents()).to.have.lengthOf(0);
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid, debug.log
 			fs.rmSync(path.join(appDir, 'debug.log'));
 
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid, debug.log
 		});
 
@@ -231,7 +231,7 @@ describe('Telemetry', () => {
 			const files = fs.readdirSync(appDir);
 			expect(files).to.have.lengthOf(4);
 
-			telemetry.send({ wait: true });
+			telemetry.send();
 			await new Promise(resolve => setTimeout(() => resolve(), 500));
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
@@ -254,7 +254,7 @@ describe('Telemetry', () => {
 			const files = fs.readdirSync(appDir);
 			expect(files).to.have.lengthOf(18);
 
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 			expect(this.getTelemetryEvents()).to.have.lengthOf(2);
 
@@ -297,7 +297,7 @@ describe('Telemetry', () => {
 			const files = fs.readdirSync(appDir);
 			expect(files).to.have.lengthOf(6);
 
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
 			expect(this.getTelemetryEvents()).to.have.lengthOf(1);
@@ -345,8 +345,8 @@ describe('Telemetry', () => {
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(4);
 
 			await Promise.all([
-				telemetry.send({ wait: true }),
-				telemetry.send({ wait: true })
+				telemetry.send(),
+				telemetry.send()
 			]);
 
 			expect(this.getTelemetryEvents()).to.have.lengthOf(1);
@@ -377,7 +377,7 @@ describe('Telemetry', () => {
 				}
 			}
 
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 
 			expect(this.getTelemetryEvents()).to.have.lengthOf(1);
 			const events = this.getTelemetryEvents()[0];
@@ -392,7 +392,7 @@ describe('Telemetry', () => {
 			const { appDir, telemetry } = createTelemetry();
 
 			// send session.start
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
@@ -402,7 +402,7 @@ describe('Telemetry', () => {
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(5);
 
 			// nothing to send
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
@@ -416,7 +416,7 @@ describe('Telemetry', () => {
 			const { appDir, telemetry } = createTelemetry();
 			fs.rmSync(appDir, { recursive: true, force: true });
 
-			await telemetry.send({ wait: true });
+			await telemetry.send().catch(console.error);
 
 			expect(fs.existsSync(appDir)).to.equal(false);
 		});
@@ -432,7 +432,7 @@ describe('Telemetry', () => {
 			telemetry.addEvent({ event: 'foo.bar' });
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(4);
 
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(5);
 		});
 
@@ -441,7 +441,7 @@ describe('Telemetry', () => {
 			this.slow(8000);
 
 			let { appDir, telemetry } = createTelemetry();
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 
 			// rewrite the .sid to be expired
 			const json = readJsonSync(path.join(appDir, '.sid'));
@@ -452,7 +452,7 @@ describe('Telemetry', () => {
 			({ appDir, telemetry } = createTelemetry());
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(5);
 
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
 
 			expect(this.getTelemetryEvents()).to.have.lengthOf(2);
@@ -498,7 +498,7 @@ describe('Telemetry', () => {
 
 			telemetry.addEvent({ event: 'foo.bar' });
 			telemetry.addCrash(new Error('This is an error'));
-			await telemetry.send({ wait: true });
+			await telemetry.send();
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(2);
 		});

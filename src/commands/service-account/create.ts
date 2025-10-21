@@ -2,7 +2,7 @@ import { initPlatformAccount } from '../../lib/utils.js';
 import { isFile } from '../../lib/fs.js';
 import { generateKeypair } from '../../lib/auth/keypair.js';
 import { existsSync, readFileSync } from 'fs';
-import snooplogg from 'snooplogg';
+import { highlight, note } from '../../lib/logger.js';
 import { v4 as uuidv4 } from 'uuid';
 import { input, select, password, checkbox } from '@inquirer/prompts';
 
@@ -56,8 +56,6 @@ required options must be passed in at execution.`;
 		'--secret [key]':       'A custom client secret key'
 	},
 	async action({ argv, cli, console, help, terminal }) {
-		const { highlight, note } = snooplogg.styles;
-
 		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		if (!account.user.roles.includes('administrator')) {
@@ -124,7 +122,7 @@ required options must be passed in at execution.`;
 
 		if (!desc && !argv.name) {
 			desc = await doPrompt({
-				message: `Description ${snooplogg.styles.note('(optional)')}`,
+				message: `Description ${note('(optional)')}`,
 				type: 'input'
 			});
 		}

@@ -1,7 +1,7 @@
 import E from '../errors.js';
 import getEndpoints from '../../auth/endpoints.js';
 import { decodeJwt } from 'jose';
-import snooplogg from 'snooplogg';
+import logger, { alert, highlight, note, ok } from '../../logger.js';
 import TokenStore from '../stores/token-store.js';
 
 import * as environments from '../../environments.js';
@@ -9,8 +9,7 @@ import * as request from '../../request.js';
 
 import { md5, prepareForm } from '../util.js';
 
-const { log, warn } = snooplogg('amplify-sdk:authenticator');
-const { green, highlight, red, note } = snooplogg.styles;
+const { log, warn } = logger('amplify-sdk:authenticator');
 
 /**
  * Orchestrates authentication and token management.
@@ -251,7 +250,7 @@ export default class Authenticator {
 					form: prepareForm(params),
 					responseType: 'json'
 				});
-				log(`${(response.statusCode >= 400 ? red : green)(String(response.statusCode))} ${highlight(url)}`);
+				log(`${(response.statusCode >= 400 ? alert : ok)(String(response.statusCode))} ${highlight(url)}`);
 				return response;
 			} catch (err) {
 				if (err.code === 'ECONNREFUSED') {
