@@ -31,7 +31,6 @@
     "ci-info": "^4.3.1",
     "cli-kit": "^2.1.1",
     "cli-table3": "^0.6.2",
-    "config-kit": "^2.1.0",
     "debug": "^4.4.3",
     "got": "^11.8.5",
     "http-proxy-agent": "^5.0.0",

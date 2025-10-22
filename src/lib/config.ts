@@ -1,12 +1,12 @@
-import { Config } from 'config-kit';
-import os from 'os';
+import _ from 'lodash';
 import path from 'path';
-import { expandPath } from './path.js';
-import { isFile, readJsonSync, writeFileSync } from './fs.js';
-
-const axwayHome = path.join(os.homedir(), '.axway');
+import logger, { highlight } from './logger.js';
+import { readJsonSync, writeJsonSync } from './fs.js';
+import { axwayHome, expandPath } from './path.js';
 
 export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
+
+const { log, error } = logger('config');
 
 /**
  * Load a users config, if no userConfig is given then the default Axway CLI config will be
@@ -15,7 +15,7 @@ export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
  * @param {Object} [opts] - An object with various options.
  * @param {Object} [opts.config] - A object to initialize the config with. Note that if a
  * `configFile` is also specified, this `config` is applied AFTER the config file has been loaded.
- * @param {String} [opts.configFile] - The path to a .js or .json config file to load.
+ * @param {String} [opts.configFile] - The path to a .json config file to load.
  * @returns {Config}
  */
 export async function loadConfig(opts: any = {}) {
@@ -28,15 +28,6 @@ export async function loadConfig(opts: any = {}) {
 		throw new TypeError('Expected config file to be a string');
 	}
 
-	// TODO: Remove this pre-2.1.0 conf file handling as we're now moving to 5.0.0?
-	// in v2.1.0, the config file was moved to keep the ~/.axway directory tidy as other Axway
-	// CLI's are added
-	const legacyConfigFile = path.join(axwayHome, 'amplify-cli.json');
-	if (!isFile(configFile) && isFile(legacyConfigFile)) {
-		const json = readJsonSync(legacyConfigFile);
-		json.extensions = {};
-		writeFileSync(configFile, JSON.stringify(json, null, 2));
-	}
 	return await new Config().init({
 		data: opts.config,
 		file: expandPath(opts.configFile || configFile)
@@ -45,4 +36,209 @@ export async function loadConfig(opts: any = {}) {
 
 export default loadConfig;
 
-export { Config };
+/**
+ * Manages configuration data loaded from and saved to a JSON file.
+ *
+ * @example
+ * ```typescript
+ * const config = new Config().init({ file: '/path/to/config.json' });
+ * config.set('foo', 'bar');
+ * config.save();
+ * ```
+ */
+export class Config {
+	#data: any;
+	#file: string;
+
+	constructor() {
+		this.#data = {};
+	}
+
+	/**
+	 * Initializes the configuration object with the provided options.
+	 *
+	 * @param {Object} opts An options object containing initialization options.
+	 * @param {String} [opts.file] The path to a `.json` file as a string. Required.
+	 * @param {Object} [opts.config] An optional object to merge into the configuration data.
+	 * @returns {Config} The current instance for chaining.
+	 */
+	init(opts: { file?: string; data?: Object } = {}): this {
+		this.#file = opts.file;
+		if (!this.#file || typeof this.#file !== 'string' || !this.#file.endsWith('.json')) {
+			throw new TypeError('Expected file to be a string path to a .json file');
+		}
+
+		try {
+			this.load();
+		} catch (e) {
+			error(e.message);
+		}
+
+		if (opts.data && typeof opts.data === 'object' && !Array.isArray(opts.data)) {
+			this.#data = { ...this.#data, ..._.cloneDeep(opts.data) };
+		}
+
+		return this;
+	}
+
+	/**
+	 * Loads the configuration data from the JSON file.
+	 *
+	 * @returns {Object} The loaded configuration data.
+	 */
+	load() {
+		log(`Loading config file: ${highlight(this.#file)}`);
+
+		try {
+			const content = readJsonSync(this.#file);
+			this.#data = _.merge(this.#data, content);
+		} catch (e) {
+			e.message = `Failed to load config file: ${e.message}`;
+			throw e;
+		}
+
+		return this.#data;
+	}
+
+	/**
+	 * Retrieves a deep clone of the entire configuration data.
+	 *
+	 * @returns {Object} A deep clone of the configuration data.
+	 */
+	data() {
+		return _.cloneDeep(this.#data);
+	}
+
+	/**
+	 * Retrieves a value from the configuration data.
+	 *
+	 * @param {String} [key] The key of the configuration value to retrieve.
+	 * @param {any} [defaultValue] The default value to return if the key is not found.
+	 * @returns {any} The configuration value or the default value.
+	 */
+	get(key?: string, defaultValue?: any) {
+		if (!key) {
+			return this.#data;
+		}
+
+		return _.get(this.#data, key, defaultValue);
+	}
+
+	/**
+	 * Sets a value in the configuration data.
+	 *
+	 * @param {String} key The key of the configuration value to set.
+	 * @param {any} value The value to set.
+	 */
+	set(key: string, value: any) {
+		_.set(this.#data, key, value);
+	}
+
+	/**
+	 * Checks if a key exists in the configuration data.
+	 *
+	 * @param {String} key The key of the configuration value to check.
+	 * @returns {Boolean} True if the key exists, false otherwise.
+	 */
+	has(key: string) {
+		return _.has(this.#data, key);
+	}
+
+	/**
+	 * Deletes a key from the configuration data.
+	 *
+	 * @param {String} key The key of the configuration value to delete.
+	 */
+	delete(key: string) {
+		log(`Deleting key "${highlight(key)}" from config data`);
+		_.unset(this.#data, key);
+	}
+
+	/**
+	 * Adds a value to the end of an array in the configuration data.
+	 * If the array does not exist, it will be created.
+	 *
+	 * @param {String} key The key of the array to modify.
+	 * @param {any} value The value to add to the array.
+	 */
+	push(key: string, value: any) {
+		const arr = this.get(key) || [];
+		arr.push(value);
+		this.set(key, arr);
+	}
+
+	/**
+	 * Removes and returns the last value from an array in the configuration data.
+	 *
+	 * @param {String} key The key of the array to modify.
+	 * @returns {any} The removed value.
+	 */
+	pop(key: string) {
+		const arr = this.get(key);
+		if (!Array.isArray(arr)) {
+			throw new TypeError(`Expected config key "${key}" to be an array`);
+		}
+		const value = arr.pop();
+		this.set(key, arr);
+		return value;
+	}
+
+	/**
+	 * Shifts the first value from an array in the configuration data.
+	 *
+	 * @param {String} key The key of the array to modify.
+	 * @returns {any} The removed value.
+	 */
+	shift(key: string) {
+		const arr = this.get(key);
+		if (!Array.isArray(arr)) {
+			throw new TypeError(`Expected config key "${key}" to be an array`);
+		}
+		const value = arr.shift();
+		this.set(key, arr);
+		return value;
+	}
+
+	/**
+	 * Adds a value to the beginning of an array in the configuration data.
+	 * If the array does not exist, it will be created.
+	 *
+	 * @param {String} key The key of the array to modify.
+	 * @param {any} value The value to add to the array.
+	 */
+	unshift(key: string, value: any) {
+		const arr = this.get(key) || [];
+		arr.unshift(value);
+		this.set(key, arr);
+	}
+
+	/**
+	 * Retrieves all keys from the configuration data.
+	 *
+	 * @returns {String[]} An array of all configuration keys.
+	 */
+	keys() {
+		return Object.getOwnPropertyNames(this.#data);
+	}
+
+	/**
+	 * Saves the configuration data to the JSON file.
+	 *
+	 * @returns {Object} The saved configuration data.
+	 */
+	save() {
+		writeJsonSync(this.#file, this.#data);
+		log(`Wrote config file: ${highlight(this.#file)}`);
+		return this.#data;
+	}
+
+	/**
+	 * Converts the configuration data to a JSON string.
+	 *
+	 * @param {Number} [indentation=2] The number of spaces to use for indentation.
+	 * @returns {String} The configuration data as a JSON string.
+	 */
+	toString(indentation = 2) {
+		return JSON.stringify(this.#data, null, indentation);
+	}
+}

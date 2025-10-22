@@ -135,5 +135,5 @@ export function readJsonSync(file) {
  * @param {Object} data The data to write to the file.
  */
 export function writeJsonSync(file, data) {
-	fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8');
+	writeFileSync(file, JSON.stringify(data, null, 2) + '\n', 'utf8');
 }

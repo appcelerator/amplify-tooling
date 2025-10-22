@@ -8,9 +8,6 @@ const winEnvVarRegExp = /(%([^%]*)%)/g;
 // Directories
 export const axwayHome = path.join(os.homedir(), '.axway');
 
-// Files
-export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
-
 /**
  * Resolves a path into an absolute path.
  *
