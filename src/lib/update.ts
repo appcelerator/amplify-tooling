@@ -173,7 +173,6 @@ async function getLatestVersion(name, distTag, opts) {
 
 	try {
 		const { body: info }: any = await got(reqOpts);
-		log(info)
 
 		if (!info || typeof info !== 'object') {
 			throw new TypeError('Expected registry package info to be an object');
