@@ -11,12 +11,7 @@ import { highlight, note } from './logger.js';
  * @param {Array.<Object>} params.results - The list of activity events.
  * @returns {Promise}
  */
-export async function renderActivity({ account, console, json, results }) {
-	if (json) {
-		console.log(JSON.stringify(results, null, 2));
-		return;
-	}
-
+export async function renderActivity({ account, log, results }) {
 	const { from, to, events } = results;
 
 	const formatDate = d => {
@@ -24,14 +19,14 @@ export async function renderActivity({ account, console, json, results }) {
 		return dt.toLocaleString();
 	};
 
-	console.log(`Account:      ${highlight(account.name)}`);
+	log(`Account:      ${highlight(account.name)}`);
 	if (results.org) {
-		console.log(`Organization: ${highlight(results.org.name)} ${note(`(${results.org.guid})`)}`);
+		log(`Organization: ${highlight(results.org.name)} ${note(`(${results.org.guid})`)}`);
 	}
-	console.log(`Date Range:   ${highlight(formatDate(from))} - ${highlight(formatDate(to))}\n`);
+	log(`Date Range:   ${highlight(formatDate(from))} - ${highlight(formatDate(to))}\n`);
 
 	if (!events.length) {
-		console.log('No activity found');
+		log('No activity found');
 		return;
 	}
 
@@ -96,5 +91,5 @@ export async function renderActivity({ account, console, json, results }) {
 			table.push([ '', { colSpan: 3, content: changes } ]);
 		}
 	}
-	console.log(table.toString());
+	log(table.toString());
 }

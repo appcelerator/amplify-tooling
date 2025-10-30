@@ -1,41 +1,47 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { highlight, note } from '../../lib/logger.js';
+import { Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	aliases: [ 'ls' ],
-	desc: 'List all service accounts',
-	help: {
-		header() {
-			return `${this.desc}.`;
-		}
-	},
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs service accounts as JSON'
-		},
-		'--org [name|id|guid]': 'The organization name, id, or guid'
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+export default class ServiceAccountList extends Command {
+	static override aliases = [
+		'service-account:ls'
+	];
+
+	static override summary = 'List all service accounts.';
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use',
+			required: false
+		}),
+		org: Flags.string({
+			description: 'The organization name, id, or guid',
+			required: false
+		})
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { flags } = await this.parse(ServiceAccountList);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
 		const { clients } = await sdk.client.list(account, org);
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				org,
 				clients
-			}, null, 2));
-			return;
+			};
 		}
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		if (!clients.length) {
-			console.log('No service accounts found');
+			this.log('No service accounts found');
 			return;
 		}
 
@@ -51,6 +57,6 @@ export default {
 				new Date(created).toLocaleDateString()
 			]);
 		}
-		console.log(table.toString());
+		this.log(table.toString());
 	}
-};
+}

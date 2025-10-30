@@ -40,27 +40,27 @@ export default function logger(namespace: string): Logger {
 		debug(...args);
 	}
 
-	log.log = function(...args: any[]) {
+	log.log = function (...args: any[]) {
 		debug(...args);
-	}
+	};
 
-	log.debug = function(...args: any[]) {
+	log.debug = function (...args: any[]) {
 		debug(chalk.magenta('debug'), ...args);
-	}
+	};
 
-	log.error = function(...args: any[]) {
+	log.error = function (...args: any[]) {
 		debug(chalk.red('error'), ...args);
 	};
 
-	log.warn = function(...args: any[]) {
+	log.warn = function (...args: any[]) {
 		debug(chalk.yellow('warn'), ...args);
 	};
 
-	log.info = function(...args: any[]) {
+	log.info = function (...args: any[]) {
 		debug(chalk.green('info'), ...args);
 	};
 
-	log.fatal = function(...args: any[]) {
+	log.fatal = function (...args: any[]) {
 		debug(chalk.white.bgRed('fatal'), ...args);
 	};
 

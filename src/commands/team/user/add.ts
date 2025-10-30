@@ -1,65 +1,67 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
-import { heading, highlight, note } from '../../../lib/logger.js';
+import { highlight, note } from '../../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../../lib/command.js';
 
-export default {
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid',
+export default class TeamUserAdd extends Command {
+	static override aliases = [
+		'team:users:add',
+		'team:member:add',
+		'team:members:add'
+	];
+
+	static override summary = 'Add a user to a team.';
+
+	static override description = `You may specify an organization by name, id, or guid.
+
+The user must already be a platform user.
+
+A team user must be assigned a platform role and optionally a product specific role. You may specify the roles with multiple --role "role" options or a single --role "role1,role2,role3" option with a comma-separated list of roles. To view available user roles, run: axway team user roles
+`;
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid',
 			required: true
-		},
-		{
-			name: 'team',
-			desc: 'The team name or guid',
+		}),
+		team: Args.string({
+			description: 'The team name or guid',
 			required: true
-		},
-		{
-			name: 'user',
-			desc: 'The user guid or email address',
+		}),
+		user: Args.string({
+			description: 'The user guid or email address',
 			required: true
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		}),
+		role: Flags.string({
+			description: 'Assign one or more team roles to a user',
+			multiple: true
+		})
+	};
+
+	static override examples = [
+		{
+			description: 'Add a user to an organization with administrator privileges.',
+			command: '<%= config.bin %> <%= command.id %> <org> <team> <email> --role administrator'
 		}
-	],
-	desc: 'Add a user to a team',
-	help: {
-		header() {
-			return `${this.desc}.`;
-		},
-		footer() {
-			return `${heading('Examples:')}
+	];
 
-  You may specify an organization by name, id, or guid.
+	static override enableJsonFlag = true;
 
-  The user must already be a platform user.
-
-  An team user must be assigned a platform role and optionally a product
-  specific role. You may specify the roles with multiple ${highlight('--role "role"')} options
-  or a single ${highlight('--role "role1,role2,role3"')} option with a comma-separated list of
-  roles. To view available user roles, run: ${highlight('axway team user roles')}
-
-  Add a user to an organization with administrator privileges.
-    ${highlight('axway team user add <org> <email> --role administrator')}`;
-		}
-	},
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the result as JSON'
-		},
-		'--role <role>': {
-			desc: 'Assign one or more team roles to a user',
-			multiple: true,
-			redact: false
-		}
-	},
-	async action({ argv, cli, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(TeamUserAdd);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to add a user to a team in the "${org.name}" organization`);
 		}
 
-		const { team, user } = await sdk.team.user.add(account, org, argv.team, argv.user, argv.role);
+		const { team, user } = await sdk.team.user.add(account, org, args.team, args.user, flags.role);
 
 		const results = {
 			account: account.name,
@@ -68,20 +70,18 @@ export default {
 			user
 		};
 
-		if (argv.json) {
-			console.log(JSON.stringify(results, null, 2));
+		if (this.jsonEnabled()) {
+			return results;
 		} else {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+			this.log(`Account:      ${highlight(account.name)}`);
+			this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 			if (user.client_id) {
-				console.log(`Successfully added service account ${highlight(user.name)} to the ${highlight(team.name)} team`);
+				this.log(`Successfully added service account ${highlight(user.name)} to the ${highlight(team.name)} team`);
 			} else {
 				const name = `${user.firstname} ${user.lastname}`.trim();
-				console.log(`Successfully added user ${highlight(name)} to the ${highlight(team.name)} team`);
+				this.log(`Successfully added user ${highlight(name)} to the ${highlight(team.name)} team`);
 			}
 		}
-
-		await cli.emitAction('axway:oum:team:user:add', results);
 	}
-};
+}

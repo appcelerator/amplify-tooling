@@ -1,55 +1,69 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
 import { createTable } from '../../../lib/formatter.js';
 import { highlight, note } from '../../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../../lib/command.js';
 
-export default {
-	aliases: [ 'ls' ],
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid',
-			required: true
-		},
-		{
-			name: 'team',
-			desc: 'The team name or guid',
-			required: true
-		}
-	],
-	desc: 'List users in a team',
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the list of users as JSON'
-		}
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const { team } = await sdk.team.find(account, org, argv.team);
+export default class TeamUserList extends Command {
+	static override aliases = [
+		'team:user:ls',
+		'team:users:ls',
+		'team:users:list',
+		'team:member:ls',
+		'team:member:list',
+		'team:members:ls',
+		'team:members:list'
+	];
+
+	static override summary = 'List users in a team.';
+
+	static override description = 'The organization can be specified by name, id, or guid. The team can be specified by name or guid.';
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid',
+			required: true,
+		}),
+		team: Args.string({
+			description: 'The team name or guid',
+			required: true,
+		}),
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use',
+		}),
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(TeamUserList);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { team } = await sdk.team.find(account, org, args.team);
 
 		if (!team) {
-			throw new Error(`Unable to find team "${argv.team}"`);
+			throw new Error(`Unable to find team "${args.team}"`);
 		}
 
 		const { users } = await sdk.team.user.list(account, org, team.guid);
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				org,
 				team,
-				users
-			}, null, 2));
-			return;
+				users,
+			};
 		}
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
-		console.log(`Team:         ${highlight(team.name)} ${note(`(${team.guid})`)}\n`);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
+		this.log(`Team:         ${highlight(team.name)} ${note(`(${team.guid})`)}\n`);
 
 		if (!users.length) {
-			console.log('No users found');
+			this.log('No users found');
 			return;
 		}
 
@@ -65,6 +79,6 @@ export default {
 				roles.length ? roles.join(', ') : note('n/a')
 			]);
 		}
-		console.log(table.toString());
+		this.log(table.toString());
 	}
 };

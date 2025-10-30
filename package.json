@@ -1,7 +1,7 @@
 {
   "name": "axway",
   "version": "0.0.0",
-  "description": "A unified CLI for the Axway Amplify platform.",
+  "description": "The Axway CLI is a unified command line interface for the Axway Amplify Platform.",
   "author": "Axway, Inc. <npmjs@appcelerator.com>",
   "type": "module",
   "license": "Apache-2.0",
@@ -13,11 +13,11 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling",
   "bin": {
-    "axway": "./bin/axway"
+    "axway": "./bin/run"
   },
   "scripts": {
     "debug": "node --inspect=9254 --enable-source-maps dist/index.js",
-    "start": "./bin/axway",
+    "start": "./bin/run",
     "build": "tsc",
     "test": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test",
     "lint": "eslint src",
@@ -26,10 +26,12 @@
   },
   "dependencies": {
     "@inquirer/prompts": "^7.8.6",
+    "@oclif/core": "^4.7.2",
+    "@oclif/plugin-autocomplete": "^3.2.38",
+    "@oclif/plugin-help": "^6.2.34",
     "boxen": "^8.0.1",
     "chalk": "^5.4.1",
     "ci-info": "^4.3.1",
-    "cli-kit": "^2.1.1",
     "cli-table3": "^0.6.2",
     "debug": "^4.4.3",
     "got": "^11.8.5",
@@ -38,6 +40,7 @@
     "jose": "^6.1.0",
     "keytar": "7.9.0",
     "lodash": "^4.17.21",
+    "pluralize": "^8.0.0",
     "pretty-bytes": "^7.1.0",
     "pretty-ms": "^9.3.0",
     "semver": "^7.7.3",
@@ -46,9 +49,10 @@
   },
   "devDependencies": {
     "@koa/router": "^13.1.0",
+    "@oclif/test": "^4.1.14",
     "@types/lodash": "^4.17.20",
     "@types/node": "^22",
-    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
     "caller-path": "^4.0.0",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",

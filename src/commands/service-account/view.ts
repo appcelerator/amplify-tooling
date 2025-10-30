@@ -1,69 +1,76 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { highlight, note } from '../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	args: [
-		{
-			desc: 'The service account client id or name',
-			hint: 'client-id/name',
-			name: 'id',
+export default class ServiceAccountView extends Command {
+	static override aliases = [
+		'service-account:v',
+		'service-account:info',
+		'service-account:show'
+	];
+
+	static override summary = 'View service account details.';
+
+	static override description = 'Displays information about a service account, including its roles, teams, and authentication method.';
+
+	static override args = {
+		'client-id': Args.string({
+			description: 'The service account client id or name',
 			required: true
-		}
-	],
-	aliases: [ 'v', '!info', '!show' ],
-	desc: 'View service account details',
-	help: {
-		header() {
-			return `${this.desc}.`;
-		}
-	},
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs service account as JSON'
-		},
-		'--org [name|id|guid]': 'The organization name, id, or guid'
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const result = await sdk.client.find(account, org, argv.id);
+		})
+	};
 
-		if (argv.json) {
-			console.log(JSON.stringify(result, null, 2));
-			return;
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		}),
+		org: Flags.string({
+			description: 'The organization name, id, or guid'
+		})
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(ServiceAccountView);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org, flags.env);
+		const result = await sdk.client.find(account, org, args['client-id']);
+
+		if (this.jsonEnabled()) {
+			return result;
 		}
 
 		const { client } = result;
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		if (!client) {
-			console.log(`Service account "${argv.clientId}" not found`);
+			this.log(`Service account "${args.id}" not found`);
 			return;
 		}
 
-		console.log('SERVICE ACCOUNT');
-		console.log(`  Name:         ${highlight(client.name)}`);
-		console.log(`  Client ID:    ${highlight(client.client_id)}`);
-		console.log(`  Description:  ${client.description ? highlight(client.description) : note('n/a')}`);
-		console.log(`  Date Created: ${client.created ? highlight(new Date(client.created).toLocaleString()) : note('n/a')}`);
+		this.log('SERVICE ACCOUNT');
+		this.log(`  Name:         ${highlight(client.name)}`);
+		this.log(`  Client ID:    ${highlight(client.client_id)}`);
+		this.log(`  Description:  ${client.description ? highlight(client.description) : note('n/a')}`);
+		this.log(`  Date Created: ${client.created ? highlight(new Date(client.created).toLocaleString()) : note('n/a')}`);
 
-		console.log('\nAUTHENTICATION');
-		console.log(`  Method:       ${highlight(client.method)}`);
+		this.log('\nAUTHENTICATION');
+		this.log(`  Method:       ${highlight(client.method)}`);
 
-		console.log('\nORG ROLES');
+		this.log('\nORG ROLES');
 		if (client.roles.length) {
 			for (const role of client.roles) {
-				console.log(`  ${role}`);
+				this.log(`  ${role}`);
 			}
 		} else {
-			console.log('  No roles found');
+			this.log('  No roles found');
 		}
 
-		console.log('\nTEAMS');
+		this.log('\nTEAMS');
 		if (client.teams.length) {
 			const table = createTable([ '  Name', 'Role', 'Description', 'Team GUID', 'User', 'Apps', 'Date Created' ]);
 			for (const { apps, created, desc, guid, name, roles, users } of client.teams) {
@@ -77,9 +84,9 @@ export default {
 					new Date(created).toLocaleDateString()
 				]);
 			}
-			console.log(table.toString());
+			this.log(table.toString());
 		} else {
-			console.log('  No teams found');
+			this.log('  No teams found');
 		}
 	}
 };

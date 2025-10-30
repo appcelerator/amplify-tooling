@@ -1,50 +1,54 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
 import { highlight, note } from '../../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../../lib/command.js';
 
-export default {
-	aliases: [ 'rm' ],
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org',
+export default class OrgUserRemove extends Command {
+	static override aliases = [
+		'org:user:rm'
+	];
+
+	static override summary = 'Remove a user from an organization.';
+
+	static override description = 'You can specify the organization by name, id, or guid, and the user by guid or email address.';
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid; defaults to the current org',
 			required: true
-		},
-		{
-			name: 'user',
-			desc: 'The user guid or email address',
+		}),
+		user: Args.string({
+			description: 'The user guid or email address',
 			required: true
-		}
-	],
-	desc: 'Remove a user from an organization',
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the result as JSON'
-		}
-	},
-	async action({ argv, cli, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		})
+	};
 
-		if (!argv.json) {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-		}
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		})
+	};
 
-		const { user } = await sdk.org.user.remove(account, org, argv.user);
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { args } = await this.parse(OrgUserRemove);
+		const { account, org, sdk } = await initPlatformAccount(args.account, args.org, args.env);
+
+		const { user } = await sdk.org.user.remove(account, org, args.user);
 		const results = {
 			account: account.name,
 			org,
 			user
 		};
 
-		if (argv.json) {
-			console.log(JSON.stringify(results, null, 2));
+		if (this.jsonEnabled()) {
+			return results;
 		} else {
 			const name = `${results.user.firstname} ${results.user.lastname}`.trim();
-			console.log(`Successfully removed user "${highlight(name)}" from organization`);
+			this.log(`Account:      ${highlight(account.name)}`);
+			this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+			this.log(`Successfully removed user "${highlight(name)}" from organization`);
 		}
-
-		await cli.emitAction('axway:oum:org:user:remove', results);
 	}
-};
+}

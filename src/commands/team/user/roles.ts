@@ -1,40 +1,60 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
 import { createTable } from '../../../lib/formatter.js';
 import { highlight, note } from '../../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../../lib/command.js';
 
-export default {
-	desc: 'View available team user roles',
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs roles as JSON'
-		},
-		'--org [name|id|guid]': 'The organization name, id, or guid; roles vary by org'
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const roles = (await sdk.role.list(account, { default: true, org, team: true }));
+export default class TeamUserRoles extends Command {
+	static override aliases = [
+		'team:users:roles',
+		'team:member:roles',
+		'team:members:roles'
+	];
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+	static override summary = 'View available team user roles.';
+
+	static override description = 'Roles may vary by organization.';
+
+	static override args = {
+		account: Args.string({
+			description: 'The platform account to use',
+			required: false,
+		}),
+		org: Args.string({
+			description: 'The organization name, id, or guid; roles vary by org',
+			required: false,
+		}),
+	};
+
+	static override flags = {
+		env: Flags.string({
+			description: 'Environment to use',
+		}),
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(TeamUserRoles);
+		const { account, org, sdk } = await initPlatformAccount(args.account, args.org, flags.env);
+		const roles = await sdk.role.list(account, { default: true, org, team: true });
+
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				org,
 				roles
-			}, null, 2));
-			return;
+			};
 		}
 
 		const table = createTable([ '  Role', 'Description' ]);
-
 		for (const role of roles) {
 			table.push([ `  ${highlight(role.id)}`, role.name ]);
 		}
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-
-		console.log('PLATFORM ROLES');
-		console.log(table.toString());
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		this.log('TEAM ROLES');
+		this.log(table.toString());
 	}
-};
+}

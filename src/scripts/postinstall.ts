@@ -4,8 +4,8 @@ import * as telemetry from '../lib/telemetry.js';
 const { cyan, green, red } = chalk;
 
 (async () => {
-  const telemetryEnabled = await telemetry.isEnabled();
-  console.log(`
+	const telemetryEnabled = await telemetry.isEnabled();
+	console.log(`
 ${green('Axway CLI successfully installed!')}
 
 GETTING HELP:
@@ -49,11 +49,11 @@ TELEMETRY:
   is currently ${telemetryEnabled ? green('enabled') : red('disabled')}.
 
   ${telemetryEnabled
-    ? `You can opt-out of telemetry by running:
+		? `You can opt-out of telemetry by running:
 
      ${cyan('axway telemetry --disable')}`
 
-    : `You can change your telemetry preference by running:
+		: `You can change your telemetry preference by running:
      ${cyan('axway telemetry --enable')}`}
 `);
 })();

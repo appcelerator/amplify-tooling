@@ -76,7 +76,7 @@ export function options(opts: any = {}) {
 	// Default all requests to use the custom CLI user agent
 	opts.headers = {
 		'User-Agent': userAgent
-	}
+	};
 
 	const load = it => (Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : undefined);
 

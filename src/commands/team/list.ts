@@ -1,42 +1,51 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { active, highlight, note } from '../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	aliases: [ 'ls' ],
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org'
-		}
-	],
-	desc: 'List organization teams',
-	options: {
-		'--account [name]': 'The account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the list of teams as JSON'
-		}
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+export default class TeamList extends Command {
+	static override aliases = [
+		'team:ls',
+	];
+
+	static override summary = 'List organization teams.';
+
+	static override description = 'Lists all teams for an organization.';
+
+	static override enableJsonFlag = true;
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid; defaults to the current org',
+			required: false
+		}),
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The account to use',
+		}),
+	};
+
+	async run(): Promise<any | void> {
+		const { args, flags } = await this.parse(TeamList);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
 		const { teams } = await sdk.team.list(account, org);
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				org,
-				teams
-			}, null, 2));
-			return;
+				teams,
+			};
 		}
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		if (!teams.length) {
-			console.log('No teams found');
-			return;
+			return this.log('No teams found');
 		}
 
 		const table = createTable([ 'Name', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
@@ -52,6 +61,6 @@ export default {
 				new Date(created).toLocaleDateString()
 			]);
 		}
-		console.log(table.toString());
+		this.log(table.toString());
 	}
-};
+}

@@ -1,28 +1,40 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
 import { createTable } from '../../../lib/formatter.js';
 import { highlight, note } from '../../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../../lib/command.js';
 
-export default {
-	desc: 'View available organization user roles',
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs roles as JSON'
-		},
-		'--org [name|id|guid]': 'The organization name, id, or guid; roles vary by org'
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const roles = (await sdk.role.list(account, { org }));
+export default class OrgUserRoles extends Command {
+	static override summary = 'View available organization user roles.';
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+	static override description = 'View the available roles for users in an organization. Roles may vary by organization.';
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid; roles vary by org',
+			required: false
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		})
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { flags, args } = await this.parse(OrgUserRoles);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const roles = await sdk.role.list(account, { org });
+
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				org,
 				roles
-			}, null, 2));
-			return;
+			};
 		}
 
 		const platformRoles = createTable([ '  Role', 'Description' ]);
@@ -36,15 +48,15 @@ export default {
 			}
 		}
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-		console.log('PLATFORM ROLES');
-		console.log(platformRoles.toString());
+		this.log('PLATFORM ROLES');
+		this.log(platformRoles.toString());
 
 		if (serviceRoles.length) {
-			console.log('\nSERVICE ROLES');
-			console.log(serviceRoles.toString());
+			this.log('\nSERVICE ROLES');
+			this.log(serviceRoles.toString());
 		}
 	}
-};
+}

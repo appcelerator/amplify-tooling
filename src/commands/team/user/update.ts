@@ -1,45 +1,55 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
 import { highlight, note } from '../../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../../lib/command.js';
 
-export default {
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid',
+export default class TeamUserUpdate extends Command {
+	static override aliases = [
+		'team:users:update',
+		'team:member:update',
+		'team:members:update'
+	];
+
+	static override summary = 'Update a user\'s team roles.';
+
+	static override description = 'You must have administrative access to update a user\'s team roles.';
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid',
 			required: true
-		},
-		{
-			name: 'team',
-			desc: 'The team name or guid',
+		}),
+		team: Args.string({
+			description: 'The team name or guid',
 			required: true
-		},
-		{
-			name: 'user',
-			desc: 'The user guid or email address',
+		}),
+		user: Args.string({
+			description: 'The user guid or email address',
 			required: true
-		}
-	],
-	desc: 'Update an user\'s team roles',
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the result as JSON'
-		},
-		'--role [role]': {
-			desc: 'Assign one or more team roles to a user',
-			multiple: true,
-			redact: false
-		}
-	},
-	async action({ argv, cli, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		}),
+		role: Flags.string({
+			description: 'Assign one or more team roles to a user',
+			multiple: true
+		})
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(TeamUserUpdate);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to update a user's team roles in the "${org.name}" organization`);
 		}
 
-		const { team, user } = await sdk.team.user.update(account, org, argv.team, argv.user, argv.role);
+		const { team, user } = await sdk.team.user.update(account, org, args.team, args.user, flags.role);
 
 		const results = {
 			account: account.name,
@@ -48,15 +58,13 @@ export default {
 			user
 		};
 
-		if (argv.json) {
-			console.log(JSON.stringify(results, null, 2));
+		if (this.jsonEnabled()) {
+			return results;
 		} else {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+			this.log(`Account:      ${highlight(account.name)}`);
+			this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 			// TODO: Fix this bug with roles never being defined on the results object
-			// console.log(`Successfully updated user role${results.roles === 1 ? '' : 's'}`);
+			// this.log(`Successfully updated user role${results.roles === 1 ? '' : 's'}`);
 		}
-
-		await cli.emitAction('axway:oum:team:user:update', results);
 	}
-};
+}

@@ -8,15 +8,18 @@ export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
 
 const { log, error } = logger('config');
 
+// Singleton config instance
+let config: Config;
+
 /**
- * Load a users config, if no userConfig is given then the default Axway CLI config will be
+ * Load a users config, if no configFile is given then the default Axway CLI config will be
  * loaded.
  *
  * @param {Object} [opts] - An object with various options.
  * @param {Object} [opts.config] - A object to initialize the config with. Note that if a
  * `configFile` is also specified, this `config` is applied AFTER the config file has been loaded.
  * @param {String} [opts.configFile] - The path to a .json config file to load.
- * @returns {Config}
+ * @returns {Promise<Config>}
  */
 export async function loadConfig(opts: any = {}) {
 	// validate the config options
@@ -28,10 +31,23 @@ export async function loadConfig(opts: any = {}) {
 		throw new TypeError('Expected config file to be a string');
 	}
 
-	return await new Config().init({
-		data: opts.config,
-		file: expandPath(opts.configFile || configFile)
-	});
+	// If a different config file is specified, load it fresh each time
+	if (opts.configFile && opts.configFile !== configFile) {
+		return await new Config().init({
+			data: opts.config,
+			file: expandPath(opts.configFile)
+		});
+	}
+
+	// Otherwise return the singleton config
+	if (!config) {
+		config = await new Config().init({
+			data: opts.config,
+			file: expandPath(opts.configFile || configFile)
+		});
+	}
+
+	return config;
 }
 
 export default loadConfig;
@@ -62,7 +78,7 @@ export class Config {
 	 * @param {Object} [opts.config] An optional object to merge into the configuration data.
 	 * @returns {Config} The current instance for chaining.
 	 */
-	init(opts: { file?: string; data?: Object } = {}): this {
+	init(opts: { file?: string; data?: object } = {}): this {
 		this.#file = opts.file;
 		if (!this.#file || typeof this.#file !== 'string' || !this.#file.endsWith('.json')) {
 			throw new TypeError('Expected file to be a string path to a .json file');
@@ -240,5 +256,14 @@ export class Config {
 	 */
 	toString(indentation = 2) {
 		return JSON.stringify(this.#data, null, indentation);
+	}
+
+	/**
+	 * Converts the configuration data to a plain object.
+	 *
+	 * @returns {Object} The configuration data as a plain object.
+	 */
+	toJSON() {
+		return _.cloneDeep(this.#data);
 	}
 }

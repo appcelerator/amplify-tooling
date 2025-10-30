@@ -8,6 +8,17 @@ import { readJsonSync, writeFileSync } from './fs.js';
 
 const { error, log, warn } = logger('update');
 
+let pendingCheck: Promise<UpdateMeta>;
+
+interface UpdateMeta {
+	latest: string | null;
+	lastCheck: number | null;
+	updateAvailable: boolean;
+	current: string;
+	distTag: string;
+	name: string;
+}
+
 /**
  * Checks if there's an new version of a package is available.
  *
@@ -33,7 +44,7 @@ const { error, log, warn } = logger('update');
  * timing out.
  * @returns {Promise} Resolves an object containing the update information.
  */
-export async function check(opts: any = {}) {
+async function _check(opts: any = {}): Promise<UpdateMeta> {
 	if (!opts || typeof opts !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	}
@@ -49,7 +60,7 @@ export async function check(opts: any = {}) {
 	// bail immediately if update notifications have been explicitly disabled or we're running
 	// within a test
 	if (!force && !process.env.FORCE_UPDATE_NOTIFIER && (process.env.NO_UPDATE_NOTIFIER || process.env.NODE_ENV === 'test' || isCI)) {
-		return {};
+		return {} as UpdateMeta;
 	}
 
 	if (!pkg || typeof pkg !== 'object' || !pkg.name || !pkg.version) {
@@ -78,13 +89,14 @@ export async function check(opts: any = {}) {
 
 	const now = Date.now();
 	const metaFile = path.resolve(metaDir, `${name.replace(/[/\\]/g, '-')}-${distTag}.json`);
-	const meta = Object.assign(
+
+	const meta: UpdateMeta = Object.assign(
 		{
 			latest: null,
 			lastCheck: null,
 			updateAvailable: false
 		},
-		await loadMetaFile(metaFile),
+		loadMetaFile(metaFile),
 		{
 			current: version,
 			distTag,
@@ -126,7 +138,37 @@ export async function check(opts: any = {}) {
 	return meta;
 }
 
-export default check;
+/**
+ * Checks if there's an new version of a package is available.
+ *
+ * @param {Object} [opts] - Various options.
+ * @param {Boolean} [opts.applyOwner=true] - When `true`, determines the owner of the closest
+ * existing parent directory and apply the owner to the file and any newly created directories.
+ * @param {String} [opts.caFile] - A path to a PEM-formatted certificate authority bundle.
+ * @param {String} [opts.certFile] - A path to a client cert file used for authentication.
+ * @param {Number} [opts.checkInterval=3600000] - The amount of time in milliseconds before
+ * checking for an update. Defaults to 1 hour.
+ * @param {String} [opts.distTag='latest'] - The tag to check for the latest version.
+ * @param {Boolean} [opts.force=false] - Forces an update check.
+ * @param {String} [opts.keyFile] - A path to a private key file used for authentication.
+ * @param {String} [opts.metaDir] - The directory to store package update information.
+ * @param {Object|String} [opts.pkg] - The parsed `package.json`, path to the package.json file, or
+ * falsey and it will scan parent directories looking for a package.json.
+ * @param {String} [opts.proxy] - A proxy server URL. Can be `http` or `https`.
+ * @param {String} [opts.registryUrl] - The npm registry URL. By default, it will autodetect the
+ * URL based on the package name/scope.
+ * @param {Boolean} [opts.strictSSL=true] - When falsey, disables TLS/SSL certificate validation
+ * for both `https` requests and `https` proxy servers.
+ * @param {Number} [opts.timeout=1000] - The number of milliseconds to wait to query npm before
+ * timing out.
+ * @returns {Promise<UpdateMeta>} Resolves an object containing the update information.
+ */
+export default function check(opts: any): Promise<UpdateMeta> {
+	if (!pendingCheck) {
+		pendingCheck = _check(opts);
+	}
+	return pendingCheck;
+}
 
 /**
  * Loads the specified meta file and sanity checks it.
@@ -134,7 +176,7 @@ export default check;
  * @param {String} metaFile - The path of the file to load.
  * @returns {Object}
  */
-async function loadMetaFile(metaFile) {
+function loadMetaFile(metaFile): UpdateMeta | null {
 	try {
 		// read the meta file
 		log(`Loading meta file: ${highlight(metaFile)}`);
@@ -155,9 +197,9 @@ async function loadMetaFile(metaFile) {
  * @param {String} name - The package name.
  * @param {String} distTag - The name of the distribution tag to return.
  * @param {Object} [opts] - Options to initialized the request client.
- * @returns {Promise} Resolves the latest version or `null` if not found.
+ * @returns {Promise<String | null>} Resolves the latest version or `null` if not found.
  */
-async function getLatestVersion(name, distTag, opts) {
+async function getLatestVersion(name, distTag, opts): Promise<string | null> {
 	const regUrl = 'https://registry.npmjs.org/';
 	const got = request.init(opts);
 	const reqOpts = {

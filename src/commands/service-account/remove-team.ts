@@ -1,68 +1,64 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { highlight, note } from '../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	args: [
-		{
-			desc: 'The service account client id or name',
-			hint: 'client-id/name',
-			name: 'client-id',
+export default class RemoveTeam extends Command {
+	static override summary = 'Remove a team from a service account.';
+
+	static override description = 'You must have administrative access to modify a service account in the organization.';
+
+	static override args = {
+		'client-id': Args.string({
+			description: 'The service account client id or name',
 			required: true
-		},
-		{
-			desc: 'The team name or guid',
-			hint: 'team-guid/name',
-			name: 'team-guid',
+		}),
+		'team-guid': Args.string({
+			description: 'The team name or guid',
 			required: true
-		}
-	],
-	desc: 'Remove a team from a service account',
-	help: {
-		header() {
-			return `${this.desc}.`;
-		}
-	},
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the result as JSON'
-		},
-		'--org [name|id|guid]': 'The organization name, id, or guid'
-	},
-	async action({ argv, cli, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		}),
+		org: Flags.string({
+			description: 'The organization name, id, or guid'
+		})
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(RemoveTeam);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org, flags.env);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to modify a service account in the "${org.name}" organization`);
 		}
 
-		// get the service account and team
-		const { client: existing } = await sdk.client.find(account, org, argv.clientId);
-		const { team } = await sdk.team.find(account, org, argv.teamGuid);
+		const { client: existing } = await sdk.client.find(account, org, args['client-id']);
+		const { team } = await sdk.team.find(account, org, args['team-guid']);
 
-		// add the team to the existing list of teams
 		const teams = (existing.teams || [])
 			.map(({ guid, roles }) => ({ guid, roles }))
 			.filter(t => t.guid !== team.guid);
 
-		// update the service account
 		const results = await sdk.client.update(account, org, {
 			client: existing,
 			teams
 		});
 		results.account = account;
 
-		if (argv.json) {
-			console.log(JSON.stringify(results, null, 2));
-		} else {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-
-			const { client_id, name } = results.client;
-			console.log(`Successfully removed team ${highlight(team.name)} from service account ${highlight(name)} ${note(`(${client_id})`)}`);
+		if (this.jsonEnabled()) {
+			return results;
 		}
 
-		await cli.emitAction('axway:auth:service-account:remove-team', results);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+
+		const { client_id, name } = results.client;
+		this.log(`Successfully removed team ${highlight(team.name)} from service account ${highlight(name)} ${note(`(${client_id})`)}`);
 	}
-};
+}

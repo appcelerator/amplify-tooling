@@ -1,50 +1,45 @@
 import { highlight } from '../../lib/logger.js';
 import { initSDK } from '../../lib/utils.js';
+import { Args } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	aliases: [ '!revoke' ],
-	args: [
-		{
-			name: 'accounts...',
-			desc: 'One or more specific accounts to revoke credentials'
-		}
-	],
-	desc: 'Log out all or specific accounts',
-	options: {
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs revoked accounts as JSON'
-		}
-	},
-	async action({ argv, cli, console }) {
-		if (!argv.accounts.length) {
-			argv.all = true;
-		}
+export default class AuthLogout extends Command {
+	static override summary = 'Log out all or specific accounts.';
+	static override description = 'Optionally outputs revoked accounts as JSON.';
+	static override aliases = [ 'auth:revoke' ];
+	static override enableJsonFlag = true;
 
-		const { sdk } = await initSDK({
-			baseUrl:  argv.baseUrl,
-			env:      argv.env,
-			realm:    argv.realm
-		});
-		const revoked = await sdk.auth.logout(argv);
+	static override args = {
+		accounts: Args.string({
+			description: 'One or more specific accounts to revoke credentials',
+			required: false,
+			multiple: true
+		}),
+	};
 
-		await cli.emitAction('axway:auth:logout', revoked);
+	async run() {
+		const { args } = await this.parse(AuthLogout);
 
-		if (argv.json) {
-			console.log(JSON.stringify(revoked, null, 2));
-			return;
+		const accounts = args.accounts ?? [];
+		const all = accounts.length === 0;
+
+		const sdk = await initSDK();
+		const revoked = await sdk.auth.logout({ accounts, all });
+
+		if (this.jsonEnabled()) {
+			return revoked;
 		}
 
 		// pretty output
 		if (revoked.length) {
-			console.log('Revoked authenticated accounts:');
+			this.log('Revoked authenticated accounts:');
 			for (const account of revoked) {
-				console.log(` ${highlight(account.name)}`);
+				this.log(` ${highlight(account.name)}`);
 			}
-		} else if (Array.isArray(argv.accounts) && argv.accounts.length === 1) {
-			throw new Error(`No account "${argv.accounts[0]}" found`);
+		} else if (Array.isArray(accounts) && accounts.length === 1) {
+			this.error(`No account "${accounts[0]}" found`);
 		} else {
-			throw new Error('No authenticated accounts found');
+			this.error('No authenticated accounts found');
 		}
 	}
-};
+}

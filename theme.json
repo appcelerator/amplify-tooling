@@ -1,0 +1,27 @@
+{
+	"alias": "cyan",
+	"bin": "cyan",
+	"command": "cyan",
+	"commandSummary": "white",
+	"dollarSign": "white",
+	"flag": "cyan",
+	"flagDefaultValue": "white",
+	"flagOptions": "white",
+	"flagRequired": "red",
+	"flagSeparator": "white",
+	"json": {
+		"brace": "white",
+		"bracket": "white",
+		"colon": "white",
+		"comma": "white",
+		"key": "white",
+		"string": "green",
+		"number": "yellow",
+		"boolean": "yellow",
+		"null": "red"
+	},
+	"sectionDescription": "white",
+	"sectionHeader": "reset",
+	"topic": "cyan",
+	"version": "white"
+}

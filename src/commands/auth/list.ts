@@ -1,43 +1,34 @@
+import Command from '../../lib/command.js';
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import chalk from 'chalk';
 import prettyMilliseconds from 'pretty-ms';
 
-export default {
-	aliases: [ 'ls' ],
-	desc: 'Lists all authenticated accounts',
-	help: `Displays a list of all authenticated accounts, their selected platform
-organization, and the current team.`,
-	name: 'list',
-	options: {
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
-		}
-	},
-	async action({ argv, console }) {
-		const { config, sdk } = await initSDK({
-			baseUrl:  argv.baseUrl,
-			env:      argv.env,
-			realm:    argv.realm
-		});
+export default class AuthList extends Command {
+	static override summary = 'Lists all authenticated accounts.';
+	static override description = 'Displays a list of all authenticated accounts, their selected platform organization, and the current team.';
+	static override aliases = [ 'auth:ls' ];
+	static override enableJsonFlag = true;
+
+	async run() {
+		const { config } = await this.parse(AuthList);
+		const sdk = await initSDK();
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 
 		const accounts = await sdk.auth.list({
 			defaultTeams: config.get(`${authConfigEnvSpecifier}.defaultTeam`),
-			validate: true
+			validate: true,
 		});
 		for (const account of accounts) {
 			account.default = account.name === config.get(`${authConfigEnvSpecifier}.defaultAccount`);
 		}
 
-		if (argv.json) {
-			console.log(JSON.stringify(accounts, null, 2));
-			return;
+		if (this.jsonEnabled()) {
+			return accounts;
 		}
 
 		if (!accounts.length) {
-			console.log('No authenticated accounts.');
+			this.log('No authenticated accounts.');
 			return;
 		}
 
@@ -59,6 +50,6 @@ organization, and the current team.`,
 			]);
 		}
 
-		console.log(table.toString());
+		this.log(table.toString());
 	}
-};
+}

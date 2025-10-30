@@ -1,4 +1,4 @@
-import { ansi } from 'cli-kit';
+import { heading } from './logger.js';
 import Table from 'cli-table3';
 
 /**
@@ -18,7 +18,7 @@ export function createTable(head?, indent = 0) {
 			right: '', 'right-mid': '',
 			top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
 		},
-		head: Array.isArray(head) ? head.map(ansi.toUpperCase) : head,
+		head: Array.isArray(head) ? head.map(heading) : head,
 		style: {
 			border: [],
 			head: [],

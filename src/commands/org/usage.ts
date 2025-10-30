@@ -1,58 +1,59 @@
 import chalk from 'chalk';
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
-import { heading, highlight, note } from '../../lib/logger.js';
+import { highlight, note } from '../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	args: [
+export default class OrgUsage extends Command {
+	static override summary = 'Display organization usage report.';
+
+	static override description = `You must be authenticated to view or manage organizations.
+Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid; defaults to the current org',
+			required: false
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		}),
+		from: Flags.string({
+			description: 'The start date (yyyy-mm-dd)'
+		}),
+		to: Flags.string({
+			description: 'The end date (yyyy-mm-dd)'
+		}),
+		month: Flags.string({
+			description: 'A month date range; overrides --to and --from'
+		})
+	};
+
+	static override examples = [
 		{
-			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org'
+			description: 'Display organization usage for the past 14 days',
+			command: '<%= config.bin %> <%= command.id %> <org>'
+		},
+		{
+			description: 'Display organization usage for a specific date range',
+			command: '<%= config.bin %> <%= command.id %> <org> --from 2021-04-01 --to 2021-04-30'
+		},
+		{
+			description: 'Display organization usage for the current month',
+			command: '<%= config.bin %> <%= command.id %> <org> --month'
 		}
-	],
-	desc: 'Display organization usage report',
-	help: {
-		header() {
-			return `${this.desc}.`;
-		},
-		footer() {
-			return `${heading('Example:')}
+	];
 
-  You must be authenticated to view or manage organizations.
-  Run ${highlight('"axway auth login"')} to authenticate.
+	static override enableJsonFlag = true;
 
-  Display organization usage for the past 14 days:
-    ${highlight('axway org usage <org>')}
-
-  Display organization usage for a specific date range:
-    ${highlight('axway org usage <org> --from 2021-04-01 --to 2021-04-30')}
-
-  Display organization usage for the current month:
-    ${highlight('axway org usage <org> --month')}`;
-		}
-	},
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--from [yyyy-mm-dd]': {
-			desc: 'The start date',
-			redact: false
-		},
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the usage as JSON'
-		},
-		'--month [mm|yyyy-mm]': {
-			desc: 'A month date range; overrides --to and --from',
-			redact: false
-		},
-		'--to [yyyy-mm-dd]': {
-			desc: 'The end date',
-			redact: false
-		}
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const { bundle, from, to, usage } = await sdk.org.usage(account, org, argv);
+	async run(): Promise<any | void> {
+		const { args, flags } = await this.parse(OrgUsage);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { bundle, from, to, usage } = await sdk.org.usage(account, org, flags);
 		const orgEnvs = await sdk.org.environments(account);
 		const maxEntitlement = 9999999999999;
 		const { format } = new Intl.NumberFormat();
@@ -107,14 +108,13 @@ export default {
 			usage
 		};
 
-		if (argv.json) {
-			console.log(JSON.stringify(results, null, 2));
-			return;
+		if (this.jsonEnabled()) {
+			return results;
 		}
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
-		console.log(`Date Range:   ${highlight(formatDate(from))} and ${highlight(formatDate(to))}`);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}`);
+		this.log(`Date Range:   ${highlight(formatDate(from))} and ${highlight(formatDate(to))}`);
 
 		const renderBar = (percent, width) => {
 			const used = Math.ceil(width * Math.min(percent, 100) / 100);
@@ -129,8 +129,8 @@ export default {
 
 		// API Management Platform Usage
 		if (bundle) {
-			console.log(`\n${chalk.bold(bundle.name)} - ${highlight(bundle.edition)}`);
-			console.log(
+			this.log(`\n${chalk.bold(bundle.name)} - ${highlight(bundle.edition)}`);
+			this.log(
 				`  ${highlight(`${format(bundle.value)} / ${format(bundle.quota)}`)} ${bundle.units}`
 				+ `  ${renderBar(bundle.percent, 40)}`
 			);
@@ -156,8 +156,8 @@ export default {
 				}
 			}
 			if (table.length) {
-				console.log();
-				console.log(table.toString());
+				this.log();
+				this.log(table.toString());
 			}
 		}
 
@@ -193,9 +193,9 @@ export default {
 			}
 		}
 		if (table.length) {
-			console.log(table.toString());
+			this.log(table.toString());
 		} else if (!bundle) {
-			console.log('\nNo usage data');
+			this.log('\nNo usage data');
 		}
 	}
 };

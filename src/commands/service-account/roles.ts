@@ -1,39 +1,44 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { highlight, note } from '../../lib/logger.js';
+import { Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	desc: 'View available service account roles',
-	help: {
-		header() {
-			return `${this.desc}.`;
-		}
-	},
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs service accounts as JSON'
-		},
-		'--org [name|id|guid]': 'The organization name, id, or guid; roles vary by org'
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
-		const orgRoles = await sdk.role.list(account, { client: true, org });
+export default class RolesCommand extends Command {
+	static override summary = 'View available service account roles.';
+
+	static override description = 'Organization roles and team roles may vary by organization.';
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use',
+			required: false
+		}),
+		org: Flags.string({
+			description: 'The organization name, id, or guid; roles vary by org',
+			required: false
+		})
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { flags } = await this.parse(RolesCommand);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
+		const orgRoles = await sdk.role.list(account, { org });
 		const teamRoles = await sdk.role.list(account, { team: true, org });
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				org,
 				orgRoles,
 				teamRoles
-			}, null, 2));
-			return;
+			};
 		}
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		const table = createTable();
 		table.push([ { colSpan: 2, content: 'ORGANIZATION ROLES' } ]);
@@ -47,6 +52,6 @@ export default {
 			table.push([ `  ${highlight(role.id)}`, role.name ]);
 		}
 
-		console.log(table.toString());
+		this.log(table.toString());
 	}
-};
+}

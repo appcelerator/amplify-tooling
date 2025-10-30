@@ -1,34 +1,56 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { active, highlight } from '../../lib/logger.js';
+import { Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	aliases: [ 'ls' ],
-	desc: 'List organizations',
-	options: {
-		'--account [name]': 'The account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the organizations as JSON'
+export default class OrgList extends Command {
+	static override aliases = [
+		'org:ls'
+	];
+
+	static override summary = 'List organizations.';
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The account to use',
+			required: false
+		})
+	};
+
+	static override examples = [
+		{
+			description: 'List organizations for the default account',
+			command: '<%= config.bin %> <%= command.id %>'
+		},
+		{
+			description: 'List organizations for a specific account',
+			command: '<%= config.bin %> <%= command.id %> --account my-account'
+		},
+		{
+			description: 'Output organizations as JSON',
+			command: '<%= config.bin %> <%= command.id %> --json'
 		}
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, null, argv.env);
+	];
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { flags } = await this.parse(OrgList);
+		const { account, org, sdk } = await initPlatformAccount(flags.account);
 		const orgs = await sdk.org.list(account, org);
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				orgs
-			}, null, 2));
-			return;
+			};
 		}
 
-		console.log(`Account: ${highlight(account.name)}\n`);
+		this.log(`Account: ${highlight(account.name)}\n`);
 
 		if (!orgs.length) {
-			console.log('No organizations found');
-			return;
+			return this.log('No organizations found');
 		}
 
 		const table = createTable([ 'Organization', 'GUID', 'ORG ID' ]);
@@ -41,6 +63,6 @@ export default {
 				id
 			]);
 		}
-		console.log(table.toString());
+		this.log(table.toString());
 	}
-};
+}

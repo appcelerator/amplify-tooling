@@ -1,66 +1,72 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { renderActivity } from '../../lib/activity.js';
-import { heading, highlight } from '../../lib/logger.js';
+import { highlight } from '../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	args: [
+export default class OrgActivity extends Command {
+	static override summary = 'Display organization activity report.';
+
+	static override description = `You must be authenticated to view or manage organizations.
+Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid; defaults to the current org',
+			required: false
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		}),
+		from: Flags.string({
+			description: 'The start date (yyyy-mm-dd)'
+		}),
+		to: Flags.string({
+			description: 'The end date (yyyy-mm-dd)'
+		}),
+		month: Flags.string({
+			description: 'A month date range; overrides --to and --from (mm|yyyy-mm)'
+		})
+	};
+
+	static override examples = [
 		{
-			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org'
+			description: 'Display organization activity for the past 14 days',
+			command: '<%= config.bin %> <%= command.id %> <org>'
+		},
+		{
+			description: 'Display organization activity for a specific date range',
+			command: '<%= config.bin %> <%= command.id %> <org> --from 2021-04-01 --to 2021-04-30'
+		},
+		{
+			description: 'Display organization activity for the current month',
+			command: '<%= config.bin %> <%= command.id %> <org> --month'
 		}
-	],
-	desc: 'Display organization activity report',
-	help: {
-		header() {
-			return `${this.desc}.`;
-		},
-		footer() {
-			return `${heading('Example:')}
+	];
 
-  You must be authenticated to view or manage organizations.
-  Run ${highlight('"axway auth login"')} to authenticate.
+	static override enableJsonFlag = true;
 
-  Display organization activity for the past 14 days:
-    ${highlight('axway org activity <org>')}
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(OrgActivity);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
 
-  Display organization activity for a specific date range:
-    ${highlight('axway org activity <org> --from 2021-04-01 --to 2021-04-30')}
+		const results = {
+			account: account.name,
+			org,
+			...(await sdk.org.activity(account, org, flags))
+		};
 
-  Display organization activity for the current month:
-    ${highlight('axway org activity <org> --month')}`;
+		if (this.jsonEnabled()) {
+			return results;
 		}
-	},
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--from [yyyy-mm-dd]': {
-			desc: 'The start date',
-			redact: false
-		},
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the org activity as JSON'
-		},
-		'--month [mm|yyyy-mm]': {
-			desc: 'A month date range; overrides --to and --from',
-			redact: false
-		},
-		'--to [yyyy-mm-dd]': {
-			desc: 'The end date',
-			redact: false
-		}
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
 
 		await renderActivity({
 			account,
-			console,
-			json: argv.json,
-			results: {
-				account: account.name,
-				org,
-				...(await sdk.org.activity(account, org, argv))
-			}
+			log: this.log.bind(this),
+			results
 		});
 	}
-};
+}

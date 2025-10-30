@@ -1,60 +1,49 @@
+import Command from '../../lib/command.js';
+import { Args } from '@oclif/core';
 import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import { highlight } from '../../lib/logger.js';
 
-export default {
-	args: [
-		{
-			name: 'account-name',
-			desc: 'The account to display'
-		}
-	],
-	desc: 'Display info for an authenticated account',
-	help: 'Display the currently selected account, organizations, roles, and teams.',
-	options: {
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs accounts as JSON'
-		}
-	},
-	async action({ argv, console }) {
-		const { config, sdk } = await initSDK({
-			baseUrl:  argv.baseUrl,
-			env:      argv.env,
-			realm:    argv.realm
-		});
+export default class AuthWhoami extends Command {
+	static override description = 'Display info for an authenticated account';
+
+	static override args = {
+		accountName: Args.string({ description: 'The account to display', required: false }),
+	};
+
+	static override enableJsonFlag = true;
+
+	async run() {
+		const { args, config } = await this.parse(AuthWhoami);
+		const sdk = await initSDK();
 		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		let accounts = await sdk.auth.list({
-			defaultTeams: await config.get(`${authConfigEnvSpecifier}.defaultTeam`),
+			defaultTeams: config.get(`${authConfigEnvSpecifier}.defaultTeam`),
 			validate: true
 		});
 		for (const account of accounts) {
-			account.default = account.name === await config.get(`${authConfigEnvSpecifier}.defaultAccount`);
+			account.default = account.name === config.get(`${authConfigEnvSpecifier}.defaultAccount`);
 		}
 
-		if (argv.accountName) {
-			// eslint-disable-next-line security/detect-non-literal-regexp
-			const re = new RegExp(`${argv.accountName}`, 'i');
+		if (args.accountName) {
+			const re = new RegExp(`${args.accountName}`, 'i');
 			accounts = accounts.filter(a => re.test(a.name) || re.test(a.user.email) || re.test(a.org.name));
 		}
 
-		if (argv.json) {
-			console.log(JSON.stringify(accounts, null, 2));
-		} else {
-			if (accounts.length) {
-				let account = accounts.find(a => a.default);
-				if (!account) {
-					account = accounts[0];
-				}
-
-				console.log(`You are authenticated using the ${highlight(account.name)} service account.`);
-
-				console.log(await renderAccountInfo(account, config, sdk));
-			} else if (argv.accountName) {
-				console.log(`The account ${highlight(argv.accountName)} is not logged in.`);
-			} else {
-				console.log('You are not logged in.');
+		if (this.jsonEnabled()) {
+			return accounts;
+		} else if (accounts.length) {
+			let account = accounts.find(a => a.default);
+			if (!account) {
+				account = accounts[0];
 			}
+
+			this.log(`You are authenticated using the ${highlight(account.name)} service account.`);
+			this.log(await renderAccountInfo(account, config, sdk));
+		} else if (args.accountName) {
+			this.log(`The account ${highlight(args.accountName)} is not logged in.`);
+		} else {
+			this.log('You are not logged in.');
 		}
 	}
-};
+}

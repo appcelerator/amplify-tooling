@@ -42,6 +42,16 @@ const sessionTimeout = 24 * 60 * 60 * 1000; // 1 day
  */
 const sendBatchSize = 10;
 
+interface TelemetryOptions {
+	appGuid: string;
+	appVersion: string;
+	cacheDir: string;
+	enabled?: boolean;
+	environment: string;
+	requestOptions?: object;
+	url: string;
+}
+
 /**
  * Sends anonymous telemetry events for Axway products to help improve our software.
  * Spec: https://techweb.axway.com/confluence/display/analytics/Analytics+JSON+Payload+V4
@@ -54,6 +64,7 @@ export default class Telemetry {
 	common: any;
 	count: number;
 	sessionId: string;
+	enabled = true;
 
 	/**
 	 * Initializes a telemetry instance.
@@ -62,14 +73,14 @@ export default class Telemetry {
 	 * @param {String} opts.appGuid - The platform registered app guid.
 	 * @param {String} opts.appVersion - The app version.
 	 * @param {String} opts.cacheDir - The path to cache telemetry events.
+	 * @param {Boolean} opts.enabled - Whether telemetry is enabled.
 	 * @param {String} opts.environment - The environment name.
 	 * @param {Object} [opts.requestOptions] - HTTP request options with proxy settings and such to
 	 * create a `got` HTTP client.
 	 * @param {String} [opts.url] - The URL to post the telemetry events to. This option is
 	 * intended for testing purposes.
-	 * @access public
 	 */
-	constructor(opts: any) {
+	constructor(opts: TelemetryOptions) {
 		if (!opts || typeof opts !== 'object') {
 			throw new TypeError('Expected telemetry options to be an object');
 		}
@@ -96,6 +107,10 @@ export default class Telemetry {
 
 		if (!opts.url || typeof opts.url !== 'string') {
 			throw new TypeError('Expected telemetry URL to be a non-empty string');
+		}
+
+		if (opts.enabled === false) {
+			this.enabled = false;
 		}
 
 		this.appDir         = path.join(opts.cacheDir, opts.appGuid);
@@ -153,7 +168,7 @@ export default class Telemetry {
 	 * @access public
 	 */
 	addCrash(payload) {
-		if (isTelemetryDisabled() || this.common.distribution.environment !== 'production') {
+		if (this.isTelemetryDisabled() || this.common.distribution.environment !== 'production') {
 			return;
 		}
 
@@ -198,7 +213,7 @@ export default class Telemetry {
 	 * @access public
 	 */
 	addEvent(payload) {
-		if (isTelemetryDisabled()) {
+		if (this.isTelemetryDisabled()) {
 			return;
 		}
 
@@ -257,7 +272,7 @@ export default class Telemetry {
 	 * @access public
 	 */
 	async send() {
-		if (isTelemetryDisabled()) {
+		if (this.isTelemetryDisabled()) {
 			return;
 		}
 
@@ -302,7 +317,6 @@ export default class Telemetry {
 				});
 			});
 		} catch (err) {
-			console.log('HERE')
 			logger(`amplify-sdk:telemetry:${pid}`).error(err);
 		} finally {
 			try {
@@ -340,6 +354,15 @@ export default class Telemetry {
 		log(evt);
 
 		writeFileSync(file, JSON.stringify(evt));
+	}
+
+	/**
+	 * Checks the environment variables to see if telemetry should be disabled.
+	 *
+	 * @returns {Boolean}
+	 */
+	isTelemetryDisabled() {
+		return !this.enabled || process.env.AXWAY_TELEMETRY_DISABLED === '1' || (!process.env.AXWAY_TEST && ci.isCI);
 	}
 }
 
@@ -489,15 +512,6 @@ process.on('message', async (msg: any) => {
 		process.disconnect();
 	}
 });
-
-/**
- * Checks the environment variables to see if telemetry should be disabled.
- *
- * @returns {Boolean}
- */
-function isTelemetryDisabled() {
-	return process.env.AXWAY_TELEMETRY_DISABLED === '1' || (!process.env.AXWAY_TEST && ci.isCI);
-}
 
 let archCache = null;
 

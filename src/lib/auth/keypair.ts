@@ -23,7 +23,7 @@ export async function generateKeypair(opts: any = {}) {
 	}
 
 	const { force, publicKey, privateKey, silent } = opts;
-	const { sdk } = await initSDK();
+	const sdk = await initSDK();
 	const certs = await sdk.client.generateKeyPair();
 
 	const files = {

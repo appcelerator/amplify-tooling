@@ -1,112 +1,118 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { isFile } from '../../lib/fs.js';
 import { existsSync, readFileSync } from 'fs';
-import { heading, highlight, note } from '../../lib/logger.js';
+import { highlight, note } from '../../lib/logger.js';
+import { Flags, Args } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	args: [
-		{
-			desc: 'The service account client id or name',
-			hint: 'client-id/name',
-			name: 'id',
+export default class ServiceAccountUpdate extends Command {
+	static override summary = 'Update a service account.';
+
+	static override description = `Multiple values may be changed in a single call.
+
+You cannot change a service account's authentication method from client secret to public key and vice versa.`;
+
+	static override args = {
+		'client-id': Args.string({
+			description: 'The service account client id or name',
 			required: true
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		}),
+		desc: Flags.string({
+			description: 'The description of the service account'
+		}),
+		name: Flags.string({
+			description: 'Friendly name to use for display'
+		}),
+		org: Flags.string({
+			description: 'The organization name, id, or guid'
+		}),
+		publicKey: Flags.string({
+			description: 'The path to the public key'
+		}),
+		role: Flags.string({
+			description: 'Assign one or more organization roles to the service account',
+			multiple: true
+		}),
+		secret: Flags.string({
+			description: 'A custom client secret key'
+		})
+	};
+
+	static override examples = [
+		{
+			description: 'Change a service account name, description, and role',
+			command: '<%= config.bin %> <%= command.id %> <name/client-id> --name <new_name> --desc <desc> --role administrator'
+		},
+		{
+			description: 'Update a service account\'s client secret key',
+			command: '<%= config.bin %> <%= command.id %> <name/client-id> --secret <new_secret>'
+		},
+		{
+			description: 'Update a service account\'s public key',
+			command: '<%= config.bin %> <%= command.id %> <name/client-id> --public-key /path/to/public_key.pem'
 		}
-	],
-	desc: 'Update a service account',
-	help: {
-		header() {
-			return `
-Update service account information. Multiple values may be changed in a single
-call.
+	];
 
-You cannot change a service account's authentication method from client secret
-to public key and vice versa.`;
-		},
-		footer() {
-			return `${heading('Examples:')}
+	static override enableJsonFlag = true;
 
-  Change a service account name, description, and role:
-    ${highlight('axway service-account update <name/client-id> --name <new_name> --desc <desc> --role administrator')}
-
-  Update a service account's client secret key:
-    ${highlight('axway service-account update <name/client-id> --secret <new_secret>')}
-
-  Update a service account's public key:
-    ${highlight('axway service-account update <name/client-id> --public-key /path/to/public_key.pem')}`;
-		}
-	},
-	options: {
-		'--account [name]':     'The platform account to use',
-		'--desc [value]':       'The description of the service account',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs service account as JSON'
-		},
-		'--name [value]':       'Friendly name to use for display',
-		'--org [name|id|guid]': 'The organization name, id, or guid',
-		'--public-key [path]':  'The path to the public key',
-		'--role [role]': {
-			desc: 'Assign one or more organization roles to the service account',
-			multiple: true,
-			redact: false
-		},
-		'--secret [key]':       'A custom client secret key'
-	},
-	async action({ argv, cli, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(ServiceAccountUpdate);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to update a service account in the "${org.name}" organization`);
 		}
 
 		const data: any = {
-			client: argv.id
+			client: args['client-id']
 		};
 
-		if (argv.name !== undefined) {
-			data.name = argv.name;
+		if (flags.name !== undefined) {
+			data.name = flags.name;
 		}
 
-		if (argv.desc !== undefined) {
-			data.desc = argv.desc;
+		if (flags.desc !== undefined) {
+			data.desc = flags.desc;
 		}
 
-		if (argv.publicKey !== undefined) {
-			if (!existsSync(argv.publicKey)) {
-				throw new Error(`Public key ${argv.publicKey} does not exist`);
+		if (flags.publicKey !== undefined) {
+			if (!existsSync(flags.publicKey)) {
+				throw new Error(`Public key ${flags.publicKey} does not exist`);
 			}
-			if (!isFile(argv.publicKey)) {
-				throw new Error(`Public key ${argv.publicKey} is not a file`);
+			if (!isFile(flags.publicKey)) {
+				throw new Error(`Public key ${flags.publicKey} is not a file`);
 			}
-			const publicKeyFile = argv.publicKey;
+			const publicKeyFile = flags.publicKey;
 			data.publicKey = readFileSync(publicKeyFile, 'utf-8');
 			if (!data.publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
 				throw new Error(`Public key ${publicKeyFile} is not a PKCS#8 PEM formatted file`);
 			}
 		}
 
-		if (argv.role !== undefined) {
-			// filter out all falsey/empty roles or `true`
-			data.roles = argv.role.filter(r => r && r !== true);
+		if (flags.role !== undefined) {
+			data.roles = flags.role.filter(r => r && r !== true);
 		}
 
-		if (argv.secret !== undefined) {
-			data.secret = argv.secret;
+		if (flags.secret !== undefined) {
+			data.secret = flags.secret;
 		}
 
 		const results = await sdk.client.update(account, org, data);
 		results.account = account.name;
 
-		if (argv.json) {
-			console.log(JSON.stringify(results, null, 2));
-		} else {
-			console.log(`Account:      ${highlight(account.name)}`);
-			console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-
-			const { client_id, name } = results.client;
-			console.log(`Successfully updated service account ${highlight(name)} ${note(`(${client_id})`)}`);
+		if (this.jsonEnabled()) {
+			return results;
 		}
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
-		await cli.emitAction('axway:auth:service-account:create', results);
+		const { client_id, name } = results.client;
+		this.log(`Successfully updated service account ${highlight(name)} ${note(`(${client_id})`)}`);
 	}
-};
+}

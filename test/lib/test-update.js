@@ -88,7 +88,7 @@ describe('update', function () {
 			it('should check a valid pkg object', async () => {
 				const result = await check({
 					pkg: {
-						name: 'cli-kit',
+						name: 'axway',
 						version: '0.0.1'
 					}
 				});
@@ -117,7 +117,7 @@ describe('update', function () {
 				await expect(check({
 					distTag: 'foo',
 					pkg: {
-						name: 'cli-kit',
+						name: 'axway',
 						version: '1.2.3'
 					}
 				})).to.eventually.be.rejectedWith(Error, 'Distribution tag "foo" does not exist');

@@ -1,41 +1,51 @@
 import { initPlatformAccount } from '../../../lib/utils.js';
 import { createTable } from '../../../lib/formatter.js';
 import { highlight, note } from '../../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../../lib/command.js';
 
-export default {
-	aliases: [ 'ls' ],
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org'
-		}
-	],
-	desc: 'List users in an organization',
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the list of users as JSON'
-		}
-	},
-	async action({ argv, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+export default class OrgUserList extends Command {
+	static override aliases = [
+		'org:user:ls'
+	];
+
+	static override summary = 'List users in an organization.';
+
+	static override description = 'The organization can be specified by name, id, or guid; defaults to the current org.';
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid; defaults to the current org',
+			required: false
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		})
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(OrgUserList);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
 		const { users } = await sdk.org.user.list(account, org);
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				org,
 				users
-			}, null, 2));
-			return;
+			};
 		}
 
-		console.log(`Account:      ${highlight(account.name)}`);
-		console.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
+		this.log(`Account:      ${highlight(account.name)}`);
+		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
 
 		if (!users.length) {
-			console.log('No users found');
+			this.log('No users found');
 			return;
 		}
 
@@ -51,6 +61,6 @@ export default {
 				roles.length ? roles.join(', ') : note('n/a')
 			]);
 		}
-		console.log(table.toString());
+		this.log(table.toString());
 	}
-};
+}

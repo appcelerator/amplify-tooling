@@ -9,7 +9,7 @@ import * as environments from './environments.js';
 
 const { warn } = logger('telemetry');
 const telemetryCacheDir = path.join(axwayHome, 'axway-cli', 'telemetry');
-let telemetryInst = null;
+let telemetryInst: Telemetry;
 
 /**
  * If telemetry is enabled, writes the anonymous event data to disk where it will eventually be
@@ -18,9 +18,9 @@ let telemetryInst = null;
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export async function addEvent(payload, opts?) {
-	const initialize = await init(opts);
-	initialize?.addEvent(payload);
+export async function addEvent(payload: object, opts?: object) {
+	const instance = await init(opts);
+	instance?.addEvent(payload);
 }
 
 /**
@@ -30,9 +30,9 @@ export async function addEvent(payload, opts?) {
  * @param {Object} payload - the telemetry event payload.
  * @param {Object} [opts] - Various options to pass into the `Telemetry` instance.
  */
-export async function addCrash(payload, opts?) {
-	const initialize = await init(opts);
-	initialize?.addCrash(payload);
+export async function addCrash(payload: object, opts?: object) {
+	const instance = await init(opts);
+	instance?.addCrash(payload);
 }
 
 /**
@@ -47,50 +47,36 @@ export async function addCrash(payload, opts?) {
  * @param {String} [opts.url] - The platform analytics endpoint URL.
  * @returns {Telemetry}
  */
-export async function init(opts: any = {}) {
-	try {
-		if (telemetryInst) {
-			return telemetryInst;
-		}
+export async function init(opts: any = {}): Promise<Telemetry> {
+	if (telemetryInst) {
+		return telemetryInst;
+	}
 
+	try {
 		const config = opts.config || await loadConfig();
-		if (!await config.get('telemetry.enabled')) {
-			return;
-		}
 
 		if (!opts.appGuid || typeof opts.appGuid !== 'string') {
 			throw new Error('Expected telemetry app guid to be a non-empty string');
 		}
 
-		const env = environments.resolve(opts.env || await config.get('env'));
+		const env = environments.resolve(opts.env || config.get('env'));
 		const platformUrl = config.get('auth.platformUrl');
 
 		telemetryInst = new Telemetry({
-			appGuid:        opts.appGuid,
-			appVersion:     opts.appVersion,
-			cacheDir:       opts.cacheDir || telemetryCacheDir,
-			environment:    env === 'staging' ? 'preproduction' : 'production',
+			enabled: config.get('telemetry.enabled'),
+			appGuid: opts.appGuid,
+			appVersion: opts.appVersion,
+			cacheDir: opts.cacheDir || telemetryCacheDir,
+			environment: env === 'staging' ? 'preproduction' : 'production',
 			requestOptions: createRequestOptions(config),
-			url:            opts.url || (platformUrl + '/api/v1/analytics')
+			url: opts.url || (platformUrl + '/api/v1/analytics')
 		});
 
-		// Wire up the event sending in a beforeExit handler to ensure we send all events before the process ends.
-		process.on('beforeExit', async () => {
-			try {
-				await telemetryInst.send();
-			} catch (err) {
-				warn(err);
-			}
-			// Ensure we call process.exit() after sending the telemetry data otherwise if any events
-			// failed to send, the process will repeat the hook and try to send again indefinitely.
-			process.exit();
-		});
-
-		return telemetryInst;
 	} catch (err) {
 		telemetryInst = null;
 		warn(err);
 	}
+	return telemetryInst;
 }
 
 /**
@@ -98,7 +84,7 @@ export async function init(opts: any = {}) {
  *
  * @returns {Boolean}
  */
-export async function isEnabled() {
+export async function isEnabled(): Promise<boolean> {
 	const config = await loadConfig();
 	return !!await config.get('telemetry.enabled');
 }

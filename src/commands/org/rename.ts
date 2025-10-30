@@ -1,46 +1,50 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { highlight } from '../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org',
+export default class OrgRename extends Command {
+	static override summary = 'Rename an organization.';
+	static override description = `Renames an organization by specifying its name, id, or guid and the new name.
+You must have administrative access to perform this action.`;
+
+	static override args = {
+		org: Args.string({
+			description: 'The organization name, id, or guid; defaults to the current org',
 			required: true
-		},
-		{
-			name: 'name',
-			desc: 'The new organization name',
+		}),
+		name: Args.string({
+			description: 'The new organization name',
 			required: true
-		}
-	],
-	desc: 'Rename an organization',
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs the result as JSON'
-		}
-	},
-	async action({ argv, cli, console }) {
-		const { account, org, sdk } = await initPlatformAccount(argv.account, argv.org, argv.env);
+		})
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'The platform account to use'
+		})
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { args, flags } = await this.parse(OrgRename);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to rename the organization');
 		}
 
-		const result = await sdk.org.rename(account, org, argv.name);
+		const result = await sdk.org.rename(account, org, args.name);
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
 				...result
-			}, null, 2));
+			};
 		} else {
-			console.log(`Account: ${highlight(account.name)}\n`);
-			console.log(`Successfully renamed "${result.oldName}" to "${result.name}"`);
+			this.log(`Account: ${highlight(account.name)}\n`);
+			this.log(`Successfully renamed "${result.oldName}" to "${result.name}"`);
 		}
-
-		await cli.emitAction('axway:oum:org:rename', result);
 	}
-};
+}

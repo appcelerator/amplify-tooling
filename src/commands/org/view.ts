@@ -1,81 +1,83 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { active, highlight, note } from '../../lib/logger.js';
+import { Args, Flags } from '@oclif/core';
+import Command from '../../lib/command.js';
 
-export default {
-	aliases: [ '!info' ],
-	args: [
-		{
-			name: 'org',
-			desc: 'The organization name, id, or guid; defaults to the current org'
-		}
-	],
-	desc: 'View organization information',
-	options: {
-		'--account [name]': 'The platform account to use',
-		'--json': {
-			callback: ({ ctx, value }) => ctx.jsonMode = value,
-			desc: 'Outputs organization info as JSON'
-		}
-	},
-	async action({ argv, console }) {
-		const { account, org } = await initPlatformAccount(argv.account, argv.org, argv.env);
+export default class OrgView extends Command {
+	static override aliases = [ 'org:info' ];
+	static override summary = 'Display organization details.';
+	static override description = 'Shows information about an organization, including its teams and subscriptions.';
 
-		if (argv.json) {
-			console.log(JSON.stringify({
+	static override args = {
+		org: Args.string({
+			description: 'Organization name, id, or guid (defaults to current org)',
+			required: false,
+		}),
+	};
+
+	static override flags = {
+		account: Flags.string({
+			description: 'Specify the platform account',
+		}),
+	};
+
+	static override enableJsonFlag = true;
+
+	async run(): Promise<any> {
+		const { flags, args } = await this.parse(OrgView);
+		const { account, org } = await initPlatformAccount(flags.account, args.org, flags.env);
+
+		if (this.jsonEnabled()) {
+			return {
 				account: account.name,
-				...org
-			}, null, 2));
-			return;
+				organization: org,
+			};
 		}
 
-		console.log(`Account: ${highlight(account.name)}\n`);
+		this.log(`Account: ${highlight(account.name)}\n`);
+		this.log('ORGANIZATION');
+		this.log(`  Name:          ${highlight(org.name)}`);
+		this.log(`  Org ID:        ${highlight(org.id)}`);
+		this.log(`  Org GUID:      ${highlight(org.guid)}`);
+		this.log(`  Date Created:  ${highlight(new Date(org.created).toLocaleString())}`);
+		this.log(`  Active:        ${highlight(org.active ? 'Yes' : 'No')}`);
+		this.log(`  Region:        ${highlight(org.region === 'US' ? 'United States' : org.region)}`);
+		this.log(`  Users:         ${highlight(`${org.userCount} user${org.userCount !== 1 ? 's' : ''}${org.seats ? ` / ${org.seats} seat${org.seats !== 1 ? 's' : ''}` : ''}`)}`);
 
-		console.log('ORGANIZATION');
-		console.log(`  Name:          ${highlight(org.name)}`);
-		console.log(`  Org ID:        ${highlight(org.id)}`);
-		console.log(`  Org GUID:      ${highlight(org.guid)}`);
-		console.log(`  Date Created:  ${highlight(new Date(org.created).toLocaleString())}`);
-		console.log(`  Active:        ${highlight(org.active ? 'Yes' : 'No')}`);
-		console.log(`  Region:        ${highlight(org.region === 'US' ? 'United States' : org.region)}`);
-		console.log(`  Users:         ${highlight(`${org.userCount} user${org.userCount !== 1 ? 's' : ''}${org.seats ? ` / ${org.seats} seat${org.seats !== 1 ? 's' : ''}` : ''}`)}`);
-		if (org.insightUserCount) {
-			console.log(`  Insight Users: ${highlight(`${org.insightUserCount} user${org.insightUserCount !== 1 ? 's' : ''}`)}`);
-		}
-
-		const teams = createTable([ '  Name', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
-		const check = process.platform === 'win32' ? '√' : '✔';
-		for (const { apps, created, default: def, desc, guid, name, users } of org.teams) {
-			teams.push([
-				def ? active(`  ${check} ${name}`) : `    ${name}`,
-				desc || note('n/a'),
-				guid,
-				users?.length,
-				apps?.length,
-				new Date(created).toLocaleDateString()
+		const teamsTable = createTable([ '  Name', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
+		const checkMark = process.platform === 'win32' ? '√' : '✔';
+		for (const team of org.teams ?? []) {
+			teamsTable.push([
+				team.default ? active(`  ${checkMark} ${team.name}`) : `    ${team.name}`,
+				team.desc || note('n/a'),
+				team.guid,
+				team.users?.length ?? 0,
+				team.apps?.length ?? 0,
+				new Date(team.created).toLocaleDateString(),
 			]);
 		}
-		console.log('\nTEAMS');
-		if (teams.length) {
-			console.log(teams.toString());
+		this.log('\nTEAMS');
+		if (teamsTable.length) {
+			this.log(teamsTable.toString());
 		} else {
-			console.log('  No teams found');
+			this.log('  No teams found');
 		}
 
 		if (Array.isArray(org.subscriptions) && org.subscriptions.length) {
-			const subs = createTable([ '  Category', 'Edition', 'Tier', 'Governance', 'Date', 'Status' ]);
-			for (const s of org.subscriptions) {
-				subs.push([
-					`  ${s.category}`,
-					s.edition,
-					s.tier.charAt(0).toUpperCase() + s.tier.slice(1),
-					s.governance,
-					`${new Date(s.startDate).toLocaleDateString()} - ${new Date(s.endDate).toLocaleDateString()}`,
-					s.expired ? 'Terminated' : 'Active'
+			const subsTable = createTable([ '  Category', 'Edition', 'Tier', 'Governance', 'Date', 'Status' ]);
+			for (const sub of org.subscriptions) {
+				subsTable.push([
+					`  ${sub.category}`,
+					sub.edition,
+					sub.tier.charAt(0).toUpperCase() + sub.tier.slice(1),
+					sub.governance,
+					`${new Date(sub.startDate).toLocaleDateString()} - ${new Date(sub.endDate).toLocaleDateString()}`,
+					sub.expired ? 'Terminated' : 'Active'
 				]);
 			}
-			console.log('\nSUBSCRIPTIONS');
-			console.log(subs.toString());
+			this.log('\nSUBSCRIPTIONS');
+			this.log(subsTable.toString());
 		}
 	}
-};
+}
