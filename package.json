@@ -25,14 +25,14 @@
     "postinstall": "node dist/scripts/postinstall.js || node -e true"
   },
   "dependencies": {
-    "@inquirer/prompts": "^7.8.6",
-    "@oclif/core": "^4.7.2",
+    "@inquirer/prompts": "^7.9.0",
+    "@oclif/core": "^4.8.0",
     "@oclif/plugin-autocomplete": "^3.2.38",
     "@oclif/plugin-help": "^6.2.34",
     "boxen": "^8.0.1",
-    "chalk": "^5.4.1",
+    "chalk": "^5.6.2",
     "ci-info": "^4.3.1",
-    "cli-table3": "^0.6.2",
+    "cli-table3": "^0.6.5",
     "debug": "^4.4.3",
     "got": "^11.8.5",
     "http-proxy-agent": "^5.0.0",
@@ -48,23 +48,23 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@koa/router": "^13.1.0",
+    "@koa/router": "^14.0.0",
     "@oclif/test": "^4.1.14",
     "@types/lodash": "^4.17.20",
     "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "caller-path": "^4.0.0",
-    "chai": "^4.3.6",
-    "chai-as-promised": "^7.1.1",
-    "eslint": "^9.36.0",
-    "koa": "^2.15.3",
+    "chai": "6.2.0",
+    "chai-as-promised": "^8.0.2",
+    "eslint": "^9.38.0",
+    "koa": "^3.1.1",
     "koa-bodyparser": "^4.4.1",
-    "mocha": "^11.1.0",
+    "mocha": "^11.7.4",
     "mustache": "^4.2.0",
     "nock": "^14.0.10",
     "tmp": "^0.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=22.11.0"

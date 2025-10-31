@@ -1,4 +1,5 @@
-import check from '../../dist/lib/update.js';
+// Use the "internal" version of update.check() to bypass its singleton behavior
+import { _check as check } from '../../dist/lib/update.js';
 import fs from 'fs';
 import tmp from 'tmp';
 

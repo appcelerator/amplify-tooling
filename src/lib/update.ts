@@ -44,7 +44,7 @@ interface UpdateMeta {
  * timing out.
  * @returns {Promise} Resolves an object containing the update information.
  */
-async function _check(opts: any = {}): Promise<UpdateMeta> {
+export async function _check(opts: any = {}): Promise<UpdateMeta> {
 	if (!opts || typeof opts !== 'object') {
 		throw new TypeError('Expected options to be an object');
 	}
