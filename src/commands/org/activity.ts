@@ -51,7 +51,7 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(OrgActivity);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		const results = {
 			account: account.name,

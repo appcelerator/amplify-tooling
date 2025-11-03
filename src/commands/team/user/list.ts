@@ -40,7 +40,7 @@ export default class TeamUserList extends Command {
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(TeamUserList);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 		const { team } = await sdk.team.find(account, org, args.team);
 
 		if (!team) {

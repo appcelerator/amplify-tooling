@@ -27,11 +27,10 @@ export function getAuthConfigEnvSpecifier(env) {
  *
  * @param {String} [accountName] - The name of the platform account to use.
  * @param {String} [org] - The name, id, or guid of the default organization.
- * @param {String} [env] - The environment name.
  * @returns {Promise<Object>}
  */
-export async function initPlatformAccount(accountName?, org?, env?) {
-	const sdk = await initSDK({ env });
+export async function initPlatformAccount(accountName?, org?) {
+	const sdk = await initSDK();
 	const config = await loadConfig();
 	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvSpecifier}.defaultAccount`));
@@ -87,7 +86,6 @@ export async function initSDK(opts: any = {}, config?: Config) {
 		baseUrl?: string;
 		clientId: string;
 		clientSecret?: string;
-		env: string;
 		homeDir: string;
 		password?: string;
 		persistSecrets?: boolean;
@@ -109,7 +107,6 @@ export async function initSDK(opts: any = {}, config?: Config) {
 		baseUrl:                 undefined,
 		clientId,
 		clientSecret:            undefined,
-		env:                     env.name,
 		homeDir:                 axwayHome,
 		password:                undefined,
 		persistSecrets:          undefined,
@@ -140,7 +137,7 @@ export async function initSDK(opts: any = {}, config?: Config) {
 		}
 	}
 
-	params.requestOptions = request.createRequestOptions(opts, config);
+	params.requestOptions = request.createRequestOptions(config);
 
 	return new AmplifySDK(params);
 }

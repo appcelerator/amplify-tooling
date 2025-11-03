@@ -97,7 +97,7 @@ describe('amplify-sdk', () => {
 				await expect(sdk.auth.login({
 					clientId: 'test-auth-client-secret',
 					clientSecret: '###'
-				})).to.eventually.be.rejectedWith(Error, 'Authentication failed: Response code 401 (Unauthorized)');
+				})).to.eventually.be.rejectedWith(Error, `Request failed with status code 401 (Unauthorized): POST ${baseUrl}/auth/realms/test_realm/protocol/openid-connect/token`);
 			});
 		});
 
@@ -925,8 +925,7 @@ describe('amplify-sdk', () => {
 					id: 'administrator',
 					name: 'Administrator',
 					default: true,
-					org: true,
-					team: true
+					org: true
 				},
 				{
 					id: 'developer',
@@ -952,9 +951,8 @@ describe('amplify-sdk', () => {
 			expect(roles).to.deep.equal([
 				{
 					id: 'administrator',
-					name: 'Administrator',
+					name: 'Team Manager',
 					default: true,
-					org: true,
 					team: true
 				},
 				{
@@ -963,21 +961,6 @@ describe('amplify-sdk', () => {
 					default: true,
 					org: true,
 					team: true
-				}
-			]);
-		});
-
-		it('should get client roles', async function () {
-			this.timeout(10000);
-			const { auth, account, sdk, tokenStore } = await createSdkSync(true);
-
-			const roles = await sdk.role.list(account, { client: true });
-			expect(roles).to.deep.equal([
-				{
-					id: 'some_admin',
-					name: 'Some Admin',
-					org: true,
-					client: true
 				}
 			]);
 		});

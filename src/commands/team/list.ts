@@ -30,7 +30,7 @@ export default class TeamList extends Command {
 
 	async run(): Promise<any | void> {
 		const { args, flags } = await this.parse(TeamList);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 		const { teams } = await sdk.team.list(account, org);
 
 		if (this.jsonEnabled()) {

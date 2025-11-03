@@ -9,6 +9,8 @@ import * as request from '../../request.js';
 
 import { md5, prepareForm } from '../util.js';
 
+import { type Got } from 'got';
+
 const { log, warn } = logger('amplify-sdk:authenticator');
 
 /**
@@ -74,7 +76,7 @@ export default class Authenticator {
 	realm: string;
 	endpoints: Record<string, string>;
 	env: any;
-	got: any;
+	got: Got;
 
 	/**
 	 * Initializes the authenticator instance.
@@ -182,9 +184,9 @@ export default class Authenticator {
 					Authorization: `Bearer ${accessToken}`
 				},
 				responseType: 'json',
-				retry: 0
+				retry: { limit: 0 }
 			});
-			const { email, family_name, given_name, guid, org_guid, org_name } = body;
+			const { email, family_name, given_name, guid, org_guid, org_name } = body as any;
 
 			if (!account.user || typeof account.user !== 'object') {
 				account.user = {};

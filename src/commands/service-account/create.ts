@@ -75,7 +75,7 @@ required options must be passed in at execution.`;
 	async run(): Promise<any> {
 		const { flags } = await this.parse(ServiceAccountCreate);
 
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to create a service account in the "${org.name}" organization`);
@@ -198,7 +198,7 @@ required options must be passed in at execution.`;
 		}
 
 		if (!roles.length && !flags.name) {
-			const availableRoles = await sdk.role.list(account, { client: true, org });
+			const availableRoles = await sdk.role.list(account, { org });
 			roles = await doPrompt({
 				choices: availableRoles.map((role: any) => ({ name: role.name, value: role.id })),
 				message: 'Roles',

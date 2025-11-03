@@ -135,7 +135,7 @@ describe('Signed JWT', () => {
 				await auth.login();
 			} catch (e) {
 				expect(e).to.be.instanceof(Error);
-				expect(e.message).to.equal('Authentication failed: Response code 401 (Unauthorized)');
+				expect(e.message).to.equal('Authentication failed: Request failed with status code 401 (Unauthorized): POST http://127.0.0.1:8555/auth/realms/test_realm/protocol/openid-connect/token');
 				return;
 			}
 

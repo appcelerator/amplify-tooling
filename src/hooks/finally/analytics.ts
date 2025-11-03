@@ -1,12 +1,18 @@
 import _ from 'lodash';
-import { CLIError } from '@oclif/core/lib/parser/errors.js';
 import { Hook, Performance } from '@oclif/core';
 import { serializeError } from 'serialize-error';
+
+import { type CLIError } from '@oclif/core/errors';
+import { type ParserOutput } from '@oclif/core/interfaces';
 
 import * as telemetry from '../../lib/telemetry.js';
 import logger from '../../lib/logger.js';
 
 const { warn } = logger('hook:finally:analytics');
+
+type AxwayHookData = {
+	parsed?: ParserOutput;
+};
 
 const hook: Hook.Finally = async function (opts: Parameters<Hook.Finally>[0] & { config: AxwayHookData }) {
 	const { id, config } = opts;
@@ -55,7 +61,7 @@ export default hook;
  * @param {Array<Object>} argv - The parsed arguments.
  * @returns {Array<String>} - The redacted command line args.
  */
-function scrubParsedArgs(parsed: import('@oclif/core/lib/interfaces/parser').ParserOutput): string[] {
+function scrubParsedArgs(parsed: ParserOutput): string[] {
 	const scrubbed = [];
 	for (const arg of parsed.raw) {
 		if (arg.type === 'arg') {

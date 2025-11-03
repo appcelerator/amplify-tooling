@@ -58,7 +58,7 @@ export default class TeamCreate extends Command {
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(TeamCreate);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to add a new team to the "${org.name}" organization`);

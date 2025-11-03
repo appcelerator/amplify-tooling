@@ -55,7 +55,7 @@ A team user must be assigned a platform role and optionally a product specific r
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(TeamUserAdd);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to add a user to a team in the "${org.name}" organization`);

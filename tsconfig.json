@@ -2,8 +2,8 @@
 	"compilerOptions": {
 		"allowJs": true,
 		"esModuleInterop": true,
-		"module": "preserve",
-		"moduleResolution": "node",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		// "noImplicitAny": true,
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,

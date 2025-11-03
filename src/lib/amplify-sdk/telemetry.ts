@@ -482,8 +482,8 @@ process.on('message', async (msg: any) => {
 					json: {
 						events: batch.map(b => b.event)
 					},
-					retry: 0,
-					timeout: 10000,
+					retry: { limit: 0 },
+					timeout: { request: 10000 },
 					url
 				});
 			} catch (err) {

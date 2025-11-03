@@ -57,6 +57,12 @@ export async function _check(opts: any = {}): Promise<UpdateMeta> {
 		pkg
 	} = opts;
 
+	delete opts.checkInterval;
+	delete opts.distTag;
+	delete opts.force;
+	delete opts.metaDir;
+	delete opts.pkg;
+
 	// bail immediately if update notifications have been explicitly disabled or we're running
 	// within a test
 	if (!force && !process.env.FORCE_UPDATE_NOTIFIER && (process.env.NO_UPDATE_NOTIFIER || process.env.NODE_ENV === 'test' || isCI)) {
@@ -208,8 +214,8 @@ async function getLatestVersion(name, distTag, opts): Promise<string | null> {
 			accept: 'application/vnd.npm.install-v1+json; q=1.0, application/json; q=0.8, */*'
 		},
 		responseType: 'json',
-		retry: 0,
-		timeout: Object.prototype.hasOwnProperty.call(opts, 'timeout') ? opts.timeout : 1000,
+		retry: { limit: 0 },
+		timeout: Object.prototype.hasOwnProperty.call(opts, 'timeout') ? opts.timeout : { request: 1000 },
 		url: new URL(encodeURIComponent(name).replace(/^%40/, '@'), regUrl)
 	} as any;
 

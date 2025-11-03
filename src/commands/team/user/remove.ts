@@ -43,7 +43,7 @@ export default class TeamUserRemove extends Command {
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(TeamUserRemove);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, args.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to remove a user from a team in the "${org.name}" organization`);

@@ -35,7 +35,7 @@ export default class ServiceAccountView extends Command {
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(ServiceAccountView);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
 		const result = await sdk.client.find(account, org, args['client-id']);
 
 		if (this.jsonEnabled()) {

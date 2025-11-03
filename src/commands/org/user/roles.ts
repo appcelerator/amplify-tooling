@@ -26,7 +26,7 @@ export default class OrgUserRoles extends Command {
 
 	async run(): Promise<any> {
 		const { flags, args } = await this.parse(OrgUserRoles);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 		const roles = await sdk.role.list(account, { org });
 
 		if (this.jsonEnabled()) {

@@ -32,7 +32,7 @@ export default class ServiceAccountRemove extends Command {
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(ServiceAccountRemove);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to remove a service account in the "${org.name}" organization`);

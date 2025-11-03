@@ -53,13 +53,13 @@ export function options(opts: any = {}) {
 
 	const { defaults } = opts;
 	const {
-		ca        = defaults?.ca,
-		caFile    = defaults?.caFile,
-		cert      = defaults?.cert,
-		certFile  = defaults?.certFile,
-		key       = defaults?.key,
-		keyFile   = defaults?.keyFile,
-		proxy     = defaults?.proxy,
+		ca = defaults?.ca,
+		caFile = defaults?.caFile,
+		cert = defaults?.cert,
+		certFile = defaults?.certFile,
+		key = defaults?.key,
+		keyFile = defaults?.keyFile,
+		proxy = defaults?.proxy,
 		strictSSL = defaults?.strictSSL
 	} = opts;
 
@@ -88,7 +88,7 @@ export function options(opts: any = {}) {
 					request.options.method,
 					highlight(url),
 					proxy && note(`[proxy ${proxy}]`),
-					Object.prototype.hasOwnProperty.call(headers, 'content-length') && chalk.magenta(`(${prettyBytes(~~headers['content-length'])})`),
+					Object.prototype.hasOwnProperty.call(headers, 'content-length') && chalk.magenta(`(${prettyBytes(Number(headers['content-length']))})`),
 					statusCode < 400 ? ok(statusCode) : alert(statusCode)
 				].filter(Boolean).join(' '));
 				return response; // note: this must return response
@@ -98,19 +98,19 @@ export function options(opts: any = {}) {
 
 	opts.https = {
 		...opts.https || {},
-		certificate:          load(opts.https?.certificate || cert || certFile),
+		certificate: load(opts.https?.certificate || cert || certFile),
 		certificateAuthority: load(opts.https?.certificateAuthority || ca || caFile),
-		key:                  load(opts.https?.key || key || keyFile),
-		rejectUnauthorized:   opts.https?.rejectUnauthorized !== undefined ? opts.https.rejectUnauthorized : !!strictSSL !== false
+		key: load(opts.https?.key || key || keyFile),
+		rejectUnauthorized: opts.https?.rejectUnauthorized !== undefined ? opts.https.rejectUnauthorized : !!strictSSL !== false
 	};
 
 	if (proxy) {
 		const { hostname: host, pathname: path, port, protocol, username, password } = new URL(proxy);
 		const agentOpts = {
-			ca:                 opts.https.certificateAuthority,
-			cert:               opts.https.certificate,
+			ca: opts.https.certificateAuthority,
+			cert: opts.https.certificate,
 			host,
-			key:                opts.https.key,
+			key: opts.https.key,
 			path,
 			port,
 			auth: username && password ? `${username}:${password}` : null,
@@ -146,27 +146,6 @@ export function init(opts = {}) {
 }
 
 export default init;
-
-/**
- * Load the config file and initializes a `got` instance for making HTTP calls using the network
- * settings from the Axway CLI config file.
- *
- * @param {Object} [opts] - `got` option to override the Axway CLI config settings.
- * @param {Config} [config] - An Amplify Config instance. If not specified, the config is loaded
- * from disk.
- * @returns {Function}
- */
-export function createRequestClient(opts, config) {
-	opts = createRequestOptions(opts, config);
-	return init({
-		...opts,
-		https: {
-			certificate: opts.cert,
-			key: opts.key,
-			...opts.https
-		}
-	});
-}
 
 /**
  * Loads the Axway CLI config file and construct the options for the various Node.js HTTP clients
@@ -212,13 +191,13 @@ export function createRequestOptions(opts = {}, config?): any {
 		}
 	};
 
-	load('network.caFile',     'ca');
-	load('network.certFile',   'cert');
-	load('network.keyFile',    'key');
-	load('network.proxy',      'proxy');
+	load('network.caFile', 'ca');
+	load('network.certFile', 'cert');
+	load('network.keyFile', 'key');
+	load('network.proxy', 'proxy');
 	load('network.httpsProxy', 'proxy');
-	load('network.httpProxy',  'proxy');
-	load('network.strictSSL',  'strictSSL');
+	load('network.httpProxy', 'proxy');
+	load('network.strictSSL', 'strictSSL');
 
 	return opts;
 }

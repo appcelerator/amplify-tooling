@@ -30,7 +30,7 @@ export default class OrgUserList extends Command {
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(OrgUserList);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 		const { users } = await sdk.org.user.list(account, org);
 
 		if (this.jsonEnabled()) {

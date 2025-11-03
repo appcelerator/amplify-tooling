@@ -1,6 +1,7 @@
 import { Command, Config as OclifConfig, Flags } from '@oclif/core';
 import loadConfig, { Config } from './config.js';
-import { FlagInput, ParserOutput } from '@oclif/core/lib/interfaces/parser';
+
+import { type FlagInput, type ParserOutput } from '@oclif/core/interfaces';
 
 export default abstract class AxwayCommand extends Command {
 	declare config: OclifConfig & { parsed?: ParserOutput };

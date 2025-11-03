@@ -38,9 +38,9 @@ const hook: Hook.Init = async function (opts) {
 		// Trigger the update check fetch and let it continue asynchronously while the command runs
 		check({
 			...createRequestOptions({
-				metaDir: resolve(axwayHome, 'axway-cli', 'update'),
-				timeout: 4000
+				timeout: { request: 4000 }
 			}, config),
+			metaDir: resolve(axwayHome, 'axway-cli', 'update'),
 			pkg: opts.config.pjson
 		}).catch(() => {});
 	}

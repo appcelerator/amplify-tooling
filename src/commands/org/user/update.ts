@@ -33,7 +33,7 @@ export default class OrgUserUpdate extends Command {
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(OrgUserUpdate);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to update an organization\'s user roles');

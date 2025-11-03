@@ -63,7 +63,7 @@ Run ${highlight('"axway auth login"')} to authenticate.`;
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(TeamUpdate);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to update a team in the "${org.name}" organization`);

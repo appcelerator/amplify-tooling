@@ -10,6 +10,8 @@ import _ from 'lodash';
 import { promisify } from 'util';
 import { redact } from '../redact.js';
 
+import { type Got } from 'got';
+
 const { log, warn } = logger('amplify-sdk');
 
 /**
@@ -19,7 +21,7 @@ export default class AmplifySDK {
 	// TODO: Define correct typings for these props
 	env: any;
 	opts: any;
-	got: any;
+	got: Got;
 	baseUrl: string | null;
 	platformUrl: string | null;
 	realm: string;
@@ -392,7 +394,7 @@ export default class AmplifySDK {
 				}
 
 				if (opts.roles) {
-					data.roles = await this.role.resolve(account, opts.roles, { client: true, org });
+					data.roles = await this.role.resolve(account, opts.roles, { org });
 				}
 
 				if (opts.teams) {
@@ -649,7 +651,7 @@ export default class AmplifySDK {
 				}
 
 				if (opts.roles !== undefined) {
-					data.roles = !opts.roles ? [] : await this.role.resolve(account, opts.roles, { client: true, org });
+					data.roles = !opts.roles ? [] : await this.role.resolve(account, opts.roles, { org });
 				}
 
 				if (opts.teams !== undefined) {
@@ -1568,7 +1570,7 @@ export default class AmplifySDK {
 				headers,
 				json: json ? JSON.parse(JSON.stringify(json)) : undefined,
 				responseType: 'json',
-				retry: 0
+				retry: { limit: 0 }
 			};
 			let error;
 

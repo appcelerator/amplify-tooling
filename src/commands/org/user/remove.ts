@@ -32,8 +32,8 @@ export default class OrgUserRemove extends Command {
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args } = await this.parse(OrgUserRemove);
-		const { account, org, sdk } = await initPlatformAccount(args.account, args.org, args.env);
+		const { args, flags } = await this.parse(OrgUserRemove);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		const { user } = await sdk.org.user.remove(account, org, args.user);
 		const results = {

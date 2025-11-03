@@ -189,7 +189,12 @@
 			"id": "administrator",
 			"name": "Administrator",
 			"default": true,
-			"org": true,
+			"org": true
+		},
+		{
+			"id": "administrator",
+			"name": "Team Manager",
+			"default": true,
 			"team": true
 		},
 		{

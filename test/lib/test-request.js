@@ -120,8 +120,9 @@ describe('request', () => {
 
 			await new Promise(resolve => this.server.listen(1337, '127.0.0.1', resolve));
 
-			const response = await init()({
-				strictSSL: false,
+			const response = await init({
+				strictSSL: false
+			})({
 				url: 'https://127.0.0.1:1337'
 			});
 

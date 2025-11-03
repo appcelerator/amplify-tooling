@@ -42,7 +42,7 @@ list of roles. To view available user roles, run: ${highlight('<%= config.bin %>
 
 	async run(): Promise<any> {
 		const { args, flags } = await this.parse(OrgUserAdd);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to add users to the organization');

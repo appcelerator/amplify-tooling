@@ -15,6 +15,8 @@ import logger, { highlight } from '../logger.js';
 import * as environments from '../environments.js';
 import * as request from '../request.js';
 
+import { type Got } from 'got';
+
 const { log, warn } = logger('amplify-sdk:auth');
 
 /**
@@ -41,7 +43,7 @@ export default class Auth {
 	baseUrl: string | undefined;
 	clientId: string | undefined;
 	clientSecret: string | undefined;
-	got: any;
+	got: Got;
 	messages: any;
 	realm: string | undefined;
 	persistSecrets: boolean | undefined;
@@ -465,7 +467,7 @@ export default class Auth {
 
 		try {
 			log(`Fetching server info: ${highlight(url)}...`);
-			return (await this.got(url, { responseType: 'json', retry: 0 })).body;
+			return (await this.got(url, { responseType: 'json', retry: { limit: 0 } })).body;
 		} catch (err) {
 			if (err.name !== 'ParseError') {
 				err.message = `Failed to get server info (status ${err.response.statusCode})`;

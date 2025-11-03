@@ -26,7 +26,7 @@ export default class OrgView extends Command {
 
 	async run(): Promise<any> {
 		const { flags, args } = await this.parse(OrgView);
-		const { account, org } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org } = await initPlatformAccount(flags.account, args.org);
 
 		if (this.jsonEnabled()) {
 			return {

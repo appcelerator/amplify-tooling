@@ -12,17 +12,16 @@ export function md5(it) {
 
 /**
  * Copies all params into a new object and converts camelcase property names to underscore case.
- * TODO: Figure out why this is modifying property keys
  *
  * @param {Object} params - The query string parameters to stringify.
  * @returns {Object}
  */
 export function prepareForm(params) {
-	const form = new URLSearchParams();
+	const form = {};
 	for (const prop of Object.keys(params).sort()) {
 		if (params[prop] !== undefined) {
 			const name = prop.replace(/[A-Z]/g, (m, i) => `${i ? '_' : ''}${m.toLowerCase()}`);
-			form.append(name, params[prop]);
+			form[name] = params[prop];
 		}
 	}
 	return form;

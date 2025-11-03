@@ -1,7 +1,7 @@
 import { initPlatformAccount } from '../../lib/utils.js';
 import { highlight } from '../../lib/logger.js';
 import { Args, Flags } from '@oclif/core';
-import Command from '../../lib/command';
+import Command from '../../lib/command.js';
 
 export default class OrgIdp extends Command {
 	static override summary = 'Manage organization identity provider settings.';
@@ -23,7 +23,7 @@ export default class OrgIdp extends Command {
 
 	async run(): Promise<void | object> {
 		const { flags, args } = await this.parse(OrgIdp);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org, flags.env);
+		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to configure this organization\'s identity provider');
