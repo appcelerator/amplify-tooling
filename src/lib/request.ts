@@ -105,21 +105,17 @@ export function options(opts: any = {}) {
 	};
 
 	if (proxy) {
-		const { hostname: host, pathname: path, port, protocol, username, password } = new URL(proxy);
 		const agentOpts = {
 			ca: opts.https.certificateAuthority,
 			cert: opts.https.certificate,
-			host,
 			key: opts.https.key,
-			path,
-			port,
-			auth: username && password ? `${username}:${password}` : null,
-			protocol,
 			rejectUnauthorized: opts.https.rejectUnauthorized
 		};
 		opts.agent ||= {};
-		opts.agent.http ||= new HttpProxyAgent(agentOpts);
-		opts.agent.https ||= new HttpsProxyAgent(agentOpts);
+		// @ts-ignore - For some reason the typings for HttpProxyAgent is reporting the agentOpts arg as `never`.
+		opts.agent.http ||= new HttpProxyAgent(proxy, agentOpts);
+		// @ts-ignore - For some reason the typings for HttpsProxyAgent is reporting the agentOpts arg as `never`.
+		opts.agent.https ||= new HttpsProxyAgent(proxy, agentOpts);
 	}
 
 	return opts;
