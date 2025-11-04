@@ -1,55 +1,48 @@
-import {
-	renderRegexFromFile,
-	resetHomeDir,
-	runAxwaySync
-} from '../../helpers/index.js';
+import { runCommand } from '@oclif/test'
+import { renderRegexFromFile, resetHomeDir } from '../../helpers/index.js';
+
+const deprecationMessage = 'Error: The "user" commands are no longer supported as of version 5.0.0. Their references will be removed in a subsequent release.';
 
 describe('axway user', () => {
 	describe('help', () => {
 		after(resetHomeDir);
 
 		it('should output the help screen with color', async () => {
-			const { status, stdout } = await runAxwaySync([ 'user' ]);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
-			expect(status).to.equal(2);
+			const { error } = await runCommand('user');
+			expect(error.toString()).to.equal(deprecationMessage);
 		});
 
 		it('should output the help screen using --help flag', async () => {
-			const { status, stdout } = await runAxwaySync([ 'user', '--help' ]);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
-			expect(status).to.equal(2);
+			const { stdout } = await runCommand([ 'user', '--help' ], undefined, { stripAnsi: false });
+			expect(stdout).to.match(renderRegexFromFile('help/help-with-color'));
 		});
 	});
 
 	describe('activity', () => {
 		it('should show as no longer supported', async () => {
-			const { status, stderr } = await runAxwaySync([ 'user', 'activity' ]);
-			expect(stderr.toString()).to.match(renderRegexFromFile('not-supported'));
-			expect(status).to.equal(1);
+			const { error } = await runCommand('user activity');
+			expect(error.toString()).to.equal(deprecationMessage);
 		});
 	});
 
 	describe('credentials', () => {
 		it('should show as no longer supported', async () => {
-			const { status, stderr } = await runAxwaySync([ 'user', 'credentials' ]);
-			expect(stderr.toString()).to.match(renderRegexFromFile('not-supported'));
-			expect(status).to.equal(1);
+			const { error } = await runCommand('user credentials');
+			expect(error.toString()).to.equal(deprecationMessage);
 		});
 	});
 
 	describe('update', () => {
 		it('should show as no longer supported', async () => {
-			const { status, stderr } = await runAxwaySync([ 'user', 'update' ]);
-			expect(stderr.toString()).to.match(renderRegexFromFile('not-supported'));
-			expect(status).to.equal(1);
+			const { error } = await runCommand('user update');
+			expect(error.toString()).to.equal(deprecationMessage);
 		});
 	});
 
 	describe('view', () => {
 		it('should show as no longer supported', async () => {
-			const { status, stderr } = await runAxwaySync([ 'user', 'view' ]);
-			expect(stderr.toString()).to.match(renderRegexFromFile('not-supported'));
-			expect(status).to.equal(1);
+			const { error } = await runCommand('user view');
+			expect(error.toString()).to.equal(deprecationMessage);
 		});
 	});
 });

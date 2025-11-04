@@ -1,18 +1,11 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
 
-{{#red}}User commands are no longer supported as of version 5.0.0. Their references will be removed in a subsequent release.{{/red}}
+The "user" commands are no longer supported as of version 5.0.0.
 
-USAGE: {{#cyan}}axway user <command> [options]{{/cyan}}
+{{#bold}}USAGE{{/bold}}
+  $ {{#cyan}}axway{{/cyan}} {{#cyan}}user{{/cyan}} [--no-banner] [--no-color]
 
-USER COMMANDS:
-  {{#cyan}}activity     {{/cyan}}  Display your activity
-  {{#cyan}}credentials  {{/cyan}}  Opens a web browser to the change your password page
-  {{#cyan}}update       {{/cyan}}  Change your information
-  {{#cyan}}view         {{/cyan}}  Display your user information
-
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+{{#bold}}GLOBAL FLAGS{{/bold}}
+  {{#cyan}}--no-banner{{/cyan}}  Disable the banner.
+  {{#cyan}}--no-color{{/cyan}}   Disable color output.

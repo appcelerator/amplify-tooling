@@ -177,6 +177,14 @@ export default function check(opts: any): Promise<UpdateMeta> {
 }
 
 /**
+ * Clears the pending update check.
+ * This is primarily used for testing.
+ */
+export function clearPendingCheck() {
+	pendingCheck = null;
+}
+
+/**
  * Loads the specified meta file and sanity checks it.
  *
  * @param {String} metaFile - The path of the file to load.
