@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import boxen from 'boxen';
 import chalk from 'chalk';
 import { Hook } from '@oclif/core';
@@ -56,9 +55,11 @@ export default hook;
 function _hlVer(toVer, fromVer) {
 	const version = [];
 
+	// eslint-disable-next-line prefer-const
 	let [ from, fromTag ] = fromVer.split(/-(.+)/);
 	from = from.replace(/[^.\d]/g, '').split('.').map(x => parseInt(x));
 
+	// eslint-disable-next-line prefer-const
 	let [ to, toTag ] = toVer.split(/-(.+)/);
 	const toMatch = to.match(/^([^\d]+)?(.+)$/);
 	to = (toMatch ? toMatch[2] : to).split('.').map(x => parseInt(x));

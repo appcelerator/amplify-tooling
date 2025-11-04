@@ -61,21 +61,31 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 		let saasPercentPadding = 0;
 		let saasValuePadding = 0;
 
-		// pre-determine the bundle metric environments
 		if (bundle) {
+			function mapBundleEnvStats([ guid, stats ]: any) {
+				bundleValuePadding = Math.max(bundleValuePadding, String(format(stats.value)).length);
+				const envName = orgEnvs.find(e => e.guid === guid)?.name || guid;
+				return {
+					...stats,
+					guid,
+					name: envName
+				};
+			}
 			for (const metric of Object.values(bundle.metrics) as any) {
-				metric.envs = Object.entries(metric.envs).map(([ guid, stats ]: any) => {
-					bundleValuePadding = Math.max(bundleValuePadding, String(format(stats.value)).length);
-					return {
-						...stats,
-						guid,
-						name: orgEnvs.find(e => e.guid === guid)?.name || guid
-					};
-				});
+				metric.envs = Object.entries(metric.envs).map(mapBundleEnvStats);
 			}
 		}
 
 		// pre-determine the saas metric environments
+		function mapSaasEnvStats([ name, stats ]: any) {
+			stats.formatted = format(stats.value);
+			stats.percent = stats.quota && Math.floor(Math.min(stats.value / stats.quota * 100, 100));
+
+			saasPercentPadding = Math.max(saasPercentPadding, String(stats.percent).length);
+			saasValuePadding = Math.max(saasValuePadding, stats.formatted.length);
+
+			return { name, ...stats };
+		}
 		for (const data of Object.values(usage)) {
 			for (const info of Object.values(data)) {
 				// info.quota = maxEntitlement;
@@ -87,15 +97,7 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 				}
 				saasValuePadding = Math.max(saasValuePadding, info.formatted.length);
 
-				info.envs = Object.entries(info.envs || {}).map(([ name, stats ]: any) => {
-					stats.formatted = format(stats.value);
-					stats.percent = stats.quota && Math.floor(Math.min(stats.value / stats.quota * 100, 100));
-
-					saasPercentPadding = Math.max(saasPercentPadding, String(stats.percent).length);
-					saasValuePadding = Math.max(saasValuePadding, stats.formatted.length);
-
-					return { name, ...stats };
-				});
+				info.envs = Object.entries(info.envs || {}).map(mapSaasEnvStats);
 			}
 		}
 
@@ -201,14 +203,14 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 };
 
 /**
- * Formats a date in the format "m/d/yyyy".
- * TODO: Replace this with Intl for locale-relative date formatting, or use yyyy-mm-dd to match args
+ * Formats a date to the system locale's date format.
+ *
  * @param {Date|Number} dt - The date to format.
  * @returns {String}
  */
-export function formatDate(dt) {
+function formatDate(dt: Date | number): string {
 	if (!(dt instanceof Date)) {
 		dt = new Date(dt);
 	}
-	return `${dt.getUTCMonth() + 1}/${dt.getUTCDate()}/${dt.getUTCFullYear()}`;
+	return dt.toLocaleDateString();
 }

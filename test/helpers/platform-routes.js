@@ -5,10 +5,9 @@ import Router from '@koa/router';
 import { v4 as uuidv4 } from 'uuid';
 
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const defaultData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json')));
 
@@ -50,10 +49,10 @@ export function createPlatformRoutes(server, opts = {}) {
 		ctx.body = {
 			success: true,
 			result: data.activity.filter(a => {
-				return a.ts >= from &&
-					a.ts <= to &&
-					(!org_id || String(a.org_id) === org_id) &&
-					(!user_guid || a.user_guid === user_guid);
+				return a.ts >= from
+					&& a.ts <= to
+					&& (!org_id || String(a.org_id) === org_id)
+					&& (!user_guid || a.user_guid === user_guid);
 			})
 		};
 	});
@@ -115,7 +114,7 @@ export function createPlatformRoutes(server, opts = {}) {
 			}
 
 			if (ctx.request.body.teams) {
-				const existingTeams = data.teams.filter(t => t.users.find(u => u.guid === result.guid))
+				const existingTeams = data.teams.filter(t => t.users.find(u => u.guid === result.guid));
 
 				for (const team of ctx.request.body.teams) {
 					const existingTeam = data.teams.find(t => t.guid === team.guid);
@@ -350,7 +349,6 @@ export function createPlatformRoutes(server, opts = {}) {
 					}
 				}
 
-
 				result = {
 					...org,
 					bundle:  usage.bundle,
@@ -417,7 +415,7 @@ export function createPlatformRoutes(server, opts = {}) {
 			org.users.push({
 				guid: user.guid,
 				roles
-			})
+			});
 
 			ctx.body = {
 				success: true,
@@ -436,7 +434,7 @@ export function createPlatformRoutes(server, opts = {}) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: `"user_guid" contained an invalid value.`
+					message: '"user_guid" contained an invalid value.'
 				};
 				return;
 			}
@@ -460,7 +458,7 @@ export function createPlatformRoutes(server, opts = {}) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: `"user_guid" contained an invalid value.`
+					message: '"user_guid" contained an invalid value.'
 				};
 				return;
 			}
@@ -501,7 +499,7 @@ export function createPlatformRoutes(server, opts = {}) {
 		const { team } = ctx.query;
 		ctx.body = {
 			success: true,
-			result: data.roles.filter(r => team ? r.team : r.org)
+			result: data.roles.filter(r => (team ? r.team : r.org))
 		};
 	});
 
@@ -514,7 +512,7 @@ export function createPlatformRoutes(server, opts = {}) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: `"user_guid" contained an invalid value.`
+					message: '"user_guid" contained an invalid value.'
 				};
 				return;
 			}
@@ -559,7 +557,7 @@ export function createPlatformRoutes(server, opts = {}) {
 				guid: user.guid,
 				roles: ctx.request.body.roles,
 				type: 'user'
-			})
+			});
 
 			ctx.body = {
 				success: true,
@@ -577,7 +575,7 @@ export function createPlatformRoutes(server, opts = {}) {
 				ctx.status = 400;
 				ctx.body = {
 					success: false,
-					message: `"user_guid" contained an invalid value.`
+					message: '"user_guid" contained an invalid value.'
 				};
 				return;
 			}
@@ -646,8 +644,8 @@ export function createPlatformRoutes(server, opts = {}) {
 			if (!org) {
 				return;
 			}
-			teams = teams.filter(t => t.org_guid === org.guid &&
-				(!name || t.name.toLowerCase().includes(String(name).trim().toLowerCase())));
+			teams = teams.filter(t => t.org_guid === org.guid
+				&& (!name || t.name.toLowerCase().includes(String(name).trim().toLowerCase())));
 		}
 
 		ctx.body = {
@@ -657,7 +655,7 @@ export function createPlatformRoutes(server, opts = {}) {
 	});
 
 	router.post('/v1/team', ctx => {
-		const info = ctx.request.body
+		const info = ctx.request.body;
 		const org = data.orgs.find(o => o.guid === info.org_guid);
 
 		if (!org) {

@@ -1,20 +1,20 @@
-import { runCommand } from '@oclif/test'
-import { renderRegexFromFile, resetHomeDir } from '../../helpers/index.js';
+import { runCommand } from '@oclif/test';
+import { renderRegexFromFile } from '../../helpers/index.js';
 
 const deprecationMessage = 'Error: The "user" commands are no longer supported as of version 5.0.0. Their references will be removed in a subsequent release.';
 
 describe('axway user', () => {
 	describe('help', () => {
-		after(resetHomeDir);
-
-		it('should output the help screen with color', async () => {
-			const { error } = await runCommand('user');
-			expect(error.toString()).to.equal(deprecationMessage);
-		});
-
 		it('should output the help screen using --help flag', async () => {
 			const { stdout } = await runCommand([ 'user', '--help' ], undefined, { stripAnsi: false });
 			expect(stdout).to.match(renderRegexFromFile('help/help-with-color'));
+		});
+	});
+
+	describe('index', () => {
+		it('should show as no longer supported', async () => {
+			const { error } = await runCommand('user');
+			expect(error.toString()).to.equal(deprecationMessage);
 		});
 	});
 

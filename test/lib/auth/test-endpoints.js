@@ -1,4 +1,4 @@
-import getEndpoints from '../../../dist/lib/auth/endpoints.js'
+import getEndpoints from '../../../dist/lib/auth/endpoints.js';
 
 describe('Endpoints', () => {
 	it('should error setting endpoints if baseUrl is invalid', () => {

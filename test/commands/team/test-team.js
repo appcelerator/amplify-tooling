@@ -45,9 +45,9 @@ describe('axway team', () => {
 		});
 
 		describe('add', () => {
-				afterEach(resetHomeDir);
+			afterEach(resetHomeDir);
 
-			it('should error if not logged in', async function() {
+			it('should error if not logged in', async function () {
 				initHomeDir('home-local');
 
 				const { status, stderr } = await runAxwaySync([ 'team', 'user', 'add', 'foo', 'bar', 'baz', '--role', 'developer' ]);

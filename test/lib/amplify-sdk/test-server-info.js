@@ -1,5 +1,5 @@
 import { Auth } from '../../../dist/lib/amplify-sdk/index.js';
-import serverInfo from '../../helpers/server-info.json' with { type: "json" };
+import serverInfo from '../../helpers/server-info.json' with { type: 'json' };
 
 describe('Server Info', () => {
 

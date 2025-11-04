@@ -1,5 +1,3 @@
-import _path from 'path';
-
 import * as path from '../../dist/lib/path.js';
 
 const isWin = /^win/.test(process.platform);

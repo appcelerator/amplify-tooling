@@ -111,7 +111,6 @@ export function redact(data, opts:any = {}) {
 				}
 				const key = pattern;
 				if (!(pattern instanceof RegExp)) {
-					// eslint-disable-next-line security/detect-non-literal-regexp
 					pattern = new RegExp(pattern.replace(/\\/g, '\\\\'), 'ig');
 				}
 				if (value === undefined || value === null) {

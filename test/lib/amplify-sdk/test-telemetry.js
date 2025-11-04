@@ -370,7 +370,7 @@ describe('Telemetry', () => {
 				try {
 					process.kill(luckyPid, 0);
 					// try again :(
-				} catch (e) {
+				} catch (_e) {
 					// bingo!
 					fs.writeFileSync(path.join(appDir, '.lock'), String(luckyPid));
 					break;
@@ -467,7 +467,6 @@ describe('Telemetry', () => {
 			this.timeout(5000);
 			this.slow(4000);
 
-			// eslint-disable-next-line no-unused-vars
 			let { appDir } = createTelemetry();
 
 			for (const filename of fs.readdirSync(appDir)) {

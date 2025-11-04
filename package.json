@@ -20,7 +20,7 @@
     "start": "./bin/run",
     "build": "tsc",
     "test": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test",
-    "lint": "eslint src",
+    "lint": "eslint . --ignore-pattern 'dist/**'",
     "watch": "tsc --watch",
     "postinstall": "node dist/scripts/postinstall.js || node -e true"
   },
@@ -57,6 +57,9 @@
     "chai": "6.2.0",
     "chai-as-promised": "^8.0.2",
     "eslint": "^9.39.1",
+    "eslint-plugin-chai-expect": "^3.1.0",
+    "eslint-plugin-chai-friendly": "^1.1.0",
+    "eslint-plugin-mocha": "^11.2.0",
     "koa": "^3.1.1",
     "koa-bodyparser": "^4.4.1",
     "mocha": "^11.7.4",

@@ -49,11 +49,11 @@ export async function _check(opts: any = {}): Promise<UpdateMeta> {
 		throw new TypeError('Expected options to be an object');
 	}
 
-	let {
+	const {
 		checkInterval = 3600000, // 1 hour
 		distTag = 'latest',
 		force,
-		metaDir,
+		metaDir = process.env.TEST_META_DIR || path.join(tmp.tmpdir, 'check-kit'),
 		pkg
 	} = opts;
 
@@ -78,9 +78,7 @@ export async function _check(opts: any = {}): Promise<UpdateMeta> {
 	}
 
 	// determine the meta directory
-	if (!metaDir) {
-		metaDir = process.env.TEST_META_DIR || path.join(tmp.tmpdir, 'check-kit');
-	} else if (typeof metaDir !== 'string') {
+	if (typeof metaDir !== 'string') {
 		throw new TypeError('Expected metaDir to be a string');
 	}
 
@@ -198,7 +196,7 @@ function loadMetaFile(metaFile): UpdateMeta | null {
 		if (meta && typeof meta === 'object') {
 			return meta;
 		}
-	} catch (e) {
+	} catch (_e) {
 		// meta file does not exist or is malformed
 	}
 

@@ -1,4 +1,3 @@
-// import got from 'got';
 import path from 'path';
 import {
 	initHomeDir,
@@ -8,10 +7,9 @@ import {
 } from '../../helpers/index.js';
 import { readJsonSync } from '../../../dist/lib/fs.js';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 describe('axway auth', () => {
 	describe('help', () => {
@@ -72,11 +70,11 @@ describe('axway auth', () => {
 		it('should error if secret file is invalid', async function () {
 			initHomeDir('home-local');
 
-			let { status, stdout, stderr } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', 'does_not_exist' ]);
+			let { status, stderr } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', 'does_not_exist' ]);
 			expect(stderr).to.match(renderRegexFromFile('login/secret-file-not-found'));
 			expect(status).to.equal(1);
 
-			({ status, stdout, stderr } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', path.join(__dirname, 'login/bad-secret.pem') ]));
+			({ status, stderr } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', path.join(__dirname, 'login/bad-secret.pem') ]));
 			expect(stderr).to.match(renderRegexFromFile('login/invalid-secret-file'));
 			expect(status).to.equal(1);
 		});

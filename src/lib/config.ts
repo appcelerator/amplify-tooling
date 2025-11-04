@@ -9,7 +9,10 @@ export const configFile = path.join(axwayHome, 'axway-cli', 'config.json');
 const { log, error } = logger('config');
 
 // Singleton config instance
-export let singletonConfig: Config;
+let singletonConfig: Config;
+export function getConfigInstance(): Config {
+	return singletonConfig;
+}
 
 /**
  * Load a users config, if no configFile is given then the default Axway CLI config will be

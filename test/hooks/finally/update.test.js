@@ -14,7 +14,7 @@ describe('Hooks - Finally', () => {
 			pkg: { name: 'axway', version: '1.0.0' }
 		});
 
-		const { stdout } = await runHook('finally', { argv: [] })
+		const { stdout } = await runHook('finally', { argv: [] });
 		expect(stdout).to.include('AXWAY CLI UPDATE AVAILABLE');
 	});
 
@@ -25,7 +25,7 @@ describe('Hooks - Finally', () => {
 			pkg: { name: 'axway', version: '999.0.0' }
 		});
 
-		const { stdout } = await runHook('finally', { argv: [] })
+		const { stdout } = await runHook('finally', { argv: [] });
 		expect(stdout).to.equal('');
 	});
 
@@ -36,7 +36,7 @@ describe('Hooks - Finally', () => {
 			pkg: { name: 'axway', version: '1.0.0' }
 		});
 
-		const { stdout } = await runHook('finally', { argv: [ '--no-banner' ] })
+		const { stdout } = await runHook('finally', { argv: [ '--no-banner' ] });
 		expect(stdout).to.equal('');
 	});
 
@@ -47,7 +47,7 @@ describe('Hooks - Finally', () => {
 			pkg: { name: 'axway', version: '1.0.0' }
 		});
 
-		const { stdout } = await runHook('finally', { argv: [ '--json' ] })
+		const { stdout } = await runHook('finally', { argv: [ '--json' ] });
 		expect(stdout).to.equal('');
 	});
-})
+});

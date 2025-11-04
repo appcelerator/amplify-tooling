@@ -3,10 +3,9 @@ import path from 'path';
 import Router from '@koa/router';
 import { readJsonSync } from '../../dist/lib/fs.js';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const defaultData = readJsonSync(path.join(__dirname, 'data.json'));
 const clients = defaultData.clients.reduce((obj, client) => {
@@ -73,9 +72,9 @@ export function createAuthRoutes(server, opts = {}) {
 			resource_access: {
 				account: {
 					roles: [
-						"manage-account",
-						"manage-account-links",
-						"view-profile"
+						'manage-account',
+						'manage-account-links',
+						'view-profile'
 					]
 				}
 			},

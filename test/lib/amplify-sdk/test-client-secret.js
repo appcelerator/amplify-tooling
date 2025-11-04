@@ -1,8 +1,6 @@
 import nock from 'nock';
 import { Auth, ClientSecret } from '../../../dist/lib/amplify-sdk/index.js';
 
-const isCI = process.env.CI || process.env.JENKINS;
-
 describe('Client Secret', () => {
 	describe('Constructor', () => {
 		it('should error if options is invalid', () => {

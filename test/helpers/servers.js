@@ -17,7 +17,7 @@ function createServer({ port }) {
 			log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
 			await next();
 		});
-		app.use(router.routes())
+		app.use(router.routes());
 
 		const server = app.listen(port, '127.0.0.1');
 		server.__connections = {};

@@ -1,5 +1,3 @@
-/* eslint-disable promise/no-nesting */
-
 import Auth from './auth.js';
 import crypto from 'crypto';
 import E from './errors.js';
@@ -203,30 +201,28 @@ export default class AmplifySDK {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
 				}
 
-				return this.authClient.list()
-					.then(accounts => accounts.reduce((promise, account) => {
-						return promise.then(async list => {
-							if (opts.validate && (!opts.skip || !opts.skip.includes(account.name))) {
-								try {
-									account = await this.auth.find(account.name, opts.defaultTeams, opts.sanitize);
-								} catch (err) {
-									warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
-								}
-							}
-							// Sanitize sensitive auth info unless requested otherwise
-							if (account?.auth && opts.sanitize !== false) {
-								delete account.auth.clientSecret;
-								delete account.auth.password;
-								delete account.auth.secret;
-								delete account.auth.username;
-							}
-							if (account?.auth) {
-								list.push(account);
-							}
-							return list;
-						});
-					}, Promise.resolve([])))
-					.then(list => list.sort((a, b) => a.name.localeCompare(b.name)));
+				const accounts = await this.authClient.list();
+				const result = [];
+				for (let account of accounts) {
+					if (opts.validate && (!opts.skip || !opts.skip.includes(account.name))) {
+						try {
+							account = await this.auth.find(account.name, opts.defaultTeams, opts.sanitize);
+						} catch (err) {
+							warn(`Failed to load session for account "${account.name}": ${err.toString()}`);
+						}
+					}
+					// Sanitize sensitive auth info unless requested otherwise
+					if (account?.auth && opts.sanitize !== false) {
+						delete account.auth.clientSecret;
+						delete account.auth.password;
+						delete account.auth.secret;
+						delete account.auth.username;
+					}
+					if (account?.auth) {
+						result.push(account);
+					}
+				}
+				return result.sort((a, b) => a.name.localeCompare(b.name));
 			},
 
 			/**

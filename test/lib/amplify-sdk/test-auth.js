@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { Auth } from '../../../dist/lib/amplify-sdk/index.js';
-import serverInfo from '../../helpers/server-info.json' with { type: "json" };
+import serverInfo from '../../helpers/server-info.json' with { type: 'json' };
 import tmp from 'tmp';
 
 tmp.setGracefulCleanup();
@@ -101,7 +101,7 @@ describe('Auth', () => {
 				tokenStoreType: null
 			});
 			await expect(auth.serverInfo({ url: 'http://127.0.0.1:8555/auth/realms/test_realm/.well-known/openid-configuration' }))
-				.to.eventually.be.rejectedWith(Error, /Expected property name or \'}\' in JSON/);
+				.to.eventually.be.rejectedWith(Error, /Expected property name or '}' in JSON/);
 		});
 
 		it('should throw error applying defaults if env is invalid', async () => {

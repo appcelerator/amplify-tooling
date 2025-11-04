@@ -112,9 +112,9 @@ export function options(opts: any = {}) {
 			rejectUnauthorized: opts.https.rejectUnauthorized
 		};
 		opts.agent ||= {};
-		// @ts-ignore - For some reason the typings for HttpProxyAgent is reporting the agentOpts arg as `never`.
+		// @ts-expect-error - For some reason the typings for HttpProxyAgent is reporting the agentOpts arg as `never`.
 		opts.agent.http ||= new HttpProxyAgent(proxy, agentOpts);
-		// @ts-ignore - For some reason the typings for HttpsProxyAgent is reporting the agentOpts arg as `never`.
+		// @ts-expect-error - For some reason the typings for HttpsProxyAgent is reporting the agentOpts arg as `never`.
 		opts.agent.https ||= new HttpsProxyAgent(proxy, agentOpts);
 	}
 

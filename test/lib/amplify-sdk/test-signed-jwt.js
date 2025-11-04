@@ -2,10 +2,9 @@ import path from 'path';
 import nock from 'nock';
 import { Auth, SignedJWT } from '../../../dist/lib/amplify-sdk/index.js';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 describe('Signed JWT', () => {
 	describe('Constructor', () => {
@@ -186,7 +185,7 @@ describe('Signed JWT', () => {
 		});
 
 		it('should authenticate when user info returns error', async function () {
-			nock('http://127.0.0.1:8555', { allowUnmocked:true })
+			nock('http://127.0.0.1:8555', { allowUnmocked: true })
 				.post('/auth/realms/test_realm/protocol/openid-connect/userinfo')
 				.once()
 				.reply(500, 'Server error');

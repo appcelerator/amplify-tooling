@@ -1,14 +1,13 @@
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import init from '../../dist/lib/request.js';
+import { init } from '../../dist/lib/request.js';
 import path from 'path';
 import nock from 'nock';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 const sslDir = path.join(__dirname, '../helpers/fixtures/request/ssl');
 
 describe('request', () => {

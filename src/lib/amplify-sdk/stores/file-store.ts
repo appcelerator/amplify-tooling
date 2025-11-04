@@ -47,7 +47,9 @@ export default class FileStore extends TokenStore {
 	constructor(opts: any = {}) {
 		super(opts);
 
-		let { homeDir, tokenStoreDir } = opts;
+		const tokenStoreDir = opts.tokenStoreDir;
+		let homeDir = opts.homeDir;
+
 		if (!homeDir || typeof homeDir !== 'string') {
 			if (tokenStoreDir && typeof tokenStoreDir === 'string') {
 				homeDir = tokenStoreDir;

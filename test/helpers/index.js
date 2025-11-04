@@ -5,15 +5,13 @@ import Mustache from 'mustache';
 import os from 'os';
 import path from 'path';
 import logger, { highlight } from '../../dist/lib/logger.js';
-import AmplifySDK from '../../dist/lib/amplify-sdk/index.js';
-import { Auth, MemoryStore } from '../../dist/lib/amplify-sdk/index.js';
+import { AmplifySDK, Auth, MemoryStore } from '../../dist/lib/amplify-sdk/index.js';
 import { spawn } from 'child_process';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { dirname } from 'path';
 
 const { log } = logger('test');
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const axwayBin = path.resolve(__dirname, `../../${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/index.js`);
 
@@ -30,7 +28,7 @@ export function initHomeDir(templateDir) {
 const defaultVars = {
 	check: process.platform === 'win32' ? '√' : '✔',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
-	localeDateTime: '[\\w\\d\/,: ]+',
+	localeDateTime: '[\\w\\d/,: ]+',
 	nodeDeprecationWarning: '(?:\n*\u001b\\[33m ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\u001b\\[39m\n\u001b\\[33m ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\u001b\\[39m\n\u001b\\[33m ┃ Node\\.js to the latest LTS release: https://nodejs\\.org/\u001b\\[39m)?',
 	nodeDeprecationWarningNoColor: '(?:\n* ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\n ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\n ┃ Node\\.js to the latest LTS release: https://nodejs\\.org/)?',
 	startRed: '(?:\u001b\\[31m)?',
@@ -51,13 +49,14 @@ for (const fn of [ 'bold', 'blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'y
 				.replace(/(?<!\\)([()[\]?])/g, '\\$1')
 				.replace('8675309', render(text));
 		};
-	}
+	};
 }
 
 export function renderRegex(str, vars) {
 	str = str.replace(/([()[\]$?])/g, '\\$1');
 	str = Mustache.render(str, Object.assign({}, defaultVars, vars));
 	str = str.replace(/\n/g, '\\s*\n');
+	// eslint-disable-next-line security/detect-non-literal-regexp
 	return new RegExp(str);
 }
 
@@ -68,14 +67,12 @@ export function renderRegexFromFile(file, vars) {
 	if (!fs.existsSync(file) && !path.isAbsolute(file)) {
 		var cp = callerPath();
 		switch (process.platform) {
-		case 'win32': {
-				cp = cp.replace("file:///", "");
-			}
-			break;
-		default: {
-				cp = cp.replace("file://", "");
-			}
-			break;
+			case 'win32':
+				cp = cp.replace('file:///', '');
+				break;
+			default:
+				cp = cp.replace('file://', '');
+				break;
 		}
 		file = path.resolve(path.dirname(cp), file);
 	}

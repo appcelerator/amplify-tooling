@@ -29,7 +29,8 @@ export default class SignedJWT extends Authenticator {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
 		}
 
-		let { secret, secretFile } = opts;
+		const secretFile = opts.secretFile;
+		let secret = opts.secret;
 
 		if (!secret && !secretFile) {
 			throw E.INVALID_ARGUMENT('Expected either a private key or private key file to be an object');
