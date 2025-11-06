@@ -7,11 +7,7 @@ export default class TeamUserRemove extends Command {
 	static override aliases = [
 		'team:user:rm',
 		'team:users:rm',
-		'team:users:remove',
-		'team:member:rm',
-		'team:member:remove',
-		'team:members:rm',
-		'team:members:remove'
+		'team:users:remove'
 	];
 
 	static override summary = 'Remove a user from a team.';

@@ -13,55 +13,64 @@ const protoRegExp = /^.*\/\//;
 /**
  * Base class for token storage backends.
  */
-export default class TokenStore {
+export default abstract class TokenStore {
+
+	profile: string | null = null;
+
 	/**
 	 * Initializes the file store.
 	 *
 	 * @param {Object} [opts] - Various options.
-	 * @access public
 	 */
-	constructor(opts = {}) {
+	constructor(opts = {} as any) {
 		if (!opts || typeof opts !== 'object') {
 			throw E.INVALID_ARGUMENT('Expected options to be an object');
+		}
+		if (opts.profile && typeof opts.profile === 'string') {
+			this.profile = opts.profile;
 		}
 	}
 
 	/* istanbul ignore next */
 	/**
-	 * Removes all tokens. This method is intended to be overwritten.
+	 * Removes all tokens.
 	 *
 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>}
-	 * @access public
 	 */
-	async clear(_baseUrl): Promise<any> {
-		return { entries: [], removed: [] };
-	}
+	abstract clear(baseUrl): Promise<any>;
 
 	/**
 	 * Removes all tokens.
 	 *
 	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise<Array>}
-	 * @access public
 	 */
 	async _clear(baseUrl) {
 		const entries = await this.list();
 
 		if (!baseUrl) {
 			for (const entry of entries) {
-				Object.defineProperty(entry.auth, 'expired', { value: true });
+				if (entry.profile === this.profile || (this.profile === null && !entry.profile)) {
+					Object.defineProperty(entry.auth, 'expired', { value: true });
+				}
 			}
 			return { entries: [], removed: entries };
 		}
 
 		const removed = [];
-		baseUrl = baseUrl.replace(protoRegExp, '');
-		for (let i = 0; i < entries.length; i++) {
-			if (entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl) {
-				const entry = entries.splice(i--, 1)[0];
-				Object.defineProperty(entry.auth, 'expired', { value: true });
-				removed.push(entry);
+		if (baseUrl) {
+			baseUrl = baseUrl.replace(protoRegExp, '');
+			for (let i = 0; i < entries.length; i++) {
+				// skip entries that don't match the profile
+				if ((entries[i].profile && entries[i].profile !== this.profile) || (this.profile === null && entries[i].profile)) {
+					continue;
+				}
+				if (entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl) {
+					const entry = entries.splice(i--, 1)[0];
+					Object.defineProperty(entry.auth, 'expired', { value: true });
+					removed.push(entry);
+				}
 			}
 		}
 
@@ -70,16 +79,13 @@ export default class TokenStore {
 
 	/* istanbul ignore next */
 	/**
-	 * Deletes a token from the store. This method is intended to be overwritten.
+	 * Deletes a token from the store.
 	 *
 	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
  	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise}
-	 * @access public
 	 */
-	async delete(_accounts, _baseUrl) {
-		return [];
-	}
+	abstract delete(accounts, baseUrl): Promise<any>;
 
 	/**
 	 * Deletes a token from the store.
@@ -87,7 +93,6 @@ export default class TokenStore {
 	 * @param {String|Array.<String>} accounts - The account name(s) to delete.
  	 * @param {String} [baseUrl] - The base URL used to filter accounts.
 	 * @returns {Promise}
-	 * @access public
 	 */
 	async _delete(accounts, baseUrl) {
 		const entries = await this.list();
@@ -102,7 +107,9 @@ export default class TokenStore {
 		}
 
 		for (let i = 0; i < entries.length; i++) {
-			if ((accounts.includes(entries[i].hash) || accounts.includes(entries[i].name)) && (!baseUrl || entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl)) {
+			if ((accounts.includes(entries[i].hash) || accounts.includes(entries[i].name))
+				&& (!baseUrl || entries[i].auth.baseUrl.replace(protoRegExp, '') === baseUrl)
+				&& (entries[i].profile === this.profile || (this.profile === null && !entries[i].profile))) {
 				const entry = entries.splice(i--, 1)[0];
 				Object.defineProperty(entry.auth, 'expired', { value: true });
 				removed.push(entry);
@@ -121,7 +128,6 @@ export default class TokenStore {
 	 * @param {string} params.hash - The authenticator hash derived from the client id, base url,
 	 * realm, and authentication parameters.
 	 * @returns {Promise} Resolves the token or `undefined` if not set.
-	 * @access public
 	 */
 	async get({ accountName, baseUrl, hash } = {} as any) {
 		const entries = await this.list();
@@ -153,18 +159,14 @@ export default class TokenStore {
 	 * Retrieves all tokens from the store. This method is intended to be overwritten.
 	 *
 	 * @returns {Promise<Array>} Resolves an array of tokens.
-	 * @access public
 	 */
-	async list() {
-		return [];
-	}
+	abstract list(): Promise<Array<any>>;
 
 	/**
 	 * Ensures list of tokens is valid and does not contain any expired tokens.
 	 *
 	 * @param {Array.<Object>} entries - An array of tokens.
 	 * @returns {Array.<Object>}
-	 * @access private
 	 */
 	purge(entries) {
 		if (!entries) {
@@ -204,15 +206,13 @@ export default class TokenStore {
 
 	/* istanbul ignore next */
 	/**
-	 * Saves account credentials. This method is intended to be overwritten.
+	 * Saves account credentials.
 	 *
 	 * @param {Object} data - The token data.
 	 * @returns {Promise}
 	 * @access private
 	 */
-	async set(_data) {
-		// noop
-	}
+	abstract set(data): Promise<any>;
 
 	/**
 	 * Saves account credentials. If exists, the old one is deleted.
@@ -225,7 +225,7 @@ export default class TokenStore {
 		const entries = await this.list();
 
 		for (let i = 0, len = entries.length; i < len; i++) {
-			if (entries[i].auth.baseUrl === data.auth.baseUrl && entries[i].name === data.name) {
+			if (entries[i].auth.baseUrl === data.auth.baseUrl && entries[i].name === data.name && entries[i].profile === data.profile) {
 				entries.splice(i, 1);
 				break;
 			}

@@ -47,7 +47,6 @@ interface TelemetryOptions {
 	appVersion: string;
 	cacheDir: string;
 	enabled?: boolean;
-	environment: string;
 	requestOptions?: object;
 	url: string;
 }
@@ -97,10 +96,6 @@ export default class Telemetry {
 			throw new TypeError('Expected telemetry cache dir to be a non-empty string');
 		}
 
-		if (!opts.environment || typeof opts.environment !== 'string') {
-			throw new TypeError('Expected environment to be a non-empty string');
-		}
-
 		if (opts.requestOptions && typeof opts.requestOptions !== 'object') {
 			throw new TypeError('Expected telemetry request options to be an object');
 		}
@@ -124,7 +119,7 @@ export default class Telemetry {
 		this.common = {
 			app: opts.appGuid,
 			distribution: {
-				environment: opts.environment,
+				environment: process.env.NODE_ENV || 'production',
 				version: opts.appVersion
 			},
 			hardware: {

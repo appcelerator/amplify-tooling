@@ -2,7 +2,7 @@ import Command from '../../lib/command.js';
 import { Flags } from '@oclif/core';
 import { input, password, select } from '@inquirer/prompts';
 import { highlight } from '../../lib/logger.js';
-import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
+import { initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 
 export default class AuthLogin extends Command {
@@ -107,7 +107,6 @@ Once authenticated, the account's current team is set to its configured default 
 			secretFile: flags['secret-file']
 		});
 		let account;
-		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 
 		try {
 			account = await sdk.auth.login({ force: flags.force });
@@ -115,7 +114,7 @@ Once authenticated, the account's current team is set to its configured default 
 			if (err.code === 'EAUTHENTICATED') {
 				({ account } = err);
 				if (this.jsonEnabled()) {
-					account.default = await config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name;
+					account.default = await config.get('auth.defaultAccount') === account.name;
 					return account;
 				}
 				this.log(`You are already logged into a ${highlight('service')} account as ${highlight(account.name)}.`);
@@ -127,24 +126,21 @@ Once authenticated, the account's current team is set to its configured default 
 
 		const accounts = await sdk.auth.list({ validate: true, skip: [ account.name ] });
 		if (accounts.length === 1) {
-			await config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
-			await config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
+			await config.set('auth.defaultAccount', account.name);
 
 			if (account.team) {
-				await config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
+				await config.set(`auth.defaultTeam.${account.hash}`, account.team.guid);
 			} else {
-				await config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
+				await config.delete(`auth.defaultTeam.${account.hash}`);
 			}
 
 			await config.save();
 			account.default = true;
-		} else if (await config.get(`${authConfigEnvSpecifier}.defaultAccount`) === account.name) {
+		} else if (await config.get('auth.defaultAccount') === account.name) {
 			account.default = true;
 		} else {
 			account.default = false;
 		}
-
-		await this.config.runHook('axway:auth:login', { account });
 
 		if (this.jsonEnabled()) {
 			return account;
@@ -157,7 +153,7 @@ Once authenticated, the account's current team is set to its configured default 
 			this.log('\nThis account has been set as the default.');
 		} else {
 			this.log('\nTo make this account the default, run:');
-			this.log(`  ${highlight(`axway config set ${authConfigEnvSpecifier}.defaultAccount ${account.name}`)}`);
+			this.log(`  ${highlight(`axway config set auth.defaultAccount ${account.name}`)}`);
 		}
 	}
 }

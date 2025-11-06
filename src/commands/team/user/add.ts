@@ -5,9 +5,7 @@ import Command from '../../../lib/command.js';
 
 export default class TeamUserAdd extends Command {
 	static override aliases = [
-		'team:users:add',
-		'team:member:add',
-		'team:members:add'
+		'team:users:add'
 	];
 
 	static override summary = 'Add a user to a team.';

@@ -1,6 +1,6 @@
 import Command from '../../lib/command.js';
 import { highlight, note } from '../../lib/logger.js';
-import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
+import { initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import { select } from '@inquirer/prompts';
 import { Flags } from '@oclif/core';
@@ -31,7 +31,6 @@ than one team.`;
 	async run(): Promise<any> {
 		const { config, flags } = await this.parse(AuthSwitch);
 		const sdk = await initSDK();
-		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		const accounts = await sdk.auth.list({ validate: true, sanitize: false });
 		let account;
 
@@ -59,7 +58,7 @@ than one team.`;
 			let accountName = accounts[0]?.name;
 
 			if (accounts.length > 1 && !this.jsonEnabled()) {
-				const defaultAccount = config.get(`${authConfigEnvSpecifier}.defaultAccount`);
+				const defaultAccount = config.get('auth.defaultAccount');
 				const choices = accounts
 					.map(acct => ({ value: acct.name }))
 					.sort((a, b) => a.value.localeCompare(b.value));
@@ -80,13 +79,11 @@ than one team.`;
 		}
 
 		account.default = true;
-		config.set(`${authConfigEnvSpecifier}.defaultAccount`, account.name);
-		config.delete(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`);
-		config.delete(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
-		config.save();
+		config.set('auth.defaultAccount', account.name);
+		config.delete(`auth.defaultTeam.${account.hash}`);
 
 		if (account.org?.teams) {
-			const defaultTeam = account?.hash && config.get(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`);
+			const defaultTeam = account?.hash && config.get(`auth.defaultTeam.${account.hash}`);
 			const selectedTeam = String(flags.team || defaultTeam || '');
 			let team = selectedTeam && account.org.teams.find(t => t.guid.toLowerCase() === selectedTeam.toLowerCase() || t.name.toLowerCase() === selectedTeam.toLowerCase());
 
@@ -139,17 +136,11 @@ than one team.`;
 			}
 		}
 
-		if (account.org) {
-			config.set(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`, account.org.guid);
-		}
 		if (account.team) {
-			config.set(`${authConfigEnvSpecifier}.defaultTeam.${account.hash}`, account.team.guid);
-		}
-		if (account.org || account.team) {
-			config.save();
+			config.set(`auth.defaultTeam.${account.hash}`, account.team.guid);
 		}
 
-		await this.config.runHook('axway:auth:switch', { account });
+		config.save();
 
 		if (this.jsonEnabled()) {
 			return account;

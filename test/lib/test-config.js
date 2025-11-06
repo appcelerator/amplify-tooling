@@ -116,6 +116,43 @@ describe('config', () => {
 				expect(cfg.get('baz.qux')).to.equal(42);
 				expect(cfg.get('corge.1')).to.equal(2);
 			});
+
+			it('should get a value by key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.get('foo')).to.equal('devBar');
+				expect(cfg.get('baz.qux')).to.equal(123);
+			});
+
+			it('should return undefined for non-existent key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.get('notfound')).to.be.undefined;
+			});
+
+			it('should fall back to global setting if key not found in profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar' } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.get('baz.qux')).to.equal(42);
+			});
+
+			it('should return the default value for non-existent key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.get('notfound', 'defaultValue')).to.equal('defaultValue');
+			});
 		});
 
 		describe('set()', () => {
@@ -137,6 +174,38 @@ describe('config', () => {
 				cfg.set('baz.qux', 100);
 				expect(cfg.get('baz.qux')).to.equal(100);
 			});
+
+			it('should set a value by key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				cfg.set('foo', 'newDevBar');
+				expect(cfg.get('foo')).to.equal('newDevBar');
+			});
+
+			it('should set nested keys using dot notation in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				cfg.set('baz.qux', 456);
+				expect(cfg.get('baz.qux')).to.equal(456);
+			});
+
+			it('should set a global key when global flag is true in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				cfg.set('foo', 'globalFoo', true);
+				expect(cfg.get('foo', undefined, true)).to.equal('globalFoo');
+				// Ensure profile value is unchanged
+				expect(cfg.get('foo')).to.equal('devBar');
+			});
 		});
 
 		describe('has()', () => {
@@ -156,6 +225,33 @@ describe('config', () => {
 				expect(cfg.has('baz.qux')).to.be.true;
 				expect(cfg.has('baz.nonexistent')).to.be.false;
 			});
+
+			it('should check for existing key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.has('foo')).to.be.true;
+			});
+
+			it('should return false for non-existent key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.has('notfound')).to.be.false;
+			});
+
+			it('should fall back to global setting when checking for key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar' } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.has('baz.qux')).to.be.true;
+			});
 		});
 
 		describe('delete()', () => {
@@ -173,6 +269,30 @@ describe('config', () => {
 				cfg.delete('baz.qux');
 				expect(cfg.get('baz.qux')).to.be.undefined;
 			});
+
+			it('should delete a key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.get('foo')).to.equal('devBar');
+				cfg.delete('foo');
+				// Should fall back to global value
+				expect(cfg.get('foo')).to.equal('bar');
+			});
+
+			it('should delete nested keys using dot notation in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar', baz: { qux: 123 } } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(cfg.get('baz.qux')).to.equal(123);
+				cfg.delete('baz.qux');
+				// Should fall back to global value
+				expect(cfg.get('baz.qux')).to.equal(42);
+			});
 		});
 
 		describe('push()', () => {
@@ -188,6 +308,46 @@ describe('config', () => {
 				cfg.push('newArray', 'firstItem');
 				expect(cfg.get('newArray')).to.deep.equal([ 'firstItem' ]);
 			});
+
+			it('should error when pushing to non-array key', () => {
+				const cfg = new Config().init({ file: sampleFile, data: sampleData });
+				expect(() => cfg.push('foo', 'value')).to.throw(
+					TypeError,
+					'Expected config key "foo" to be an array'
+				);
+			});
+
+			it('should push a new value onto an array in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { corge: [ 10, 20 ] } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				cfg.push('corge', 30);
+				expect(cfg.get('corge')).to.deep.equal([ 10, 20, 30 ]);
+			});
+
+			it('should create an array in a profile if key does not exist', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				cfg.push('newArray', 'firstItem');
+				expect(cfg.get('newArray')).to.deep.equal([ 'firstItem' ]);
+			});
+
+			it('should error when pushing to non-array key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar' } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(() => cfg.push('foo', 'value')).to.throw(
+					TypeError,
+					'Expected config key "foo" to be an array'
+				);
+			});
 		});
 
 		describe('pop()', () => {
@@ -201,6 +361,29 @@ describe('config', () => {
 
 			it('should error when popping from non-array key', () => {
 				const cfg = new Config().init({ file: sampleFile, data: sampleData });
+				expect(() => cfg.pop('foo')).to.throw(
+					TypeError,
+					'Expected config key "foo" to be an array'
+				);
+			});
+
+			it('should pop a value from an array in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { corge: [ 10, 20, 30 ] } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				const popped = cfg.pop('corge');
+				expect(popped).to.equal(30);
+				expect(cfg.get('corge')).to.deep.equal([ 10, 20 ]);
+			});
+
+			it('should error when popping from non-array key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar' } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
 				expect(() => cfg.pop('foo')).to.throw(
 					TypeError,
 					'Expected config key "foo" to be an array'
@@ -224,6 +407,29 @@ describe('config', () => {
 					'Expected config key "foo" to be an array'
 				);
 			});
+
+			it('should shift a value from an array in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { corge: [ 10, 20, 30 ] } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				const shifted = cfg.shift('corge');
+				expect(shifted).to.equal(10);
+				expect(cfg.get('corge')).to.deep.equal([ 20, 30 ]);
+			});
+
+			it('should error when shifting from non-array key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar' } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(() => cfg.shift('foo')).to.throw(
+					TypeError,
+					'Expected config key "foo" to be an array'
+				);
+			});
 		});
 
 		describe('unshift()', () => {
@@ -238,6 +444,46 @@ describe('config', () => {
 				const cfg = new Config().init({ file: sampleFile, data: sampleData });
 				cfg.unshift('newArray', 'firstItem');
 				expect(cfg.get('newArray')).to.deep.equal([ 'firstItem' ]);
+			});
+
+			it('should error when unshifting to non-array key', () => {
+				const cfg = new Config().init({ file: sampleFile, data: sampleData });
+				expect(() => cfg.unshift('foo', 'value')).to.throw(
+					TypeError,
+					'Expected config key "foo" to be an array'
+				);
+			});
+
+			it('should unshift a new value onto an array in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { corge: [ 10, 20 ] } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				cfg.unshift('corge', 5);
+				expect(cfg.get('corge')).to.deep.equal([ 5, 10, 20 ]);
+			});
+
+			it('should create an array in a profile if key does not exist', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				cfg.unshift('newArray', 'firstItem');
+				expect(cfg.get('newArray')).to.deep.equal([ 'firstItem' ]);
+			});
+
+			it('should error when unshifting to non-array key in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { foo: 'devBar' } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				expect(() => cfg.unshift('foo', 'value')).to.throw(
+					TypeError,
+					'Expected config key "foo" to be an array'
+				);
 			});
 		});
 

@@ -5,9 +5,7 @@ import Command from '../../../lib/command.js';
 
 export default class TeamUserUpdate extends Command {
 	static override aliases = [
-		'team:users:update',
-		'team:member:update',
-		'team:members:update'
+		'team:users:update'
 	];
 
 	static override summary = 'Update a user\'s team roles.';

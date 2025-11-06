@@ -1,5 +1,5 @@
 import Command from '../../lib/command.js';
-import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
+import { initSDK } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import chalk from 'chalk';
 import prettyMilliseconds from 'pretty-ms';
@@ -13,14 +13,13 @@ export default class AuthList extends Command {
 	async run() {
 		const { config } = await this.parse(AuthList);
 		const sdk = await initSDK();
-		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 
 		const accounts = await sdk.auth.list({
-			defaultTeams: config.get(`${authConfigEnvSpecifier}.defaultTeam`),
+			defaultTeams: config.get('auth.defaultTeam'),
 			validate: true,
 		});
 		for (const account of accounts) {
-			account.default = account.name === config.get(`${authConfigEnvSpecifier}.defaultAccount`);
+			account.default = account.name === config.get('auth.defaultAccount');
 		}
 
 		if (this.jsonEnabled()) {

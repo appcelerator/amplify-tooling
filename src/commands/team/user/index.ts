@@ -1,7 +1,7 @@
 import Command from '../../../lib/command.js';
 
 export default class TeamUserCommand extends Command {
-	static override aliases = [ 'team:users', 'team:member', 'team:members' ];
+	static override aliases = [ 'team:users' ];
 	static override summary = 'Manage team users.';
 	static override description = `You may specify an organization by name, id, or guid as well as the team by
 name or guid and user by email address or guid.`;

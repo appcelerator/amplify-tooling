@@ -5,18 +5,11 @@
  */
 export const environments = {
 	prod: {
-		baseUrl:     'https://login.axway.com',
+		baseUrl: 'https://login.axway.com',
 		platformUrl: 'https://platform.axway.com',
-		auth: {
-			clientId: 'amplify-cli',
-			realm: 'Broker'
-		},
-		registry: {
-			url: 'https://registry.platform.axway.com'
-		},
+		realm: 'Broker',
 		title: 'Production'
 	}
-	// TODO: Add EU2 environment definition
 };
 
 const mapping = {

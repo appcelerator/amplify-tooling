@@ -8,20 +8,6 @@ import { axwayHome } from './path.js';
 const { warn } = logger('utils');
 
 /**
- * Resolves the "auth.*" config key based on your environment. This is used to get or set the
- * default account and org.
- *
- * @param {String} env - The resolved environment name.
- * @returns {String}
- *
- * @example
- *   config.get(`${getAuthConfigEnvSpecifier(sdk.env.name)}.defaultAccount`);
- */
-export function getAuthConfigEnvSpecifier(env) {
-	return !env || env === 'prod' ? 'auth' : `auth.environment.${env}`;
-}
-
-/**
  * Initializes the Amplify SDK, loads an account, and finds the default org id.
  * TODO: Platform user auth is being removed with 5.0, so this should be renamed
  *
@@ -32,8 +18,7 @@ export function getAuthConfigEnvSpecifier(env) {
 export async function initPlatformAccount(accountName?, org?) {
 	const sdk = await initSDK();
 	const config = await loadConfig();
-	const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
-	const account = await sdk.auth.find(accountName || config.get(`${authConfigEnvSpecifier}.defaultAccount`));
+	const account = await sdk.auth.find(accountName || config.get('auth.defaultAccount'));
 
 	if (!account) {
 		if (accountName) {
@@ -45,13 +30,8 @@ export async function initPlatformAccount(accountName?, org?) {
 	if (org) {
 		org = await sdk.org.find(account, org);
 	} else {
-		try {
-			// check the config for a default org for this account
-			org = await sdk.org.find(account, config.get(`${authConfigEnvSpecifier}.defaultOrg.${account.hash}`));
-		} catch (_err) {
-			// default org was stale, auto detect the default from the account orgs
-			org = await sdk.org.find(account);
-		}
+		// default org was stale, auto detect the org from the account
+		org = await sdk.org.find(account);
 	}
 
 	return {
@@ -80,8 +60,6 @@ export async function initSDK(opts: any = {}, config?: Config) {
 
 	const env = environments.resolve(opts.env || config.get('env'));
 
-	const { clientId, realm } = env.auth;
-
 	interface AuthParams {
 		baseUrl?: string;
 		clientId: string;
@@ -90,6 +68,7 @@ export async function initSDK(opts: any = {}, config?: Config) {
 		password?: string;
 		persistSecrets?: boolean;
 		platformUrl?: string;
+		profile?: string;
 		realm: string;
 		secretFile?: string;
 		serverHost?: string;
@@ -104,22 +83,23 @@ export async function initSDK(opts: any = {}, config?: Config) {
 	const params = {} as AuthParams;
 
 	const props = {
-		baseUrl:                 undefined,
-		clientId,
-		clientSecret:            undefined,
-		homeDir:                 axwayHome,
-		password:                undefined,
-		persistSecrets:          undefined,
-		platformUrl:             undefined,
-		realm,
-		secretFile:              undefined,
-		serverHost:              undefined,
-		serverPort:              undefined,
-		tokenRefreshThreshold:   15 * 60, // 15 minutes
-		tokenStore:              undefined,
-		tokenStoreDir:           axwayHome,
-		tokenStoreType:          undefined,
-		username:                undefined
+		baseUrl: undefined,
+		clientId: undefined,
+		clientSecret: undefined,
+		homeDir: axwayHome,
+		password: undefined,
+		persistSecrets: undefined,
+		platformUrl: undefined,
+		profile: config.profile,
+		realm: env?.realm || 'Broker',
+		secretFile: undefined,
+		serverHost: undefined,
+		serverPort: undefined,
+		tokenRefreshThreshold: 15 * 60, // 15 minutes
+		tokenStore: undefined,
+		tokenStoreDir: axwayHome,
+		tokenStoreType: undefined,
+		username: undefined
 	};
 
 	for (const prop of Object.keys(props)) {

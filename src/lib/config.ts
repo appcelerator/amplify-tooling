@@ -22,6 +22,7 @@ export function getConfigInstance(): Config {
  * @param {Object} [opts.config] - A object to initialize the config with. Note that if a
  * `configFile` is also specified, this `config` is applied AFTER the config file has been loaded.
  * @param {String} [opts.configFile] - The path to a .json config file to load.
+ * @param {String} [opts.profile] - The profile name to use for profile-specific settings.
  * @returns {Promise<Config>}
  */
 export async function loadConfig(opts: any = {}) {
@@ -38,7 +39,8 @@ export async function loadConfig(opts: any = {}) {
 	if (opts.configFile && opts.configFile !== configFile) {
 		return await new Config().init({
 			data: opts.config,
-			file: expandPath(opts.configFile)
+			file: expandPath(opts.configFile),
+			profile: opts.profile
 		});
 	}
 
@@ -46,7 +48,8 @@ export async function loadConfig(opts: any = {}) {
 	if (!singletonConfig) {
 		singletonConfig = await new Config().init({
 			data: opts.config,
-			file: expandPath(opts.configFile || configFile)
+			file: expandPath(opts.configFile || configFile),
+			profile: opts.profile
 		});
 	}
 
@@ -68,6 +71,15 @@ export default loadConfig;
 export class Config {
 	#data: any;
 	#file: string;
+	#profile: string = null;
+
+	get profile() {
+		return this.#profile;
+	}
+
+	set profile(profile: string) {
+		this.#profile = profile;
+	}
 
 	constructor() {
 		this.#data = {};
@@ -79,9 +91,10 @@ export class Config {
 	 * @param {Object} opts An options object containing initialization options.
 	 * @param {String} [opts.file] The path to a `.json` file as a string. Required.
 	 * @param {Object} [opts.config] An optional object to merge into the configuration data.
+	 * @param {String} [opts.profile] An optional profile name to use for profile-specific settings.
 	 * @returns {Config} The current instance for chaining.
 	 */
-	init(opts: { file?: string; data?: object } = {}): this {
+	init(opts: { file?: string; data?: object, profile?: string } = {}): this {
 		this.#file = opts.file;
 		if (!this.#file || typeof this.#file !== 'string' || !this.#file.endsWith('.json')) {
 			throw new TypeError('Expected file to be a string path to a .json file');
@@ -95,6 +108,10 @@ export class Config {
 
 		if (opts.data && typeof opts.data === 'object' && !Array.isArray(opts.data)) {
 			this.#data = { ...this.#data, ..._.cloneDeep(opts.data) };
+		}
+
+		if (opts.profile && typeof opts.profile === 'string') {
+			this.#profile = opts.profile;
 		}
 
 		return this;
@@ -133,14 +150,19 @@ export class Config {
 	 *
 	 * @param {String} [key] The key of the configuration value to retrieve.
 	 * @param {any} [defaultValue] The default value to return if the key is not found.
+	 * @param {Boolean} [global=false] Whether to get the globally defined value or for the current profile.
 	 * @returns {any} The configuration value or the default value.
 	 */
-	get(key?: string, defaultValue?: any) {
+	get(key?: string, defaultValue?: any, global?: boolean) {
 		if (!key) {
 			return this.#data;
 		}
 
-		return _.get(this.#data, key, defaultValue);
+		if (!this.#profile || global) {
+			return _.get(this.#data, key, defaultValue);
+		}
+
+		return _.get(this.#data, `profiles.${this.#profile}.${key}`) || _.get(this.#data, key, defaultValue);
 	}
 
 	/**
@@ -148,9 +170,15 @@ export class Config {
 	 *
 	 * @param {String} key The key of the configuration value to set.
 	 * @param {any} value The value to set.
+	 * @param {Boolean} [global=false] Whether to set the value globally or for the current profile.
 	 */
-	set(key: string, value: any) {
-		_.set(this.#data, key, value);
+	set(key: string, value: any, global?: boolean) {
+		if (global || !this.#profile) {
+			_.set(this.#data, key, value);
+			return;
+		}
+
+		_.set(this.#data, `profiles.${this.#profile}.${key}`, value);
 	}
 
 	/**
@@ -159,8 +187,12 @@ export class Config {
 	 * @param {String} key The key of the configuration value to check.
 	 * @returns {Boolean} True if the key exists, false otherwise.
 	 */
-	has(key: string) {
-		return _.has(this.#data, key);
+	has(key: string): boolean {
+		if (!this.#profile) {
+			return _.has(this.#data, key);
+		}
+
+		return _.has(this.#data, `profiles.${this.#profile}.${key}`) || _.has(this.#data, key);
 	}
 
 	/**
@@ -169,6 +201,12 @@ export class Config {
 	 * @param {String} key The key of the configuration value to delete.
 	 */
 	delete(key: string) {
+		if (this.#profile && _.has(this.#data, `profiles.${this.#profile}.${key}`)) {
+			log(`Deleting key "${highlight(`profiles.${this.#profile}.${key}`)}" from config data`);
+			_.unset(this.#data, `profiles.${this.#profile}.${key}`);
+			return;
+		}
+
 		log(`Deleting key "${highlight(key)}" from config data`);
 		_.unset(this.#data, key);
 	}
@@ -181,9 +219,16 @@ export class Config {
 	 * @param {any} value The value to add to the array.
 	 */
 	push(key: string, value: any) {
-		const arr = this.get(key) || [];
+		const _key = key;
+		if (this.#profile) {
+			key = `profiles.${this.#profile}.${key}`;
+		}
+		const arr = this.get(key, [], true);
+		if (!Array.isArray(arr)) {
+			throw new TypeError(`Expected config key "${_key}" to be an array`);
+		}
 		arr.push(value);
-		this.set(key, arr);
+		this.set(key, arr, true);
 	}
 
 	/**
@@ -193,12 +238,16 @@ export class Config {
 	 * @returns {any} The removed value.
 	 */
 	pop(key: string) {
-		const arr = this.get(key);
+		const _key = key;
+		if (this.#profile) {
+			key = `profiles.${this.#profile}.${key}`;
+		}
+		const arr = this.get(key, undefined, true);
 		if (!Array.isArray(arr)) {
-			throw new TypeError(`Expected config key "${key}" to be an array`);
+			throw new TypeError(`Expected config key "${_key}" to be an array`);
 		}
 		const value = arr.pop();
-		this.set(key, arr);
+		this.set(key, arr, true);
 		return value;
 	}
 
@@ -209,12 +258,16 @@ export class Config {
 	 * @returns {any} The removed value.
 	 */
 	shift(key: string) {
-		const arr = this.get(key);
+		const _key = key;
+		if (this.#profile) {
+			key = `profiles.${this.#profile}.${key}`;
+		}
+		const arr = this.get(key, [], true);
 		if (!Array.isArray(arr)) {
-			throw new TypeError(`Expected config key "${key}" to be an array`);
+			throw new TypeError(`Expected config key "${_key}" to be an array`);
 		}
 		const value = arr.shift();
-		this.set(key, arr);
+		this.set(key, arr, true);
 		return value;
 	}
 
@@ -226,9 +279,16 @@ export class Config {
 	 * @param {any} value The value to add to the array.
 	 */
 	unshift(key: string, value: any) {
-		const arr = this.get(key) || [];
+		const _key = key;
+		if (this.#profile) {
+			key = `profiles.${this.#profile}.${key}`;
+		}
+		const arr = this.get(key, [], true);
+		if (!Array.isArray(arr)) {
+			throw new TypeError(`Expected config key "${_key}" to be an array`);
+		}
 		arr.unshift(value);
-		this.set(key, arr);
+		this.set(key, arr, true);
 	}
 
 	/**

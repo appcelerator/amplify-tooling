@@ -5,7 +5,6 @@ import logger from './logger.js';
 import { createRequestOptions } from './request.js';
 import { Telemetry } from './amplify-sdk/index.js';
 import { axwayHome } from './path.js';
-import * as environments from './environments.js';
 
 const { warn } = logger('telemetry');
 const telemetryCacheDir = path.join(axwayHome, 'axway-cli', 'telemetry');
@@ -59,7 +58,6 @@ export async function init(opts: any = {}): Promise<Telemetry> {
 			throw new Error('Expected telemetry app guid to be a non-empty string');
 		}
 
-		const env = environments.resolve(opts.env || config.get('env'));
 		const platformUrl = config.get('auth.platformUrl');
 
 		telemetryInst = new Telemetry({
@@ -67,7 +65,6 @@ export async function init(opts: any = {}): Promise<Telemetry> {
 			appGuid: opts.appGuid,
 			appVersion: opts.appVersion,
 			cacheDir: opts.cacheDir || telemetryCacheDir,
-			environment: env === 'staging' ? 'preproduction' : 'production',
 			requestOptions: createRequestOptions(config),
 			url: opts.url || (platformUrl + '/api/v1/analytics')
 		});

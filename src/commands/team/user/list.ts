@@ -8,11 +8,7 @@ export default class TeamUserList extends Command {
 	static override aliases = [
 		'team:user:ls',
 		'team:users:ls',
-		'team:users:list',
-		'team:member:ls',
-		'team:member:list',
-		'team:members:ls',
-		'team:members:list'
+		'team:users:list'
 	];
 
 	static override summary = 'List users in a team.';

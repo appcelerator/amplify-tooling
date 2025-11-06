@@ -24,7 +24,7 @@ export default class Config extends Command {
 		}
 	];
 
-	async run(): Promise<any> {
+	async run(): Promise<void> {
 		await this.config.runCommand('help', [ 'config' ]);
 		this.log(`${chalk.bold('SETTINGS')}
   ${highlight('auth.tokenStoreType')} ${note('[string] (default: "auto")')}

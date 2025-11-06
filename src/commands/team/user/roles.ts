@@ -6,9 +6,7 @@ import Command from '../../../lib/command.js';
 
 export default class TeamUserRoles extends Command {
 	static override aliases = [
-		'team:users:roles',
-		'team:member:roles',
-		'team:members:roles'
+		'team:users:roles'
 	];
 
 	static override summary = 'View available team user roles.';

@@ -22,7 +22,7 @@ export default class AmplifySDK {
 	got: Got;
 	baseUrl: string | null;
 	platformUrl: string | null;
-	realm: string;
+	profile: string | null;
 	auth: any;
 	client: any;
 	entitlement: any;
@@ -61,8 +61,13 @@ export default class AmplifySDK {
 		 */
 		this.env = environments.resolve(opts.env);
 
+		/**
+		 * The profile name for profile-specific settings.
+		 */
+		this.profile = opts.profile || null;
+
 		// set the defaults based on the environment
-		for (const prop of [ 'baseUrl', 'platformUrl', 'auth.realm' ]) {
+		for (const prop of [ 'baseUrl', 'platformUrl', 'realm' ]) {
 			if (!opts[prop]) {
 				opts[prop] = _.get(this.env, prop);
 			}
@@ -88,12 +93,6 @@ export default class AmplifySDK {
 		 * @type {String}
 		 */
 		this.platformUrl = opts.platformUrl ? opts.platformUrl.replace(/\/$/, '') : null;
-
-		/**
-		 * The Axway ID realm.
-		 * @type {String}
-		 */
-		this.realm = opts.realm;
 
 		this.auth = {
 			/**
@@ -137,12 +136,12 @@ export default class AmplifySDK {
 								}
 								return obj;
 							}, {}),
-						guid:          org.guid,
-						id:            org.org_id,
-						name:          org.name,
-						region:        org.region,
+						guid: org.guid,
+						id: org.org_id,
+						name: org.name,
+						region: org.region,
 						subscriptions: org.subscriptions || [],
-						teams:         []
+						teams: []
 					};
 
 					// TODO: Service accounts can only be part of one org, so remove orgs array?
@@ -175,10 +174,10 @@ export default class AmplifySDK {
 						const team = teams.find(t => (selectedTeamGuid && t.guid === selectedTeamGuid) || (!selectedTeamGuid && t.default)) || teams[0];
 						account.team = {
 							default: team.default,
-							guid:    team.guid,
-							name:    team.name,
-							roles:   account.user.guid && team.users?.find(u => u.guid === account.user.guid)?.roles || [],
-							tags:    team.tags
+							guid: team.guid,
+							name: team.name,
+							roles: account.user.guid && team.users?.find(u => u.guid === account.user.guid)?.roles || [],
+							tags: team.tags
 						};
 					}
 				}
@@ -365,9 +364,9 @@ export default class AmplifySDK {
 				}
 
 				const data: any = {
-					name:        opts.name,
+					name: opts.name,
 					description: opts.desc || '',
-					org_guid:    org.guid
+					org_guid: org.guid
 				};
 
 				if (opts.publicKey) {
@@ -764,29 +763,29 @@ export default class AmplifySDK {
 				});
 
 				const subscriptions = org.subscriptions.map(s => ({
-					category:   s.product,  // TODO: Replace with annotated name
-					edition:    s.plan,     // TODO: Replace with annotated name
-					expired:    !!s.expired,
+					category: s.product, // TODO: Replace with annotated name
+					edition: s.plan, // TODO: Replace with annotated name
+					expired: !!s.expired,
 					governance: s.governance || 'SaaS',
-					startDate:  s.start_date,
-					endDate:    s.end_date,
-					tier:       s.tier
+					startDate: s.start_date,
+					endDate: s.end_date,
+					tier: s.tier
 				}));
 
 				const { teams } = await this.team.list(account, id);
 
 				const result = {
-					active:           org.active,
-					created:          org.created,
-					guid:             org.guid,
-					id:               id,
-					name:             org.name,
-					entitlements:     org.entitlements,
-					region:           org.region,
+					active: org.active,
+					created: org.created,
+					guid: org.guid,
+					id,
+					name: org.name,
+					entitlements: org.entitlements,
+					region: org.region,
 					subscriptions,
 					teams,
-					teamCount:        teams.length,
-					userCount:        org.users.length
+					teamCount: teams.length,
+					userCount: org.users.length
 				};
 
 				if (org.entitlements?.partners) {
@@ -801,7 +800,6 @@ export default class AmplifySDK {
 			/**
 			 * Retrieves the list of orgs from the specified account.
 			 * @param {Object} account - The account object.
-			 * @param {String} defaultOrg - The name, id, or guid of the default organization.
 			 * @returns {Promise<Array>}
 			 */
 			list: async (account, defaultOrg) => {
@@ -1067,10 +1065,10 @@ export default class AmplifySDK {
 				}
 
 				const allowedRoles = await this.role.list(account, {
-					client:  opts.client,
+					client: opts.client,
 					default: opts.default,
-					org:     opts.org,
-					team:    opts.team
+					org: opts.org,
+					team: opts.team
 				});
 				const defaultRoles = allowedRoles.filter(r => r.default).map(r => r.id);
 

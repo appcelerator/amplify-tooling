@@ -25,8 +25,8 @@ export default class Authenticator {
 	 */
 	static GrantTypes = {
 		ClientCredentials: 'client_credentials',
-		RefreshToken:      'refresh_token',
-		JWTAssertion:      'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+		RefreshToken: 'refresh_token',
+		JWTAssertion: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
 	};
 
 	/**
@@ -70,6 +70,11 @@ export default class Authenticator {
 	 */
 	tokenStore = null;
 
+	/**
+	 * The associated configuration profile.
+	 */
+	profile: string | null = null;
+
 	baseUrl: string;
 	platformUrl: string;
 	clientId: string;
@@ -92,6 +97,7 @@ export default class Authenticator {
 	 * @param {Boolean} [opts.persistSecrets] - When `true`, adds the authenticator params
 	 * (client secret, private key, username/password) to the authenticated account object so that
 	 * the access token can be refreshed when a refresh token is not available.
+	 * @param {String} [opts.profile] - The name of the profile to use for authentication.
 	 * @param {Function} [opts.got] - A reference to a `got` HTTP client. If not defined, the
 	 * default `got` instance will be used.
 	 * @param {String} opts.realm - The name of the realm to authenticate with.
@@ -114,6 +120,13 @@ export default class Authenticator {
 		}
 		if (!this.baseUrl || typeof this.baseUrl !== 'string') {
 			throw E.MISSING_REQUIRED_PARAMETER('Invalid base URL: env or baseUrl required');
+		}
+
+		if (opts.profile) {
+			if (typeof opts.profile !== 'string') {
+				throw E.INVALID_PARAMETER('Expected profile to be a string');
+			}
+			this.profile = opts.profile;
 		}
 
 		this.platformUrl = opts.platformUrl || this.env.platformUrl;
@@ -191,10 +204,10 @@ export default class Authenticator {
 			if (!account.user || typeof account.user !== 'object') {
 				account.user = {};
 			}
-			account.user.email     = email;
+			account.user.email = email;
 			account.user.firstName = given_name;
-			account.user.guid      = guid || account.user.guid;
-			account.user.lastName  = family_name;
+			account.user.guid = guid || account.user.guid;
+			account.user.lastName = family_name;
 
 			if (!account.org || typeof account.org !== 'object') {
 				account.org = {};
@@ -204,6 +217,11 @@ export default class Authenticator {
 		} catch (err) {
 			const status = err.response?.statusCode;
 			warn(`Fetch user info failed: ${err.message}${status ? ` (${status})` : ''}`);
+		}
+
+		// Ensure the account is associated with the correct profile
+		if (this.profile) {
+			account.profile = this.profile;
 		}
 
 		return account;
@@ -228,7 +246,7 @@ export default class Authenticator {
 		if (this.tokenStore) {
 			log(`Searching for existing tokens: ${highlight(this.hash)}`);
 			for (const entry of await this.tokenStore.list()) {
-				if (entry.hash === this.hash) {
+				if (entry.hash === this.hash && ((!entry.profile && !this.profile) || entry.profile === this.profile)) {
 					log('Found account in token store:');
 					log(entry);
 
@@ -283,8 +301,8 @@ export default class Authenticator {
 		if (tokens?.refresh_token && expires.refresh && expires.refresh > now) {
 			log('Refreshing token using refresh token');
 			response = await fetchTokens(Object.assign({
-				clientId:     this.clientId,
-				grantType:    Authenticator.GrantTypes.RefreshToken,
+				clientId: this.clientId,
+				grantType: Authenticator.GrantTypes.RefreshToken,
 				refreshToken: tokens.refresh_token
 			}, await this.refreshTokenParams));
 
@@ -292,7 +310,7 @@ export default class Authenticator {
 			// get new token using the code
 			const params = Object.assign({
 				clientId: this.clientId,
-				scope:    this.scope
+				scope: this.scope
 			}, await this.tokenParams);
 
 			response = await fetchTokens(params);
@@ -329,25 +347,25 @@ export default class Authenticator {
 		const account = await this.getInfo({
 			auth: {
 				authenticator: this.constructor.name,
-				baseUrl:       this.baseUrl,
-				clientId:      this.clientId,
-				env:           this.env.name,
+				baseUrl: this.baseUrl,
+				clientId: this.clientId,
+				env: this.env.name,
 				expires: {
 					access: (tokens.expires_in * 1000) + now,
 					refresh
 				},
 				idp,
-				realm:         this.realm,
+				realm: this.realm,
 				tokens
 			},
-			hash:              this.hash,
+			hash: this.hash,
 			name,
 			org,
-			orgs:              org ? [ org ] : [],
+			orgs: org ? [ org ] : [],
 			user: {
-				axwayId:       undefined,
+				axwayId: undefined,
 				guid,
-				organization:  undefined
+				organization: undefined
 			}
 		});
 
@@ -386,9 +404,9 @@ export default class Authenticator {
 	 */
 	get hash() {
 		return this.clientId.replace(/\s/g, '_').replace(/_+/g, '_') + ':' + md5(Object.assign({
-			baseUrl:  this.baseUrl,
-			env:      this.env.name === 'prod' ? undefined : this.env.name,
-			realm:    this.realm
+			baseUrl: this.baseUrl,
+			env: this.env.name === 'prod' ? undefined : this.env.name,
+			realm: this.realm
 		}, this.hashParams));
 	}
 

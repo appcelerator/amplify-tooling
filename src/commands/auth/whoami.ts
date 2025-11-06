@@ -1,6 +1,6 @@
 import Command from '../../lib/command.js';
 import { Args } from '@oclif/core';
-import { getAuthConfigEnvSpecifier, initSDK } from '../../lib/utils.js';
+import { initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import { highlight } from '../../lib/logger.js';
 
@@ -16,13 +16,12 @@ export default class AuthWhoami extends Command {
 	async run() {
 		const { args, config } = await this.parse(AuthWhoami);
 		const sdk = await initSDK();
-		const authConfigEnvSpecifier = getAuthConfigEnvSpecifier(sdk.env.name);
 		let accounts = await sdk.auth.list({
-			defaultTeams: config.get(`${authConfigEnvSpecifier}.defaultTeam`),
+			defaultTeams: config.get('auth.defaultTeam'),
 			validate: true
 		});
 		for (const account of accounts) {
-			account.default = account.name === config.get(`${authConfigEnvSpecifier}.defaultAccount`);
+			account.default = account.name === config.get('auth.defaultAccount');
 		}
 
 		if (args.accountName) {

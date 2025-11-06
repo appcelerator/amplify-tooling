@@ -73,11 +73,7 @@ export default class FileStore extends TokenStore {
 	 */
 	override async clear(baseUrl): Promise<any> {
 		const { entries, removed } = await super._clear(baseUrl);
-		if (entries.length) {
-			await this.save(entries);
-		} else {
-			await this.remove();
-		}
+		await this.save(entries);
 		return removed;
 	}
 
@@ -199,42 +195,17 @@ export default class FileStore extends TokenStore {
 	}
 
 	/**
-	 * Saves the entires to both v1 and v2 token store files.
+	 * Saves the entries to the v2 token store file.
 	 *
 	 * @param {Array} entries - The list of entries.
 	 * @returns {Promise}
 	 * @access private
 	 */
 	async save(entries) {
-		// Auth SDK v2 changed the structure of the data in the token store, but some dependencies
-		// still rely on Auth SDK v1's structure. We can't change force them to update and we can't
-		// change the structure, so we have to write two versions of the token store. v2 is written
-		// as is, but for v1, the data is translated into Auth SDK v1's structure.
-		for (let ver = 1; ver <= 2; ver++) {
-			const data = await this.encode(ver === 2 ? entries : entries.map(acct => {
-				const v1 = {
-					...acct,
-					...acct.auth,
-					org: {
-						...acct.org,
-						org_id: acct.org?.id
-					},
-					orgs: !Array.isArray(acct.orgs) ? [] : acct.orgs.map(org => {
-						const o = { ...org, org_id: org.id };
-						delete o.id;
-						return o;
-					})
-				};
-
-				delete v1.auth;
-				delete v1.org.id;
-
-				return v1;
-			}));
-			const file = ver === 2 ? this.tokenStoreFile : path.join(this.homeDir, this.filename.replace(/\.v2$/, ''));
-			log(`Writing ${highlight(file)}`);
-			writeFileSync(file, data, { mode: 0o600 });
-		}
+		const data = await this.encode(entries);
+		const file = this.tokenStoreFile;
+		log(`Writing ${highlight(file)}`);
+		writeFileSync(file, data, { mode: 0o600 });
 	}
 
 	/**
