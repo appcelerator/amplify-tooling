@@ -3,7 +3,6 @@ import { resolve } from 'path';
 import chalk from 'chalk';
 import { Hook } from '@oclif/core';
 
-import * as telemetry from '../../lib/telemetry.js';
 import check from '../../lib/update.js';
 import loadConfig, { Config } from '../../lib/config.js';
 import logger, { highlight } from '../../lib/logger.js';
@@ -24,13 +23,6 @@ const hook: Hook.Init = async function (opts) {
 		warn(err);
 		return this.error(err);
 	}
-
-	// Asynchronously initialize the telemetry instance for the Axway CLI
-	telemetry.init({
-		appGuid: '0049ef76-0557-4b83-985c-a1d29c280227',
-		appVersion: opts.config.version,
-		config
-	});
 
 	if (config.get('update.check') === false || opts.argv.includes('--no-banner') || opts.argv.includes('--json')) {
 		log('Skipping update check');
@@ -53,8 +45,8 @@ Copyright (c) 2018-${year}, Axway, Inc. All Rights Reserved.`;
 
 		if (Number(process.versions.node.split('.')[0]) < Number(supportedNodeVersion)) {
 			str += '\n\n' + chalk.yellow(` ┃ ATTENTION! Support for the Node.js version you are currently using (${process.version})
-	┃ has been deprecated and is unsupported in Axway CLI v5 and newer. Please upgrade
-	┃ Node.js to the latest LTS release: https://nodejs.org/`);
+ ┃ has been deprecated and is unsupported in Axway CLI v5 and newer. Please upgrade
+ ┃ Node.js to the latest LTS release: https://nodejs.org/`);
 		}
 		this.log(str + '\n');
 	}

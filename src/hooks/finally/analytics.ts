@@ -19,8 +19,12 @@ const hook: Hook.Finally = async function (opts: Parameters<Hook.Finally>[0] & {
 	const error = opts.error as CLIError | undefined;
 
 	try {
-		// Fetch the previously initialized telemetry instance
-		const telemetryInstance = await telemetry.init();
+		const telemetryInstance = await telemetry.init({
+			appGuid: '0049ef76-0557-4b83-985c-a1d29c280227',
+			appVersion: opts.config.version,
+			config
+		});
+
 		// Fall out if telemetry is disabled
 		if (telemetryInstance.isTelemetryDisabled()) {
 			return;
