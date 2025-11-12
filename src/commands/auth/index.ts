@@ -2,6 +2,8 @@ import Command from '../../lib/command.js';
 import { highlight } from '../../lib/logger.js';
 
 export default class Auth extends Command {
+	static override hidden = true;
+
 	static override summary = 'Manage Axway CLI authentication.';
 
 	static override description = `The Axway CLI auth command allows you to authenticate with the Amplify platform under one or more service accounts and switch between them. You can log in using one or more service accounts at the same time.
@@ -39,6 +41,6 @@ However, if authenticating in a headless environment, you must set the token sto
 	];
 
 	async run() {
-		return this.config.runCommand('help', [ 'auth' ]);
+		return this.help();
 	}
 }

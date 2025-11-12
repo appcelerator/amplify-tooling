@@ -1,4 +1,4 @@
-import { Command, type Config as OclifConfig, Flags } from '@oclif/core';
+import { Command, type Config as OclifConfig, Flags, loadHelpClass } from '@oclif/core';
 import loadConfig, { type Config } from './config.js';
 
 import { type FlagInput, type ParserOutput } from '@oclif/core/interfaces';
@@ -37,5 +37,14 @@ export default abstract class AxwayCommand extends Command {
 			...parsed,
 			config
 		};
+	}
+
+	/**
+	 * Log command help output to stdout
+	 */
+	async help() {
+		const Help = await loadHelpClass(this.config);
+		const help = new Help(this.config);
+		await help.showHelp(this.id.split(':'));
 	}
 }

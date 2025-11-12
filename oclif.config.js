@@ -7,11 +7,11 @@ export default {
 	topicSeparator: ' ',
 	flexibleTaxonomy: true,
 	plugins: [
-		'@oclif/plugin-autocomplete',
-		'@oclif/plugin-help'
+		'@oclif/plugin-autocomplete'
 	],
 	hooks: {
 		command_incomplete: './dist/hooks/command_incomplete/prompt',
+		command_not_found: './dist/hooks/command_not_found/suggestions',
 		finally: [
 			'./dist/hooks/finally/analytics',
 			'./dist/hooks/finally/update'

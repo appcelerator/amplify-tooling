@@ -2,6 +2,7 @@ import { highlight } from '../../lib/logger.js';
 import Command from '../../lib/command.js';
 
 export default class OrgCommand extends Command {
+	static override hidden = true;
 	static override summary = 'Manage Amplify Platform organizations.';
 	static override description = `You must be authenticated to view or manage organizations.
 Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.
@@ -60,6 +61,6 @@ You may specify an organization by name, id, or guid.`;
 	];
 
 	async run() {
-		return this.config.runCommand('help', [ 'org' ]);
+		return this.help();
 	}
 }

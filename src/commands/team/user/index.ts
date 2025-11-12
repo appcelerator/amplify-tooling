@@ -1,6 +1,7 @@
 import Command from '../../../lib/command.js';
 
 export default class TeamUserCommand extends Command {
+	static override hidden = true;
 	static override aliases = [ 'team:users' ];
 	static override summary = 'Manage team users.';
 	static override description = `You may specify an organization by name, id, or guid as well as the team by
@@ -30,6 +31,6 @@ name or guid and user by email address or guid.`;
 	];
 
 	async run() {
-		return this.config.runCommand('help', [ 'team', 'user' ]);
+		return this.help();
 	}
 }

@@ -1,6 +1,7 @@
 import Command from '../../../lib/command.js';
 
 export default class OrgUserCommand extends Command {
+	static override hidden = true;
 	static override aliases = [ 'org:users' ];
 	static override summary = 'Manage organization users.';
 	static override description = 'You may specify an organization by name, id, or guid.';
@@ -32,6 +33,6 @@ export default class OrgUserCommand extends Command {
 	];
 
 	async run() {
-		return this.config.runCommand('help', [ 'org', 'user' ]);
+		return this.help();
 	}
 }

@@ -3,6 +3,8 @@ import chalk from 'chalk';
 import { highlight, note } from '../../lib/logger.js';
 
 export default class Config extends Command {
+	static override hidden = true;
+
 	static override summary = 'Manage configuration options.';
 
 	static override examples = [
@@ -25,7 +27,7 @@ export default class Config extends Command {
 	];
 
 	async run(): Promise<void> {
-		await this.config.runCommand('help', [ 'config' ]);
+		await this.help();
 		this.log(`${chalk.bold('SETTINGS')}
   ${highlight('auth.tokenStoreType')} ${note('[string] (default: "auto")')}
     After authenticating, access tokens are encrypted and stored in a file called the token store.

@@ -124,7 +124,7 @@ required options must be passed in at execution.`;
 
 		if (!name) {
 			if (!process.stdin.isTTY) {
-				return this.config.runCommand('help', [ 'service-account' ]);
+				return this.help();
 			}
 
 			name = await doPrompt({

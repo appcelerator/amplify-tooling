@@ -9,11 +9,8 @@ const hook: Hook.CommandIncomplete = async function ({ config, matches, argv }) 
 	const command: string = await select({
 		message: 'Which of these commands would you like to run?',
 		choices: matches.map(p => toConfiguredId(p.id, config)),
+		loop: false
 	});
-
-	if (argv.includes('--help') || argv.includes('-h')) {
-		return config.runCommand('help', [ toStandardizedId(command, config) ]);
-	}
 
 	return config.runCommand(toStandardizedId(command, config), argv);
 };

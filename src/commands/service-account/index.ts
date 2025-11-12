@@ -1,6 +1,7 @@
 import Command from '../../lib/command.js';
 
 export default class ServiceAccountCommand extends Command {
+	static override hidden = true;
 	static override summary = 'Create and manage service accounts.';
 	static override description = `Create and manage service accounts, generate public/private keypairs, and assign teams.
 
@@ -46,6 +47,6 @@ Available roles can be viewed using the 'roles' subcommand.`;
 	];
 
 	async run() {
-		return this.config.runCommand('help', [ 'service-account' ]);
+		return this.help();
 	}
 }
