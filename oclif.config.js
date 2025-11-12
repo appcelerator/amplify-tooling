@@ -11,7 +11,7 @@ export default {
 	],
 	hooks: {
 		command_incomplete: './dist/hooks/command_incomplete/prompt',
-		command_not_found: './dist/hooks/command_not_found/suggestions',
+		command_not_found: './dist/hooks/command_not_found/suggest',
 		finally: [
 			'./dist/hooks/finally/analytics',
 			'./dist/hooks/finally/update'
