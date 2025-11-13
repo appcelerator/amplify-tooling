@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Hook, Performance } from '@oclif/core';
+import { type Hook, Performance } from '@oclif/core';
 import { serializeError } from 'serialize-error';
 
 import { type CLIError } from '@oclif/core/errors';

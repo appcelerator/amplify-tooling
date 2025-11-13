@@ -1,4 +1,4 @@
-import { Hook, toConfiguredId, toStandardizedId } from '@oclif/core';
+import { type Hook, toConfiguredId, toStandardizedId } from '@oclif/core';
 import { select } from '@inquirer/prompts';
 import logger from '../../lib/logger.js';
 

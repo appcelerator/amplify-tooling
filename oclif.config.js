@@ -16,6 +16,9 @@ export default {
 			'./dist/hooks/finally/analytics',
 			'./dist/hooks/finally/update'
 		],
-		init: './dist/hooks/init/init'
+		init: [
+			'./dist/hooks/init/init',
+			'./dist/hooks/init/topic-summay'
+		]
 	}
 }

@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 
 import chalk from 'chalk';
-import { Hook } from '@oclif/core';
+import { type Hook } from '@oclif/core';
 
 import check from '../../lib/update.js';
 import loadConfig, { Config } from '../../lib/config.js';

@@ -1,4 +1,4 @@
-import { Hook, toConfiguredId, toStandardizedId } from '@oclif/core';
+import { type Hook, toConfiguredId, toStandardizedId } from '@oclif/core';
 import { closest, distance } from 'fastest-levenshtein';
 import { confirm } from '@inquirer/prompts';
 import logger from '../../lib/logger.js';
