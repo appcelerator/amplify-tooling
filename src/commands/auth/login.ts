@@ -15,32 +15,32 @@ Once authenticated, the account's current team is set to its configured default 
 	static override flags = {
 		username: Flags.string({
 			deprecated: true,
-			description: 'The platform username (no longer supported)',
+			description: 'The platform username (no longer supported).',
 			hidden: true
 		}),
 		password: Flags.string({
 			deprecated: true,
-			description: 'The platform password (no longer supported)',
+			description: 'The platform password (no longer supported).',
 			hidden: true
 		}),
 		'client-id': Flags.string({
-			description: 'The service account\'s client ID'
+			description: 'The service account\'s client ID.'
 		}),
 		'client-secret': Flags.string({
 			char: 'c',
-			description: 'The service account\'s client secret key',
+			description: 'The service account\'s client secret key.',
 			dependsOn: [ 'client-id' ],
 			exclusive: [ 'secret-file' ]
 		}),
 		'secret-file': Flags.string({
 			char: 's',
-			description: 'Path to the PEM formatted private key',
+			description: 'Path to the PEM formatted private key.',
 			dependsOn: [ 'client-id' ],
 			exclusive: [ 'client-secret' ]
 		}),
 		force: Flags.boolean({
-			description: 'Re-authenticate even if the account is already authenticated'
-		}),
+			description: 'Re-authenticate even if the account is already authenticated.'
+		})
 	};
 
 	static override examples = [
@@ -58,6 +58,7 @@ Once authenticated, the account's current team is set to its configured default 
 		}
 	];
 
+	static override authenticated = false;
 	static override enableJsonFlag = true;
 
 	async run() {

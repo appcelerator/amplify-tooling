@@ -1,7 +1,6 @@
 import Command from '../../lib/command.js';
-import { Args, Flags } from '@oclif/core';
+import { Args } from '@oclif/core';
 import { highlight, note } from '../../lib/logger.js';
-import { initPlatformAccount } from '../../lib/utils.js';
 
 export default class TeamView extends Command {
 	static override aliases = [ 'team:info' ];
@@ -10,18 +9,12 @@ export default class TeamView extends Command {
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid',
-			required: true
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
 		}),
 		team: Args.string({
-			description: 'The team name or guid',
+			description: 'The team name or guid.',
 			required: true
-		})
-	};
-
-	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
 		})
 	};
 
@@ -39,8 +32,7 @@ export default class TeamView extends Command {
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any | void> {
-		const { args, flags } = await this.parse(TeamView);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { args, account, org, sdk } = await this.parse(TeamView);
 		const { team } = await sdk.team.find(account, org, args.team);
 
 		if (this.jsonEnabled()) {

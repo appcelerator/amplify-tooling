@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { highlight, note } from '../../lib/logger.js';
 import { Flags } from '@oclif/core';
@@ -12,12 +11,8 @@ export default class ServiceAccountList extends Command {
 	static override summary = 'List all service accounts.';
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use',
-			required: false
-		}),
 		org: Flags.string({
-			description: 'The organization name, id, or guid',
+			description: 'The organization name, id, or guid; defaults to the current org.',
 			required: false
 		})
 	};
@@ -25,8 +20,7 @@ export default class ServiceAccountList extends Command {
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { flags } = await this.parse(ServiceAccountList);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
+		const { account, org, sdk } = await this.parse(ServiceAccountList);
 		const { clients } = await sdk.client.list(account, org);
 
 		if (this.jsonEnabled()) {

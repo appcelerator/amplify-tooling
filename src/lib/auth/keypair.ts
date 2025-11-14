@@ -82,9 +82,7 @@ async function validate({ force, initial, label, silent, value }) {
 
 	if (existsSync(file) && !force) {
 		if (silent) {
-			const err = new Error(`${label} file exists: ${value}`) as any;
-			err.showHelp = false;
-			throw err;
+			throw new Error(`${label} file exists: ${value}`);
 		}
 		const overwrite = await confirm({
 			message: `"${file}" already exists, overwrite?`

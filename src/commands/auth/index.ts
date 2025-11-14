@@ -40,6 +40,8 @@ However, if authenticating in a headless environment, you must set the token sto
 		}
 	];
 
+	static override authenticated = false;
+
 	async run() {
 		return this.help();
 	}

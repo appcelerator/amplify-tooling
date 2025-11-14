@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { isFile } from '../../lib/fs.js';
 import { existsSync, readFileSync } from 'fs';
 import { highlight, note } from '../../lib/logger.js';
@@ -14,33 +13,30 @@ You cannot change a service account's authentication method from client secret t
 
 	static override args = {
 		'client-id': Args.string({
-			description: 'The service account client id or name',
+			description: 'The service account client id or name.',
 			required: true
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		desc: Flags.string({
-			description: 'The description of the service account'
+			description: 'The description of the service account.'
 		}),
 		name: Flags.string({
-			description: 'Friendly name to use for display'
+			description: 'Friendly name to use for display.'
 		}),
 		org: Flags.string({
-			description: 'The organization name, id, or guid'
+			description: 'The organization name, id, or guid.'
 		}),
 		publicKey: Flags.string({
-			description: 'The path to the public key'
+			description: 'The path to the public key.'
 		}),
 		role: Flags.string({
-			description: 'Assign one or more organization roles to the service account',
+			description: 'Assign one or more organization roles to the service account.',
 			multiple: true
 		}),
 		secret: Flags.string({
-			description: 'A custom client secret key'
+			description: 'A custom client secret key.'
 		})
 	};
 
@@ -62,8 +58,7 @@ You cannot change a service account's authentication method from client secret t
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(ServiceAccountUpdate);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
+		const { args, flags, account, org, sdk } = await this.parse(ServiceAccountUpdate);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to update a service account in the "${org.name}" organization`);

@@ -2,9 +2,13 @@ import Command from '../../../lib/command.js';
 
 export default class OrgUserCommand extends Command {
 	static override hidden = true;
+
 	static override aliases = [ 'org:users' ];
+
 	static override summary = 'Manage organization users.';
+
 	static override description = 'You may specify an organization by name, id, or guid.';
+
 	static override examples = [
 		{
 			description: 'List all users in your currently selected organization',
@@ -31,6 +35,8 @@ export default class OrgUserCommand extends Command {
 			command: '<%= config.bin %> <%= command.id %> remove <org> <user>'
 		}
 	];
+
+	static override authenticated = false;
 
 	async run() {
 		return this.help();

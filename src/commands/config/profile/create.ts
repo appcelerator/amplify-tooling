@@ -46,6 +46,9 @@ export default class ConfigProfileCreate extends Command {
 		}
 	];
 
+	static override authenticated = false;
+	static override enableProfileFlag = false;
+
 	async run(): Promise<void | any> {
 		const { flags } = await this.parse(ConfigProfileCreate);
 		const cfg = await loadConfig();

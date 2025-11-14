@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { renderActivity } from '../../lib/activity.js';
 import { highlight } from '../../lib/logger.js';
 import { Args, Flags } from '@oclif/core';
@@ -12,23 +11,20 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org',
+			description: 'The organization name, id, or guid; defaults to the current org.',
 			required: false
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		from: Flags.string({
-			description: 'The start date (yyyy-mm-dd)'
+			description: 'The start date (yyyy-mm-dd).'
 		}),
 		to: Flags.string({
-			description: 'The end date (yyyy-mm-dd)'
+			description: 'The end date (yyyy-mm-dd).'
 		}),
 		month: Flags.string({
-			description: 'A month date range; overrides --to and --from (mm|yyyy-mm)'
+			description: 'A month date range; overrides --to and --from (mm|yyyy-mm).'
 		})
 	};
 
@@ -50,8 +46,7 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(OrgActivity);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { flags, account, org, sdk } = await this.parse(OrgActivity);
 
 		const results = {
 			account: account.name,

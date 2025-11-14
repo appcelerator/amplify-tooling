@@ -3,12 +3,14 @@ import { Args } from '@oclif/core';
 
 export default class ConfigSet extends Command {
 	static override summary = 'Change a config setting.';
+
 	static override examples = [
 		{
 			command: '<%= config.bin %> <%= command.id %> <key> <value>',
 			description: 'Set a config setting.'
 		}
 	];
+
 	static override args = {
 		key: Args.string({
 			description: 'Config key to set.',
@@ -19,7 +21,10 @@ export default class ConfigSet extends Command {
 			required: true
 		})
 	};
+
+    static override authenticated = false;
 	static override enableJsonFlag = true;
+
 	async run(): Promise<{ result: string } | void> {
 		const { args, config } = await this.parse(ConfigSet);
 		let val = args.value;

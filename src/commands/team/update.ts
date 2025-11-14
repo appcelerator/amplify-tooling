@@ -1,7 +1,6 @@
 import Command from '../../lib/command.js';
 import { Args, Flags } from '@oclif/core';
 import { highlight, note } from '../../lib/logger.js';
-import { initPlatformAccount } from '../../lib/utils.js';
 
 export default class TeamUpdate extends Command {
 	static override aliases = [
@@ -15,30 +14,27 @@ Run ${highlight('"axway auth login"')} to authenticate.`;
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid',
-			required: true
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
 		}),
 		team: Args.string({
-			description: 'The team name or guid',
+			description: 'The team name or guid.',
 			required: true
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		default: Flags.boolean({
-			description: 'Set the team as the default team'
+			description: 'Set the team as the default team.'
 		}),
 		desc: Flags.string({
-			description: 'The description of the team'
+			description: 'The description of the team.'
 		}),
 		name: Flags.string({
-			description: 'The team name'
+			description: 'The team name.'
 		}),
 		tag: Flags.string({
-			description: 'One or more tags to assign to the team',
+			description: 'One or more tags to assign to the team.',
 			multiple: true,
 			aliases: [ 'tags' ]
 		}),
@@ -62,8 +58,7 @@ Run ${highlight('"axway auth login"')} to authenticate.`;
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(TeamUpdate);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { args, flags, account, org, sdk } = await this.parse(TeamUpdate);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to update a team in the "${org.name}" organization`);

@@ -1,7 +1,6 @@
 import Command from '../../lib/command.js';
 import { Args, Flags } from '@oclif/core';
 import { highlight, note } from '../../lib/logger.js';
-import { initPlatformAccount } from '../../lib/utils.js';
 
 export default class TeamCreate extends Command {
 	static override aliases = [
@@ -30,35 +29,31 @@ export default class TeamCreate extends Command {
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid',
-			required: true
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
 		}),
 		name: Args.string({
-			description: 'The name of the team',
+			description: 'The name of the team.',
 			required: true
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		default: Flags.boolean({
-			description: 'Set the team as the default team'
+			description: 'Set the team as the default team.'
 		}),
 		desc: Flags.string({
-			description: 'The description of the team'
+			description: 'The description of the team.'
 		}),
 		tag: Flags.string({
-			description: 'One or more tags to assign to the team',
+			description: 'One or more tags to assign to the team.',
 			multiple: true,
 			aliases: [ 'tags' ]
 		})
 	};
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(TeamCreate);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { args, flags, account, org, sdk } = await this.parse(TeamCreate);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to add a new team to the "${org.name}" organization`);

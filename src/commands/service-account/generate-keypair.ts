@@ -42,24 +42,26 @@ export default class GenerateKeypair extends Command {
 		}
 	];
 
+	static override authenticated = false;
 	static override enableJsonFlag = true;
+	static override enableProfileFlag = false;
 
 	async run(): Promise<any> {
 		const { flags } = await this.parse(GenerateKeypair);
 		const certs = await generateKeypair({
 			console,
-			force:      flags.yes,
-			publicKey:  flags['public-key'],
+			force: flags.yes,
+			publicKey: flags['public-key'],
 			privateKey: flags['private-key'],
-			silent:     this.jsonEnabled() || !process.stdin.isTTY
+			silent: this.jsonEnabled() || !process.stdin.isTTY
 		});
 
 		if (this.jsonEnabled()) {
 			return certs;
-		} else {
-			for (const { file, label } of Object.values(certs) as any) {
-				console.log(`Wrote ${label.toLowerCase()}: ${highlight(file)}`);
-			}
+		}
+
+		for (const { file, label } of Object.values(certs) as any) {
+			console.log(`Wrote ${label.toLowerCase()}: ${highlight(file)}`);
 		}
 	}
 }

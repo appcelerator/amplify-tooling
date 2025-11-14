@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { highlight, note } from '../../lib/logger.js';
 import { Args, Flags } from '@oclif/core';
@@ -13,23 +12,21 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org',
+			description: 'The organization name, id, or guid; defaults to the current org.',
 			required: false
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		from: Flags.string({
-			description: 'The start date (yyyy-mm-dd)'
+			description: 'The start date (yyyy-mm-dd).'
 		}),
 		to: Flags.string({
-			description: 'The end date (yyyy-mm-dd)'
+			description: 'The end date (yyyy-mm-dd).'
 		}),
 		month: Flags.string({
-			description: 'A month date range; overrides --to and --from'
+			description: 'A month date range; overrides --to and --from.',
+			exclusive: [ 'from', 'to' ]
 		})
 	};
 
@@ -51,8 +48,7 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any | void> {
-		const { args, flags } = await this.parse(OrgUsage);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { flags, account, org, sdk } = await this.parse(OrgUsage);
 		const { bundle, from, to, usage } = await sdk.org.usage(account, org, flags);
 		const orgEnvs = await sdk.org.environments(account);
 		const maxEntitlement = 9999999999999;

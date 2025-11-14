@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { highlight, note } from '../../lib/logger.js';
 import { Args, Flags } from '@oclif/core';
 import Command from '../../lib/command.js';
@@ -10,29 +9,25 @@ export default class RemoveTeam extends Command {
 
 	static override args = {
 		'client-id': Args.string({
-			description: 'The service account client id or name',
+			description: 'The service account client id or name.',
 			required: true
 		}),
 		'team-guid': Args.string({
-			description: 'The team name or guid',
+			description: 'The team name or guid.',
 			required: true
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		org: Flags.string({
-			description: 'The organization name, id, or guid'
+			description: 'The organization name, id, or guid; defaults to the current org.',
 		})
 	};
 
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(RemoveTeam);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
+		const { args, account, org, sdk } = await this.parse(RemoveTeam);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to modify a service account in the "${org.name}" organization`);

@@ -1,18 +1,19 @@
 import Command from '../../lib/command.js';
-import { initSDK } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import chalk from 'chalk';
 import prettyMilliseconds from 'pretty-ms';
 
 export default class AuthList extends Command {
 	static override summary = 'Lists all authenticated accounts.';
+
 	static override description = 'Displays a list of all authenticated accounts, their selected platform organization, and the current team.';
+
 	static override aliases = [ 'auth:ls' ];
+
 	static override enableJsonFlag = true;
 
 	async run() {
-		const { config } = await this.parse(AuthList);
-		const sdk = await initSDK();
+		const { config, sdk } = await this.parse(AuthList);
 
 		const accounts = await sdk.auth.list({
 			defaultTeams: config.get('auth.defaultTeam'),

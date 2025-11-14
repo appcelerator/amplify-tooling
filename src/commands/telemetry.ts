@@ -29,7 +29,9 @@ the environment variable ${highlight('AXWAY_TELEMETRY_DISABLED')} to ${highlight
 		disable: Flags.boolean({ description: 'Disables data collection and deletes any pending telemetry data' }),
 	};
 
+	static override authenticated = false;
 	static override enableJsonFlag = true;
+	static override enableProfileFlag = false;
 
 	async run(): Promise<void | object> {
 		const { config, flags } = await this.parse(TelemetryCommand);
@@ -56,13 +58,13 @@ the environment variable ${highlight('AXWAY_TELEMETRY_DISABLED')} to ${highlight
 			if ((process.stdin.isTTY)) {
 				enabled = await confirm({
 					message: 'Do you want to enable telemetry?',
-					default: false,
+					default: false
 				});
 			}
 		}
 
-		await config.set('telemetry.enabled', enabled);
-		await config.save();
+		config.set('telemetry.enabled', enabled);
+		config.save();
 
 		if (this.jsonEnabled()) {
 			return {

@@ -1,10 +1,10 @@
 import Command from '../../lib/command.js';
 
-import { loadConfig } from '../../lib/config.js';
-
 export default class ConfigList extends Command {
 	static override aliases = [ 'config:ls' ];
+
 	static override summary = 'Display all config settings.';
+
 	static override examples = [
 		{
 			command: '<%= config.bin %> <%= command.id %>',
@@ -15,14 +15,17 @@ export default class ConfigList extends Command {
 			description: 'Return the config as JSON.'
 		}
 	];
+
+    static override authenticated = false;
 	static override enableJsonFlag = true;
+
 	async run() {
-		const cfg = await loadConfig(this.argv);
-		const value = await cfg.get();
+        const { config } = await this.parse(ConfigList);
+		const configData = await config.data();
 		if (this.jsonEnabled()) {
-			return value;
+			return configData;
 		}
-		if (value && typeof value === 'object') {
+		if (configData && typeof configData === 'object') {
 			let width = 0;
 			const rows = [];
 			(function walk(scope, segments) {
@@ -43,7 +46,7 @@ export default class ConfigList extends Command {
 					}
 					segments.pop();
 				}
-			}(value, []));
+			}(configData, []));
 			if (rows.length) {
 				for (const row of rows) {
 					this.log(`${row[0].padEnd(width)} = ${row[1]}`);
@@ -52,7 +55,7 @@ export default class ConfigList extends Command {
 				this.log('No config settings found');
 			}
 		} else {
-			this.log(value);
+			this.log(configData);
 		}
 	}
 }

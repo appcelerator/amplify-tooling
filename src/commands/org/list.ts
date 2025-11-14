@@ -1,7 +1,5 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { active, highlight } from '../../lib/logger.js';
-import { Flags } from '@oclif/core';
 import Command from '../../lib/command.js';
 
 export default class OrgList extends Command {
@@ -10,13 +8,6 @@ export default class OrgList extends Command {
 	];
 
 	static override summary = 'List organizations.';
-
-	static override flags = {
-		account: Flags.string({
-			description: 'The account to use',
-			required: false
-		})
-	};
 
 	static override examples = [
 		{
@@ -36,8 +27,7 @@ export default class OrgList extends Command {
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { flags } = await this.parse(OrgList);
-		const { account, org, sdk } = await initPlatformAccount(flags.account);
+		const { account, org, sdk } = await this.parse(OrgList);
 		const orgs = await sdk.org.list(account, org);
 
 		if (this.jsonEnabled()) {

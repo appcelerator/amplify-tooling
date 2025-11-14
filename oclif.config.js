@@ -18,7 +18,8 @@ export default {
 		],
 		init: [
 			'./dist/hooks/init/init',
-			'./dist/hooks/init/topic-summay'
+			'./dist/hooks/init/topic-summay',
+			'./dist/hooks/init/flags'
 		]
 	}
 }

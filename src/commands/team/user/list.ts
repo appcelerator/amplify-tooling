@@ -1,7 +1,6 @@
-import { initPlatformAccount } from '../../../lib/utils.js';
 import { createTable } from '../../../lib/formatter.js';
 import { highlight, note } from '../../../lib/logger.js';
-import { Args, Flags } from '@oclif/core';
+import { Args } from '@oclif/core';
 import Command from '../../../lib/command.js';
 
 export default class TeamUserList extends Command {
@@ -17,26 +16,19 @@ export default class TeamUserList extends Command {
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid',
-			required: true,
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
 		}),
 		team: Args.string({
 			description: 'The team name or guid',
-			required: true,
-		}),
-	};
-
-	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use',
+			required: true
 		}),
 	};
 
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(TeamUserList);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { args, account, org, sdk } = await this.parse(TeamUserList);
 		const { team } = await sdk.team.find(account, org, args.team);
 
 		if (!team) {

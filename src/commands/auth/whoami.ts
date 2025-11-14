@@ -1,6 +1,5 @@
 import Command from '../../lib/command.js';
 import { Args } from '@oclif/core';
-import { initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import { highlight } from '../../lib/logger.js';
 
@@ -8,14 +7,16 @@ export default class AuthWhoami extends Command {
 	static override description = 'Display info for an authenticated account';
 
 	static override args = {
-		accountName: Args.string({ description: 'The account to display', required: false }),
+		accountName: Args.string({
+			description: 'The account to display.',
+			required: false
+		})
 	};
 
 	static override enableJsonFlag = true;
 
 	async run() {
-		const { args, config } = await this.parse(AuthWhoami);
-		const sdk = await initSDK();
+		const { args, config, sdk } = await this.parse(AuthWhoami);
 		let accounts = await sdk.auth.list({
 			defaultTeams: config.get('auth.defaultTeam'),
 			validate: true

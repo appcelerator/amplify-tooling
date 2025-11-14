@@ -1,29 +1,30 @@
 import { highlight } from '../../lib/logger.js';
-import { initSDK } from '../../lib/utils.js';
 import { Args } from '@oclif/core';
 import Command from '../../lib/command.js';
 
 export default class AuthLogout extends Command {
 	static override summary = 'Log out all or specific accounts.';
+
 	static override description = 'Optionally outputs revoked accounts as JSON.';
+
 	static override aliases = [ 'auth:revoke' ];
-	static override enableJsonFlag = true;
 
 	static override args = {
 		accounts: Args.string({
-			description: 'One or more specific accounts to revoke credentials',
+			description: 'One or more specific accounts to revoke credentials.',
 			required: false,
 			multiple: true
-		}),
+		})
 	};
 
+	static override enableJsonFlag = true;
+
 	async run() {
-		const { args } = await this.parse(AuthLogout);
+		const { args, sdk } = await this.parse(AuthLogout);
 
 		const accounts = args.accounts ?? [];
 		const all = accounts.length === 0;
 
-		const sdk = await initSDK();
 		const revoked = await sdk.auth.logout({ accounts, all });
 
 		if (this.jsonEnabled()) {

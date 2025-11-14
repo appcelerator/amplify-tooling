@@ -1,6 +1,5 @@
 import Command from '../../../lib/command.js';
 import { createTable } from '../../../lib/formatter.js';
-import { loadConfig } from '../../../lib/config.js';
 import { highlight } from '../../../lib/logger.js';
 
 const defaultProfileName = '[default]';
@@ -9,7 +8,9 @@ export default class ConfigProfileList extends Command {
 	static override aliases = [
 		'config:profile:ls'
 	];
+
 	static override summary = 'Display all profiles.';
+
 	static override examples = [
 		{
 			command: '<%= config.bin %> <%= command.id %>',
@@ -20,10 +21,14 @@ export default class ConfigProfileList extends Command {
 			description: 'Return the profiles as JSON.'
 		}
 	];
+
+	static override authenticated = false;
 	static override enableJsonFlag = true;
+	static override enableProfileFlag = false;
+
 	async run(): Promise<void | any> {
-		const cfg = await loadConfig();
-		const configData = cfg.data();
+		const { config } = await this.parse(ConfigProfileList);
+		const configData = config.data();
 
 		const profiles = [];
 		if (configData.auth && configData.auth.platformUrl) {

@@ -2,14 +2,15 @@ import Command from '../../lib/command.js';
 
 export default class TeamCommand extends Command {
 	static override hidden = true;
+
 	static override summary = 'Manage Amplify Platform organization teams.';
+
 	static override description = `You must be authenticated to view or manage organization teams.
 Run "<%= config.bin %> auth login" to authenticate.
 
 You may specify an organization by name, id, or guid as well as the team by name or guid.
 
-For team user commands, you may refer to a user by email address or guid.
-`;
+For team user commands, you may refer to a user by email address or guid.`;
 
 	static overrideexamples = [
 		{
@@ -53,6 +54,8 @@ For team user commands, you may refer to a user by email address or guid.
 			command: '<%= config.bin %> <%= command.id %> user remove <org> <team> <user>',
 		},
 	];
+
+	static override authenticated = false;
 
 	async run() {
 		return this.help();

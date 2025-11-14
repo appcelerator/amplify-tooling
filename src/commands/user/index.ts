@@ -17,6 +17,8 @@ export default class UserCommand extends Command {
 		})
 	};
 
+	static override authenticated = false;
+
 	async run() {
 		this.error('The "user" commands are no longer supported as of version 5.0.0. Their references will be removed in a subsequent release.');
 	}

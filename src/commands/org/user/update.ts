@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../../lib/utils.js';
 import { highlight, note } from '../../../lib/logger.js';
 import { Args, Flags } from '@oclif/core';
 import Command from '../../../lib/command.js';
@@ -10,21 +9,18 @@ export default class OrgUserUpdate extends Command {
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid',
-			required: true
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
 		}),
 		user: Args.string({
-			description: 'The user guid or email address',
+			description: 'The user guid or email address.',
 			required: true
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		role: Flags.string({
-			description: 'Assign one or more organization roles to a user',
+			description: 'Assign one or more organization roles to a user.',
 			multiple: true
 		})
 	};
@@ -32,8 +28,7 @@ export default class OrgUserUpdate extends Command {
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(OrgUserUpdate);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { args, flags, account, org, sdk } = await this.parse(OrgUserUpdate);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to update an organization\'s user roles');

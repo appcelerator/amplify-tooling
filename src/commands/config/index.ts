@@ -26,6 +26,8 @@ export default class Config extends Command {
 		}
 	];
 
+	static override authenticated = false;
+
 	async run(): Promise<void> {
 		await this.help();
 		this.log(`${chalk.bold('SETTINGS')}

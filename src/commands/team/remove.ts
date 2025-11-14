@@ -1,6 +1,5 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { highlight } from '../../lib/logger.js';
-import { Args, Flags } from '@oclif/core';
+import { Args } from '@oclif/core';
 import Command from '../../lib/command.js';
 
 export default class TeamRemove extends Command {
@@ -12,26 +11,19 @@ export default class TeamRemove extends Command {
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid',
-			required: true,
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
 		}),
 		team: Args.string({
-			description: 'The team name or guid',
-			required: true,
-		}),
-	};
-
-	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use',
-		}),
+			description: 'The team name or guid.',
+			required: true
+		})
 	};
 
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(TeamRemove);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { args, account, org, sdk } = await this.parse(TeamRemove);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to remove a team from the "${org.name}" organization`);

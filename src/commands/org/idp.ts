@@ -1,6 +1,5 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { highlight } from '../../lib/logger.js';
-import { Args, Flags } from '@oclif/core';
+import { Args } from '@oclif/core';
 import Command from '../../lib/command.js';
 
 export default class OrgIdp extends Command {
@@ -10,20 +9,13 @@ export default class OrgIdp extends Command {
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org',
-			required: false,
-		}),
-	};
-
-	static override flags = {
-		account: Flags.string({
-			description: 'The account to use',
-		}),
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
+		})
 	};
 
 	async run(): Promise<void | object> {
-		const { flags, args } = await this.parse(OrgIdp);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { account, org, sdk } = await this.parse(OrgIdp);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to configure this organization\'s identity provider');

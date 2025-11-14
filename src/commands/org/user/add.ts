@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../../lib/utils.js';
 import { highlight, note } from '../../../lib/logger.js';
 import { Args, Flags } from '@oclif/core';
 import Command from '../../../lib/command.js';
@@ -18,21 +17,18 @@ list of roles. To view available user roles, run: ${highlight('<%= config.bin %>
 
 	static override args = {
 		org: Args.string({
-			description: 'The organization name, id, or guid',
-			required: true
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
 		}),
 		email: Args.string({
-			description: 'The email address for the user to add',
+			description: 'The email address for the user to add.',
 			required: true
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		role: Flags.string({
-			description: 'Assign one or more organization roles to a user',
+			description: 'Assign one or more organization roles to a user.',
 			multiple: true,
 			required: true
 		})
@@ -41,8 +37,7 @@ list of roles. To view available user roles, run: ${highlight('<%= config.bin %>
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(OrgUserAdd);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, args.org);
+		const { args, flags, account, org, sdk } = await this.parse(OrgUserAdd);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error('You do not have administrative access to add users to the organization');

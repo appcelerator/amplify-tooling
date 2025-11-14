@@ -1,32 +1,26 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { active, highlight, note } from '../../lib/logger.js';
-import { Args, Flags } from '@oclif/core';
+import { Args } from '@oclif/core';
 import Command from '../../lib/command.js';
 
 export default class OrgView extends Command {
 	static override aliases = [ 'org:info' ];
+
 	static override summary = 'Display organization details.';
+
 	static override description = 'Shows information about an organization, including its teams and subscriptions.';
 
 	static override args = {
 		org: Args.string({
-			description: 'Organization name, id, or guid (defaults to current org)',
-			required: false,
-		}),
-	};
-
-	static override flags = {
-		account: Flags.string({
-			description: 'Specify the platform account',
-		}),
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
+		})
 	};
 
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { flags, args } = await this.parse(OrgView);
-		const { account, org } = await initPlatformAccount(flags.account, args.org);
+		const { account, org } = await this.parse(OrgView);
 
 		if (this.jsonEnabled()) {
 			return {

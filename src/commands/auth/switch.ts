@@ -1,6 +1,5 @@
 import Command from '../../lib/command.js';
 import { highlight, note } from '../../lib/logger.js';
-import { initSDK } from '../../lib/utils.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import { select } from '@inquirer/prompts';
 import { Flags } from '@oclif/core';
@@ -17,20 +16,19 @@ change the actual default team.
 The --team option is required when --json flag is set and there is more
 than one team.`;
 
-	static override enableJsonFlag = true;
-
 	static override flags = {
 		account: Flags.string({
-			description: 'The account to switch to',
+			description: 'The account to switch to.',
 		}),
 		team: Flags.string({
-			description: 'The team to use for the selected account',
-		}),
+			description: 'The team to use for the selected account.',
+		})
 	};
 
+	static override enableJsonFlag = true;
+
 	async run(): Promise<any> {
-		const { config, flags } = await this.parse(AuthSwitch);
-		const sdk = await initSDK();
+		const { config, flags, sdk } = await this.parse(AuthSwitch);
 		const accounts = await sdk.auth.list({ validate: true, sanitize: false });
 		let account;
 

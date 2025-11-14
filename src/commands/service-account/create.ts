@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { isFile } from '../../lib/fs.js';
 import { generateKeypair } from '../../lib/auth/keypair.js';
 import { existsSync, readFileSync } from 'fs';
@@ -27,27 +26,24 @@ interactively prompt for all values. If prompting is not available, then all
 required options must be passed in at execution.`;
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		desc: Flags.string({
-			description: 'The description of the service account'
+			description: 'The description of the service account.'
 		}),
 		name: Flags.string({
-			description: 'Friendly name to use for display'
+			description: 'Friendly name to use for display.'
 		}),
 		org: Flags.string({
-			description: 'The organization name, id, or guid'
+			description: 'The organization name, id, or guid; defaults to the current org.'
 		}),
 		'public-key': Flags.string({
-			description: 'The path to the public key'
+			description: 'The path to the public key.'
 		}),
 		role: Flags.string({
-			description: 'Assign one or more organization roles to the service account',
+			description: 'Assign one or more organization roles to the service account.',
 			multiple: true
 		}),
 		secret: Flags.string({
-			description: 'A custom client secret key'
+			description: 'A custom client secret key.'
 		})
 	};
 
@@ -73,9 +69,7 @@ required options must be passed in at execution.`;
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { flags } = await this.parse(ServiceAccountCreate);
-
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
+		const { flags, account, org, sdk } = await this.parse(ServiceAccountCreate);
 
 		if (!account.user.roles.includes('administrator')) {
 			throw new Error(`You do not have administrative access to create a service account in the "${org.name}" organization`);

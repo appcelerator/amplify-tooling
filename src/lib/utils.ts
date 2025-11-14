@@ -8,41 +8,6 @@ import { axwayHome } from './path.js';
 const { warn } = logger('utils');
 
 /**
- * Initializes the Amplify SDK, loads an account, and finds the default org id.
- * TODO: Platform user auth is being removed with 5.0, so this should be renamed
- *
- * @param {String} [accountName] - The name of the platform account to use.
- * @param {String} [org] - The name, id, or guid of the default organization.
- * @returns {Promise<Object>}
- */
-export async function initPlatformAccount(accountName?, org?) {
-	const sdk = await initSDK();
-	const config = await loadConfig();
-	const account = await sdk.auth.find(accountName || config.get('auth.defaultAccount'));
-
-	if (!account) {
-		if (accountName) {
-			throw new Error(`Account "${accountName}" not found`);
-		}
-		throw new Error('You must be authenticated\n\nTo login, run: axway auth login');
-	}
-
-	if (org) {
-		org = await sdk.org.find(account, org);
-	} else {
-		// default org was stale, auto detect the org from the account
-		org = await sdk.org.find(account);
-	}
-
-	return {
-		account,
-		config,
-		org,
-		sdk
-	};
-}
-
-/**
  * Loads the config and creates an Amplify SDK object, then returns both of them.
  *
  * @param {Object} [opts] - SDK options including `env` and auth options.

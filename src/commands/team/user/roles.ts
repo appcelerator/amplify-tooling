@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../../lib/utils.js';
 import { createTable } from '../../../lib/formatter.js';
 import { highlight, note } from '../../../lib/logger.js';
 import { Flags } from '@oclif/core';
@@ -14,21 +13,16 @@ export default class TeamUserRoles extends Command {
 	static override description = 'Roles may vary by organization.';
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use',
-			required: false,
-		}),
 		org: Flags.string({
-			description: 'The organization name, id, or guid; roles vary by org',
-			required: false,
-		}),
+			description: 'The organization name, id, or guid; defaults to the current org.',
+			required: false
+		})
 	};
 
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { flags } = await this.parse(TeamUserRoles);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
+		const { account, org, sdk } = await this.parse(TeamUserRoles);
 		const roles = await sdk.role.list(account, { default: true, org, team: true });
 
 		if (this.jsonEnabled()) {

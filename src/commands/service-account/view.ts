@@ -1,4 +1,3 @@
-import { initPlatformAccount } from '../../lib/utils.js';
 import { createTable } from '../../lib/formatter.js';
 import { highlight, note } from '../../lib/logger.js';
 import { Args, Flags } from '@oclif/core';
@@ -17,25 +16,21 @@ export default class ServiceAccountView extends Command {
 
 	static override args = {
 		'client-id': Args.string({
-			description: 'The service account client id or name',
+			description: 'The service account client id or name.',
 			required: true
 		})
 	};
 
 	static override flags = {
-		account: Flags.string({
-			description: 'The platform account to use'
-		}),
 		org: Flags.string({
-			description: 'The organization name, id, or guid'
+			description: 'The organization name, id, or guid; defaults to the current org.'
 		})
 	};
 
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, flags } = await this.parse(ServiceAccountView);
-		const { account, org, sdk } = await initPlatformAccount(flags.account, flags.org);
+		const { args, account, org, sdk } = await this.parse(ServiceAccountView);
 		const result = await sdk.client.find(account, org, args['client-id']);
 
 		if (this.jsonEnabled()) {

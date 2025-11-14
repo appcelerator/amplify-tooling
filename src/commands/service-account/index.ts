@@ -2,7 +2,9 @@ import Command from '../../lib/command.js';
 
 export default class ServiceAccountCommand extends Command {
 	static override hidden = true;
+
 	static override summary = 'Create and manage service accounts.';
+
 	static override description = `Create and manage service accounts, generate public/private keypairs, and assign teams.
 
 When authenticating using a service account in a headless environment, such as a SSH terminal, you must set the token store type to "file":
@@ -45,6 +47,8 @@ Available roles can be viewed using the 'roles' subcommand.`;
 			command: '<%= config.bin %> <%= command.id %> roles'
 		}
 	];
+
+	static override authenticated = false;
 
 	async run() {
 		return this.help();
