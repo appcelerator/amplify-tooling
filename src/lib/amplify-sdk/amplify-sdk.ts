@@ -1,11 +1,9 @@
 import Auth from './auth.js';
-import crypto from 'crypto';
 import E from './errors.js';
 import logger, { highlight, note } from '../logger.js';
 import * as environments from '../environments.js';
 import * as request from '../request.js';
 import _ from 'lodash';
-import { promisify } from 'util';
 import { redact } from '../redact.js';
 
 import { type Got } from 'got';
@@ -447,18 +445,6 @@ export default class AmplifySDK {
 					org: await this.org.find(account, client.org_guid),
 					client
 				};
-			},
-
-			/**
-			 * Generates a new public/private key pair.
-			 * @returns {Promise<Object>} Resolves an object with `publicKey` and `privateKey` properties.
-			 */
-			async generateKeyPair() {
-				return await promisify(crypto.generateKeyPair)('rsa', {
-					modulusLength: 2048,
-					publicKeyEncoding: { type: 'spki', format: 'pem' },
-					privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
-				});
 			},
 
 			/**

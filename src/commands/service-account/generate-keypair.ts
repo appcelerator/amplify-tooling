@@ -49,7 +49,6 @@ export default class GenerateKeypair extends Command {
 	async run(): Promise<any> {
 		const { flags } = await this.parse(GenerateKeypair);
 		const certs = await generateKeypair({
-			console,
 			force: flags.yes,
 			publicKey: flags['public-key'],
 			privateKey: flags['private-key'],

@@ -1,8 +1,11 @@
 import path from 'path';
+import crypto from 'crypto';
 import { existsSync } from 'fs';
+import { promisify } from 'util';
 import { writeFileSync } from '../fs.js';
-import { initSDK } from '../utils.js';
 import { input, confirm } from '@inquirer/prompts';
+
+const generateKeyPair = promisify(crypto.generateKeyPair);
 
 /**
  * Generates a public/private keypair. It prompts for the output filenames and whether to overwrite
@@ -23,24 +26,28 @@ export async function generateKeypair(opts: any = {}) {
 	}
 
 	const { force, publicKey, privateKey, silent } = opts;
-	const sdk = await initSDK();
-	const certs = await sdk.client.generateKeyPair();
+
+	const certs = await generateKeyPair('rsa', {
+		modulusLength: 2048,
+		publicKeyEncoding: { type: 'spki', format: 'pem' },
+		privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+	});
 
 	const files = {
 		privateKey: await validate({
 			force,
 			initial: 'private_key.pem',
-			label:   'Private key',
+			label: 'Private key',
 			silent,
-			value:   privateKey
+			value: privateKey
 		}),
 
 		publicKey: await validate({
 			force,
 			initial: 'public_key.pem',
-			label:   'Public key',
+			label: 'Public key',
 			silent,
-			value:   publicKey
+			value: publicKey
 		})
 	};
 

@@ -244,15 +244,6 @@ describe('amplify-sdk', () => {
 			});
 		});
 
-		describe('generateKeyPair()', () => {
-			it('should generate a key pair', async () => {
-				const { sdk } = await createSdkSync();
-				const certs = await sdk.client.generateKeyPair();
-				expect(certs.publicKey).to.include('-----BEGIN PUBLIC KEY-----');
-				expect(certs.privateKey).to.include('-----BEGIN PRIVATE KEY-----');
-			});
-		});
-
 		describe('list()', () => {
 
 			it('should return clients for an org', async function () {

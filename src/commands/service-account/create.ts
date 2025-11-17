@@ -183,7 +183,6 @@ required options must be passed in at execution.`;
 				});
 			} else if (type === 'generate') {
 				const certs = await generateKeypair({
-					console: this,
 					silent: this.jsonEnabled() || !process.stdin.isTTY
 				}) as any;
 

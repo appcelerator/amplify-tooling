@@ -2,7 +2,6 @@ import { input } from '@inquirer/prompts';
 import { Flags } from '@oclif/core';
 
 import Command from '../../../lib/command.js';
-import { loadConfig } from '../../../lib/config.js';
 import { highlight } from '../../../lib/logger.js';
 import { readJsonSync } from '../../../lib/fs.js';
 
@@ -50,8 +49,7 @@ export default class ConfigProfileCreate extends Command {
 	static override enableProfileFlag = false;
 
 	async run(): Promise<void | any> {
-		const { flags } = await this.parse(ConfigProfileCreate);
-		const cfg = await loadConfig();
+		const { flags, config } = await this.parse(ConfigProfileCreate);
 
 		let profileFile;
 		if (flags.file) {
@@ -71,7 +69,7 @@ export default class ConfigProfileCreate extends Command {
 				if (!input) {
 					return 'Profile name cannot be empty.';
 				}
-				if (cfg.has(`profiles.${input}`)) {
+				if (config.has(`profiles.${input}`)) {
 					return 'Profile name already exists.';
 				}
 				return true;
@@ -99,13 +97,13 @@ export default class ConfigProfileCreate extends Command {
 			}
 		}
 
-		const exists = cfg.has(`profiles.${profileName}`);
+		const exists = config.has(`profiles.${profileName}`);
 		if (exists) {
 			return this.error(`Profile "${profileName}" already exists.`);
 		}
 
-		cfg.set(`profiles.${profileName}`, profile);
-		cfg.save();
+		config.set(`profiles.${profileName}`, profile);
+		config.save();
 
 		this.log('');
 		this.log(`Profile "${highlight(profileName)}" created successfully.`);

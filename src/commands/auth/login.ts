@@ -2,7 +2,7 @@ import Command from '../../lib/command.js';
 import { Flags } from '@oclif/core';
 import { input, password, select } from '@inquirer/prompts';
 import { highlight } from '../../lib/logger.js';
-import { initSDK } from '../../lib/utils.js';
+import { initSDK } from '../../lib/amplify-sdk/index.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 
 export default class AuthLogin extends Command {

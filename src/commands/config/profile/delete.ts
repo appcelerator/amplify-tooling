@@ -1,5 +1,5 @@
 import Command from '../../../lib/command.js';
-import { initSDK } from '../../../lib/utils.js';
+import { initSDK } from '../../../lib/amplify-sdk/index.js';
 import { Args } from '@oclif/core';
 
 export default class ConfigProfileDelete extends Command {

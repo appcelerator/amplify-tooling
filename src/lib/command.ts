@@ -1,6 +1,6 @@
 import { Command, type Config as OclifConfig, Flags, loadHelpClass } from '@oclif/core';
 import loadConfig, { type Config } from './config.js';
-import { initSDK } from './utils.js';
+import { initSDK } from './amplify-sdk/index.js';
 
 import type AmplifySDK from './amplify-sdk/index.js';
 
