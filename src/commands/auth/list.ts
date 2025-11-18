@@ -28,8 +28,7 @@ export default class AuthList extends Command {
 		}
 
 		if (!accounts.length) {
-			this.log('No authenticated accounts.');
-			return;
+			return this.log('No authenticated accounts.');
 		}
 
 		const check = process.platform === 'win32' ? '√' : '✔';

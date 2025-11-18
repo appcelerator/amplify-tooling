@@ -50,10 +50,12 @@ export default class AddTeam extends Command {
 			client: existing,
 			teams
 		});
-		results.account = account;
 
 		if (this.jsonEnabled()) {
-			return results;
+			return {
+				account,
+				...results
+			};
 		} else {
 			this.log(`Account:      ${highlight(account.name)}`);
 			this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);

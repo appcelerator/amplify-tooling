@@ -7,7 +7,7 @@ export default class AuthServerInfo extends Command {
 
 	static override enableJsonFlag = true;
 
-	async run(): Promise<void> {
+	async run(): Promise<any> {
 		const { sdk } = await this.parse(AuthServerInfo);
 		const info = await sdk.auth.serverInfo();
 

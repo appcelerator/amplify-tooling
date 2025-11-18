@@ -44,10 +44,12 @@ export default class RemoveTeam extends Command {
 			client: existing,
 			teams
 		});
-		results.account = account;
 
 		if (this.jsonEnabled()) {
-			return results;
+			return {
+				account,
+				...results
+			};
 		}
 
 		this.log(`Account:      ${highlight(account.name)}`);

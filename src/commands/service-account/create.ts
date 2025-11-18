@@ -220,11 +220,13 @@ required options must be passed in at execution.`;
 			secret,
 			roles
 		});
-		results.account = account.name;
-		results.client.secret = secret;
 
 		if (this.jsonEnabled()) {
-			return results;
+			results.client.secret = secret;
+			return {
+				account,
+				...results
+			};
 		} else {
 			if (prompted) {
 				this.log();

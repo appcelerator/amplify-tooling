@@ -53,24 +53,26 @@ export default abstract class AxwayCommand extends Command {
 	 * Whether authentication is required to run this command.
 	 * Defaults to true.
 	 */
-	static authenticated: boolean = true;
+	static readonly authenticated: boolean = true;
 
 	/**
 	 * Whether this command should exclude the profile flag. Should only be set
 	 * to true for commands that manage profiles themselves.
 	 * Defaults to false.
 	 */
-	static enableProfileFlag: boolean = true;
+	static readonly enableProfileFlag: boolean = true;
 
 	override async parse(options = this.ctor as any): Promise<AxwayParserOutput> {
 		const parsed = await super.parse(options);
 		// Store the parsed result on the config so it can be accessed in the `finally` hooks.
 		this.config.parsed = parsed;
 
-		const data = parsed as AxwayParserOutput;
+		const data: AxwayParserOutput = {
+			...parsed,
+			config: await loadConfig()
+		};
 
 		// Load the config, applying the profile if specified.
-		data.config = await loadConfig();
 		if (options.enableProfileFlag) {
 			data.config.profile = parsed.flags.profile;
 		}
@@ -86,7 +88,6 @@ export default abstract class AxwayCommand extends Command {
 			data.org = await data.sdk.org.find(data.account, parsed.args?.org || parsed.flags?.org);
 		}
 
-		// Return the parsed result along with the loaded config instance.
 		return data;
 	}
 

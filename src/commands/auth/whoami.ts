@@ -15,7 +15,7 @@ export default class AuthWhoami extends Command {
 
 	static override enableJsonFlag = true;
 
-	async run() {
+	async run(): Promise<any> {
 		const { args, config, sdk } = await this.parse(AuthWhoami);
 		let accounts = await sdk.auth.list({
 			defaultTeams: config.get('auth.defaultTeam'),

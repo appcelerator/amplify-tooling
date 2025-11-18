@@ -64,7 +64,7 @@ You cannot change a service account's authentication method from client secret t
 			throw new Error(`You do not have administrative access to update a service account in the "${org.name}" organization`);
 		}
 
-		const data: any = {
+		const data: Parameters<(typeof sdk)['client']['update']>[2] = {
 			client: args['client-id']
 		};
 
@@ -99,10 +99,12 @@ You cannot change a service account's authentication method from client secret t
 		}
 
 		const results = await sdk.client.update(account, org, data);
-		results.account = account.name;
 
 		if (this.jsonEnabled()) {
-			return results;
+			return {
+				account,
+				...results
+			};
 		}
 		this.log(`Account:      ${highlight(account.name)}`);
 		this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);

@@ -15,14 +15,20 @@ const { log, warn } = logger('amplify-sdk');
  */
 export default class AmplifySDK {
 	// TODO: Define correct typings for these props
+	/** Resolved environment-specific settings. */
 	env: any;
 	opts: any;
 	got: Got;
+
+	/** The base Axway ID URL. */
 	baseUrl: string | null;
+
+	/** The platform URL. */
 	platformUrl: string | null;
+	/** The profile name for profile-specific settings. */
 	profile: string | null;
-	auth: any;
-	client: any;
+	auth: AmplifyAuthSDK;
+	client: AmplifyClientSDK;
 	entitlement: any;
 	org: any;
 	role: any;
@@ -37,7 +43,6 @@ export default class AmplifySDK {
 	 * @param {Object} [opts.env=prod] - The environment name.
 	 * @param {Object} [opts.requestOptions] - HTTP request options with proxy settings and such to
 	 * create a `got` HTTP client.
-	 * @access public
 	 */
 	constructor(opts: any = {}) {
 		if (typeof opts !== 'object') {
@@ -53,15 +58,7 @@ export default class AmplifySDK {
 		delete this.opts.username;
 		delete this.opts.password;
 
-		/**
-		 * Resolved environment-specific settings.
-		 * @type {Object}
-		 */
 		this.env = environments.resolve(opts.env);
-
-		/**
-		 * The profile name for profile-specific settings.
-		 */
 		this.profile = opts.profile || null;
 
 		// set the defaults based on the environment
@@ -71,49 +68,20 @@ export default class AmplifySDK {
 			}
 		}
 
-		/**
-		 * The `got` HTTP client.
-		 * @type {Function}
-		 */
 		this.got = request.init(opts.requestOptions);
 		if (!opts.got) {
 			opts.got = this.got;
 		}
 
-		/**
-		 * The base Axway ID URL.
-		 * @type {String}
-		 */
 		this.baseUrl = opts.baseUrl ? opts.baseUrl.replace(/\/$/, '') : null;
-
-		/**
-		 * The platform URL.
-		 * @type {String}
-		 */
 		this.platformUrl = opts.platformUrl ? opts.platformUrl.replace(/\/$/, '') : null;
 
 		this.auth = {
-			/**
-			 * Finds an authenticated account or `null` if not found. If the account is found and
-			 * the access token is expired yet the refresh token is still valid, it will
-			 * automatically get a valid access token.
-			 * @param {String} accountName - The name of the account including the client id prefix.
-			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
-			 * @param {Boolean} [sanitize=true] - When `false`, does not sanitize sensitive auth info.
-			 * @returns {Promise<Object>} Resolves the account info object.
-			 */
 			find: async (accountName, defaultTeams, sanitize) => {
 				const account = await this.authClient.find(accountName);
 				return account ? await this.auth.loadSession(account, defaultTeams, sanitize) : null;
 			},
 
-			/**
-			 * Retrieves platform session information such as the organizations, then mutates the
-			 * account object and returns it.
-			 * @param {Object} account - The account object.
-			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
-			 * @returns {Promise<Object>} Resolves the original account info object.
-			 */
 			findSession: async (account, defaultTeams) => {
 				if (!account || typeof account !== 'object') {
 					throw new TypeError('Account required');
@@ -183,17 +151,7 @@ export default class AmplifySDK {
 				return account;
 			},
 
-			/**
-			 * Returns a list of all authenticated accounts.
-			 * @param {Object} [opts] - Various options.
-			 * @param {Object} [opts.defaultTeams] - A map of account hashes to their selected team guid.
-			 * @param {Array.<String>} [opts.skip] - A list of accounts to skip validation for.
-			 * @param {Boolean} [opts.validate] - When `true`, checks to see if each account has an
-			 * active access token and session.
-			 * @param {Boolean} [opts.sanitize=true] - When `false`, does not sanitize sensitive auth info.
-			 * @returns {Promise<Array>}
-			 */
-			list: async (opts: any = {}) => {
+			list: async (opts) => {
 				if (!opts || typeof opts !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
 				}
@@ -211,9 +169,10 @@ export default class AmplifySDK {
 					// Sanitize sensitive auth info unless requested otherwise
 					if (account?.auth && opts.sanitize !== false) {
 						delete account.auth.clientSecret;
-						delete account.auth.password;
 						delete account.auth.secret;
+						// TODO: Remove username/password refs in a future version
 						delete account.auth.username;
+						delete account.auth.password;
 					}
 					if (account?.auth) {
 						result.push(account);
@@ -222,14 +181,6 @@ export default class AmplifySDK {
 				return result.sort((a, b) => a.name.localeCompare(b.name));
 			},
 
-			/**
-			 * Populates the specified account info object with a dashboard session id and org
-			 * information.
-			 * @param {Object} account - The account object.
-			 * @param {Object} [defaultTeams] - A map of account hashes to their selected team guid.
-			 * @param {Boolean} [sanitize=true] - When `false`, does not sanitize sensitive auth info.
-			 * @returns {Promise<Object>} Resolves the original account info object.
-			 */
 			loadSession: async (account, defaultTeams, sanitize) => {
 				try {
 					account = await this.auth.findSession(account, defaultTeams);
@@ -257,16 +208,7 @@ export default class AmplifySDK {
 				return account;
 			},
 
-			/**
-			 * Authenticates a user, retrieves the access tokens, populates the session id and
-			 * org info, and returns it. TODO: document the client id and secret params
-			 * @param {Object} opts - Various authentication options to override the defaults set
-			 * via the `Auth` constructor.
-			 * @param {String} [opts.secretFile] - The path to the PEM formatted private key used
-			 * to sign the JWT.
-			 * @returns {Promise<Object>} Resolves the account info object.
-			 */
-			login: async (opts: any = {}) => {
+			login: async (opts = {}) => {
 				let account;
 
 				// check if already logged in
@@ -291,63 +233,29 @@ export default class AmplifySDK {
 				return await this.auth.loadSession(account);
 			},
 
-			/**
-			 * Discards an access token and notifies AxwayID to revoke the access token.
-			 * @param {Object} opts - Various authentication options to override the defaults set
-			 * via the `Auth` constructor.
-			 * @param {Array.<String>} opts.accounts - A list of accounts names.
-			 * @param {Boolean} opts.all - When `true`, revokes all accounts.
-			 * @param {String} [opts.baseUrl] - The base URL used to filter accounts.
-			 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to
-			 * be launched.
-			 * @returns {Promise<Object>} Resolves a list of revoked credentials.
-			 */
-			logout: async ({ accounts, all, baseUrl = this.baseUrl } = {} as any) => {
+			logout: async ({ accounts: accountIds, all, baseUrl = this.baseUrl } = {}) => {
+				let accounts;
 				if (all) {
 					accounts = await this.authClient.list();
 				} else {
 					if (!Array.isArray(accounts)) {
 						throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
 					}
-					if (!accounts.length) {
+					if (!accountIds.length) {
 						return [];
 					}
-					accounts = (await this.authClient.list()).filter(account => accounts.includes(account.name));
+					accounts = (await this.authClient.list()).filter(account => accountIds.includes(account.name));
 				}
 
 				return await this.authClient.logout({ accounts: accounts.map(account => account.hash), baseUrl });
 			},
 
-			/**
-			 * Returns AxwayID server information.
-			 * @param {Object} opts - Various authentication options to override the defaults set
-			 * via the `Auth` constructor.
-			 * @returns {Promise<object>}
-			 */
-			serverInfo: opts => this.authClient.serverInfo(opts),
-
-			async timeout() {
-				return new Promise(resolve => setTimeout(resolve, 3000));
-			}
+			serverInfo: opts => this.authClient.serverInfo(opts)
 		};
 
 		this.client = {
-			/**
-			 * Creates a new service account.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {Object} opts - Various options.
-			 * @param {String} [opts.desc] - The service account description.
-			 * @param {String} opts.name - The display name.
-			 * @param {String} [opts.publicKey] - A PEM formatted public key.
-			 * @param {Array<String>} [opts.roles] - A list of roles to assign to the service account.
-			 * @param {String} [opts.secret] - A client secret key.
-			 * @param {Array<Object>} [opts.teams] - A list of objects containing `guid` and `roles`
-			 * properties.
-			 * @returns {Promise<Object>}
-			 */
-			create: async (account, org, opts: any = {}) => {
-				org = this.resolveOrg(account, org);
+			create: async (account, _org, opts) => {
+				const org = this.resolveOrg(account, _org);
 
 				if (!opts || typeof opts !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
@@ -403,13 +311,6 @@ export default class AmplifySDK {
 				};
 			},
 
-			/**
-			 * Finds a service account by guid, client_id, or name.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {String} clientId - The service account's client id.
-			 * @returns {Promise<Object>}
-			 */
 			find: async (account, org, term) => {
 				const { clients } = await this.client.list(account, org);
 
@@ -447,12 +348,6 @@ export default class AmplifySDK {
 				};
 			},
 
-			/**
-			 * Retrieves a list of all service accounts for the given org.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @returns {Promise<Object>} Resolves the service account that was removed.
-			 */
 			list: async (account, org) => {
 				org = this.resolveOrg(account, org);
 				const clients = await this.request(`/api/v1/client?org_id=${org.id}`, account, {
@@ -470,15 +365,8 @@ export default class AmplifySDK {
 				};
 			},
 
-			/**
-			 * Removes a service account.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {Object|String} client - The service account object or client id.
-			 * @returns {Promise<Object>} Resolves the service account that was removed.
-			 */
-			remove: async (account, org, client) => {
-				client = await this.client.resolveClient(account, org, client);
+			remove: async (account, org, _client) => {
+				const client = await this.client.resolveClient(account, org, _client);
 
 				await this.request(`/api/v1/client/${client.client_id}`, account, {
 					errorMsg: 'Failed to remove service account',
@@ -488,32 +376,18 @@ export default class AmplifySDK {
 				return { client, org };
 			},
 
-			/**
-			 * Resolves an org by name, id, org guid using the specified account.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, guid, or id.
-			 * @param {Object|String} client - The service account object or client id.
-			 * @returns {Promise<Object>}
-			 */
-			resolveClient: async (account, org, client) => {
-				if (client && typeof client === 'object' && client.client_id) {
-					return client;
+			resolveClient: async (account, org, _client) => {
+				if (_client?.client_id) {
+					return _client;
 				}
 
-				if (client && typeof client === 'string') {
-					return (await this.client.find(account, org, client)).client;
+				if (typeof _client === 'string') {
+					return (await this.client.find(account, org, _client)).client;
 				}
 
 				throw E.INVALID_ARGUMENT('Expected client to be an object or client id');
 			},
 
-			/**
-			 * Validates a list of teams for the given org.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {Array<Object>} [teams] - A list of objects containing `guid` and `roles` properties.
-			 * @returns {Array<String>} An array of team guids.
-			 */
 			resolveTeams: async (account, org, teams) => {
 				if (!Array.isArray(teams)) {
 					throw E.INVALID_ARGUMENT('Expected teams to be an array');
@@ -562,30 +436,10 @@ export default class AmplifySDK {
 				return resolvedTeams;
 			},
 
-			/**
-			 * Returns the service account auth type label.
-			 * @param {String} type - The auth type.
-			 * @returns {String}
-			 */
 			resolveType(type) {
 				return type === 'secret' ? 'Client Secret' : type === 'certificate' ? 'Client Certificate' : 'Other';
 			},
 
-			/**
-			 * Updates an existing service account's information.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {Object} opts - Various options.
-			 * @param {Object|String} opts.client - The service account object or client id.
-			 * @param {String} [opts.desc] - The service account description.
-			 * @param {String} [opts.name] - The display name.
-			 * @param {String} [opts.publicKey] - A PEM formatted public key.
-			 * @param {Array<String>} [opts.roles] - A list of roles to assign to the service account.
-			 * @param {String} [opts.secret] - A client secret key.
-			 * @param {Array<Object>} [opts.teams] - A list of objects containing `guid` and `roles`
-			 * properties.
-			 * @returns {Promise}
-			 */
 			update: async (account, org, opts: any = {}) => {
 				org = this.resolveOrg(account, org);
 
@@ -1707,4 +1561,192 @@ export function resolveMonthRange(month) {
 		from: `${year}-${monthStr}-01`,
 		to: `${year}-${monthStr}-${days[monthIdx]}`
 	};
+}
+
+interface AmplifyAuthSDK {
+	/**
+	 * Finds an authenticated account or `null` if not found. If the account is found and
+	 * the access token is expired yet the refresh token is still valid or the credentials
+	 * are stored, it will automatically get a valid access token.
+	 * @param {String} accountName - The account name.
+	 * @param {Object} [defaultTeams] - A map of default team guids by org guid.
+	 * @param {Boolean} [sanitize] - When `true`, removes sensitive information from the returned account object.
+	 * @returns {Promise<Object|null>}
+	 */
+	find(accountName: string, defaultTeams?: Record<string, string>, sanitize?: boolean): Promise<Awaited<ReturnType<AmplifyAuthSDK['loadSession']>>|null>;
+
+	/**
+	 * Retrieves platform session information and mutates the account object.
+	 * @param {Object} account - The account object.
+	 * @param {Object} [defaultTeams] - A map of default team guids by org guid.
+	 * @returns {Promise<Object>}
+	 */
+	findSession(account: any, defaultTeams?: Record<string, string>): Promise<any>;
+
+	/**
+	 * Returns a list of all authenticated accounts.
+	 * @param {Object} [opts] - Various options.
+	 * @param {Object} [opts.defaultTeams] - A map of default team guids by org guid.
+	 * @param {String[]} [opts.skip] - A list of account names to skip.
+	 * @param {Boolean} [opts.validate] - When `true`, validates each account's session.
+	 * @param {Boolean} [opts.sanitize] - When `true`, removes sensitive information from the returned account objects.
+	 * @returns {Promise<Object[]>}
+	 */
+	list(opts?: {
+		defaultTeams?: Record<string, string>;
+		skip?: string[];
+		validate?: boolean;
+		sanitize?: boolean;
+	}): Promise<any[]>;
+
+	/**
+	 * Enrich an account object with platform session information.
+	 * @param {Object} account - The account object.
+	 * @param {Object} [defaultTeams] - A map of default team guids by org guid.
+	 * @param {Boolean} [sanitize] - When `true`, removes sensitive information from the returned account object.
+	 * @returns {Promise<Object>}
+	 */
+	loadSession(account: any, defaultTeams?: Record<string, string>, sanitize?: boolean): Promise<any>;
+
+	/**
+	 * Authenticates a client and returns the enriched account object.
+	 * @param {Object} opts - Various authentication options to override the defaults set via the `Auth` constructor.
+	 * @param {String} opts.clientId - The client id to use for authentication.
+	 * @param {String} [opts.secretFile] - The path to the PEM formatted private key used to sign the JWT.
+	 * @param {String} [opts.clientSecret] - The client secret to use for authentication.
+	 * @param {Boolean} [opts.force=false] - When `true`, forces re-authentication even if already authenticated.
+	 * @returns {Promise<Object>} Resolves the account info object.
+	 */
+	login(opts?: any): ReturnType<AmplifyAuthSDK['loadSession']>;
+
+	/**
+	 * Discards an access token and notifies AxwayID to revoke the access token.
+	 * @param {Object} [opts] - Various options.
+	 * @param {String[]} [opts.accounts] - A list of account names to logout.
+	 * @param {Boolean} [opts.all=false] - When `true`, logs out all authenticated accounts.
+	 * @param {String} [opts.baseUrl] - The AxwayID base URL to use.
+	 */
+	logout(opts?: { accounts?: string[]; all?: boolean; baseUrl?: string; onOpenBrowser?: Function }): ReturnType<Auth['logout']>;
+
+	/**
+	 * Returns AxwayID server information.
+	 */
+	serverInfo: Auth['serverInfo'];
+}
+
+interface AmplifyClientSDK {
+	/**
+	 * Creates a new service account.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object} [opts] - Various options.
+	 * @param {String} [opts.desc] - The service account description.
+	 * @param {String} opts.name - The service account display name.
+	 * @param {String} [opts.publicKey] - The PEM formatted public key.
+	 * @param {String[]} [opts.roles] - The list of roles to assign to the service account.
+	 * @param {String} [opts.secret] - The service account client secret.
+	 * @param {Array<{ guid: string, roles: string[] }>} [opts.teams] - One or more teams to assign the service account to.
+	 */
+	create(
+		account: any,
+		org: object|string|number,
+		opts: {
+			desc?: string;
+			name: string;
+			publicKey?: string;
+			roles?: string[];
+			secret?: string;
+			teams?: Array<{ guid: string; roles: string[] }>;
+		}
+	): Promise<{ org: any; client: any }>;
+
+	/**
+	 * Finds a service account by guid, client_id, or name.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {String} term - The service account guid, client_id, or name.
+	 */
+	find(
+		account: any,
+		org: any,
+		term: string
+	): Promise<{ org: any; client: any }>;
+
+	/**
+	 * Retrieves a list of all service accounts for the given org.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 */
+	list(
+		account: any,
+		org: any
+	): Promise<{ org: any; clients: any[] }>;
+
+	/**
+	 * Removes a service account.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object|String} client - The service account object or client id.
+	 */
+	remove(
+		account: any,
+		org: any,
+		client: any
+	): Promise<{ client: any; org: any }>;
+
+	/**
+	 * Resolves a client by name, id, or guid using the specified account.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object|String} client - The service account object, client id, or guid.
+	 */
+	resolveClient(
+		account: any,
+		org: any,
+		client: any
+	): Promise<any>;
+
+	/**
+	 * Validates a list of teams for the given client.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Array<{ guid: string, roles: string[] }>} teams - One or more teams to validate.
+	 */
+	resolveTeams(
+		account: any,
+		org: any,
+		teams: Array<{ guid: string; roles: string[] }>
+	): Promise<Array<{ guid: string; roles: string[] }>>;
+
+	/**
+	 * Returns the service account auth type label.
+	 * @param {String} type - The service account type.
+	 */
+	resolveType(type: string): 'Client Secret' | 'Client Certificate' | 'Other';
+
+	/**
+	 * Updates an existing service account's information.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object} opts - Service account properties.
+	 * @param {String} [opts.desc] - The service account description.
+	 * @param {String} [opts.name] - The service account display name.
+	 * @param {String} [opts.publicKey] - The PEM formatted public key.
+	 * @param {String[]} [opts.roles] - The list of roles to assign to the service account.
+	 * @param {String} [opts.secret] - The service account client secret.
+	 * @param {Array<{ guid: string, roles: string[] }>} [opts.teams] - One or more teams to assign the service account to.
+	 */
+	update(
+		account: any,
+		org: any,
+		opts?: {
+			client: any;
+			desc?: string;
+			name?: string;
+			publicKey?: string;
+			roles?: string[];
+			secret?: string;
+			teams?: Array<{ guid: string; roles: string[] }>;
+		}
+	): Promise<{ org: any; client: any }>;
 }
