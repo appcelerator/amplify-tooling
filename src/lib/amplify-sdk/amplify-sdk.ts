@@ -29,9 +29,9 @@ export default class AmplifySDK {
 	profile: string | null;
 	auth: AmplifyAuthSDK;
 	client: AmplifyClientSDK;
-	entitlement: any;
-	org: any;
-	role: any;
+	entitlement: AmplifyEntitlementSDK;
+	org: AmplifyOrgSDK;
+	role: AmplifyRoleSDK;
 	team: any;
 	user: any;
 	_authClient: any;
@@ -505,85 +505,17 @@ export default class AmplifySDK {
 		};
 
 		this.entitlement = {
-			/**
-			 * Retrieves entitlement information for a specific entitlement metric.
-			 * @param {Object} account - The account object.
-			 * @param {String} metric - The entitlement metric name.
-			 * @returns {Promise<Object>}
-			 */
 			find: (account, metric) => this.request(`/api/v1/entitlement/${metric}`, account, {
 				errorMsg: 'Failed to get entitlement info'
 			})
 		};
 
-		/**
-		 * Retrieves activity for an organization or user.
-		 * @param {Object} account - The account object.
-		 * @param {Object} [params] - Various parameters.
-		 * @param {String} [params.from] - The start date in ISO format.
-		 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and `from`.
-		 * If `true`, uses current month.
-		 * @param {Object|String|Number} [params.org] - The organization object, name, guid, or id.
-		 * @param {String} [params.to] - The end date in ISO format.
-		 * @param {String} [params.userGuid] - The user guid.
-		 * @returns {Promise<Object>}
-		 */
-		const getActivity = async (account, params: any = {}) => {
-			if (params.month !== undefined) {
-				Object.assign(params, resolveMonthRange(params.month));
-			}
-
-			const { from, to } = resolveDateRange(params.from, params.to);
-			let url = '/api/v1/activity?data=true';
-
-			if (params.org) {
-				const { id } = this.resolveOrg(account, params.org);
-				url += `&org_id=${id}`;
-			}
-
-			if (params.userGuid) {
-				url += `&user_guid=${params.userGuid}`;
-			}
-
-			if (from) {
-				url += `&from=${from.toISOString()}`;
-			}
-
-			if (to) {
-				url += `&to=${to.toISOString()}`;
-			}
-
-			return {
-				from,
-				to,
-				events: await this.request(url, account, {
-					errorMsg: 'Failed to get user activity'
-				})
-			};
-		};
-
 		this.org = {
-			/**
-			 * Reteives organization activity.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, guid, or id.
-			 * @param {Object} [params] - Various parameters.
-			 * @param {String} [params.from] - The start date in ISO format.
-			 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
-			 * `from`. If `true`, uses current month.
-			 * @param {String} [params.to] - The end date in ISO format.
-			 * @returns {Promise<Object>}
-			 */
 			activity: (account, org, params) => getActivity(account, {
 				...params,
 				org
 			}),
 
-			/**
-			 * Retrieves the list of environments associated to the user's org.
-			 * @param {Object} account - The account object.
-			 * @returns {Promise<Array>}
-			 */
 			environments: async account => {
 				return await this.request('/api/v1/org/env', account, {
 					errorMsg: 'Failed to get organization environments'
@@ -596,9 +528,9 @@ export default class AmplifySDK {
 			 * @param {String} org - The organization object, name, id, or guid.
 			 * @returns {Promise<Array>}
 			 */
-			find: async (account, org) => {
-				const { id } = this.resolveOrg(account, org);
-				org = await this.request(`/api/v1/org/${id}`, account, {
+			find: async (account, _org) => {
+				const { id } = this.resolveOrg(account, _org);
+				const org = await this.request(`/api/v1/org/${id}`, account, {
 					errorMsg: 'Failed to get organization'
 				});
 
@@ -637,11 +569,6 @@ export default class AmplifySDK {
 				return result;
 			},
 
-			/**
-			 * Retrieves the list of orgs from the specified account.
-			 * @param {Object} account - The account object.
-			 * @returns {Promise<Array>}
-			 */
 			list: async (account, defaultOrg) => {
 				const { guid } = this.resolveOrg(account, defaultOrg);
 
@@ -652,16 +579,8 @@ export default class AmplifySDK {
 			},
 
 			user: {
-				/**
-				 * Adds a user to an org.
-				 * @param {Object} account - The account object.
-				 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-				 * @param {String} email - The user's email.
-				 * @param {Array.<String>} roles - One or more roles to assign. Must include a "default" role.
-				 * @returns {Promise<Object>}
-				 */
-				add: async (account, org, email, roles) => {
-					org = this.resolveOrg(account, org);
+				add: async (account, _org, email, roles) => {
+					const org = this.resolveOrg(account, _org);
 					const { guid } = await this.request(`/api/v1/org/${org.id}/user`, account, {
 						errorMsg: 'Failed to add user to organization',
 						json: {
@@ -676,27 +595,14 @@ export default class AmplifySDK {
 					};
 				},
 
-				/**
-				 * Finds a user and returns their information.
-				 * @param {Object} account - The account object.
-				 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-				 * @param {String} user - The user email or guid.
-				 * @returns {Promise<Object>}
-				 */
 				find: async (account, org, user) => {
 					const { users } = await this.org.user.list(account, org);
 					user = user.toLowerCase();
 					return users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user);
 				},
 
-				/**
-				 * Lists all users in an org.
-				 * @param {Object} account - The account object.
-				 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-				 * @returns {Promise<Object>}
-				 */
-				list: async (account, org) => {
-					org = this.resolveOrg(account, org);
+				list: async (account, _org) => {
+					const org = this.resolveOrg(account, _org);
 					const users = await this.request(`/api/v1/org/${org.id}/user?clients=1`, account, {
 						errorMsg: 'Failed to get organization users'
 					});
@@ -713,15 +619,8 @@ export default class AmplifySDK {
 					};
 				},
 
-				/**
-				 * Removes an user from an org.
-				 * @param {Object} account - The account object.
-				 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-				 * @param {String} user - The user email or guid.
-				 * @returns {Promise<Object>}
-				 */
-				remove: async (account, org, user) => {
-					org = this.resolveOrg(account, org);
+				remove: async (account, _org, user) => {
+					const org = this.resolveOrg(account, _org);
 					const found = await this.org.user.find(account, org.guid, user);
 
 					if (!found) {
@@ -738,16 +637,8 @@ export default class AmplifySDK {
 					};
 				},
 
-				/**
-				 * Updates a users role in an org.
-				 * @param {Object} account - The account object.
-				 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-				 * @param {String} user - The user email or guid.
-				 * @param {Array.<String>} roles - One or more roles to assign. Must include a "default" role.
-				 * @returns {Promise<Object>}
-				 */
-				update: async (account, org, user, roles) => {
-					org = this.resolveOrg(account, org);
+				update: async (account, _org, user, roles) => {
+					const org = this.resolveOrg(account, _org);
 					const found = await this.org.user.find(account, org.guid, user);
 
 					if (!found) {
@@ -770,15 +661,8 @@ export default class AmplifySDK {
 				}
 			},
 
-			/**
-			 * Renames an org.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {String} name - The new organization name.
-			 * @returns {Promise<Object>}
-			 */
-			rename: async (account, org, name) => {
-				const { id, name: oldName } = this.resolveOrg(account, org);
+			rename: async (account, _org, name) => {
+				const { id, name: oldName } = this.resolveOrg(account, _org);
 
 				if (typeof name !== 'string' || !(name = name.trim())) {
 					throw E.INVALID_ARGUMENT('Organization name must be a non-empty string');
@@ -794,17 +678,6 @@ export default class AmplifySDK {
 				};
 			},
 
-			/**
-			 * Renames an org.
-			 * @param {Object} account - The account object.
-			 * @param {Object|String|Number} org - The organization object, name, id, or guid.
-			 * @param {Object} [params] - Various parameters.
-			 * @param {String} [params.from] - The start date in ISO format.
-			 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and
-			 * `from`. If `true`, uses current month.
-			 * @param {String} [params.to] - The end date in ISO format.
-			 * @returns {Promise<Object>}
-			 */
 			usage: async (account, org, params: any = {}) => {
 				const { id } = this.resolveOrg(account, org);
 
@@ -843,16 +716,7 @@ export default class AmplifySDK {
 		};
 
 		this.role = {
-			/**
-			 * Get all roles.
-			 * @param {Object} account - The account object.
-			 * @param {Object} [params] - Various parameters.
-			 * @param {Boolean} [params.default] - When `true`, returns default roles only.
-			 * @param {Object|String|Number} [params.org] - The organization object, name, id, or guid.
-			 * @param {Boolean} [params.team] - When `true`, returns team specific roles.
-			 * @returns {Promise<Object>}
-			 */
-			list: async (account, params: any = {}) => {
+			list: async (account, params = {}) => {
 				let roles = await this.request(
 					`/api/v1/role${params.team ? '?team=true' : ''}`,
 					account,
@@ -882,19 +746,6 @@ export default class AmplifySDK {
 				return roles;
 			},
 
-			/**
-			 * Fetches roles for the given params, then validates the supplied list of roles.
-			 * @param {Object} account - The account object.
-			 * @param {Array.<String>} roles - One or more roles to assign.
-			 * @param {Object} [opts] - Various options.
-			 * @param {Boolean} [opts.client] - When `true`, returns client specific roles.
-			 * @param {Boolean} [opts.default] - When `true`, returns default roles only.
-			 * @param {Object|String|Number} [opts.org] - The organization object, name, id, or guid.
-			 * @param {Boolean} [opts.requireRoles] - When `true`, throws an error if roles is empty.
-			 * @param {Boolean} [opts.requireDefaultRole] - When `true`, throws an error if roles is empty or if there are no default roles.
-			 * @param {Boolean} [opts.team] - When `true`, validates team specific roles.
-			 * @returns {Promise<Object>}
-			 */
 			resolve: async (account, roles, opts) => {
 				if (!Array.isArray(roles)) {
 					throw E.INVALID_ARGUMENT('Expected roles to be an array');
@@ -905,7 +756,6 @@ export default class AmplifySDK {
 				}
 
 				const allowedRoles = await this.role.list(account, {
-					client: opts.client,
 					default: opts.default,
 					org: opts.org,
 					team: opts.team
@@ -938,60 +788,6 @@ export default class AmplifySDK {
 
 				return roles;
 			}
-		};
-
-		/**
-		 * Determines team info changes and prepares the team info to be sent.
-		 * @param {Object} [info] - The new team info.
-		 * @param {Object} [prev] - The previous team info.
-		 * @returns {Promise<Object>}
-		 */
-		const prepareTeamInfo = (info: any = {}, prev?) => {
-			if (!info || typeof info !== 'object') {
-				throw E.INVALID_ARGUMENT('Expected team info to be an object');
-			}
-
-			const changes: any = {};
-			const data: any = {};
-
-			// populate data
-			if (info.default !== undefined) {
-				data.default = !!info.default;
-			}
-			if (info.desc !== undefined) {
-				data.desc = String(info.desc).trim();
-			}
-			if (info.name !== undefined) {
-				data.name = String(info.name).trim();
-			}
-			if (info.tags !== undefined) {
-				if (!Array.isArray(info.tags)) {
-					throw E.INVALID_ARGUMENT('Expected team tags to be an array of strings');
-				}
-				data.tags = info.tags
-					.reduce((arr, tag) => arr.concat(tag.split(',')), [])
-					.map(tag => tag.trim());
-			}
-
-			// remove unchanged
-			if (prev) {
-				for (const key of Object.keys(data)) {
-					if (Array.isArray(data[key])) {
-						if (!(data[key] < prev[key] || data[key] > prev[key])) {
-							delete data[key];
-						}
-					} else if (data[key] === prev[key]) {
-						delete data[key];
-					} else {
-						changes[key] = {
-							v: data[key],
-							p: prev[key]
-						};
-					}
-				}
-			}
-
-			return { changes, data };
 		};
 
 		this.team = {
@@ -1343,6 +1139,106 @@ export default class AmplifySDK {
 			update: async () => {
 				throw new Error('Platform user records can no longer be updated via the SDK.');
 			}
+		};
+
+		/**
+		 * Retrieves activity for an organization or user.
+		 * @param {Object} account - The account object.
+		 * @param {Object} [params] - Various parameters.
+		 * @param {String} [params.from] - The start date in ISO format.
+		 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and `from`.
+		 * If `true`, uses current month.
+		 * @param {Object|String|Number} [params.org] - The organization object, name, guid, or id.
+		 * @param {String} [params.to] - The end date in ISO format.
+		 * @param {String} [params.userGuid] - The user guid.
+		 * @returns {Promise<Object>}
+		 */
+		const getActivity = async (account: any, params: any = {}) => {
+			if (params.month !== undefined) {
+				Object.assign(params, resolveMonthRange(params.month));
+			}
+
+			const { from, to } = resolveDateRange(params.from, params.to);
+			let url = '/api/v1/activity?data=true';
+
+			if (params.org) {
+				const { id } = this.resolveOrg(account, params.org);
+				url += `&org_id=${id}`;
+			}
+
+			if (params.userGuid) {
+				url += `&user_guid=${params.userGuid}`;
+			}
+
+			if (from) {
+				url += `&from=${from.toISOString()}`;
+			}
+
+			if (to) {
+				url += `&to=${to.toISOString()}`;
+			}
+
+			return {
+				from,
+				to,
+				events: await this.request(url, account, {
+					errorMsg: 'Failed to get user activity'
+				})
+			};
+		};
+
+		/**
+		 * Determines team info changes and prepares the team info to be sent.
+		 * @param {Object} [info] - The new team info.
+		 * @param {Object} [prev] - The previous team info.
+		 * @returns {Promise<Object>}
+		 */
+		const prepareTeamInfo = (info: any = {}, prev?) => {
+			if (!info || typeof info !== 'object') {
+				throw E.INVALID_ARGUMENT('Expected team info to be an object');
+			}
+
+			const changes: any = {};
+			const data: any = {};
+
+			// populate data
+			if (info.default !== undefined) {
+				data.default = !!info.default;
+			}
+			if (info.desc !== undefined) {
+				data.desc = String(info.desc).trim();
+			}
+			if (info.name !== undefined) {
+				data.name = String(info.name).trim();
+			}
+			if (info.tags !== undefined) {
+				if (!Array.isArray(info.tags)) {
+					throw E.INVALID_ARGUMENT('Expected team tags to be an array of strings');
+				}
+				data.tags = info.tags
+					.reduce((arr, tag) => arr.concat(tag.split(',')), [])
+					.map(tag => tag.trim());
+			}
+
+			// remove unchanged
+			if (prev) {
+				for (const key of Object.keys(data)) {
+					if (Array.isArray(data[key])) {
+						if (!(data[key] < prev[key] || data[key] > prev[key])) {
+							delete data[key];
+						}
+					} else if (data[key] === prev[key]) {
+						delete data[key];
+					} else {
+						changes[key] = {
+							v: data[key],
+							p: prev[key]
+						};
+					}
+				}
+			}
+
+			return { changes, data };
 		};
 	}
 
@@ -1749,4 +1645,192 @@ interface AmplifyClientSDK {
 			teams?: Array<{ guid: string; roles: string[] }>;
 		}
 	): Promise<{ org: any; client: any }>;
+}
+
+interface AmplifyEntitlementSDK {
+	/**
+	 * Retrieves entitlement information for a specific entitlement metric.
+	 * @param {Object} account - The account object.
+	 * @param {String} metric - The entitlement metric name.
+	 */
+	find: (account: any, metric: string) => Promise<any>;
+}
+
+interface AmplifyOrgSDK {
+	/**
+	 * Get activity events for an organization.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object} [params] - Various parameters.
+	 * @param {String} [params.from] - The start date for the activity query.
+	 * @param {String} [params.to] - The end date for the activity query.
+	 * @param {String|Boolean} [params.month] - The month to filter activities by. If `true`, uses current month.
+	 */
+	activity(
+		account: any,
+		org: object | string | number,
+		params?: {
+			from?: string;
+			to?: string;
+			month?: string | boolean;
+		}
+	): Promise<any>;
+
+	/**
+	 * List environments for the organization.
+	 * @param {Object} account - The account object.
+	 */
+	environments(account: any): Promise<any[]>;
+
+	/**
+	 * Fetch a specific organization document.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 */
+	find(account: any, org: object | string | number): Promise<any>;
+
+	/**
+	 * List all organizations for the account.
+	 * Note that service accounts are only ever associated with a single organization.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} [defaultOrg] - The default organization object, name, id, or guid.
+	 */
+	list(account: any, defaultOrg?: object | string | number): Promise<any[]>;
+
+	user: {
+		/**
+		 * Add a user to an organization.
+		 * @param {Object} account - The account object.
+		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {String} email - The user email address.
+		 * @param {String[]} roles - One or more roles to assign to the user.
+		 */
+		add(
+			account: any,
+			org: object | string | number,
+			email: string,
+			roles: string[]
+		): Promise<{ org: any; user: any }>;
+
+		/**
+		 * Find a user in an organization.
+		 * @param {Object} account - The account object.
+		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {String} user - The user email or guid.
+		 */
+		find(
+			account: any,
+			org: object | string | number,
+			user: string
+		): Promise<any>;
+
+		/**
+		 * List users in an organization.
+		 * @param {Object} account - The account object.
+		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 */
+		list(
+			account: any,
+			org: object | string | number
+		): Promise<{ org: any; users: any[] }>;
+
+		/**
+		 * Remove a user from an organization.
+		 * @param {Object} account - The account object.
+		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {String} user - The user email or guid.
+		 */
+		remove(
+			account: any,
+			org: object | string | number,
+			user: string
+		): Promise<{ org: any; user: any, [key: string]: any }>;
+
+		/**
+		 * Update a user's roles in an organization.
+		 * @param {Object} account - The account object.
+		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {String} user - The user email or guid.
+		 * @param {String[]} roles - One or more roles to assign to the user.
+		 */
+		update(
+			account: any,
+			org: object | string | number,
+			user: string,
+			roles: string[]
+		): Promise<{ org: any; user: any; roles: string[] }>;
+	};
+
+	/**
+	 * Rename an organization.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {String} name - The new organization name.
+	 */
+	rename(
+		account: any,
+		org: object | string | number,
+		name: string
+	): Promise<{ oldName: string; [key: string]: any }>;
+
+	/**
+	 * Get usage metrics for an organization.
+	 * @param {Object} account - The account object.
+	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Object} [params] - Various parameters.
+	 * @param {String} [params.from] - The start date for the usage data.
+	 * @param {String} [params.to] - The end date for the usage data.
+	 * @param {String|Boolean} [params.month] - The month to filter usage by. If `true`, uses current month.
+	 */
+	usage(
+		account: any,
+		org: object | string | number,
+		params?: {
+			from?: string;
+			to?: string;
+			month?: string | boolean;
+		}
+	): Promise<{ from: Date; to: Date; [key: string]: any }>;
+}
+
+interface AmplifyRoleSDK {
+	/**
+	 * Retrieves a list of roles, optionally filtered by parameters.
+	 * @param {Object} account - The account context.
+	 * @param {Object} [params] - Optional filters for roles.
+	 * @param {Boolean} [params.default] - When `true`, only returns default roles.
+	 * @param {Object|String|Number} [params.org] - The organization object, name, id, or guid to filter roles in context of.
+	 * @param {Boolean} [params.team] - When `true`, only returns team roles.
+	 */
+	list(
+		account: any,
+		params?: {
+			default?: boolean;
+			org?: object | string | number;
+			team?: boolean;
+		}
+	): Promise<any[]>;
+
+	/**
+	 * Validates and resolves a list of role identifiers against allowed roles.
+	 * @param {Object} account - The account context.
+	 * @param {String[]} roles - One or more role identifiers to resolve.
+	 * @param {Object} opts - Various options.
+	 * @param {Boolean} [opts.default] - When `true`, includes default roles in the allowed roles.
+	 * @param {Object|String|Number} [opts.org] - The organization object, name, id, or guid to resolve roles in context of.
+	 * @param {Boolean} [opts.requireRoles] - When `true`, throws an error if any roles cannot be resolved.
+	 * @param {Boolean} [opts.requireDefaultRole] - When `true`, throws an error if no default role is included.
+	 * @param {Boolean} [opts.team] - When `true`, includes team roles in the allowed roles.
+	 */
+	resolve(
+		account: any,
+		roles: string[],
+		opts: {
+			default?: boolean;
+			org?: object | string | number;
+			requireRoles?: boolean;
+			requireDefaultRole?: boolean;
+			team?: boolean;
+		}
+	): Promise<string[]>;
 }

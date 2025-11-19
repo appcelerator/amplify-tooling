@@ -48,7 +48,7 @@ export default class OrgUserUpdate extends Command {
 			const name = `${user.firstname} ${user.lastname}`.trim();
 			this.log(`Account:      ${highlight(account.name)}`);
 			this.log(`Organization: ${highlight(org.name)} ${note(`(${org.guid})`)}\n`);
-			this.log(`Successfully updated role${roles === 1 ? '' : 's'} for ${highlight(name)}`);
+			this.log(`Successfully updated role${roles.length === 1 ? '' : 's'} for ${highlight(name)}`);
 		}
 	}
 }
