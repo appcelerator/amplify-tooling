@@ -183,11 +183,11 @@ export default class Authenticator {
 	/**
 	 * Populates the latest user and session info into an account object.
 	 *
-	 * @param {Object} account - An object containing the account info.
-	 * @returns {Object} The original account object.
+	 * @param {Account} account - An object containing the account info.
+	 * @returns {Promise<Account} The original account object.
 	 * @access public
 	 */
-	async getInfo(account) {
+	async getInfo(account: Account): Promise<Account> {
 		try {
 			const accessToken = account.auth.tokens.access_token;
 			log(`Fetching user info: ${highlight(this.endpoints.userinfo)} ${note(accessToken)}`);
@@ -199,15 +199,13 @@ export default class Authenticator {
 				responseType: 'json',
 				retry: { limit: 0 }
 			});
-			const { email, family_name, given_name, guid, org_guid, org_name } = body as any;
+			const { email, guid, org_guid, org_name } = body as any;
 
 			if (!account.user || typeof account.user !== 'object') {
 				account.user = {};
 			}
 			account.user.email = email;
-			account.user.firstName = given_name;
 			account.user.guid = guid || account.user.guid;
-			account.user.lastName = family_name;
 
 			if (!account.org || typeof account.org !== 'object') {
 				account.org = {};
@@ -322,7 +320,6 @@ export default class Authenticator {
 		log(tokens);
 
 		let guid;
-		let idp;
 		let org;
 		let name = this.hash;
 
@@ -331,7 +328,6 @@ export default class Authenticator {
 			log(info);
 			guid = info.guid;
 			name = this.clientId; // TODO: Source the client's friendly name from platform?
-			idp = info.identity_provider;
 			const orgId = info.orgId;
 			if (orgId) {
 				org = { name: orgId, id: orgId };
@@ -354,7 +350,6 @@ export default class Authenticator {
 					access: (tokens.expires_in * 1000) + now,
 					refresh
 				},
-				idp,
 				realm: this.realm,
 				tokens
 			},
@@ -363,9 +358,7 @@ export default class Authenticator {
 			org,
 			orgs: org ? [ org ] : [],
 			user: {
-				axwayId: undefined,
-				guid,
-				organization: undefined
+				guid
 			}
 		});
 

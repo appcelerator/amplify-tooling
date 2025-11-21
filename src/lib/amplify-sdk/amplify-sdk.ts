@@ -104,6 +104,7 @@ export default class AmplifySDK {
 							}, {}),
 						guid: org.guid,
 						id: org.org_id,
+						org_id: org.org_id,
 						name: org.name,
 						region: org.region,
 						subscriptions: org.subscriptions || [],
@@ -348,8 +349,8 @@ export default class AmplifySDK {
 				};
 			},
 
-			list: async (account, org) => {
-				org = this.resolveOrg(account, org);
+			list: async (account, _org) => {
+				const org = this.resolveOrg(account, _org);
 				const clients = await this.request(`/api/v1/client?org_id=${org.id}`, account, {
 					errorMsg: 'Failed to get service accounts'
 				});
@@ -365,8 +366,8 @@ export default class AmplifySDK {
 				};
 			},
 
-			remove: async (account, org, _client) => {
-				const client = await this.client.resolveClient(account, org, _client);
+			remove: async (account, _org, _client) => {
+				const { client, org } = await this.client.resolveClient(account, _org, _client);
 
 				await this.request(`/api/v1/client/${client.client_id}`, account, {
 					errorMsg: 'Failed to remove service account',
@@ -376,13 +377,17 @@ export default class AmplifySDK {
 				return { client, org };
 			},
 
-			resolveClient: async (account, org, _client) => {
+			resolveClient: async (account, _org, _client) => {
+				const org = this.resolveOrg(account, _org);
 				if (_client?.client_id) {
-					return _client;
+					return {
+						org,
+						client: _client
+					};
 				}
 
 				if (typeof _client === 'string') {
-					return (await this.client.find(account, org, _client)).client;
+					return await this.client.find(account, org, _client);
 				}
 
 				throw E.INVALID_ARGUMENT('Expected client to be an object or client id');
@@ -440,14 +445,12 @@ export default class AmplifySDK {
 				return type === 'secret' ? 'Client Secret' : type === 'certificate' ? 'Client Certificate' : 'Other';
 			},
 
-			update: async (account, org, opts: any = {}) => {
-				org = this.resolveOrg(account, org);
-
+			update: async (account, _org, opts: any = {}) => {
 				if (!opts || typeof opts !== 'object') {
 					throw E.INVALID_ARGUMENT('Expected options to be an object');
 				}
 
-				const client = await this.client.resolveClient(account, org, opts.client);
+				const { client, org } = await this.client.resolveClient(account, _org, opts.client);
 				const data: any = {};
 
 				if (opts.name) {
@@ -524,7 +527,7 @@ export default class AmplifySDK {
 
 			/**
 			 * Retrieves organization details for an account.
-			 * @param {Object} account - The account object.
+			 * @param {Account} account - The account object.
 			 * @param {String} org - The organization object, name, id, or guid.
 			 * @returns {Promise<Array>}
 			 */
@@ -725,9 +728,9 @@ export default class AmplifySDK {
 				if (params.team) {
 					return roles.filter(r => r.team);
 				}
-				let org = params.org || account.org?.guid;
-				if (org) {
-					org = await this.org.find(account, org);
+				let _org = params.org || account.org?.guid;
+				if (_org) {
+					const org = await this.org.find(account, _org);
 					const { entitlements, subscriptions } = org;
 
 					roles = roles.filter(role => {
@@ -870,8 +873,8 @@ export default class AmplifySDK {
 					};
 				},
 
-				find: async (account, org, _team, user) => {
-					const { team, users } = await this.team.user.list(account, org, _team);
+				find: async (account, _org, _team, user) => {
+					const { org, team, users } = await this.team.user.list(account, _org, _team);
 					user = user.toLowerCase();
 					return {
 						org,
@@ -1033,7 +1036,7 @@ export default class AmplifySDK {
 
 		/**
 		 * Retrieves activity for an organization or user.
-		 * @param {Object} account - The account object.
+		 * @param {Account} account - The account object.
 		 * @param {Object} [params] - Various parameters.
 		 * @param {String} [params.from] - The start date in ISO format.
 		 * @param {String|Boolean} [params.month] - A month date range. Overrides `to` and `from`.
@@ -1043,7 +1046,7 @@ export default class AmplifySDK {
 		 * @param {String} [params.userGuid] - The user guid.
 		 * @returns {Promise<Object>}
 		 */
-		const getActivity = async (account: any, params: any = {}) => {
+		const getActivity = async (account: Account, params: any = {}) => {
 			if (params.month !== undefined) {
 				Object.assign(params, resolveMonthRange(params.month));
 			}
@@ -1155,7 +1158,7 @@ export default class AmplifySDK {
 	/**
 	 * Makes an HTTP request.
 	 * @param {String} path - The path to append to the URL.
-	 * @param {Object} account - The account object.
+	 * @param {Account} account - The account object.
 	 * @param {Object} [opts] - Various options.
 	 * @param {Object} [opts.json] - A JSON payload to send.
 	 * @param {String} [opts.method] - The HTTP method to use. If not set, then uses `post` if
@@ -1232,7 +1235,7 @@ export default class AmplifySDK {
 	/**
 	 * Resolves an org by name, id, org guid using the specified account.
 	 *
-	 * @param {Object} account - The account object.
+	 * @param {Account} account - The account object.
 	 * @param {Object|String|Number} [org] - The organization object, name, guid, or id.
 	 * @returns {Promise<Object>} Resolves the org info from the account object.
 	 * @access public
@@ -1363,11 +1366,11 @@ interface AmplifyAuthSDK {
 
 	/**
 	 * Retrieves platform session information and mutates the account object.
-	 * @param {Object} account - The account object.
+	 * @param {Account} account - The account object.
 	 * @param {Object} [defaultTeams] - A map of default team guids by org guid.
 	 * @returns {Promise<Object>}
 	 */
-	findSession(account: any, defaultTeams?: Record<string, string>): Promise<any>;
+	findSession(account: Account, defaultTeams?: Record<string, string>): Promise<Account>;
 
 	/**
 	 * Returns a list of all authenticated accounts.
@@ -1383,16 +1386,16 @@ interface AmplifyAuthSDK {
 		skip?: string[];
 		validate?: boolean;
 		sanitize?: boolean;
-	}): Promise<any[]>;
+	}): Promise<Account[]>;
 
 	/**
 	 * Enrich an account object with platform session information.
-	 * @param {Object} account - The account object.
+	 * @param {Account} account - The account object.
 	 * @param {Object} [defaultTeams] - A map of default team guids by org guid.
 	 * @param {Boolean} [sanitize] - When `true`, removes sensitive information from the returned account object.
 	 * @returns {Promise<Object>}
 	 */
-	loadSession(account: any, defaultTeams?: Record<string, string>, sanitize?: boolean): Promise<any>;
+	loadSession(account: Account, defaultTeams?: Record<string, string>, sanitize?: boolean): Promise<Account>;
 
 	/**
 	 * Authenticates a client and returns the enriched account object.
@@ -1412,7 +1415,7 @@ interface AmplifyAuthSDK {
 	 * @param {Boolean} [opts.all=false] - When `true`, logs out all authenticated accounts.
 	 * @param {String} [opts.baseUrl] - The AxwayID base URL to use.
 	 */
-	logout(opts?: { accounts?: string[]; all?: boolean; baseUrl?: string; onOpenBrowser?: Function }): ReturnType<Auth['logout']>;
+	logout(opts?: { accounts?: string[]; all?: boolean; baseUrl?: string }): ReturnType<Auth['logout']>;
 
 	/**
 	 * Returns AxwayID server information.
@@ -1423,8 +1426,8 @@ interface AmplifyAuthSDK {
 interface AmplifyClientSDK {
 	/**
 	 * Creates a new service account.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {Object} [opts] - Various options.
 	 * @param {String} [opts.desc] - The service account description.
 	 * @param {String} opts.name - The service account display name.
@@ -1434,7 +1437,7 @@ interface AmplifyClientSDK {
 	 * @param {Array<{ guid: string, roles: string[] }>} [opts.teams] - One or more teams to assign the service account to.
 	 */
 	create(
-		account: any,
+		account: Account,
 		org: object|string|number,
 		opts: {
 			desc?: string;
@@ -1444,63 +1447,63 @@ interface AmplifyClientSDK {
 			secret?: string;
 			teams?: Array<{ guid: string; roles: string[] }>;
 		}
-	): Promise<{ org: any; client: any }>;
+	): Promise<{ org: Organization; client: any }>;
 
 	/**
 	 * Finds a service account by guid, client_id, or name.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {String} term - The service account guid, client_id, or name.
 	 */
 	find(
-		account: any,
-		org: any,
+		account: Account,
+		org: Organization | string | number,
 		term: string
-	): Promise<{ org: any; client: any }>;
+	): Promise<{ org: Organization; client: any }>;
 
 	/**
 	 * Retrieves a list of all service accounts for the given org.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 */
 	list(
-		account: any,
-		org: any
-	): Promise<{ org: any; clients: any[] }>;
+		account: Account,
+		org: Organization | string | number
+	): Promise<{ org: Organization; clients: any[] }>;
 
 	/**
 	 * Removes a service account.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {Object|String} client - The service account object or client id.
 	 */
 	remove(
-		account: any,
-		org: any,
+		account: Account,
+		org: Organization | string | number,
 		client: any
-	): Promise<{ client: any; org: any }>;
+	): Promise<{ client: any; org: Organization }>;
 
 	/**
 	 * Resolves a client by name, id, or guid using the specified account.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {Object|String} client - The service account object, client id, or guid.
 	 */
 	resolveClient(
-		account: any,
-		org: any,
+		account: Account,
+		org: Organization | string | number,
 		client: any
-	): Promise<any>;
+	): Promise<{ org: Organization; client: any }>;
 
 	/**
 	 * Validates a list of teams for the given client.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {Array<{ guid: string, roles: string[] }>} teams - One or more teams to validate.
 	 */
 	resolveTeams(
-		account: any,
-		org: any,
+		account: Account,
+		org: Organization | string | number,
 		teams: Array<{ guid: string; roles: string[] }>
 	): Promise<Array<{ guid: string; roles: string[] }>>;
 
@@ -1512,8 +1515,8 @@ interface AmplifyClientSDK {
 
 	/**
 	 * Updates an existing service account's information.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {Object} opts - Service account properties.
 	 * @param {String} [opts.desc] - The service account description.
 	 * @param {String} [opts.name] - The service account display name.
@@ -1523,8 +1526,8 @@ interface AmplifyClientSDK {
 	 * @param {Array<{ guid: string, roles: string[] }>} [opts.teams] - One or more teams to assign the service account to.
 	 */
 	update(
-		account: any,
-		org: any,
+		account: Account,
+		org: Organization | string | number,
 		opts?: {
 			client: any;
 			desc?: string;
@@ -1534,31 +1537,31 @@ interface AmplifyClientSDK {
 			secret?: string;
 			teams?: Array<{ guid: string; roles: string[] }>;
 		}
-	): Promise<{ org: any; client: any }>;
+	): Promise<{ org: Organization; client: any }>;
 }
 
 interface AmplifyEntitlementSDK {
 	/**
 	 * Retrieves entitlement information for a specific entitlement metric.
-	 * @param {Object} account - The account object.
+	 * @param {Account} account - The account object.
 	 * @param {String} metric - The entitlement metric name.
 	 */
-	find: (account: any, metric: string) => Promise<any>;
+	find: (account: Account, metric: string) => Promise<any>;
 }
 
 interface AmplifyOrgSDK {
 	/**
 	 * Get activity events for an organization.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {Object} [params] - Various parameters.
 	 * @param {String} [params.from] - The start date for the activity query.
 	 * @param {String} [params.to] - The end date for the activity query.
 	 * @param {String|Boolean} [params.month] - The month to filter activities by. If `true`, uses current month.
 	 */
 	activity(
-		account: any,
-		org: object | string | number,
+		account: Account,
+		org: Organization | string | number,
 		params?: {
 			from?: string;
 			to?: string;
@@ -1568,113 +1571,113 @@ interface AmplifyOrgSDK {
 
 	/**
 	 * List environments for the organization.
-	 * @param {Object} account - The account object.
+	 * @param {Account} account - The account object.
 	 */
-	environments(account: any): Promise<any[]>;
+	environments(account: Account): Promise<any[]>;
 
 	/**
 	 * Fetch a specific organization document.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 */
-	find(account: any, org: object | string | number): Promise<any>;
+	find(account: Account, org: Organization | string | number): Promise<Organization>;
 
 	/**
 	 * List all organizations for the account.
 	 * Note that service accounts are only ever associated with a single organization.
-	 * @param {Object} account - The account object.
+	 * @param {Account} account - The account object.
 	 * @param {Object|String|Number} [defaultOrg] - The default organization object, name, id, or guid.
 	 */
-	list(account: any, defaultOrg?: object | string | number): Promise<any[]>;
+	list(account: Account, defaultOrg?: object | string | number): Promise<any[]>;
 
 	user: {
 		/**
 		 * Add a user to an organization.
-		 * @param {Object} account - The account object.
-		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account object.
+		 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} email - The user email address.
 		 * @param {String[]} roles - One or more roles to assign to the user.
 		 */
 		add(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			email: string,
 			roles: string[]
-		): Promise<{ org: any; user: any }>;
+		): Promise<{ org: Organization; user: any }>;
 
 		/**
 		 * Find a user in an organization.
-		 * @param {Object} account - The account object.
-		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account object.
+		 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} user - The user email or guid.
 		 */
 		find(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			user: string
 		): Promise<any>;
 
 		/**
 		 * List users in an organization.
-		 * @param {Object} account - The account object.
-		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account object.
+		 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 */
 		list(
-			account: any,
-			org: object | string | number
-		): Promise<{ org: any; users: any[] }>;
+			account: Account,
+			org: Organization | string | number
+		): Promise<{ org: Organization; users: any[] }>;
 
 		/**
 		 * Remove a user from an organization.
-		 * @param {Object} account - The account object.
-		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account object.
+		 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} user - The user email or guid.
 		 */
 		remove(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			user: string
-		): Promise<{ org: any; user: any, [key: string]: any }>;
+		): Promise<{ org: Organization; user: any, [key: string]: any }>;
 
 		/**
 		 * Update a user's roles in an organization.
-		 * @param {Object} account - The account object.
-		 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account object.
+		 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} user - The user email or guid.
 		 * @param {String[]} roles - One or more roles to assign to the user.
 		 */
 		update(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			user: string,
 			roles: string[]
-		): Promise<{ org: any; user: any; roles: string[] }>;
+		): Promise<{ org: Organization; user: any; roles: string[] }>;
 	};
 
 	/**
 	 * Rename an organization.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {String} name - The new organization name.
 	 */
 	rename(
-		account: any,
-		org: object | string | number,
+		account: Account,
+		org: Organization | string | number,
 		name: string
 	): Promise<{ oldName: string; [key: string]: any }>;
 
 	/**
 	 * Get usage metrics for an organization.
-	 * @param {Object} account - The account object.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account object.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {Object} [params] - Various parameters.
 	 * @param {String} [params.from] - The start date for the usage data.
 	 * @param {String} [params.to] - The end date for the usage data.
 	 * @param {String|Boolean} [params.month] - The month to filter usage by. If `true`, uses current month.
 	 */
 	usage(
-		account: any,
-		org: object | string | number,
+		account: Account,
+		org: Organization | string | number,
 		params?: {
 			from?: string;
 			to?: string;
@@ -1686,14 +1689,14 @@ interface AmplifyOrgSDK {
 interface AmplifyRoleSDK {
 	/**
 	 * Retrieves a list of roles, optionally filtered by parameters.
-	 * @param {Object} account - The account context.
+	 * @param {Account} account - The account context.
 	 * @param {Object} [params] - Optional filters for roles.
 	 * @param {Boolean} [params.default] - When `true`, only returns default roles.
 	 * @param {Object|String|Number} [params.org] - The organization object, name, id, or guid to filter roles in context of.
 	 * @param {Boolean} [params.team] - When `true`, only returns team roles.
 	 */
 	list(
-		account: any,
+		account: Account,
 		params?: {
 			default?: boolean;
 			org?: object | string | number;
@@ -1703,7 +1706,7 @@ interface AmplifyRoleSDK {
 
 	/**
 	 * Validates and resolves a list of role identifiers against allowed roles.
-	 * @param {Object} account - The account context.
+	 * @param {Account} account - The account context.
 	 * @param {String[]} roles - One or more role identifiers to resolve.
 	 * @param {Object} opts - Various options.
 	 * @param {Boolean} [opts.default] - When `true`, includes default roles in the allowed roles.
@@ -1713,7 +1716,7 @@ interface AmplifyRoleSDK {
 	 * @param {Boolean} [opts.team] - When `true`, includes team roles in the allowed roles.
 	 */
 	resolve(
-		account: any,
+		account: Account,
 		roles: string[],
 		opts: {
 			default?: boolean;
@@ -1728,8 +1731,8 @@ interface AmplifyRoleSDK {
 interface AmplifyTeamSDK {
 	/**
 	 * Create a new team within an organization.
-	 * @param {Object} account - The account context.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account context.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {String} name - The team name.
 	 * @param {Object} [info] - Optional team details.
 	 * @param {String} [info.desc] - The team description.
@@ -1737,130 +1740,130 @@ interface AmplifyTeamSDK {
 	 * @param {String[]} [info.tags] - One or more tags to assign to the team.
 	 */
 	create(
-		account: any,
-		org: object | string | number,
+		account: Account,
+		org: Organization | string | number,
 		name: string,
 		info?: {
 			desc?: string;
 			default?: boolean;
 			tags?: string[];
 		}
-	): Promise<{ org: any; team: any }>;
+	): Promise<{ org: Organization; team: any }>;
 
 	/**
 	 * Retrieve a team by name or guid.
-	 * @param {Object} account - The account context.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account context.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {String} team - The team name or guid.
 	 */
 	find(
-		account: any,
-		org: object | string | number,
+		account: Account,
+		org: Organization | string | number,
 		team: string
-	): Promise<{ org: any; team: any }>;
+	): Promise<{ org: Organization; team: any }>;
 
 	/**
 	 * List all teams in an organization, optionally filtered by user guid.
-	 * @param {Object} account - The account context.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account context.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {String} [user] - When specified, only returns teams that the user belongs to.
 	 */
 	list(
-		account: any,
-		org: object | string | number,
+		account: Account,
+		org: Organization | string | number,
 		user?: string
-	): Promise<{ org: any; teams: any[] }>;
+	): Promise<{ org: Organization; teams: any[] }>;
 
 	user: {
 		/**
 		 * Add a user to a team.
-		 * @param {Object} account - The account context.
-	 	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account context.
+	 	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} team - Team name or guid.
 		 * @param {String} user - User email or guid.
 		 * @param {String[]} roles - Roles to assign.
 		 */
 		add(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			team: string,
 			user: string,
 			roles: string[]
-		): Promise<{ org: any; team: any; user: any }>;
+		): Promise<{ org: Organization; team: any; user: any }>;
 
 		/**
 		 * Find a user in a team.
-		 * @param {Object} account - The account context.
-	 	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account context.
+	 	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} team - Team name or guid.
 		 * @param {String} user - User email or guid.
 		 */
 		find(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			team: string,
 			user: string
-		): Promise<{ org: any; team: any; user: any }>;
+		): Promise<{ org: Organization; team: any; user: any }>;
 
 		/**
 		 * List users in a team.
-		 * @param {Object} account - The account context.
-	 	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account context.
+	 	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} team - Team name or guid.
 		 */
 		list(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			team: string
-		): Promise<{ org: any; team: any; users: any[] }>;
+		): Promise<{ org: Organization; team: any; users: any[] }>;
 
 		/**
 		 * Remove a user from a team.
-		 * @param {Object} account - The account context.
-	 	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account context.
+	 	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} team - Team name or guid.
 		 * @param {String} user - User email or guid.
 		 */
 		remove(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			team: string,
 			user: string
-		): Promise<{ org: any; team: any; user: any }>;
+		): Promise<{ org: Organization; team: any; user: any }>;
 
 		/**
 		 * Update a user's roles in a team.
-		 * @param {Object} account - The account context.
-	 	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+		 * @param {Account} account - The account context.
+	 	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 		 * @param {String} team - Team name or guid.
 		 * @param {String} user - User email or guid.
 		 * @param {String[]} roles - Roles to assign.
 		 */
 		update(
-			account: any,
-			org: object | string | number,
+			account: Account,
+			org: Organization | string | number,
 			team: string,
 			user: string,
 			roles: string[]
-		): Promise<{ org: any; team: any; user: any; roles: string[] }>;
+		): Promise<{ org: Organization; team: any; user: any; roles: string[] }>;
 	};
 
 	/**
 	 * Remove a team from an organization.
-	 * @param {Object} account - The account context.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account context.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {String} team - Team name or guid.
 	 */
 	remove(
-		account: any,
-		org: object | string | number,
+		account: Account,
+		org: Organization | string | number,
 		team: string
-	): Promise<{ org: any; team: any }>;
+	): Promise<{ org: Organization; team: any }>;
 
 	/**
 	 * Update team details.
-	 * @param {Object} account - The account context.
-	 * @param {Object|String|Number} org - The organization object, name, id, or guid.
+	 * @param {Account} account - The account context.
+	 * @param {Organization|String|Number} org - The organization object, name, id, or guid.
 	 * @param {String} team - Team name or guid.
 	 * @param {Object} [info] - Optional team details to update.
 	 * @param {String} [info.desc] - The team description.
@@ -1868,8 +1871,8 @@ interface AmplifyTeamSDK {
 	 * @param {String[]} [info.tags] - One or more tags to assign to the team.
 	 */
 	update(
-		account: any,
-		org: object | string | number,
+		account: Account,
+		org: Organization | string | number,
 		team: string,
 		info?: {
 			desc?: string;
@@ -1878,7 +1881,7 @@ interface AmplifyTeamSDK {
 			name?: string;
 			[key: string]: any;
 		}
-	): Promise<{ changes: any; org: any; team: any }>;
+	): Promise<{ changes: any; org: Organization; team: any }>;
 }
 
 interface AmplifyUserSDK {
@@ -1891,10 +1894,10 @@ interface AmplifyUserSDK {
 
 	/**
 	 * Looks up a user by email, guid, or user object.
-	 * @param {Object} account - The account object.
+	 * @param {Account} account - The account object.
 	 * @param {String|Object} user - The user email, guid, or user object.
 	 */
-	find(account: any, user: string | { guid: string }): Promise<any>;
+	find(account: Account, user: string | { guid: string }): Promise<any>;
 
 	/**
 	 * Updates an account's user's information.
