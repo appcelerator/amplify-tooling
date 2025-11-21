@@ -82,6 +82,9 @@ export default abstract class AxwayCommand extends Command {
 
 			data.account = await data.sdk.auth.find(parsed.args?.accountName || parsed.flags?.account || data.config.get('auth.defaultAccount'));
 			if (!data.account) {
+				if (parsed.args?.accountName || parsed.flags?.account) {
+					return this.error(`The account "${parsed.args?.accountName || parsed.flags?.account}" is not logged in.\n\nTo login, run: ${this.config.bin} auth login`);
+				}
 				return this.error(`You must be authenticated\n\nTo login, run: ${this.config.bin} auth login`);
 			}
 

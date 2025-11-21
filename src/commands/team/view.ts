@@ -52,7 +52,6 @@ Team GUID:    ${highlight(team.guid)}
 Date Created: ${highlight(new Date(team.created).toLocaleString())}
 Is Default:   ${highlight(team.default ? 'Yes' : 'No')}
 Users:        ${highlight(team.users?.length)}
-Apps:         ${highlight(team.apps?.length)}
 Tags:         ${team.tags?.length ? highlight(team.tags.map(s => `"${s}"`).join(', ')) : note('n/a')}`);
 	}
 }

@@ -39,7 +39,7 @@ export default class OrgView extends Command {
 		this.log(`  Region:        ${highlight(org.region === 'US' ? 'United States' : org.region)}`);
 		this.log(`  Users:         ${highlight(`${org.userCount} user${org.userCount !== 1 ? 's' : ''}${org.seats ? ` / ${org.seats} seat${org.seats !== 1 ? 's' : ''}` : ''}`)}`);
 
-		const teamsTable = createTable([ '  Name', 'Description', 'GUID', 'User', 'Apps', 'Date Created' ]);
+		const teamsTable = createTable([ '  Name', 'Description', 'GUID', 'User', 'Date Created' ]);
 		const checkMark = process.platform === 'win32' ? '√' : '✔';
 		for (const team of org.teams ?? []) {
 			teamsTable.push([
@@ -47,7 +47,6 @@ export default class OrgView extends Command {
 				team.desc || note('n/a'),
 				team.guid,
 				team.users?.length ?? 0,
-				team.apps?.length ?? 0,
 				new Date(team.created).toLocaleDateString(),
 			]);
 		}
@@ -62,11 +61,11 @@ export default class OrgView extends Command {
 			const subsTable = createTable([ '  Category', 'Edition', 'Tier', 'Governance', 'Date', 'Status' ]);
 			for (const sub of org.subscriptions) {
 				subsTable.push([
-					`  ${sub.category}`,
-					sub.edition,
+					`  ${sub.product}`,
+					sub.plan,
 					sub.tier.charAt(0).toUpperCase() + sub.tier.slice(1),
 					sub.governance,
-					`${new Date(sub.startDate).toLocaleDateString()} - ${new Date(sub.endDate).toLocaleDateString()}`,
+					`${new Date(sub.start_date).toLocaleDateString()} - ${new Date(sub.end_date).toLocaleDateString()}`,
 					sub.expired ? 'Terminated' : 'Active'
 				]);
 			}

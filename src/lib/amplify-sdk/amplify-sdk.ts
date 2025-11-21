@@ -538,21 +538,28 @@ export default class AmplifySDK {
 				});
 
 				const subscriptions = org.subscriptions.map(s => ({
-					category: s.product, // TODO: Replace with annotated name
-					edition: s.plan, // TODO: Replace with annotated name
-					expired: !!s.expired,
+					product: s.product,
+					plan: s.plan,
+					expired: Boolean(s.expired),
 					governance: s.governance || 'SaaS',
+					start_date: s.start_date,
+					end_date: s.end_date,
+					tier: s.tier,
+
+					// TODO: Remove these unnecessary mappings once everything has been ported and updated
+					category: s.product,
+					edition: s.plan,
 					startDate: s.start_date,
-					endDate: s.end_date,
-					tier: s.tier
+					endDate: s.end_date
 				}));
 
 				const { teams } = await this.team.list(account, id);
 
-				const result = {
+				const result: Organization = {
 					active: org.active,
 					created: org.created,
 					guid: org.guid,
+					org_id: org.org_id,
 					id,
 					name: org.name,
 					entitlements: org.entitlements,
@@ -1167,7 +1174,12 @@ export default class AmplifySDK {
 	 * @returns {Promise} Resolves the JSON-parsed result.
 	 * @access private
 	 */
-	async request(path, account, { errorMsg, json, method, resultKey = 'result' } = {} as any) {
+	async request(path: string, account: Account, { errorMsg, json, method, resultKey = 'result' } = {} as {
+		errorMsg?: string;
+		json?: any;
+		method?: string;
+		resultKey?: string;
+	}) {
 		try {
 			if (!account || typeof account !== 'object') {
 				throw new TypeError('Account required');
@@ -1236,11 +1248,10 @@ export default class AmplifySDK {
 	 * Resolves an org by name, id, org guid using the specified account.
 	 *
 	 * @param {Account} account - The account object.
-	 * @param {Object|String|Number} [org] - The organization object, name, guid, or id.
-	 * @returns {Promise<Object>} Resolves the org info from the account object.
-	 * @access public
+	 * @param {Organization|String|Number} [org] - The organization object, name, guid, or id.
+	 * @returns {Organization} Resolves the org info from the account object.
 	 */
-	resolveOrg(account, org) {
+	resolveOrg(account: Account, org: Organization | string | number | undefined) {
 		if (org && typeof org === 'object' && org.guid) {
 			return org;
 		}
@@ -1253,11 +1264,12 @@ export default class AmplifySDK {
 			throw E.INVALID_ARGUMENT('Expected organization identifier');
 		}
 
-		const found = account.orgs.find(o => {
-			return o.guid?.toLowerCase() === String(org).toLowerCase()
-				|| String(o.id) === String(org)
-				|| o.name?.toLowerCase() === String(org).toLowerCase();
-		});
+		// Check if the criteria matches the account org
+		const found = (account.org.guid === org
+			|| Number(account.org.id) === Number(org)
+			|| account.org.name?.toLowerCase() === String(org).toLowerCase())
+				? account.org
+				: null;
 
 		if (!found) {
 			throw new Error(`Unable to find the organization "${org}"`);
@@ -1584,11 +1596,11 @@ interface AmplifyOrgSDK {
 
 	/**
 	 * List all organizations for the account.
-	 * Note that service accounts are only ever associated with a single organization.
 	 * @param {Account} account - The account object.
 	 * @param {Object|String|Number} [defaultOrg] - The default organization object, name, id, or guid.
+	 * @deprecated service accounts are only ever associated with a single organization. Use account.org instead.
 	 */
-	list(account: Account, defaultOrg?: object | string | number): Promise<any[]>;
+	list(account: Account, defaultOrg?: object | string | number): Promise<Organization[]>;
 
 	user: {
 		/**

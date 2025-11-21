@@ -328,9 +328,9 @@ export default class Authenticator {
 			log(info);
 			guid = info.guid;
 			name = this.clientId; // TODO: Source the client's friendly name from platform?
-			const orgId = info.orgId;
+			const orgId = Number(info.orgId);
 			if (orgId) {
-				org = { name: orgId, id: orgId };
+				org = { name: orgId, id: orgId, org_id: orgId };
 			}
 		} catch (_e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');

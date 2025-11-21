@@ -120,8 +120,38 @@ type Organization = {
 	name?: string;
 	/** Region the organization is associated with */
 	region?: string;
+
+	/** Number of users in the organization */
+	userCount?: number;
+	/** Number of teams in the organization */
+	teamCount?: number;
+
 	/** Subscriptions the organization has */
-	subscriptions?: Array<any>;
+	subscriptions?: Array<{
+		/** Subscription product line */
+		product: string;
+		/** Subscription plan name */
+		plan: string;
+		/** Whether the subscription is expired */
+		expired: boolean;
+		/** Governance level for the subscription */
+		governance: string;
+		/** Tier of the subscription */
+		tier: string;
+		/** Start date of the subscription */
+		start_date: string;
+		/** End date of the subscription */
+		end_date: string;
+
+		/** @deprecated Use `start_date` instead */
+		startDate: string;
+		/** @deprecated Use `end_date` instead */
+		endDate: string;
+		/** @deprecated Use `product` instead */
+		category: string;
+		/** @deprecated Use `plan` instead */
+		edition: string;
+	}>;
 	/** Entitlements the organization has from its active subscriptions */
 	entitlements?: {
 		[key: string]: any;

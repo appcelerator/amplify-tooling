@@ -27,32 +27,29 @@ export default class OrgList extends Command {
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { account, org, sdk } = await this.parse(OrgList);
-		const orgs = await sdk.org.list(account, org);
+		const { account, org } = await this.parse(OrgList);
 
 		if (this.jsonEnabled()) {
 			return {
 				account: account.name,
-				orgs
+				orgs: [ org ]
 			};
 		}
 
 		this.log(`Account: ${highlight(account.name)}\n`);
 
-		if (!orgs.length) {
+		if (!org) {
 			return this.log('No organizations found');
 		}
 
 		const table = createTable([ 'Organization', 'GUID', 'ORG ID' ]);
 		const check = process.platform === 'win32' ? '√' : '✔';
 
-		for (const { default: def, guid, id, name } of orgs) {
-			table.push([
-				def ? active(`${check} ${name}`) : `  ${name}`,
-				guid,
-				id
-			]);
-		}
+		table.push([
+			active(`${check} ${org.name}`),
+			org.guid,
+			org.id
+		]);
 		this.log(table.toString());
 	}
 }
