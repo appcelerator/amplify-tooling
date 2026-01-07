@@ -735,7 +735,7 @@ export default class AmplifySDK {
 				if (params.team) {
 					return roles.filter(r => r.team);
 				}
-				let _org = params.org || account.org?.guid;
+				const _org = params.org || account.org?.guid;
 				if (_org) {
 					const org = await this.org.find(account, _org);
 					const { entitlements, subscriptions } = org;
@@ -1268,8 +1268,8 @@ export default class AmplifySDK {
 		const found = (account.org.guid === org
 			|| Number(account.org.id) === Number(org)
 			|| account.org.name?.toLowerCase() === String(org).toLowerCase())
-				? account.org
-				: null;
+			? account.org
+			: null;
 
 		if (!found) {
 			throw new Error(`Unable to find the organization "${org}"`);

@@ -22,7 +22,7 @@ export default class ConfigPush extends Command {
 		})
 	};
 
-    static override authenticated = false;
+	static override authenticated = false;
 	static override enableJsonFlag = true;
 
 	async run(): Promise<{ result: string } | void> {

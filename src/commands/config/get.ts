@@ -15,7 +15,7 @@ export default class ConfigGet extends Command {
 		key: Args.string({ description: 'Config key to get.' })
 	};
 
-    static override authenticated = false;
+	static override authenticated = false;
 	static override enableJsonFlag = true;
 
 	async run() {

@@ -26,7 +26,7 @@ export const authenticatedFlags = {
 		description: 'The account to use within the active profile.',
 		required: false
 	})
-}
+};
 
 export default abstract class AxwayCommand extends Command {
 	declare config: OclifConfig & { parsed?: ParserOutput };

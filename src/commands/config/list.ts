@@ -16,11 +16,11 @@ export default class ConfigList extends Command {
 		}
 	];
 
-    static override authenticated = false;
+	static override authenticated = false;
 	static override enableJsonFlag = true;
 
 	async run() {
-        const { config } = await this.parse(ConfigList);
+		const { config } = await this.parse(ConfigList);
 		const configData = await config.data();
 		if (this.jsonEnabled()) {
 			return configData;

@@ -106,7 +106,7 @@ type Account = {
 
 	/** Indicates if this is the default account */
 	default?: boolean;
-}
+};
 
 /** Platform Organization */
 type Organization = {
@@ -158,4 +158,4 @@ type Organization = {
 	};
 
 	[key: string]: any;
-}
+};

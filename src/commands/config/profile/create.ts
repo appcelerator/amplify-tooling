@@ -63,7 +63,7 @@ export default class ConfigProfileCreate extends Command {
 			}
 		}
 
-		let profileName = flags.name || await input({
+		const profileName = flags.name || await input({
 			message: 'Enter a name for the profile:',
 			validate: input => {
 				if (!input) {
@@ -95,7 +95,7 @@ export default class ConfigProfileCreate extends Command {
 				}),
 				realm: flags.realm || 'Broker'
 			}
-		}
+		};
 
 		const exists = config.has(`profiles.${profileName}`);
 		if (exists) {

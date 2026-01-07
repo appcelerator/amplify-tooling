@@ -4,7 +4,7 @@ import { type Hook } from '@oclif/core';
 type oclifInternals = {
 	_commands: Map<string, {  summary?: string; description?: string }>;
 	_topics: Map<string, { description?: string }>;
-}
+};
 
 /**
  * For some reason oclif doesn't use defined summaries on topic index commands, but the summary of the first sub-command instead.
