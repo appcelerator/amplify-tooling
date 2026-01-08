@@ -517,8 +517,8 @@ export default class Authenticator {
 
 			let redirect = orgSelectedCallback.url;
 			// if we just authenticated using a IdP user (e.g. not 360)
-			if (account.auth.idp !== '360') {
-				redirect = createURL(`${this.platformUrl}/#/auth/org.select`, {
+			if (account.auth.idp !== '360' && await this.isAccountPartOfMultipleOrgs(account)) {
+				redirect = createURL(`${this.platformUrl}/auth/org.select`, {
 					redirect: orgSelectedCallback.url
 				});
 			}
@@ -577,6 +577,26 @@ export default class Authenticator {
 
 	async timeout() {
 		return new Promise(resolve => setTimeout(resolve, 3000));
+	}
+
+	async isAccountPartOfMultipleOrgs(account) {
+		// Fetch auth session to determine if the account have multiple orgs
+		try {
+			const accessToken = account.auth.tokens.access_token;
+			log('Fetching auth session from platform');
+			const response = await this.got(`${this.platformUrl}/api/v1/auth/findSession`, {
+				headers: {
+					Accept: 'application/json',
+					Authorization: `Bearer ${accessToken}`
+				},
+				responseType: 'json',
+				retry: 0
+			});
+			return response.body?.result?.orgs?.length > 1;
+		} catch (err) {
+			warn(`Failed to find session: ${err.message}`);
+			return false;
+		}
 	}
 
 	/* istanbul ignore next */

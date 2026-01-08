@@ -51,7 +51,7 @@ team to use for "axway" commands.`;
   or
     ${style.highlight('axway auth login --client-id <id> --client-secret <key> --username <email>')}
 
-  To set your Platform Tooling password, visit https://platform.axway.com/#/user/credentials`;
+  To set your Platform Tooling password, visit https://platform.axway.com/user/credentials`;
 		}
 	},
 	options: [

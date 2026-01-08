@@ -469,7 +469,7 @@ export default class AmplifySDK {
 					});
 
 					try {
-						const url = createURL(`${this.platformUrl}/#/auth/org.select`, {
+						const url = createURL(`${this.platformUrl}/auth/org.select`, {
 							org_hint: org?.id,
 							redirect
 						});
