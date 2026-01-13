@@ -3034,21 +3034,6 @@ cli-kit@^2.1.1:
     snooplogg "^5.0.0"
     which "^2.0.2"
 
-"cli-kit@github:kasuvy/cli-kit#APIGOV-29723":
-  version "2.0.2"
-  resolved "https://codeload.github.com/kasuvy/cli-kit/tar.gz/908da5e9433b3044f34ceef4e02bd20e51569bc9"
-  dependencies:
-    argv-split "^2.0.1"
-    fastest-levenshtein "^1.0.12"
-    fs-extra "^10.1.0"
-    hook-emitter "^6.0.0"
-    lodash.camelcase "^4.3.0"
-    pkg-dir "^6.0.1"
-    pluralize "^8.0.0"
-    semver "^7.3.7"
-    snooplogg "^5.0.0"
-    which "^2.0.2"
-
 cli-spinners@2.6.1, cli-spinners@^2.5.0:
   version "2.6.1"
   resolved "https://registry.npmjs.org/cli-spinners/-/cli-spinners-2.6.1.tgz"
