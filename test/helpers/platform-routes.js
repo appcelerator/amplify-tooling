@@ -820,7 +820,7 @@ export function createPlatformRoutes(server, opts = {}) {
 </html>`;
 	})
 
-	server.router.get([ '/', '/success' ], ctx => {
+	server.router.get([ '/', '/success', '/auth/org.select' ], ctx => {
 		ctx.body = `<html>
 <head>
 <title>Test successful!</title>
@@ -830,9 +830,9 @@ export function createPlatformRoutes(server, opts = {}) {
 <p>You can close this browser window</p>
 <script>
 let u = new URL(location.href);
-let m = u.hash && u.hash.match(/redirect=(.+)/);
-if (m) {
-	location.href = decodeURIComponent(m[1]);
+let redirect = u.searchParams.get('redirect');
+if (redirect) {
+	location.href = decodeURIComponent(redirect);
 }
 </script>
 </body>
