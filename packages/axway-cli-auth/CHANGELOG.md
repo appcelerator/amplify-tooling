@@ -1,3 +1,8 @@
+# v4.0.6 (Jan 22, 2026)
+
+- chore: Fixed Issue with org select redirection timeout.
+  ([APIGOV-30889](https://jira.axway.com/browse/APIGOV-30889))
+
 # v4.0.5 (July 28, 2025)
 
 - chore: Fixed Issue with "axway team user add" command.
