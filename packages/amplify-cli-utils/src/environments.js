@@ -39,9 +39,6 @@ export const environments = {
 			clientId: 'amplify-cli',
 			realm: 'Broker'
 		},
-		registry: {
-			url: 'https://registry.platform.axway.com'
-		},
 		title: 'PreProduction'
 	}
 };
