@@ -1,3 +1,8 @@
+# v5.1.0 (Mar 03, 2026)
+
+- chore: Add support for preproduction environment.
+  ([APIGOV-32150](https://jira.axway.com/browse/APIGOV-32150))
+
 # v5.0.6 (Jan 22, 2026)
 
 - chore: Fixed Issue with org select redirection timeout.

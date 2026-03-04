@@ -13,15 +13,20 @@ export const environments = {
 		baseUrl:     'https://login.axway.com',
 		platformUrl: 'https://platform.axway.com',
 		realm:       'Broker'
+	},
+	preprod: {
+		baseUrl: 'https://login.na-us.axwaypreprod.net',
+		platformUrl: 'https://platform.na-us.axwaypreprod.net',
+		realm: 'Broker'
 	}
 };
 
 const mapping = {
 	dev: 'staging',
 	development: 'staging',
-	preprod: 'staging',
-	preproduction: 'staging',
-	'pre-production': 'staging',
+	preprod: 'preprod',
+	preproduction: 'preprod',
+	'pre-production': 'preprod',
 	production: 'prod',
 	test: 'staging'
 };

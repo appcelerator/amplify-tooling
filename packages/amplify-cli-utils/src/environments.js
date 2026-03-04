@@ -33,14 +33,21 @@ export const environments = {
 			url: 'https://registry.platform.axway.com'
 		},
 		title: 'Production'
+	},
+	preprod: {
+		auth: {
+			clientId: 'amplify-cli',
+			realm: 'Broker'
+		},
+		title: 'PreProduction'
 	}
 };
 
 const mapping = {
 	development: 'dev',
-	preprod: 'staging',
-	preproduction: 'staging',
-	'pre-production': 'staging',
+	preprod: 'preprod',
+	preproduction: 'preprod',
+	'pre-production': 'preprod',
 	production: 'prod',
 	test: 'staging'
 };
