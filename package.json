@@ -34,6 +34,7 @@
     "cli-table3": "^0.6.5",
     "dayjs": "^1.11.19",
     "debug": "^4.4.3",
+    "easy-table": "^1.2.0",
     "fastest-levenshtein": "^1.0.16",
     "got": "^14.6.2",
     "http-proxy-agent": "^7.0.2",

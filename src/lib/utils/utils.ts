@@ -25,6 +25,8 @@ export const isValidJson = (item: any) => {
 };
 import chalk from 'chalk';
 import {
+	ApiServerError,
+	ApiServerErrorResponse,
 	ApiServerVersions,
 	GenericResource,
 	GenericResourceWithoutName,
@@ -38,7 +40,9 @@ export function ValueFromKey(
 	key: string,
 ): string | undefined {
 	for (const k of Object.values(stringEnum)) {
-		if (k === stringEnum[key]) { return k; }
+		if (k === stringEnum[key]) {
+			return k;
+		}
 	}
 	return undefined;
 }
@@ -51,11 +55,11 @@ export const createLanguageSubresourceNames = (langCode: string) => {
 		languageTypesArr.push(ValueFromKey(LanguageTypes, key)),
 	);
 	langCodeArr.forEach((langCode) => {
-		if (langCode.trim() != '') {
+		if (langCode.trim() !== '') {
 			if (!languageTypesArr.includes(langCode)) {
 				console.log(
 					chalk.yellow(
-						`\n\'${langCode}\' language code is not supported, hence create/update cannot be performed on \'languages-${langCode}\. Allowed language codes: ${LanguageTypes.French} | ${LanguageTypes.German} | ${LanguageTypes.US} | ${LanguageTypes.Portugese}.'`,
+						`\n'${langCode}' language code is not supported, hence create/update cannot be performed on 'languages-${langCode}. Allowed language codes: ${LanguageTypes.French} | ${LanguageTypes.German} | ${LanguageTypes.US} | ${LanguageTypes.Portugese}.'`,
 					),
 				);
 			} else {
@@ -162,4 +166,24 @@ export const buildGenericResource = ({
 			spec: {},
 		};
 	}
+};
+
+/**
+ * Returns true if error object is of type ApiServerError
+ * @param err error object to check
+ */
+export const isApiServerErrorType = (err: ApiServerError | ApiServerErrorResponse | Error): err is ApiServerError => {
+	const cast = err as ApiServerError;
+	return !!cast.status && !!cast.title && !!cast.detail;
+};
+
+/**
+ * Returns true if error object is of type ApiServerErrorResponse
+ * @param err error object to check
+ */
+export const isApiServerErrorResponseType = (
+	err: ApiServerError | ApiServerErrorResponse | Error
+): err is ApiServerErrorResponse => {
+	const cast = err as ApiServerErrorResponse;
+	return !!cast.errors && Array.isArray(cast.errors);
 };
