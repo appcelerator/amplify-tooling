@@ -126,7 +126,7 @@ class CacheControllerClass implements Cache {
           < CACHE_FILE_TTL_MILLISECONDS
 			) {
 				for (const [ key, val ] of Object.entries(storedCache.data)) {
-					if (storedCache.data.hasOwnProperty(key)) {
+					if (Object.prototype.hasOwnProperty.call(storedCache.data, key)) {
 						this.cache.set(key, val);
 					}
 				}
@@ -138,9 +138,8 @@ class CacheControllerClass implements Cache {
 			}
 		} catch (e) {
 			log('cannot read cache from the file', e);
-		} finally {
-			return this;
 		}
+		return this;
 	}
 
 	/**
@@ -169,9 +168,8 @@ class CacheControllerClass implements Cache {
 			writeToFile(this.cacheFilePath, JSON.stringify(dataToStore));
 		} catch (e) {
 			log('cannot write cache to the file', e);
-		} finally {
-			return this;
 		}
+		return this;
 	}
 }
 

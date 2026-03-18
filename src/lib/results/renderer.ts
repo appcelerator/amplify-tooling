@@ -1,0 +1,434 @@
+import { chalk } from 'cli-kit';
+import ora from 'ora';
+import {
+	ApiServerClientApplyResult,
+	ApiServerClientBulkResult,
+	ApiServerClientListResult,
+	ApiServerClientSingleResult,
+	ApiServerError,
+	ApiServerErrorResponse,
+	CommandLineInterfaceColumns,
+	GenericResource,
+	OutputTypes,
+} from '../types.js';
+import { CompositeError } from './compositeerror.js';
+import { renderResponse } from './resultsrenderer.js';
+import { isApiServerErrorResponseType, isApiServerErrorType } from '../utils/utils.js';
+
+export interface RenderGetResultsInput {
+	response: ApiServerClientSingleResult | ApiServerClientListResult;
+	columns: CommandLineInterfaceColumns[];
+}
+
+export default class Renderer {
+	private spinner: ora.Ora | null;
+	private _console: Console;
+	private output: OutputTypes | undefined;
+
+	constructor(console: Console, output?: OutputTypes) {
+		this.spinner = process.env['DEBUG'] || !!output ? null : ora({ spinner: 'dots3' });
+		this._console = console;
+		this.output = output;
+	}
+
+	/**
+	 * Start the spinner and return self
+	 * @param text text to display near the spinner
+	 */
+	startSpin(text: string): Renderer {
+		this.spinner && this.spinner.start(text);
+		return this;
+	}
+
+	/**
+	 * Stop the spinner
+	 */
+	stopSpin(): any {
+		this.spinner && this.spinner.stop();
+		return this;
+	}
+
+	/**
+	 * Replaces the text shown by startSpin(). Intended to show progress.
+	 * @param text The text to displayed next to the spinner.
+	 */
+	updateSpinText(text: string): void {
+		if (this.spinner) {
+			this.spinner.text = text;
+		}
+	}
+
+	/**
+	 * Print simple text to console
+	 * @param text text to render
+	 */
+	console(text: string): void {
+		this._console.log(text);
+	}
+
+	/**
+	 * Render success message. If output param has been provided use simple console
+	 * otherwise use spinner.
+	 * @param text text to render
+	 * @param spinnerOnly optional, if its true message will be rendered
+	 * only when spinner is in use (which mean no output param has been provided)
+	 */
+	success(text: string, spinnerOnly: boolean = false): void {
+		this.output && !spinnerOnly
+			? this.console(text)
+			: this.spinner && this.spinner.succeed(chalk`{greenBright ${text}}`);
+	}
+
+	/**
+	 * Render warning message. If output param has been provided use simple console
+	 * otherwise use spinner.
+	 * @param text text to render.
+	 * @param spinnerOnly optional, if its true message will be rendered
+	 * only when spinner is in use (which mean no output param has been provided)
+	 */
+	warning(text: string, spinnerOnly: boolean = false): void {
+		this.output && !spinnerOnly ? this.console(text) : this.spinner && this.spinner.warn(chalk`{yellow ${text}}`);
+	}
+
+	/**
+	 * Render error message. If output param has been provided use simple console
+	 * otherwise use spinner.
+	 * @param text text to render
+	 * @param spinnerOnly optional, if true message will be rendered
+	 * only when spinner is in use (which mean no output param has been provided)
+	 */
+	error(text: string, spinnerOnly: boolean = false): void {
+		this.output && !spinnerOnly ? this.console(text) : this.spinner && this.spinner.fail(chalk`{red ${text}}`);
+	}
+
+	/**
+	 * A helper returning `"<resource kind>/<resource name>" in the scope "<scope kind>/<scope name>"`
+	 * string used to print bulk results (in "bulkResult" or "bulkCreateOrUpdateResult") or individually (see the "delete" cmd)
+	 * @param {GenericResource} resource resource for witch the string should be created
+	 * @returns {string}
+	 */
+	resourceAndScopeKinds(resource: GenericResource): string {
+		// prettier-ignore
+		return `"${resource.kind}/${resource.name}"${resource.metadata?.scope ? ` in the scope "${resource.metadata.scope.kind}/${resource.metadata.scope.name}"` : ''}`;
+	}
+
+	/**
+	 * A helper returning `"<kind>/<name>" subresource "<subResourceNaem>" in the scope "<scopeKind>/<scopeName>"`
+	 * string used to print bulk results (in "bulkResult" or "bulkCreateOrUpdateResult") or individually (see the "delete" cmd)
+	 * @param {GenericResource} resource resource for witch the string should be created
+	 * @param {string} subResourceName of the subresource that was updated
+	 * @returns {string}
+	 */
+	subResourceAndScopeKinds(resource: GenericResource, subResourceName: string): string {
+		let message = `"${resource.kind}/${resource.name}" subresource "${subResourceName}"`;
+		if (resource.metadata?.scope) {
+			message += ` in the scope "${resource.metadata.scope.kind}/${resource.metadata.scope.name}"`;
+		}
+		return message;
+	}
+
+	/**
+	 * Render bulk call result.
+	 * If error is happening - render as simple output (even if "output" param has been provided)
+	 * @param bulkResult bulk response from ApiServerClient
+	 * @param simpleSuccessMsg message to display for each created "kind/name"
+	 */
+	bulkResult(bulkResult: ApiServerClientBulkResult, simpleSuccessMsg: string): void {
+		if (bulkResult.error.length) {
+			bulkResult.warning?.forEach((r) =>
+				this.warning(`${this.resourceAndScopeKinds(r)} was created with an autogenerated logical name.`)
+			);
+			bulkResult.success.forEach((r) => this.success(`${this.resourceAndScopeKinds(r)} ${simpleSuccessMsg}`));
+			bulkResult.error.forEach((r) => this.anyError(r.error as ApiServerError, `"${r.kind}/${r.name}" `, true));
+		} else if (this.output) {
+			let results = bulkResult.success;
+			if (bulkResult.warning?.length) {
+				results = bulkResult.warning.concat(results);
+			}
+			renderResponse(this._console, results, this.output);
+		} else {
+			bulkResult.warning?.forEach((r) =>
+				this.warning(`${this.resourceAndScopeKinds(r)} was created with an autogenerated logical name.`)
+			);
+			bulkResult.success.forEach((r) => this.success(`${this.resourceAndScopeKinds(r)} ${simpleSuccessMsg}`));
+		}
+	}
+
+	/**
+	 * Render bulk call result.
+	 * If error is happening - render as simple output (even if "output" param has been provided)
+	 * @param bulkResult bulk response from ApiServerClient
+	 * @param simpleSuccessMsg message to display for each created "kind/name"
+	 */
+	productizationResult(bulkResultMap: Map<string, ApiServerClientBulkResult>): void {
+		bulkResultMap.forEach((value, key) => {
+			console.log('\n\n' + 'API Service: ' + key);
+			if (value.warning && value.warning.length > 0) {
+				value.warning?.forEach((r) =>
+					this.success(`${this.resourceAndScopeKinds(r)} was created successfully with an autogenerated logical name.`)
+				);
+			}
+			if (value.error.length > 0) {
+				value.error.forEach((r) => this.anyError(r.error as ApiServerError, `"${r.kind}/${r.name}" `, true));
+				if (key) {
+					this.warning(`Unable to productize API Service '${key}' for the above errors.`);
+				}
+			} else {
+				console.log('API Service ' + '\'' + key + '\' has been successfully productized.');
+			}
+		});
+	}
+
+	/**
+	 * Render bulk "apply" result (with different success messages).
+	 * If error is happening - render as simple output (even if "output" param has been provided)
+	 * @param results array of responses from createOrUpdate ApiServerClient
+	 */
+	bulkCreateOrUpdateResult(results: Array<ApiServerClientApplyResult>): void {
+		if (results.every((r) => (r.error?.length ?? 0) === 0) && this.output) {
+			// Output responses as JSON/YAML, but only if no error responses were received.
+			const dataArray = results.map((r) => r.data).filter((r) => r !== null);
+			renderResponse(this._console, dataArray, this.output);
+		} else {
+			// Log results.
+			for (const result of results) {
+				if (result.data) {
+					if (result.wasAutoNamed) {
+						this.warning(this.resourceAndScopeKinds(result.data) + ' was created with an autogenerated logical name.');
+					} else if (result.wasCreated) {
+						this.success(this.resourceAndScopeKinds(result.data) + ' has successfully been created.');
+					} else if (result.wasMainResourceChanged) {
+						this.success(this.resourceAndScopeKinds(result.data) + ' has successfully been updated.');
+					}
+				}
+				result.error?.forEach((r) => this.anyError(r.error as ApiServerError, `"${r.kind}/${r.name}" `, true));
+				if (!result.wasMainResourceChanged && result.data) {
+					result.updatedSubResourceNames?.forEach((name) =>
+						this.success(this.subResourceAndScopeKinds(result.data!, name) + ' has successfully been updated.')
+					);
+				}
+			}
+		}
+	}
+
+	renderGetResults(bulkResultsArray: RenderGetResultsInput[], successMsg: string, langDef?: string): void {
+		// sort all results by success / error
+		// IMPORTANT: mind the response.data! non-null assertion later on, should be covered by this loop
+		const sortedResults = bulkResultsArray.reduce<{
+			success: RenderGetResultsInput[];
+			error: RenderGetResultsInput[];
+		}>(
+			(a, c) => {
+				c.response.error ? a.error.push(c) : a.success.push(c);
+				return a;
+			},
+			{ success: [], error: [] }
+		);
+
+		if (this.output) {
+			/**
+			 * IF bulkResultsArray.length === 1 this means user query only for a single resource (entire list or by name,
+			 * no comma separated: "axway central get env" or "axway central get env abc") so result should
+			 * represent list or a single resource based on the received result from the server. In this case setting the
+			 * dataToRender to first "success" element (sortedResults will also include only one element in this case).
+			 */
+			let dataToRender: object | object[] = [];
+			if (bulkResultsArray.length === 1) {
+				dataToRender = sortedResults.success[0]?.response?.data || {};
+			} else {
+				/**
+				 * ELSE user query for multiple resources (ie: "wh,secret"), which means all result should be presented as
+				 * an array even if its the only one, so flatten the responses data and create a single array for rendering
+				 */
+				dataToRender = sortedResults.success.reduce<object[]>((a, v) => {
+					Array.isArray(v.response.data) ? a.push(...v.response.data) : a.push(v.response.data!);
+					return a;
+				}, []);
+			}
+			if (langDef) {
+				dataToRender = this.formatLanguageDefinitionGetResults(dataToRender);
+			}
+			renderResponse(this._console, dataToRender, this.output);
+		} else {
+			// stop spinner and render a table for each successful request
+			if (sortedResults.success.length) {
+				this.success(successMsg, true);
+			}
+			const sortedSuccess = sortedResults.success.reduce<{
+				empty: RenderGetResultsInput[];
+				notEmpty: RenderGetResultsInput[];
+			}>(
+				(a, c) => {
+					Array.isArray(c.response.data) && !c.response.data.length ? a.empty.push(c) : a.notEmpty.push(c);
+					return a;
+				},
+				{ empty: [], notEmpty: [] }
+			);
+			// if all results are empty, render just once, otherwise render only successful results
+			if (!sortedSuccess.notEmpty.length && sortedSuccess.empty.length) {
+				renderResponse(
+					this._console,
+					sortedSuccess.empty[0].response.data!,
+					this.output,
+					sortedSuccess.empty[0].columns
+				);
+			} else {
+				sortedSuccess.notEmpty.forEach((v) => renderResponse(this._console, v.response.data!, this.output, v.columns));
+			}
+		}
+		// rendering errors only if there are zero successful results,
+		// also assuming only first (and only) error will be in api-server error response in case of 404
+		if (!sortedResults.success.length) {
+			sortedResults.error.forEach(
+				(v) => v.response.error && this.error(`Error: ${v.response.error[0].detail || v.response.error[0].title}`)
+			);
+		}
+	}
+
+	/**
+	 * Render any kind of error
+	 * @param error error or ApiServer error to render
+	 * @param prefixMsg a string to put before the error details (works only for api-server / known errors)
+	 * @param ignoreOutputParam if provided as true will ignore the output param and always render
+	 * the error message as set of strings. Currently used in bulk result renderers in case of any errors.
+	 */
+	formatLanguageDefinitionGetResults(data: any) {
+		let dataArr = [];
+		if (!Array.isArray(data)) {
+			dataArr.push(data);
+		} else {
+			dataArr = data;
+		}
+
+		dataArr.forEach((data) => {
+			delete data?.metadata?.audit;
+			delete data?.metadata?.acl;
+			delete data?.metadata?.accessRights;
+			delete data?.metadata?.references;
+			delete data?.metadata?.scope?.title;
+			delete data?.languages?.metadata;
+		});
+
+		return dataArr;
+	}
+
+	/**
+	 * Render any kind of error
+	 * @param error error or ApiServer error to render
+	 * @param prefixMsg a string to put before the error details (works only for api-server / known errors)
+	 * @param ignoreOutputParam if provided as true will ignore the output param and always render
+	 * the error message as set of strings. Currently used in bulk result renderers in case of any errors.
+	 */
+	anyError(error: ApiServerError | ApiServerErrorResponse | Error, prefixMsg = '', ignoreOutputParam = false): void {
+		if ((this.output === OutputTypes.json || this.output === OutputTypes.yaml) && !ignoreOutputParam) {
+			// Output given error to a JSON or YAML format.
+			let response;
+			if (isApiServerErrorType(error) || isApiServerErrorResponseType(error)) {
+				if (error instanceof Error && error.name === 'HTTPError' && (error as unknown as ApiServerErrorResponse).errors) {
+					// The HTTP response has an errors array. Only log that part.
+					response = (error as unknown as ApiServerErrorResponse).errors;
+				} else {
+					response = error;
+				}
+			} else if (error instanceof CompositeError) {
+				response = error.toDictionary();
+			} else {
+				response = {
+					name: error?.name,
+					message: error?.message,
+				};
+			}
+			renderResponse(this._console, response, this.output);
+		} else if (error instanceof CompositeError) {
+			// A hierarchy of nested errors was provided. Log it with appropriate indentation.
+			const logCompositeError = (compositeError: CompositeError) => {
+				const indentation = this.output ? '' : '  ';
+				this.error(compositeError.toNestedMessageArray().join(`\n${indentation}`));
+			};
+			if (error.message) {
+				// Root error has a message. Log entire error hierarchy as a single error.
+				logCompositeError(error);
+			} else {
+				// Root error does not have a message. Log child errors separately as a flat error message list.
+				for (const nestedError of error.nestedErrors) {
+					if (nestedError instanceof CompositeError) {
+						logCompositeError(nestedError);
+					} else {
+						this.error(nestedError.message);
+					}
+				}
+			}
+		} else if (error instanceof Error && error.name !== 'HTTPError') {
+			// ELSE IF some generic error is happening (and its not an instance of "got" HTTPError)
+			const message
+				= error.name === 'AbortError' ? 'Error: couldn\'t connect to Amplify Central' : `${error.name}: ${error.message}`;
+			this.error(message);
+		} else if (isApiServerErrorResponseType(error) && error.errors?.length) {
+			// We were given an array of ApiServerError types. Log them separately.
+			for (const nextError of error.errors) {
+				this.anyError(nextError, prefixMsg, ignoreOutputParam);
+			}
+		} else {
+			// ELSE this is ApiServer error or ApiServer error response
+			// using just first error from api response since all bulk operations executed one-by-one for now
+			const err = error as ApiServerError;
+			switch (err.status) {
+				// TODO: some pasta here: 401 thrown manually on data service, fix it?
+				// https://jira.axway.com/browse/APIGOV-20818
+				case 401:
+					this.error(this.#createApiServerErrorMessage(prefixMsg, err.title || 'Looks like you\'re not authenticated!'));
+					this.console('\nTry running:');
+					this.console(chalk`{cyan axway auth login}`);
+					this.console('Or if using a service account:');
+					this.console(
+						chalk`{cyan axway auth login --client-id <Service Account Client ID> --secret-file <Private Key>}`
+					);
+					break;
+				case 400:
+					this.error(this.#createApiServerErrorMessage(prefixMsg, err.title, err.detail));
+					if (err.source) {
+						this.console(chalk.gray(`Caused by: ${JSON.stringify(err.source)}`));
+					}
+					break;
+				case 403:
+				case 404:
+				case 409:
+				case 500:
+				case 0: // status 0 used for internal errors (see ApiServerClient.deleteSingleResource wait logic)
+					this.error(this.#createApiServerErrorMessage(prefixMsg, err.title, err.detail));
+					break;
+				default:
+					// rare case, should almost never happen.
+					if (error instanceof Error) {
+						this.error(error.toString());
+					} else {
+						this.error(
+							`An unknown error occurred, try different output formats (for ex.: "-o ${OutputTypes.json}") to find out more details.`
+						);
+					}
+			}
+		}
+	}
+
+	/**
+	 * Creates an error message for the given ApiResponseError title and detail strings.
+	 * @param prefix String to be prefixed to the message.
+	 * @param title Optional title such as "Validation error", "Forbidden error", etc.
+	 * @param detail Optional error detail explaining exactly what went wrong.
+	 * @returns Returns an error message to be outputted to the console.
+	 */
+	#createApiServerErrorMessage(prefix: string, title?: string, detail?: string) {
+		let message = prefix;
+		if (message.length > 0 && !message.endsWith(' ')) {
+			message += ' ';
+		}
+		message += title || 'Error';
+		if (detail) {
+			if (!message.endsWith(':') && !message.endsWith('.') && !message.endsWith('!')) {
+				message += ':';
+			}
+			message += ' ' + detail;
+		}
+		return message;
+	}
+}
