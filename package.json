@@ -13,16 +13,28 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling",
   "bin": {
-    "axway": "./bin/run"
+    "axway": "./bin/run.js"
   },
   "scripts": {
     "debug": "node --inspect=9254 --enable-source-maps dist/index.js",
-    "start": "./bin/run",
+    "start": "./bin/run.js",
     "build": "tsc",
     "test": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test",
     "lint": "eslint . --ignore-pattern 'dist/**'",
     "watch": "tsc --watch",
     "postinstall": "node dist/scripts/postinstall.js || node -e true"
+  },
+  "oclif": {
+    "bin": "axway",
+    "dirname": "axway",
+    "commands": {
+      "strategy": "pattern",
+      "target": "./dist/commands"
+    },
+    "plugins": [
+      "@oclif/plugin-autocomplete"
+    ],
+    "topicSeparator": " "
   },
   "dependencies": {
     "@inquirer/prompts": "^7.9.0",
@@ -36,6 +48,7 @@
     "debug": "^4.4.3",
     "easy-table": "^1.2.0",
     "fastest-levenshtein": "^1.0.16",
+    "fs-extra": "^11.3.0",
     "got": "^14.6.2",
     "http-proxy-agent": "^7.0.2",
     "https-proxy-agent": "^7.0.6",

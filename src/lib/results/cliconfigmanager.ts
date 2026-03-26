@@ -1,4 +1,4 @@
-import { existsSync, outputJsonSync, readJsonSync } from 'fs-extra';
+import fse from 'fs-extra';
 import _ from 'lodash';
 import { homedir } from 'os';
 import { join } from 'path';
@@ -31,7 +31,7 @@ export class CliConfigManager {
 	static configFilePath = join(homedir(), '.axway', 'central.json');
 
 	private saveToFile(values: ConfigObject) {
-		outputJsonSync(CliConfigManager.configFilePath, values, { spaces: '\t' });
+		fse.outputJsonSync(CliConfigManager.configFilePath, values, { spaces: '\t' });
 	}
 
 	/**
@@ -68,7 +68,7 @@ ${keysToRemove.map((key) => `axway central config unset ${key}`).join('\n')}
 	}
 
 	getAll(): ConfigObject {
-		return existsSync(CliConfigManager.configFilePath) ? readJsonSync(CliConfigManager.configFilePath) : {};
+		return fse.pathExistsSync(CliConfigManager.configFilePath) ? fse.readJsonSync(CliConfigManager.configFilePath) : {};
 	}
 
 	get(key: CliConfigKeys): string | undefined {

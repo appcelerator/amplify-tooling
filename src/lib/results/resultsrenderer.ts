@@ -1,10 +1,12 @@
 import chalk from 'chalk';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime.js';
 import Table from 'easy-table';
+
+dayjs.extend(relativeTime);
 import { dump } from 'js-yaml';
 import _ from 'lodash';
 import { CommandLineInterfaceColumns, GenericResource, MAX_TABLE_STRING_LENGTH, OutputTypes } from '../types.js';
-import { CoreConfigController } from './coreconfigcontroller.js';
 import { initSDK } from '../amplify-sdk/index.js';
 
 /**
@@ -123,24 +125,25 @@ interface Result {
 export async function resolveTeamNames({
 	columns,
 	response,
+	account
 }: {
 	columns?: CommandLineInterfaceColumns[];
 	response: object | object[];
+	account?: Account;
 }) {
 	// check that we even have a team guid column
 	const column = columns?.find((col) => col.type === 'teamGuid');
-	if (!column || !CoreConfigController.devOpsAccount) {
+	if (!column || !account) {
 		return;
 	}
 
 	const jsonPath = column.jsonPath.substring(1);
 	const results = Array.isArray(response) ? response : [response];
 	const teamNames: TeamNameLookup = {};
-	const { devOpsAccount } = CoreConfigController;
-	const sdk = await initSDK({ env: devOpsAccount.auth.env });
+	const sdk = await initSDK({ env: account?.auth.env });
 
 	// build the team name lookup
-	const { teams } = await sdk!.team.list(devOpsAccount, devOpsAccount.org.guid);
+	const { teams } = await sdk!.team.list(account, account?.org.guid);
 	for (const team of teams) {
 		teamNames[team.guid] = team.name;
 	}

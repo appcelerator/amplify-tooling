@@ -16,6 +16,7 @@ interface AxwayParserOutput extends ParserOutput {
 	sdk?: AmplifySDK;
 	account?: Awaited<ReturnType<AmplifySDK['auth']['find']>>;
 	org?: Awaited<ReturnType<AmplifySDK['org']['find']>>;
+	teams?: Awaited<ReturnType<AmplifySDK['team']['list']>>;
 }
 
 /**
@@ -105,6 +106,8 @@ export default abstract class AxwayCommand extends Command {
 				data.account,
 				parsed.args?.org || parsed.flags?.org,
 			);
+
+			data.teams = await data.sdk.team.list(data.account, data.org);
 		}
 
 		return data;

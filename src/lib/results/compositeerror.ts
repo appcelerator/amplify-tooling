@@ -26,7 +26,7 @@ export class CompositeError extends Error {
 	}
 
 	/** Gets the name of this error type. */
-	get name(): string {
+	override get name(): string {
 		return 'CompositeError';
 	}
 

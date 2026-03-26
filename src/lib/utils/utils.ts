@@ -1,4 +1,4 @@
-import { writeFileSync } from 'fs-extra';
+import { writeFileSync } from '../fs.js';
 
 export const writeToFile = (path: string, data: any): void => {
 	try {
@@ -28,12 +28,15 @@ import {
 	ApiServerError,
 	ApiServerErrorResponse,
 	ApiServerVersions,
+	CommandLineInterface,
 	GenericResource,
 	GenericResourceWithoutName,
 	LanguageTypes,
 	Metadata,
+	ParsedScopeParam,
 	ResourceDefinition,
 } from '../types.js';
+import { FindDefsByWordResult } from '../results/DefinitionsManager.js';
 
 export function ValueFromKey(
 	stringEnum: { [key: string]: string },
@@ -187,3 +190,106 @@ export const isApiServerErrorResponseType = (
 	const cast = err as ApiServerErrorResponse;
 	return !!cast.errors && Array.isArray(cast.errors);
 };
+
+/**
+ * Parse and verify scope param, returns undefined if param is undefined. Throws an error if "Kind" is unknown.
+ * @param scopeParam raw scope param value
+ * @returns {ParsedScopeParam | undefined}
+ */
+export const parseScopeParam = (scopeParam?: string): ParsedScopeParam | undefined => {
+	if (!scopeParam) {
+		return undefined;
+	}
+
+	const sp = scopeParam.toString();
+	if (sp.indexOf('/') === -1) {
+		return { name: scopeParam };
+	} else {
+		const name = sp.substring(scopeParam.indexOf('/') + 1);
+		const kind = sp.substring(0, scopeParam.indexOf('/'));
+		if (!name.length || !kind.length) {
+			throw Error(
+				'invalid scope (-s/--scope) parameter value.'
+					+ '\nPlease use "--scope <scope kind>/<scope name>" or "--scope <scope name>" formats.'
+			);
+		}
+		return { name, kind };
+	}
+};
+
+/**
+ * Transforms simple filters(title, attribute, tag) into an RSQL-formatted query string the GET API supports.
+ * @param {string} title The title the user wants to filter the resource list by.
+ * @param {string} attribute The attribute(key=value) the user wants to filter the resource list by.
+ * @param {string} tag The tag the user wants to filter the resource list by.
+ * @returns {string} transformedFilter, the RSQL formatted query string
+ */
+export const transformSimpleFilters = (title?: string, attribute?: string, tag?: string, teamGuid?: string) => {
+	const titleFilter = title ? `title=='*${title}*'` : '';
+	const attributeKey = attribute && attribute.split('=')[0];
+	const attributeValue = attribute && attribute.split('=')[1];
+	const attributeFilter = attributeKey && attributeValue ? `attributes.${attributeKey}==${attributeValue}` : '';
+	const tagFilter = tag ? `tags==${tag}` : '';
+	const teamGuidFilter = teamGuid
+		? `owner.id==${teamGuid},(owner.id==null;metadata.scope.owner.id==${teamGuid})`
+		: 'owner.id==null';
+	const formattedFilter = `${titleFilter && `${titleFilter};`}${attributeFilter && `${attributeFilter};`}${tagFilter && `${tagFilter};`}${teamGuidFilter}`;
+	const transformedFilter
+		= formattedFilter.charAt(formattedFilter.length - 1) === ';' ? formattedFilter.slice(0, -1) : formattedFilter;
+	return transformedFilter;
+};
+
+/**
+ * Verify parsed scope param:
+ * 1. scope kind should be known.
+ * 2. scope kind should match at least one in a resource "scoped" definitions ("non-scoped" definition will be ignored).
+ * @param allKinds all available kinds.
+ * @param defs resource definitions where at least one should match the scope kind if some "scoped" resources are there.
+ * @param scopeParam parsed scope param.
+ */
+export const verifyScopeParam = (
+	allKinds: Set<string>,
+	defs: {
+		resource: ResourceDefinition;
+		cli: CommandLineInterface;
+		scope?: ResourceDefinition;
+	}[],
+	scopeParam?: ParsedScopeParam
+): void => {
+	const allowedScopeKinds = new Set<string>();
+	defs.forEach((defs) => !!defs.scope && allowedScopeKinds.add(defs.scope.spec.kind));
+	if (scopeParam?.kind) {
+		if (!allKinds.has(scopeParam.kind)) {
+			throw new Error(
+				`unsupported kind value "${scopeParam.kind}" in the "--scope" param.`
+					+ `\nCurrently supported values are (case sensitive): ${[ ...allKinds.values() ].join(', ')}`
+			);
+		}
+		if (allowedScopeKinds.size > 0 && !allowedScopeKinds.has(scopeParam.kind)) {
+			throw Error(
+				`scope kind "${scopeParam.kind}" is invalid.`
+					+ `\n"${defs[0].resource.spec.kind}" resource might exist in the following scopes: ${[
+						...allowedScopeKinds.values(),
+					].join(', ')}`
+			);
+		}
+	}
+};
+
+/**
+ * Gets the resource field names to be shown when outputting the resource as a table.
+ * These names are to be assigned to the api-server HTTP GET request's "fields" query param.
+ * @param def The resource definition providing the columns to be shown in the outputed table.
+ * @returns Returns a set set of field names.
+ */
+export function getFieldSetFromDefinitionColumns(def: FindDefsByWordResult): Set<string> {
+	const fieldSet = new Set<string>();
+	def.cli?.spec?.columns?.forEach(column => {
+		let fieldName = column.jsonPath;
+		if (fieldName.startsWith('.')) {
+			fieldName = fieldName.substring(1);
+		}
+		fieldSet.add(fieldName);
+	});
+	return fieldSet;
+}

@@ -1,7 +1,7 @@
 import { initSDK, loadConfig } from '@axway/amplify-cli-utils';
 import snooplogg from 'snooplogg';
 import { CliConfigKeys, CliConfigManager } from './cliconfigmanager.js';
-import { AuthUrls, Platforms, PlatformTeam, PreprodBaseUrls, ProdBaseUrls } from './types';
+import { AuthUrls, Platforms, PlatformTeam, PreprodBaseUrls, ProdBaseUrls } from '../types.js';
 
 const { log } = snooplogg('central: CoreConfigController');
 
@@ -104,10 +104,13 @@ export interface AccountV4 {
 
 export interface AmplifySDK {
 	auth: {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 		find: Function;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 		list: Function;
 	};
 	team: {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 		list: Function;
 	};
 }
@@ -203,6 +206,7 @@ export class CoreConfigController {
 				// const err: AuthenticationError = new Error(title);
 				// err.errors = [{ status: 401, title }];
 				// throw err;
+				// eslint-disable-next-line no-throw-literal
 				throw {
 					errors: [
 						{
