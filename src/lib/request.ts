@@ -289,8 +289,10 @@ const updateRequestError = (err: Error) => {
  */
 export const dataService = async ({
 	account,
+	baseUrl = '',
 }: {
 	account?: Account;
+	baseUrl?: string;
 }): Promise<DataServiceMethods> => {
 	const token = account.auth?.tokens?.access_token;
 	if (!token) {
@@ -302,6 +304,7 @@ export const dataService = async ({
 		'X-Axway-Tenant-Id': account.org.org_id,
 	};
 	const got = init(createRequestOptions({ headers }));
+	const prependBase = (url: string) => baseUrl + url;
 	const fetch = async (
 		method: string,
 		url: string,
@@ -323,27 +326,31 @@ export const dataService = async ({
 
 	return {
 		post: (url: string, data: object, headers = {}) => {
-			log(`POST: ${url}`);
+			const fullUrl = prependBase(url);
+			log(`POST: ${fullUrl}`);
 			log(data);
-			return fetch('post', url, {
+			return fetch('post', fullUrl, {
 				headers: headers,
 				json: data,
 			}).then(handleResponse);
 		},
 		put: (url: string, data: object, headers = {}) => {
-			log(`PUT: ${url}`);
-			return fetch('put', url, {
+			const fullUrl = prependBase(url);
+			log(`PUT: ${fullUrl}`);
+			return fetch('put', fullUrl, {
 				headers: headers,
 				json: data,
 			}).then(handleResponse);
 		},
 		get: (url: string, params = {}) => {
-			log(`GET: ${url}`);
-			return fetch('get', url, params).then(handleResponse);
+			const fullUrl = prependBase(url);
+			log(`GET: ${fullUrl}`);
+			return fetch('get', fullUrl, params).then(handleResponse);
 		},
 		head: (url: string, params?: object) => {
-			log(`HEAD: ${url}`);
-			return fetch('head', url, params).then((response) => {
+			const fullUrl = prependBase(url);
+			log(`HEAD: ${fullUrl}`);
+			return fetch('head', fullUrl, params).then((response) => {
 				return response.headers['x-axway-total-count'];
 			});
 		},
@@ -363,10 +370,11 @@ export const dataService = async ({
 			pageSize: number = 50,
 			progressListener?: ProgressListener
 		) {
+			const fullUrl = prependBase(url);
 			params.searchParams = params.searchParams ?? {};
 			params.searchParams.pageSize = pageSize;
-			log(`GET (with auto-pagination): ${url}`);
-			const response = await fetch('get', url, params);
+			log(`GET (with auto-pagination): ${fullUrl}`);
+			const response = await fetch('get', fullUrl, params);
 			const totalCountHeader = response.headers['x-axway-total-count'];
 			if (totalCountHeader === null || totalCountHeader === undefined) {
 				log(
@@ -404,7 +412,7 @@ export const dataService = async ({
 						// eslint-disable-next-line no-loop-func
 						limit(async () => {
 							allPages[thisPageIndex] = await (this as DataServiceMethods).get(
-								url,
+								fullUrl,
 								params
 							);
 							pageDownloadCount++;
@@ -417,8 +425,9 @@ export const dataService = async ({
 			return _.flatten(allPages);
 		},
 		delete: (url: string, params = {}) => {
-			log(`DELETE: ${url}`);
-			return fetch('delete', url, params).then(handleResponse);
+			const fullUrl = prependBase(url);
+			log(`DELETE: ${fullUrl}`);
+			return fetch('delete', fullUrl, params).then(handleResponse);
 		},
 		download: async (url: string) => {
 			try {

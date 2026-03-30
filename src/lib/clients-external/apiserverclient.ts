@@ -31,6 +31,7 @@ import isEmpty from 'lodash/isEmpty.js';
 import assign from 'lodash/assign.js';
 import { CacheController } from '../cache/CacheController.js';
 import logger from '../logger.js';
+import { loadConfig } from '../config.js';
 
 export class ApiServerClient {
 	region?: string;
@@ -38,6 +39,7 @@ export class ApiServerClient {
 	account: Account;
 	team?: string | null;
 	forceGetAuthInfo?: boolean;
+	private _baseUrl?: string;
 
 	constructor({
 		account,
@@ -61,6 +63,28 @@ export class ApiServerClient {
 		this.useCache = useCache === undefined ? true : useCache;
 		this.team = team;
 		this.forceGetAuthInfo = forceGetAuthInfo;
+	}
+
+	private async initializeDataService() {
+		if (this._baseUrl === undefined) {
+			const config = await loadConfig();
+			const envBaseUrl = process.env.AXWAY_CENTRAL_BASE_URL || config.get('engage.baseUrl');
+			if (envBaseUrl) {
+				this._baseUrl = envBaseUrl + BasePaths.ApiServer;
+			} else {
+				const regionKey = String(
+					this.region || this.account?.org?.region || Regions.US
+				).toUpperCase() as Regions;
+				const prodBaseUrl = ProdBaseUrls[regionKey];
+				if (!prodBaseUrl) {
+					throw new Error(
+						'Unknown region provided, check your region config, should be one of: ' + Object.keys(ProdBaseUrls).join(', ')
+					);
+				}
+				this._baseUrl = prodBaseUrl + BasePaths.ApiServer;
+			}
+		}
+		return dataService({ account: this.account, baseUrl: this._baseUrl });
 	}
 
 	private buildResourceUrlPath({
@@ -173,9 +197,7 @@ export class ApiServerClient {
 		log.info(
 			`generateSubResourcesRequests, spec.kind = ${resourceDef.spec.kind}, resourceName = ${resourceName}`,
 		);
-		const service = await dataService({
-			account: this.account,
-		});
+		const service = await this.initializeDataService();
 		const urlPath = this.buildResourceUrlPath({
 			resourceDef,
 			resourceName,
@@ -349,9 +371,7 @@ export class ApiServerClient {
 			warning: false,
 		};
 		try {
-			const service = await dataService({
-				account: this.account,
-			});
+			const service = await this.initializeDataService();
 			const version
 				= resource.apiVersion === undefined
 					? getLatestServedAPIVersion(resourceDef)
@@ -432,9 +452,7 @@ export class ApiServerClient {
 				: resource.apiVersion;
 		if (canUpdateMainResource) {
 			try {
-				const service = await dataService({
-					account: this.account,
-				});
+				const service = await this.initializeDataService();
 				const urlPath = this.buildResourceUrlPath({
 					resourceDef,
 					resourceName: resource.name,
@@ -509,9 +527,7 @@ export class ApiServerClient {
 		};
 		const version = getLatestServedAPIVersion(resourceDef);
 		try {
-			const service = await dataService({
-				account: this.account,
-			});
+			const service = await this.initializeDataService();
 			const knownSubResourcesNames = resourceDef.spec.subResources?.names ?? [];
 			const foundSubResources = pickBy(
 				resource,
@@ -568,9 +584,7 @@ export class ApiServerClient {
 				? getLatestServedAPIVersion(resourceDef)
 				: resourceAPIVersion;
 		try {
-			const service = await dataService({
-				account: this.account,
-			});
+			const service = await this.initializeDataService();
 			const urlPath = this.buildResourceUrlPath({
 				resourceDef,
 				resourceName,
@@ -632,9 +646,7 @@ export class ApiServerClient {
 		log.info(`getResourceCount, spec.kind = ${resourceDef.spec.kind}`);
 		const version = getLatestServedAPIVersion(resourceDef);
 		try {
-			const service = await dataService({
-				account: this.account,
-			});
+			const service = await this.initializeDataService();
 			const urlPath = this.buildResourceUrlPath({
 				resourceDef,
 				resourceName,
@@ -715,10 +727,7 @@ export class ApiServerClient {
 		const version = getLatestServedAPIVersion(resourceDef);
 		const result: ApiServerClientListResult = { data: null, error: null };
 		try {
-			const service = await dataService({
-				account: this.account,
-			});
-			const baseUrl = await this.getBaseUrl(BasePaths.ApiServer);
+			const service = await this.initializeDataService();
 			const urlPath = this.buildResourceUrlPath({
 				resourceDef,
 				scopeDef,
@@ -729,7 +738,7 @@ export class ApiServerClient {
 				fieldSet,
 			});
 			const response = await service.getWithPagination(
-				baseUrl + urlPath,
+				urlPath,
 				query ? { searchParams: { query } } : {},
 				50,
 				progressListener,
@@ -775,9 +784,7 @@ export class ApiServerClient {
 				: resourceVersion;
 		const result: ApiServerClientSingleResult = { data: null, error: null };
 		try {
-			const service = await dataService({
-				account: this.account,
-			});
+			const service = await this.initializeDataService();
 			const urlPath = this.buildResourceUrlPath({
 				resourceDef,
 				resourceName,
@@ -789,8 +796,7 @@ export class ApiServerClient {
 				fieldSet,
 				embed: embed,
 			});
-			const baseUrl = await this.getBaseUrl(BasePaths.ApiServer);
-			const response = await service.get(baseUrl + urlPath);
+			const response = await service.get(urlPath);
 			result.data = response;
 		} catch (e: any) {
 			log.error('getResourceByName, error: ', e);
@@ -817,13 +823,8 @@ export class ApiServerClient {
 				};
 			} = {};
 
-			const service = await dataService({
-				account: this.account,
-			});
-			const baseUrl = await this.getBaseUrl(BasePaths.ApiServer);
-			const groups = await service.getWithPagination(baseUrl
-			+ `/definitions/${version}/groups`,
-			);
+			const service = await this.initializeDataService();
+			const groups = await service.getWithPagination(`/definitions/${version}/groups`);
 			for (const group of groups) {
 				let resources: ResourceDefinition[] = [];
 				let cli: CommandLineInterface[] = [];
@@ -845,10 +846,10 @@ export class ApiServerClient {
 					);
 					[ resources, cli ] = await Promise.all([
 						service.getWithPagination(
-							baseUrl + `/definitions/${version}/groups/${group.name}/resources`,
+							`/definitions/${version}/groups/${group.name}/resources`,
 						),
 						service.getWithPagination(
-							baseUrl + `/definitions/${version}/groups/${group.name}/commandlines`,
+							`/definitions/${version}/groups/${group.name}/commandlines`,
 						),
 					]);
 					CacheController.set(`groups-${group.name}-${version}`, {
@@ -1221,27 +1222,4 @@ export class ApiServerClient {
 		return bulkResult;
 	}
 
-	private getBaseUrl = async (
-		basePath?: string,
-	): Promise<string> => {
-		// const configuredBaseUrl = baseUrl || process.env.AXWAY_CENTRAL_BASE_URL || (await getConfig())[ConfigTypes.BASE_URL];
-		// if (configuredBaseUrl) {
-		// 	return basePath ? configuredBaseUrl + basePath : configuredBaseUrl;
-		// } else {
-		// const configRegion = (await getConfig())[ConfigTypes.REGION];
-		// const configuredRegion = String(region || configRegion || orgRegion || Regions.US).toUpperCase();
-		// log(
-		// 	`Using region "${configuredRegion}" from ${
-		// 		region ? '--region' : configRegion ? 'config' : orgRegion ? 'org' : 'default'
-		// 	}`
-		// );
-		const prodBaseurl = ProdBaseUrls[Regions.US];
-		if (!prodBaseurl) {
-			throw Error(
-				'Unknown region provided, check your region config, should be one of: ' + Object.keys(ProdBaseUrls).join(', ')
-			);
-		}
-		return basePath ? prodBaseurl + basePath : prodBaseurl;
-		// }
-	};
 }

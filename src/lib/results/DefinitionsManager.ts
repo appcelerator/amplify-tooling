@@ -1,11 +1,11 @@
-import snooplogg from 'snooplogg';
+import logger from '../logger.js';
 import Table from 'easy-table';
 import loadash from 'lodash';
 import { ApiServerClient } from '../clients-external/apiserverclient.js';
 import { ResourceDefinition, CommandLineInterface, GetSpecsResult } from '../types.js';
 import chalk from 'chalk';
 
-const { log } = snooplogg('central:class.DefinitionsManager');
+const { log } = logger('engage:class.DefinitionsManager');
 
 export interface FindDefsByWordResult {
 	resource: ResourceDefinition;

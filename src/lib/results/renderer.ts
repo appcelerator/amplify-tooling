@@ -1,4 +1,4 @@
-import { chalk } from 'cli-kit';
+import chalk from 'chalk';
 import ora from 'ora';
 import {
 	ApiServerClientApplyResult,
