@@ -257,3 +257,89 @@ export type GetSpecsResult = {
 		cli: Map<string, CommandLineInterface>;
 	};
 };
+
+export const commonCmdArgsDescription = {
+	'--account [value]': 'Override your default account config',
+	'--region [value]': 'Override your region config',
+	'--no-cache': 'Do not use cache when communicating with the server',
+	'--base-url [value]': { hidden: true },
+	'--apic-deployment [value]': { hidden: true },
+	'--axway-managed': { hidden: true },
+};
+
+export interface ParsedScopeParam {
+	name: string;
+	kind?: string;
+}
+
+export enum AuthUrls {
+	Staging = 'https://login.axwaytest.net',
+	Prod = 'https://login.axway.com',
+	Preprod = 'https://login.na-us.axwaypreprod.net',
+}
+
+export enum Regions {
+	US = 'US',
+	EU = 'EU',
+	AP = 'AP',
+}
+
+export enum PreprodRegions {
+	US = 'US',
+	EU = 'EU',
+}
+
+export enum Platforms {
+	prod = 'prod',
+	staging = 'staging',
+	preprod = 'preprod',
+}
+
+export const ProdBaseUrls: { [k in Regions]: string } = {
+	US: 'https://apicentral.axway.com',
+	EU: 'https://central.eu-fr.axway.com',
+	AP: 'https://central.ap-sg.axway.com',
+};
+
+export const PreprodBaseUrls: { [k in PreprodRegions]: string } = {
+	US: 'https://engage.na-us.axwaypreprod.net',
+	EU: 'https://engage.eu-fr.axwaypreprod.net',
+};
+
+export const APICDeployments = {
+	EU: 'prod-eu',
+	EUStaging: 'staging-eu',
+	QA: 'qa',
+	US: 'prod',
+	USStaging: 'staging',
+	TEAMS: 'teams',
+	AP: 'prod-ap',
+	APStaging: 'preprod',
+	USPreprod: 'preprod',
+	EUPreprod: 'preprod',
+	APPreprod: 'preprod',
+};
+
+/** Provides information for a platform team. */
+export interface PlatformTeam {
+	apps: any[];
+	created: string; // "2019-10-10T17:19:43.721Z"
+	default: boolean; // false
+	desc: null | string; // null
+	guid: string; // '6b2b5192-6599-48a9-997d-9af61b7d5f2a';
+	name: string; // 'Avengers';
+	org_guid: string; // '4a8a4a98-befd-4062-bb36-b4567f47eb87';
+	tags: string[]; // [];
+	updated: string; // '2020-04-24T17:49:14.600Z';
+}
+
+export enum BasePaths {
+	ApiServer = '/apis',
+	ApiCentral = '/api/v1',
+	Platform = '/platform/api/v1',
+	V7Agents = '/artifactory/ampc-public-generic-release/v7-agents',
+	AWSAgents = '/artifactory/ampc-public-generic-release/aws-agents',
+	DockerAgentPublicRepo = '/agent',
+	DockerAgentAPIRepoPath = '/artifactory/api/docker/ampc-public-docker-release/v2/agent',
+}
+

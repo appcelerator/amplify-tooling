@@ -1,10 +1,6 @@
 import dayjs from 'dayjs';
-import {
-	lstatSync,
-	outputJsonSync,
-	pathExistsSync,
-	readFileSync,
-} from 'fs-extra';
+import { lstatSync, readFileSync } from 'fs';
+import fse from 'fs-extra';
 import pkg from 'lodash';
 import NodeCache from 'node-cache';
 import { homedir } from 'os';
@@ -57,7 +53,7 @@ class CacheControllerClass implements Cache {
    */
 	initCacheFile() {
 		try {
-			if (pathExistsSync(this.cacheFilePath)) {
+			if (fse.pathExistsSync(this.cacheFilePath)) {
 				log(`init, cache file found at ${this.cacheFilePath}`);
 				const stats = lstatSync(this.cacheFilePath);
 				log(`init, cache file size: ${Math.round(stats.size / 1000)} kb`);
@@ -68,17 +64,17 @@ class CacheControllerClass implements Cache {
 							MAX_CACHE_FILE_SIZE / 1000,
 						)} kb, resetting the file`,
 					);
-					outputJsonSync(this.cacheFilePath, {});
+					fse.outputJsonSync(this.cacheFilePath, {});
 				} else if (!isValidJson(readFileSync(this.cacheFilePath, 'utf8'))) {
 					// validating the content
 					log('init, cache content is invalid, resetting the file ');
-					outputJsonSync(this.cacheFilePath, {});
+					fse.outputJsonSync(this.cacheFilePath, {});
 				}
 			} else {
 				log(
 					`init, cache file not found, creating an empty one at ${this.cacheFilePath}`,
 				);
-				outputJsonSync(this.cacheFilePath, {});
+				fse.outputJsonSync(this.cacheFilePath, {});
 			}
 		} catch (e) {
 			log('cannot initialize cache file', e);
@@ -134,7 +130,7 @@ class CacheControllerClass implements Cache {
 				log(
 					'timestamp or content is not valid and file is not empty, resetting the cache file',
 				);
-				outputJsonSync(this.cacheFilePath, {});
+				fse.outputJsonSync(this.cacheFilePath, {});
 			}
 		} catch (e) {
 			log('cannot read cache from the file', e);

@@ -1,5 +1,4 @@
-import _, { flatten } from 'lodash';
-import fs from 'fs';
+import _ from 'lodash';
 import chalk from 'chalk';
 import got, { RequestError, TimeoutError } from 'got';
 import httpProxyAgentPkg from 'http-proxy-agent';
@@ -12,6 +11,7 @@ import logger, { alert, highlight, ok, note } from './logger.js';
 import { fileURLToPath } from 'url';
 import { readJsonSync } from './fs.js';
 import { ABORT_TIMEOUT, ProgressListener } from './types.js';
+import { readFileSync } from 'fs';
 
 const { HttpProxyAgent } = httpProxyAgentPkg;
 const { HttpsProxyAgent } = httpsProxyAgentPkg;
@@ -77,6 +77,7 @@ export function options(opts: any = {}) {
 
 	// Default all requests to use the custom CLI user agent
 	opts.headers = {
+		...opts.headers,
 		'User-Agent': userAgent,
 	};
 
@@ -84,7 +85,7 @@ export function options(opts: any = {}) {
 		(Buffer.isBuffer(it)
 			? it
 			: typeof it === 'string'
-				? fs.readFileSync(it)
+				? readFileSync(it)
 				: undefined);
 
 	opts.hooks = _.merge(opts.hooks, {
@@ -202,7 +203,7 @@ export function createRequestOptions(opts = {}, config?): any {
 		} else if (dest === 'strictSSL') {
 			opts[dest] = !!value !== false;
 		} else {
-			opts[dest] = fs.readFileSync(value);
+			opts[dest] = readFileSync(value);
 		}
 	};
 
@@ -288,8 +289,10 @@ const updateRequestError = (err: Error) => {
  */
 export const dataService = async ({
 	account,
+	baseUrl = '',
 }: {
-	account?: any;
+	account?: Account;
+	baseUrl?: string;
 }): Promise<DataServiceMethods> => {
 	const token = account.auth?.tokens?.access_token;
 	if (!token) {
@@ -301,31 +304,19 @@ export const dataService = async ({
 		'X-Axway-Tenant-Id': account.org.org_id,
 	};
 	const got = init(createRequestOptions({ headers }));
+	const prependBase = (url: string) => baseUrl + url;
 	const fetch = async (
 		method: string,
 		url: string,
 		params = {}
 	): Promise<any> => {
 		try {
-			// add the team guid - TODO: add this team validtion part of the command.
-			//   if (teamGuid !== undefined) {
-			//     const parsed = new URL(url);
-			//     parsed.searchParams.set(
-			//       "query",
-			//       teamGuid
-			//         ? `owner.id==${teamGuid},(owner.id==null;metadata.scope.owner.id==${teamGuid})`
-			//         : "owner.id==null"
-			//     );
-			//     url = parsed.toString();
-			//   }
-
 			const response = await got[method](url, {
 				followRedirect: false,
-				retry: 0,
-				timeout: ABORT_TIMEOUT,
+				retry: { limit: 0 },
+				timeout: { request: ABORT_TIMEOUT },
 				...params,
 			});
-
 			return response;
 		} catch (err: any) {
 			updateRequestError(err);
@@ -335,27 +326,31 @@ export const dataService = async ({
 
 	return {
 		post: (url: string, data: object, headers = {}) => {
-			log(`POST: ${url}`);
+			const fullUrl = prependBase(url);
+			log(`POST: ${fullUrl}`);
 			log(data);
-			return fetch('post', url, {
+			return fetch('post', fullUrl, {
 				headers: headers,
 				json: data,
 			}).then(handleResponse);
 		},
 		put: (url: string, data: object, headers = {}) => {
-			log(`PUT: ${url}`);
-			return fetch('put', url, {
+			const fullUrl = prependBase(url);
+			log(`PUT: ${fullUrl}`);
+			return fetch('put', fullUrl, {
 				headers: headers,
 				json: data,
 			}).then(handleResponse);
 		},
 		get: (url: string, params = {}) => {
-			log(`GET: ${url}`);
-			return fetch('get', url, params).then(handleResponse);
+			const fullUrl = prependBase(url);
+			log(`GET: ${fullUrl}`);
+			return fetch('get', fullUrl, params).then(handleResponse);
 		},
 		head: (url: string, params?: object) => {
-			log(`HEAD: ${url}`);
-			return fetch('head', url, params).then((response) => {
+			const fullUrl = prependBase(url);
+			log(`HEAD: ${fullUrl}`);
+			return fetch('head', fullUrl, params).then((response) => {
 				return response.headers['x-axway-total-count'];
 			});
 		},
@@ -375,9 +370,11 @@ export const dataService = async ({
 			pageSize: number = 50,
 			progressListener?: ProgressListener
 		) {
+			const fullUrl = prependBase(url);
+			params.searchParams = params.searchParams ?? {};
 			params.searchParams.pageSize = pageSize;
-			log(`GET (with auto-pagination): ${url}`);
-			const response = await fetch('get', url, params);
+			log(`GET (with auto-pagination): ${fullUrl}`);
+			const response = await fetch('get', fullUrl, params);
 			const totalCountHeader = response.headers['x-axway-total-count'];
 			if (totalCountHeader === null || totalCountHeader === undefined) {
 				log(
@@ -415,7 +412,7 @@ export const dataService = async ({
 						// eslint-disable-next-line no-loop-func
 						limit(async () => {
 							allPages[thisPageIndex] = await (this as DataServiceMethods).get(
-								url,
+								fullUrl,
 								params
 							);
 							pageDownloadCount++;
@@ -425,11 +422,12 @@ export const dataService = async ({
 				}
 				await Promise.all(otherPagesCalls);
 			}
-			return flatten(allPages);
+			return _.flatten(allPages);
 		},
 		delete: (url: string, params = {}) => {
-			log(`DELETE: ${url}`);
-			return fetch('delete', url, params).then(handleResponse);
+			const fullUrl = prependBase(url);
+			log(`DELETE: ${fullUrl}`);
+			return fetch('delete', fullUrl, params).then(handleResponse);
 		},
 		download: async (url: string) => {
 			try {
