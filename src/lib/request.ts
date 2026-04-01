@@ -412,7 +412,7 @@ export const dataService = async ({
 						// eslint-disable-next-line no-loop-func
 						limit(async () => {
 							allPages[thisPageIndex] = await (this as DataServiceMethods).get(
-								fullUrl,
+								url,
 								params
 							);
 							pageDownloadCount++;

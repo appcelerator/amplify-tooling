@@ -1,5 +1,28 @@
 import { writeFileSync } from '../fs.js';
 
+import { loadAll } from 'js-yaml';
+
+import chalk from 'chalk';
+import {
+	ApiServerError,
+	ApiServerErrorResponse,
+	ApiServerVersions,
+	CommandLineInterface,
+	GenericResource,
+	GenericResourceWithoutName,
+	LanguageTypes,
+	MAX_FILE_SIZE,
+	Metadata,
+	ParsedScopeParam,
+	ResourceDefinition,
+	ValidatedDocs,
+} from '../types.js';
+import { FindDefsByWordResult } from '../results/DefinitionsManager.js';
+import { lstatSync, Stats } from 'fs';
+import { readFile } from 'fs/promises';
+import { extname } from 'path';
+import { CompositeError } from '../results/compositeerror.js';
+
 export const writeToFile = (path: string, data: any): void => {
 	try {
 		writeFileSync(path, data);
@@ -23,20 +46,6 @@ export const isValidJson = (item: any) => {
 	}
 	return typeof parsedItem === 'object' && item !== null;
 };
-import chalk from 'chalk';
-import {
-	ApiServerError,
-	ApiServerErrorResponse,
-	ApiServerVersions,
-	CommandLineInterface,
-	GenericResource,
-	GenericResourceWithoutName,
-	LanguageTypes,
-	Metadata,
-	ParsedScopeParam,
-	ResourceDefinition,
-} from '../types.js';
-import { FindDefsByWordResult } from '../results/DefinitionsManager.js';
 
 export function ValueFromKey(
 	stringEnum: { [key: string]: string },
@@ -293,3 +302,102 @@ export function getFieldSetFromDefinitionColumns(def: FindDefsByWordResult): Set
 	});
 	return fieldSet;
 }
+
+export const verifyFile = (specFilePath: string): Error | void => {
+	let stats: Stats;
+	let fileExtension: string;
+	try {
+		stats = lstatSync(specFilePath);
+		fileExtension = extname(specFilePath);
+	} catch (e) {
+		throw new Error(`Couldn't find the definition file: ${specFilePath}`);
+	}
+
+	if (!stats.isFile()) {
+		throw new Error(`Couldn't load the definition file: ${specFilePath}`);
+	} else if (stats.size >= MAX_FILE_SIZE) {
+		throw new Error('File size too large');
+	} else if (fileExtension !== '.yaml' && fileExtension !== '.yml' && fileExtension !== '.json') {
+		throw new Error('File extension is invalid, please provide \'.yaml\' or \'.yml\' or \'.json\' file');
+	}
+};
+
+/**
+ * Loads and parse file from path, accepts JSON and YAML files. Also completing validation on "kind" values.
+ * @param specFilePath file path
+ * @param allowedKinds array of allowed "kind" values
+ */
+export const loadAndVerifySpecs = async (
+	specFilePath: string,
+	allowedKinds: Set<string>,
+	skipKindCheck?: boolean
+): Promise<ValidatedDocs> => {
+	// Load the given JSON or YAML file.
+	let docs = [];
+	let isMissingName = false;
+	try {
+		docs = loadAll(await readFile(specFilePath, 'utf8'));
+	} catch (e: any) {
+		throw new Error(
+			e.reason && e.reason.includes('null byte')
+				? 'File encoding is invalid, please make sure it is using UTF-8'
+				: 'File content is invalid.'
+		);
+	}
+
+	// if user pass an array of json objects, docs const will have nested array, workaround for this:
+	if (extname(specFilePath) === '.json' && docs.length === 1 && Array.isArray(docs[0])) {
+		docs = docs[0];
+	}
+
+	// Do not continue if given an empty file.
+	if (!docs.length) {
+		throw new Error('File is empty.');
+	}
+
+	// Validate all entries in the file.
+	const errors: Error[] = [];
+	const createErrorPrefix = (index: number, kind?: string, name?: string) => {
+		return `Entry ${index + 1}, "${kind}/${name || 'Unknown name'}"`;
+	};
+	for (let index = 0; index < docs.length; index++) {
+		// Verify document is defined/valid.
+		const doc = docs[index];
+		if (typeof doc !== 'object' || !doc) {
+			errors.push(new Error(`${createErrorPrefix(index)}: Entry format is invalid.`));
+			continue;
+		}
+
+		// Set a flag if at least 1 name is messing in file.
+		if (!doc.name) {
+			isMissingName = true;
+		}
+
+		if (!skipKindCheck) {
+			// Validate resource kind.
+			if (!doc.kind) {
+				errors.push(
+					Error(
+						`${createErrorPrefix(index, doc.kind, doc.name)}: The "kind" field is missing.`
+							+ `\nCurrently supported values are (case sensitive): ${[ ...allowedKinds.values() ].join(', ')}`
+					)
+				);
+			} else if (!allowedKinds.has(doc.kind)) {
+				errors.push(
+					new Error(
+						`${createErrorPrefix(index, doc.kind, doc.name)}: Kind "${doc.kind}" is unsupported.`
+							+ `\nCurrently supported values are (case sensitive): ${[ ...allowedKinds.values() ].join(', ')}`
+					)
+				);
+			}
+		}
+
+		// TODO: Validate "metadata.scope.kind" if available. Requires DefinitionManager.getSortedKindsMap() result.
+	}
+	if (errors.length > 0) {
+		throw new CompositeError(errors);
+	}
+
+	// File's contents appears to be valid. Return loaded info.
+	return <ValidatedDocs>{ docs, isMissingName };
+};

@@ -76,7 +76,7 @@ export default class Renderer {
 	success(text: string, spinnerOnly: boolean = false): void {
 		this.output && !spinnerOnly
 			? this.console(text)
-			: this.spinner && this.spinner.succeed(chalk`{greenBright ${text}}`);
+			: this.spinner && this.spinner.succeed(chalk.greenBright(text));
 	}
 
 	/**
@@ -87,7 +87,7 @@ export default class Renderer {
 	 * only when spinner is in use (which mean no output param has been provided)
 	 */
 	warning(text: string, spinnerOnly: boolean = false): void {
-		this.output && !spinnerOnly ? this.console(text) : this.spinner && this.spinner.warn(chalk`{yellow ${text}}`);
+		this.output && !spinnerOnly ? this.console(text) : this.spinner && this.spinner.warn(chalk.yellow(text));
 	}
 
 	/**
@@ -98,7 +98,7 @@ export default class Renderer {
 	 * only when spinner is in use (which mean no output param has been provided)
 	 */
 	error(text: string, spinnerOnly: boolean = false): void {
-		this.output && !spinnerOnly ? this.console(text) : this.spinner && this.spinner.fail(chalk`{red ${text}}`);
+		this.output && !spinnerOnly ? this.console(text) : this.spinner && this.spinner.fail(chalk.red(text));
 	}
 
 	/**
@@ -162,6 +162,7 @@ export default class Renderer {
 	 */
 	productizationResult(bulkResultMap: Map<string, ApiServerClientBulkResult>): void {
 		bulkResultMap.forEach((value, key) => {
+			// eslint-disable-next-line no-useless-concat
 			console.log('\n\n' + 'API Service: ' + key);
 			if (value.warning && value.warning.length > 0) {
 				value.warning?.forEach((r) =>
@@ -174,6 +175,7 @@ export default class Renderer {
 					this.warning(`Unable to productize API Service '${key}' for the above errors.`);
 				}
 			} else {
+				// eslint-disable-next-line no-useless-concat
 				console.log('API Service ' + '\'' + key + '\' has been successfully productized.');
 			}
 		});
@@ -378,10 +380,10 @@ export default class Renderer {
 				case 401:
 					this.error(this.#createApiServerErrorMessage(prefixMsg, err.title || 'Looks like you\'re not authenticated!'));
 					this.console('\nTry running:');
-					this.console(chalk`{cyan axway auth login}`);
+					this.console(chalk.cyan('axway auth login'));
 					this.console('Or if using a service account:');
 					this.console(
-						chalk`{cyan axway auth login --client-id <Service Account Client ID> --secret-file <Private Key>}`
+						chalk.cyan('axway auth login --client-id <Service Account Client ID> --secret-file <Private Key>')
 					);
 					break;
 				case 400:

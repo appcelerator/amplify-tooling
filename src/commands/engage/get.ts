@@ -13,6 +13,8 @@ import { resolveTeamNames } from '../../lib/results/resultsrenderer.js';
 export default class EngageGet extends Command {
 	static override summary = 'List one or more resources.';
 
+	static override aliases = [ 'central:get' ];
+
 	static override description = `You must be authenticated to list one or more resources.
 	Run ${highlight('"axway auth login"')} to authenticate.`;
 

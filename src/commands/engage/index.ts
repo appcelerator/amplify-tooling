@@ -4,6 +4,8 @@ import { highlight } from '../../lib/logger.js';
 export default class EngageCommand extends Command {
 	static override hidden = true;
 
+	static override aliases = [ 'central' ];
+
 	static override summary = 'Manage APIs, services and publish to the Amplify Marketplace.';
 
 	static override description = `You must be authenticated to manage Engage Operations.
