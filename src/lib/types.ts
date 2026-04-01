@@ -343,3 +343,27 @@ export enum BasePaths {
 	DockerAgentAPIRepoPath = '/artifactory/api/docker/ampc-public-docker-release/v2/agent',
 }
 
+export interface ValidatedDocs {
+	docs: Record<string, any>[];
+	isMissingName: boolean;
+}
+
+export enum TrueFalse {
+	True = 'True',
+	False = 'False',
+}
+
+export const TrueFalseChoices = [
+	{ name: TrueFalse.True, value: TrueFalse.True },
+	{ name: TrueFalse.False, value: TrueFalse.False },
+];
+
+export enum YesNo {
+	Yes = 'Yes',
+	No = 'No',
+}
+
+export const YesNoChoices = [
+	{ name: YesNo.Yes, value: YesNo.Yes },
+	{ name: YesNo.No, value: YesNo.No },
+];

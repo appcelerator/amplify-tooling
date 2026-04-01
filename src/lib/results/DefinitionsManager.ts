@@ -47,7 +47,7 @@ export class DefinitionsManager {
 		return curr.unsorted.reduce<{ sorted: ResourceDefinition[]; unsorted: ResourceDefinition[] }>(
 			(a, c, _, arr) => {
 				// IF any unsorted reference found, push current definition to unsorted too and skip
-				const unsortedRefs = c.spec.references.toResources.find((ref) => {
+				const unsortedRefs = c.spec?.references?.toResources?.find((ref) => {
 					return (
 						loadash.findLastIndex(arr, (def) => def.spec.kind === ref.kind && def.spec.scope?.kind === ref.scopeKind) !== -1
 					);
@@ -72,10 +72,8 @@ export class DefinitionsManager {
 								// this should never happen only if the api-server is missing some corresponding
 								// references so nothing found
 								if (sortedListIndex === -1 && fromListIndex === -1) {
-									log('reduceByReferenceLinks, startIndex error, def: ', JSON.stringify(c, null, 2), '\nref: ', ref);
-									throw Error(
-										`References calculation error, startIndex for kind: ${c.spec.kind} in scope: ${c.spec.scope?.kind}`
-									);
+									log('reduceByReferenceLinks, startIndex not found for ref: ', ref, ' in def: ', c.spec.kind);
+									return null;
 								} else { // if nothing found in sorted and pre return null so it will put it back to unsorted
 									return sortedListIndex === -1 ? 0 : sortedListIndex;
 								}
@@ -83,7 +81,7 @@ export class DefinitionsManager {
 						) ?? null;
 					const stopIndex
 						= loadash.min(
-							c.spec.references.fromResources.map((ref) => {
+							c.spec?.references?.fromResources?.map((ref) => {
 								const i = loadash.findIndex(
 									a.sorted,
 									(def) => def.spec.kind === ref.kind && def.spec.scope?.kind === ref.scopeKind
@@ -93,10 +91,8 @@ export class DefinitionsManager {
 						) ?? null;
 
 					if ((startIndex && stopIndex && startIndex >= stopIndex) || startIndex === null) {
-						log('reduceByReferenceLinks, indexes error, definition: ', JSON.stringify(c, null, 2));
-						throw Error(
-							`References calculation error, indexes for kind: ${c.spec.kind} in scope: ${c.spec.scope?.kind}`
-						);
+						log('reduceByReferenceLinks, indexes error, skipping definition: ', c.spec.kind, ' in scope: ', c.spec.scope?.kind);
+						a.unsorted.push(c);
 					} else {
 						a.sorted.splice(startIndex + 1, 0, c);
 					}
@@ -122,8 +118,8 @@ export class DefinitionsManager {
 			to: ResourceDefinition[]; // defs with only "to" references
 		}>(
 			(a, c) => {
-				const fromRefsNum = c.spec.references.fromResources.length;
-				const toRefsNum = c.spec.references.toResources.length;
+				const fromRefsNum = c.spec?.references?.fromResources?.length ?? 0;
+				const toRefsNum = c.spec?.references?.toResources?.length ?? 0;
 				if (fromRefsNum && toRefsNum) {
 					a.fromTo.push(c);
 				} else if (!fromRefsNum && !toRefsNum) {
@@ -153,7 +149,7 @@ export class DefinitionsManager {
 		// On average function should not take more than 5 loops currently.
 		// Lets signal that something is wrong here.
 		if (loopCount === 1000) {
-			throw Error('Definition references calculation error, max loop count reached');
+			log('sortByReferences, max loop count reached, some definitions may be out of order: ', result.unsorted.map((d) => d.spec?.kind));
 		}
 		return [ ...groupedDefs.noRefs, ...groupedDefs.from, ...result.sorted, ...groupedDefs.to ];
 	}
@@ -198,7 +194,9 @@ export class DefinitionsManager {
 		}
 		const result: Set<string> = new Set([]);
 		this.resources.forEach((v) => {
-			result.add(v.spec.kind);
+			if (v?.spec?.kind) {
+				result.add(v.spec.kind);
+			}
 		});
 		return result;
 	}
@@ -217,6 +215,9 @@ export class DefinitionsManager {
 		// 2. if it is a scoped resource, add a manual "to" reference to the scope resource and a corresponding "from"
 		// reference in the scope resource
 		this.resources.forEach((definition) => {
+			if (!definition?.spec?.references) {
+				return;
+			}
 			// 1. remove the references from the sub-resources and circular references (to self)
 			// TODO: circular references support: https://jira.axway.com/browse/APIGOV-20808
 			definition.spec.references.toResources = definition.spec.references.toResources.filter(
@@ -227,7 +228,10 @@ export class DefinitionsManager {
 			);
 			// 2. add references between scope and scoped resources
 			if (definition.spec.scope) {
-				const scopeDef = [ ...this.resources.values() ].find((res) => res.spec.kind === definition.spec.scope!.kind)!; // mind the non-null assertion here
+				const scopeDef = [ ...this.resources.values() ].find((res) => res.spec?.kind === definition.spec.scope!.kind);
+				if (!scopeDef) {
+					return;
+				}
 				// modify current definition by adding "toResources" link to scopeDef
 				if (!definition.spec.references.toResources.find((ref) => ref.kind === scopeDef.spec.kind)) {
 					definition.spec.references.toResources.push({
@@ -250,7 +254,7 @@ export class DefinitionsManager {
 			}
 		});
 		// execute the sorting, note that the returning map is using the "name" field as keys.
-		const res = this.sortByReferences([ ...this.resources.values() ]);
+		const res = this.sortByReferences([ ...this.resources.values() ].filter((v) => v?.spec?.references));
 		return new Map(res.map((v) => [ v.name, v ]));
 	}
 
@@ -311,10 +315,10 @@ export class DefinitionsManager {
 		}
 		const cliKv = [ ...this.cli ].filter(
 			([ _, v ]) =>
-				v.spec.names.plural === word
-				|| v.spec.names.singular === word
-				|| v.spec.names.shortNames.includes(word)
-				|| v.spec.names.shortNamesAlias?.includes(word)
+				v.spec?.names.plural === word
+				|| v.spec?.names.singular === word
+				|| v.spec?.names.shortNames.includes(word)
+				|| v.spec?.names.shortNamesAlias?.includes(word)
 		);
 		// no match found returning null
 		if (!cliKv.length) {
@@ -324,10 +328,10 @@ export class DefinitionsManager {
 			{ resource: ResourceDefinition; cli: CommandLineInterface; scope?: ResourceDefinition }[]
 		>((a, [ _, cliDef ]) => {
 			if (
-				cliDef.spec.names.plural === word
-				|| cliDef.spec.names.singular === word
-				|| cliDef.spec.names.shortNames.includes(word)
-				|| cliDef.spec.names.shortNamesAlias?.includes(word)
+				cliDef.spec?.names.plural === word
+				|| cliDef.spec?.names.singular === word
+				|| cliDef.spec?.names.shortNames.includes(word)
+				|| cliDef.spec?.names.shortNamesAlias?.includes(word)
 			) {
 				// note: mind non-null assertion
 				const resource = this.resources.get(cliDef.spec.resourceDefinition)!;

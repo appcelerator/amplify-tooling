@@ -320,14 +320,14 @@ export class ApiServerClient {
 			resources.map((resource) => {
 				const resourceDef = sortedDefsArray.find(
 					(def) =>
-						def.spec.kind === resource.kind
-                        && def.spec.scope?.kind === resource.metadata?.scope?.kind,
+						def.spec?.kind === resource.kind
+                        && def.spec?.scope?.kind === resource.metadata?.scope?.kind,
 				);
 				const scopeDef = resource.metadata?.scope
 					? sortedDefsArray.find(
 						(def) =>
-							def.spec.kind === resource.metadata!.scope!.kind
-                            && !def.spec.scope,
+							def.spec?.kind === resource.metadata!.scope!.kind
+                            && !def.spec?.scope,
 					)
 					: undefined;
 				const scopeName = resource.metadata?.scope?.name;
