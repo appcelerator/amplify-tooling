@@ -367,3 +367,53 @@ export const YesNoChoices = [
 	{ name: YesNo.Yes, value: YesNo.Yes },
 	{ name: YesNo.No, value: YesNo.No },
 ];
+
+export interface EngageCommandParams {
+	account: Account;
+	region?: string;
+	useCache?: boolean;
+	team?: string | null;
+}
+
+export interface GetCommandParams extends EngageCommandParams {
+	resourceTypes: string[];
+	resourceName?: string;
+	scopeParam?: string;
+	query?: string;
+	titleFilter?: string;
+	attributeFilter?: string;
+	tagFilter?: string;
+	/** Resolved team GUID (looked up from the teams list in the command layer). */
+	teamGuid?: string;
+	languageExpand?: string;
+	languageDefinition?: string;
+	outputFormat?: string;
+	onProgress?: (percent: number) => void;
+}
+
+export interface GetResultItem {
+	columns: CommandLineInterfaceColumns[];
+	response: ApiServerClientSingleResult | ApiServerClientListResult;
+}
+
+export interface GetCommandResult {
+	items: GetResultItem[];
+	hasErrors: boolean;
+	defsHelpTable?: string;
+	missingResourceArg?: boolean;
+	languageDefinition?: string;
+}
+
+export interface ApplyCommandParams extends EngageCommandParams {
+	filePath: string;
+	language?: string;
+	subresource?: string;
+	/** Called when file contains resources with missing names. Return false to abort. */
+	onMissingNames?: () => Promise<boolean>;
+}
+
+export interface ApplyCommandResult {
+	results: ApiServerClientApplyResult[];
+	hasErrors: boolean;
+}
+

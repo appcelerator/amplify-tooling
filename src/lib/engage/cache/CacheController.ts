@@ -7,7 +7,7 @@ import { homedir } from 'os';
 import path from 'path';
 import { CACHE_FILE_TTL_MILLISECONDS, MAX_CACHE_FILE_SIZE } from '../types.js';
 import { isValidJson, writeToFile } from '../utils/utils.js';
-import logger from '../logger.js';
+import logger from '../../logger.js';
 
 const { log } = logger('axway-cli: CacheController');
 const { isEmpty } = pkg;

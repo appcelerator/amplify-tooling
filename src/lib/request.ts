@@ -10,7 +10,7 @@ import prettyBytes from 'pretty-bytes';
 import logger, { alert, highlight, ok, note } from './logger.js';
 import { fileURLToPath } from 'url';
 import { readJsonSync } from './fs.js';
-import { ABORT_TIMEOUT, ProgressListener } from './types.js';
+import { ABORT_TIMEOUT, ProgressListener } from './engage/types.js';
 import { readFileSync } from 'fs';
 
 const { HttpProxyAgent } = httpProxyAgentPkg;

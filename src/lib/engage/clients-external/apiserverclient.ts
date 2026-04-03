@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { dataService } from '../request.js';
+import { dataService } from '../../request.js';
 import {
 	ApiServerClientApplyResult,
 	ApiServerClientBulkResult,
@@ -30,8 +30,8 @@ import pickBy from 'lodash/pickBy.js';
 import isEmpty from 'lodash/isEmpty.js';
 import assign from 'lodash/assign.js';
 import { CacheController } from '../cache/CacheController.js';
-import logger from '../logger.js';
-import { loadConfig } from '../config.js';
+import logger from '../../logger.js';
+import { loadConfig } from '../../config.js';
 
 export class ApiServerClient {
 	region?: string;

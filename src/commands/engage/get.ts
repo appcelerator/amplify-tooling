@@ -1,14 +1,11 @@
 import Command from '../../lib/command.js';
 import { Args, Flags } from '@oclif/core';
-import { ApiServerClientListResult, ApiServerClientSingleResult, CommandLineInterfaceColumns, LanguageTypes, OutputTypes, PlatformTeam } from '../../lib/types.js';
+import { LanguageTypes, OutputTypes, PlatformTeam } from '../../lib/engage/types.js';
 import { commonFlags } from '../../lib/engage/flags.js';
 import logger, { highlight } from '../../lib/logger.js';
-import Renderer from '../../lib/results/renderer.js';
-import { ApiServerClient } from '../../lib/clients-external/apiserverclient.js';
-import { DefinitionsManager, FindDefsByWordResult } from '../../lib/results/DefinitionsManager.js';
-import { getFieldSetFromDefinitionColumns, parseScopeParam, transformSimpleFilters, verifyScopeParam } from '../../lib/utils/utils.js';
+import Renderer from '../../lib/engage/results/renderer.js';
+import { getResources } from '../../lib/engage/services/get-service.js';
 import chalk from 'chalk';
-import { resolveTeamNames } from '../../lib/results/resultsrenderer.js';
 
 export default class EngageGet extends Command {
 	static override summary = 'List one or more resources.';
@@ -98,184 +95,68 @@ export default class EngageGet extends Command {
 		const log = logger('EngageGet');
 		const { args, flags, account, teams } = await this.parse(EngageGet);
 
-		if (!flags.team && flags.owner) {
-			// no --team set and --no-owner was set, so we set the team to `null` which will know
-			// to get teams that do not have an owner
+		if (!flags.team && flags['no-owner']) {
 			flags.team = null;
 		}
 
-		// will be set to true and exit 1 if any get result contains an error or args invalid
-		let isCmdError = true;
-		// name can be provided or not (args[0] is the resource type)
-		const resourceName: string | undefined = args.name;
-		// verify output argument
 		if (!!flags.output && !(flags.output in OutputTypes)) {
 			throw Error(`invalid "output" (-o,--output) value provided, allowed: ${OutputTypes.yaml} | ${OutputTypes.json}`);
 		}
 
+		// Resolve team GUID (by name or guid) from the pre-fetched teams list.
+		let teamGuid: string | undefined;
+		if (flags.team) {
+			const match = teams?.teams?.find((t: PlatformTeam) =>
+				t.guid.toLowerCase() === flags.team.toLowerCase() ||
+				t.name.toLowerCase() === flags.team.toLowerCase()
+			);
+			if (!match) {
+				throw new Error(`Unable to find team "${flags.team}" in the "${account.org.name}" organization`);
+			}
+			teamGuid = match.metadata.guid;
+		}
+
+		// Warn if both simple and advanced query params were provided.
+		if (flags.query && (flags.title || flags.attribute || flags.tag)) {
+			console.log(chalk.yellow(
+				'Both simple queries and advanced query parameters have been provided. Only the advanced query parameter will be applied.'
+			));
+		}
+
 		const renderer = new Renderer(console, flags.output);
-		const getResults: {
-			columns: CommandLineInterfaceColumns[];
-			response: ApiServerClientSingleResult | ApiServerClientListResult;
-		}[] = [];
+		let isCmdError = true;
 		try {
-			// get specs and allowed words
-			const client = new ApiServerClient({ region: flags.region, account: account, useCache: flags.cache, team: flags.team });
-			const defsManager = await new DefinitionsManager(client).init();
-			const scope = parseScopeParam(flags.scope);
-			let languageExpand = flags.language;
-			const languageDefinition = flags.languageDefinition;
-			let teamGuid: string | undefined;
-			if (flags.team) {
-				const team = teams?.teams?.find((t: PlatformTeam) => {
-					return t.guid.toLowerCase() === flags.team.toLowerCase() || t.name.toLowerCase() === flags.team.toLowerCase();
-				});
-				if (!team) {
-					throw new Error(`Unable to find team "${flags.team}" in the "${account.org.name}" organization`);
-				}
-				teamGuid = team.metadata.guid;
-			}
-			const formattedFilter = transformSimpleFilters(flags.title, flags.attribute, flags.tag, teamGuid);
-			const query = flags.query ? flags.query : formattedFilter;
-			// verify either "--language" or "--languageDefinition" argument is passed and error when both are passed
-			if (languageExpand && languageDefinition) {
-				throw Error('You must specify either of the "--language" or "--languageDefinition" argument and not both.');
-			}
-			if (languageDefinition && !flags.output) {
-				throw Error('The "--languageDefinition" argument can only be used with output(-o,--output) argument');
-			}
-			if (languageExpand) {
-				// when "*" is provided, expand all supported languages
-				let lang = '';
-				let i = 0;
-				if (languageExpand.trim() === '*') {
-					lang = 'languages-*';
-				} else {
-					const langCodeArr = languageExpand.split(',');
-					langCodeArr.forEach(v => {
-						if (i < langCodeArr.length - 1) {
-							lang = lang + 'languages-' + v.trim() + ',';
-						} else {
-							lang = lang + 'languages-' + v.trim();
-						}
-						i++;
-					});
-				}
-				languageExpand = 'languages,' + lang;
-			}
-			if (flags.query && formattedFilter) {
-				console.log(
-					`${chalk.yellow(
-						'Both simple queries and advanced query parameters have been provided. Only the advanced query parameter will be applied.'
-					)}`
-				);
-			}
-			// verify passed args
-			if (!args.resource) {
+			const downloadMessage = 'Retrieving resource(s)';
+			renderer.startSpin(downloadMessage);
+			const result = await getResources({
+				account,
+				region: flags.region,
+				useCache: flags.cache,
+				team: flags.team,
+				resourceTypes: args.resource ? args.resource.split(',') : [],
+				resourceName: args.name,
+				scopeParam: flags.scope,
+				query: flags.query,
+				titleFilter: flags.title,
+				attributeFilter: flags.attribute,
+				tagFilter: flags.tag,
+				teamGuid,
+				languageExpand: flags.language,
+				languageDefinition: flags.languageDefinition,
+				outputFormat: flags.output,
+				onProgress: (percent) => renderer.updateSpinText(`${downloadMessage} - ${percent}%`),
+			});
+
+			if (result.missingResourceArg) {
+				renderer.stopSpin();
 				renderer.error('Error: You must specify the type of resource to get.');
 				this.log('\nThe server supports the following resources:\n');
-				this.log(defsManager.getDefsTableForHelpMsg());
+				this.log(result.defsHelpTable ?? '');
 				process.exit(1);
 			}
 
-			// Start showing download progress.
-			const downloadMessage = 'Retrieving resource(s)';
-			renderer.startSpin(downloadMessage);
-			const progressListener = (percent: number) => {
-				renderer.updateSpinText(`${downloadMessage} - ${percent}%`);
-			};
-
-			// parse passed resources types (if passed comma-separated)
-			for (const typedResource of args.resource.split(',')) {
-				const defs = defsManager.findDefsByWord(typedResource);
-				// is typed resource known?
-				if (!defs) {
-					throw Error(`the server doesn't have a resource type "${typedResource}"`);
-				}
-				// check if a user is trying to get a scoped-only resource by name without providing a scope name
-				if (defs.every((defs) => !!defs.scope) && resourceName && !scope) {
-					throw Error(
-						`scope name param (-s/--scope) is required for the scoped "${defs[0].resource.spec.kind}" resource.`
-					);
-				}
-				// verify passed scope param kind
-				verifyScopeParam(defsManager.getAllKindsList(), defs, scope);
-
-				/**
-				 	1) If "scope" param provided: execute getByName or getList calls for every definition that match this scope name/kind.
-					2) If "scope" param is not provided: execute list (get all) api calls for scoped resources without providing the scope in
-					the path so api-server returns the entire list in all scopes. For example, using "Document" kind and calling
-					https://apicentral.axway.com/apis/catalog/v1alpha1/documents returns a list of documents in Asset and AssetRelease
-					scopes in a single api call. So getting unique list of groups and finding first matching definitions to do a call
-					Note: this logic might have some edge cases if same kind can be used for "scoped" and "scope" resources and api-server is
-					not handling this case correctly anymore.
-				 */
-				if (scope) {
-					const results = await Promise.all(
-						defs
-							.filter((defs) => !scope.kind || !defs.scope || defs.scope.spec.kind === scope.kind)
-							.map(async (defs) => ({
-								response: await client.getListOrByName(
-									{
-										resourceDef: defs.resource,
-										scopeName: scope?.name,
-										resourceName,
-										scopeDef: defs.scope,
-										query,
-										progressListener,
-										expand: languageExpand,
-										langDef: languageDefinition,
-										fieldSet: flags.output ? undefined : getFieldSetFromDefinitionColumns(defs),
-									}
-								),
-								cli: defs.cli,
-							}))
-					);
-					results.forEach(({ response, cli }) => {
-						getResults.push({
-							columns: cli.spec.columns,
-							response,
-						});
-					});
-				} else {
-					const defsMatchingGroup: { [groupName: string]: FindDefsByWordResult } = {};
-					defs.forEach((def) => {
-						if (!defsMatchingGroup[def.resource.metadata.scope?.name]) {
-							defsMatchingGroup[def.resource.metadata.scope?.name] = def;
-						}
-					});
-					const results = await Promise.all(
-						Object.values(defsMatchingGroup).map(async (defs) => ({
-							response: await client.getListOrByName({
-								resourceDef: defs.resource,
-								scopeName: scope?.name,
-								resourceName,
-								scopeDef: undefined,
-								query,
-								progressListener,
-								expand: languageExpand,
-								langDef: languageDefinition,
-								fieldSet: flags.output ? undefined : getFieldSetFromDefinitionColumns(defs),
-							}),
-							cli: defs.cli,
-						}))
-					);
-					results.forEach(({ response, cli }) => {
-						getResults.push({
-							columns: cli.spec.columns,
-							response,
-						});
-					});
-				}
-			}
-			// resolve team guids
-			for (const obj of getResults) {
-				await resolveTeamNames({ ...obj, account });
-			}
-
-			// considering the command successful if at least 1 response found
-			isCmdError = !getResults.filter((res) => res.response.data !== null).length;
-			renderer.renderGetResults(getResults, 'Resource(s) successfully retrieved', languageDefinition);
+			isCmdError = result.hasErrors;
+			renderer.renderGetResults(result.items, 'Resource(s) successfully retrieved', result.languageDefinition);
 		} catch (e: any) {
 			log('command error', e);
 			isCmdError = true;

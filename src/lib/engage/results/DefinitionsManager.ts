@@ -1,4 +1,4 @@
-import logger from '../logger.js';
+import logger from '../../logger.js';
 import Table from 'easy-table';
 import loadash from 'lodash';
 import { ApiServerClient } from '../clients-external/apiserverclient.js';

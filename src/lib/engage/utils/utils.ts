@@ -1,4 +1,4 @@
-import { writeFileSync } from '../fs.js';
+import { writeFileSync } from '../../fs.js';
 
 import { loadAll } from 'js-yaml';
 
