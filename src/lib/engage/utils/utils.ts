@@ -23,6 +23,8 @@ import { readFile } from 'fs/promises';
 import { extname } from 'path';
 import { CompositeError } from '../results/compositeerror.js';
 
+export const isWindows = /^win/.test(process.platform);
+
 export const writeToFile = (path: string, data: any): void => {
 	try {
 		writeFileSync(path, data);
@@ -401,3 +403,17 @@ export const loadAndVerifySpecs = async (
 	// File's contents appears to be valid. Return loaded info.
 	return <ValidatedDocs>{ docs, isMissingName };
 };
+
+export function KeyValueMapToNameValueArray(m: Map<string, string>): any[] | undefined {
+	const array: any[] = [];
+	m.forEach((value, key) => {
+		array.push({
+			name: key,
+			value: value,
+		});
+	});
+	if (array.length === 0) {
+		return undefined;
+	}
+	return array;
+}

@@ -314,6 +314,10 @@ export default class Renderer {
 		return dataArr;
 	}
 
+	errors(errors: ApiServerError[] | ApiServerErrorResponse[] | Error[], prefixMsg = '', ignoreOutputParam = false): void {
+		errors.forEach((error) => this.anyError(error, prefixMsg, ignoreOutputParam));
+	}
+
 	/**
 	 * Render any kind of error
 	 * @param error error or ApiServer error to render
