@@ -2,18 +2,10 @@ import Command from '../../lib/command.js';
 import { Args, Flags } from '@oclif/core';
 import { commonFlags } from '../../lib/engage/flags.js';
 import logger, { highlight } from '../../lib/logger.js';
-import {
-	ApiServerClientBulkResult,
-	ApiServerClientSingleResult,
-	GenericResource,
-	YesNo,
-	YesNoChoices,
-} from '../../lib/engage/types.js';
-import { ApiServerClient } from '../../lib/engage/clients-external/apiserverclient.js';
-import { DefinitionsManager } from '../../lib/engage/results/DefinitionsManager.js';
+import { YesNo, YesNoChoices } from '../../lib/engage/types.js';
 import Renderer from '../../lib/engage/results/renderer.js';
+import { deleteResources } from '../../lib/engage/services/delete-service.js';
 import { askList } from '../../lib/engage/utils/basic-prompts.js';
-import { loadAndVerifySpecs, parseScopeParam, verifyFile, verifyScopeParam } from '../../lib/engage/utils/utils.js';
 import chalk from 'chalk';
 
 export default class EngageDelete extends Command {
@@ -82,8 +74,70 @@ To delete resources by filenames:\t"axway engage delete -f/--file <path>
 To delete a single resource:\t\t"axway engage delete <Resource> <Name>"`);
 	}
 
-	private printMissingArgsUsage(defsHelpTable: string) {
-		this.log(`\nUSAGE:
+	async run(): Promise<any> {
+		const log = logger('EngageDelete');
+		const { args, flags, account } = await this.parse(EngageDelete);
+
+		const typedResource = args.resource;
+		const typedName = args.name;
+		const render = new Renderer(console);
+
+		if (flags.file && typedResource) {
+			render.error('Error: Invalid command arguments, please provide a file path or resource type and name.');
+			this.printInvalidArgsUsage();
+			process.exit(1);
+		}
+
+		let isCmdError = true;
+		try {
+			render.startSpin(`Deleting resources${flags.wait ? ' and waiting for them to be deleted' : ''}`);
+
+			const result = await deleteResources({
+				account,
+				region: flags.region,
+				useCache: flags.cache,
+				resourceType: typedResource,
+				resourceName: typedName,
+				filePath: flags.file,
+				scopeParam: flags.scope,
+				wait: flags.wait,
+				forceDelete: flags.forceDelete,
+				skipConfirmation: flags.yes,
+				onConfirmSingleDelete: async (scopeProvided, matchingDefsLength) => {
+					render.stopSpin();
+					let answer = YesNo.Yes;
+					if (!scopeProvided) {
+						answer = await askList({
+							msg: 'Deleting this will delete all resources under its scope. Are you sure you want to do this?',
+							choices: YesNoChoices,
+							default: YesNo.No,
+						}) as YesNo;
+					} else if (matchingDefsLength > 1) {
+						answer = await askList({
+							msg: 'The resource may exist in many scopes, and multiple entities might be deleted. Do you want to continue?',
+							choices: YesNoChoices,
+							default: YesNo.No,
+						}) as YesNo;
+					}
+					render.startSpin(`Deleting resources${flags.wait ? ' and waiting for them to be deleted' : ''}`);
+					return answer !== YesNo.No;
+				},
+				onConfirmForceDelete: async () => {
+					render.stopSpin();
+					const answer = await askList({
+						msg: 'Are you sure you want to force delete this resource?',
+						choices: YesNoChoices,
+						default: YesNo.No,
+					}) as YesNo;
+					render.startSpin(`Deleting resources${flags.wait ? ' and waiting for them to be deleted' : ''}`);
+					return answer !== YesNo.No;
+				},
+			});
+
+			if (result.missingArgs) {
+				render.stopSpin();
+				render.error('Error: You must specify the type and name of the resource to delete or a file path.');
+				this.log(`\nUSAGE:
 
   To delete resources by filename:
     ${chalk.cyan('axway engage delete -f/--file <path>')}\n
@@ -95,194 +149,28 @@ To delete a single resource:\t\t"axway engage delete <Resource> <Name>"`);
     ${chalk.cyan('axway engage delete <Resource> <Name> -s/--scope <Scope Kind>/<Scope Name>')}\n
 The server supports the following resources:
 
-${defsHelpTable}`);
-	}
-
-	private async confirmSingleDelete(scopeProvided: boolean, matchingDefsLength: number): Promise<void> {
-		let result = YesNo.Yes;
-		if (!scopeProvided) {
-			result = await askList({
-				msg: 'Deleting this will delete all resources under its scope. Are you sure you want to do this?',
-				choices: YesNoChoices,
-				default: YesNo.No,
-			}) as YesNo;
-		} else if (matchingDefsLength > 1) {
-			result = await askList({
-				msg: 'The resource may exist in many scopes, and multiple entities might be deleted. Do you want to continue?',
-				choices: YesNoChoices,
-				default: YesNo.No,
-			}) as YesNo;
-		}
-		if (result === YesNo.No) {
-			process.exit(1);
-		}
-	}
-
-	private async confirmForceDelete(): Promise<void> {
-		const result = await askList({
-			msg: 'Are you sure you want to force delete this resource?',
-			choices: YesNoChoices,
-			default: YesNo.No,
-		}) as YesNo;
-		if (result === YesNo.No) {
-			process.exit(1);
-		}
-	}
-
-	private async runSingleDelete({
-		typedResource,
-		typedName,
-		scope,
-		flags,
-		defsManager,
-		client,
-		render,
-	}: {
-		typedResource: string;
-		typedName?: string;
-		scope: ReturnType<typeof parseScopeParam>;
-		flags: any;
-		defsManager: DefinitionsManager;
-		client: ApiServerClient;
-		render: Renderer;
-	}): Promise<boolean> {
-		const defs = defsManager.findDefsByWord(typedResource);
-		if (!defs) {
-			throw new Error(`the server doesn't have a resource type "${typedResource}"`);
-		}
-		if (!typedName) {
-			throw new Error('resource name is required.');
-		}
-		if (defs.every((def) => !!def.scope) && !scope) {
-			throw new Error(
-				`scope name param (-s/--scope) is required for the scoped "${defs[0].resource.spec.kind}" resource.`
-			);
-		}
-		verifyScopeParam(defsManager.getAllKindsList(), defs, scope);
-
-		const matchingDefs = defs.filter(
-			(def) =>
-				(scope && ((scope.kind && scope.kind === def.scope?.spec.kind) || (!scope.kind && !!def.scope))) ||
-				(!scope && !def.scope)
-		);
-
-		if (!matchingDefs.length) {
-			throw new Error('can\'t find matching resource definitions.');
-		}
-
-		if (!flags.yes) {
-			await this.confirmSingleDelete(!!scope, matchingDefs.length);
-		}
-
-		if (!flags.yes && flags.forceDelete) {
-			await this.confirmForceDelete();
-		}
-
-		render.startSpin(`Deleting resources${flags.wait ? ' and waiting for them to be deleted' : ''}`);
-
-		const results: ApiServerClientSingleResult[] = await Promise.all(
-			matchingDefs.map(async (def) =>
-				client.deleteResourceByName({
-					resourceDef: def.resource,
-					resourceName: typedName,
-					scopeDef: def.scope,
-					scopeName: scope?.name,
-					wait: flags.wait,
-					forceDelete: flags.forceDelete,
-				})
-			)
-		);
-
-		const isCmdError = !results.filter((res) => res.data !== null).length;
-		results.forEach((res) => {
-			if (isCmdError && res.error?.length) {
-				render.anyError(res.error[0]);
-			} else if (!res.error?.length && res.data) {
-				render.success(`${render.resourceAndScopeKinds(res.data)} has successfully been deleted.`);
-			}
-		});
-
-		return isCmdError;
-	}
-
-	private async runBulkDelete({
-		flags,
-		defsManager,
-		client,
-		render,
-	}: {
-		flags: any;
-		defsManager: DefinitionsManager;
-		client: ApiServerClient;
-		render: Renderer;
-	}): Promise<{ isCmdError: boolean; bulkResults: ApiServerClientBulkResult }> {
-		render.startSpin(`Deleting resources${flags.wait ? ' and waiting for them to be deleted' : ''}`);
-		verifyFile(flags.file);
-		const { docs } = await loadAndVerifySpecs(flags.file, defsManager.getAllKindsList());
-		const bulkResults = await client.bulkDelete(
-			docs as GenericResource[],
-			defsManager.getSortedKindsMap(),
-			flags.wait,
-			flags.forceDelete
-		);
-		render.bulkResult(bulkResults, 'has successfully been deleted.');
-		return { isCmdError: !!bulkResults.error.length, bulkResults };
-	}
-
-	async run(): Promise<any> {
-		const log = logger('EngageDelete');
-		const { args, flags, account } = await this.parse(EngageDelete);
-
-		let isCmdError = true; // let's be pessimistic.
-		let bulkResults: ApiServerClientBulkResult = { success: [], error: [] };
-
-		const typedResource = args.resource;
-		const typedName = args.name;
-		const render = new Renderer(console);
-		const client = new ApiServerClient({ account, region: flags.region, useCache: flags.cache });
-		const defsManager = new DefinitionsManager(client);
-
-		if (flags.file && typedResource) {
-			render.error('Error: Invalid command arguments, please provide a file path or resource type and name.');
-			this.printInvalidArgsUsage();
-			process.exit(1);
-		}
-
-		try {
-			log('load and verify specs');
-			await defsManager.init();
-			const scope = parseScopeParam(flags.scope);
-
-			if (!flags.file && !typedResource) {
-				render.error('Error: You must specify the type and name of the resource to delete or a file path.');
-				this.printMissingArgsUsage(defsManager.getDefsTableForHelpMsg());
+${result.defsHelpTable ?? ''}`);
 				process.exit(1);
 			}
 
-			if (typedResource) {
-				log('executing api calls in single delete mode');
-				isCmdError = await this.runSingleDelete({
-					typedResource,
-					typedName,
-					scope,
-					flags,
-					defsManager,
-					client,
-					render,
+			isCmdError = result.hasErrors;
+
+			if (result.singleResults) {
+				result.singleResults.forEach((res) => {
+					if (isCmdError && res.error?.length) {
+						render.anyError(res.error[0]);
+					} else if (!res.error?.length && res.data) {
+						render.success(`${render.resourceAndScopeKinds(res.data)} has successfully been deleted.`);
+					}
 				});
-			} else if (flags.file) {
-				log('executing api calls in bulk delete mode');
-				log(`verifying file: ${flags.file}`);
-				const result = await this.runBulkDelete({ flags, defsManager, client, render });
-				isCmdError = result.isCmdError;
-				bulkResults = result.bulkResults;
+			}
+
+			if (result.bulkResults) {
+				render.bulkResult(result.bulkResults, 'has successfully been deleted.');
 			}
 		} catch (e: any) {
 			log('command error', e);
-			// if some calls finished, rendering the result
-			if (bulkResults.success.length || bulkResults.error.length) {
-				render.bulkResult(bulkResults, 'has successfully been deleted.');
-			}
+			isCmdError = true;
 			render.anyError(e);
 		} finally {
 			log(`command finished, success = ${!isCmdError}`);
