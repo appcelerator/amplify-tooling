@@ -46,7 +46,7 @@ export default class EngageApply extends Command {
 	};
 
 	async run(): Promise<any> {
-		const log = logger('EngageApply');
+		const log = logger('engage:apply');
 		const { flags, account } = await this.parse(EngageApply);
 
 		if (!flags.file) {
