@@ -6,7 +6,6 @@ import { YesNo, YesNoChoices } from '../../lib/engage/types.js';
 import Renderer from '../../lib/engage/results/renderer.js';
 import { deleteResources } from '../../lib/engage/services/delete-service.js';
 import { askList } from '../../lib/engage/utils/basic-prompts.js';
-import chalk from 'chalk';
 
 export default class EngageDelete extends Command {
 	static override summary = 'Delete resources.';
@@ -137,19 +136,9 @@ To delete a single resource:\t\t"axway engage delete <Resource> <Name>"`);
 			if (result.missingArgs) {
 				render.stopSpin();
 				render.error('Error: You must specify the type and name of the resource to delete or a file path.');
-				this.log(`\nUSAGE:
-
-  To delete resources by filename:
-    ${chalk.cyan('axway engage delete -f/--file <path>')}\n
-  To delete a single non-scoped resource:
-    ${chalk.cyan('axway engage delete <Resource> <Name>')}\n
-  To delete a scoped resource in all scopes with a specific name without confirmation dialog:
-    ${chalk.cyan('axway engage delete <Resource> <Name> -s/--scope <Scope Name> --yes')}\n
-  To delete a scoped resource in a specific scope:
-    ${chalk.cyan('axway engage delete <Resource> <Name> -s/--scope <Scope Kind>/<Scope Name>')}\n
-The server supports the following resources:
-
-${result.defsHelpTable ?? ''}`);
+				if (result.defsHelpTable) {
+					this.log(`\nThe server supports the following resources:\n\n${result.defsHelpTable}`);
+				}
 				process.exit(1);
 			}
 
