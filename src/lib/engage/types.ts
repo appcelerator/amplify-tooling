@@ -1,3 +1,5 @@
+import { KeyValueMapToNameValueArray } from './utils/utils.js';
+
 export const ABORT_TIMEOUT
 	= process.env.NODE_ENV === 'test'
 		? 1e3
@@ -440,3 +442,257 @@ export interface DeleteCommandResult {
 	defsHelpTable?: string;
 }
 
+export interface CreateCommandParams extends EngageCommandParams {
+	filePath: string;
+	/** Called when file contains resources with missing names. Return false to abort. */
+	onMissingNames?: () => Promise<boolean>;
+}
+
+export interface CreateCommandResult {
+	results: ApiServerClientBulkResult;
+	hasErrors: boolean;
+}
+
+export interface CreateEnvironmentCommandParams extends EngageCommandParams {
+	name: string;
+}
+
+export interface AgentResourceCreateResult {
+	agentType: string;
+	dataPlaneName: string;
+	environmentName: string;
+	teamName: string;
+	discoveryAgentName: string;
+	ampcDiscoveryAgentName: string;
+	traceabilityAgentName: string;
+	ampcTraceabilityAgentName: string;
+}
+
+export interface ProductizeCommandParams extends EngageCommandParams {
+	filePath: string;
+	transferOwnership: boolean;
+}
+
+export interface ProductizeCommandResult {
+	results: Map<string, ApiServerClientBulkResult>;
+}
+
+export enum BundleType {
+	ALL_AGENTS = 'All Agents',
+	DISCOVERY = 'Discovery',
+	TRACEABILITY = 'Traceability',
+	TRACEABILITY_OFFLINE = 'Traceability offline mode',
+}
+
+export class EnvironmentConfigInfo {
+	name: string;
+	isNew: boolean;
+	isUpdated: boolean;
+	referencedEnvironments: string[];
+	referencedIdentityProviders: [];
+
+	constructor() {
+		this.name = '';
+		this.isNew = false;
+		this.isUpdated = false;
+		this.referencedEnvironments = [];
+		this.referencedIdentityProviders = [];
+	}
+}
+
+export enum AgentTypes {
+	da = 'da',
+	ta = 'ta',
+	ca = 'ca',
+}
+
+export enum DataPlaneNames {
+	AKAMAI = 'Akamai',
+	APIGEEX = 'Apigee X',
+	AWS = 'AWS',
+	GITHUB = 'GitHub',
+	GITLAB = 'GitLab',
+	AZURE = 'Azure',
+	EDGE = 'APIM',
+	KAFKA = 'Kafka',
+	GRAYLOG = 'Graylog',
+	IBMAPICONNECT = 'APIConnect',
+	KONG = 'Kong',
+	SOFTWAREAGWEBMETHODS = 'WebMethods',
+	SWAGGERHUB = 'SwaggerHub',
+	TRACEABLE = 'Traceable',
+	MULESOFT = 'Mulesoft',
+	BACKSTAGE = 'Backstage',
+	SAPAPIPORTAL = 'SAP API Portal',
+	SENSEDIA = 'Sensedia',
+	WSO2 = 'WSO2',
+	OTHER = 'Unidentified',
+}
+
+export enum AgentResourceKind {
+	da = 'DiscoveryAgent',
+	ta = 'TraceabilityAgent',
+	ca = 'ComplianceAgent',
+}
+
+class ReqHeadersQParams {
+	requestHeaders?: Map<string, string>;
+	queryParameters?: Map<string, string>;
+}
+
+export class IDPConfiguration extends ReqHeadersQParams {
+	title: string;
+	type: IDPType;
+	metadataURL: string;
+	clientProperties?: Map<string, string>;
+	clientTimeout: number;
+
+	constructor() {
+		super();
+		this.title = '';
+		this.type = IDPType.Generic;
+		this.metadataURL = '';
+		this.clientTimeout = 60;
+	}
+
+	getSpec(): object {
+		const spec = new Map<string, any>([
+			[ 'metadataUrl', this.metadataURL ],
+			[ 'providerType', this.type ],
+			[ 'clientTimeout', this.clientTimeout ],
+			[ 'requestHeaders', this.requestHeaders ? KeyValueMapToNameValueArray(this.requestHeaders) : undefined ],
+			[ 'queryParameters', this.queryParameters ? KeyValueMapToNameValueArray(this.queryParameters) : undefined ],
+			[
+				'additionalClientProperties',
+				this.clientProperties ? KeyValueMapToNameValueArray(this.clientProperties) : undefined,
+			],
+		]);
+		const omitUndefinedSpec = new Map<string, any>();
+		spec.forEach((v, k) => {
+			if (v !== undefined) {
+				omitUndefinedSpec.set(k, v);
+			}
+		});
+
+		return Object.fromEntries(omitUndefinedSpec.entries());
+	}
+}
+
+export class IDPAuthConfiguration extends ReqHeadersQParams {
+	authType: IDPAuthType;
+	authConfig: IDPAuthAccessToken | IDPAuthClientSecret;
+	constructor() {
+		super();
+		this.authType = IDPAuthType.AccessToken;
+		this.authConfig = new IDPAuthAccessToken();
+	}
+
+	getAccessData() {
+		return this.authConfig.getAccessData();
+	}
+
+	setAccessData(data: string) {
+		this.authConfig.setAccessData(data);
+	}
+
+	getSpec() {
+		const spec = new Map<string, any>([
+			[ 'type', this.authType ],
+			[ 'config', this.authConfig.getSpec(this.authType) ],
+			[ 'requestHeaders', this.requestHeaders ? KeyValueMapToNameValueArray(this.requestHeaders) : undefined ],
+			[ 'queryParameters', this.queryParameters ? KeyValueMapToNameValueArray(this.queryParameters) : undefined ],
+		]);
+		const omitUndefinedSpec = new Map<string, any>();
+		spec.forEach((v, k) => {
+			if (v !== undefined) {
+				omitUndefinedSpec.set(k, v);
+			}
+		});
+
+		return Object.fromEntries(omitUndefinedSpec.entries());
+	}
+}
+
+// IDPType - which idp configuration can be used
+export enum IDPType {
+	KeyCloak = 'keycloak',
+	Okta = 'okta',
+	Generic = 'generic',
+}
+
+export class IDPAuthAccessToken {
+	token: string;
+
+	constructor() {
+		this.token = '';
+	}
+
+	getAccessData() {
+		return JSON.stringify({
+			token: this.token,
+		});
+	}
+
+	setAccessData(data: string) {
+		this.token = data;
+	}
+
+	getSpec(authType: IDPAuthType): object {
+		return {
+			type: authType,
+			token: this.token,
+		};
+	}
+}
+
+export class IDPAuthClientSecret {
+	authMethod: IDPClientSecretAuthMethod;
+	clientID: string;
+	clientSecret: string;
+	clientScopes?: string[];
+
+	constructor() {
+		this.authMethod = IDPClientSecretAuthMethod.ClientSecretBasic;
+		this.clientID = '';
+		this.clientSecret = '';
+	}
+
+	getAccessData() {
+		return JSON.stringify({
+			clientSecret: this.clientSecret,
+		});
+	}
+
+	setAccessData(data: string) {
+		this.clientSecret = data;
+	}
+
+	getSpec(authType: IDPAuthType) {
+		const spec = new Map<string, any>([
+			[ 'type', authType ],
+			[ 'authMethod', this.authMethod ],
+			[ 'clientId', this.clientID ],
+			[ 'clientSecret', this.clientSecret ],
+			[ 'clientScopes', this.clientScopes ? this.clientScopes : undefined ],
+		]);
+		const omitUndefinedSpec = new Map<string, any>();
+		spec.forEach((v, k) => {
+			if (v !== undefined) {
+				omitUndefinedSpec.set(k, v);
+			}
+		});
+
+		return Object.fromEntries(omitUndefinedSpec.entries());
+	}
+}
+
+export enum IDPClientSecretAuthMethod {
+	ClientSecretBasic = 'client_secret_basic',
+	ClientSecretPost = 'client_secret_post',
+	ClientSecretJWT = 'client_secret_jwt',
+}
+
+export enum IDPAuthType {
+	AccessToken = 'AccessToken',
+	ClientSecret = 'ClientSecret',
+}

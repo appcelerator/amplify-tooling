@@ -92,7 +92,7 @@ export default class EngageGet extends Command {
 	};
 
 	async run(): Promise<any> {
-		const log = logger('EngageGet');
+		const log = logger('engage:get');
 		const { args, flags, account, teams } = await this.parse(EngageGet);
 
 		if (!flags.team && flags['no-owner']) {
