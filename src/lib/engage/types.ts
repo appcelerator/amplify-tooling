@@ -445,6 +445,15 @@ export interface AgentResourceCreateResult {
 	ampcTraceabilityAgentName: string;
 }
 
+export interface ProductizeCommandParams extends EngageCommandParams {
+	filePath: string;
+	transferOwnership: boolean;
+}
+
+export interface ProductizeCommandResult {
+	results: Map<string, ApiServerClientBulkResult>;
+}
+
 export enum BundleType {
 	ALL_AGENTS = 'All Agents',
 	DISCOVERY = 'Discovery',

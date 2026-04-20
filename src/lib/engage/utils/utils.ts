@@ -417,3 +417,28 @@ export function KeyValueMapToNameValueArray(m: Map<string, string>): any[] | und
 	}
 	return array;
 }
+
+/**
+ * Wait for the given milliseconds
+ * @param {number} ms The given time to wait
+ * @returns {Promise} A fulfilled promise after the given time has passed
+ */
+export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Fetch resource definition of given kind and scope kind if exists
+ * @param {ResourceDefinition[]} sortedDefsArray The given time to wait
+ * @param {Kind} kind The kind of the resource
+ * @param {Kind} scopeKind The scope kind of the resource
+ */
+export const getResourceDefinition = async (
+	sortedDefsArray: ResourceDefinition[],
+	kind: string,
+	scopeKind?: string
+): Promise<ResourceDefinition | undefined> => {
+	const resourceDefinition = sortedDefsArray.find((def) => {
+		return scopeKind ? def.spec.kind === kind && def.spec.scope?.kind === scopeKind : def.spec.kind === kind;
+	});
+	return resourceDefinition;
+};
+
