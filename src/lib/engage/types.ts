@@ -1,3 +1,4 @@
+import Renderer from './results/renderer.js';
 import { KeyValueMapToNameValueArray } from './utils/utils.js';
 
 export const ABORT_TIMEOUT
@@ -475,6 +476,12 @@ export interface ProductizeCommandParams extends EngageCommandParams {
 
 export interface ProductizeCommandResult {
 	results: Map<string, ApiServerClientBulkResult>;
+}
+
+export interface EditEnvironmentCommandParams extends EngageCommandParams {
+	name: string;
+	render: Renderer;
+	outputFormat?: string;
 }
 
 export enum BundleType {

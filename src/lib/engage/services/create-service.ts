@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { ApiServerClient } from '../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../results/DefinitionsManager.js';
 import { AgentResourceCreateResult, AgentResourceKind, AgentTypes, ApiServerClientSingleResult, BundleType, CreateCommandParams, CreateCommandResult, CreateEnvironmentCommandParams, DataPlaneNames, EngageCommandParams, GenericResource } from '../types.js';
-import { loadAndVerifySpecs, verifyFile } from '../utils/utils.js';
+import { getLatestServedAPIVersion, loadAndVerifySpecs, verifyFile } from '../utils/utils.js';
 import { askInput, askList } from '../utils/basic-prompts.js';
 import { askAgentName, askEnvironmentName } from '../utils/agents/inputs.js';
 import { createByResourceType, createNewAgentResource } from '../utils/agents/creators.js';
@@ -38,8 +38,12 @@ export async function createEnvironment(params: CreateEnvironmentCommandParams):
 	const defsManager = await new DefinitionsManager(client).init();
 	const sortedKindsMap = defsManager.getSortedKindsMap();
 	const resourceDef = Array.from(sortedKindsMap.values()).find(def => def.spec.kind === 'Environment');
+	let version = 'v1alpha1';
+	if (resourceDef) {
+		version = getLatestServedAPIVersion(resourceDef);
+	}
 	const resource: GenericResource = {
-		apiVersion: 'v1alpha1',
+		apiVersion: version,
 		kind: 'Environment',
 		group: 'management',
 		title: name,
