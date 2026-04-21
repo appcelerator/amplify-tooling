@@ -419,6 +419,29 @@ export interface ApplyCommandResult {
 	hasErrors: boolean;
 }
 
+export interface DeleteCommandParams extends EngageCommandParams {
+	resourceType?: string;
+	resourceName?: string;
+	filePath?: string;
+	scopeParam?: string;
+	wait?: boolean;
+	forceDelete?: boolean;
+	skipConfirmation?: boolean;
+	/** Called to confirm a single delete (scope or multi-scope). Return false to abort. */
+	onConfirmSingleDelete?: (scopeProvided: boolean, matchingDefsLength: number) => Promise<boolean>;
+	/** Called to confirm a force delete. Return false to abort. */
+	onConfirmForceDelete?: () => Promise<boolean>;
+}
+
+export interface DeleteCommandResult {
+	hasErrors: boolean;
+	singleResults?: ApiServerClientSingleResult[];
+	bulkResults?: ApiServerClientBulkResult;
+	/** True when neither resource type nor file was provided. */
+	missingArgs?: boolean;
+	defsHelpTable?: string;
+}
+
 export interface CreateCommandParams extends EngageCommandParams {
 	filePath: string;
 	/** Called when file contains resources with missing names. Return false to abort. */
