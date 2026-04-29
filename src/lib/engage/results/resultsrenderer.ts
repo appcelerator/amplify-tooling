@@ -8,6 +8,7 @@ import { dump } from 'js-yaml';
 import _ from 'lodash';
 import { CommandLineInterfaceColumns, GenericResource, MAX_TABLE_STRING_LENGTH, OutputTypes } from '../types.js';
 import { initSDK } from '../../amplify-sdk/index.js';
+import { Account } from '../../../types.js';
 
 /**
  * HACK: removing "---" delimiter printing from the lib.

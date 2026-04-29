@@ -75,20 +75,20 @@ To delete a single resource:\t\t"axway engage delete <Resource> <Name>"`);
 
 	async run(): Promise<any> {
 		const log = logger('EngageDelete');
-		const { args, flags, account } = await this.parse(EngageDelete);
-
-		const typedResource = args.resource;
-		const typedName = args.name;
 		const render = new Renderer(console);
-
-		if (flags.file && typedResource) {
-			render.error('Error: Invalid command arguments, please provide a file path or resource type and name.');
-			this.printInvalidArgsUsage();
-			process.exit(1);
-		}
-
 		let isCmdError = true;
 		try {
+			const { args, flags, account } = await this.parse(EngageDelete);
+
+			const typedResource = args.resource;
+			const typedName = args.name;
+
+			if (flags.file && typedResource) {
+				render.error('Error: Invalid command arguments, please provide a file path or resource type and name.');
+				this.printInvalidArgsUsage();
+				process.exit(1);
+			}
+
 			render.startSpin(`Deleting resources${flags.wait ? ' and waiting for them to be deleted' : ''}`);
 
 			const result = await deleteResources({

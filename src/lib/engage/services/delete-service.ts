@@ -27,7 +27,7 @@ export async function deleteResources(params: DeleteCommandParams): Promise<Dele
 		onConfirmForceDelete,
 	} = params;
 
-	const client = new ApiServerClient({ account, region, useCache });
+	const client = new ApiServerClient({ account, region, useCache, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(client).init();
 
 	if (!filePath && !resourceType) {

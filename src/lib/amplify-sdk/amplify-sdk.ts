@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { redact } from '../redact.js';
 
 import { type Got } from 'got';
+import { Account, Organization } from '../../types.js';
 
 const { log, warn } = logger('amplify-sdk');
 

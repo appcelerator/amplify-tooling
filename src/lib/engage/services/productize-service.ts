@@ -11,7 +11,7 @@ export async function productizeResources(params: ProductizeCommandParams): Prom
 
 	verifyFile(filePath);
 
-	const client = new ApiServerClient({ account, region, useCache });
+	const client = new ApiServerClient({ account, region, useCache, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(client).init();
 	let results: Map<string, ApiServerClientBulkResult> = new Map();
 

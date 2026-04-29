@@ -442,3 +442,51 @@ export const getResourceDefinition = async (
 	return resourceDefinition;
 };
 
+export const helmImageSecretInfo = async (namespace: string): Promise<void> => {
+	let dockerSecretCmd = `kubectl create secret docker-registry <image-pull-secret-name> --namespace ${namespace} \\`;
+	dockerSecretCmd += '\n  --docker-server=docker.repository.axway.com \\';
+	dockerSecretCmd += '\n  --docker-username=<client_id> \\';
+	dockerSecretCmd += '\n  --docker-password=<client_secret>';
+	console.log(
+		'\nTo setup docker image secret for the pulling the agent docker images, run the following command:',
+		chalk.cyan(`\n${dockerSecretCmd}`),
+		chalk.cyan('\n'),
+		chalk.white('\n* client_id - service account id for your Amplify Platform organization'),
+		chalk.white('\n* client_secret - service account secret for your Amplify Platform organization'),
+		chalk.white('\n* image-pull-secret - Kubernetes secret name with docker config to pull images'),
+	);
+};
+
+export interface AgentHelmInfo {
+	helmReleaseName: string,
+	helmChartName: string,
+	overrideFileName: string,
+	imageSecretOverrides: string
+}
+
+export const helmInstallInfo = async (
+	agentType: string,
+	namespace: string,
+	agentInfo: Set<AgentHelmInfo>
+): Promise<void> => {
+	let helmInstallCmd = '';
+	agentInfo.forEach(function (entry) {
+		helmInstallCmd += `helm upgrade --install --namespace ${namespace} ${entry.helmReleaseName} ${entry.helmChartName} \\`;
+		helmInstallCmd += `\n  -f ${entry.overrideFileName} \\`;
+		helmInstallCmd += `\n  ${entry.imageSecretOverrides}\n`;
+	});
+
+	console.log(
+		`\nTo complete the ${agentType} Agent installation run the following commands:`,
+		chalk.cyan('\nhelm repo add axway https://helm.repository.axway.com --username=<client_id> --password=<client_secret>'),
+		chalk.cyan(`\nhelm repo update\n${helmInstallCmd}`),
+		chalk.white('\n* client_id - service account id for your Amplify Platform organization'),
+		chalk.white('\n* client_secret - service account secret for your Amplify Platform organization'),
+		chalk.white('\n* image-pull-secret - Kubernetes secret name with docker config to pull images'),
+	);
+};
+
+export function getAuthConfigEnvSpecifier(env) {
+	return !env || env === 'prod' ? 'auth' : `auth.environment.${env}`;
+}
+

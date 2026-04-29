@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url';
 import { readJsonSync } from './fs.js';
 import { ABORT_TIMEOUT, ProgressListener } from './engage/types.js';
 import { readFileSync } from 'fs';
+import { Account } from '../types.js';
 
 const { HttpProxyAgent } = httpProxyAgentPkg;
 const { HttpsProxyAgent } = httpsProxyAgentPkg;
@@ -98,8 +99,7 @@ export function options(opts: any = {}) {
 						highlight(url),
 						proxy && note(`[proxy ${proxy}]`),
 						Object.prototype.hasOwnProperty.call(headers, 'content-length')
-              && chalk.magenta(
-              	`(${prettyBytes(Number(headers['content-length']))})`
+              && chalk.magenta(`(${prettyBytes(Number(headers['content-length']))})`
               ),
 						statusCode < 400 ? ok(statusCode) : alert(statusCode),
 					]
@@ -119,9 +119,7 @@ export function options(opts: any = {}) {
 		),
 		key: load(opts.https?.key || key || keyFile),
 		rejectUnauthorized:
-      opts.https?.rejectUnauthorized !== undefined
-      	? opts.https.rejectUnauthorized
-      	: !!strictSSL !== false,
+      opts.https?.rejectUnauthorized !== undefined ? opts.https.rejectUnauthorized : !!strictSSL !== false,
 	};
 
 	if (proxy) {
@@ -233,7 +231,7 @@ type DataServiceMethods = {
 		headers?: object,
 		params?: object
 	) => Promise<any>;
-	get: (url: string, params?: object) => Promise<any>;
+	get: (url: string, headers?: object, skipDefaultHeaders?: boolean) => Promise<any>;
 	head: (url: string, params?: object) => Promise<any>;
 	getWithPagination: (
 		url: string,
@@ -342,10 +340,20 @@ export const dataService = async ({
 				json: data,
 			}).then(handleResponse);
 		},
-		get: (url: string, params = {}) => {
+		get: (url: string, headers = {}, skipDefaultHeaders = false) => {
 			const fullUrl = prependBase(url);
 			log(`GET: ${fullUrl}`);
-			return fetch('get', fullUrl, params).then(handleResponse);
+			if (skipDefaultHeaders) {
+				// Use a plain unauthenticated got instance so default auth headers are not sent
+				const plainGot = init(createRequestOptions({}));
+				return plainGot.get(fullUrl, {
+					followRedirect: false,
+					retry: { limit: 0 },
+					timeout: { request: ABORT_TIMEOUT },
+					...headers,
+				}).then(handleResponse);
+			}
+			return fetch('get', fullUrl, { headers }).then(handleResponse);
 		},
 		head: (url: string, params?: object) => {
 			const fullUrl = prependBase(url);
@@ -411,10 +419,7 @@ export const dataService = async ({
 					otherPagesCalls.push(
 						// eslint-disable-next-line no-loop-func
 						limit(async () => {
-							allPages[thisPageIndex] = await (this as DataServiceMethods).get(
-								url,
-								params
-							);
+							allPages[thisPageIndex] = await fetch('get', fullUrl, params).then(handleResponse);
 							pageDownloadCount++;
 							updateProgress();
 						})
