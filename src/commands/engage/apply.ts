@@ -47,15 +47,15 @@ export default class EngageApply extends Command {
 
 	async run(): Promise<any> {
 		const log = logger('engage:apply');
-		const { flags, account } = await this.parse(EngageApply);
-
-		if (!flags.file) {
-			throw new Error('File name is required, please provide -f, --file [path] option');
-		}
-
-		const render = new Renderer(console, flags.output).startSpin('Creating or updating resource(s)');
+		let render = new Renderer(console, undefined);
 		let isCmdError = false;
 		try {
+			const { flags, account } = await this.parse(EngageApply);
+			render = new Renderer(console, flags.output).startSpin('Creating or updating resource(s)');
+
+			if (!flags.file) {
+				throw new Error('File name is required, please provide -f, --file [path] option');
+			}
 			const result = await applyResources({
 				account,
 				region: flags.region,

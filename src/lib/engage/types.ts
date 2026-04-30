@@ -1,3 +1,6 @@
+import { Account } from '../../types.js';
+import { ApiServerClient } from './clients-external/apiserverclient.js';
+import { DefinitionsManager } from './results/DefinitionsManager.js';
 import Renderer from './results/renderer.js';
 import { KeyValueMapToNameValueArray } from './utils/utils.js';
 
@@ -373,6 +376,9 @@ export const YesNoChoices = [
 
 export interface EngageCommandParams {
 	account: Account;
+	axwayManaged?: boolean;
+	baseUrl?: string;
+	apicDeployment?: string;
 	region?: string;
 	useCache?: boolean;
 	team?: string | null;
@@ -484,6 +490,8 @@ export interface EditEnvironmentCommandParams extends EngageCommandParams {
 	outputFormat?: string;
 }
 
+export type InstallAgentsCommandParams = EngageCommandParams;
+
 export enum BundleType {
 	ALL_AGENTS = 'All Agents',
 	DISCOVERY = 'Discovery',
@@ -511,6 +519,28 @@ export enum AgentTypes {
 	da = 'da',
 	ta = 'ta',
 	ca = 'ca',
+}
+
+export enum AccountRole {
+	AnalyticsSpecialist = 'analytics_specialist',
+	ApiCentralAdmin = 'api_central_admin',
+	FileTransferServicesAdmin = 'fts_admin',
+	FlowCentralAccessManager = 'fc_access_manager',
+	FlowCentralIntegration = 'fc_integration',
+	FlowCentralITAdmin = 'fc_it_admin',
+	FlowCentralProductsAdmin = 'fc_products_admin',
+	FlowCentralSpecOps = 'fc_spec_ops',
+	FlowCentralSubscriptionApprover = 'fc_subscriptionapprover',
+	FlowCentralSubscriptionSpecialist = 'fc_subscriptionspecialist',
+	FlowCentralTemplatePublisher = 'fc_templatepublisher',
+	FlowCentralCftAdmin = 'fc_cft_admin',
+	PlatformAdmin = 'administrator',
+	PlatformAuditor = 'auditor',
+	PlatformCollaborator = 'collaborator',
+	PlatformConsumer = 'consumer',
+	PlatformDeveloper = 'developer',
+	PlatformReadOnly = 'read_only',
+	RuntimeServicesAdmin = 'ars_admin',
 }
 
 export enum DataPlaneNames {
@@ -702,4 +732,407 @@ export enum IDPClientSecretAuthMethod {
 export enum IDPAuthType {
 	AccessToken = 'AccessToken',
 	ClientSecret = 'ClientSecret',
+}
+
+export enum AgentConfigTypes {
+	HOSTED = 'Hosted',
+	BINARIES = 'Binaries',
+	DOCKERIZED = 'Dockerized',
+	HELM = 'Helm',
+}
+
+export enum GatewayMode {
+	GatewayManagerMode = 'With API Manager',
+	GatewayOnlyMode = 'Gateway only',
+}
+
+export enum AgentNames {
+	AKAMAI_CA = 'akamai-compliance-agent',
+	AWS_DA = 'aws-apigw-discovery-agent',
+	AWS_TA = 'aws-apigw-traceability-agent',
+	GITHUB_DA = 'github-discovery-agent',
+	GITLAB_DA = 'gitlab-discovery-agent',
+	APIGEEX_DA = 'apigeex-discovery-agent',
+	APIGEEX_TA = 'apigeex-traceability-agent',
+	AZURE_DA = 'azure-discovery-agent',
+	AZURE_TA = 'azure-traceability-agent',
+	AZURE_EVENTHUB_DA = 'azure-eventhub-discovery-agent',
+	EDGE_DA = 'v7-discovery-agent',
+	EDGE_TA = 'v7-traceability-agent',
+	KAFKA_DA = 'kafka-discovery-agent',
+	KAFKA_TA = 'kafka-traceability-agent',
+	SWAGGERHUB_DA = 'swaggerhub-discovery-agent',
+	GRAYLOG_CA = 'graylog-compliance-agent',
+	IBMAPICONNECT_DA = 'ibm-apiconnect-discovery-agent',
+	IBMAPICONNECT_TA = 'ibm-apiconnect-traceability-agent',
+	TRACEABLE_CA = 'traceable-compliance-agent',
+	SOFTWAREAGWEBMETHODS_DA = 'software-ag-webmethods-discovery-agent',
+	SOFTWAREAGWEBMETHODS_TA = 'software-ag-webmethods-traceability-agent',
+	BACKSTAGE_DA = 'backstage-discovery-agent',
+	SAPAPIPORTAL_DA = 'sap-discovery-agent',
+	SAPAPIPORTAL_TA = 'sap-traceability-agent',
+	SENSEDIA_DA = 'sensedia-discovery-agent',
+	SENSEDIA_TA = 'sensedia-traceability-agent',
+	WSO2_DA = 'wso2-discovery-agent',
+	WSO2_TA = 'wso2-traceability-agent',
+}
+
+export enum GatewayTypes {
+	AKAMAI = 'Akamai',
+	EDGE_GATEWAY = 'Amplify API Gateway',
+	APIGEEX_GATEWAY = 'Apigee X Gateway',
+	AWS_GATEWAY = 'Amazon API Gateway',
+	AZURE_GATEWAY = 'Azure API Gateway',
+	AZURE_EVENTHUB = 'Azure EventHub',
+	GITLAB = 'GitLab',
+	ISTIO = 'Istio',
+	EDGE_GATEWAY_ONLY = 'Amplify API Gateway only',
+	KAFKA = 'Kafka',
+	GRAYLOG = 'Graylog',
+	IBMAPICONNECT = 'IBM API Connect',
+	SOFTWAREAGWEBMETHODS = 'Software AG WebMethods',
+	TRACEABLE = 'Traceable',
+	BACKSTAGE = 'Backstage',
+	SAPAPIPORTAL = 'SAP API Portal',
+	SENSEDIA = 'Sensedia',
+	WSO2 = 'WSO2',
+}
+
+export enum SaaSGatewayTypes {
+	AKAMAI = 'Akamai',
+	AWS_GATEWAY = 'Amazon API Gateway',
+	APIGEEX_GATEWAY = 'Apigee X Gateway',
+	GITHUB = 'GitHub',
+	SWAGGERHUB = 'SwaggerHub',
+	TRACEABLE = 'Traceable',
+}
+
+export const GatewayTypeToDataPlane = {
+	[GatewayTypes.AKAMAI]: DataPlaneNames.AKAMAI,
+	[GatewayTypes.EDGE_GATEWAY]: DataPlaneNames.EDGE,
+	[GatewayTypes.EDGE_GATEWAY_ONLY]: DataPlaneNames.EDGE,
+	[GatewayTypes.APIGEEX_GATEWAY]: DataPlaneNames.APIGEEX,
+	[GatewayTypes.AWS_GATEWAY]: DataPlaneNames.AWS,
+	[SaaSGatewayTypes.GITHUB]: DataPlaneNames.GITHUB,
+	[GatewayTypes.GITLAB]: DataPlaneNames.GITLAB,
+	[GatewayTypes.AZURE_GATEWAY]: DataPlaneNames.AZURE,
+	[GatewayTypes.AZURE_EVENTHUB]: DataPlaneNames.AZURE,
+	[GatewayTypes.ISTIO]: 'Istio',
+	[GatewayTypes.KAFKA]: DataPlaneNames.KAFKA,
+	[GatewayTypes.SOFTWAREAGWEBMETHODS]: DataPlaneNames.SOFTWAREAGWEBMETHODS,
+	[SaaSGatewayTypes.SWAGGERHUB]: DataPlaneNames.SWAGGERHUB,
+	[GatewayTypes.GRAYLOG]: DataPlaneNames.GRAYLOG,
+	[GatewayTypes.IBMAPICONNECT]: DataPlaneNames.IBMAPICONNECT,
+	[GatewayTypes.TRACEABLE]: DataPlaneNames.TRACEABLE,
+	[GatewayTypes.BACKSTAGE]: DataPlaneNames.BACKSTAGE,
+	[GatewayTypes.SAPAPIPORTAL]: DataPlaneNames.SAPAPIPORTAL,
+	[GatewayTypes.SENSEDIA]: DataPlaneNames.SENSEDIA,
+	[GatewayTypes.WSO2]: DataPlaneNames.WSO2,
+};
+
+export const PublicRepoUrl = 'https://axway.jfrog.io';
+export const PublicDockerRepoBaseUrl = 'axway.jfrog.io/ampc-public-docker-release';
+
+export class DOSAConfigInfo {
+	clientId: string | null;
+	name: string;
+	isNew: boolean;
+
+	constructor() {
+		this.clientId = null;
+		this.name = '';
+		this.isNew = false;
+	}
+}
+
+export class CentralAgentConfig {
+	orgId: string;
+	ampcEnvInfo: EnvironmentConfigInfo;
+	ampcDosaInfo: DOSAConfigInfo;
+	ampcTeamName: string;
+	daAgentName: string;
+	taAgentName: string;
+	caAgentName: string;
+	dosaAccount: DosaAccount;
+	environment: string;
+	environmentId: string;
+	region: string;
+	deployment: string;
+	production: boolean;
+	axwayManaged: boolean;
+	apiServerClient: ApiServerClient | undefined;
+	definitionManager: DefinitionsManager | undefined;
+	gatewayConfig: object | undefined;
+
+	constructor() {
+		this.orgId = '';
+		this.ampcTeamName = '';
+		this.region = Regions.US;
+		this.daAgentName = '';
+		this.taAgentName = '';
+		this.caAgentName = '';
+		this.ampcEnvInfo = new EnvironmentConfigInfo();
+		this.ampcDosaInfo = new DOSAConfigInfo();
+		this.dosaAccount = new DosaAccount();
+		this.environment = '';
+		this.environmentId = '';
+		this.deployment = '';
+		this.production = false;
+		this.axwayManaged = false;
+	}
+}
+
+export class AgentInstallSwitches {
+	isDaEnabled: boolean;
+	isTaEnabled: boolean;
+	isHostedInstall: boolean;
+	isHelmInstall: boolean;
+	isGatewayOnly: boolean;
+	isDockerInstall: boolean;
+	isBinaryInstall: boolean;
+	isOrgRep: boolean;
+
+	constructor() {
+		this.isDaEnabled = false;
+		this.isTaEnabled = false;
+		this.isHostedInstall = false;
+		this.isHelmInstall = false;
+		this.isGatewayOnly = false;
+		this.isDockerInstall = false;
+		this.isBinaryInstall = false;
+		this.isOrgRep = false;
+	}
+}
+
+export class AgentInstallConfig {
+	centralConfig: CentralAgentConfig;
+	bundleType: BundleType;
+	gatewayType: GatewayTypes | SaaSGatewayTypes;
+	deploymentType: AgentConfigTypes;
+	daVersion: string;
+	taVersion: string;
+	caVersion: string;
+	gatewayConfig: object;
+	idpConfig: [IDPConfiguration[], IDPAuthConfiguration[]];
+	traceabilityConfig: TraceabilityConfig;
+	switches: AgentInstallSwitches;
+
+	constructor() {
+		this.centralConfig = new CentralAgentConfig();
+		this.bundleType = BundleType.ALL_AGENTS;
+		this.gatewayType = GatewayTypes.EDGE_GATEWAY;
+		this.deploymentType = AgentConfigTypes.DOCKERIZED;
+		// eslint-disable-next-line no-new-object
+		this.gatewayConfig = new Object();
+		this.idpConfig = [[], []];
+		this.daVersion = 'latest';
+		this.taVersion = 'latest';
+		this.caVersion = 'latest';
+		this.switches = new AgentInstallSwitches();
+		this.traceabilityConfig = new TraceabilityConfig();
+	}
+}
+
+export class DosaAccount {
+	clientId: string;
+	privateKey: string;
+	publicKey: string;
+	templatePrivateKey?: string;
+	templatePublicKey?: string;
+
+	constructor(clientId?: string, publicKey?: string, privateKey?: string) {
+		this.clientId = clientId || '';
+		this.privateKey = privateKey || 'private_key.pem';
+		this.publicKey = publicKey || 'public_key.pem';
+	}
+
+	updateKeyTemplateValues = (configType: AgentConfigTypes) => {
+		switch (configType) {
+			case AgentConfigTypes.BINARIES: {
+				this.templatePrivateKey = 'private_key.pem';
+				this.templatePublicKey = 'public_key.pem';
+				break;
+			}
+			case AgentConfigTypes.DOCKERIZED: {
+				this.templatePrivateKey = '/keys/private_key.pem';
+				this.templatePublicKey = '/keys/public_key.pem';
+				break;
+			}
+			default: {
+				this.templatePrivateKey = this.privateKey;
+				this.templatePublicKey = this.publicKey;
+				break;
+			}
+		}
+	};
+}
+
+export class TraceabilityConfig {
+	usageReportingOffline: boolean;
+
+	constructor() {
+		this.usageReportingOffline = false;
+	}
+}
+
+export class ApigeeMetricsFilterConfig {
+	filterMetrics: boolean;
+	filteredAPIs: string[];
+
+	constructor(filterMetrics: boolean, filteredAPIs: string[]) {
+		this.filterMetrics = filterMetrics;
+		this.filteredAPIs = filteredAPIs;
+	}
+}
+
+// AWSRegions - base set of regions, may use option outside this list
+export enum AWSRegions {
+	US_EAST_1 = 'us-east-1',
+	US_EAST_2 = 'us-east-2',
+	US_WEST_1 = 'us-west-1',
+	US_WEST_2 = 'us-west-2',
+	EU_WEST_1 = 'eu-west-1',
+	EU_WEST_2 = 'eu-west-2',
+	EU_WEST_3 = 'eu-west-3',
+}
+
+export enum APIGEEXDISCOVERYMODES {
+	PROXY = 'proxy',
+	PRODUCT = 'product',
+}
+
+export enum AzureDataplaneMode {
+	APIM = 'APIM',
+	EventHub = 'EventHub',
+}
+
+export enum Protocol {
+	HTTP = 'http',
+	HTTPS = 'https',
+}
+
+export enum Certificate {
+	PROVIDE = 'PROVIDE',
+	GENERATE = 'GENERATE',
+}
+
+export class CloudFormationConfig {
+	AgentResourcesBucket: string;
+	APIGWCWRoleSetup: string;
+	APIGWTrafficLogGroupName: string;
+	DeploymentType: string;
+	EC2VPCID: string;
+	EC2KeyName: string;
+	EC2InstanceType: string;
+	EC2SSHLocation: string;
+	EC2PublicIPAddress: string;
+	ECSClusterName: string;
+	ECSCentralOrganizationID: string;
+	ECSCentralEnvironmentName: string;
+	ECSCentralDiscoveryAgentName: string;
+	ECSCentralTraceabilityAgentName: string;
+	ECSCentralClientID: string | null;
+	ECSCentralRegion: string;
+	DiscoveryAgentLogGroupName: string;
+	DiscoveryAgentVersion: string;
+	TraceabilityAgentLogGroupName: string;
+	TraceabilityAgentVersion: string;
+	SSMPrivateKeyParameter: string;
+	SSMPublicKeyParameter: string;
+	SecurityGroup: string;
+	Subnet: string;
+
+	constructor() {
+		this.AgentResourcesBucket = '';
+		this.APIGWCWRoleSetup = 'true';
+		this.APIGWTrafficLogGroupName = 'aws-apigw-traffic-logs';
+		this.DeploymentType = 'EC2';
+		this.EC2VPCID = '';
+		this.EC2KeyName = '';
+		this.EC2InstanceType = 't3.micro';
+		this.EC2SSHLocation = '0.0.0.0/0';
+		this.EC2PublicIPAddress = 'true';
+		this.ECSClusterName = '';
+		this.ECSCentralOrganizationID = '';
+		this.ECSCentralEnvironmentName = '';
+		this.ECSCentralClientID = '';
+		this.ECSCentralDiscoveryAgentName = '';
+		this.ECSCentralTraceabilityAgentName = '';
+		this.ECSCentralRegion = '';
+		this.DiscoveryAgentLogGroupName = 'amplify-discovery-agent-logs';
+		this.DiscoveryAgentVersion = 'latest';
+		this.TraceabilityAgentLogGroupName = 'amplify-traceability-agent-logs';
+		this.TraceabilityAgentVersion = 'latest';
+		this.SSMPrivateKeyParameter = 'AmplifyPrivateKey';
+		this.SSMPublicKeyParameter = 'AmplifyPublicKey';
+		this.SecurityGroup = '';
+		this.Subnet = '';
+	}
+}
+
+export class IstioAgentValues {
+	alsEnabled: boolean;
+	alsMode: string;
+	apicDeployment: string;
+	envoyFilterNamespace: string;
+	clientId: string;
+	clusterName: string;
+	keysSecretName: string;
+	discoveryEnabled: boolean;
+	namespace: { name: string; isNew: boolean };
+	discoveryNamespaces: string[];
+	// The extra Overrides listed below are not used in the actual hybridTemplate
+	demoSvcEnabled: boolean;
+	constructor() {
+		this.alsEnabled = false;
+		this.alsMode = 'default';
+		this.apicDeployment = '';
+		this.envoyFilterNamespace = '';
+		this.clientId = '';
+		this.clusterName = '';
+		this.keysSecretName = 'amplify-agents-keys';
+		this.discoveryEnabled = true;
+		this.namespace = { name: '', isNew: false };
+		this.demoSvcEnabled = false;
+		this.discoveryNamespaces = [];
+	}
+}
+
+export class IstioInstallValues {
+	alsNamespace: string;
+	certSecretName?: string;
+	enableAls: boolean;
+	enableTracing: boolean;
+	envoyFilterNamespace: string;
+	host?: string;
+	isNewInstall: boolean;
+	port?: number;
+	protocol?: string;
+	profile?: string;
+	targetPort?: number;
+	// The extra IstioOverrides listed below are not used in the actual istioOverrideTemplate
+	certificateOption: string;
+	constructor() {
+		this.alsNamespace = 'amplify-agents';
+		this.certificateOption = '';
+		this.enableAls = false;
+		this.enableTracing = false;
+		this.envoyFilterNamespace = 'istio-system';
+		this.host = '';
+		this.isNewInstall = true;
+		this.port = 8080;
+		this.profile = 'demo';
+		this.protocol = Protocol.HTTP;
+		this.targetPort = 0;
+	}
+}
+
+export enum TraceableRegionType {
+	US = 'US',
+	US1 = 'US-1',
+	EU = 'EU',
+	APAC = 'APAC',
+	APAC2 = 'APAC-2',
+	Canada = 'Canada',
+	UAE = 'UAE',
 }

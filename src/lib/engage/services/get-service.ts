@@ -56,7 +56,7 @@ export async function getResources(params: GetCommandParams): Promise<GetCommand
 	const resolvedQuery = query ?? formattedFilter;
 
 	if (!resourceTypes.length || !resourceTypes[0]) {
-		const client = new ApiServerClient({ account, region, useCache, team });
+		const client = new ApiServerClient({ account, region, useCache, team, baseUrl: params.baseUrl });
 		const defsManager = await new DefinitionsManager(client).init();
 		return {
 			items: [],
@@ -67,7 +67,7 @@ export async function getResources(params: GetCommandParams): Promise<GetCommand
 		};
 	}
 
-	const client = new ApiServerClient({ account, region, useCache, team });
+	const client = new ApiServerClient({ account, region, useCache, team, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(client).init();
 	const scope = parseScopeParam(scopeParam);
 	const items: GetResultItem[] = [];

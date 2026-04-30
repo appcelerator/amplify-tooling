@@ -12,7 +12,7 @@ export async function createResources(params: CreateCommandParams): Promise<Crea
 
 	verifyFile(filePath);
 
-	const client = new ApiServerClient({ account, region, useCache });
+	const client = new ApiServerClient({ account, region, useCache, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(client).init();
 
 	const { docs, isMissingName } = await loadAndVerifySpecs(filePath, defsManager.getAllKindsList());
@@ -34,7 +34,7 @@ export async function createResources(params: CreateCommandParams): Promise<Crea
 export async function createEnvironment(params: CreateEnvironmentCommandParams): Promise<ApiServerClientSingleResult> {
 	const { account, region, useCache, name } = params;
 
-	const client = new ApiServerClient({ account, region, useCache });
+	const client = new ApiServerClient({ account, region, useCache, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(client).init();
 	const sortedKindsMap = defsManager.getSortedKindsMap();
 	const resourceDef = Array.from(sortedKindsMap.values()).find(def => def.spec.kind === 'Environment');
@@ -70,7 +70,7 @@ export async function createAgentResource(params: EngageCommandParams): Promise<
 		ampcTraceabilityAgentName: '',
 	};
 
-	const apiServerClient = new ApiServerClient({ account, region, useCache });
+	const apiServerClient = new ApiServerClient({ account, region, useCache, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(apiServerClient).init();
 
 	// Agent resource Type

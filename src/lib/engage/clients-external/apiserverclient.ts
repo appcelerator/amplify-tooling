@@ -32,6 +32,7 @@ import assign from 'lodash/assign.js';
 import { CacheController } from '../cache/CacheController.js';
 import logger from '../../logger.js';
 import { loadConfig } from '../../config.js';
+import { Account } from '../../../types.js';
 
 export class ApiServerClient {
 	region?: string;
@@ -47,12 +48,14 @@ export class ApiServerClient {
 		useCache,
 		team,
 		forceGetAuthInfo,
+		baseUrl,
 	}: {
 		account: Account;
 		region?: string;
 		useCache?: boolean;
 		team?: string | null;
 		forceGetAuthInfo?: boolean;
+		baseUrl?: string;
 	}) {
 		const log = logger('ApiServerClient.constructor');
 		log.info(
@@ -63,6 +66,9 @@ export class ApiServerClient {
 		this.useCache = useCache === undefined ? true : useCache;
 		this.team = team;
 		this.forceGetAuthInfo = forceGetAuthInfo;
+		if (baseUrl) {
+			this._baseUrl = baseUrl + BasePaths.ApiServer;
+		}
 	}
 
 	private async initializeDataService() {

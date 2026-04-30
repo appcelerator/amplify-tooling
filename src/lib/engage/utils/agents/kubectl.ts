@@ -54,6 +54,7 @@ class Kubectl {
 	}
 
 	private async execKubectl(action: string, resource: string): Promise<ExecResponse> {
+		// eslint-disable-next-line prefer-const
 		let { stdout, stderr } = await exec(`kubectl ${action} | awk ${quotes}{print $1}${quotes}`);
 		if (stderr.includes('WARNING')) {
 			stderr = '';
@@ -64,7 +65,7 @@ class Kubectl {
 	private cleanResponse(res: string) {
 		return res
 			.split('\n')
-			.filter((str) => str !== 'NAME' && str != '')
+			.filter((str) => str !== 'NAME' && str !== '')
 			.sort();
 	}
 }

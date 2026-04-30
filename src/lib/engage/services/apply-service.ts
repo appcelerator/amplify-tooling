@@ -8,7 +8,7 @@ export async function applyResources(params: ApplyCommandParams): Promise<ApplyC
 
 	verifyFile(filePath);
 
-	const client = new ApiServerClient({ account, region, useCache });
+	const client = new ApiServerClient({ account, region, useCache, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(client).init();
 
 	const { docs, isMissingName } = await loadAndVerifySpecs(filePath, defsManager.getAllKindsList());

@@ -93,39 +93,40 @@ export default class EngageGet extends Command {
 
 	async run(): Promise<any> {
 		const log = logger('engage:get');
-		const { args, flags, account, teams } = await this.parse(EngageGet);
-
-		if (!flags.team && flags['no-owner']) {
-			flags.team = null;
-		}
-
-		if (!!flags.output && !(flags.output in OutputTypes)) {
-			throw Error(`invalid "output" (-o,--output) value provided, allowed: ${OutputTypes.yaml} | ${OutputTypes.json}`);
-		}
-
-		// Resolve team GUID (by name or guid) from the pre-fetched teams list.
-		let teamGuid: string | undefined;
-		if (flags.team) {
-			const match = teams?.teams?.find((t: PlatformTeam) =>
-				t.guid.toLowerCase() === flags.team.toLowerCase() ||
-				t.name.toLowerCase() === flags.team.toLowerCase()
-			);
-			if (!match) {
-				throw new Error(`Unable to find team "${flags.team}" in the "${account.org.name}" organization`);
-			}
-			teamGuid = match.metadata.guid;
-		}
-
-		// Warn if both simple and advanced query params were provided.
-		if (flags.query && (flags.title || flags.attribute || flags.tag)) {
-			console.log(chalk.yellow(
-				'Both simple queries and advanced query parameters have been provided. Only the advanced query parameter will be applied.'
-			));
-		}
-
-		const renderer = new Renderer(console, flags.output);
+		let renderer = new Renderer(console, undefined);
 		let isCmdError = true;
 		try {
+			const { args, flags, account, teams } = await this.parse(EngageGet);
+			renderer = new Renderer(console, flags.output);
+
+			if (!flags.team && flags['no-owner']) {
+				flags.team = null;
+			}
+
+			if (!!flags.output && !(flags.output in OutputTypes)) {
+				throw Error(`invalid "output" (-o,--output) value provided, allowed: ${OutputTypes.yaml} | ${OutputTypes.json}`);
+			}
+
+			// Resolve team GUID (by name or guid) from the pre-fetched teams list.
+			let teamGuid: string | undefined;
+			if (flags.team) {
+				const match = teams?.teams?.find((t: PlatformTeam) =>
+					t.guid.toLowerCase() === flags.team.toLowerCase() ||
+					t.name.toLowerCase() === flags.team.toLowerCase()
+				);
+				if (!match) {
+					throw new Error(`Unable to find team "${flags.team}" in the "${account.org.name}" organization`);
+				}
+				teamGuid = match.metadata.guid;
+			}
+
+			// Warn if both simple and advanced query params were provided.
+			if (flags.query && (flags.title || flags.attribute || flags.tag)) {
+				console.log(chalk.yellow(
+					'Both simple queries and advanced query parameters have been provided. Only the advanced query parameter will be applied.'
+				));
+			}
+
 			const downloadMessage = 'Retrieving resource(s)';
 			renderer.startSpin(downloadMessage);
 			const result = await getResources({

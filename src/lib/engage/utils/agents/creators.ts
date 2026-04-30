@@ -3,8 +3,11 @@ import fsExtra from 'fs-extra';
 import { ApiServerClient } from '../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../results/DefinitionsManager.js';
 import { kubectl } from '../../utils/agents/kubectl.js';
-import { AgentResourceKind, AgentTypes, DataPlaneNames, GenericResource, IDPAuthConfiguration, IDPConfiguration } from '../../types.js';
+import { AgentResourceKind, AgentTypes, DataPlaneNames, DosaAccount, GenericResource, IDPAuthConfiguration, IDPConfiguration } from '../../types.js';
 import logger from '../../../logger.js';
+import { PlatformClient, PlatformServiceAccountRole } from '../../clients-external/platformclient.js';
+import chalk from 'chalk';
+import { createKeyPair } from '../bash-commands.js';
 
 const log = logger('lib: engage: utils: agents: creators');
 
@@ -36,6 +39,27 @@ export const createBackUpConfigs = async (configFiles: string[]): Promise<boolea
 	}
 
 	return fileExist;
+};
+
+export const createDosaAndCerts = async (client: PlatformClient, name: string): Promise<DosaAccount> => {
+	console.log('Creating a new service account.');
+	const { publicKey, privateKey } = await createKeyPair();
+	const publicCert = fsExtra.readFileSync(publicKey).toString();
+	const account = await client.createServiceAccount({
+		name: name,
+		desc: name,
+		publicKey: publicCert,
+		roles: [ PlatformServiceAccountRole.ApiCentralAdmin ],
+	});
+	console.log(
+		chalk.green(
+			`New service account "${account.name}" with clientId "${account.client_id}" has been successfully created.`
+		)
+	);
+	console.log(
+		chalk.green(`The private key has been placed at ${privateKey}\nThe public key has been placed at ${publicKey}`)
+	);
+	return new DosaAccount(account.client_id, publicKey, privateKey);
 };
 
 export const updateSubResourceType = async (

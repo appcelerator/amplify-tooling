@@ -41,16 +41,16 @@ export default class EngageCreate extends Command {
 
 	async run(): Promise<any> {
 		const log = logger('engage:create');
-		const { flags, account } = await this.parse(EngageCreate);
-
-		if (!flags.file) {
-			throw new Error('File name is required, please provide -f, --file [path] option');
-		}
-
-		const render = new Renderer(console, flags.output).startSpin('Creating resource(s)');
+		let render = new Renderer(console, undefined);
 		let commandIsSuccessful = false;
 		let result: CreateCommandResult = { results: { success: [], error: [] }, hasErrors: false };
 		try {
+			const { flags, account } = await this.parse(EngageCreate);
+			render = new Renderer(console, flags.output).startSpin('Creating resource(s)');
+
+			if (!flags.file) {
+				throw new Error('File name is required, please provide -f, --file [path] option');
+			}
 			result = await createResources({
 				account,
 				region: flags.region,

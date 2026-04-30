@@ -21,9 +21,10 @@ export default class EngageEditEnvironmentCommand extends Command {
 
 	async run(): Promise<any> {
 		const log = logger('engage:edit:environment');
-		const { args, flags, account } = await this.parse(EngageEditEnvironmentCommand);
-		const renderer = new Renderer(console, flags.output);
+		let renderer = new Renderer(console, undefined);
 		try {
+			const { args, flags, account } = await this.parse(EngageEditEnvironmentCommand);
+			renderer = new Renderer(console, flags.output);
 			await editEnvironment({ account, name: args.name, useCache: flags.useCache, render: renderer, outputFormat: flags.output });
 		} catch (e: any) {
 			log('command error', e);

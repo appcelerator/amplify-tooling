@@ -12,7 +12,7 @@ const log = logger('engage:services:edit-service');
 export async function editEnvironment(params: EditEnvironmentCommandParams): Promise<void> {
 	const { account, region, useCache, name, render, outputFormat } = params;
 
-	const client = new ApiServerClient({ account, region, useCache });
+	const client = new ApiServerClient({ account, region, useCache, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(client).init();
 	const sortedKindsMap = defsManager.getSortedKindsMap();
 	const resourceDef = Array.from(sortedKindsMap.values()).find(def => def.spec.kind === 'Environment');

@@ -44,7 +44,10 @@ export default class Renderer {
 	 * Stop the spinner
 	 */
 	stopSpin(): any {
-		this.spinner && this.spinner.stop();
+		if (this.spinner) {
+			this.spinner.stop();
+		}
+		this.spinner = null;
 		return this;
 	}
 
@@ -98,7 +101,13 @@ export default class Renderer {
 	 * only when spinner is in use (which mean no output param has been provided)
 	 */
 	error(text: string, spinnerOnly: boolean = false): void {
-		this.output && !spinnerOnly ? this.console(text) : this.spinner && this.spinner.fail(chalk.red(text));
+		if (this.output && !spinnerOnly) {
+			this.console(text);
+		} else if (this.spinner) {
+			this.spinner.fail(chalk.red(text));
+		} else if (!spinnerOnly) {
+			this.console(chalk.red(text));
+		}
 	}
 
 	/**
