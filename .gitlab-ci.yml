@@ -40,7 +40,7 @@ stages:
   - security-scans
   - security-review
 
-# For these 2, override the 'needs' from base
+# For these 2, override the 'nededs' from base
 report-latest:
   needs:
     - fetch-blackduck:on-schedule
