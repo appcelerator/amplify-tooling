@@ -3,19 +3,19 @@ image: docker:dind
 variables:
   PROJECT: "amplify-tooling"
 
-  # Fortify
-  FORTIFY_PROJECT: "10424"
-  FORTIFY_BUILD_ID: "axway-cli"
-  FORTIFY_INCLUDE: "packages/**/*.js"
-  FORTIFY_EXCLUDE: "**/test/**/*.js"
+  # SRM
+  SRM_PROJECT_NAME: "Catalog Commons - Axway CLI"
+  SRM_PROJECT_ID: "11"
 
   # Blackduck
-  BLACKDUCK_PROJECT_NAME: "Catalog Commons - Axway CLI"
+  BLACKDUCK_PROJECT_NAME: "$SR_PROJECT_NAME"
   BLACKDUCK_CUSTOM_OPTIONS: --detect.excluded.detector.types=LERNA
 
-  # SRM
-  SRM_PROJECT_NAME: "$BLACKDUCK_PROJECT_NAME"
-  SRM_PROJECT_ID: "11"
+  # Checkmarx One
+  CX_CLIENT_ID: "axway-$SRM_PROJECT_NAME"
+  #CX_CLIENT_SECRET: defined in UI
+  CHECKMARX_PROJECT_NAME: "$SRM_PROJECT_NAME"
+  CHECKMARX_EXCLUDE: ""
 
   ########################################
   # set up custom names for the pipelines of releases and nightly schedules
@@ -24,12 +24,12 @@ variables:
 
 include:
   - project: "apigov/gitlabci"
-    ref: $GITLAB_CICD_BLUE
+    ref: $GITLAB_CICD_GREEN
     file: "/.gitlab-ci-sonar.yml"
   - project: "apigov/security/gitlabci"
     ref: $SECURITY_CICD_GREEN
     file:
-      - "/.gitlab-ci-fortify.yml"
+      - "/.gitlab-ci-cxone.yml"
       - "/.gitlab-ci-blackduck.yml"
       - "/.gitlab-ci-security.yml"
 
