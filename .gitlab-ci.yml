@@ -8,7 +8,7 @@ variables:
   SRM_PROJECT_ID: "11"
 
   # Blackduck
-  BLACKDUCK_PROJECT_NAME: "$SR_PROJECT_NAME"
+  BLACKDUCK_PROJECT_NAME: "$SRM_PROJECT_NAME"
   BLACKDUCK_CUSTOM_OPTIONS: --detect.excluded.detector.types=LERNA
 
   # Checkmarx One
