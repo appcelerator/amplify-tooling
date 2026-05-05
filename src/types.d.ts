@@ -1,6 +1,4 @@
-import { AccountRole } from './lib/engage/types.ts';
-
-type Account = {
+export type Account = {
 	/** Optional name of a configuration profile the account is associated with */
 	profile?: string;
 	/** Unique hash for the account */

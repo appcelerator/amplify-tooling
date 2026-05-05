@@ -2,6 +2,7 @@ import Command from '../../lib/command.js';
 import { createTable } from '../../lib/formatter.js';
 import chalk from 'chalk';
 import prettyMilliseconds from 'pretty-ms';
+import { initSDK } from '../../lib/amplify-sdk/index.js';
 
 export default class AuthList extends Command {
 	static override summary = 'Lists all authenticated accounts.';
@@ -9,11 +10,13 @@ export default class AuthList extends Command {
 	static override description = 'Displays a list of all authenticated accounts, their selected platform organization, and the current team.';
 
 	static override aliases = [ 'auth:ls' ];
+	static override authenticated = false;
 
 	static override enableJsonFlag = true;
 
 	async run() {
-		const { config, sdk } = await this.parse(AuthList);
+		const { config } = await this.parse(AuthList);
+		const sdk = await initSDK({}, config);
 
 		const accounts = await sdk.auth.list({
 			defaultTeams: config.get('auth.defaultTeam'),
