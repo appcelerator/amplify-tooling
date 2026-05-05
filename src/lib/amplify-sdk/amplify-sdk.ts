@@ -238,9 +238,9 @@ export default class AmplifySDK {
 			logout: async ({ accounts: accountIds, all, baseUrl = this.baseUrl } = {}) => {
 				let accounts;
 				if (all) {
-					accounts = await this.authClient.list();
+					return await this.authClient.logout({ all: true, baseUrl });
 				} else {
-					if (!Array.isArray(accounts)) {
+					if (!Array.isArray(accountIds)) {
 						throw E.INVALID_ARGUMENT('Expected accounts to be a list of accounts');
 					}
 					if (!accountIds.length) {

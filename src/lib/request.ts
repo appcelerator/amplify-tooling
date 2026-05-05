@@ -437,8 +437,10 @@ export const dataService = async ({
 		download: async (url: string) => {
 			try {
 				return await new Promise((resolve, reject) => {
-					log(`DOWNLOAD: ${url}`);
-					const stream = got.stream(url, {
+					const fullUrl = prependBase(url);
+					log(`DOWNLOAD: ${fullUrl}`);
+					const plainGot = init(createRequestOptions({}));
+					const stream = plainGot.stream(fullUrl, {
 						retry: { limit: 0 },
 						timeout: { request: ABORT_TIMEOUT },
 					});

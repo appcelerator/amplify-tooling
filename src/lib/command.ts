@@ -84,7 +84,7 @@ export default abstract class AxwayCommand extends Command {
 		}
 
 		if (options.authenticated) {
-			data.sdk = await initSDK();
+			data.sdk = await initSDK({}, data.config);
 
 			data.account = await data.sdk.auth.find(
 				parsed.args?.accountName

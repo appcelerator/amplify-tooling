@@ -371,8 +371,22 @@ export default class Auth {
 	 */
 	async list() {
 		if (this.tokenStore) {
+			const resolvedBaseUrl = this.baseUrl?.replace(/\/$/, '');
 			return (await this.tokenStore.list())
-				.filter(account => (account.auth.env || 'prod') === this.env);
+				.filter(account => {
+					const accountEnv = account.auth?.env;
+					if (accountEnv) {
+						return accountEnv === this.env;
+					}
+
+					// Backward compatibility: older token entries may not have auth.env set.
+					const accountBaseUrl = account.auth?.baseUrl?.replace(/\/$/, '');
+					if (resolvedBaseUrl && accountBaseUrl) {
+						return accountBaseUrl === resolvedBaseUrl;
+					}
+
+					return this.env === 'prod';
+				});
 		}
 		return [];
 	}

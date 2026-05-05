@@ -497,6 +497,10 @@ const downloadAPIGWAgentConfigZip = async (account: Account): Promise<string> =>
 		baseUrl: PublicRepoUrl,
 	});
 	try {
+		const token = account.auth?.tokens?.access_token;
+		if (!token) {
+			throw new Error('Invalid/expired account');
+		}
 		const { stream } = await service.download(url);
 		await helpers.streamPipeline(stream, fs.createWriteStream(ConfigFiles.AgentConfigZip));
 		return ConfigFiles.AgentConfigZip;

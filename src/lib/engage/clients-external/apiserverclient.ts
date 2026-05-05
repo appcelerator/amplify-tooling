@@ -40,6 +40,7 @@ export class ApiServerClient {
 	account: Account;
 	team?: string | null;
 	forceGetAuthInfo?: boolean;
+	basePath?: string;
 	private _baseUrl?: string;
 
 	constructor({
@@ -49,6 +50,7 @@ export class ApiServerClient {
 		team,
 		forceGetAuthInfo,
 		baseUrl,
+		basePath,
 	}: {
 		account: Account;
 		region?: string;
@@ -56,6 +58,7 @@ export class ApiServerClient {
 		team?: string | null;
 		forceGetAuthInfo?: boolean;
 		baseUrl?: string;
+		basePath?: string;
 	}) {
 		const log = logger('ApiServerClient.constructor');
 		log.info(
@@ -66,8 +69,9 @@ export class ApiServerClient {
 		this.useCache = useCache === undefined ? true : useCache;
 		this.team = team;
 		this.forceGetAuthInfo = forceGetAuthInfo;
+		this.basePath = basePath;
 		if (baseUrl) {
-			this._baseUrl = baseUrl + BasePaths.ApiServer;
+			this._baseUrl = baseUrl + (basePath || BasePaths.ApiServer);
 		}
 	}
 
@@ -76,7 +80,7 @@ export class ApiServerClient {
 			const config = await loadConfig();
 			const envBaseUrl = process.env.AXWAY_CENTRAL_BASE_URL || config.get('engage.baseUrl');
 			if (envBaseUrl) {
-				this._baseUrl = envBaseUrl + BasePaths.ApiServer;
+				this._baseUrl = envBaseUrl + (this.basePath || BasePaths.ApiServer);
 			} else {
 				const regionKey = String(
 					this.region || this.account?.org?.region || Regions.US
@@ -87,7 +91,7 @@ export class ApiServerClient {
 						'Unknown region provided, check your region config, should be one of: ' + Object.keys(ProdBaseUrls).join(', ')
 					);
 				}
-				this._baseUrl = prodBaseUrl + BasePaths.ApiServer;
+				this._baseUrl = prodBaseUrl + (this.basePath || BasePaths.ApiServer);
 			}
 		}
 		return dataService({ account: this.account, baseUrl: this._baseUrl });
