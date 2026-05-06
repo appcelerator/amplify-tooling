@@ -2,6 +2,7 @@ import Command from '../../lib/command.js';
 import { Args } from '@oclif/core';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import { highlight } from '../../lib/logger.js';
+import { initSDK } from '../../lib/amplify-sdk/index.js';
 
 export default class AuthWhoami extends Command {
 	static override description = 'Display info for an authenticated account';
@@ -12,11 +13,13 @@ export default class AuthWhoami extends Command {
 			required: false
 		})
 	};
+	static override authenticated = false;
 
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { args, config, sdk } = await this.parse(AuthWhoami);
+		const { args, config } = await this.parse(AuthWhoami);
+		const sdk = await initSDK({}, config);
 		let accounts = await sdk.auth.list({
 			defaultTeams: config.get('auth.defaultTeam'),
 			validate: true

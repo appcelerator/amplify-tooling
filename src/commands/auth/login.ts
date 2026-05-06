@@ -105,7 +105,8 @@ Once authenticated, the account's current team is set to its configured default 
 		const sdk = await initSDK({
 			clientId: flags['client-id'],
 			clientSecret: flags['client-secret'],
-			secretFile: flags['secret-file']
+			secretFile: flags['secret-file'],
+			env: config.get('env')
 		});
 		let account;
 

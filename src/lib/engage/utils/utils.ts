@@ -3,6 +3,8 @@ import { writeFileSync } from '../../fs.js';
 import { loadAll } from 'js-yaml';
 
 import chalk from 'chalk';
+
+import hbs from 'handlebars';
 import {
 	ApiServerError,
 	ApiServerErrorResponse,
@@ -490,3 +492,26 @@ export function getAuthConfigEnvSpecifier(env) {
 	return !env || env === 'prod' ? 'auth' : `auth.environment.${env}`;
 }
 
+export function FormatString(str: string, ...val: string[]) {
+	for (let index = 0; index < val.length; index++) {
+		str = str.replace(`{${index}}`, val[index]);
+	}
+	return str;
+}
+
+/**
+ * Takes in a set of parameters (values), compiles a string utilizing the provided handlebars templating function (templateFunc)
+ * and the buildTemplate function with those parameters, and finally writes the output string to a file of the name that was provided (fileName).
+ * @param  {string} fileName
+ * @param  {object} values
+ * @param  {()=>string} templateFunc
+ */
+export const writeTemplates = (fileName: string, values: object, templateFunc: () => string) => {
+	const data = buildTemplate(templateFunc, values);
+	writeToFile(fileName, data);
+};
+
+export const buildTemplate = (templateFunc: () => string, input: object): string => {
+	const template = hbs.compile(templateFunc(), { noEscape: true });
+	return template(input);
+};

@@ -1,6 +1,7 @@
 import { highlight } from '../../lib/logger.js';
 import { Args } from '@oclif/core';
 import Command from '../../lib/command.js';
+import { initSDK } from '../../lib/amplify-sdk/index.js';
 
 export default class AuthLogout extends Command {
 	static override summary = 'Log out all or specific accounts.';
@@ -16,11 +17,13 @@ export default class AuthLogout extends Command {
 			multiple: true
 		})
 	};
+	static override authenticated = false;
 
 	static override enableJsonFlag = true;
 
 	async run() {
-		const { args, sdk } = await this.parse(AuthLogout);
+		const { args, config } = await this.parse(AuthLogout);
+		const sdk = await initSDK({}, config);
 
 		const accounts = args.accounts ?? [];
 		const all = accounts.length === 0;

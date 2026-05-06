@@ -9,11 +9,20 @@ export const environments = {
 		platformUrl: 'https://platform.axway.com',
 		realm: 'Broker',
 		title: 'Production'
+	},
+	staging: {
+		baseUrl: 'https://login.axwaytest.net',
+		platformUrl: 'https://platform.axwaytest.net',
+		realm: 'Broker',
+		title: 'Staging'
 	}
 };
 
 const mapping = {
-	production: 'prod'
+	production: 'prod',
+	staging: 'staging',
+	dev: 'staging',
+	development: 'staging'
 };
 
 export function resolve(env) {

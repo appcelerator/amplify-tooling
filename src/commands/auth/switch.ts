@@ -3,6 +3,7 @@ import { highlight, note } from '../../lib/logger.js';
 import { renderAccountInfo } from '../../lib/auth/info.js';
 import { select } from '@inquirer/prompts';
 import { Flags } from '@oclif/core';
+import { initSDK } from '../../lib/amplify-sdk/index.js';
 
 export default class AuthSwitch extends Command {
 	static override summary = 'Select default account and team.';
@@ -24,11 +25,13 @@ than one team.`;
 			description: 'The team to use for the selected account.',
 		})
 	};
+	static override authenticated = false;
 
 	static override enableJsonFlag = true;
 
 	async run(): Promise<any> {
-		const { config, flags, sdk } = await this.parse(AuthSwitch);
+		const { config, flags } = await this.parse(AuthSwitch);
+		const sdk = await initSDK({}, config);
 		const accounts = await sdk.auth.list({ validate: true, sanitize: false });
 		let account;
 
