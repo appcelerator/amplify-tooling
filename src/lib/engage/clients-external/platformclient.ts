@@ -122,7 +122,6 @@ export class PlatformClient {
 		}
 
 		// Return account info if found.
-		console.log(accountInfo);
 		return accountInfo;
 	}
 
