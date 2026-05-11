@@ -293,7 +293,7 @@ export const createIDPResources = async (ctx: CompleteInstallContext): Promise<b
 				helpers.deleteByResourceType(apiServerClient, defsManager, idpSecResource?.name as string, 'IdentityProviderSecret', 'idpsec', idpResource?.name)
 			);
 		}
-	} catch (error) {
+	} catch (_error) {
 		console.log(chalk.redBright('rolling back installation. Could not create the Identity Provider resources'));
 		await cleanResources(resourceFuncsForCleanup);
 		return false;
@@ -356,7 +356,7 @@ export const createDataplaneResources = async (
 		resourceFuncsForCleanup.push(async () =>
 			helpers.deleteByResourceType(apiServerClient, defsManager, dataplaneRes.name, 'Dataplane', 'dp', installConfig.centralConfig.environment)
 		);
-	} catch {
+	} catch (_error) {
 		console.log(chalk.redBright('rolling back installation. Please check the configuration data before re-running install'));
 		await cleanResources(resourceFuncsForCleanup);
 		return null;
@@ -373,7 +373,7 @@ export const createDataplaneResources = async (
 		resourceFuncsForCleanup.push(async () =>
 			helpers.deleteByResourceType(apiServerClient, defsManager, dataplaneSecretRes?.name as string, 'DataplaneSecret', 'dps', installConfig.centralConfig.environment)
 		);
-	} catch {
+	} catch (_error) {
 		console.log(chalk.redBright('rolling back installation. Please check the credential data before re-running install'));
 		await cleanResources(resourceFuncsForCleanup);
 		return null;

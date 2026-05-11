@@ -985,6 +985,12 @@ export class ApigeeMetricsFilterConfig {
 	}
 }
 
+// APIGEEXAuthType - how the agent will authenticate to APIGEEX
+export enum APIGEEXAuthType {
+	IMP_SVC_ACC = 'Impersonate Service Account',
+	ACCESS_CREDENTIAL = 'Access Credential',
+}
+
 // AWSRegions - base set of regions, may use option outside this list
 export enum AWSRegions {
 	US_EAST_1 = 'us-east-1',
