@@ -19,6 +19,7 @@
     "debug": "node --inspect=9254 --enable-source-maps dist/index.js",
     "start": "./bin/run.js",
     "build": "tsc",
+    "pretest": "tsc",
     "test": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test",
     "lint": "eslint . --ignore-pattern 'dist/**'",
     "watch": "tsc --watch",
