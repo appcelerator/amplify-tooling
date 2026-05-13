@@ -552,7 +552,7 @@ export class ApiServerClient {
 				scopeName,
 				version,
 			});
-			service.put(`${urlPath}/${subResourceName}?fields=${subResourceName}`, {
+			await service.put(`${urlPath}/${subResourceName}?fields=${subResourceName}`, {
 				[subResourceName]: foundSubResources[subResourceName],
 			});
 		} catch (e: any) {
@@ -1207,9 +1207,8 @@ export class ApiServerClient {
 			pendingResources = await this.checkForResources(resources, sortedDefsArray);
 			const pendingDeletingResource = pendingResources.some((res) => res?.data);
 			if (pendingDeletingResource) {
-				setTimeout(async () => {
-					pendingResources = await this.checkForResources(resources, sortedDefsArray);
-				}, WAIT_TIMEOUT);
+				await new Promise((resolve) => setTimeout(resolve, WAIT_TIMEOUT));
+				pendingResources = await this.checkForResources(resources, sortedDefsArray);
 				const stillPending = pendingResources.some((res) => res?.data);
 				if (stillPending) {
 					const pendingResNames = pendingResources.map((res) => res?.data?.name);

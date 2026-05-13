@@ -1,38 +1,217 @@
-import { InstallationFlowMethods } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BundleType, GatewayTypes } from '../../../types.js';
-import { askList } from '../../basic-prompts.js';
-import { SAPApiPortalAgentValues } from '../templates/sapApiPortalTemplates.js';
+import { InstallationFlowMethods, svcAccMsg } from '../../../services/install-service.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, PublicDockerRepoBaseUrl, YesNo, YesNoChoices } from '../../../types.js';
+import { askInput, askList } from '../../basic-prompts.js';
+import { SAPApiPortalAgentValues, sapAPIPortalDAEnvVarTemplate, sapAPIPortalTAEnvVarTemplate } from '../templates/sapApiPortalTemplates.js';
 import * as helpers from '../index.js';
+import chalk from 'chalk';
+import { isWindows, writeTemplates } from '../../utils.js';
+
+const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.SAPAPIPORTAL_DA}`;
+const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.SAPAPIPORTAL_TA}`;
+
+export const defaultLogFiles = '/group-*_instance-*.log';
+
+// ConfigFiles - all the config file that are used in the setup
+export const ConfigFiles = {
+	DAEnvVars: `${helpers.configFiles.DA_ENV_VARS}`,
+	TAEnvVars: `${helpers.configFiles.TA_ENV_VARS}`,
+	SAPAPIPortalDABinaryFile: 'discovery_agent',
+	SAPAPIPortalDAYaml: 'discovery_agent.yml',
+	SAPAPIPortalTABinaryFile: 'traceability_agent',
+	SAPAPIPortalTAYaml: 'traceability_agent.yml',
+};
+
+// SAPAPIPortalPrompts - prompts for user inputs
+const SAPAPIPortalPrompts = {
+	configTypeMsg: 'Select the mode of installation',
+	enterAuthTokenURL: 'Enter the token URL used for agent authentication to SAP',
+	enterAuthAPIPortalBaseURL: 'Enter the SAP API Portal baseURL',
+	enterAuthAPIPortalClientID: 'Enter the SAP API Portal ClientID',
+	enterAuthAPIPortalClientSecret: 'Enter the SAP API Portal ClientSecret',
+	enterAuthDevPortalBaseURL: 'Enter the SAP Dev Portal baseURL',
+	enterAuthDevPortalClientID: 'Enter the SAP Dev Portal ClientID',
+	enterAuthDevPortalClientSecret: 'Enter the SAP Dev Portal ClientSecret',
+	enterDeveloperEmail: 'Enter the SAP developer email',
+	selectSpecCreateUnstructuredAPI: 'Select whether to create unstructured APIs for invalid/unknown API specs',
+};
 
 export const askBundleType = async (): Promise<BundleType> => {
 	return (await askList({
-		msg: 'Select the type of agent(s) you want to install',
+		msg: helpers.agentMessages.selectAgentType,
 		choices: [ BundleType.ALL_AGENTS, BundleType.DISCOVERY, BundleType.TRACEABILITY ],
 	})) as BundleType;
 };
 
-export const ConfigFiles = {
-	helmOverride: 'agent-overrides.yaml',
-	agentEnvVars: `${helpers.configFiles.AGENT_ENV_VARS}`,
-};
-
-const prompts = {
-	configTypeMsg: 'Select the mode of installation',
-};
-
 export const askConfigType = async (): Promise<AgentConfigTypes> => {
-	return (await askList({
-		msg: prompts.configTypeMsg,
-		choices: [ AgentConfigTypes.DOCKERIZED, AgentConfigTypes.HELM, AgentConfigTypes.BINARIES ],
-	})) as AgentConfigTypes;
+	return AgentConfigTypes.DOCKERIZED;
 };
 
-export const gatewayConnectivity = async (_installConfig: AgentInstallConfig): Promise<SAPApiPortalAgentValues> => {
-	const values: SAPApiPortalAgentValues = new SAPApiPortalAgentValues();
-	return values;
+//
+// Questions for the configuration of SAP API Portal agents
+//
+const askAuthTokenURL = async (): Promise<string> =>
+	(await askInput({
+		msg: SAPAPIPortalPrompts.enterAuthTokenURL,
+	})) as string;
+
+const askAuthAPIPortalBaseURL = async (): Promise<string> =>
+	(await askInput({
+		msg: SAPAPIPortalPrompts.enterAuthAPIPortalBaseURL,
+	})) as string;
+
+const askAuthAPIPortalClientID = async (): Promise<string> =>
+	(await askInput({
+		msg: SAPAPIPortalPrompts.enterAuthAPIPortalClientID,
+	})) as string;
+
+const askAuthAPIPortalClientSecret = async (): Promise<string> =>
+	(await askInput({
+		msg: SAPAPIPortalPrompts.enterAuthAPIPortalClientSecret,
+	})) as string;
+
+const askAuthDevPortalBaseURL = async (): Promise<string> =>
+	(await askInput({
+		msg: SAPAPIPortalPrompts.enterAuthDevPortalBaseURL,
+	})) as string;
+
+const askAuthDevPortalClientID = async (): Promise<string> =>
+	(await askInput({
+		msg: SAPAPIPortalPrompts.enterAuthDevPortalClientID,
+	})) as string;
+
+const askAuthDevPortalClientSecret = async (): Promise<string> =>
+	(await askInput({
+		msg: SAPAPIPortalPrompts.enterAuthDevPortalClientSecret,
+	})) as string;
+
+const askDeveloperEmail = async (): Promise<string> =>
+	(await askInput({
+		msg: SAPAPIPortalPrompts.enterDeveloperEmail,
+	})) as string;
+
+const askSpecCreateUnstructuredAPI = async (): Promise<boolean> =>
+	(await askList({
+		msg: SAPAPIPortalPrompts.selectSpecCreateUnstructuredAPI,
+		default: YesNo.No,
+		choices: YesNoChoices,
+	})) as YesNo === YesNo.Yes;
+
+export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SAPApiPortalAgentValues> => {
+	const agentValues: SAPApiPortalAgentValues = new SAPApiPortalAgentValues();
+	console.log('\nCONNECTION TO SAP API Portal:');
+	console.log(
+		chalk.gray(
+			'The discovery agent needs to connect to the SAP API Portal Gateway to discover API\'s for publishing to Amplify.\nThe traceability agent needs to connect to SAP API Portal for collecting APIs transactions. These will be forwarded to the Business Insights.\n'
+		)
+	);
+
+	await askCommonPrompts(agentValues);
+
+	// SAP API Portal Discovery Agent Prompts
+	if (installConfig.switches.isDaEnabled) {
+		console.log(
+			chalk.gray(
+				'\nDiscovery Agent Configuration\n'
+			)
+		);
+
+		await askDiscoveryPrompts(agentValues);
+	}
+
+	return agentValues;
 };
 
-export const completeInstall = async (_installConfig: AgentInstallConfig): Promise<void> => {
+const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
+	if (installConfig.centralConfig.ampcDosaInfo.isNew && !installConfig.switches.isHelmInstall) {
+		console.log(chalk.yellow(svcAccMsg));
+	}
+
+	dockerSuccessMsg(installConfig);
+
+	console.log(
+		chalk.gray(`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.SAPAPIPORTAL}`)
+	);
+};
+
+const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
+	let dockerInfo;
+	const runDaLinuxMsg = `docker run -it --env-file ${helpers.pwd}/${helpers.configFiles.DA_ENV_VARS} -v ${helpers.pwd}:/keys ${helpers.eolChar}`;
+	const runDaWinMsg = `docker run -it --env-file ${helpers.pwdWin}/${helpers.configFiles.DA_ENV_VARS} -v ${helpers.pwdWin}:/keys ${helpers.eolCharWin}`;
+	const runTaLinuxMsg = `docker run -it --env-file ${helpers.pwd}/${helpers.configFiles.TA_ENV_VARS} -v ${helpers.pwd}:/keys ${helpers.eolChar}`;
+	const runTaWinMsg = `docker run -it --env-file ${helpers.pwdWin}/${helpers.configFiles.TA_ENV_VARS} -v ${helpers.pwdWin}:/keys ${helpers.eolCharWin}`;
+	const startDaLinuxMsg = '\nStart the Discovery Agent on a Linux based machine';
+	const startDaWinMsg = '\nStart the Discovery Agent on a Windows machine';
+	const startTaLinuxMsg = '\nStart the Traceability Agent on a Linux based machine';
+	const startTaWinMsg = '\nStart the Traceability Agent on a Windows machine';
+
+	if (installConfig.switches.isDaEnabled && installConfig.switches.isTaEnabled) {
+		dockerInfo = `To utilize the agents, pull the latest Docker images and run them using the appropriate supplied environment files, (${helpers.configFiles.DA_ENV_VARS} & ${helpers.configFiles.TA_ENV_VARS}):`;
+	} else if (installConfig.switches.isDaEnabled) {
+		dockerInfo = `To utilize the discovery agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.DA_ENV_VARS}):`;
+	} else {
+		dockerInfo = `To utilize the traceability agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.TA_ENV_VARS}):`;
+	}
+	console.log(chalk.whiteBright(dockerInfo), '\n');
+
+	if (installConfig.switches.isDaEnabled) {
+		const daImageVersion = `${daImage}:${installConfig.daVersion}`;
+		console.log(chalk.white('Pull the latest image of the Discovery Agent:'));
+		console.log(chalk.cyan(`docker pull ${daImageVersion}`));
+		console.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
+		console.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
+		console.log('\t', chalk.cyan(`-v /data ${daImageVersion}`), '\n');
+	}
+	if (installConfig.switches.isTaEnabled) {
+		const taImageVersion = `${taImage}:${installConfig.taVersion}`;
+		console.log(chalk.white('Pull the latest image of the Traceability Agent:'));
+		console.log(chalk.cyan(`docker pull ${taImageVersion}`));
+		console.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
+		console.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
+		console.log('\t', chalk.cyan(`-v /data ${taImageVersion}`), '\n');
+	}
+};
+
+async function askCommonPrompts(agentValues: SAPApiPortalAgentValues) {
+	agentValues.authTokenURL = await askAuthTokenURL();
+
+	agentValues.authAPIPortalBaseURL = await askAuthAPIPortalBaseURL();
+	agentValues.authAPIPortalClientID = await askAuthAPIPortalClientID();
+	agentValues.authAPIPortalClientSecret = await askAuthAPIPortalClientSecret();
+}
+
+// SAP API Portal DA prompts
+async function askDiscoveryPrompts(agentValues: SAPApiPortalAgentValues) {
+	agentValues.authDevPortalBaseURL = await askAuthDevPortalBaseURL();
+	agentValues.authDevPortalClientID = await askAuthDevPortalClientID();
+	agentValues.authDevPortalClientSecret = await askAuthDevPortalClientSecret();
+
+	agentValues.developerEmail = await askDeveloperEmail();
+	agentValues.specCreateUnstructuredAPI = await askSpecCreateUnstructuredAPI();
+}
+
+export const completeInstall = async (installConfig: AgentInstallConfig): Promise<void> => {
+	/**
+	 * Create agent resources
+	 */
+	const agentValues = installConfig.gatewayConfig as SAPApiPortalAgentValues;
+
+	// Add final settings to SAP API Portal agentValues
+	agentValues.centralConfig = installConfig.centralConfig;
+	agentValues.traceabilityConfig = installConfig.traceabilityConfig;
+
+	console.log('Generating the configuration file(s)...');
+
+	if (installConfig.switches.isDaEnabled) {
+		writeTemplates(ConfigFiles.DAEnvVars, agentValues, sapAPIPortalDAEnvVarTemplate);
+	}
+
+	if (installConfig.switches.isTaEnabled) {
+		writeTemplates(ConfigFiles.TAEnvVars, agentValues, sapAPIPortalTAEnvVarTemplate);
+	}
+
+	console.log('Configuration file(s) have been successfully created.\n');
+
+	generateSuccessHelpMsg(installConfig);
 };
 
 export const SAPAPIPortalInstallMethods: InstallationFlowMethods = {

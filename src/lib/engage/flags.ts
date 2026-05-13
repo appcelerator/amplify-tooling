@@ -12,7 +12,7 @@ export const commonFlags = {
 	region: Flags.string({
 		description: 'Override your region config',
 	}),
-	cache: Flags.boolean({
+	useCache: Flags.boolean({
 		description: 'Use cache when communicating with the server',
 		allowNo: true,
 		default: true,
