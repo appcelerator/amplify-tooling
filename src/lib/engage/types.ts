@@ -991,6 +991,11 @@ export enum APIGEEXAuthType {
 	ACCESS_CREDENTIAL = 'Access Credential',
 }
 
+export enum LoggingSource {
+	Event = 'event',
+	OpenTraffic = 'open traffic',
+}
+
 // AWSRegions - base set of regions, may use option outside this list
 export enum AWSRegions {
 	US_EAST_1 = 'us-east-1',
@@ -1132,6 +1137,15 @@ export class IstioInstallValues {
 		this.targetPort = 0;
 	}
 }
+
+export const IstioProfileChoices = [
+	{ name: 'default', value: 'default' },
+	{ name: 'demo', value: 'demo' },
+	{ name: 'empty', value: 'empty' },
+	{ name: 'minimal', value: 'minimal' },
+	{ name: 'openshift', value: 'openshift' },
+	{ name: 'preview', value: 'preview' },
+];
 
 export enum TraceableRegionType {
 	US = 'US',

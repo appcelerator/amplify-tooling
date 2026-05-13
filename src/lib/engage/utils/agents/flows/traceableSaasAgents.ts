@@ -1,34 +1,303 @@
+import chalk from 'chalk';
+import logger from '../../../../logger.js';
+import { ApiServerClient } from '../../../clients-external/apiserverclient.js';
+import { DefinitionsManager } from '../../../results/DefinitionsManager.js';
 import { InstallationFlowMethods } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BundleType, SaaSGatewayTypes } from '../../../types.js';
-import { askList } from '../../basic-prompts.js';
-import { TraceableAgentValues } from '../index.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentResourceKind, AgentTypes, BundleType, CentralAgentConfig, GatewayTypes, GatewayTypeToDataPlane, GenericResource, SaaSGatewayTypes, TraceableRegionType, YesNo, YesNoChoices } from '../../../types.js';
+import { askInput, askList } from '../../basic-prompts.js';
 import * as helpers from '../index.js';
+import * as crypto from 'crypto';
+import { DataplaneConfig } from './saasAgentsBase.js';
+
+const { log } = logger('engage: install: agents: Traceable');
+
+class TraceableDataplaneConfig extends DataplaneConfig {
+	region: string;
+	environments: TraceableEnvironments[];
+	constructor(region: string, environments: TraceableEnvironments[]) {
+		super('Traceable');
+		this.region = region;
+		this.environments = environments;
+	}
+}
+
+class TraceableEnvironments {
+	traceable: string;
+	environment: string;
+
+	constructor(traceable: string, environment: string) {
+		this.traceable = traceable;
+		this.environment = environment;
+	}
+}
+
+class SaasAgentValues {
+	dataplaneConfig: DataplaneConfig;
+	centralConfig: CentralAgentConfig;
+
+	constructor() {
+		this.dataplaneConfig = new DataplaneConfig();
+		this.centralConfig = new CentralAgentConfig();
+	}
+
+	getAccessData() {
+		return '';
+	}
+}
+
+class SaasTraceableAgentValues extends SaasAgentValues {
+	traceableToken: string;
+	traceableRegion: TraceableRegionType;
+	environments: string[];
+	centralEnvironments: string[];
+
+	constructor() {
+		super();
+		this.traceableToken = '';
+		this.traceableRegion = TraceableRegionType.US;
+		this.environments = [];
+		this.centralEnvironments = [];
+
+	}
+
+	override getAccessData() {
+		const data = JSON.stringify({
+			token: this.traceableToken,
+		});
+
+		return data;
+	}
+}
+
+// TraceableSaaSPrompts - all Traceable Saas prompts to the user for input
+const SaasPrompts = {
+	configTypeMsg: 'Select the mode of installation',
+	agentNamespace: 'Enter the namespace to use for the Amplify Traceable Agents',
+	enterToken: 'Enter the token that the agent will use',
+	enterRegion: 'Enter the region that the agent will use',
+	enterEnvironments: 'Enter a Traceable environment',
+	enterMoreEnvironments: 'Do you want to enter another mapping?',
+	selectCentralMappingEnvironment: 'Select an Engage environment to map to the provided Traceable environment',
+	environmentsDescription: 'Configure a mapping of Traceable environment to Engage environment that the agent will use',
+};
 
 export const askBundleType = async (): Promise<BundleType> => {
-	return BundleType.TRACEABILITY as BundleType;
+	return  BundleType.TRACEABILITY as BundleType;
 };
 
-export const ConfigFiles = {
-	agentEnvVars: `${helpers.configFiles.AGENT_ENV_VARS}`,
+const askConfigType = async (): Promise<AgentConfigTypes> => {
+	return AgentConfigTypes.HOSTED;
 };
 
-const prompts = {
-	configTypeMsg: 'Select the mode of installation',
+const askEnvironments = async (centralEnvs: GenericResource[], hostedAgentValues: SaasTraceableAgentValues, excludeEnvironment?: string): Promise<void> => {
+	// Filter out the already-selected agent installation environment
+	if (excludeEnvironment) {
+		centralEnvs = centralEnvs.filter(env => env.name !== excludeEnvironment);
+	}
+
+	let askEnvs = true;
+	const envs = [];
+	const mappedCentralEnvs = [];
+	console.log(chalk.gray(SaasPrompts.environmentsDescription));
+	while (askEnvs) {
+		const env = (await askInput({
+			msg: SaasPrompts.enterEnvironments,
+			allowEmptyInput: true,
+		})) as string;
+
+		if (envs.length === 0 && (!env || env.toString().trim() === '')) {
+			break;
+		}
+
+		if (env && env.toString().trim() !== '') {
+			envs.push(env);
+		}
+		const centralMappingEnv = await askList({
+			msg: SaasPrompts.selectCentralMappingEnvironment,
+			choices: centralEnvs.map((e) => e.name),
+		});
+
+		if (centralMappingEnv && centralMappingEnv.toString().trim() !== '') {
+			mappedCentralEnvs.push(centralMappingEnv);
+		}
+		centralEnvs = centralEnvs.filter(env => env.name !== centralMappingEnv);
+
+		// Only ask if they want to continue if there are still environments available to map
+		if (centralEnvs.length > 0) {
+			askEnvs = await askList({
+				msg: SaasPrompts.enterMoreEnvironments,
+				default: YesNo.No,
+				choices: YesNoChoices,
+			}) === YesNo.Yes;
+		} else {
+			askEnvs = false;
+		}
+	}
+	hostedAgentValues.environments = envs;
+	hostedAgentValues.centralEnvironments = mappedCentralEnvs;
 };
 
-export const askConfigType = async (): Promise<AgentConfigTypes> => {
+//
+// Questions for the configuration of Traceable agent
+//
+const askToken = async (): Promise<string> =>
+	(await askInput({
+		msg: SaasPrompts.enterToken,
+		allowEmptyInput: false,
+	})) as string;
+
+export const askTraceableRegion = async (): Promise<TraceableRegionType> => {
 	return (await askList({
-		msg: prompts.configTypeMsg,
-		choices: [ AgentConfigTypes.HOSTED ],
-	})) as AgentConfigTypes;
+		msg: SaasPrompts.enterRegion,
+		choices: Object.entries(TraceableRegionType).reduce((accumulator, curr) => {
+			return accumulator.concat({
+				name: curr[0],
+				value: curr[1] as string,
+			});
+		}, [] as { name: string; value: string }[]),
+		default: TraceableRegionType.US,
+	})) as TraceableRegionType;
 };
 
-export const gatewayConnectivity = async (_installConfig: AgentInstallConfig): Promise<TraceableAgentValues> => {
-	const values: TraceableAgentValues = new TraceableAgentValues();
-	return values;
+const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
+	console.log('\nCONNECTION TO TRACEABLE API GATEWAY:');
+	// DeploymentType
+	let hostedAgentValues: SaasTraceableAgentValues = new SaasTraceableAgentValues();
+
+	if (installConfig.gatewayType === SaaSGatewayTypes.TRACEABLE) {
+		log('gathering access details for traceable');
+
+		// Traceable connection details
+		hostedAgentValues = new SaasTraceableAgentValues();
+		hostedAgentValues.traceableToken = await askToken();
+		hostedAgentValues.traceableRegion = await askTraceableRegion();
+
+		const centralEnvs = await helpers.getCentralEnvironments(installConfig.centralConfig.apiServerClient as ApiServerClient, installConfig.centralConfig.definitionManager as DefinitionsManager);
+		// Pass the already-selected agent installation environment to exclude it from mapping choices
+		const agentInstallEnv = installConfig.centralConfig.ampcEnvInfo?.name;
+		await askEnvironments(centralEnvs!, hostedAgentValues, agentInstallEnv);
+	}
+
+	return hostedAgentValues;
 };
 
-export const completeInstall = async (_installConfig: AgentInstallConfig): Promise<void> => {
+const generateOutput = async (installConfig: AgentInstallConfig): Promise<string> => {
+	return `Install complete of hosted agent for ${installConfig.gatewayType} region`;
+};
+
+const createEncryptedAccessData = async (hostedAgentValues: SaasTraceableAgentValues, dataplaneRes: GenericResource): Promise<string> => {
+	// grab key from data plane resource
+	const key = dataplaneRes.security?.encryptionKey  || '';
+	const hash = dataplaneRes.security?.encryptionHash || '';
+
+	if (key === '' || hash === '') {
+		throw Error('cannot encrypt access data as the encryption key info was incomplete');
+	}
+
+	const accessData = hostedAgentValues.getAccessData();
+
+	const encData = crypto.publicEncrypt({
+		key: key,
+		padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+		oaepHash: hash,
+	},
+	new Uint8Array(Buffer.from(accessData, 'utf8'))
+	);
+
+	return encData.toString('base64');
+};
+
+const completeInstall = async (installConfig: AgentInstallConfig, apiServerClient?: ApiServerClient, defsManager?: DefinitionsManager): Promise<void> => {
+	/**
+     * Create agent resources
+     */
+	console.log('\n');
+	const traceableAgentValues = installConfig.gatewayConfig as SaasTraceableAgentValues;
+
+	// create the environment, if necessary
+	installConfig.centralConfig.environment = installConfig.centralConfig.ampcEnvInfo.isNew
+		? await helpers.createByResourceType(
+			apiServerClient as ApiServerClient,
+			defsManager as DefinitionsManager,
+			installConfig.centralConfig.ampcEnvInfo.name,
+			'Environment',
+			'env',
+			{
+				axwayManaged: installConfig.centralConfig.axwayManaged,
+				production: installConfig.centralConfig.production,
+			}
+		)
+		: installConfig.centralConfig.ampcEnvInfo.name;
+
+	if (installConfig.gatewayType === GatewayTypes.TRACEABLE) {
+		const traceableEnvObjs = (traceableAgentValues.environments || []).map((env, idx) =>
+			new TraceableEnvironments(env, traceableAgentValues.centralEnvironments[idx])
+		);
+		traceableAgentValues.dataplaneConfig = new TraceableDataplaneConfig(
+			traceableAgentValues.traceableRegion,
+			traceableEnvObjs
+		);
+	}
+
+	// create the data plane resource
+	const dataplaneRes = await helpers.createNewDataPlaneResource(
+		apiServerClient as ApiServerClient,
+		defsManager as DefinitionsManager,
+		installConfig.centralConfig.environment,
+		GatewayTypeToDataPlane[installConfig.gatewayType],
+		traceableAgentValues.dataplaneConfig,
+	);
+	// create data plane secret resource
+	try {
+		await helpers.createNewDataPlaneSecretResource(
+			apiServerClient as ApiServerClient,
+			defsManager as DefinitionsManager,
+			installConfig.centralConfig.environment,
+			GatewayTypeToDataPlane[installConfig.gatewayType],
+			dataplaneRes.name,
+			await createEncryptedAccessData(traceableAgentValues, dataplaneRes),
+		);
+	} catch (error) {
+		log(error);
+		console.log(
+			chalk.redBright('rolling back installation. Please check the credential data before re-running install')
+		);
+
+		if (installConfig.centralConfig.ampcEnvInfo.isNew) {
+			await helpers.deleteByResourceType(
+				apiServerClient as ApiServerClient,
+				defsManager as DefinitionsManager,
+				installConfig.centralConfig.ampcEnvInfo.name,
+				'Environment',
+				'env',
+			);
+		} else {
+			await helpers.deleteByResourceType(
+				apiServerClient as ApiServerClient,
+				defsManager as DefinitionsManager,
+				dataplaneRes.name,
+				'Dataplane',
+				'dp',
+				installConfig.centralConfig.environment,
+			);
+		}
+		return;
+	}
+
+	// create compliance agent resource
+	installConfig.centralConfig.taAgentName = await helpers.createNewAgentResource(
+		apiServerClient as ApiServerClient,
+		defsManager as DefinitionsManager,
+		installConfig.centralConfig.environment,
+		GatewayTypeToDataPlane[installConfig.gatewayType],
+		AgentResourceKind.ca,
+		AgentTypes.ca,
+		installConfig.centralConfig.ampcTeamName,
+		GatewayTypeToDataPlane[installConfig.gatewayType] + ' Compliance Agent',
+		dataplaneRes.name
+	);
+
+	console.log(await generateOutput(installConfig));
 };
 
 export const TraceableSaaSInstallMethods: InstallationFlowMethods = {
@@ -36,9 +305,9 @@ export const TraceableSaaSInstallMethods: InstallationFlowMethods = {
 	GetDeploymentType: askConfigType,
 	AskGatewayQuestions: gatewayConnectivity,
 	FinalizeGatewayInstall: completeInstall,
-	ConfigFiles: Object.values(ConfigFiles),
+	ConfigFiles: [],
 	AgentNameMap: {
 		[AgentTypes.ca]: AgentNames.TRACEABLE_CA,
 	},
-	GatewayDisplay: SaaSGatewayTypes.TRACEABLE,
+	GatewayDisplay: GatewayTypes.TRACEABLE,
 };
