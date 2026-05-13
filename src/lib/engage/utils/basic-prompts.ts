@@ -54,7 +54,7 @@ export const verifyApigeeXCredentialFile = (): InputValidation => (input: string
 			throw new Error('File extension is invalid, please provide \'.json\' file');
 		}
 		return true;
-	} catch (e) {
+	} catch (_e) {
 		throw new Error(`Couldn't find the credential file: ${input}`);
 	}
 };
@@ -62,7 +62,7 @@ export const verifyApigeeXCredentialFile = (): InputValidation => (input: string
 export const validateValidRegex = (): InputValidation => (input: string | number) => {
 	try {
 		new RegExp(input.toString());
-	} catch (error) {
+	} catch (_error) {
 		return 'Please provide a valid regular expression.';
 	}
 	return true;

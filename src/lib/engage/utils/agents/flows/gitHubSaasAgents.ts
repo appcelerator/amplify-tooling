@@ -79,9 +79,6 @@ class SaasGitHubAgentValues extends SaasAgentValues {
 	}
 }
 
-// ConfigFiles - all the config file that are used in the setup
-const ConfigFiles = {};
-
 // GitHub SaaSPrompts - all GitHub Saas prompts to the user for input
 const SaasPrompts = {
 	ACCESS_TOKEN: 'Enter the GitHub Access Token the agent will use',
@@ -318,7 +315,7 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 			dataplaneRes.name,
 			await createEncryptedAccessData(gitHubAgentValues, dataplaneRes),
 		);
-	} catch (error) {
+	} catch (_error) {
 		console.log(
 			chalk.redBright('rolling back installation. Please check the credential data before re-running install')
 		);

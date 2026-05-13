@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { InstallationFlowMethods } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, PublicDockerRepoBaseUrl, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, BasePaths, BundleType, GatewayTypes, PublicDockerRepoBaseUrl, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateRegex } from '../../basic-prompts.js';
 import { isWindows, writeTemplates } from '../../utils.js';
 import { GitLabAgentValues } from '../index.js';

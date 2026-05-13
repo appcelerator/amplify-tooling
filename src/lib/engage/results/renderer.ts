@@ -36,7 +36,7 @@ export default class Renderer {
 	 * @param text text to display near the spinner
 	 */
 	startSpin(text: string): Renderer {
-		this.spinner && this.spinner.start(text);
+		this.spinner?.start(text);
 		return this;
 	}
 
@@ -77,9 +77,11 @@ export default class Renderer {
 	 * only when spinner is in use (which mean no output param has been provided)
 	 */
 	success(text: string, spinnerOnly: boolean = false): void {
-		this.output && !spinnerOnly
-			? this.console(text)
-			: this.spinner && this.spinner.succeed(chalk.greenBright(text));
+		if (this.output && !spinnerOnly) {
+			this.console(text);
+		} else {
+			this.spinner?.succeed(chalk.greenBright(text));
+		}
 	}
 
 	/**
@@ -90,7 +92,11 @@ export default class Renderer {
 	 * only when spinner is in use (which mean no output param has been provided)
 	 */
 	warning(text: string, spinnerOnly: boolean = false): void {
-		this.output && !spinnerOnly ? this.console(text) : this.spinner && this.spinner.warn(chalk.yellow(text));
+		if (this.output && !spinnerOnly) {
+			this.console(text);
+		} else {
+			this.spinner?.warn(chalk.yellow(text));
+		}
 	}
 
 	/**
@@ -230,7 +236,11 @@ export default class Renderer {
 			error: RenderGetResultsInput[];
 		}>(
 			(a, c) => {
-				c.response.error ? a.error.push(c) : a.success.push(c);
+				if (c.response.error) {
+					a.error.push(c);
+				} else {
+					a.success.push(c);
+				}
 				return a;
 			},
 			{ success: [], error: [] }
@@ -252,7 +262,11 @@ export default class Renderer {
 				 * an array even if its the only one, so flatten the responses data and create a single array for rendering
 				 */
 				dataToRender = sortedResults.success.reduce<object[]>((a, v) => {
-					Array.isArray(v.response.data) ? a.push(...v.response.data) : a.push(v.response.data!);
+					if (Array.isArray(v.response.data)) {
+						a.push(...v.response.data);
+					} else {
+						a.push(v.response.data!);
+					}
 					return a;
 				}, []);
 			}
@@ -270,7 +284,11 @@ export default class Renderer {
 				notEmpty: RenderGetResultsInput[];
 			}>(
 				(a, c) => {
-					Array.isArray(c.response.data) && !c.response.data.length ? a.empty.push(c) : a.notEmpty.push(c);
+					if (Array.isArray(c.response.data) && !c.response.data.length) {
+						a.empty.push(c);
+					} else {
+						a.notEmpty.push(c);
+					}
 					return a;
 				},
 				{ empty: [], notEmpty: [] }

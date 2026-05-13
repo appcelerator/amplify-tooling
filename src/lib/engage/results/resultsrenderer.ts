@@ -48,7 +48,7 @@ const parseAsTable = (
 	response: GenericResource | GenericResource[],
 	columns: CommandLineInterfaceColumns[]
 ): string => {
-	const data = Array.isArray(response) ? response : [response];
+	const data = Array.isArray(response) ? response : [ response ];
 	const t = new Table();
 	for (const i of data) {
 		for (const col of columns) {
@@ -60,10 +60,10 @@ const parseAsTable = (
 			} else if (col.type === 'teamGuid' && !value) {
 				value = chalk.gray('---');
 			} else if (value && value.length > MAX_TABLE_STRING_LENGTH + 3) {
-				value =
-					value.substring(0, MAX_TABLE_STRING_LENGTH / 2) +
-					'...' +
-					value.substring(value.length - MAX_TABLE_STRING_LENGTH / 2);
+				value
+					= value.substring(0, MAX_TABLE_STRING_LENGTH / 2)
+					+ '...'
+					+ value.substring(value.length - MAX_TABLE_STRING_LENGTH / 2);
 			}
 			if (deletingState) {
 				t.cell(col.name.toUpperCase(), chalk.yellow(value));
@@ -139,7 +139,7 @@ export async function resolveTeamNames({
 	}
 
 	const jsonPath = column.jsonPath.substring(1);
-	const results = Array.isArray(response) ? response : [response];
+	const results = Array.isArray(response) ? response : [ response ];
 	const teamNames: TeamNameLookup = {};
 	const sdk = await initSDK({ env: account?.auth.env });
 
@@ -159,7 +159,7 @@ export async function resolveTeamNames({
 			continue;
 		}
 		if (!Array.isArray(data)) {
-			data = [data];
+			data = [ data ];
 		}
 		for (const obj of data) {
 			const value = _.get(obj, jsonPath, null);

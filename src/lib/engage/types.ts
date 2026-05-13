@@ -924,7 +924,7 @@ export class AgentInstallConfig {
 		this.deploymentType = AgentConfigTypes.DOCKERIZED;
 		// eslint-disable-next-line no-new-object
 		this.gatewayConfig = new Object();
-		this.idpConfig = [[], []];
+		this.idpConfig = [ [], [] ];
 		this.daVersion = 'latest';
 		this.taVersion = 'latest';
 		this.caVersion = 'latest';

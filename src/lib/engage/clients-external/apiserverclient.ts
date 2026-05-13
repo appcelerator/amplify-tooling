@@ -1097,13 +1097,13 @@ export class ApiServerClient {
 			if (singleResult.pending) {
 				const pendingData
 					= singleResult.data
-                    ?? sanitizeMetadata(
-                    	buildGenericResource({
-                    		resourceName: resourceName,
-                    		resourceDef: resourceDef,
-                    		scopeName: scopeName,
-                    	}) as GenericResource,
-                    );
+					?? sanitizeMetadata(
+						buildGenericResource({
+							resourceName: resourceName,
+							resourceDef: resourceDef,
+							scopeName: scopeName,
+						}) as GenericResource,
+					);
 				const subResResult = await this.resolveSubResourcesRequests(
 					pendingData,
 					singleResult.pending,

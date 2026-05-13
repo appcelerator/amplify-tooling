@@ -30,7 +30,7 @@ export const isWindows = /^win/.test(process.platform);
 export const writeToFile = (path: string, data: any): void => {
 	try {
 		writeFileSync(path, data);
-	} catch (e) {
+	} catch (_e) {
 		// if parser is failing, rethrow with our own error
 		throw new Error(`Error while writing the yaml file to: ${path}`);
 	}
@@ -45,7 +45,7 @@ export const isValidJson = (item: any) => {
 	let parsedItem = typeof item !== 'string' ? JSON.stringify(item) : item;
 	try {
 		parsedItem = JSON.parse(parsedItem);
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 	return typeof parsedItem === 'object' && item !== null;
@@ -151,15 +151,15 @@ export const buildGenericResource = ({
 			attributes: {},
 			tags: [],
 			metadata:
-        resourceDef?.spec?.scope && scopeName
-        	? ({
-        		scope: {
-        			kind: resourceDef?.spec?.scope?.kind,
-        			name: scopeName,
-        		},
-        		// note: forced conversion here only because using generated resources for rendering simple text
-        	} as unknown as Metadata)
-        	: undefined,
+				resourceDef?.spec?.scope && scopeName
+					? ({
+						scope: {
+							kind: resourceDef?.spec?.scope?.kind,
+							name: scopeName,
+						},
+						// note: forced conversion here only because using generated resources for rendering simple text
+					} as unknown as Metadata)
+					: undefined,
 			spec: {},
 		};
 	} else {
@@ -170,15 +170,15 @@ export const buildGenericResource = ({
 			attributes: {},
 			tags: [],
 			metadata:
-        resourceDef?.spec?.scope && scopeName
-        	? ({
-        		scope: {
-        			kind: resourceDef?.spec?.scope?.kind,
-        			name: scopeName,
-        		},
-        		// note: forced conversion here only because using generated resources for rendering simple text
-        	} as unknown as Metadata)
-        	: undefined,
+				resourceDef?.spec?.scope && scopeName
+					? ({
+						scope: {
+							kind: resourceDef?.spec?.scope?.kind,
+							name: scopeName,
+						},
+						// note: forced conversion here only because using generated resources for rendering simple text
+					} as unknown as Metadata)
+					: undefined,
 			spec: {},
 		};
 	}
@@ -313,7 +313,7 @@ export const verifyFile = (specFilePath: string): Error | void => {
 	try {
 		stats = lstatSync(specFilePath);
 		fileExtension = extname(specFilePath);
-	} catch (e) {
+	} catch (_e) {
 		throw new Error(`Couldn't find the definition file: ${specFilePath}`);
 	}
 

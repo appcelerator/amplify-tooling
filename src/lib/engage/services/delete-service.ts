@@ -103,8 +103,9 @@ async function runSingleDelete({
 
 	const matchingDefs = defs.filter(
 		(def) =>
-			(scope && ((scope.kind && scope.kind === def.scope?.spec.kind) || (!scope.kind && !!def.scope))) ||
-			(!scope && !def.scope)
+			(scope
+				&& ((scope.kind && scope.kind === def.scope?.spec.kind) || (!scope.kind && !!def.scope)))
+			|| (!scope && !def.scope)
 	);
 
 	if (!matchingDefs.length) {

@@ -237,7 +237,7 @@ export class DefinitionsManager {
 					definition.spec.references.toResources.push({
 						kind: scopeDef.spec.kind,
 						// NOTE: not used value, adding just to indicate it's manual nature.
-						// @ts-ignore
+						// @ts-expect-error -- not used, indicates manual nature
 						types: [ 'CALCULATED' ],
 					});
 				}
@@ -245,7 +245,7 @@ export class DefinitionsManager {
 				if (!scopeDef.spec.references.fromResources.find((ref) => ref.kind === definition.spec.kind)) {
 					scopeDef.spec.references.fromResources.push({
 						kind: definition.spec.kind,
-						// @ts-ignore
+						// @ts-expect-error -- not used, indicates manual nature
 						// NOTE: not used value, adding just to indicate it's manual nature.
 						types: [ 'CALCULATED' ],
 						scopeKind: definition.spec.scope.kind,
@@ -284,13 +284,13 @@ export class DefinitionsManager {
 
 		const res = [ ...this.resources ].reduce<
 			{ resource: ResourceDefinition; cli: CommandLineInterface; scope?: ResourceDefinition }[]
-		>((a, [ _, def ]) => {
+		>((a, [ _k, def ]) => {
 			if (def.spec.kind === kind) {
 				a.push({
 					resource: def,
-					cli: [ ...this.cli ].find(([ _, cliDef ]) => cliDef.spec.resourceDefinition === def.name)![1],
+					cli: [ ...this.cli ].find(([ _k, cliDef ]) => cliDef.spec.resourceDefinition === def.name)![1],
 					scope: def.spec.scope
-						? [ ...this.resources ].find(([ _, resDef ]) => resDef.spec.kind === def.spec.scope!.kind)![1]
+						? [ ...this.resources ].find(([ _k, resDef ]) => resDef.spec.kind === def.spec.scope!.kind)![1]
 						: undefined,
 				});
 			}
@@ -314,7 +314,7 @@ export class DefinitionsManager {
 			return null;
 		}
 		const cliKv = [ ...this.cli ].filter(
-			([ _, v ]) =>
+			([ _k, v ]) =>
 				v.spec?.names.plural === word
 				|| v.spec?.names.singular === word
 				|| v.spec?.names.shortNames.includes(word)
@@ -326,7 +326,7 @@ export class DefinitionsManager {
 		}
 		const result = [ ...this.cli ].reduce<
 			{ resource: ResourceDefinition; cli: CommandLineInterface; scope?: ResourceDefinition }[]
-		>((a, [ _, cliDef ]) => {
+		>((a, [ _k, cliDef ]) => {
 			if (
 				cliDef.spec?.names.plural === word
 				|| cliDef.spec?.names.singular === word

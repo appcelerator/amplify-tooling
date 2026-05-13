@@ -4,7 +4,7 @@ import { dataService } from '../../../../request.js';
 import { InstallationFlowMethods, localhost, svcAccMsg } from '../../../services/install-service.js';
 import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, LoggingSource, PublicDockerRepoBaseUrl, PublicRepoUrl, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, askUsernameAndPassword } from '../../basic-prompts.js';
-import { writeTemplates, isWindows, AgentHelmInfo } from '../../utils.js';
+import { writeTemplates, isWindows, AgentHelmInfo, helmImageSecretInfo, helmInstallInfo } from '../../utils.js';
 import { V7AgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { kubectl } from '../kubectl.js';
@@ -504,11 +504,4 @@ export const EdgeGWOnlyInstallMethods: InstallationFlowMethods = {
 	AgentNameMap: edgeAgentNameMap,
 	GatewayDisplay: GatewayTypes.EDGE_GATEWAY,
 };
-function helmImageSecretInfo(namespace: string) {
-	throw new Error('Function not implemented.');
-}
-
-function helmInstallInfo(arg0: string, namespace: string, agentHelmInfo: Set<AgentHelmInfo>) {
-	throw new Error('Function not implemented.');
-}
 
