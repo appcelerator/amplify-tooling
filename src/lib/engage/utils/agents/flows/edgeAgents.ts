@@ -54,6 +54,7 @@ const downloadV7AgentBundle = async (account: Account, type: BundleType, version
 			? `${BasePaths.V7Agents}/v7_discovery_agent/${version}/discovery_agent-${version}.zip`
 			: `${BasePaths.V7Agents}/v7_traceability_agent/${version}/traceability_agent-${version}.zip`;
 	const service = await dataService({
+		account: account,
 		baseUrl: PublicRepoUrl,
 	});
 	try {
