@@ -16,11 +16,11 @@ export default class TmpFile {
 	 * @param {object} data optional data to write while creating file
 	 */
 	constructor(data?: object) {
-		log('creating a new file');
+		log.log('creating a new file');
 		// discardDescriptor = true is required for windows (fixes "file is open by another process" error).
 		this.file = tmp.fileSync({ discardDescriptor: true, prefix: 'axway-central-edit-', postfix: '.yaml' });
 		this.path = this.file.name;
-		log(`file created at: ${this.path}`);
+		log.log(`file created at: ${this.path}`);
 		// if data is provided write it to the file as YAML
 		if (data) {
 			this.write(parseAsYaml(data));
@@ -31,7 +31,7 @@ export default class TmpFile {
 	 * Delete tmp file
 	 */
 	delete(): void {
-		log(`removing: ${this.path}`);
+		log.log(`removing: ${this.path}`);
 		this.file.removeCallback();
 	}
 
@@ -40,7 +40,7 @@ export default class TmpFile {
 	 * @param {string} data data to write
 	 */
 	write(data: string): void {
-		log(`writing to: ${this.path}`);
+		log.log(`writing to: ${this.path}`);
 		writeFileSync(this.path, data);
 	}
 
@@ -49,7 +49,7 @@ export default class TmpFile {
 	 * @return {string} data from file
 	 */
 	read(): string {
-		log(`reading from: ${this.path}`);
+		log.log(`reading from: ${this.path}`);
 		return readFileSync(this.path, 'utf8');
 	}
 
@@ -62,17 +62,17 @@ export default class TmpFile {
 	 * isUpdated: content of the file changed
 	 */
 	async edit(): Promise<{ isComplete: boolean; isUpdated: boolean }> {
-		log(`editing: ${this.path}`);
+		log.log(`editing: ${this.path}`);
 		const editorToUse = isWindows ? 'notepad' : process.env.EDITOR || 'vi';
 		const contentBeforeEdit = Buffer.from(this.read());
 		const editorExitCode = await editor(editorToUse, this.path);
 		const isUpdated = !contentBeforeEdit.equals(Buffer.from(this.read()));
 
 		if (editorExitCode === 0) {
-			log('file edit has been successful');
+			log.log('file edit has been successful');
 			return { isComplete: true, isUpdated };
 		} else {
-			log(`file edit error, code: ${editorExitCode}`);
+			log.error(`file edit error, code: ${editorExitCode}`);
 			return { isComplete: false, isUpdated };
 		}
 	}

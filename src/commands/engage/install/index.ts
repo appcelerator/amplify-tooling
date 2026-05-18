@@ -23,9 +23,9 @@ export class EngageInstall extends Command {
 	};
 
 	async run(): Promise<void> {
-		const renderer = new Renderer(console);
+		const renderer = new Renderer((text: string) => this.log(text));
 		renderer.error('Error: You must specify the type of the resource to install.');
-		console.log(`\nUSAGE:
+		this.log(`\nUSAGE:
 To install agents in interactive mode:\t"axway engage install agents"
 `);
 		process.exit(1);

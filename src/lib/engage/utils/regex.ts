@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 export const resourceRegex = '^(?:[a-z0-9]*(?:\\.(?=[a-z0-9])|-+(?=[a-z0-9]))?)+[a-z0-9]$';
 export const namespaceRegex = '^[a-z0-9]?(?:[-a-z0-9]*[a-z0-9]){1,100}?$';
 export const domainNameRegex = '^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\\.)+([A-Za-z]){2,}$';

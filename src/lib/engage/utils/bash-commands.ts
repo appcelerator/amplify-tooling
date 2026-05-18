@@ -19,15 +19,15 @@ export const openssl = (params: string, showStdio: boolean = false) => {
 	return new Promise<OpenSSLPromise>((resolve) => {
 		process.on('exit', (code) => {
 			if (code === 0) {
-				log('openssl command successful');
+				log.log('openssl command successful');
 				resolve({ isComplete: true, code });
 			} else {
-				log(`openssl command unsuccessful, code: ${code}`);
+				log.error(`openssl command unsuccessful, code: ${code}`);
 				resolve({ isComplete: false, code });
 			}
 		});
 		process.on('error', (code) => {
-			log(`openssl command error before exit, code: ${code}`);
+			log.error(`openssl command error before exit, code: ${code}`);
 			resolve({ isComplete: false, code });
 		});
 	});
@@ -81,10 +81,10 @@ export const createTlsCert = async (
 };
 
 export const editor = (editor: string, filePath: string): Promise<number | null> => {
-	log(`editor ${filePath}`);
+	log.log(`editor ${filePath}`);
 	return new Promise((resolve) => {
 		spawn(editor, [ filePath ], { stdio: 'inherit' }).on('exit', (code) => {
-			log(`editor exit code ${code}`);
+			log.log(`editor exit code ${code}`);
 			resolve(code);
 		});
 	});

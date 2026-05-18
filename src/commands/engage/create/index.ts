@@ -41,19 +41,18 @@ export default class EngageCreate extends Command {
 
 	async run(): Promise<any> {
 		const log = logger('engage:create');
-		let render = new Renderer(console, undefined);
+		let render = new Renderer((text: string) => this.log(text), undefined);
 		let commandIsSuccessful = false;
 		let result: CreateCommandResult = { results: { success: [], error: [] }, hasErrors: false };
 		try {
 			const { flags, account } = await this.parse(EngageCreate);
-			render = new Renderer(console, flags.output).startSpin('Creating resource(s)');
+			render = new Renderer((text: string) => this.log(text), flags.output).startSpin('Creating resource(s)');
 
 			if (!flags.file) {
 				throw new Error('File name is required, please provide -f, --file [path] option');
 			}
 			result = await createResources({
 				account,
-				region: flags.region,
 				useCache: !flags.noCache,
 				filePath: flags.file,
 				onMissingNames: flags.yes ? undefined : async () => {
@@ -72,14 +71,14 @@ export default class EngageCreate extends Command {
 			render.bulkResult(result.results, 'has successfully been created.');
 			commandIsSuccessful = !result.hasErrors;
 		} catch (e: any) {
-			log('command error', e);
+			log.error('command error', e);
 			// if some calls have been completed, rendering the result
 			if (result.results.success.length || result.results.error.length) {
 				render.bulkResult(result.results, 'has successfully been created.');
 			}
 			render.anyError(e);
 		} finally {
-			log(`command finished, success = ${commandIsSuccessful}`);
+			log.log(`command finished, success = ${commandIsSuccessful}`);
 			render.stopSpin();
 			if (!commandIsSuccessful) {
 				process.exit(1);

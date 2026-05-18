@@ -14,7 +14,7 @@ function createServer({ port }) {
 
 		app.use(bodyParser());
 		app.use(async (ctx, next) => {
-			log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
+			log.log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
 			await next();
 		});
 		app.use(router.routes());
@@ -25,15 +25,15 @@ function createServer({ port }) {
 
 		server.on('connection', conn => {
 			const key = conn.remoteAddress + ':' + conn.remotePort;
-			log(`${highlight(key)} connected`);
+			log.log(`${highlight(key)} connected`);
 			server.__connections[key] = conn;
 			conn.on('close', () => {
 				delete server.__connections[key];
-				log(`${highlight(key)} disconnected`);
+				log.log(`${highlight(key)} disconnected`);
 			});
 		});
 		server.on('listening', () => {
-			log(`Started test server: http://127.0.0.1:${port}`);
+			log.log(`Started test server: http://127.0.0.1:${port}`);
 			resolve(server);
 		});
 		server.on('error', reject);
@@ -64,7 +64,7 @@ export async function stopServers() {
 	this.timeout(10000);
 
 	if (this.servers) {
-		log(`Stopping ${this.servers.length} server${this.servers.length === 1 ? '' : 's'}...`);
+		log.log(`Stopping ${this.servers.length} server${this.servers.length === 1 ? '' : 's'}...`);
 		for (const server of this.servers) {
 			for (const conn of Object.values(server.__connections)) {
 				conn.destroy();

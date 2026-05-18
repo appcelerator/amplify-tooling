@@ -62,8 +62,8 @@ const askBasePathSegmentLen = async (): Promise<number> =>
 		defaultValue: 2
 	})) as number;
 
-export const gatewayConnectivity = async (_installConfig: AgentInstallConfig): Promise<GraylogAgentValues> => {
-	console.log(
+export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<GraylogAgentValues> => {
+	installConfig.log(
 		chalk.gray('The Amplify Graylog Agent needs to be deployed to your Kubernetes cluster to discover APIs for publishing to Amplify Engage.')
 	);
 
@@ -84,9 +84,9 @@ export const gatewayConnectivity = async (_installConfig: AgentInstallConfig): P
 	return graylogAgentValues;
 };
 
-const generateSuccessHelpMsg = (namespace: string) => {
-	console.log(`Graylog Agent override file has been placed at ${process.cwd()}/${ConfigFiles.helmOverride}`);
-	helmImageSecretInfo(namespace);
+const generateSuccessHelpMsg = (namespace: string, log: (text: string) => void = () => {}) => {
+	log(`Graylog Agent override file has been placed at ${process.cwd()}/${ConfigFiles.helmOverride}`);
+	helmImageSecretInfo(namespace, log);
 
 	const agentHelmInfo = new Set<AgentHelmInfo>();
 	agentHelmInfo.add({
@@ -98,12 +98,13 @@ const generateSuccessHelpMsg = (namespace: string) => {
 	helmInstallInfo(
 		'Graylog',
 		namespace,
-		agentHelmInfo
+		agentHelmInfo,
+		log
 	);
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	log('Configuration file(s) have been successfully created.\n');
 
-	console.log(
+	log(
 		chalk.gray(`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.GRAYLOG}`)
 	);
 };
@@ -112,7 +113,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	// Add final settings to graylogAgentValues
 	const graylogAgentValues = installConfig.gatewayConfig as GraylogAgentValues;
 	if (graylogAgentValues.namespace.isNew) {
-		await helpers.createNamespace(graylogAgentValues.namespace.name);
+		await helpers.createNamespace(graylogAgentValues.namespace.name, installConfig.log);
 	}
 	graylogAgentValues.centralConfig = installConfig.centralConfig;
 	graylogAgentValues.graylogSecret = helpers.amplifyAgentsCredsSecret;
@@ -120,7 +121,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	// read file content
 	await helpers.createSecret(graylogAgentValues.namespace.name, helpers.amplifyAgentsKeysSecret, async () => {
 		if (installConfig.centralConfig.ampcDosaInfo.isNew) {
-			console.log(
+			installConfig.log(
 				chalk.yellow(
 					`The secret '${helpers.amplifyAgentsKeysSecret}' will be created with the same "private_key.pem" and "public_key.pem" that was auto generated to create the Service Account.`
 				)
@@ -133,7 +134,8 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 			'publicKey',
 			graylogAgentValues.centralConfig.dosaAccount.publicKey,
 			'privateKey',
-			graylogAgentValues.centralConfig.dosaAccount.privateKey
+			graylogAgentValues.centralConfig.dosaAccount.privateKey,
+			installConfig.log
 		);
 	});
 	await helpers.createSecret(graylogAgentValues.namespace.name, helpers.amplifyAgentsCredsSecret, async () => {
@@ -142,21 +144,23 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 			helpers.amplifyAgentsCredsSecret,
 			graylogAgentValues.userName,
 			graylogAgentValues.password,
+			installConfig.log
 		);
 	});
 	graylogAgentValues.traceabilityConfig = installConfig.traceabilityConfig;
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 	writeTemplates(ConfigFiles.helmOverride, graylogAgentValues, helpers.graylogHelmOverrideTemplate);
 
-	generateSuccessHelpMsg(graylogAgentValues.namespace.name);
+	generateSuccessHelpMsg(graylogAgentValues.namespace.name, installConfig.log);
 };
 
 const createGraylogCredsSecret = async (
 	namespace: string,
 	secretName: string,
 	user: string,
-	password: string
+	password: string,
+	log: (text: string) => void = () => {}
 ): Promise<void> => {
 	const { error } = await kubectl.create(
 		'secret',
@@ -167,7 +171,7 @@ const createGraylogCredsSecret = async (
 	if (error) {
 		throw Error(error);
 	}
-	console.log(`Created ${secretName} in the ${namespace} namespace.`);
+	log(`Created ${secretName} in the ${namespace} namespace.`);
 };
 
 export const GraylogInstallMethods: InstallationFlowMethods = {

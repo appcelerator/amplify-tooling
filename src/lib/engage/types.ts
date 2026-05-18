@@ -102,7 +102,7 @@ export interface ResourceDefinition {
 			toResources: {
 				kind: string;
 				group: string;
-				types: ('soft' | 'hard')[];
+				types: ('soft' | 'hard' | 'CALCULATED')[];
 				scopeKind?: string;
 				from?: {
 					subResourceName: string;
@@ -110,7 +110,7 @@ export interface ResourceDefinition {
 			}[];
 			fromResources: {
 				kind: string;
-				types: ('soft' | 'hard')[];
+				types: ('soft' | 'hard' | 'CALCULATED')[];
 				scopeKind?: string;
 				from?: {
 					subResourceName: string;
@@ -382,6 +382,7 @@ export interface EngageCommandParams {
 	region?: string;
 	useCache?: boolean;
 	team?: string | null;
+	log?: (text: string) => void;
 }
 
 export interface GetCommandParams extends EngageCommandParams {
@@ -490,7 +491,9 @@ export interface EditEnvironmentCommandParams extends EngageCommandParams {
 	outputFormat?: string;
 }
 
-export type InstallAgentsCommandParams = EngageCommandParams;
+export interface InstallAgentsCommandParams extends EngageCommandParams {
+	log: (text: string) => void;
+}
 
 export enum BundleType {
 	ALL_AGENTS = 'All Agents',
@@ -916,6 +919,7 @@ export class AgentInstallConfig {
 	idpConfig: [IDPConfiguration[], IDPAuthConfiguration[]];
 	traceabilityConfig: TraceabilityConfig;
 	switches: AgentInstallSwitches;
+	log: (text: string) => void;
 
 	constructor() {
 		this.centralConfig = new CentralAgentConfig();
@@ -924,12 +928,13 @@ export class AgentInstallConfig {
 		this.deploymentType = AgentConfigTypes.DOCKERIZED;
 		// eslint-disable-next-line no-new-object
 		this.gatewayConfig = new Object();
-		this.idpConfig = [[], []];
+		this.idpConfig = [ [], [] ];
 		this.daVersion = 'latest';
 		this.taVersion = 'latest';
 		this.caVersion = 'latest';
 		this.switches = new AgentInstallSwitches();
 		this.traceabilityConfig = new TraceabilityConfig();
+		this.log = () => {};
 	}
 }
 

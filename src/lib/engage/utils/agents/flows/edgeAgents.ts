@@ -4,7 +4,7 @@ import { dataService } from '../../../../request.js';
 import { InstallationFlowMethods, localhost, svcAccMsg } from '../../../services/install-service.js';
 import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, LoggingSource, PublicDockerRepoBaseUrl, PublicRepoUrl, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, askUsernameAndPassword } from '../../basic-prompts.js';
-import { writeTemplates, isWindows, AgentHelmInfo } from '../../utils.js';
+import { writeTemplates, isWindows, AgentHelmInfo, helmImageSecretInfo, helmInstallInfo } from '../../utils.js';
 import { V7AgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { kubectl } from '../kubectl.js';
@@ -54,6 +54,7 @@ const downloadV7AgentBundle = async (account: Account, type: BundleType, version
 			? `${BasePaths.V7Agents}/v7_discovery_agent/${version}/discovery_agent-${version}.zip`
 			: `${BasePaths.V7Agents}/v7_traceability_agent/${version}/traceability_agent-${version}.zip`;
 	const service = await dataService({
+		account: account,
 		baseUrl: PublicRepoUrl,
 	});
 	try {
@@ -76,14 +77,14 @@ const downloadBinaries = async (installConfig: AgentInstallConfig) => {
 	if (!account) {
 		throw new Error('Unable to resolve account for DataService call during AWS agent install preprocess');
 	}
-	console.log('Downloading and unpacking binary files...');
+	installConfig.log('Downloading and unpacking binary files...');
 	if (installConfig.switches.isDaEnabled) {
 		await downloadBinary(account, BundleType.DISCOVERY, installConfig.daVersion);
 	}
 	if (installConfig.switches.isTaEnabled) {
 		await downloadBinary(account, BundleType.TRACEABILITY, installConfig.taVersion);
 	}
-	console.log('Downloading and unpacking is complete.');
+	installConfig.log('Downloading and unpacking is complete.');
 };
 
 export const askIsGatewayOnlyMode = async (): Promise<GatewayTypes> => {
@@ -125,8 +126,8 @@ export const askConfigType = async (): Promise<AgentConfigTypes> => {
 	})) as AgentConfigTypes;
 };
 
-const askLoggingSource = async (): Promise<boolean> => {
-	console.log(
+const askLoggingSource = async (log: (text: string) => void = () => {}): Promise<boolean> => {
+	log(
 		chalk.white('\nThe API Gateway can provide the API traffic either within event logs or open traffic logs.')
 	);
 	return (
@@ -189,8 +190,8 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	}
 
 	if (!installConfig.switches.isGatewayOnly || installConfig.switches.isDaEnabled) {
-		console.log('\nCONNECTION TO API MANAGER:');
-		console.log(
+		installConfig.log('\nCONNECTION TO API MANAGER:');
+		installConfig.log(
 			chalk.gray(
 				'The agents need to connect to the Axway API Manager to discover APIs for publishing to Amplify.\n'
 					+ 'Use the credentials of an API Manager Administrator user or an Organization Administrator user.'
@@ -198,7 +199,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 		);
 
 		if (installConfig.switches.isHelmInstall) {
-			console.log(chalk.white('Please use the name of the API Manager Service as hostname.'));
+			installConfig.log(chalk.white('Please use the name of the API Manager Service as hostname.'));
 		}
 
 		v7AgentValues.apiManagerHost = await askApiManagerHost();
@@ -210,11 +211,11 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	}
 
 	if (installConfig.switches.isTaEnabled) {
-		v7AgentValues.isOpenTraffic = await askLoggingSource();
+		v7AgentValues.isOpenTraffic = await askLoggingSource(installConfig.log);
 
 		if (!v7AgentValues.isOpenTraffic && installConfig.bundleType !== BundleType.TRACEABILITY_OFFLINE) {
-			console.log('\nCONNECTION TO API GATEWAY:');
-			console.log(
+			installConfig.log('\nCONNECTION TO API GATEWAY:');
+			installConfig.log(
 				chalk.gray(
 					'The traceability agent needs to connect to Axway API Gateway.\n'
 					+ 'Use the credentials of an Operator user.'
@@ -222,7 +223,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 			);
 
 			if (installConfig.switches.isHelmInstall) {
-				console.log(chalk.white('Please use the name of the API Gateway Service as hostname.'));
+				installConfig.log(chalk.white('Please use the name of the API Gateway Service as hostname.'));
 			}
 
 			v7AgentValues.apiGatewayHost = await askApiGatewayHost();
@@ -265,14 +266,15 @@ const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
 		: '';
 
 	if (installConfig.centralConfig.ampcDosaInfo.isNew && !installConfig.switches.isHelmInstall) {
-		console.log(chalk.yellow(svcAccMsg));
+		installConfig.log(chalk.yellow(svcAccMsg));
 	}
 
 	if (configType === AgentConfigTypes.BINARIES) {
 		binarySuccessMsg(
 			installConfig.centralConfig.ampcDosaInfo.isNew,
 			installConfig.switches.isDaEnabled,
-			installConfig.switches.isTaEnabled
+			installConfig.switches.isTaEnabled,
+			installConfig.log
 		);
 	} else if (configType === AgentConfigTypes.DOCKERIZED) {
 		dockerSuccessMsg(installConfig, verifiedEventsPath);
@@ -280,11 +282,12 @@ const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
 		helmSuccessMsg(
 			v7AgentValues.namespace.name,
 			installConfig.switches.isDaEnabled,
-			installConfig.switches.isTaEnabled
+			installConfig.switches.isTaEnabled,
+			installConfig.log
 		);
 	}
 
-	console.log(
+	installConfig.log(
 		chalk.gray(`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.V7}`)
 	);
 };
@@ -319,11 +322,11 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 
 	if (installConfig.switches.isHelmInstall) {
 		if (v7AgentValues.namespace.isNew) {
-			await helpers.createNamespace(v7AgentValues.namespace.name);
+			await helpers.createNamespace(v7AgentValues.namespace.name, installConfig.log);
 		}
 		await helpers.createSecret(v7AgentValues.namespace.name, helpers.amplifyAgentsKeysSecret, async () => {
 			if (installConfig.centralConfig.ampcDosaInfo.isNew) {
-				console.log(
+				installConfig.log(
 					chalk.yellow(
 						`The secret '${helpers.amplifyAgentsKeysSecret}' will be created with the same "private_key.pem" and "public_key.pem" that was auto generated to create the Service Account.`
 					)
@@ -336,7 +339,8 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 				'public_key',
 				v7AgentValues.centralConfig.dosaAccount.publicKey,
 				'private_key',
-				v7AgentValues.centralConfig.dosaAccount.privateKey
+				v7AgentValues.centralConfig.dosaAccount.privateKey,
+				installConfig.log
 			);
 		});
 		await helpers.createSecret(v7AgentValues.namespace.name, helpers.amplifyAgentsCredsSecret, async () => {
@@ -346,12 +350,13 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 				v7AgentValues.apiManagerAuthUser,
 				v7AgentValues.apiManagerAuthPass,
 				v7AgentValues.apiGatewayAuthUser,
-				v7AgentValues.apiGatewayAuthPass
+				v7AgentValues.apiGatewayAuthPass,
+				installConfig.log
 			);
 		});
 	}
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 
 	if (installConfig.switches.isHelmInstall) {
 		if (installConfig.switches.isDaEnabled) {
@@ -371,7 +376,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 		}
 	}
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
 	generateSuccessHelpMsg(installConfig);
 };
@@ -394,27 +399,27 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig, eventLogPath: strin
 	} else {
 		dockerInfo = `To utilize the traceability agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.TA_ENV_VARS}):`;
 	}
-	console.log(chalk.whiteBright(dockerInfo), '\n');
+	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;
-		console.log(chalk.white('Pull the latest image of the Discovery Agent:'));
-		console.log(chalk.cyan(`docker pull ${daImageVersion}`));
-		console.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v /data ${daImageVersion}`));
+		installConfig.log(chalk.white('Pull the latest image of the Discovery Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${daImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v /data ${daImageVersion}`));
 	}
 	if (installConfig.switches.isTaEnabled) {
 		const taImageVersion = `${taImage}:${installConfig.taVersion}`;
-		console.log(chalk.white('Pull the latest image of the Traceability Agent:'));
-		console.log(chalk.cyan(`docker pull ${taImageVersion}`));
-		console.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v ${eventLogPath} -v /data ${taImageVersion}`));
+		installConfig.log(chalk.white('Pull the latest image of the Traceability Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${taImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v ${eventLogPath} -v /data ${taImageVersion}`));
 	}
 };
 
-const binarySuccessMsg = (isNewDosa: boolean, isDaEnabled: boolean, isTaEnabled: boolean) => {
+const binarySuccessMsg = (isNewDosa: boolean, isDaEnabled: boolean, isTaEnabled: boolean, log: (text: string) => void = () => {}) => {
 	const daFiles = [ ConfigFiles.DAEnvVars, ConfigFiles.EdgeDABinaryFile, ConfigFiles.EdgeDAYaml ];
 	const taFiles = [ ConfigFiles.TAEnvVars, ConfigFiles.EdgeTABinaryFile, ConfigFiles.EdgeTAYaml ];
 	const keys = [ 'private_key.pem', 'public_key.pem' ];
@@ -431,24 +436,24 @@ const binarySuccessMsg = (isNewDosa: boolean, isDaEnabled: boolean, isTaEnabled:
 	}
 	const agents = isDaEnabled && isTaEnabled ? 'agents' : 'agent';
 
-	console.log(chalk.whiteBright('Please copy following files from current folder to API Gateway machine:'));
-	console.log(chalk.cyan(files.join('\n')));
-	console.log(chalk.whiteBright('for example'), chalk.cyan(`scp ${files.join(' ')} root@host:~/some_folder/`));
+	log(chalk.whiteBright('Please copy following files from current folder to API Gateway machine:'));
+	log(chalk.cyan(files.join('\n')));
+	log(chalk.whiteBright('for example') + ' ' + chalk.cyan(`scp ${files.join(' ')} root@host:~/some_folder/`));
 
-	console.log(chalk.whiteBright(`\nTo start the ${agents}:`));
+	log(chalk.whiteBright(`\nTo start the ${agents}:`));
 	if (isDaEnabled) {
-		console.log(chalk.cyan(`./discovery_agent --envFile ./${helpers.configFiles.DA_ENV_VARS}`));
+		log(chalk.cyan(`./discovery_agent --envFile ./${helpers.configFiles.DA_ENV_VARS}`));
 	}
 	if (isTaEnabled) {
-		console.log(chalk.cyan(`./traceability_agent --envFile ./${helpers.configFiles.TA_ENV_VARS}`));
+		log(chalk.cyan(`./traceability_agent --envFile ./${helpers.configFiles.TA_ENV_VARS}`));
 	}
 };
 
-const helmSuccessMsg = (namespace: string, isDaEnabled: boolean, isTaEnabled: boolean) => {
+const helmSuccessMsg = (namespace: string, isDaEnabled: boolean, isTaEnabled: boolean, log: (text: string) => void = () => {}) => {
 	const imagePullOverrides = '--set image.pullSecret=<image-pull-secret-name>';
 	const agentHelmInfo = new Set<AgentHelmInfo>();
 	if (isDaEnabled) {
-		console.log(
+		log(
 			chalk.white(`Discovery Agent override file has been placed at ${process.cwd()}/${ConfigFiles.DAHelmOverride}`)
 		);
 		agentHelmInfo.add({
@@ -459,7 +464,7 @@ const helmSuccessMsg = (namespace: string, isDaEnabled: boolean, isTaEnabled: bo
 		});
 	}
 	if (isTaEnabled) {
-		console.log(
+		log(
 			chalk.white(`Traceability Agent override file has been placed at ${process.cwd()}/${ConfigFiles.TAHelmOverride}`)
 		);
 		agentHelmInfo.add({
@@ -470,11 +475,12 @@ const helmSuccessMsg = (namespace: string, isDaEnabled: boolean, isTaEnabled: bo
 		});
 	}
 
-	helmImageSecretInfo(namespace);
+	helmImageSecretInfo(namespace, log);
 	helmInstallInfo(
 		'Edge',
 		namespace,
 		agentHelmInfo,
+		log
 	);
 };
 
@@ -504,11 +510,4 @@ export const EdgeGWOnlyInstallMethods: InstallationFlowMethods = {
 	AgentNameMap: edgeAgentNameMap,
 	GatewayDisplay: GatewayTypes.EDGE_GATEWAY,
 };
-function helmImageSecretInfo(namespace: string) {
-	throw new Error('Function not implemented.');
-}
-
-function helmInstallInfo(arg0: string, namespace: string, agentHelmInfo: Set<AgentHelmInfo>) {
-	throw new Error('Function not implemented.');
-}
 

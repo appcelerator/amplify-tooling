@@ -47,18 +47,17 @@ export default class EngageApply extends Command {
 
 	async run(): Promise<any> {
 		const log = logger('engage:apply');
-		let render = new Renderer(console, undefined);
+		let render = new Renderer((text: string) => this.log(text), undefined);
 		let isCmdError = false;
 		try {
 			const { flags, account } = await this.parse(EngageApply);
-			render = new Renderer(console, flags.output).startSpin('Creating or updating resource(s)');
+			render = new Renderer((text: string) => this.log(text), flags.output).startSpin('Creating or updating resource(s)');
 
 			if (!flags.file) {
 				throw new Error('File name is required, please provide -f, --file [path] option');
 			}
 			const result = await applyResources({
 				account,
-				region: flags.region,
 				useCache: flags.cache,
 				filePath: flags.file,
 				language: flags.language,
@@ -80,11 +79,11 @@ export default class EngageApply extends Command {
 			render.bulkCreateOrUpdateResult(result.results);
 			isCmdError = result.hasErrors;
 		} catch (e: any) {
-			log('command error', e);
+			log.log('command error', e);
 			isCmdError = true;
 			render.anyError(e);
 		} finally {
-			log(`command finished, exit with error = ${isCmdError}`);
+			log.log(`command finished, exit with error = ${isCmdError}`);
 			render.stopSpin();
 			if (isCmdError) {
 				process.exit(1);

@@ -68,6 +68,13 @@ export default abstract class AxwayCommand extends Command {
    */
 	static readonly enableProfileFlag: boolean = true;
 
+	/**
+   * Whether this command needs the full organization team list pre-fetched
+   * during parse.
+   * Defaults to false.
+   */
+	static readonly fetchTeams: boolean = false;
+
 	override async parse(options = this.ctor as any): Promise<AxwayParserOutput> {
 		const parsed = await super.parse(options);
 		// Store the parsed result on the config so it can be accessed in the `finally` hooks.
@@ -107,7 +114,9 @@ export default abstract class AxwayCommand extends Command {
 				parsed.args?.org || parsed.flags?.org,
 			);
 
-			data.teams = await data.sdk.team.list(data.account, data.org);
+			if (options.fetchTeams) {
+				data.teams = await data.sdk.team.list(data.account, data.org);
+			}
 		}
 
 		return data;

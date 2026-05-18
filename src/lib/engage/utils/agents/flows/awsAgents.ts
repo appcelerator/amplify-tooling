@@ -10,7 +10,7 @@ import { AWSAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { Account } from '../../../../../types.js';
 
-const { log } = logger('lib: engage: utils: agents: flows: awsAgents');
+const debugLog = logger('lib: engage: utils: agents: flows: awsAgents');
 const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.AWS_DA}`;
 const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.AWS_TA}`;
 const STAGE_TAG_NAME_LENGTH = 127;
@@ -180,12 +180,12 @@ const askSecurityGroupAndSubnet = async (awsAgentValues: helpers.AWSAgentValues)
 	return awsAgentValues;
 };
 
-async function configureEC2Deployment(awsAgentValues: helpers.AWSAgentValues): Promise<helpers.AWSAgentValues> {
+async function configureEC2Deployment(awsAgentValues: helpers.AWSAgentValues, log: (text: string) => void = () => {}): Promise<helpers.AWSAgentValues> {
 	// EC2 Instance type
 	awsAgentValues.cloudFormationConfig.EC2InstanceType = await askEC2InstanceType();
 
 	// EC2 Key Name
-	console.log(
+	log(
 		chalk.gray(
 			'A SSH key pair is required to access the EC2 instance. An example CLI command will be given at the end, if needed'
 		)
@@ -242,8 +242,8 @@ async function configureECSDeployment(awsAgentValues: helpers.AWSAgentValues): P
 }
 
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<AWSAgentValues> => {
-	console.log('\nCONNECTION TO AMAZON API GATEWAY:');
-	console.log(
+	installConfig.log('\nCONNECTION TO AMAZON API GATEWAY:');
+	installConfig.log(
 		chalk.gray(
 			'You need credentials for executing the AWS CLI commands.\n'
 				+ 'The Discovery Agent needs to connect to the Amazon (AWS) API Gateway to discover API\'s for publishing to Amplify.\n'
@@ -259,7 +259,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	awsAgentValues.cloudFormationConfig.DeploymentType = deploymentType;
 	switch (awsAgentValues.cloudFormationConfig.DeploymentType) {
 		case DeploymentTypes.ECS_FARGATE: {
-			console.log(
+			installConfig.log(
 				chalk.gray(
 					'To deploy the Agents to ECS Fargate you will need an ECS Cluster Name, Security Group, and Subnet. The coming questions will ask those values.\n'
 				)
@@ -267,7 +267,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 			break;
 		}
 		case DeploymentTypes.OTHER: {
-			console.log(
+			installConfig.log(
 				chalk.gray('To access the AWS CLI, the AWS Access Key and AWS Secret Key credentials are required.\n')
 			);
 			break;
@@ -322,7 +322,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 			break;
 		}
 		case DeploymentTypes.EC2: {
-			awsAgentValues = await configureEC2Deployment(awsAgentValues);
+			awsAgentValues = await configureEC2Deployment(awsAgentValues, installConfig.log);
 			break;
 		}
 	}
@@ -510,13 +510,13 @@ const downloadAPIGWAgentConfigZip = async (account: Account): Promise<string> =>
 };
 
 // Unzip latest aws apigw config zip
-const unzipAPIGWAgentConfigZip = async (zipFile: string): Promise<boolean> => {
+const unzipAPIGWAgentConfigZip = async (zipFile: string, log: (text: string) => void = () => {}): Promise<boolean> => {
 	await helpers.unzip(zipFile);
 	fs.unlinkSync(zipFile);
 
 	const isCloudFormation = fs.existsSync(ConfigFiles.DeployAllYAML);
 	if (!isCloudFormation) {
-		console.log(`${ConfigFiles.DeployAllYAML} was not extracted from ${ConfigFiles.AgentConfigZip}`);
+		log(`${ConfigFiles.DeployAllYAML} was not extracted from ${ConfigFiles.AgentConfigZip}`);
 		return false;
 	}
 	return true;
@@ -524,14 +524,14 @@ const unzipAPIGWAgentConfigZip = async (zipFile: string): Promise<boolean> => {
 
 export const installPreprocess = async (installConfig: AgentInstallConfig): Promise<AgentInstallConfig> => {
 	// attempt to download the cloud formation files
-	console.log(chalk.gray('Downloading the latest Cloud formation template...'));
+	installConfig.log(chalk.gray('Downloading the latest Cloud formation template...'));
 	const account = installConfig.centralConfig.apiServerClient?.account;
 	if (!account) {
 		throw new Error('Unable to resolve account for DataService call during AWS agent install preprocess');
 	}
 	const apigwAgentConfigZipFile = await downloadAPIGWAgentConfigZip(account);
 	if (apigwAgentConfigZipFile !== '') {
-		console.log(chalk.gray('\nSuccess'));
+		installConfig.log(chalk.gray('\nSuccess'));
 	}
 	(installConfig.gatewayConfig as helpers.AWSAgentValues).apigwAgentConfigZipFile = apigwAgentConfigZipFile;
 	return installConfig;
@@ -547,14 +547,14 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	awsAgentValues.centralConfig = installConfig.centralConfig;
 	awsAgentValues.traceabilityConfig = installConfig.traceabilityConfig;
 
-	const unpackZip = await unzipAPIGWAgentConfigZip(awsAgentValues.apigwAgentConfigZipFile);
+	const unpackZip = await unzipAPIGWAgentConfigZip(awsAgentValues.apigwAgentConfigZipFile, installConfig.log);
 	if (unpackZip) {
-		console.log('\nCreating the agent environment files for AWS...');
+		installConfig.log('\nCreating the agent environment files for AWS...');
 	}
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 
-	console.log('Generating the cloud formation parameters file...');
+	installConfig.log('Generating the cloud formation parameters file...');
 	const paramStrings = [];
 	awsAgentValues.updateCloudFormationConfig();
 	for (const [ key, value ] of Object.entries(awsAgentValues.cloudFormationConfig)) {
@@ -566,7 +566,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 		installConfig.switches.isDaEnabled
 		&& DeploymentTypes.ECS_FARGATE !== awsAgentValues.cloudFormationConfig.DeploymentType
 	) {
-		log('GENERATING DA TEMPLATE');
+		debugLog.log('GENERATING DA TEMPLATE');
 		writeTemplates(ConfigFiles.DAEnvVars, awsAgentValues, helpers.awsDAEnvVarTemplate);
 	}
 
@@ -574,13 +574,13 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 		installConfig.switches.isTaEnabled
 		&& DeploymentTypes.ECS_FARGATE !== awsAgentValues.cloudFormationConfig.DeploymentType
 	) {
-		log('GENERATING TA TEMPLATE');
+		debugLog.log('GENERATING TA TEMPLATE');
 		writeTemplates(ConfigFiles.TAEnvVars, awsAgentValues, helpers.awsTAEnvVarTemplate);
 	}
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
-	console.log(await generateOutput(installConfig));
+	installConfig.log(await generateOutput(installConfig));
 };
 
 export const AWSInstallMethods: InstallationFlowMethods = {

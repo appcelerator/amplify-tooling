@@ -1,5 +1,5 @@
 import logger from '../../logger.js';
-import Table from 'easy-table';
+import Table from 'cli-table3';
 import loadash from 'lodash';
 import { ApiServerClient } from '../clients-external/apiserverclient.js';
 import { ResourceDefinition, CommandLineInterface, GetSpecsResult } from '../types.js';
@@ -237,15 +237,14 @@ export class DefinitionsManager {
 					definition.spec.references.toResources.push({
 						kind: scopeDef.spec.kind,
 						// NOTE: not used value, adding just to indicate it's manual nature.
-						// @ts-ignore
 						types: [ 'CALCULATED' ],
+						group: scopeDef.group,
 					});
 				}
 				// modify related "scope" definition by adding "fromResources" link to current definition
 				if (!scopeDef.spec.references.fromResources.find((ref) => ref.kind === definition.spec.kind)) {
 					scopeDef.spec.references.fromResources.push({
 						kind: definition.spec.kind,
-						// @ts-ignore
 						// NOTE: not used value, adding just to indicate it's manual nature.
 						types: [ 'CALCULATED' ],
 						scopeKind: definition.spec.scope.kind,
@@ -262,21 +261,28 @@ export class DefinitionsManager {
 		if (!this.specs) {
 			return 'No resources found.';
 		}
-		const t = new Table();
 
-		// create the 'axway central get' table
+		const rows: string[][] = [];
 		this.cli.forEach((v) => {
-			// grab the resource group
 			const group = v.metadata.scope.name;
-			t.cell('RESOURCE', `${v.spec.names.plural}`, () => chalk.cyan(v.spec.names.plural));
-			t.cell('SHORT NAMES', [ ...(v.spec.names.shortNamesAlias || v.spec.names.shortNames) ].join(','));
-			t.cell('RESOURCE KIND', this.resources.get(v.spec.resourceDefinition)?.spec.kind);
-			t.cell('SCOPED', this.resources.get(v.spec.resourceDefinition)?.spec.scope ? 'true' : 'false');
-			t.cell('SCOPE KIND', this.resources?.get(v.spec.resourceDefinition)?.spec.scope?.kind);
-			t.cell('RESOURCE GROUP', group);
-			t.newRow();
+			rows.push([
+				v.spec.names.plural,
+				[ ...(v.spec.names.shortNamesAlias || v.spec.names.shortNames) ].join(','),
+				this.resources.get(v.spec.resourceDefinition)?.spec.kind ?? '',
+				this.resources.get(v.spec.resourceDefinition)?.spec.scope ? 'true' : 'false',
+				this.resources?.get(v.spec.resourceDefinition)?.spec.scope?.kind ?? '',
+				group,
+			]);
 		});
-		return t.sort([ 'RESOURCE' ]).toString();
+		rows.sort((a, b) => a[0].localeCompare(b[0]));
+
+		const t = new Table({
+			head: [ 'RESOURCE', 'SHORT NAMES', 'RESOURCE KIND', 'SCOPED', 'SCOPE KIND', 'RESOURCE GROUP' ],
+		});
+		for (const [ resource, ...rest ] of rows) {
+			t.push([ chalk.cyan(resource), ...rest ]);
+		}
+		return t.toString();
 	}
 
 	findDefsByKind(kind: string): null | FindDefsByWordResult[] {
@@ -284,13 +290,13 @@ export class DefinitionsManager {
 
 		const res = [ ...this.resources ].reduce<
 			{ resource: ResourceDefinition; cli: CommandLineInterface; scope?: ResourceDefinition }[]
-		>((a, [ _, def ]) => {
+		>((a, [ _k, def ]) => {
 			if (def.spec.kind === kind) {
 				a.push({
 					resource: def,
-					cli: [ ...this.cli ].find(([ _, cliDef ]) => cliDef.spec.resourceDefinition === def.name)![1],
+					cli: [ ...this.cli ].find(([ _k, cliDef ]) => cliDef.spec.resourceDefinition === def.name)![1],
 					scope: def.spec.scope
-						? [ ...this.resources ].find(([ _, resDef ]) => resDef.spec.kind === def.spec.scope!.kind)![1]
+						? [ ...this.resources ].find(([ _k, resDef ]) => resDef.spec.kind === def.spec.scope!.kind)![1]
 						: undefined,
 				});
 			}
@@ -314,7 +320,7 @@ export class DefinitionsManager {
 			return null;
 		}
 		const cliKv = [ ...this.cli ].filter(
-			([ _, v ]) =>
+			([ _k, v ]) =>
 				v.spec?.names.plural === word
 				|| v.spec?.names.singular === word
 				|| v.spec?.names.shortNames.includes(word)
@@ -326,7 +332,7 @@ export class DefinitionsManager {
 		}
 		const result = [ ...this.cli ].reduce<
 			{ resource: ResourceDefinition; cli: CommandLineInterface; scope?: ResourceDefinition }[]
-		>((a, [ _, cliDef ]) => {
+		>((a, [ _k, cliDef ]) => {
 			if (
 				cliDef.spec?.names.plural === word
 				|| cliDef.spec?.names.singular === word

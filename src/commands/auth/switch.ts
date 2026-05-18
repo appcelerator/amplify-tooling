@@ -25,7 +25,6 @@ than one team.`;
 			description: 'The team to use for the selected account.',
 		})
 	};
-	static override authenticated = false;
 
 	static override enableJsonFlag = true;
 

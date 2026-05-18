@@ -61,12 +61,12 @@ export const askConfigType = async (): Promise<AgentConfigTypes> => {
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<IstioValues> => {
 	const istioValues: IstioValues = new IstioValues();
 
-	console.log('\nCONNECTING A KUBERNETES CLUSTER TO AMPLIFY CENTRAL\n');
-	console.log(
+	installConfig.log('\nCONNECTING A KUBERNETES CLUSTER TO AMPLIFY CENTRAL\n');
+	installConfig.log(
 		chalk.gray(`The Amplify Istio Discovery Agent needs to be deployed to your Kubernetes cluster to discover APIs for publishing to Amplify Central and/or the Amplify Marketplace.
 The Amplify Istio Traceability Agent needs to be deployed to your Kubernetes cluster to collect transaction telemetry to send to the Amplify Central Observer and Visibility Dashboard.`)
 	);
-	console.log(`
+	installConfig.log(`
 For more details on client prerequesites or Kubernetes preparation refer to the documentation here:
 https://docs.axway.com/bundle/amplify-central/page/docs/connect_manage_environ/mesh_management/build_hybrid_env/index.html
 `);
@@ -78,7 +78,7 @@ https://docs.axway.com/bundle/amplify-central/page/docs/connect_manage_environ/m
 		);
 	}
 
-	const istioOverrides = await setupIstio(istioValues);
+	const istioOverrides = await setupIstio(istioValues, installConfig.log);
 
 	installConfig.gatewayConfig = istioValues;
 
@@ -86,7 +86,7 @@ https://docs.axway.com/bundle/amplify-central/page/docs/connect_manage_environ/m
 	istioValues.istioAgentValues.alsEnabled = installConfig.switches.isTaEnabled;
 	istioValues.istioAgentValues.discoveryEnabled = installConfig.switches.isDaEnabled;
 
-	const hybridOverrides = await setupKubernetes(istioValues);
+	const hybridOverrides = await setupKubernetes(istioValues, installConfig.log);
 	hybridOverrides.envoyFilterNamespace = istioOverrides.envoyFilterNamespace;
 
 	istioOverrides.alsNamespace = hybridOverrides.namespace.name;
@@ -153,9 +153,9 @@ const askIstioProfile = async (): Promise<string> =>
 		choices: IstioProfileChoices,
 	});
 
-export const setupIstio = async (istioValues: IstioValues): Promise<IstioInstallValues> => {
+export const setupIstio = async (istioValues: IstioValues, log: (text: string) => void = () => {}): Promise<IstioInstallValues> => {
 	const istioInstallValues = istioValues.istioInstallValues;
-	console.log(chalk.gray('If Istio is not yet installed, select No. If Istio is already running select Yes.\n'));
+	log(chalk.gray('If Istio is not yet installed, select No. If Istio is already running select Yes.\n'));
 
 	const useExistingIstio = await askUseExistingIstio();
 
@@ -174,7 +174,7 @@ export const setupIstio = async (istioValues: IstioValues): Promise<IstioInstall
 
 	istioInstallValues.profile = await askIstioProfile();
 
-	console.log(
+	log(
 		chalk.gray(
 			'\nFor a Kubernetes cluster exposing HTTPS endpoints, you must own or be able to configure a certificate for the correspoinding fully qualified domain name\n'
 		)
@@ -209,12 +209,12 @@ export const askIstioSecret = async (msg: string, namespace: string, defaultSecr
 	return helpers.askForSecretName(msg, defaultSecretName, allSecrets.data);
 };
 
-const completeIstio = async (istioOverrides: IstioInstallValues) => {
+const completeIstio = async (istioOverrides: IstioInstallValues, log: (text: string) => void = () => {}) => {
 	if (istioOverrides.protocol === Protocol.HTTPS) {
 		if (istioOverrides.isNewInstall) {
 			await kubectl.create('ns', istioSystemNs);
 		}
-		await createIstioGatewayCert(istioOverrides.envoyFilterNamespace, istioOverrides);
+		await createIstioGatewayCert(istioOverrides.envoyFilterNamespace, istioOverrides, log);
 	}
 };
 
@@ -266,17 +266,18 @@ const askEnableDemoSvc = async (): Promise<boolean> => {
 // Setup Overrides
 export const setupKubernetes = async (
 	istioValues: IstioValues,
+	log: (text: string) => void = () => {}
 ): Promise<IstioAgentValues> => {
 	const istioAgentValues = istioValues.istioAgentValues;
 
-	console.log(
+	log(
 		chalk.gray(
 			'\nThere are several steps to prepare a Kubernetes cluster for the Amplify Istio Agents.\nThe following questions collect the namespace and secret to use for the Istio gateway.\n'
 		)
 	);
 
 	if (istioAgentValues.alsEnabled) {
-		console.log(
+		log(
 			chalk.gray(
 				'\nThe Istio Traceability Agent supports three modes: default (minimal required header subset), ambient (baseline headers with optional Telemetry CR emission), and verbose (capture all request/response headers).\n'
 			)
@@ -309,7 +310,7 @@ export const setupKubernetes = async (
 	return istioAgentValues;
 };
 
-export const createIstioGatewayCert = async (namespace: string, istioOverrides: IstioInstallValues) => {
+export const createIstioGatewayCert = async (namespace: string, istioOverrides: IstioInstallValues, log: (text: string) => void = () => {}) => {
 	let privateKey = '';
 	let cert = '';
 	if (istioOverrides.certificateOption === Certificate.GENERATE) {
@@ -317,7 +318,7 @@ export const createIstioGatewayCert = async (namespace: string, istioOverrides: 
 			istioOverrides.certSecretName as string,
 			istioOverrides.host as string
 		));
-		console.log(
+		log(
 			`Created ${istioOverrides.certSecretName}.crt and ${istioOverrides.certSecretName}.key in ${process.cwd()}`
 		);
 	} else {
@@ -331,22 +332,22 @@ export const createIstioGatewayCert = async (namespace: string, istioOverrides: 
 	if (error) {
 		throw new Error(error);
 	}
-	console.log(`Created ${data[0]} in the ${namespace} namespace.`);
+	log(`Created ${data[0]} in the ${namespace} namespace.`);
 };
 
-export const createIstioOverride = (overrides: IstioValues): void => {
+export const createIstioOverride = (overrides: IstioValues, log: (text: string) => void = () => {}): void => {
 	const overrideFileName = ConfigFiles.IstioOverrideFile;
 
 	writeTemplates(overrideFileName, overrides, helpers.istioInstallTemplate);
 
-	console.log(`\nIstio override file has been placed at ${process.cwd()}/${overrideFileName}`);
+	log(`\nIstio override file has been placed at ${process.cwd()}/${overrideFileName}`);
 	if (overrides.istioInstallValues.isNewInstall) {
-		console.log(
-			'To complete the istio installation run the following command:',
-			chalk.cyan(`\n  istioctl install --set profile=${overrides.istioInstallValues.profile} -f ${overrideFileName}\n`)
+		log(
+			'To complete the istio installation run the following command: '
+			+ chalk.cyan(`\n  istioctl install --set profile=${overrides.istioInstallValues.profile} -f ${overrideFileName}\n`)
 		);
 	} else {
-		console.log(
+		log(
 			chalk.cyan(
 				`  Please merge the generated ${overrideFileName} file with your Istio configuration to allow the Traceability Agent to function.\n`
 			)
@@ -354,13 +355,13 @@ export const createIstioOverride = (overrides: IstioValues): void => {
 	}
 };
 
-export const createHybridOverride = (overrides: IstioValues) => {
+export const createHybridOverride = (overrides: IstioValues, log: (text: string) => void = () => {}) => {
 	const overrideFileName = ConfigFiles.HybridOverrideFile;
 
 	writeTemplates(overrideFileName, overrides, helpers.istioAgentsTemplate);
 
-	console.log(`Istio agent override file has been placed at ${process.cwd()}/${overrideFileName}`);
-	helmImageSecretInfo(overrides.istioAgentValues.namespace.name);
+	log(`Istio agent override file has been placed at ${process.cwd()}/${overrideFileName}`);
+	helmImageSecretInfo(overrides.istioAgentValues.namespace.name, log);
 
 	const agentHelmInfo = new Set<AgentHelmInfo>();
 	agentHelmInfo.add({
@@ -372,7 +373,8 @@ export const createHybridOverride = (overrides: IstioValues) => {
 	helmInstallInfo(
 		'Istio',
 		overrides.istioAgentValues.namespace.name,
-		agentHelmInfo
+		agentHelmInfo,
+		log
 	);
 };
 
@@ -383,7 +385,7 @@ export const installPreprocess = async (installConfig: AgentInstallConfig): Prom
 		[ installConfig.centralConfig.dosaAccount.publicKey, installConfig.centralConfig.dosaAccount.privateKey ]
 			= await helpers.askPublicAndPrivateKeysPath();
 	} else {
-		console.log(
+		installConfig.log(
 			chalk.yellow(
 				'The secret will be created with the same "private_key.pem" and "public_key.pem" that will be auto generated to create the Service Account, following the completion of these prompts.'
 			)
@@ -402,15 +404,15 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	istioValues.centralConfig = installConfig.centralConfig;
 	istioValues.traceabilityConfig = installConfig.traceabilityConfig;
 
-	await completeIstio(istioValues.istioInstallValues);
+	await completeIstio(istioValues.istioInstallValues, installConfig.log);
 
 	if (istioValues.istioAgentValues.namespace.isNew) {
-		await helpers.createNamespace(istioValues.istioAgentValues.namespace.name);
+		await helpers.createNamespace(istioValues.istioAgentValues.namespace.name, installConfig.log);
 	}
 
 	await helpers.createSecret(istioValues.istioAgentValues.namespace.name, helpers.amplifyAgentsKeysSecret, async () => {
 		if (installConfig.centralConfig.ampcDosaInfo.isNew) {
-			console.log(
+			installConfig.log(
 				chalk.yellow(
 					`The secret '${helpers.amplifyAgentsKeysSecret}' will be created with the same "private_key.pem" and "public_key.pem" that was auto generated to create the Service Account.`
 				)
@@ -423,18 +425,19 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 			'publicKey',
 			istioValues.centralConfig.dosaAccount.publicKey,
 			'privateKey',
-			istioValues.centralConfig.dosaAccount.privateKey
+			istioValues.centralConfig.dosaAccount.privateKey,
+			installConfig.log
 		);
 	});
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 
-	createIstioOverride(istioValues);
-	createHybridOverride(istioValues);
+	createIstioOverride(istioValues, installConfig.log);
+	createHybridOverride(istioValues, installConfig.log);
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
-	console.log(
+	installConfig.log(
 		chalk.gray(`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.ISTIO}`)
 	);
 };

@@ -1,6 +1,6 @@
-import chalk from 'chalk';
 import { ApiServerClient } from '../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../results/DefinitionsManager.js';
+import logger from '../../../logger.js';
 
 export const deleteByResourceType = async (
 	client: ApiServerClient,
@@ -10,7 +10,8 @@ export const deleteByResourceType = async (
 	resourceShortName: string,
 	scopeName: string = ''
 ): Promise<void> => {
-	console.log(`Deleting ${resourceType}`);
+	const { log, error } = logger('lib: engage: utils: agents: deleters: deleteByResourceType');
+	log(`Deleting ${resourceType}`);
 	// NOTE: only a first found set is used
 	const defs = defsManager.findDefsByWord(resourceShortName);
 	if (!defs) {
@@ -26,11 +27,11 @@ export const deleteByResourceType = async (
 	if (!result.data) {
 		const errMsg = `error deleting resource ${resourceType.toLowerCase()}`;
 		if (result.error?.length) {
-			console.log(chalk.redBright(`${errMsg}: ${result.error[0].detail}.`));
+			error(`${errMsg}: ${result.error[0].detail}.`);
 		} else {
-			console.log(chalk.redBright(`${errMsg}.`));
+			error(`${errMsg}.`);
 		}
 	} else {
-		console.log(`New ${resourceType.toLowerCase()} "${result.data.name}" has been successfully deleted.`);
+		log(`New ${resourceType.toLowerCase()} "${result.data.name}" has been successfully deleted.`);
 	}
 };

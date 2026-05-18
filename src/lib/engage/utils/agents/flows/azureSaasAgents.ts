@@ -17,7 +17,7 @@ import {
 	setupEnvironment,
 } from './saasAgentsBase.js';
 
-const { log } = logger('engage: install: agents: saas');
+const debugLog = logger('engage: install: agents: saas');
 
 const InvalidMessages = {
 	enterApiManagementServiceName: 'The API Management Service Name can contain only letters, numbers and hyphens. The first character must be a letter and last character must be a letter or a number.',
@@ -108,10 +108,6 @@ const SaasPrompts = {
 	EVENT_HUB_CONSUMER_GROUP: 'Enter the Azure Event Hub Consumer Group',
 };
 
-// ---------------------------------------------------------------------------
-// Exported flow methods
-// ---------------------------------------------------------------------------
-
 export const askBundleType = async (gateway?: GatewayTypes): Promise<BundleType> => {
 	if (gateway === GatewayTypes.AZURE_GATEWAY) {
 		return (await askList({
@@ -130,7 +126,7 @@ const askForAzureCredentials = async (
 	agentValues: SaasAzureAgentValues,
 	installConfig: AgentInstallConfig
 ): Promise<SaasAzureAgentValues> => {
-	log('gathering access details for azure');
+	debugLog.log('gathering access details for azure');
 
 	agentValues.tenantId = (await askInput({ msg: SaasPrompts.TENANT_ID })) as string;
 	agentValues.subscriptionId = (await askInput({ msg: SaasPrompts.SUBSCRIPTION_ID })) as string;
@@ -161,8 +157,8 @@ const askForAzureCredentials = async (
 };
 
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	console.log('\nCONNECTION TO Azure API GATEWAY:');
-	console.log(
+	installConfig.log('\nCONNECTION TO Azure API GATEWAY:');
+	installConfig.log(
 		chalk.gray(
 			'The Discovery Agent needs to connect to the Azure API Gateway to discover API\'s for publishing to Amplify Engage'
 		)
@@ -200,7 +196,7 @@ export const completeInstall = async (
 	apiServerClient?: ApiServerClient,
 	defsManager?: DefinitionsManager
 ): Promise<void> => {
-	console.log('\n');
+	installConfig.log('\n');
 	const azureAgentValues = installConfig.gatewayConfig as SaasAzureAgentValues;
 	const resourceFuncsForCleanup: (() => Promise<void>)[] = [];
 	const referencedIDPs: { name: string | undefined }[] = [];
@@ -249,7 +245,7 @@ export const completeInstall = async (
 
 	await createAgentResources(ctx, dataplaneRes, { sampling: azureAgentValues.sampling, redaction: azureAgentValues.redaction });
 
-	console.log(`Install complete of hosted agent for ${installConfig.gatewayType} region`);
+	installConfig.log(`Install complete of hosted agent for ${installConfig.gatewayType} region`);
 };
 
 export const AzureSaaSInstallMethods: InstallationFlowMethods = {

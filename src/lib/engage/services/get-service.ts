@@ -140,7 +140,7 @@ export async function getResources(params: GetCommandParams): Promise<GetCommand
 		await resolveTeamNames({ ...item, account });
 	}
 
-	log('get-service complete, items:', items.length);
+	log.log('get-service complete, items:', items.length);
 	const hasErrors = !items.filter((r) => r.response.data !== null).length;
 	return { items, hasErrors, languageDefinition };
 }

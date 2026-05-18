@@ -33,11 +33,11 @@ export class EngageProductize extends Command {
 
 	async run(): Promise<void> {
 		const log = logger('engage:productize');
-		let render = new Renderer(console, undefined);
+		let render = new Renderer((text: string) => this.log(text), undefined);
 		let commandIsSuccessful = true;
 		try {
 			const { flags, account } = await this.parse(EngageProductize);
-			render = new Renderer(console, flags.output).startSpin('Productizing API Service(s)');
+			render = new Renderer((text: string) => this.log(text), flags.output).startSpin('Productizing API Service(s)');
 
 			if (!flags.file) {
 				throw new Error('To create resources from a file, please provide -f, --file [path] option');
@@ -55,10 +55,10 @@ export class EngageProductize extends Command {
 				}
 			});
 		} catch (err: any) {
-			log('command error', err);
+			log.error('command error', err);
 			render.anyError(err);
 		} finally {
-			log(`command finished, success = ${commandIsSuccessful}`);
+			log.log(`command finished, success = ${commandIsSuccessful}`);
 			if (!commandIsSuccessful) {
 				process.exit(1);
 			}

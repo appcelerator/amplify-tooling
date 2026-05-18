@@ -1,5 +1,4 @@
-import inquirer from 'inquirer';
-import Separator from 'inquirer/lib/objects/separator.js';
+import { input, number, password, select, Separator } from '@inquirer/prompts';
 import { lstatSync, Stats } from 'fs';
 import { extname } from 'path';
 //
@@ -54,7 +53,7 @@ export const verifyApigeeXCredentialFile = (): InputValidation => (input: string
 			throw new Error('File extension is invalid, please provide \'.json\' file');
 		}
 		return true;
-	} catch (e) {
+	} catch (_e) {
 		throw new Error(`Couldn't find the credential file: ${input}`);
 	}
 };
@@ -62,7 +61,7 @@ export const verifyApigeeXCredentialFile = (): InputValidation => (input: string
 export const validateValidRegex = (): InputValidation => (input: string | number) => {
 	try {
 		new RegExp(input.toString());
-	} catch (error) {
+	} catch (_error) {
 		return 'Please provide a valid regular expression.';
 	}
 	return true;
@@ -140,15 +139,25 @@ export const askInput = async ({
 	validate?: InputValidation;
 	allowEmptyInput?: boolean;
 }): Promise<string | number> => {
-	const answers = await inquirer.prompt({
-		type: type === 'string' ? 'input' : 'number',
-		name: 'value',
+	if (type === 'number') {
+		const result = await number({
+			message: `${msg}: `,
+			default: defaultValue as number | undefined,
+			required: !allowEmptyInput,
+			validate: (value: number | undefined) => {
+				if (value === undefined) {
+					return true;
+				}
+				return validate ? validate(value) : true;
+			},
+		});
+		return result ?? '';
+	}
+	return input({
 		message: `${msg}: `,
-		default: defaultValue,
+		default: defaultValue as string | undefined,
 		validate: askInputValidation(allowEmptyInput, validate),
-		filter: type === 'number' ? filterEmptyNumberInput : undefined,
 	});
-	return answers.value;
 };
 
 export const askList = async (opts: {
@@ -156,35 +165,29 @@ export const askList = async (opts: {
 	choices: (string | { name: string; value: string } | Separator)[];
 	default?: string;
 }): Promise<string> => {
-	const answers = await inquirer.prompt({
-		type: 'list',
-		name: 'value',
+	const choices = opts.choices.map((c) =>
+		(typeof c === 'string' ? { value: c, name: c } : c)
+	) as (Separator | { value: string; name?: string })[];
+	return select({
 		message: `${opts.msg}: `,
-		choices: opts.choices,
+		choices,
 		default: opts.default,
 	});
-	return answers.value;
 };
 
 export const askUsernameAndPassword = async (
 	msg: string,
 	defaultUsername: string
 ): Promise<{ username: string; password: string }> => {
-	const answers = await inquirer.prompt([
-		{
-			type: 'input',
-			name: 'username',
-			message: `Enter ${msg} username: `,
-			default: defaultUsername,
-			validate: validateNonEmptyInput,
-		},
-		{
-			type: 'password',
-			name: 'password',
-			mask: '*',
-			message: `Enter ${msg} password: `,
-			validate: validateNonEmptyInput,
-		},
-	]);
-	return answers;
+	const username = await input({
+		message: `Enter ${msg} username: `,
+		default: defaultUsername,
+		validate: validateNonEmptyInput,
+	});
+	const pw = await password({
+		message: `Enter ${msg} password: `,
+		mask: '*',
+		validate: validateNonEmptyInput,
+	});
+	return { username, password: pw };
 };

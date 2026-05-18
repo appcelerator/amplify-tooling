@@ -18,11 +18,15 @@ export class EngageInstallAgentsCommand extends Command {
 	};
 
 	async run(): Promise<void> {
-		let renderer = new Renderer(console, undefined);
+		let renderer = new Renderer((text: string) => this.log(text), undefined);
 		try {
 			const { account, flags } = await this.parse(EngageInstallAgentsCommand);
-			renderer = new Renderer(console, flags.output);
-			await installAgents({ account, baseUrl: flags.baseUrl, apicDeployment: flags.apicDeployment, useCache: flags.useCache, axwayManaged: flags.axwayManaged });
+			renderer = new Renderer((text: string) => this.log(text), flags.output);
+			await installAgents({
+				account, baseUrl: flags.baseUrl, apicDeployment: flags.apicDeployment,
+				useCache: flags.useCache, axwayManaged: flags.axwayManaged,
+				log: (text: string) => this.log(text),
+			});
 		} catch (err: any) {
 			renderer.anyError(err);
 			process.exit(1);

@@ -6,12 +6,6 @@ import { Flags } from '@oclif/core';
  *   static override flags = { ...commonFlags, ... }
  */
 export const commonFlags = {
-	account: Flags.string({
-		description: 'Override your default account config',
-	}),
-	region: Flags.string({
-		description: 'Override your region config',
-	}),
 	useCache: Flags.boolean({
 		description: 'Use cache when communicating with the server',
 		allowNo: true,

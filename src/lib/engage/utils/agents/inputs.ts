@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { Separator } from '@inquirer/prompts';
 import { ApiServerClient } from '../../clients-external/apiserverclient.js';
 import { askInput, askList, InputValidation, runValidations, validateInputIsNew, validateRegex, validateValueRange } from '../../utils/basic-prompts.js';
 import { DefinitionsManager } from '../../results/DefinitionsManager.js';
@@ -35,7 +35,7 @@ import {
 } from '../../utils/regex.js';
 import logger from '../../../logger.js';
 
-const { log } = logger('lib: engage: utils: agents: input');
+const debugLog = logger('lib: engage: utils: agents: input');
 
 const cliNowString = `cli-${Date.now()}`;
 
@@ -129,7 +129,7 @@ export const askServiceAccountName = async (serviceAccountNames: string[]): Prom
 	return name;
 };
 
-export const askDosaClientId = async (client: PlatformClient, showWarning: boolean = true): Promise<DOSAConfigInfo> => {
+export const askDosaClientId = async (client: PlatformClient, showWarning: boolean = true, log: (text: string) => void = () => {}): Promise<DOSAConfigInfo> => {
 	// Fetch all existing service accounts.
 	const serviceAccounts = await client.getServiceAccounts(PlatformServiceAccountRole.ApiCentralAdmin);
 	const serviceAccountNames = serviceAccounts.map((nextAccount) => nextAccount.name);
@@ -139,9 +139,9 @@ export const askDosaClientId = async (client: PlatformClient, showWarning: boole
 		msg: selectServiceAccount,
 		choices: [
 			{ name: 'Create a new service account', value: 'CREATE_NEW' },
-			new inquirer.Separator(),
+			new Separator(),
 			...serviceAccountNames,
-			new inquirer.Separator(),
+			new Separator(),
 		],
 	});
 	if (selectedName === 'CREATE_NEW') {
@@ -151,7 +151,7 @@ export const askDosaClientId = async (client: PlatformClient, showWarning: boole
 	} else {
 		// We're using an existing service account. Notify user to make its keys available to the agents.
 		if (showWarning) {
-			console.log(
+			log(
 				chalk.yellow(
 					'Please make sure your "private_key.pem" and "public_key.pem" files for the selected service account are in this installation folder.'
 				)
@@ -174,9 +174,9 @@ export const askNamespace = async (msg: string, defaultValue: string): Promise<{
 		msg,
 		choices: [
 			{ name: 'Create a new namespace', value: 'CREATE_NEW' },
-			new inquirer.Separator(),
+			new Separator(),
 			...namespaces.data,
-			new inquirer.Separator(),
+			new Separator(),
 		],
 	});
 
@@ -216,7 +216,8 @@ export const askEnvironmentName = async (
 	client: ApiServerClient,
 	defsManager: DefinitionsManager,
 	isAxwayManaged: boolean | null = null,
-	gatewayType?: string
+	gatewayType?: string,
+	log: (text: string) => void = () => {}
 ): Promise<EnvironmentConfigInfo> => {
 	let envs: GenericResource[];
 	if (isAxwayManaged === null) {
@@ -266,9 +267,9 @@ export const askEnvironmentName = async (
 		msg: envMessages.selectEnvironment,
 		choices: [
 			{ name: envMessages.createNewEnvironment, value: 'CREATE_NEW' },
-			new inquirer.Separator(),
+			new Separator(),
 			...envs.map((e) => e.name).sort((name1, name2) => name1.localeCompare(name2)),
-			new inquirer.Separator(),
+			new Separator(),
 		],
 	});
 	if (answer === 'CREATE_NEW') {
@@ -287,8 +288,8 @@ export const askEnvironmentName = async (
 	} else {
 		// Check if user is installing Traceable agent and there's only 1 existing environment - exit gracefully
 		if (gatewayType === 'Traceable' && envs.length === 1) {
-			console.log(chalk.yellow('Warning: The Traceable agent requires at least one Engage environment before installing.'));
-			console.log(chalk.gray('Installation cancelled. You can create more environments using: axway engage create environment'));
+			log(chalk.yellow('Warning: The Traceable agent requires at least one Engage environment before installing.'));
+			log(chalk.gray('Installation cancelled. You can create more environments using: axway engage create environment'));
 			process.exit(0);
 		}
 		const selectedEnv = envs.find((env) => env.name === answer);
@@ -442,7 +443,8 @@ export const createAmplifyAgentKeysSecret = async (
 	publicKeyName: string,
 	publicKey: string,
 	privateKeyName: string,
-	privateKey: string
+	privateKey: string,
+	log: (text: string) => void = () => {}
 ): Promise<void> => {
 	const { error } = await kubectl.create(
 		'secret',
@@ -451,15 +453,15 @@ export const createAmplifyAgentKeysSecret = async (
 	if (error) {
 		throw new Error(error);
 	}
-	console.log(`Created ${secretName} in the ${namespace} namespace.`);
+	log(`Created ${secretName} in the ${namespace} namespace.`);
 };
 
-export const createNamespace = async (namespace: string) => {
+export const createNamespace = async (namespace: string, log: (text: string) => void = () => {}) => {
 	const res = await kubectl.create('ns', namespace);
 	if (res.error) {
 		throw new Error(res.error);
 	}
-	console.log(`Created namespace ${namespace}.`);
+	log(`Created namespace ${namespace}.`);
 	return namespace;
 };
 
@@ -469,7 +471,8 @@ export const createGatewayAgentCredsSecret = async (
 	apiManagerAuthUser: string,
 	apiManagerAuthPass: string,
 	apiGatewayAuthUser: string,
-	apiGatewayAuthPass: string
+	apiGatewayAuthPass: string,
+	log: (text: string) => void = () => {}
 ): Promise<void> => {
 	const { error } = await kubectl.create(
 		'secret',
@@ -482,7 +485,7 @@ export const createGatewayAgentCredsSecret = async (
 	if (error) {
 		throw Error(error);
 	}
-	console.log(`Created ${secretName} in the ${namespace} namespace.`);
+	log(`Created ${secretName} in the ${namespace} namespace.`);
 };
 
 export const askPublicKeyPath = async (): Promise<string> =>
@@ -497,8 +500,8 @@ export const askPrivateKeyPath = async (): Promise<string> =>
 		defaultValue: 'private_key.pem',
 	})) as string;
 
-export const askPublicAndPrivateKeysPath = async (): Promise<string[]> => {
-	console.log(
+export const askPublicAndPrivateKeysPath = async (log: (text: string) => void = () => {}): Promise<string[]> => {
+	log(
 		chalk.yellow(
 			'Please provide the same "private_key.pem" and "public_key.pem" that was used to create the selected Service Account.'
 		)
@@ -512,10 +515,11 @@ export const askKeyValuePairLoop = async (
 	msg: string,
 	keyLabel: string,
 	validateFunc?: InputValidation,
+	log: (text: string) => void = () => {},
 ): Promise<Map<string, string>> => {
 	let key = 'non-empty';
 	const map = new Map<string, string>();
-	console.log(chalk.cyan(msg));
+	log(chalk.cyan(msg));
 	while (key !== '') {
 		key = (await askInput({
 			msg: `Enter the ${keyLabel} name`,
@@ -538,10 +542,11 @@ export const askKeyValuePairLoop = async (
 
 export const askArrayLoop = async (
 	msg: string,
+	log: (text: string) => void = () => {},
 ): Promise<string[]> => {
 	let value = 'non-empty';
 	const array: string[] = [];
-	console.log(chalk.gray(msg));
+	log(chalk.gray(msg));
 	while (value !== '') {
 		value = (await askInput({
 			msg: 'Enter the value',
@@ -557,7 +562,7 @@ export const askArrayLoop = async (
 	return array;
 };
 
-export const addIdentityProvider = async (): Promise<[IDPConfiguration[], IDPAuthConfiguration[]]>  => {
+export const addIdentityProvider = async (log: (text: string) => void = () => {}): Promise<[IDPConfiguration[], IDPAuthConfiguration[]]>  => {
 	const providedIDPs = [];
 	const providedIDPAuths = [];
 	while (await askList({
@@ -565,20 +570,20 @@ export const addIdentityProvider = async (): Promise<[IDPConfiguration[], IDPAut
 		choices: YesNoChoices,
 		default: YesNo.Yes,
 	}) === YesNo.Yes) {
-		console.log('starting IDP Configuration process');
+		log('starting IDP Configuration process');
 		let idpConfig = new IDPConfiguration();
-		idpConfig = await askForIDPConfiguration(idpConfig);
+		idpConfig = await askForIDPConfiguration(idpConfig, log);
 		providedIDPs.push(idpConfig);
 
 		let idpAuthConfig = new IDPAuthConfiguration();
-		idpAuthConfig = await askForIDPAuthConfiguration(idpAuthConfig);
+		idpAuthConfig = await askForIDPAuthConfiguration(idpAuthConfig, log);
 		providedIDPAuths.push(idpAuthConfig);
 	}
 	return [ providedIDPs, providedIDPAuths ];
 };
 
-const askForIDPAuthAccessToken = async (idpAuth: IDPAuthAccessToken): Promise<IDPAuthAccessToken> => {
-	console.log(chalk.gray('gathering the access token auth configuration'));
+const askForIDPAuthAccessToken = async (idpAuth: IDPAuthAccessToken, log: (text: string) => void = () => {}): Promise<IDPAuthAccessToken> => {
+	log(chalk.gray('gathering the access token auth configuration'));
 
 	idpAuth.token = (await askInput({
 		msg: idpMessages.enterToken,
@@ -587,9 +592,9 @@ const askForIDPAuthAccessToken = async (idpAuth: IDPAuthAccessToken): Promise<ID
 	return idpAuth;
 };
 
-const askForIDPAuthClientSecret = async (idpAuth: IDPAuthClientSecret): Promise<IDPAuthClientSecret> => {
+const askForIDPAuthClientSecret = async (idpAuth: IDPAuthClientSecret, log: (text: string) => void = () => {}): Promise<IDPAuthClientSecret> => {
 
-	console.log(chalk.gray('gathering the client secret auth configuration'));
+	log(chalk.gray('gathering the client secret auth configuration'));
 	idpAuth.authMethod = (await askList({
 		msg: idpMessages.selectClientSecretAuthMethod,
 		choices: [
@@ -608,15 +613,17 @@ const askForIDPAuthClientSecret = async (idpAuth: IDPAuthClientSecret): Promise<
 	})) as string;
 
 	idpAuth.clientScopes = (await idpTestables.askArrayLoop(
-		idpMessages.enterClientScopes
+		idpMessages.enterClientScopes,
+		log
 	)) as string[];
 	return idpAuth;
 };
 
 export const askForIDPConfiguration = async (
 	idpConfigValues: IDPConfiguration,
+	log: (text: string) => void = () => {},
 ): Promise<IDPConfiguration> => {
-	console.log(chalk.gray('gathering idp configuration for azure'));
+	log(chalk.gray('gathering idp configuration for azure'));
 
 	idpConfigValues.title = (await askInput({
 		msg: idpMessages.enterTitle,
@@ -639,19 +646,22 @@ export const askForIDPConfiguration = async (
 	idpConfigValues.requestHeaders = (await idpTestables.askKeyValuePairLoop(
 		idpMessages.provideReqHeadersRegistration,
 		'request header',
-		validateRegex(keyFromKeyValuePairRegex, 'Please enter a valid value')
+		validateRegex(keyFromKeyValuePairRegex, 'Please enter a valid value'),
+		log
 	));
 
 	idpConfigValues.queryParameters = (await idpTestables.askKeyValuePairLoop(
 		idpMessages.provideQueryParamsRegistration,
 		'query parameter',
-		validateRegex(keyFromKeyValuePairRegex, 'Please enter a valid value')
+		validateRegex(keyFromKeyValuePairRegex, 'Please enter a valid value'),
+		log
 	)) as Map<string, string>;
 
 	idpConfigValues.clientProperties = (await idpTestables.askKeyValuePairLoop(
 		idpMessages.provideClientProperties,
 		'client property',
 		validateRegex(keyFromKeyValuePairRegex, 'Please enter a valid value'),
+		log
 	)) as Map<string, string>;
 
 	idpConfigValues.clientTimeout = (await askInput({
@@ -667,8 +677,9 @@ export const askForIDPConfiguration = async (
 
 export const askForIDPAuthConfiguration = async (
 	idpConfigValues: IDPAuthConfiguration,
+	log: (text: string) => void = () => {},
 ): Promise<IDPAuthConfiguration> => {
-	console.log(chalk.gray('gathering idp auth configuration for azure'));
+	log(chalk.gray('gathering idp auth configuration for azure'));
 	idpConfigValues.authType = (await askList({
 		msg: idpMessages.selectAuthType,
 		choices: [
@@ -676,16 +687,16 @@ export const askForIDPAuthConfiguration = async (
 			{ name: IDPAuthType.ClientSecret, value: IDPAuthType.ClientSecret },
 		],
 	})) as IDPAuthType;
-	log(idpConfigValues.authType);
+	debugLog.log(idpConfigValues.authType);
 	switch (idpConfigValues.authType) {
 		case IDPAuthType.AccessToken: {
 			const auth = new IDPAuthAccessToken();
-			idpConfigValues.authConfig = await askForIDPAuthAccessToken(auth);
+			idpConfigValues.authConfig = await askForIDPAuthAccessToken(auth, log);
 			break;
 		}
 		case IDPAuthType.ClientSecret: {
 			const auth = new IDPAuthClientSecret();
-			idpConfigValues.authConfig = await askForIDPAuthClientSecret(auth);
+			idpConfigValues.authConfig = await askForIDPAuthClientSecret(auth, log);
 			break;
 		}
 	}
@@ -694,12 +705,14 @@ export const askForIDPAuthConfiguration = async (
 		idpMessages.provideReqHeadersForTokenFetch,
 		'request header',
 		validateRegex(keyFromKeyValuePairRegex, 'Please enter a valid value'),
+		log
 	)) as Map<string, string>;
 
 	idpConfigValues.queryParameters = (await idpTestables.askKeyValuePairLoop(
 		idpMessages.provideQueryParamsForTokenFetch,
 		'query parameter',
 		validateRegex(keyFromKeyValuePairRegex, 'Please enter a valid value'),
+		log
 	)) as Map<string, string>;
 
 	return idpConfigValues;
