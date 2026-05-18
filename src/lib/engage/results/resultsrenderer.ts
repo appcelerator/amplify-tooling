@@ -1,23 +1,11 @@
 import chalk from 'chalk';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime.js';
-import Table from 'easy-table';
-
-dayjs.extend(relativeTime);
+import Table from 'cli-table3';
 import { dump } from 'js-yaml';
 import _ from 'lodash';
 import { CommandLineInterfaceColumns, GenericResource, MAX_TABLE_STRING_LENGTH, OutputTypes } from '../types.js';
 import { initSDK } from '../../amplify-sdk/index.js';
 import { Account } from '../../../types.js';
-
-/**
- * HACK: removing "---" delimiter printing from the lib.
- * Currently this is not supported in library itself so have to override prototype methods.
- */
-Table.prototype.pushDelimeter = function () {
-	return this;
-};
-
+import { fromNow } from '../utils/utils.js';
 /**
  * Parse JSON object | array of objects as YAML
  * @param response request response payload
@@ -49,14 +37,15 @@ const parseAsTable = (
 	columns: CommandLineInterfaceColumns[]
 ): string => {
 	const data = Array.isArray(response) ? response : [ response ];
-	const t = new Table();
+	const t = new Table({ head: columns.map(col => col.name.toUpperCase()) });
 	for (const i of data) {
+		const row: string[] = [];
 		for (const col of columns) {
 			// jsonPath starts with '.' so using the substring
 			let value: string | undefined = _.get(i, col.jsonPath.substring(1));
 			const deletingState: boolean = _.get(i, 'metadata.state');
 			if (col.type === 'date') {
-				value = dayjs(value).fromNow();
+				value = fromNow(value ?? '');
 			} else if (col.type === 'teamGuid' && !value) {
 				value = chalk.gray('---');
 			} else if (value && value.length > MAX_TABLE_STRING_LENGTH + 3) {
@@ -65,13 +54,9 @@ const parseAsTable = (
 					+ '...'
 					+ value.substring(value.length - MAX_TABLE_STRING_LENGTH / 2);
 			}
-			if (deletingState) {
-				t.cell(col.name.toUpperCase(), chalk.yellow(value));
-			} else {
-				t.cell(col.name.toUpperCase(), value);
-			}
+			row.push(deletingState ? chalk.yellow(value) : (value ?? ''));
 		}
-		t.newRow();
+		t.push(row);
 	}
 	return data.length ? `\n${t.toString()}` : '\nNo resources found.';
 };
@@ -91,21 +76,21 @@ export const parseAsJson = (response: object | object[]): string => JSON.stringi
  * @param console current console
  */
 export const renderResponse = (
-	console: Console,
+	log: (text: string) => void,
 	response: object | object[],
 	output?: OutputTypes,
 	columns?: CommandLineInterfaceColumns[]
 ): void => {
 	switch (output) {
 		case OutputTypes.yaml:
-			console.log(parseAsYaml(response));
+			log(parseAsYaml(response));
 			break;
 		case OutputTypes.json:
-			console.log(parseAsJson(response));
+			log(parseAsJson(response));
 			break;
 		default:
 			// @ts-expect-error TODO: fix types error once more types are used
-			console.log(parseAsTable(response, columns));
+			log(parseAsTable(response, columns));
 	}
 };
 

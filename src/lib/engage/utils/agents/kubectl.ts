@@ -40,16 +40,16 @@ class Kubectl {
 		const obj: KubectlResponse = { error: null, data: [] };
 		let logMsg = `kubectl ${action} ${resource}`;
 		logMsg = args ? (logMsg += ` ${args}`) : logMsg;
-		log(logMsg);
+		log.log(logMsg);
 
 		const res = await this.execKubectl(`${action} ${resource} ${args || ''}`, resource);
 		if (res.error) {
 			obj.error = res.error;
-			log(`command failed: ${res.error}`);
+			log.error(`command failed: ${res.error}`);
 			return obj;
 		}
 		obj.data = this.cleanResponse(res.data!);
-		log('command success');
+		log.log('command success');
 		return obj;
 	}
 

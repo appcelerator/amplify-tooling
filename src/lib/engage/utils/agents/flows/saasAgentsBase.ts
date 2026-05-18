@@ -99,9 +99,9 @@ export const SharedSaasPrompts = {
 	ENTER_MORE: 'Do you want to enter another {0} for {1}',
 };
 
-export const askForRedactionSet = async (setting: string, redactionSet: RedactionSet): Promise<RedactionSet> => {
+export const askForRedactionSet = async (setting: string, redactionSet: RedactionSet, log: (text: string) => void = () => {}): Promise<RedactionSet> => {
 	let askShow = true;
-	console.log(chalk.gray(FormatString('\nRedaction settings for {0}s', setting)));
+	log(chalk.gray(FormatString('\nRedaction settings for {0}s', setting)));
 	while (askShow) {
 		const input = (await askInput({
 			msg: FormatString(SharedSaasPrompts.REDACT_SHOW, setting),
@@ -117,13 +117,13 @@ export const askForRedactionSet = async (setting: string, redactionSet: Redactio
 		})) === YesNo.Yes;
 	}
 
-	console.log(chalk.gray(FormatString('Sanitization settings for {0}s', setting)));
+	log(chalk.gray(FormatString('Sanitization settings for {0}s', setting)));
 	let askSanitize = (await askList({
 		msg: FormatString(SharedSaasPrompts.ENTER_SANITIZE_RULE, setting),
 		default: YesNo.No,
 		choices: YesNoChoices,
 	})) === YesNo.Yes;
-	console.log(
+	log(
 		chalk.gray(
 			'When a match for the key regular expression is found, a match\nfor the value regular expression will be replaced by the masking character(s)'
 		)
@@ -141,7 +141,7 @@ export const askForRedactionSet = async (setting: string, redactionSet: Redactio
 		})) as string;
 
 		if (keyMatch === '' || valMatch === '') {
-			console.log('can\'t add sanitization rule with an empty key or value regular expression');
+			log('can\'t add sanitization rule with an empty key or value regular expression');
 		} else {
 			redactionSet.sanitize.push(new Sanitize(keyMatch, valMatch));
 		}
@@ -156,10 +156,10 @@ export const askForRedactionSet = async (setting: string, redactionSet: Redactio
 	return redactionSet;
 };
 
-export const askForRedaction = async (agentValues: SaasAgentValues): Promise<SaasAgentValues> => {
-	console.log(chalk.gray('\nRedaction and Sanitization settings'));
+export const askForRedaction = async (agentValues: SaasAgentValues, log: (text: string) => void = () => {}): Promise<SaasAgentValues> => {
+	log(chalk.gray('\nRedaction and Sanitization settings'));
 	let askPaths = true;
-	console.log(chalk.gray('\nRedaction settings for URL paths'));
+	log(chalk.gray('\nRedaction settings for URL paths'));
 	while (askPaths) {
 		const input = (await askInput({
 			msg: FormatString(SharedSaasPrompts.REDACT_SHOW, 'URL path'),
@@ -175,9 +175,9 @@ export const askForRedaction = async (agentValues: SaasAgentValues): Promise<Saa
 		})) === YesNo.Yes;
 	}
 
-	agentValues.redaction.queryArgument = await askForRedactionSet('query argument', agentValues.redaction.queryArgument);
-	agentValues.redaction.requestHeaders = await askForRedactionSet('request header', agentValues.redaction.requestHeaders);
-	agentValues.redaction.responseHeaders = await askForRedactionSet('response header', agentValues.redaction.responseHeaders);
+	agentValues.redaction.queryArgument = await askForRedactionSet('query argument', agentValues.redaction.queryArgument, log);
+	agentValues.redaction.requestHeaders = await askForRedactionSet('request header', agentValues.redaction.requestHeaders, log);
+	agentValues.redaction.responseHeaders = await askForRedactionSet('response header', agentValues.redaction.responseHeaders, log);
 
 	agentValues.redaction.maskingCharacter = (await askInput({
 		msg: SharedSaasPrompts.MASKING_CHARS,
@@ -189,7 +189,7 @@ export const askForRedaction = async (agentValues: SaasAgentValues): Promise<Saa
 };
 
 export const askFrequencyAndFilter = async (agentValues: SaasAgentValues, installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	console.log(
+	installConfig.log(
 		chalk.gray(
 			'\n00d00h00m format, where 30m = 30 minutes, 1h = 1 hour, 7d = 7 days, and 7d1h30m = 7 days 1 hour and 30 minutes. Minimum of 30m.'
 		)
@@ -212,7 +212,7 @@ export const askFrequencyAndFilter = async (agentValues: SaasAgentValues, instal
 	})) as string;
 
 	if (installConfig.switches.isTaEnabled) {
-		console.log(
+		installConfig.log(
 			chalk.gray(
 				'\n00d00h00m format, where 30m = 30 minutes, 1h = 1 hour, 7d = 7 days, and 7d1h30m = 7 days 1 hour and 30 minutes. Minimum of 30m.'
 			)
@@ -224,7 +224,7 @@ export const askFrequencyAndFilter = async (agentValues: SaasAgentValues, instal
 			allowEmptyInput: true,
 		})) as string;
 
-		agentValues = await askForRedaction(agentValues);
+		agentValues = await askForRedaction(agentValues, installConfig.log);
 	}
 
 	return agentValues;
@@ -277,7 +277,7 @@ export const createIDPResources = async (ctx: CompleteInstallContext): Promise<b
 
 	try {
 		for (let i = 0; i < providedIDPs.length; i++) {
-			const idpResource = await helpers.createNewIDPResource(apiServerClient, defsManager, providedIDPs[i]);
+			const idpResource = await helpers.createNewIDPResource(apiServerClient, defsManager, providedIDPs[i], installConfig.log);
 			resourceFuncsForCleanup.push(async () =>
 				helpers.deleteByResourceType(apiServerClient, defsManager, idpResource?.name as string, 'IdentityProvider', 'idp')
 			);
@@ -287,14 +287,14 @@ export const createIDPResources = async (ctx: CompleteInstallContext): Promise<b
 			providedIDPAuths[i].setAccessData(encryptedAccessData);
 
 			const idpSecResource = await helpers.createNewIDPSecretResource(
-				apiServerClient, defsManager, providedIDPAuths[i], idpResource as GenericResource
+				apiServerClient, defsManager, providedIDPAuths[i], idpResource as GenericResource, installConfig.log
 			);
 			resourceFuncsForCleanup.push(async () =>
 				helpers.deleteByResourceType(apiServerClient, defsManager, idpSecResource?.name as string, 'IdentityProviderSecret', 'idpsec', idpResource?.name)
 			);
 		}
 	} catch (_error) {
-		console.log(chalk.redBright('rolling back installation. Could not create the Identity Provider resources'));
+		installConfig.log(chalk.redBright('rolling back installation. Could not create the Identity Provider resources'));
 		await cleanResources(resourceFuncsForCleanup);
 		return false;
 	}
@@ -317,6 +317,7 @@ export const setupEnvironment = async (ctx: CompleteInstallContext): Promise<boo
 			},
 			'',
 			refIDPsSubResources,
+			installConfig.log,
 		);
 		resourceFuncsForCleanup.push(async () =>
 			helpers.deleteByResourceType(apiServerClient, defsManager, installConfig.centralConfig.ampcEnvInfo.name, 'Environment', 'env')
@@ -328,6 +329,7 @@ export const setupEnvironment = async (ctx: CompleteInstallContext): Promise<boo
 			apiServerClient, defsManager,
 			installConfig.centralConfig.ampcEnvInfo.name,
 			'Environment', 'env', '', refIDPsSubResources,
+			installConfig.log,
 		);
 		const oldIDPRef = { references: { identityProviders: installConfig.centralConfig.ampcEnvInfo.referencedIdentityProviders } };
 		resourceFuncsForCleanup.push(async () =>
@@ -351,13 +353,14 @@ export const createDataplaneResources = async (
 			apiServerClient, defsManager,
 			installConfig.centralConfig.environment,
 			GatewayTypeToDataPlane[gatewayType],
-			dataplaneConfigObj
+			dataplaneConfigObj,
+			installConfig.log,
 		);
 		resourceFuncsForCleanup.push(async () =>
 			helpers.deleteByResourceType(apiServerClient, defsManager, dataplaneRes.name, 'Dataplane', 'dp', installConfig.centralConfig.environment)
 		);
 	} catch (_error) {
-		console.log(chalk.redBright('rolling back installation. Please check the configuration data before re-running install'));
+		installConfig.log(chalk.redBright('rolling back installation. Please check the configuration data before re-running install'));
 		await cleanResources(resourceFuncsForCleanup);
 		return null;
 	}
@@ -368,13 +371,14 @@ export const createDataplaneResources = async (
 			installConfig.centralConfig.environment,
 			GatewayTypeToDataPlane[gatewayType],
 			dataplaneRes.name,
-			await createEncryptedAccessData(ctx.agentValues, dataplaneRes)
+			await createEncryptedAccessData(ctx.agentValues, dataplaneRes),
+			installConfig.log,
 		);
 		resourceFuncsForCleanup.push(async () =>
 			helpers.deleteByResourceType(apiServerClient, defsManager, dataplaneSecretRes?.name as string, 'DataplaneSecret', 'dps', installConfig.centralConfig.environment)
 		);
 	} catch (_error) {
-		console.log(chalk.redBright('rolling back installation. Please check the credential data before re-running install'));
+		installConfig.log(chalk.redBright('rolling back installation. Please check the credential data before re-running install'));
 		await cleanResources(resourceFuncsForCleanup);
 		return null;
 	}
@@ -404,7 +408,8 @@ export const createAgentResources = async (
 		agentValues.frequencyDA,
 		agentValues.queueDA,
 		undefined,
-		agentValues.filterDA
+		agentValues.filterDA,
+		installConfig.log,
 	);
 
 	if (installConfig.switches.isTaEnabled) {
@@ -419,7 +424,9 @@ export const createAgentResources = async (
 			dataplaneRes.name,
 			agentValues.frequencyTA,
 			false,
-			taExtraConfig
+			taExtraConfig,
+			undefined,
+			installConfig.log,
 		);
 	}
 };

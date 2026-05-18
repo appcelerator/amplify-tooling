@@ -9,7 +9,7 @@ import * as helpers from '../index.js';
 import * as crypto from 'crypto';
 import { DataplaneConfig } from './saasAgentsBase.js';
 
-const { log } = logger('engage: install: agents: Traceable');
+const { log, error } = logger('engage: install: agents: Traceable');
 
 class TraceableDataplaneConfig extends DataplaneConfig {
 	region: string;
@@ -89,7 +89,7 @@ const askConfigType = async (): Promise<AgentConfigTypes> => {
 	return AgentConfigTypes.HOSTED;
 };
 
-const askEnvironments = async (centralEnvs: GenericResource[], hostedAgentValues: SaasTraceableAgentValues, excludeEnvironment?: string): Promise<void> => {
+const askEnvironments = async (centralEnvs: GenericResource[], hostedAgentValues: SaasTraceableAgentValues, excludeEnvironment?: string, log: (text: string) => void = () => {}): Promise<void> => {
 	// Filter out the already-selected agent installation environment
 	if (excludeEnvironment) {
 		centralEnvs = centralEnvs.filter(env => env.name !== excludeEnvironment);
@@ -98,7 +98,7 @@ const askEnvironments = async (centralEnvs: GenericResource[], hostedAgentValues
 	let askEnvs = true;
 	const envs = [];
 	const mappedCentralEnvs = [];
-	console.log(chalk.gray(SaasPrompts.environmentsDescription));
+	log(chalk.gray(SaasPrompts.environmentsDescription));
 	while (askEnvs) {
 		const env = (await askInput({
 			msg: SaasPrompts.enterEnvironments,
@@ -160,7 +160,7 @@ export const askTraceableRegion = async (): Promise<TraceableRegionType> => {
 };
 
 const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	console.log('\nCONNECTION TO TRACEABLE API GATEWAY:');
+	installConfig.log('\nCONNECTION TO TRACEABLE API GATEWAY:');
 	// DeploymentType
 	let hostedAgentValues: SaasTraceableAgentValues = new SaasTraceableAgentValues();
 
@@ -175,7 +175,7 @@ const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<S
 		const centralEnvs = await helpers.getCentralEnvironments(installConfig.centralConfig.apiServerClient as ApiServerClient, installConfig.centralConfig.definitionManager as DefinitionsManager);
 		// Pass the already-selected agent installation environment to exclude it from mapping choices
 		const agentInstallEnv = installConfig.centralConfig.ampcEnvInfo?.name;
-		await askEnvironments(centralEnvs!, hostedAgentValues, agentInstallEnv);
+		await askEnvironments(centralEnvs!, hostedAgentValues, agentInstallEnv, installConfig.log);
 	}
 
 	return hostedAgentValues;
@@ -211,7 +211,7 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 	/**
      * Create agent resources
      */
-	console.log('\n');
+	installConfig.log('\n');
 	const traceableAgentValues = installConfig.gatewayConfig as SaasTraceableAgentValues;
 
 	// create the environment, if necessary
@@ -225,7 +225,10 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 			{
 				axwayManaged: installConfig.centralConfig.axwayManaged,
 				production: installConfig.centralConfig.production,
-			}
+			},
+			undefined,
+			undefined,
+			installConfig.log,
 		)
 		: installConfig.centralConfig.ampcEnvInfo.name;
 
@@ -246,6 +249,7 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		installConfig.centralConfig.environment,
 		GatewayTypeToDataPlane[installConfig.gatewayType],
 		traceableAgentValues.dataplaneConfig,
+		installConfig.log,
 	);
 	// create data plane secret resource
 	try {
@@ -256,10 +260,11 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 			GatewayTypeToDataPlane[installConfig.gatewayType],
 			dataplaneRes.name,
 			await createEncryptedAccessData(traceableAgentValues, dataplaneRes),
+			installConfig.log,
 		);
-	} catch (error) {
-		log(error);
-		console.log(
+	} catch (err) {
+		error(err);
+		installConfig.log(
 			chalk.redBright('rolling back installation. Please check the credential data before re-running install')
 		);
 
@@ -284,7 +289,6 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		return;
 	}
 
-	// create compliance agent resource
 	installConfig.centralConfig.taAgentName = await helpers.createNewAgentResource(
 		apiServerClient as ApiServerClient,
 		defsManager as DefinitionsManager,
@@ -294,10 +298,15 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		AgentTypes.ca,
 		installConfig.centralConfig.ampcTeamName,
 		GatewayTypeToDataPlane[installConfig.gatewayType] + ' Compliance Agent',
-		dataplaneRes.name
+		dataplaneRes.name,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		installConfig.log,
 	);
 
-	console.log(await generateOutput(installConfig));
+	installConfig.log(await generateOutput(installConfig));
 };
 
 export const TraceableSaaSInstallMethods: InstallationFlowMethods = {

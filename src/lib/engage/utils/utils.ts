@@ -63,7 +63,25 @@ export function ValueFromKey(
 	return undefined;
 }
 
-export const createLanguageSubresourceNames = (langCode: string) => {
+export const fromNow = (dateStr: string): string => {
+	const diffMs = new Date(dateStr).getTime() - Date.now();
+	const absDiff = Math.abs(diffMs);
+	const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+	if (absDiff < 60_000) {
+		return rtf.format(Math.round(diffMs / 1000), 'second');
+	} else if (absDiff < 3_600_000) {
+		return rtf.format(Math.round(diffMs / 60_000), 'minute');
+	} else if (absDiff < 86_400_000) {
+		return rtf.format(Math.round(diffMs / 3_600_000), 'hour');
+	} else if (absDiff < 2_592_000_000) {
+		return rtf.format(Math.round(diffMs / 86_400_000), 'day');
+	} else if (absDiff < 31_536_000_000) {
+		return rtf.format(Math.round(diffMs / 2_592_000_000), 'month');
+	}
+	return rtf.format(Math.round(diffMs / 31_536_000_000), 'year');
+};
+
+export const createLanguageSubresourceNames = (langCode: string, log: (text: string) => void = () => {}) => {
 	const langCodeArr = langCode.split(',');
 	const langSubresourceNamesArr = [ 'languages' ];
 	const languageTypesArr: (string | undefined)[] = [];
@@ -73,7 +91,7 @@ export const createLanguageSubresourceNames = (langCode: string) => {
 	langCodeArr.forEach((langCode) => {
 		if (langCode.trim() !== '') {
 			if (!languageTypesArr.includes(langCode)) {
-				console.log(
+				log(
 					chalk.yellow(
 						`\n'${langCode}' language code is not supported, hence create/update cannot be performed on 'languages-${langCode}. Allowed language codes: ${LanguageTypes.French} | ${LanguageTypes.German} | ${LanguageTypes.US} | ${LanguageTypes.Portugese}.'`,
 					),
@@ -341,7 +359,7 @@ export const loadAndVerifySpecs = async (
 	let isMissingName = false;
 	try {
 		docs = loadAll(await readFile(specFilePath, 'utf8'));
-	} catch (e: any) {
+	} catch (e) {
 		throw new Error(
 			e.reason && e.reason.includes('null byte')
 				? 'File encoding is invalid, please make sure it is using UTF-8'
@@ -444,18 +462,18 @@ export const getResourceDefinition = async (
 	return resourceDefinition;
 };
 
-export const helmImageSecretInfo = async (namespace: string): Promise<void> => {
+export const helmImageSecretInfo = async (namespace: string, log: (text: string) => void = () => {}): Promise<void> => {
 	let dockerSecretCmd = `kubectl create secret docker-registry <image-pull-secret-name> --namespace ${namespace} \\`;
 	dockerSecretCmd += '\n  --docker-server=docker.repository.axway.com \\';
 	dockerSecretCmd += '\n  --docker-username=<client_id> \\';
 	dockerSecretCmd += '\n  --docker-password=<client_secret>';
-	console.log(
-		'\nTo setup docker image secret for the pulling the agent docker images, run the following command:',
-		chalk.cyan(`\n${dockerSecretCmd}`),
-		chalk.cyan('\n'),
-		chalk.white('\n* client_id - service account id for your Amplify Platform organization'),
-		chalk.white('\n* client_secret - service account secret for your Amplify Platform organization'),
-		chalk.white('\n* image-pull-secret - Kubernetes secret name with docker config to pull images'),
+	log(
+		'\nTo setup docker image secret for the pulling the agent docker images, run the following command:'
+		+ chalk.cyan(`\n${dockerSecretCmd}`)
+		+ chalk.cyan('\n')
+		+ chalk.white('\n* client_id - service account id for your Amplify Platform organization')
+		+ chalk.white('\n* client_secret - service account secret for your Amplify Platform organization')
+		+ chalk.white('\n* image-pull-secret - Kubernetes secret name with docker config to pull images'),
 	);
 };
 
@@ -469,7 +487,8 @@ export interface AgentHelmInfo {
 export const helmInstallInfo = async (
 	agentType: string,
 	namespace: string,
-	agentInfo: Set<AgentHelmInfo>
+	agentInfo: Set<AgentHelmInfo>,
+	log: (text: string) => void = () => {},
 ): Promise<void> => {
 	let helmInstallCmd = '';
 	agentInfo.forEach(function (entry) {
@@ -478,13 +497,13 @@ export const helmInstallInfo = async (
 		helmInstallCmd += `\n  ${entry.imageSecretOverrides}\n`;
 	});
 
-	console.log(
-		`\nTo complete the ${agentType} Agent installation run the following commands:`,
-		chalk.cyan('\nhelm repo add axway https://helm.repository.axway.com --username=<client_id> --password=<client_secret>'),
-		chalk.cyan(`\nhelm repo update\n${helmInstallCmd}`),
-		chalk.white('\n* client_id - service account id for your Amplify Platform organization'),
-		chalk.white('\n* client_secret - service account secret for your Amplify Platform organization'),
-		chalk.white('\n* image-pull-secret - Kubernetes secret name with docker config to pull images'),
+	log(
+		`\nTo complete the ${agentType} Agent installation run the following commands:`
+		+ chalk.cyan('\nhelm repo add axway https://helm.repository.axway.com --username=<client_id> --password=<client_secret>')
+		+ chalk.cyan(`\nhelm repo update\n${helmInstallCmd}`)
+		+ chalk.white('\n* client_id - service account id for your Amplify Platform organization')
+		+ chalk.white('\n* client_secret - service account secret for your Amplify Platform organization')
+		+ chalk.white('\n* image-pull-secret - Kubernetes secret name with docker config to pull images'),
 	);
 };
 

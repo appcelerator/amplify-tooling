@@ -96,8 +96,8 @@ const askIBMAPIConnectAnalyticsServerName = async (): Promise<string> =>
 
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<IBMAPIConnectAgentValues> => {
 	const ibmAPIConnectAgentValues: IBMAPIConnectAgentValues = new IBMAPIConnectAgentValues();
-	console.log('\nCONNECTION TO IBM API Connect:');
-	console.log(
+	installConfig.log('\nCONNECTION TO IBM API Connect:');
+	installConfig.log(
 		chalk.gray(
 			'The discovery agent needs to connect to the IBM API Connect Gateway to discover API\'s for publishing to Amplify.\nThe traceability agent needs to connect to IBM API Connect for collecting APIs transactions. These will be forwarded to the Business Insights.\n'
 		)
@@ -107,14 +107,14 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 
 	// IBM API Connect Discovery Agent Prompts
 	if (installConfig.switches.isDaEnabled) {
-		console.log(chalk.gray('\nDiscovery Agent Configuration\n'));
+		installConfig.log(chalk.gray('\nDiscovery Agent Configuration\n'));
 
 		await askDiscoveryPrompts(ibmAPIConnectAgentValues);
 	}
 
 	// IBM API Connect Traceability Agent Prompts
 	if (installConfig.switches.isTaEnabled) {
-		console.log(chalk.gray('\nTraceability Agent Configuration\n'));
+		installConfig.log(chalk.gray('\nTraceability Agent Configuration\n'));
 
 		await askTraceabilityPrompts(ibmAPIConnectAgentValues);
 	}
@@ -124,12 +124,12 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 
 const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
 	if (installConfig.centralConfig.ampcDosaInfo.isNew && !installConfig.switches.isHelmInstall) {
-		console.log(chalk.yellow(svcAccMsg));
+		installConfig.log(chalk.yellow(svcAccMsg));
 	}
 
 	dockerSuccessMsg(installConfig);
 
-	console.log(
+	installConfig.log(
 		chalk.gray(
 			`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.IBMAPICONNECT}`
 		)
@@ -154,23 +154,23 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	} else {
 		dockerInfo = `To utilize the traceability agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.TA_ENV_VARS}):`;
 	}
-	console.log(chalk.whiteBright(dockerInfo), '\n');
+	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;
-		console.log(chalk.white('Pull the latest image of the Discovery Agent:'));
-		console.log(chalk.cyan(`docker pull ${daImageVersion}`));
-		console.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v /data ${daImageVersion}`), '\n');
+		installConfig.log(chalk.white('Pull the latest image of the Discovery Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${daImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v /data ${daImageVersion}`) + '\n');
 	}
 	if (installConfig.switches.isTaEnabled) {
 		const taImageVersion = `${taImage}:${installConfig.taVersion}`;
-		console.log(chalk.white('Pull the latest image of the Traceability Agent:'));
-		console.log(chalk.cyan(`docker pull ${taImageVersion}`));
-		console.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v /data ${taImageVersion}`), '\n');
+		installConfig.log(chalk.white('Pull the latest image of the Traceability Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${taImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v /data ${taImageVersion}`) + '\n');
 	}
 };
 
@@ -212,7 +212,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	ibmAPIConnectAgentValues.centralConfig = installConfig.centralConfig;
 	ibmAPIConnectAgentValues.traceabilityConfig = installConfig.traceabilityConfig;
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 
 	if (installConfig.switches.isDaEnabled) {
 		writeTemplates(ConfigFiles.DAEnvVars, ibmAPIConnectAgentValues, helpers.ibmAPIConnectDAEnvVarTemplate);
@@ -222,7 +222,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 		writeTemplates(ConfigFiles.TAEnvVars, ibmAPIConnectAgentValues, helpers.ibmAPIConnectTAEnvVarTemplate);
 	}
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
 	generateSuccessHelpMsg(installConfig);
 };

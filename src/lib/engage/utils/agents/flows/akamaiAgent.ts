@@ -71,7 +71,7 @@ const askAkamaiSegmentLength = async (): Promise<number> =>
 		validate: validateValueRange(0),
 	})) as number;
 
-const askEnvironments = async (centralEnvs: GenericResource[], akamaiAgentValues: AkamaiAgentValues, excludeEnvironment?: string): Promise<void> => {
+const askEnvironments = async (centralEnvs: GenericResource[], akamaiAgentValues: AkamaiAgentValues, excludeEnvironment?: string, log: (text: string) => void = () => {}): Promise<void> => {
 	// Filter out the already-selected agent installation environment
 	if (excludeEnvironment) {
 		centralEnvs = centralEnvs.filter(env => env.name !== excludeEnvironment);
@@ -79,16 +79,16 @@ const askEnvironments = async (centralEnvs: GenericResource[], akamaiAgentValues
 
 	// If no central environments are available, exit the installation
 	if (centralEnvs.length === 0) {
-		console.log(chalk.red('Installation cannot proceed: No Engage environments are available for mapping.'));
-		console.log(chalk.yellow('Please create at least one Engage environment before installing the Akamai agent.'));
-		console.log(chalk.gray('You can create an environment using: axway engage create environment'));
+		log(chalk.red('Installation cannot proceed: No Engage environments are available for mapping.'));
+		log(chalk.yellow('Please create at least one Engage environment before installing the Akamai agent.'));
+		log(chalk.gray('You can create an environment using: axway engage create environment'));
 		process.exit(1);
 	}
 
 	let askEnvs = true;
 	const envs = [];
 	const mappedCentralEnvs = [];
-	console.log(chalk.gray(prompts.environmentsDescription));
+	log(chalk.gray(prompts.environmentsDescription));
 	while (askEnvs) {
 		const env = (await askInput({
 			msg: prompts.enterEnvironments,
@@ -134,7 +134,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	const akamaiAgentValues: AkamaiAgentValues = new AkamaiAgentValues();
 
 	if (installConfig.switches.isHelmInstall) {
-		console.log(
+		installConfig.log(
 			chalk.gray('The Amplify Akamai Agent needs to be deployed to your Kubernetes cluster to discover APIs for publishing to Amplify Central.')
 		);
 		const { error } = await kubectl.isInstalled();
@@ -147,8 +147,8 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	}
 
 	if (installConfig.switches.isDockerInstall) {
-		console.log('\nCONNECTION TO AKAMAI API GATEWAY:');
-		console.log(
+		installConfig.log('\nCONNECTION TO AKAMAI API GATEWAY:');
+		installConfig.log(
 			chalk.gray('The Compliance Agent needs to connect to the Akamai API Gateway to discover API\'s for publishing to Amplify Central.')
 		);
 	}
@@ -163,7 +163,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 			if (envs) {
 				// Pass the already-selected agent installation environment to exclude it from mapping choices
 				const agentInstallEnv = installConfig.centralConfig.ampcEnvInfo?.name;
-				await askEnvironments(envs, akamaiAgentValues, agentInstallEnv);
+				await askEnvironments(envs, akamaiAgentValues, agentInstallEnv, installConfig.log);
 			}
 		});
 
@@ -177,18 +177,18 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	const startAgentWinMsg = '\nStart the Akamai Agent on a Windows machine';
 
 	const dockerInfo = `To utilize the agent, pull the latest Docker image and run it using the appropriate supplied environment file, (${helpers.configFiles.AGENT_ENV_VARS}):`;
-	console.log(chalk.whiteBright(dockerInfo), '\n');
+	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
 	const caImageVersion = `${caImage}:${installConfig.caVersion}`;
-	console.log(chalk.white('Pull the latest image of the Agent:'));
-	console.log(chalk.cyan(`docker pull ${caImageVersion}`));
-	console.log(chalk.white(isWindows ? startAgentWinMsg : startAgentLinuxMsg));
-	console.log(chalk.cyan(isWindows ? runAgentWinMsg : runAgentLinuxMsg));
-	console.log('\t', chalk.cyan(`-v /data ${caImageVersion}`), '\n');
+	installConfig.log(chalk.white('Pull the latest image of the Agent:'));
+	installConfig.log(chalk.cyan(`docker pull ${caImageVersion}`));
+	installConfig.log(chalk.white(isWindows ? startAgentWinMsg : startAgentLinuxMsg));
+	installConfig.log(chalk.cyan(isWindows ? runAgentWinMsg : runAgentLinuxMsg));
+	installConfig.log('\t' + chalk.cyan(`-v /data ${caImageVersion}`) + '\n');
 };
 
-const helmSuccessMsg = (namespace: string) => {
-	console.log(`Akamai Agent override file has been placed at ${process.cwd()}/${ConfigFiles.helmOverride}`);
-	helmImageSecretInfo(namespace);
+const helmSuccessMsg = (namespace: string, log: (text: string) => void = () => {}) => {
+	log(`Akamai Agent override file has been placed at ${process.cwd()}/${ConfigFiles.helmOverride}`);
+	helmImageSecretInfo(namespace, log);
 
 	const agentHelmInfo = new Set<AgentHelmInfo>();
 	agentHelmInfo.add({
@@ -200,7 +200,8 @@ const helmSuccessMsg = (namespace: string) => {
 	helmInstallInfo(
 		'Akamai',
 		namespace,
-		agentHelmInfo
+		agentHelmInfo,
+		log
 	);
 };
 
@@ -209,20 +210,21 @@ const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
 	const configType = installConfig.deploymentType;
 
 	if (installConfig.centralConfig.ampcDosaInfo.isNew && !installConfig.switches.isHelmInstall) {
-		console.log(chalk.yellow(svcAccMsg));
+		installConfig.log(chalk.yellow(svcAccMsg));
 	}
 
 	if (configType === AgentConfigTypes.DOCKERIZED) {
 		dockerSuccessMsg(installConfig);
 	} else if (configType === AgentConfigTypes.HELM) {
 		helmSuccessMsg(
-			akamaiAgentValues.namespace.name
+			akamaiAgentValues.namespace.name,
+			installConfig.log
 		);
 	}
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
-	console.log(
+	installConfig.log(
 		chalk.gray(`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.AKAMAI}`)
 	);
 };
@@ -237,11 +239,11 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 		akamaiAgentValues.akamaiSecret = helpers.amplifyAgentsCredsSecret;
 		akamaiAgentValues.agentKeysSecret = helpers.amplifyAgentsKeysSecret;
 		if (akamaiAgentValues.namespace.isNew) {
-			await helpers.createNamespace(akamaiAgentValues.namespace.name);
+			await helpers.createNamespace(akamaiAgentValues.namespace.name, installConfig.log);
 		}
 		await helpers.createSecret(akamaiAgentValues.namespace.name, helpers.amplifyAgentsKeysSecret, async () => {
 			if (installConfig.centralConfig.ampcDosaInfo.isNew) {
-				console.log(
+				installConfig.log(
 					chalk.yellow(
 						`The secret '${helpers.amplifyAgentsKeysSecret}' will be created with the same "private_key.pem" and "public_key.pem" that was auto generated to create the Service Account.`
 					)
@@ -254,7 +256,8 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 				'publicKey',
 				akamaiAgentValues.centralConfig.dosaAccount.publicKey,
 				'privateKey',
-				akamaiAgentValues.centralConfig.dosaAccount.privateKey
+				akamaiAgentValues.centralConfig.dosaAccount.privateKey,
+				installConfig.log
 			);
 		});
 		await helpers.createSecret(akamaiAgentValues.namespace.name, helpers.amplifyAgentsCredsSecret, async () => {
@@ -262,12 +265,13 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 				akamaiAgentValues.namespace.name,
 				helpers.amplifyAgentsCredsSecret,
 				akamaiAgentValues.akamaiSecret,
-				akamaiAgentValues.agentKeysSecret
+				akamaiAgentValues.agentKeysSecret,
+				installConfig.log
 			);
 		});
 	}
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 	if (installConfig.switches.isDockerInstall) {
 		writeTemplates(ConfigFiles.agentEnvVars, akamaiAgentValues, helpers.akamaiEnvVarTemplate);
 	} else if (installConfig.switches.isHelmInstall) {
@@ -282,6 +286,7 @@ const createAkamaiCredsSecret = async (
 	secretName: string,
 	clientID: string,
 	clientSecret: string,
+	log: (text: string) => void = () => {},
 ): Promise<void> => {
 	const { error } = await kubectl.create(
 		'secret',
@@ -292,7 +297,7 @@ const createAkamaiCredsSecret = async (
 	if (error) {
 		throw Error(error);
 	}
-	console.log(`Created ${secretName} in the ${namespace} namespace.`);
+	log(`Created ${secretName} in the ${namespace} namespace.`);
 };
 
 export const AkamaiInstallMethods: InstallationFlowMethods = {

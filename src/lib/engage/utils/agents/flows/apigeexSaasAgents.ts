@@ -9,7 +9,7 @@ import * as helpers from '../index.js';
 import * as crypto from 'crypto';
 import { DataplaneConfig } from './saasAgentsBase.js';
 
-const { log } = logger('engage: install: agents: saas');
+const debugLog = logger('engage: install: agents: saas');
 
 class APIGEEXDataplaneConfig extends DataplaneConfig {
 	projectId: string;
@@ -107,8 +107,8 @@ const askConfigType = async (): Promise<AgentConfigTypes> => {
 	return AgentConfigTypes.HOSTED;
 };
 
-const askForAPIGEEXCredentials = async (hostedAgentValues: SaasAPIGEEXAgentValues): Promise<SaasAgentValues> => {
-	log('gathering access details for apigee x');
+const askForAPIGEEXCredentials = async (hostedAgentValues: SaasAPIGEEXAgentValues, log: (text: string) => void = () => {}): Promise<SaasAgentValues> => {
+	debugLog.log('gathering access details for apigee x');
 
 	hostedAgentValues.projectId = (await askInput({
 		msg: SaasPrompts.PROJECT_ID,
@@ -128,12 +128,12 @@ const askForAPIGEEXCredentials = async (hostedAgentValues: SaasAPIGEEXAgentValue
 
 	hostedAgentValues.authType = APIGEEXAuthType.IMP_SVC_ACC;
 
-	console.log(
+	log(
 		chalk.gray('Please refer to docs.axway.com for information on creating the necessary APIGEE X IAM policies')
 	);
 
 	if (hostedAgentValues.authType === APIGEEXAuthType.IMP_SVC_ACC) {
-		log('using impersonate service account authentication');
+		debugLog.log('using impersonate service account authentication');
 		// get client email address
 		hostedAgentValues.clientEmailAddress = (await askInput({
 			msg: SaasPrompts.CLIENT_EMAIL_ADDRESS,
@@ -150,7 +150,7 @@ const askForAPIGEEXCredentials = async (hostedAgentValues: SaasAPIGEEXAgentValue
 
 	if (hostedAgentValues.metricsFilter.filterMetrics) {
 		let askFilteredAPIs = true;
-		console.log(chalk.gray('An array of APIs to filter metrics for'));
+		log(chalk.gray('An array of APIs to filter metrics for'));
 		while (askFilteredAPIs) {
 			const api = (await askInput({
 				msg: SaasPrompts.FILTERED_APIS,
@@ -196,8 +196,8 @@ const validateFrequency = (): InputValidation => (input: string | number) => {
 };
 
 const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	console.log('\nCONNECTION TO APIGEE X API GATEWAY:');
-	console.log(
+	installConfig.log('\nCONNECTION TO APIGEE X API GATEWAY:');
+	installConfig.log(
 		chalk.gray('The Discovery Agent needs to connect to the APIGEE X API Gateway to discover API\'s for publishing to Amplify Engage')
 	);
 
@@ -207,12 +207,12 @@ const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<S
 	if (installConfig.gatewayType === SaaSGatewayTypes.APIGEEX_GATEWAY) {
 		// APIGEE X connection details
 		hostedAgentValues = new SaasAPIGEEXAgentValues();
-		hostedAgentValues = await askForAPIGEEXCredentials(hostedAgentValues as SaasAPIGEEXAgentValues);
+		hostedAgentValues = await askForAPIGEEXCredentials(hostedAgentValues as SaasAPIGEEXAgentValues, installConfig.log);
 	}
 
 	// Ask to queue discovery now
-	log('getting the frequency and if the agent should run now');
-	console.log(
+	debugLog.log('getting the frequency and if the agent should run now');
+	installConfig.log(
 		chalk.gray('\n00d00h00m format, where 30m = 30 minutes, 1h = 1 hour, 7d = 7 days, and 7d1h30m = 7 days 1 hour and 30 minutes. Minimum of 30m.')
 	);
 	hostedAgentValues.frequencyDA = await askInput({
@@ -228,7 +228,7 @@ const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<S
 	}) as YesNo === YesNo.Yes;
 
 	if (installConfig.switches.isTaEnabled) {
-		console.log(
+		installConfig.log(
 			chalk.gray('\n00d00h00m format, where 30m = 30 minutes, 1h = 1 hour, 7d = 7 days, and 7d1h30m = 7 days 1 hour and 30 minutes. Minimum of 30m.')
 		);
 		hostedAgentValues.frequencyTA = await askInput({
@@ -270,7 +270,7 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 	/**
 	 * Create agent resources
 	 */
-	console.log('\n');
+	installConfig.log('\n');
 	const apigeeXAgentValues = installConfig.gatewayConfig as SaasAPIGEEXAgentValues;
 
 	// create the environment, if necessary
@@ -284,7 +284,10 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 			{
 				axwayManaged: installConfig.centralConfig.axwayManaged,
 				production: installConfig.centralConfig.production,
-			}
+			},
+			undefined,
+			undefined,
+			installConfig.log,
 		)
 		: installConfig.centralConfig.ampcEnvInfo.name;
 
@@ -302,6 +305,7 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		installConfig.centralConfig.environment,
 		GatewayTypeToDataPlane[installConfig.gatewayType],
 		apigeeXAgentValues.dataplaneConfig,
+		installConfig.log,
 	);
 	// create data plane secret resource
 	try {
@@ -312,10 +316,10 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 			GatewayTypeToDataPlane[installConfig.gatewayType],
 			dataplaneRes.name,
 			await createEncryptedAccessData(apigeeXAgentValues, dataplaneRes),
+			installConfig.log,
 		);
 	} catch (_error) {
-
-		console.log(
+		installConfig.log(
 			chalk.redBright('rolling back installation. Please check the credential data before re-running install')
 		);
 
@@ -340,7 +344,6 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		return;
 	}
 
-	// create discovery agent resource
 	installConfig.centralConfig.daAgentName = await helpers.createNewAgentResource(
 		apiServerClient as ApiServerClient,
 		defsManager as DefinitionsManager,
@@ -353,6 +356,9 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		dataplaneRes.name,
 		apigeeXAgentValues.frequencyDA,
 		apigeeXAgentValues.queueDA,
+		undefined,
+		undefined,
+		installConfig.log,
 	);
 
 	if (installConfig.switches.isTaEnabled) {
@@ -369,10 +375,13 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 			dataplaneRes.name,
 			apigeeXAgentValues.frequencyTA,
 			false, // APIGEE X TA is never triggered at install, as DA has to run prior
+			undefined,
+			undefined,
+			installConfig.log,
 		);
 	}
 
-	console.log(await generateOutput(installConfig));
+	installConfig.log(await generateOutput(installConfig));
 };
 
 export const APIGEEXSaaSInstallMethods: InstallationFlowMethods = {

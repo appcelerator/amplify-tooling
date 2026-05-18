@@ -82,8 +82,8 @@ export const getCentralConfig = async (
 		= apicDeployment || await getApicDeployment(centralConfig.region as Regions, account.auth?.env as Platforms);
 
 	// apic config
-	console.log('\nCONNECTION TO AMPLIFY PLATFORM:');
-	console.log(chalk.gray('The agents need access to the Amplify Platform to register services.'));
+	installConfig.log('\nCONNECTION TO AMPLIFY PLATFORM:');
+	installConfig.log(chalk.gray('The agents need access to the Amplify Platform to register services.'));
 
 	// create/find environment
 	if (!account.org?.id) {
@@ -94,7 +94,8 @@ export const getCentralConfig = async (
 		apiServerClient,
 		defsManager,
 		centralConfig.axwayManaged,
-		installConfig.gatewayType
+		installConfig.gatewayType,
+		installConfig.log
 	);
 	centralConfig.production = centralConfig.ampcEnvInfo.isNew ? await askIsProductionEnvironment() : false;
 
@@ -119,7 +120,7 @@ export const getCentralConfig = async (
 
 	centralConfig.ampcDosaInfo = { clientId: '', name: '', isNew: false } as DOSAConfigInfo;
 	if (installConfig.bundleType !== BundleType.TRACEABILITY_OFFLINE && !installConfig.switches.isHostedInstall) {
-		centralConfig.ampcDosaInfo = await helpers.askDosaClientId(platformClient);
+		centralConfig.ampcDosaInfo = await helpers.askDosaClientId(platformClient, true, installConfig.log);
 	}
 
 	// Get the DA Agent name
@@ -168,12 +169,13 @@ export const finalizeCentralInstall = async (
 	/**
 	 * Create agent resources
 	 */
-	console.log('Creating agent resources');
+	installConfig.log('Creating agent resources');
 
 	if (installConfig.centralConfig.ampcDosaInfo.isNew) {
 		installConfig.centralConfig.dosaAccount = await helpers.createDosaAndCerts(
 			platformClient,
-			installConfig.centralConfig.ampcDosaInfo.name
+			installConfig.centralConfig.ampcDosaInfo.name,
+			installConfig.log
 		);
 	} else {
 		installConfig.centralConfig.dosaAccount.clientId = installConfig.centralConfig.ampcDosaInfo.clientId as string;
@@ -200,7 +202,8 @@ export const finalizeCentralInstall = async (
 				production: installConfig.centralConfig.production,
 			},
 			'',
-			refEnvSubResource
+			refEnvSubResource,
+			installConfig.log
 		)
 		: installConfig.centralConfig.ampcEnvInfo.name;
 
@@ -212,7 +215,8 @@ export const finalizeCentralInstall = async (
 			'Environment',
 			'env',
 			'',
-			refEnvSubResource
+			refEnvSubResource,
+			installConfig.log
 		);
 	}
 
@@ -226,7 +230,13 @@ export const finalizeCentralInstall = async (
 			AgentResourceKind.da,
 			AgentTypes.da,
 			installConfig.centralConfig.ampcTeamName,
-			installConfig.centralConfig.daAgentName
+			installConfig.centralConfig.daAgentName,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			installConfig.log
 		);
 	}
 
@@ -240,7 +250,13 @@ export const finalizeCentralInstall = async (
 			AgentResourceKind.ta,
 			AgentTypes.ta,
 			installConfig.centralConfig.ampcTeamName,
-			installConfig.centralConfig.taAgentName
+			installConfig.centralConfig.taAgentName,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			installConfig.log
 		);
 	}
 
@@ -258,7 +274,9 @@ export const finalizeCentralInstall = async (
 			undefined,
 			undefined,
 			undefined,
-			{ managedEnvironment: (installConfig.gatewayConfig as helpers.ComplianceAgentValues).centralEnvironments } // cast applied here
+			{ managedEnvironment: (installConfig.gatewayConfig as helpers.ComplianceAgentValues).centralEnvironments }, // cast applied here
+			undefined,
+			installConfig.log
 		);
 	}
 

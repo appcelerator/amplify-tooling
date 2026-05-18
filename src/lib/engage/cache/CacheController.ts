@@ -1,6 +1,4 @@
-import dayjs from 'dayjs';
-import { lstatSync, readFileSync } from 'fs';
-import fse from 'fs-extra';
+import { lstatSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import pkg from 'lodash';
 import NodeCache from 'node-cache';
 import { homedir } from 'os';
@@ -53,7 +51,7 @@ class CacheControllerClass implements Cache {
    */
 	initCacheFile() {
 		try {
-			if (fse.pathExistsSync(this.cacheFilePath)) {
+			if (this._fileExists(this.cacheFilePath)) {
 				log(`init, cache file found at ${this.cacheFilePath}`);
 				const stats = lstatSync(this.cacheFilePath);
 				log(`init, cache file size: ${Math.round(stats.size / 1000)} kb`);
@@ -64,17 +62,17 @@ class CacheControllerClass implements Cache {
 							MAX_CACHE_FILE_SIZE / 1000,
 						)} kb, resetting the file`,
 					);
-					fse.outputJsonSync(this.cacheFilePath, {});
+					this._writeJson(this.cacheFilePath, {});
 				} else if (!isValidJson(readFileSync(this.cacheFilePath, 'utf8'))) {
 					// validating the content
 					log('init, cache content is invalid, resetting the file ');
-					fse.outputJsonSync(this.cacheFilePath, {});
+					this._writeJson(this.cacheFilePath, {});
 				}
 			} else {
 				log(
 					`init, cache file not found, creating an empty one at ${this.cacheFilePath}`,
 				);
-				fse.outputJsonSync(this.cacheFilePath, {});
+				this._writeJson(this.cacheFilePath, {});
 			}
 		} catch (e) {
 			log('cannot initialize cache file', e);
@@ -118,7 +116,7 @@ class CacheControllerClass implements Cache {
 				storedCache.data
         && storedCache.metadata
         && storedCache.metadata.modifyTimestamp
-        && dayjs().diff(storedCache.metadata.modifyTimestamp, 'milliseconds')
+        && Date.now() - storedCache.metadata.modifyTimestamp
           < CACHE_FILE_TTL_MILLISECONDS
 			) {
 				for (const [ key, val ] of Object.entries(storedCache.data)) {
@@ -130,7 +128,7 @@ class CacheControllerClass implements Cache {
 				log(
 					'timestamp or content is not valid and file is not empty, resetting the cache file',
 				);
-				fse.outputJsonSync(this.cacheFilePath, {});
+				this._writeJson(this.cacheFilePath, {});
 			}
 		} catch (e) {
 			log('cannot read cache from the file', e);
@@ -149,6 +147,20 @@ class CacheControllerClass implements Cache {
    * }
    * @returns CacheController instance
    */
+	private _fileExists(filePath: string): boolean {
+		try {
+			lstatSync(filePath);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	private _writeJson(filePath: string, data: object): void {
+		mkdirSync(path.dirname(filePath), { recursive: true });
+		writeFileSync(filePath, JSON.stringify(data));
+	}
+
 	writeToFile() {
 		try {
 			log('writing cache to the file');

@@ -23,27 +23,27 @@ export class EngageCreateEnvironmentCommand extends Command {
 
 	async run(): Promise<void> {
 		const log = logger('engage:create:environment');
-		let renderer = new Renderer(console, undefined);
+		let renderer = new Renderer((text: string) => this.log(text), undefined);
 		let commandIsSuccessful = true;
 		try {
 			const { args, flags, account } = await this.parse(EngageCreateEnvironmentCommand);
-			renderer = new Renderer(console, flags.output);
+			renderer = new Renderer((text: string) => this.log(text), flags.output);
 			const createMessage = 'Creating an environment';
 			renderer.startSpin(createMessage);
 			const result = await createEnvironment({ account, name: args.name, useCache: flags.useCache });
 			if (flags.output) {
-				renderResponse(console, result, flags.output);
+				renderResponse((text: string) => this.log(text), result, flags.output);
 			}
 			if (result.error) {
 				renderer.errors(result.error);
 				commandIsSuccessful = false;
 			}
 		} catch (e: any) {
-			log('command error', e);
+			log.error('command error', e);
 			renderer.anyError(e);
 			commandIsSuccessful = false;
 		} finally {
-			log('command complete');
+			log.log('command complete');
 			renderer.stopSpin();
 			if (!commandIsSuccessful) {
 				process.exit(1);

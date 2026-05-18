@@ -39,7 +39,6 @@ const ApigeeXPrompts = {
 };
 
 export const askBundleType = async (gateway?: GatewayTypes): Promise<BundleType> => {
-	console.log(gateway);
 	if (gateway === GatewayTypes.APIGEEX_GATEWAY) {
 		return (await askList({
 			msg: helpers.agentMessages.selectAgentType,
@@ -83,7 +82,7 @@ const askApigeeXEnvironment = async (): Promise<string> =>
 		allowEmptyInput: true,
 	})) as string;
 
-const askApigeeXMetricFilterConfig = async (): Promise<ApigeeMetricsFilterConfig> => {
+const askApigeeXMetricFilterConfig = async (log: (text: string) => void = () => {}): Promise<ApigeeMetricsFilterConfig> => {
 	const filteredAPIs: string[] = [];
 	const filterMetricsEnabled = await askList({
 		msg: ApigeeXPrompts.FILTER_METRICS,
@@ -92,7 +91,7 @@ const askApigeeXMetricFilterConfig = async (): Promise<ApigeeMetricsFilterConfig
 	}) as YesNo === YesNo.Yes;
 	if (filterMetricsEnabled) {
 		let askFilteredAPIs = true;
-		console.log(chalk.gray('An array of APIs to filter metrics for'));
+		log(chalk.gray('An array of APIs to filter metrics for'));
 		while (askFilteredAPIs) {
 			const api = (await askInput({
 				msg: ApigeeXPrompts.FILTERED_APIS,
@@ -115,26 +114,26 @@ const askApigeeXMetricFilterConfig = async (): Promise<ApigeeMetricsFilterConfig
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<ApigeeXAgentValues> => {
 	const apigeeXAgentValues: ApigeeXAgentValues = new ApigeeXAgentValues();
 
-	console.log('\nCONNECTION TO APIGEE X API GATEWAY:');
-	console.log(
+	installConfig.log('\nCONNECTION TO APIGEE X API GATEWAY:');
+	installConfig.log(
 		chalk.gray(
 			'The discovery agent needs to connect to the APIGEE X API Gateway to discover API\'s for publishing to Amplify.\n'
 		));
 
 	// Apigee X Discovery Agent Prompts
 	if (installConfig.switches.isDaEnabled) {
-		console.log(
+		installConfig.log(
 			chalk.gray(
 				'\nDiscovery Agent Configuration\n'
 			)
 		);
 
-		await askDiscoveryPrompts(apigeeXAgentValues);
+		await askDiscoveryPrompts(apigeeXAgentValues, installConfig.log);
 	}
 
 	// Apigee X Traceability Agent Prompts
 	if (installConfig.switches.isTaEnabled) {
-		console.log(
+		installConfig.log(
 			chalk.gray(
 				'\nTraceability Agent Configuration\n'
 			)
@@ -148,14 +147,14 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 
 const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
 	if (installConfig.centralConfig.ampcDosaInfo.isNew && !installConfig.switches.isHelmInstall) {
-		console.log(
+		installConfig.log(
 			chalk.yellow(svcAccMsg)
 		);
 	}
 
 	dockerSuccessMsg(installConfig);
 
-	console.log(
+	installConfig.log(
 		chalk.gray(`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.APIGEEX}`)
 	);
 };
@@ -178,28 +177,28 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	} else {
 		dockerInfo = `To utilize the traceability agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.TA_ENV_VARS}):`;
 	}
-	console.log(chalk.whiteBright(dockerInfo), '\n');
+	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;
-		console.log(chalk.white('Pull the latest image of the Discovery Agent:'));
-		console.log(chalk.cyan(`docker pull ${daImageVersion}`));
-		console.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v /data ${daImageVersion}`), '\n');
+		installConfig.log(chalk.white('Pull the latest image of the Discovery Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${daImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v /data ${daImageVersion}`) + '\n');
 	}
 	if (installConfig.switches.isTaEnabled) {
 		const taImageVersion = `${taImage}:${installConfig.taVersion}`;
-		console.log(chalk.white('Pull the latest image of the Traceability Agent:'));
-		console.log(chalk.cyan(`docker pull ${taImageVersion}`));
-		console.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v /data ${taImageVersion}`), '\n');
+		installConfig.log(chalk.white('Pull the latest image of the Traceability Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${taImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v /data ${taImageVersion}`) + '\n');
 	}
 };
 
 // ApigeeX DA prompts
-async function askDiscoveryPrompts(apigeeXAgentValues: ApigeeXAgentValues) {
+async function askDiscoveryPrompts(apigeeXAgentValues: ApigeeXAgentValues, log: (text: string) => void = () => {}) {
 	// Apigee X ProjectId
 	apigeeXAgentValues.projectId = await askApigeeXProjectId();
 	// Apigee X Developer Email Address
@@ -208,6 +207,8 @@ async function askDiscoveryPrompts(apigeeXAgentValues: ApigeeXAgentValues) {
 	apigeeXAgentValues.fileName = await askApigeeXAuthFileName();
 	// Apigee X Environment
 	apigeeXAgentValues.environment = await askApigeeXEnvironment();
+	// Apigee X Metric Filter Config
+	apigeeXAgentValues.metricsFilter = await askApigeeXMetricFilterConfig(log);
 }
 
 async function askTraceabilityPrompts(apigeeXAgentValues: ApigeeXAgentValues) {
@@ -225,7 +226,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	apigeeXAgentValues.centralConfig = installConfig.centralConfig;
 	apigeeXAgentValues.traceabilityConfig = installConfig.traceabilityConfig;
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 
 	if (installConfig.switches.isDaEnabled) {
 		writeTemplates(ConfigFiles.DAEnvVars, apigeeXAgentValues, helpers.apigeeXDAEnvVarTemplate);
@@ -235,7 +236,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 		writeTemplates(ConfigFiles.TAEnvVars, apigeeXAgentValues, helpers.apigeeXTAEnvVarTemplate);
 	}
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
 	generateSuccessHelpMsg(installConfig);
 };

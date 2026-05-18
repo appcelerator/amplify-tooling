@@ -9,7 +9,7 @@ import {
 	GenericResource,
 } from '../types.js';
 
-const log = logger('engage:delete-service');
+const { log } = logger('engage:delete-service');
 
 export async function deleteResources(params: DeleteCommandParams): Promise<DeleteCommandResult> {
 	const {
@@ -103,8 +103,7 @@ async function runSingleDelete({
 
 	const matchingDefs = defs.filter(
 		(def) =>
-			(scope
-				&& ((scope.kind && scope.kind === def.scope?.spec.kind) || (!scope.kind && !!def.scope)))
+			(scope && ((scope.kind && scope.kind === def.scope?.spec.kind) || (!scope.kind && !!def.scope)))
 			|| (!scope && !def.scope)
 	);
 

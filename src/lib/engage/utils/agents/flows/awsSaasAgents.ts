@@ -17,7 +17,7 @@ import {
 	setupEnvironment,
 } from './saasAgentsBase.js';
 
-const { log } = logger('lib: engage: utils: agents: flows: awsSaasAgents');
+const debugLog = logger('lib: engage: utils: agents: flows: awsSaasAgents');
 const STAGE_TAG_NAME_LENGTH = 127;
 
 class AWSDataplaneConfig extends DataplaneConfig {
@@ -101,9 +101,9 @@ export const askConfigType = async (): Promise<AgentConfigTypes> => {
 	return AgentConfigTypes.HOSTED;
 };
 
-const askForAWSCredentials = async (agentValues: SaasAWSAgentValues): Promise<SaasAWSAgentValues> => {
+const askForAWSCredentials = async (agentValues: SaasAWSAgentValues, log: (text: string) => void = () => {}): Promise<SaasAWSAgentValues> => {
 	agentValues.region = await helpers.askAWSRegion();
-	log('gathering access details for aws');
+	debugLog.log('gathering access details for aws');
 
 	agentValues.authType = (await askList({
 		msg: SaasPrompts.AUTHENTICATION_TYPE,
@@ -114,10 +114,10 @@ const askForAWSCredentials = async (agentValues: SaasAWSAgentValues): Promise<Sa
 		],
 	})) as AWSAuthType;
 
-	console.log(chalk.gray('Please refer to docs.axway.com for information on creating the necessary AWS IAM policies'));
+	log(chalk.gray('Please refer to docs.axway.com for information on creating the necessary AWS IAM policies'));
 
 	if (agentValues.authType === AWSAuthType.ASSUME) {
-		log('using an assume role policy authentication');
+		debugLog.log('using an assume role policy authentication');
 		agentValues.assumeRole = (await askInput({
 			msg: SaasPrompts.ASSUME_ROLE,
 			defaultValue: agentValues.assumeRole !== '' ? agentValues.assumeRole : undefined,
@@ -133,7 +133,7 @@ const askForAWSCredentials = async (agentValues: SaasAWSAgentValues): Promise<Sa
 			allowEmptyInput: true,
 		})) as string;
 	} else {
-		log('using key and secret authentication');
+		debugLog.log('using key and secret authentication');
 		agentValues.accessKey = (await askInput({
 			msg: SaasPrompts.ACCESS_KEY,
 			defaultValue: agentValues.accessKey !== '' ? agentValues.accessKey : undefined,
@@ -157,8 +157,8 @@ const askForAWSCredentials = async (agentValues: SaasAWSAgentValues): Promise<Sa
 };
 
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	console.log('\nCONNECTION TO AMAZON API GATEWAY:');
-	console.log(
+	installConfig.log('\nCONNECTION TO AMAZON API GATEWAY:');
+	installConfig.log(
 		chalk.gray(
 			'The Discovery Agent needs to connect to the AWS API Gateway to discover API\'s for publishing to Amplify Engage'
 		)
@@ -168,7 +168,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 
 	if (installConfig.gatewayType === GatewayTypes.AWS_GATEWAY) {
 		const awsValues = new SaasAWSAgentValues();
-		agentValues = await askForAWSCredentials(awsValues);
+		agentValues = await askForAWSCredentials(awsValues, installConfig.log);
 
 		awsValues.stageTagName = (await askInput({
 			msg: SaasPrompts.STAGE_TAG_NAME,
@@ -176,7 +176,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 		})) as string;
 
 		if (installConfig.switches.isTaEnabled) {
-			console.log(chalk.gray('\nThe access log ARN is a cloud watch log group amazon resource name'));
+			installConfig.log(chalk.gray('\nThe access log ARN is a cloud watch log group amazon resource name'));
 			awsValues.accessLogARN = (await askInput({
 				msg: SaasPrompts.ACCESS_LOG_ARN,
 				validate: validateRegex(
@@ -203,7 +203,7 @@ export const completeInstall = async (
 	apiServerClient?: ApiServerClient,
 	defsManager?: DefinitionsManager
 ): Promise<void> => {
-	console.log('\n');
+	installConfig.log('\n');
 	const awsAgentValues = installConfig.gatewayConfig as SaasAWSAgentValues;
 	const resourceFuncsForCleanup: (() => Promise<void>)[] = [];
 	const referencedIDPs: { name: string | undefined }[] = [];
@@ -241,7 +241,7 @@ export const completeInstall = async (
 
 	await createAgentResources(ctx, dataplaneRes, { redaction: awsAgentValues.redaction });
 
-	console.log(`Install complete of hosted agent for ${installConfig.gatewayType} region`);
+	installConfig.log(`Install complete of hosted agent for ${installConfig.gatewayType} region`);
 };
 
 export const AWSSaaSInstallMethods: InstallationFlowMethods = {

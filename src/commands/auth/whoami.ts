@@ -13,7 +13,6 @@ export default class AuthWhoami extends Command {
 			required: false
 		})
 	};
-	static override authenticated = false;
 
 	static override enableJsonFlag = true;
 

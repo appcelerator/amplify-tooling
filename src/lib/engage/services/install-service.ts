@@ -97,11 +97,11 @@ const saasAgentInstallFlows: { [key: string]: InstallationFlowMethods } = {
 	[GatewayTypes.TRACEABLE]: traceableSaaSAgents.TraceableSaaSInstallMethods,
 };
 
-const createConfigBackup = async (configFiles: string[], gatewayType: GatewayTypes | SaaSGatewayTypes) => {
+const createConfigBackup = async (configFiles: string[], gatewayType: GatewayTypes | SaaSGatewayTypes, log: (text: string) => void) => {
 	// If current configurations exist, back them up
-	const configsExist = await helpers.createBackUpConfigs(configFiles);
+	const configsExist = await helpers.createBackUpConfigs(configFiles, log);
 	if (configsExist) {
-		console.log(`\nCreated configuration backups for ${gatewayType}`);
+		log(`\nCreated configuration backups for ${gatewayType}`);
 	}
 };
 
@@ -187,13 +187,14 @@ export async function installAgents(params: InstallAgentsCommandParams): Promise
 		checkUserRole(isCentralAdmin, isPlatformAdmin, accountInfo);
 
 		// helper text
-		console.log(
+		params.log(
 			chalk.gray(
 				'This command configures and installs the agents so that you can manage your gateway environment within the Amplify Platform.\n'
 			)
 		);
 
 		let installConfig: AgentInstallConfig = new AgentInstallConfig();
+		installConfig.log = params.log;
 		installConfig.centralConfig.apiServerClient = apiServerClient;
 		installConfig.centralConfig.definitionManager = defsManager;
 		installConfig.centralConfig.axwayManaged = !!params.axwayManaged;
@@ -321,7 +322,7 @@ export async function installAgents(params: InstallAgentsCommandParams): Promise
 
 		// create the Identity Provider configuration
 		if (agentInstallFlow.AddIDP) {
-			installConfig.idpConfig = await helpers.idpTestables.addIdentityProvider();
+			installConfig.idpConfig = await helpers.idpTestables.addIdentityProvider(installConfig.log);
 		}
 
 		// traceability options
@@ -330,7 +331,7 @@ export async function installAgents(params: InstallAgentsCommandParams): Promise
 		}
 
 		// create backup
-		await createConfigBackup(agentInstallFlow.ConfigFiles, agentInstallFlow.GatewayDisplay);
+		await createConfigBackup(agentInstallFlow.ConfigFiles, agentInstallFlow.GatewayDisplay, installConfig.log);
 
 		// run any install preprocess steps
 		installConfig = await finishInstall(

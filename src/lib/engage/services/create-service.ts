@@ -58,6 +58,7 @@ export async function createEnvironment(params: CreateEnvironmentCommandParams):
 
 export async function createAgentResource(params: EngageCommandParams): Promise<void> {
 	const { account, region, useCache } = params;
+	const log = params.log ?? (() => {});
 
 	const result: AgentResourceCreateResult = {
 		agentType: '',
@@ -127,7 +128,7 @@ export async function createAgentResource(params: EngageCommandParams): Promise<
 			result.teamName,
 			result.discoveryAgentName
 		);
-		console.log(
+		log(
 			chalk.cyan(
 				`To use this resource, add the following to your discovery agent's environment variables file: CENTRAL_AGENTNAME=${result.discoveryAgentName}\n`
 			)
@@ -146,7 +147,7 @@ export async function createAgentResource(params: EngageCommandParams): Promise<
 			result.teamName,
 			result.traceabilityAgentName
 		);
-		console.log(
+		log(
 			chalk.cyan(
 				`To use this resource, add the following to your traceability agent's environment variables file: CENTRAL_AGENTNAME=${result.traceabilityAgentName}`
 			)

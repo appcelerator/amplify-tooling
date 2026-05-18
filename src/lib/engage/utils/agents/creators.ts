@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import fsExtra from 'fs-extra';
+import { existsSync, readFileSync } from 'fs';
+import { copyFile } from 'fs/promises';
 import { ApiServerClient } from '../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../results/DefinitionsManager.js';
 import { kubectl } from '../../utils/agents/kubectl.js';
@@ -9,9 +10,9 @@ import { PlatformClient, PlatformServiceAccountRole } from '../../clients-extern
 import chalk from 'chalk';
 import { createKeyPair } from '../bash-commands.js';
 
-const log = logger('lib: engage: utils: agents: creators');
+const debugLog = logger('lib: engage: utils: agents: creators');
 
-export const createBackUpConfigs = async (configFiles: string[]): Promise<boolean> => {
+export const createBackUpConfigs = async (configFiles: string[], log: (text: string) => void): Promise<boolean> => {
 	let fileExist = false;
 	const dateTimeStamp = new Date()
 		.toISOString()
@@ -22,18 +23,17 @@ export const createBackUpConfigs = async (configFiles: string[]): Promise<boolea
 	const backupDate = `${dateTimeStamp}-`;
 
 	for (const configFile of configFiles) {
-		if (fsExtra.existsSync(configFile)) {
+		if (existsSync(configFile)) {
 			fileExist = true;
 			const backupFile = backupDate + configFile;
 
-			await fsExtra
-				.copyFile(configFile, backupFile)
+			await copyFile(configFile, backupFile)
 				// eslint-disable-next-line promise/always-return
 				.then(() => {
-					console.log(`Created backup file ${backupFile}`);
+					log(`Created backup file ${backupFile}`);
 				})
 				.catch((err) => {
-					console.error(err);
+					log(`Error: ${err}`);
 				});
 		}
 	}
@@ -41,22 +41,22 @@ export const createBackUpConfigs = async (configFiles: string[]): Promise<boolea
 	return fileExist;
 };
 
-export const createDosaAndCerts = async (client: PlatformClient, name: string): Promise<DosaAccount> => {
-	console.log('Creating a new service account.');
+export const createDosaAndCerts = async (client: PlatformClient, name: string, log: (text: string) => void): Promise<DosaAccount> => {
+	log('Creating a new service account.');
 	const { publicKey, privateKey } = await createKeyPair();
-	const publicCert = fsExtra.readFileSync(publicKey).toString();
+	const publicCert = readFileSync(publicKey).toString();
 	const account = await client.createServiceAccount({
 		name: name,
 		desc: name,
 		publicKey: publicCert,
 		roles: [ PlatformServiceAccountRole.ApiCentralAdmin ],
 	});
-	console.log(
+	log(
 		chalk.green(
 			`New service account "${account.name}" with clientId "${account.client_id}" has been successfully created.`
 		)
 	);
-	console.log(
+	log(
 		chalk.green(`The private key has been placed at ${privateKey}\nThe public key has been placed at ${publicKey}`)
 	);
 	return new DosaAccount(account.client_id, publicKey, privateKey);
@@ -70,6 +70,7 @@ export const updateSubResourceType = async (
 	resourceShortName: string,
 	scopeName: string = '',
 	subResources: any = {},
+	log: (text: string) => void = () => {},
 ) => {
 	const defs = defsManager.findDefsByWord(resourceShortName);
 	if (!defs) {
@@ -79,7 +80,7 @@ export const updateSubResourceType = async (
 	const knownSubResourcesNames = defs[0].resource.spec.subResources?.names ?? [];
 	for (const [ key, value ] of Object.entries(subResources)) {
 		if (knownSubResourcesNames.includes(key)) {
-			console.log(`Updating subresource ${key} on ${resourceType}`);
+			log(`Updating subresource ${key} on ${resourceType}`);
 
 			const resource = {
 				name,
@@ -105,8 +106,9 @@ export const createByResourceType = async (
 	spec: any = {},
 	scopeName: string = '',
 	subResources: any = {},
+	log: (text: string) => void = () => {},
 ): Promise<string> => {
-	console.log(`Creating a new ${resourceType}`);
+	log(`Creating a new ${resourceType}`);
 	// NOTE: only a first found set is used
 	const defs = defsManager.findDefsByWord(resourceShortName);
 	if (!defs) {
@@ -142,7 +144,7 @@ export const createByResourceType = async (
 			throw Error(`${errMsg}.`);
 		}
 	} else {
-		console.log(`New ${resourceType.toLowerCase()} "${result.data.name}" has been successfully created.`);
+		log(`New ${resourceType.toLowerCase()} "${result.data.name}" has been successfully created.`);
 	}
 	return result.data.name;
 };
@@ -167,9 +169,10 @@ export const createNewAgentResource = async (
 	frequency?: string,
 	queue? : boolean,
 	config? : any,
-	filterDA? : string
+	filterDA? : string,
+	log: (text: string) => void = () => {},
 ): Promise<string> => {
-	console.log(`Creating a new ${agentResource}, with data plane type: ${dataPlaneType}.`);
+	log(`Creating a new ${agentResource}, with data plane type: ${dataPlaneType}.`);
 	// NOTE: only a first found set is used
 	const defs = defsManager.findDefsByWord(agentType);
 
@@ -211,7 +214,7 @@ export const createNewAgentResource = async (
 			throw Error(`${errMsg}.`);
 		}
 	} else {
-		console.log(
+		log(
 			`New agent of type "${defs[0].resource.name}" named "${result.data.name}" has been successfully created.`
 		);
 	}
@@ -231,8 +234,9 @@ export const createNewDataPlaneResource = async (
 	envName: string,
 	dataPlaneType: string,
 	config: any,
+	log: (text: string) => void = () => {},
 ): Promise<GenericResource> => {
-	console.log(`Creating a new Dataplane resource, with type: ${dataPlaneType}.`);
+	log(`Creating a new Dataplane resource, with type: ${dataPlaneType}.`);
 	// NOTE: only a first found set is used
 	const defs = defsManager.findDefsByWord('dp');
 	if (!defs) {
@@ -259,7 +263,7 @@ export const createNewDataPlaneResource = async (
 			throw Error(`${errMsg}.`);
 		}
 	} else {
-		console.log(
+		log(
 			`New dataplane of type "${defs[0].resource.name}" named "${result.data.name}" has been successfully created.`
 		);
 	}
@@ -281,8 +285,9 @@ export const createNewDataPlaneSecretResource = async (
 	dataPlaneType: string,
 	dataPlaneName: string,
 	accessData: string,
+	log: (text: string) => void = () => {},
 ): Promise<GenericResource|undefined> => {
-	console.log('Creating a new DataplaneSecret resource.');
+	log('Creating a new DataplaneSecret resource.');
 	// NOTE: only a first found set is used
 	const defs = defsManager.findDefsByWord('dps');
 
@@ -302,7 +307,7 @@ export const createNewDataPlaneSecretResource = async (
 		scopeName: envName,
 	});
 
-	log(result);
+	debugLog.log(result);
 	if (!result.data) {
 		const errMsg = 'cannot create a new agent';
 		if (result.error?.length) {
@@ -311,7 +316,7 @@ export const createNewDataPlaneSecretResource = async (
 			throw Error(`${errMsg}.`);
 		}
 	} else {
-		console.log(
+		log(
 			`New secret of type "${defs[0].resource.name}" named "${result.data.name}" has been successfully created.`
 		);
 	}
@@ -328,8 +333,9 @@ export const createNewIDPResource = async (
 	client: ApiServerClient,
 	defsManager: DefinitionsManager,
 	idpConfig: IDPConfiguration,
+	log: (text: string) => void = () => {},
 ): Promise<GenericResource|undefined> => {
-	console.log('Creating a new Identity Provider resource.');
+	log('Creating a new Identity Provider resource.');
 	// NOTE: only a first found set is used
 	const defs = defsManager.findDefsByWord('idp');
 
@@ -345,7 +351,7 @@ export const createNewIDPResource = async (
 		scopeDef: defs[0].scope ? defs[0].scope : undefined,
 	});
 
-	log(result);
+	debugLog.log(result);
 	if (!result.data) {
 		const errMsg = 'cannot create a new agent';
 		if (result.error?.length) {
@@ -354,7 +360,7 @@ export const createNewIDPResource = async (
 			throw Error(`${errMsg}.`);
 		}
 	} else {
-		console.log(
+		log(
 			`New Identity Provider of type "${defs[0].resource.name}" named "${result.data.name}" has been successfully created.`
 		);
 	}
@@ -373,8 +379,9 @@ export const createNewIDPSecretResource = async (
 	defsManager: DefinitionsManager,
 	idpAuthConfig: IDPAuthConfiguration,
 	idpResource: GenericResource,
+	log: (text: string) => void = () => {},
 ): Promise<GenericResource|undefined> => {
-	console.log('Creating a new Identity Provider Secret resource.');
+	log('Creating a new Identity Provider Secret resource.');
 	// NOTE: only a first found set is used
 	const defs = defsManager.findDefsByWord('idpsec');
 	if (!defs) {
@@ -391,7 +398,7 @@ export const createNewIDPSecretResource = async (
 		scopeName: idpResource.name,
 	});
 
-	log(result);
+	debugLog.log(result);
 	if (!result.data) {
 		const errMsg = 'cannot create a new agent';
 		if (result.error?.length) {
@@ -400,7 +407,7 @@ export const createNewIDPSecretResource = async (
 			throw Error(`${errMsg}.`);
 		}
 	} else {
-		console.log(
+		log(
 			`New Identity Provider of type "${defs[0].resource.name}" named "${result.data.name}" has been successfully created.`
 		);
 	}

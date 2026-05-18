@@ -11,6 +11,7 @@ const log = logger('engage:services:edit-service');
 
 export async function editEnvironment(params: EditEnvironmentCommandParams): Promise<void> {
 	const { account, region, useCache, name, render, outputFormat } = params;
+	const outputLog = params.log ?? (() => {});
 
 	const client = new ApiServerClient({ account, region, useCache, baseUrl: params.baseUrl });
 	const defsManager = await new DefinitionsManager(client).init();
@@ -35,23 +36,23 @@ export async function editEnvironment(params: EditEnvironmentCommandParams): Pro
 			render.success(chalk`{greenBright "environment/${name}" has successfully been edited.}`);
 			// render result if output flag has been provided
 			if (outputFormat) {
-				renderResponse(console, response);
+				renderResponse(outputLog, response);
 			}
 		} else {
-			log('no changes has been made to file');
+			log.log('no changes has been made to file');
 			render.error('Edit cancelled, no changes made.');
 			file.delete();
 			commandIsSuccessful = false;
 		}
 	} catch (e: any) {
-		log('command error', e);
+		log.error('command error', e);
 		if (file) {
-			console.log(`A copy of your changes has been stored to "${file.path}".`);
+			outputLog(`A copy of your changes has been stored to "${file.path}".`);
 		}
 		render.anyError(e);
 		commandIsSuccessful = false;
 	} finally {
-		log(`command finished, success = ${commandIsSuccessful}`);
+		log.log(`command finished, success = ${commandIsSuccessful}`);
 		if (file && commandIsSuccessful) {
 			file.delete();
 		}

@@ -118,15 +118,15 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	if (installConfig.gatewayType === GatewayTypes.AZURE_EVENTHUB) {
 		azureAgentValues.isAzureEventHub = true;
 
-		console.log('\nCONNECTION TO AZURE EVENTHUB:');
-		console.log(
+		installConfig.log('\nCONNECTION TO AZURE EVENTHUB:');
+		installConfig.log(
 			chalk.gray(
 				'The discovery agent needs to connect to the Azure EventHub to discover API\'s for publishing to Amplify.\n'
 			)
 		);
 	} else {
-		console.log('\nCONNECTION TO AZURE:');
-		console.log(
+		installConfig.log('\nCONNECTION TO AZURE:');
+		installConfig.log(
 			chalk.gray(
 				'The discovery agent needs to connect to the Azure API Gateway to discover API\'s for publishing to Amplify.\nThe traceability agent needs to connect to an Azure Event Hub for collecting APIs transactions. These will be forwarded to the Business Insights.\n'
 			)
@@ -135,7 +135,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 
 	// Azure Discovery Agent Prompts
 	if (installConfig.switches.isDaEnabled) {
-		console.log(
+		installConfig.log(
 			chalk.gray(
 				'\nDiscovery Agent Configuration\nThe discovery agent needs to connect to Azure using a service principal with password based authentication. Refer to https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli for creating such service principal using Azure CLI.'
 			)
@@ -146,7 +146,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 
 	// Azure Traceability Agent Prompts
 	if (installConfig.switches.isTaEnabled) {
-		console.log(
+		installConfig.log(
 			chalk.gray(
 				'\nTraceability Agent Configuration\nThe traceability agent needs to connect to Azure Event Hub using a Policy. Refer to https://docs.microsoft.com/en-us/azure/event-hubs/authorize-access-shared-access-signature.'
 			)
@@ -164,7 +164,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 
 const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
 	if (installConfig.centralConfig.ampcDosaInfo.isNew && !installConfig.switches.isHelmInstall) {
-		console.log(
+		installConfig.log(
 			chalk.yellow(
 				svcAccMsg
 			)
@@ -173,7 +173,7 @@ const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
 
 	dockerSuccessMsg(installConfig);
 
-	console.log(
+	installConfig.log(
 		chalk.gray(`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.AZURE}`)
 	);
 };
@@ -196,23 +196,23 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	} else {
 		dockerInfo = `To utilize the traceability agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.TA_ENV_VARS}):`;
 	}
-	console.log(chalk.whiteBright(dockerInfo), '\n');
+	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;
-		console.log(chalk.white('Pull the latest image of the Discovery Agent:'));
-		console.log(chalk.cyan(`docker pull ${daImageVersion}`));
-		console.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v /data ${daImageVersion}`), '\n');
+		installConfig.log(chalk.white('Pull the latest image of the Discovery Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${daImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v /data ${daImageVersion}`) + '\n');
 	}
 	if (installConfig.switches.isTaEnabled) {
 		const taImageVersion = `${taImage}:${installConfig.taVersion}`;
-		console.log(chalk.white('Pull the latest image of the Traceability Agent:'));
-		console.log(chalk.cyan(`docker pull ${taImageVersion}`));
-		console.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v /data ${taImageVersion}`), '\n');
+		installConfig.log(chalk.white('Pull the latest image of the Traceability Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${taImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startTaWinMsg : startTaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runTaWinMsg : runTaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v /data ${taImageVersion}`) + '\n');
 	}
 };
 
@@ -261,7 +261,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	azureAgentValues.centralConfig = installConfig.centralConfig;
 	azureAgentValues.traceabilityConfig = installConfig.traceabilityConfig;
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 
 	if (installConfig.switches.isDaEnabled) {
 		writeTemplates(ConfigFiles.DAEnvVars, azureAgentValues, helpers.azureDAEnvVarTemplate);
@@ -271,7 +271,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 		writeTemplates(ConfigFiles.TAEnvVars, azureAgentValues, helpers.azureTAEnvVarTemplate);
 	}
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
 	generateSuccessHelpMsg(installConfig);
 };

@@ -78,7 +78,7 @@ export class ApiServerClient {
 	private async initializeDataService() {
 		if (this._baseUrl === undefined) {
 			const config = await loadConfig();
-			const envBaseUrl = process.env.AXWAY_CENTRAL_BASE_URL || config.get('engage.baseUrl');
+			const envBaseUrl = process.env.AXWAY_CENTRAL_BASE_URL || config.get('auth.engageUrl');
 			if (envBaseUrl) {
 				this._baseUrl = envBaseUrl + (this.basePath || BasePaths.ApiServer);
 			} else {
@@ -150,7 +150,7 @@ export class ApiServerClient {
 					expandSet.add(`languages-${code.trim()}`);
 					fieldSet!.add(`languages-${code.trim()}.values`);
 				} else if (code.trim().length > 0) {
-					console.log(
+					log.log(
 						chalk.yellow(
 							`\n'${code}' language code is not supported. Allowed language codes: ${LanguageTypes.French} | ${LanguageTypes.German} | ${LanguageTypes.US} | ${LanguageTypes.Portugese}.'`,
 						),
@@ -229,7 +229,7 @@ export class ApiServerClient {
 					!Object.keys(foundSubResources).includes(name)
                     && name !== 'languages'
 				) {
-					console.log(
+					log.log(
 						chalk.yellow(
 							`\n'${name}' subresource definition not found, hence create/update cannot be performed on '${name}' subresource.`,
 						),

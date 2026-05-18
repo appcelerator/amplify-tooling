@@ -67,10 +67,10 @@ const askForGitLabRepositoryBranch = async (): Promise<string> =>
 		msg: gitLabPrompts.REPOSITORY_BRANCH
 	})) as string;
 
-const askForGitLabPaths = async (): Promise<string[]> => {
+const askForGitLabPaths = async (log: (text: string) => void = () => {}): Promise<string[]> => {
 	let askPaths = true;
 	const paths = [];
-	console.log(chalk.gray('An array of paths within the repository that the agent will gather files for looking for specs'));
+	log(chalk.gray('An array of paths within the repository that the agent will gather files for looking for specs'));
 	while (askPaths) {
 		const path = (await askInput({
 			msg: gitLabPrompts.PATHS,
@@ -92,10 +92,10 @@ const askForGitLabPaths = async (): Promise<string[]> => {
 	return paths;
 };
 
-const askForGitLabFilters = async (): Promise<string[]> => {
+const askForGitLabFilters = async (log: (text: string) => void = () => {}): Promise<string[]> => {
 	let askFilters = true;
 	const filters = [];
-	console.log(chalk.gray('An array of regular expressions that a file name must match to be discovered'));
+	log(chalk.gray('An array of regular expressions that a file name must match to be discovered'));
 	while (askFilters) {
 		const filter = (await askInput({
 			msg: gitLabPrompts.FILTERS,
@@ -120,8 +120,8 @@ const askForGitLabFilters = async (): Promise<string[]> => {
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<GitLabAgentValues> => {
 	const gitLabAgentValues: GitLabAgentValues = new GitLabAgentValues();
 	if (installConfig.switches.isDockerInstall) {
-		console.log('\nCONNECTION TO GitHub API GATEWAY:');
-		console.log(
+		installConfig.log('\nCONNECTION TO GitHub API GATEWAY:');
+		installConfig.log(
 			chalk.gray('The Discovery Agent needs to connect to the GitHub API Gateway to discover API\'s for publishing to Amplify Engage.')
 		);
 
@@ -129,8 +129,8 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 		gitLabAgentValues.baseURL = await askForGitLabBaseURL();
 		gitLabAgentValues.repositoryID = await askForGitLabRepositoryID();
 		gitLabAgentValues.repositoryBranch = await askForGitLabRepositoryBranch();
-		gitLabAgentValues.paths = await askForGitLabPaths();
-		gitLabAgentValues.filters = await askForGitLabFilters();
+		gitLabAgentValues.paths = await askForGitLabPaths(installConfig.log);
+		gitLabAgentValues.filters = await askForGitLabFilters(installConfig.log);
 	}
 	return gitLabAgentValues;
 };
@@ -145,15 +145,15 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	if (installConfig.switches.isDaEnabled) {
 		dockerInfo = `To utilize the discovery agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.DA_ENV_VARS}):`;
 	}
-	console.log(chalk.whiteBright(dockerInfo), '\n');
+	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;
-		console.log(chalk.white('Pull the latest image of the Discovery Agent:'));
-		console.log(chalk.cyan(`docker pull ${daImageVersion}`));
-		console.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
-		console.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
-		console.log('\t', chalk.cyan(`-v /data ${daImageVersion}`));
+		installConfig.log(chalk.white('Pull the latest image of the Discovery Agent:'));
+		installConfig.log(chalk.cyan(`docker pull ${daImageVersion}`));
+		installConfig.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
+		installConfig.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
+		installConfig.log('\t' + chalk.cyan(`-v /data ${daImageVersion}`));
 	}
 };
 
@@ -186,7 +186,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 		}
 	}
 
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
 	generateSuccessHelpMsg(installConfig);
 };

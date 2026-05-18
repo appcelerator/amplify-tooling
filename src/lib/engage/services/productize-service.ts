@@ -16,7 +16,7 @@ export async function productizeResources(params: ProductizeCommandParams): Prom
 	let results: Map<string, ApiServerClientBulkResult> = new Map();
 
 	await defsManager.init();
-	log('loading and verifying specs');
+	log.log('loading and verifying specs');
 	const allowedKind = new Set<string>().add(Kind.APIService);
 	const { docs } = await loadAndVerifySpecs(filePath, allowedKind, true);
 	const sortedKindsMap = defsManager.getSortedKindsMap();

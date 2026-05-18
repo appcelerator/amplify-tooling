@@ -75,7 +75,7 @@ To delete a single resource:\t\t"axway engage delete <Resource> <Name>"`);
 
 	async run(): Promise<any> {
 		const log = logger('EngageDelete');
-		const render = new Renderer(console);
+		const render = new Renderer((text: string) => this.log(text));
 		let isCmdError = true;
 		try {
 			const { args, flags, account } = await this.parse(EngageDelete);
@@ -93,8 +93,7 @@ To delete a single resource:\t\t"axway engage delete <Resource> <Name>"`);
 
 			const result = await deleteResources({
 				account,
-				region: flags.region,
-				useCache: flags.cache,
+				useCache: flags.useCache,
 				resourceType: typedResource,
 				resourceName: typedName,
 				filePath: flags.file,
@@ -158,11 +157,11 @@ To delete a single resource:\t\t"axway engage delete <Resource> <Name>"`);
 				render.bulkResult(result.bulkResults, 'has successfully been deleted.');
 			}
 		} catch (e: any) {
-			log('command error', e);
+			log.error('command error', e);
 			isCmdError = true;
 			render.anyError(e);
 		} finally {
-			log(`command finished, success = ${!isCmdError}`);
+			log.log(`command finished, success = ${!isCmdError}`);
 			render.stopSpin();
 			if (isCmdError) {
 				process.exit(1);

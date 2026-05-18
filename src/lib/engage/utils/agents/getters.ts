@@ -5,7 +5,7 @@ import { DefinitionsManager } from '../../results/DefinitionsManager.js';
 import logger from '../../../logger.js';
 import { Account } from '../../../../types.js';
 
-const { log } = logger('lib: engage: utils: agents: getters');
+const { log, error } = logger('lib: engage: utils: agents: getters');
 
 export interface GetResourceListInput {
 	client: ApiServerClient;
@@ -98,8 +98,8 @@ export const getLatestAgentVersion = async (agent: string, account: Account): Pr
 		log(`Latest Version (${agent}): ${latestVersion}`);
 		return latestVersion;
 	} catch (e: any) {
-		log('Error hit retrieving latest version of agent, setting tag to latest');
-		log(e);
+		error('Error hit retrieving latest version of agent, setting tag to latest');
+		error(e);
 		return 'latest';
 	}
 };

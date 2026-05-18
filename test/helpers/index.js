@@ -21,7 +21,7 @@ export function initHomeDir(templateDir) {
 	}
 
 	const homeDir = path.join(os.homedir(), '.axway', 'axway-cli');
-	log(`Copying ${highlight(templateDir)} => ${highlight(homeDir)}`);
+	log.log(`Copying ${highlight(templateDir)} => ${highlight(homeDir)}`);
 	fs.cpSync(templateDir, homeDir, { recursive: true });
 }
 
@@ -85,12 +85,12 @@ export function resetHomeDir() {
 	// sanity check that we're not nuking the real home directory
 	const homedir = os.homedir();
 	if (homedir.includes(os.tmpdir())) {
-		log(`Emptying temp home directory: ${highlight(homedir)}`);
+		log.log(`Emptying temp home directory: ${highlight(homedir)}`);
 		for (const name of fs.readdirSync(homedir)) {
 			fs.rmSync(path.join(homedir, name), { recursive: true, force: true });
 		}
 	} else {
-		log(`Refusing to empty home directory! ${highlight(homedir)}`);
+		log.log(`Refusing to empty home directory! ${highlight(homedir)}`);
 	}
 }
 
@@ -112,7 +112,7 @@ function _runAxway(fn, args = [], opts = {},  cfg) {
 		args.unshift('--import', pathToFileURL(path.join(__dirname, `${opts.shim}.js`)));
 	}
 
-	log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);
+	log.log(`Executing: ${highlight(`${process.execPath} ${axwayBin} ${args.join(' ')}`)}`);
 	return fn(process.execPath, args, {
 		ignoreExitCodes: true,
 		windowsHide: true,
@@ -134,17 +134,17 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
 		if (process.env.ECHO_CHILD) {
 			process.stdout.write(s.toString());
 		}
-		log(s.toString().trim());
+		log.log(s.toString().trim());
 	});
 	child.stderr.on('data', s => {
 		stderr += s.toString();
 		if (process.env.ECHO_CHILD) {
 			process.stderr.write(s.toString());
 		}
-		log(s.toString().trim());
+		log.log(s.toString().trim());
 	});
 	return new Promise(resolve => child.on('close', status => {
-		log(`Process exited (code ${status})`);
+		log.log(`Process exited (code ${status})`);
 		resolve({ status, stdout, stderr });
 	}));
 }

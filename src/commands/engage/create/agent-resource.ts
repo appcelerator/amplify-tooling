@@ -12,18 +12,18 @@ export class EngageCreateAgentResourceCommand extends Command {
 
 	async run(): Promise<void> {
 		const log = logger('engage:create:agent-resource');
-		let renderer = new Renderer(console, undefined);
+		let renderer = new Renderer((text: string) => this.log(text), undefined);
 		let isCmdError = false;
 		try {
 			const { flags, account } = await this.parse(EngageCreateAgentResourceCommand);
-			renderer = new Renderer(console, flags.output);
-			await createAgentResource({ account, useCache: flags.useCache });
+			renderer = new Renderer((text: string) => this.log(text), flags.output);
+			await createAgentResource({ account, useCache: flags.useCache, log: (text: string) => this.log(text) });
 		} catch (e: any) {
-			log('command error', e);
+			log.error('command error', e);
 			renderer.anyError(e);
 			isCmdError = true;
 		} finally {
-			log('command finished');
+			log.log('command finished');
 			if (isCmdError) {
 				process.exit(1);
 			}

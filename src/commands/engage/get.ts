@@ -8,6 +8,8 @@ import { getResources } from '../../lib/engage/services/get-service.js';
 import chalk from 'chalk';
 
 export default class EngageGet extends Command {
+	static override fetchTeams = true;
+
 	static override summary = 'List one or more resources.';
 
 	static override aliases = [ 'central:get' ];
@@ -93,11 +95,11 @@ export default class EngageGet extends Command {
 
 	async run(): Promise<any> {
 		const log = logger('engage:get');
-		let renderer = new Renderer(console, undefined);
+		let renderer = new Renderer((text: string) => this.log(text), undefined);
 		let isCmdError = true;
 		try {
 			const { args, flags, account, teams } = await this.parse(EngageGet);
-			renderer = new Renderer(console, flags.output);
+			renderer = new Renderer((text: string) => this.log(text), flags.output);
 
 			if (!flags.team && flags['no-owner']) {
 				flags.team = null;
@@ -122,7 +124,7 @@ export default class EngageGet extends Command {
 
 			// Warn if both simple and advanced query params were provided.
 			if (flags.query && (flags.title || flags.attribute || flags.tag)) {
-				console.log(chalk.yellow(
+				this.log(chalk.yellow(
 					'Both simple queries and advanced query parameters have been provided. Only the advanced query parameter will be applied.'
 				));
 			}
@@ -131,8 +133,7 @@ export default class EngageGet extends Command {
 			renderer.startSpin(downloadMessage);
 			const result = await getResources({
 				account,
-				region: flags.region,
-				useCache: flags.cache,
+				useCache: flags.useCache,
 				team: flags.team,
 				resourceTypes: args.resource ? args.resource.split(',') : [],
 				resourceName: args.name,
@@ -159,11 +160,11 @@ export default class EngageGet extends Command {
 			isCmdError = result.hasErrors;
 			renderer.renderGetResults(result.items, 'Resource(s) successfully retrieved', result.languageDefinition);
 		} catch (e: any) {
-			log('command error', e);
+			log.error('command error', e);
 			isCmdError = true;
 			renderer.anyError(e);
 		} finally {
-			log('command complete');
+			log.log('command complete');
 			renderer.stopSpin();
 			if (isCmdError) {
 				process.exit(1);

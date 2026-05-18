@@ -9,7 +9,7 @@ import * as helpers from '../index.js';
 import * as crypto from 'crypto';
 import { DataplaneConfig } from './saasAgentsBase.js';
 
-const { log } = logger('engage: install: agents: saas');
+const debugLog = logger('engage: install: agents: saas');
 
 class GitHubDataplaneConfig extends DataplaneConfig {
 	name: string;
@@ -103,7 +103,7 @@ const askConfigType = async (): Promise<AgentConfigTypes> => {
 };
 
 const askForGitHubCredentials = async (hostedAgentValues: SaasGitHubAgentValues): Promise<SaasAgentValues> => {
-	log('gathering access details for GitHub');
+	debugLog.log('gathering access details for GitHub');
 
 	hostedAgentValues.accessToken = (await askInput({
 		msg: SaasPrompts.ACCESS_TOKEN,
@@ -137,8 +137,8 @@ const validateFrequency = (): InputValidation => (input: string | number) => {
 };
 
 const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	console.log('\nCONNECTION TO GitHub API GATEWAY:');
-	console.log(
+	installConfig.log('\nCONNECTION TO GitHub API GATEWAY:');
+	installConfig.log(
 		chalk.gray('The Discovery Agent needs to connect to the GitHub API Gateway to discover API\'s for publishing to Amplify Engage')
 	);
 
@@ -152,8 +152,8 @@ const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<S
 	}
 
 	// Ask to queue discovery now
-	log('getting the frequency and if the agent should run now');
-	console.log(
+	debugLog.log('getting the frequency and if the agent should run now');
+	installConfig.log(
 		chalk.gray('\n00d00h00m format, where 30m = 30 minutes, 1h = 1 hour, 7d = 7 days, and 7d1h30m = 7 days 1 hour and 30 minutes. Minimum of 30m.')
 	);
 	hostedAgentValues.frequencyDA = await askInput({
@@ -197,7 +197,7 @@ const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<S
 	// get File Paths
 
 	let askFilePaths = true;
-	console.log(chalk.gray('An array of paths within the repository that the agent will gather files for looking for specs'));
+	installConfig.log(chalk.gray('An array of paths within the repository that the agent will gather files for looking for specs'));
 	while (askFilePaths) {
 		const path = (await askInput({
 			msg: SaasPrompts.FILE_PATHS,
@@ -220,7 +220,7 @@ const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<S
 	// get File Patterns
 
 	let askFilePatterns = true;
-	console.log(chalk.gray('An array of regular expressions that a file name must match to be discovered'));
+	installConfig.log(chalk.gray('An array of regular expressions that a file name must match to be discovered'));
 	while (askFilePatterns) {
 		const pattern = (await askInput({
 			msg: SaasPrompts.FILE_PATTERNS,
@@ -256,7 +256,6 @@ const createEncryptedAccessData = async (hostedAgentValues: SaasGitHubAgentValue
 	if (key === '' || hash === '') {
 		throw Error('cannot encrypt access data as the encryption key info was incomplete');
 	}
-	console.log(hostedAgentValues.getAccessData());
 	const encData = crypto.publicEncrypt({
 		key: key,
 		padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
@@ -272,7 +271,7 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 	/**
 	 * Create agent resources
 	 */
-	console.log('\n');
+	installConfig.log('\n');
 	const gitHubAgentValues = installConfig.gatewayConfig as SaasGitHubAgentValues;
 
 	// create the environment, if necessary
@@ -286,7 +285,10 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 			{
 				axwayManaged: installConfig.centralConfig.axwayManaged,
 				production: installConfig.centralConfig.production,
-			}
+			},
+			undefined,
+			undefined,
+			installConfig.log,
 		)
 		: installConfig.centralConfig.ampcEnvInfo.name;
 
@@ -304,6 +306,7 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		installConfig.centralConfig.environment,
 		GatewayTypeToDataPlane[installConfig.gatewayType],
 		gitHubAgentValues.dataplaneConfig,
+		installConfig.log,
 	);
 	// create data plane secret resource
 	try {
@@ -314,9 +317,10 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 			GatewayTypeToDataPlane[installConfig.gatewayType],
 			dataplaneRes.name,
 			await createEncryptedAccessData(gitHubAgentValues, dataplaneRes),
+			installConfig.log,
 		);
 	} catch (_error) {
-		console.log(
+		installConfig.log(
 			chalk.redBright('rolling back installation. Please check the credential data before re-running install')
 		);
 
@@ -341,7 +345,6 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		return;
 	}
 
-	// create discovery agent resource
 	installConfig.centralConfig.daAgentName = await helpers.createNewAgentResource(
 		apiServerClient as ApiServerClient,
 		defsManager as DefinitionsManager,
@@ -354,9 +357,12 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		dataplaneRes.name,
 		gitHubAgentValues.frequencyDA,
 		gitHubAgentValues.queueDA,
+		undefined,
+		undefined,
+		installConfig.log,
 	);
 
-	console.log(await generateOutput(installConfig));
+	installConfig.log(await generateOutput(installConfig));
 };
 
 export const GitHubSaaSInstallMethods: InstallationFlowMethods = {

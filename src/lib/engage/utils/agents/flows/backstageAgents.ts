@@ -94,10 +94,10 @@ const askBaskstageAuthJwksTokenUrl = async (): Promise<string> =>
 		msg: BackstagePrompts.enterJwksTokenURL,
 	})) as string;
 
-export const gatewayConnectivity = async (): Promise<BackstageAgentValues> => {
+export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<BackstageAgentValues> => {
 	const backstageAgentValues: BackstageAgentValues = new BackstageAgentValues();
-	console.log('\nCONNECTION TO Backstage:');
-	console.log(
+	installConfig.log('\nCONNECTION TO Backstage:');
+	installConfig.log(
 		chalk.gray(
 			'The discovery agent needs to connect to Backstage to discover API\'s for publishing to Amplify.'
 		)
@@ -109,11 +109,11 @@ export const gatewayConnectivity = async (): Promise<BackstageAgentValues> => {
 };
 
 const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
-	console.log(chalk.yellow(svcAccMsg));
+	installConfig.log(chalk.yellow(svcAccMsg));
 
 	dockerSuccessMsg(installConfig);
 
-	console.log(
+	installConfig.log(
 		chalk.gray(`\nAdditional information about agent features can be found here:\n${helpers.agentsDocsUrl.BACKSTAGE}`)
 	);
 };
@@ -125,14 +125,14 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	const startDaWinMsg = '\nStart the Discovery Agent on a Windows machine';
 
 	const dockerInfo = `To utilize the agents, pull the latest Docker images and run them using the appropriate supplied environment files, (${helpers.configFiles.DA_ENV_VARS}:`;
-	console.log(chalk.whiteBright(dockerInfo), '\n');
+	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
 
 	const daImageVersion = `${daImage}:${installConfig.daVersion}`;
-	console.log(chalk.white('Pull the latest image of the Discovery Agent:'));
-	console.log(chalk.cyan(`docker pull ${daImageVersion}`));
-	console.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
-	console.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
-	console.log('\t', chalk.cyan(`-v /data ${daImageVersion}`), '\n');
+	installConfig.log(chalk.white('Pull the latest image of the Discovery Agent:'));
+	installConfig.log(chalk.cyan(`docker pull ${daImageVersion}`));
+	installConfig.log(chalk.white(isWindows ? startDaWinMsg : startDaLinuxMsg));
+	installConfig.log(chalk.cyan(isWindows ? runDaWinMsg : runDaLinuxMsg));
+	installConfig.log('\t' + chalk.cyan(`-v /data ${daImageVersion}`) + '\n');
 };
 
 async function askPrompts(values: BackstageAgentValues) {
@@ -167,9 +167,9 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	// Add final settings
 	backstageAgentValues.centralConfig = installConfig.centralConfig;
 
-	console.log('Generating the configuration file(s)...');
+	installConfig.log('Generating the configuration file(s)...');
 	writeTemplates(ConfigFiles.DAEnvVars, backstageAgentValues, backstageDAEnvVarTemplate);
-	console.log('Configuration file(s) have been successfully created.\n');
+	installConfig.log('Configuration file(s) have been successfully created.\n');
 
 	generateSuccessHelpMsg(installConfig);
 };
