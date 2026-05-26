@@ -1,6 +1,6 @@
 import fs from 'fs';
 import callerPath from 'caller-path';
-import chalk from 'chalk';
+import { Chalk } from 'chalk';
 import Mustache from 'mustache';
 import os from 'os';
 import path from 'path';
@@ -13,7 +13,7 @@ const { log } = logger('test');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const axwayBin = path.resolve(__dirname, `../../${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/index.js`);
+const axwayBin = path.resolve(__dirname, `../../bin/${process.env.AXWAY_COVERAGE ? 'dev' : 'run'}.js`);
 
 export function initHomeDir(templateDir) {
 	if (!fs.existsSync(templateDir) && !path.isAbsolute(templateDir)) {
@@ -42,10 +42,13 @@ const defaultVars = {
 	uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
 	year: (new Date()).getFullYear()
 };
-for (const fn of [ 'bold', 'blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'yellow' ]) {
+
+// Create a Chalk instance with colors forced on for generating color regex patterns
+const coloredChalk = new Chalk({ level: 3 });
+for (const fn of [ 'bold', 'blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'yellow', 'underline' ]) {
 	defaultVars[fn] = () => {
 		return (text, render) => {
-			return chalk[fn]('8675309')
+			return coloredChalk[fn]('8675309')
 				.replace(/(?<!\\)([()[\]?])/g, '\\$1')
 				.replace('8675309', render(text));
 		};
@@ -96,8 +99,18 @@ export function resetHomeDir() {
 
 function _runAxway(fn, args = [], opts = {},  cfg) {
 	const env = Object.assign({}, process.env, opts.env);
+	// Set an artificially high value for oclif terminal width so we have consistent output width for testing regardless
+	// of the actual terminal size the tests are run in. This prevents issues with wrapped output that can occur in
+	// smaller terminal windows and CI environments, and ensures consistent snapshots and regex matching.
+	env.OCLIF_COLUMNS = '512';
+	// Keep COLUMNS in sync for any non-oclif width consumers.
+	env.COLUMNS = '512';
+
 	if (env.AXWAY_TEST) {
-		if (args.includes('--no-color') || args.includes('--no-colors')) {
+		// If color option is explicitly set, use it; otherwise don't set FORCE_COLOR
+		if (opts.color === true) {
+			env.FORCE_COLOR = '3';
+		} else if (args.includes('--no-color') || args.includes('--no-colors')) {
 			delete env.FORCE_COLOR;
 		}
 	}
@@ -145,6 +158,26 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
 	});
 	return new Promise(resolve => child.on('close', status => {
 		log(`Process exited (code ${status})`);
+
+		// Log output to file if LOG_TEST_OUTPUT is set
+		if (process.env.LOG_TEST_OUTPUT) {
+			const testName = (args.length > 0 ? args.join('_') : 'no-args').replace(/[^a-zA-Z0-9_-]/g, '_');
+			const logDir = path.join(__dirname, '../.test-output-logs');
+			if (!fs.existsSync(logDir)) {
+				fs.mkdirSync(logDir, { recursive: true });
+			}
+			const logFile = path.join(logDir, `${testName}_${Date.now()}.log`);
+			const logContent = JSON.stringify({
+				args,
+				opts: { color: opts.color, shim: opts.shim },
+				status,
+				stdout,
+				stderr
+			}, null, 2);
+			fs.writeFileSync(logFile, logContent);
+			console.log(`\n📝 Logged output to: ${logFile}`);
+		}
+
 		resolve({ status, stdout, stderr });
 	}));
 }

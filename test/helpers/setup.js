@@ -54,5 +54,4 @@ if (process.platform === 'win32') {
 }
 
 process.env.NODE_ENV = 'test'; // disables the update check
-process.env.FORCE_COLOR = '3';
 process.env.AXWAY_TEST = '1';
