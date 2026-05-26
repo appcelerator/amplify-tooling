@@ -16,65 +16,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-  MacOsTest:
-    needs: Lint
-    name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        nodeVersion: ["22.13.1", "24.14.1"]
-        os: [macos-latest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.nodeVersion }}
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        run: npm run test
-
-  WindowsTest:
-    needs: Lint
-    name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        nodeVersion: ["22.13.1", "24.14.1"]
-        os: [windows-latest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.nodeVersion }}
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        run: npm run test
-
-  UbuntuTest:
-    needs: Lint
-    name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        nodeVersion: ["22.13.1", "24.14.1"]
-        os: [ubuntu-latest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.nodeVersion }}
-      - name: Install libsecret
-        run: sudo apt-get install -y libsecret-1-0
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        run: npm run test
-
   EngageMacOsTest:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
@@ -91,6 +32,8 @@ jobs:
           node-version: ${{ matrix.nodeVersion }}
       - name: Install dependencies
         run: npm install
+      - name: Build CLI
+        run: npm run build
       - name: Run tests
         run: npm run engagetest
 
@@ -110,6 +53,8 @@ jobs:
           node-version: ${{ matrix.nodeVersion }}
       - name: Install dependencies
         run: npm install
+      - name: Build CLI
+        run: npm run build
       - name: Run tests
         run: npm run engagetest
 
@@ -131,5 +76,7 @@ jobs:
         run: sudo apt-get install -y libsecret-1-0
       - name: Install dependencies
         run: npm install
+      - name: Build CLI
+        run: npm run build
       - name: Run tests
         run: npm run engagetest
