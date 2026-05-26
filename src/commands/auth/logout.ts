@@ -1,6 +1,7 @@
 import { highlight } from '../../lib/logger.js';
 import { Args } from '@oclif/core';
 import Command from '../../lib/command.js';
+import { initSDK } from '../../lib/amplify-sdk/index.js';
 
 export default class AuthLogout extends Command {
 	static override summary = 'Log out all or specific accounts.';
@@ -8,6 +9,8 @@ export default class AuthLogout extends Command {
 	static override description = 'Optionally outputs revoked accounts as JSON.';
 
 	static override aliases = [ 'auth:revoke' ];
+
+	static override authenticated = false;
 
 	static override args = {
 		accounts: Args.string({
@@ -20,7 +23,10 @@ export default class AuthLogout extends Command {
 	static override enableJsonFlag = true;
 
 	async run() {
-		const { args, sdk } = await this.parse(AuthLogout);
+		const { args, config } = await this.parse(AuthLogout);
+
+		// Initialize SDK manually since this command doesn't require authentication
+		const sdk = await initSDK({}, config);
 
 		const accounts = args.accounts ?? [];
 		const all = accounts.length === 0;

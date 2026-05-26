@@ -1,47 +1,55 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
 Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
 
-The Axway CLI auth command allows you to authenticate with the Amplify platform
-under one or more accounts and switch between them. You can log in using
-one or more service accounts at the same time.
+Manage Axway CLI authentication.
 
-A service account can be used for both desktop and headless environments.
-However, if authenticating in a headless environment, you must set the token
-store type to “file”:
+{{#bold}}USAGE{{/bold}}
+  $ {{#cyan}}axway{{/cyan}} {{#cyan}}auth{{/cyan}} [--no-banner] [--no-color] [--profile <value>]
+
+{{#bold}}GLOBAL FLAGS{{/bold}}
+  {{#cyan}}--no-banner{{/cyan}}        Disable the banner.
+  {{#cyan}}--no-color{{/cyan}}         Disable color output.
+  {{#cyan}}--profile={{#underline}}<value>{{/underline}}{{/cyan}}  Specify the configuration profile to use.
+
+{{#bold}}DESCRIPTION{{/bold}}
+  Manage Axway CLI authentication.
+
+  The Axway CLI auth command allows you to authenticate with the Amplify platform under one or more service accounts and switch between them. You can log in using one or more service accounts at the same time.
+
+  A service account can be used for both desktop and headless environments.
+  However, if authenticating in a headless environment, you must set the token store type to "file":
 
   {{#cyan}}axway config set auth.tokenStoreType file{{/cyan}}
 
-USAGE: {{#cyan}}axway auth <command> [options]{{/cyan}}
+{{#bold}}EXAMPLES{{/bold}}
+  Log into a service account using a PEM formatted secret key
 
-AUTH COMMANDS:
-  {{#cyan}}ls, list     {{/cyan}}  Lists all authenticated accounts
-  {{#cyan}}login        {{/cyan}}  Log in to the Axway Amplify Platform
-  {{#cyan}}logout       {{/cyan}}  Log out all or specific accounts
-  {{#cyan}}switch       {{/cyan}}  Select default account and team
-  {{#cyan}}whoami       {{/cyan}}  Display info for an authenticated account
-
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
-
-EXAMPLES:
-
-  Log into a service account using a PEM formatted secret key:
     {{#cyan}}axway auth login --client-id <id> --secret-file <path>{{/cyan}}
 
-  Log into a service account using a client secret:
+  Log into a service account using a client secret
+
     {{#cyan}}axway auth login --client-id <id> --client-secret <token>{{/cyan}}
 
-  List all authenticated accounts:
+  List all authenticated accounts
+
     {{#cyan}}axway auth list{{/cyan}}
 
-  Show the current default selected account:
+  Show the current default selected account
+
     {{#cyan}}axway auth whoami{{/cyan}}
 
-  Switch default account and org:
+  Switch default account and org
+
     {{#cyan}}axway auth switch{{/cyan}}
 
-  Log out of an account:
+  Log out of an account
+
     {{#cyan}}axway auth logout{{/cyan}}
+
+{{#bold}}COMMANDS{{/bold}}
+  {{#cyan}}auth list{{/cyan}}         Lists all authenticated accounts.
+  {{#cyan}}auth login{{/cyan}}        Log in to the Axway Amplify Platform.
+  {{#cyan}}auth logout{{/cyan}}       Log out all or specific accounts.
+  {{#cyan}}auth server-info{{/cyan}}  Show authentication server info.
+  {{#cyan}}auth switch{{/cyan}}       Select default account and team.
+  {{#cyan}}auth whoami{{/cyan}}       Display info for an authenticated account

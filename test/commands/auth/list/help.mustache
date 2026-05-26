@@ -1,16 +1,21 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Displays a list of all authenticated accounts, their selected platform
-organization, and the current team.
+Lists all authenticated accounts.
 
-USAGE: {{#cyan}}axway auth list [options]{{/cyan}}
+USAGE
+  $ axway auth list [--json] [--no-banner] [--no-color] [--profile <value>]
 
-LIST OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs accounts as JSON
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+DESCRIPTION
+  Lists all authenticated accounts.
+
+  Displays a list of all authenticated accounts, their selected platform organization, and the current team.
+
+ALIASES
+  $ axway auth ls

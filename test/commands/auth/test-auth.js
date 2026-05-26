@@ -16,15 +16,15 @@ describe('axway auth', () => {
 		after(resetHomeDir);
 
 		it('should output the help screen with color', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth' ]);
+			const { status, stdout } = await runAxwaySync([ 'auth' ], { color: true });
 			expect(stdout).to.match(renderRegexFromFile('help/help-with-color'));
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 		});
 
 		it('should output the help screen using --help flag', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth', '--help' ]);
+			const { status, stdout } = await runAxwaySync([ 'auth', '--help' ], { color: true });
 			expect(stdout).to.match(renderRegexFromFile('help/help-with-color'));
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 		});
 	});
 
@@ -45,7 +45,7 @@ describe('axway auth', () => {
 
 		it('should display list help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'auth', 'list', '--help' ]);
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/help'));
 		});
 
@@ -98,7 +98,7 @@ describe('axway auth', () => {
 		it('should display login help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'auth', 'login', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('login/help'));
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 		});
 	});
 
@@ -157,7 +157,7 @@ describe('axway auth', () => {
 		it('should error if no authenticated accounts', async () => {
 			const { status, stderr } = await runAxwaySync([ 'auth', 'logout' ]);
 			expect(stderr).to.match(renderRegexFromFile('logout/no-accounts'));
-			expect(status).to.equal(1);
+			expect(status).to.equal(2);
 		});
 
 		it('should error if specified account is not found', async () => {
@@ -169,7 +169,7 @@ describe('axway auth', () => {
 		it('should display logout help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'auth', 'logout', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('logout/help'));
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 		});
 	});
 
@@ -182,7 +182,7 @@ describe('axway auth', () => {
 
 		it('should display switch help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'auth', 'switch', '--help' ]);
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('switch/help'));
 		});
 	});
@@ -199,15 +199,15 @@ describe('axway auth', () => {
 		it('should login and display not logged into a specific account', async function () {
 			initHomeDir('home-local');
 
-			const { status, stdout } = await runAxwaySync([ 'auth', 'whoami', 'foo@bar.com' ]);
-			expect(stdout).to.match(renderRegexFromFile('whoami/not-logged-in-account'));
-			expect(status).to.equal(0);
+			const { status, stderr } = await runAxwaySync([ 'auth', 'whoami', 'foo@bar.com' ]);
+			expect(stderr).to.match(renderRegexFromFile('whoami/not-logged-in-account'));
+			expect(status).to.equal(2);
 		});
 
 		it('should display whoami help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'auth', 'whoami', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('whoami/help'));
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 		});
 	});
 
@@ -217,7 +217,7 @@ describe('axway auth', () => {
 		it('should get server info', async function () {
 			initHomeDir('home-local');
 
-			const { status, stdout } = await runAxwaySync([ 'auth', 'server-info' ]);
+			const { status, stdout } = await runAxwaySync([ 'auth', 'server-info', '--json' ]);
 			const info = JSON.parse(stdout);
 			expect(info).to.deep.equal(readJsonSync(path.resolve(__dirname, '../../helpers/server-info.json')));
 			expect(status).to.equal(0);
