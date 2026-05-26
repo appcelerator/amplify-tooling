@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: "20.x"
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Lint
         run: npm run lint
 
@@ -31,9 +31,13 @@ jobs:
         with:
           node-version: ${{ matrix.nodeVersion }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build CLI
         run: npm run build
+      - name: Verify built CLI entrypoint
+        run: |
+          test -f dist/index.js
+          node dist/index.js --version
       - name: Run tests
         run: npm run engagetest
 
@@ -52,9 +56,13 @@ jobs:
         with:
           node-version: ${{ matrix.nodeVersion }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build CLI
         run: npm run build
+      - name: Verify built CLI entrypoint
+        run: |
+          if not exist dist\index.js exit /b 1
+          node dist/index.js --version
       - name: Run tests
         run: npm run engagetest
 
@@ -75,8 +83,12 @@ jobs:
       - name: Install libsecret
         run: sudo apt-get install -y libsecret-1-0
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build CLI
         run: npm run build
+      - name: Verify built CLI entrypoint
+        run: |
+          test -f dist/index.js
+          node dist/index.js --version
       - name: Run tests
         run: npm run engagetest
