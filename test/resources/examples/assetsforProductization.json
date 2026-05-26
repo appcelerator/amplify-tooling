@@ -1,0 +1,37 @@
+[
+	{
+		"apiVersion": "v1alpha1",
+		"kind": "Asset",
+		"name": "apisvc1",
+		"title": "title",
+		"tags": [],
+		"spec": {
+  			"type": "API",
+			"autoRelease": {
+				"releaseType": "patch",
+				"requiresInitialActivation": true
+			}
+		},
+		"access": {
+  			"approval": "automatic"
+		}
+	},
+
+	{
+		"apiVersion": "v1alpha1",
+		"kind": "Asset",
+		"name": "apisvc2",
+		"title": "title",
+		"tags": [],
+		"spec": {
+  			"type": "API",
+			"autoRelease": {
+				"releaseType": "patch",
+				"requiresInitialActivation": true
+			}
+		},
+		"access": {
+  			"approval": "automatic"
+		}
+	}
+]

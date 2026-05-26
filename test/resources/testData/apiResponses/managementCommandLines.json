@@ -1,0 +1,6834 @@
+[
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "k8scluster",
+			"title": "k8scluster",
+			"metadata": {
+					"id": "8ac985a3850c194c01850c707972013f",
+					"audit": {
+							"createTimestamp": "2022-12-13T17:02:55.858+0000",
+							"modifyTimestamp": "2022-12-13T17:02:55.858+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7062c5000d",
+									"kind": "ResourceDefinition",
+									"name": "k8scluster",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/k8scluster",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/k8scluster"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "k8sclusters",
+							"singular": "k8scluster",
+							"shortNames": [
+									"k8",
+									"k8s"
+							],
+							"shortNamesAlias": [
+									"k8sc"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the cluster."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the cluster was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the cluster."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "k8scluster"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "virtualapirelease",
+			"title": "virtualapirelease",
+			"metadata": {
+					"id": "8ac985a3850c194c01850c7079bd0145",
+					"audit": {
+							"createTimestamp": "2022-12-13T17:02:55.933+0000",
+							"modifyTimestamp": "2022-12-13T17:02:55.933+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70691e0033",
+									"kind": "ResourceDefinition",
+									"name": "virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "virtualapireleases",
+							"singular": "virtualapirelease",
+							"shortNames": [
+									"vapirelease",
+									"vapireleases",
+									"virtualapirelease",
+									"virtualapireleases"
+							],
+							"shortNamesAlias": [
+									"virtualapirelease"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the virtual API."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the virtual API release was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the virtual API."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							}
+					],
+					"resourceDefinition": "virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "virtualapi",
+			"title": "virtualapi",
+			"metadata": {
+					"id": "8ac985a3850c194c01850c7079da0147",
+					"audit": {
+							"createTimestamp": "2022-12-13T17:02:55.962+0000",
+							"modifyTimestamp": "2022-12-13T17:02:55.962+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70637f0011",
+									"kind": "ResourceDefinition",
+									"name": "virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "virtualapis",
+							"singular": "virtualapi",
+							"shortNames": [
+									"vapi"
+							],
+							"shortNamesAlias": [
+									"vapi"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the virtual API."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the virtual API was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the virtual API."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.level",
+									"description": "The resource status."
+							}
+					],
+					"resourceDefinition": "virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "mesh",
+			"title": "mesh",
+			"metadata": {
+					"id": "8ac985a3850c194c01850c707a27014b",
+					"audit": {
+							"createTimestamp": "2022-12-13T17:02:56.038+0000",
+							"modifyTimestamp": "2022-12-13T17:02:56.038+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70696f0036",
+									"kind": "ResourceDefinition",
+									"name": "mesh",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/mesh",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/mesh"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "meshes",
+							"singular": "mesh",
+							"shortNames": [
+									"mesh",
+									"meshes"
+							],
+							"shortNamesAlias": [
+									"mesh"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Mesh."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Mesh was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Mesh."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "mesh"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "watchtopic",
+			"title": "watchtopic",
+			"metadata": {
+					"id": "8ac985a3850c194c01850c707c30016b",
+					"audit": {
+							"createTimestamp": "2022-12-13T17:02:56.560+0000",
+							"modifyTimestamp": "2022-12-13T17:02:56.560+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706a75003e",
+									"kind": "ResourceDefinition",
+									"name": "watchtopic",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/watchtopic",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/watchtopic"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "watchtopics",
+							"singular": "watchtopic",
+							"shortNames": [
+									"wt",
+									"wts"
+							],
+							"shortNamesAlias": [
+									"wt"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the WatchTopic."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the WatchTopic was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the WatchTopic."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "watchtopic"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "environment",
+			"title": "environment",
+			"metadata": {
+					"id": "8ac985a3850c194c01850c707c65016f",
+					"audit": {
+							"createTimestamp": "2022-12-13T17:02:56.613+0000",
+							"modifyTimestamp": "2022-12-13T17:02:56.613+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706a9f003f",
+									"kind": "ResourceDefinition",
+									"name": "environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "environments",
+							"singular": "environment",
+							"shortNames": [
+									"env",
+									"envs"
+							],
+							"shortNamesAlias": [
+									"env"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the environment."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the environment was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the environment."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							},
+							{
+									"name": "Owner",
+									"type": "teamGuid",
+									"jsonPath": ".owner.id",
+									"description": "The owner name."
+							}
+					],
+					"resourceDefinition": "environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "integration",
+			"title": "integration",
+			"metadata": {
+					"id": "8ac985a3850c194c01850c707d020179",
+					"audit": {
+							"createTimestamp": "2022-12-13T17:02:56.770+0000",
+							"modifyTimestamp": "2022-12-13T17:02:56.770+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7065e4001f",
+									"kind": "ResourceDefinition",
+									"name": "integration",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/integration",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/integration"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "integrations",
+							"singular": "integration",
+							"shortNames": [
+									"integr"
+							],
+							"shortNamesAlias": [
+									"integ"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the integration."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the integration group was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the integration."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "integration"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accesscontrollist-virtualapirelease",
+			"title": "accesscontrollist-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37b870001",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.519+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.519+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706211000a",
+									"kind": "ResourceDefinition",
+									"name": "accesscontrollist-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accesscontrollist-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accesscontrollist-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accesscontrollists",
+							"singular": "accesscontrollist",
+							"shortNames": [
+									"acl",
+									"acls"
+							],
+							"shortNamesAlias": [
+									"acl"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the AccessControlList."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the AccessControlList was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the AccessControlList."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the AccessControlList."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the AccessControlList."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "accesscontrollist-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accesscontrollist-integration",
+			"title": "accesscontrollist-integration",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37ba80003",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.552+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.552+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706838002d",
+									"kind": "ResourceDefinition",
+									"name": "accesscontrollist-integration",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accesscontrollist-integration",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accesscontrollist-integration"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accesscontrollists",
+							"singular": "accesscontrollist",
+							"shortNames": [
+									"acl",
+									"acls"
+							],
+							"shortNamesAlias": [
+									"acl"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the AccessControlList."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the AccessControlList was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the AccessControlList."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the AccessControlList."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the AccessControlList."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "accesscontrollist-integration"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accesscontrollist-k8scluster",
+			"title": "accesscontrollist-k8scluster",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37bc30005",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.579+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.579+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7066cb0023",
+									"kind": "ResourceDefinition",
+									"name": "accesscontrollist-k8scluster",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accesscontrollist-k8scluster",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accesscontrollist-k8scluster"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accesscontrollists",
+							"singular": "accesscontrollist",
+							"shortNames": [
+									"acl",
+									"acls"
+							],
+							"shortNamesAlias": [
+									"acl"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the AccessControlList."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the AccessControlList was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the AccessControlList."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the AccessControlList."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the AccessControlList."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "accesscontrollist-k8scluster"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accesscontrollist-watchtopic",
+			"title": "accesscontrollist-watchtopic",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37bdf0007",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.607+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.607+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706a36003c",
+									"kind": "ResourceDefinition",
+									"name": "accesscontrollist-watchtopic",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accesscontrollist-watchtopic",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accesscontrollist-watchtopic"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accesscontrollists",
+							"singular": "accesscontrollist",
+							"shortNames": [
+									"acl",
+									"acls"
+							],
+							"shortNamesAlias": [
+									"acl"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the AccessControlList."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the AccessControlList was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the AccessControlList."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the AccessControlList."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the AccessControlList."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "accesscontrollist-watchtopic"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accesscontrollist-environment",
+			"title": "accesscontrollist-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37bf60009",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.630+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.630+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7069a80038",
+									"kind": "ResourceDefinition",
+									"name": "accesscontrollist-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accesscontrollist-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accesscontrollist-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accesscontrollists",
+							"singular": "accesscontrollist",
+							"shortNames": [
+									"acl",
+									"acls"
+							],
+							"shortNamesAlias": [
+									"acl"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the AccessControlList."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the AccessControlList was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the AccessControlList."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the AccessControlList."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the AccessControlList."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "accesscontrollist-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accesscontrollist-mesh",
+			"title": "accesscontrollist-mesh",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37c11000b",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.657+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.657+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70686a002e",
+									"kind": "ResourceDefinition",
+									"name": "accesscontrollist-mesh",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accesscontrollist-mesh",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accesscontrollist-mesh"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accesscontrollists",
+							"singular": "accesscontrollist",
+							"shortNames": [
+									"acl",
+									"acls"
+							],
+							"shortNamesAlias": [
+									"acl"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the AccessControlList."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the AccessControlList was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the AccessControlList."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the AccessControlList."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the AccessControlList."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "accesscontrollist-mesh"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accesscontrollist-virtualapi",
+			"title": "accesscontrollist-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37c29000d",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.681+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.681+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706afc0042",
+									"kind": "ResourceDefinition",
+									"name": "accesscontrollist-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accesscontrollist-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accesscontrollist-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accesscontrollists",
+							"singular": "accesscontrollist",
+							"shortNames": [
+									"acl",
+									"acls"
+							],
+							"shortNamesAlias": [
+									"acl"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the AccessControlList."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the AccessControlList was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the AccessControlList."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the AccessControlList."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the AccessControlList."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "accesscontrollist-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "webhook-environment",
+			"title": "webhook-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37c42000f",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.706+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.706+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7061940008",
+									"kind": "ResourceDefinition",
+									"name": "webhook-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/webhook-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/webhook-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "webhooks",
+							"singular": "webhook",
+							"shortNames": [
+									"wh",
+									"whs"
+							],
+							"shortNamesAlias": [
+									"webh"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Webhook."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Webhook was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Webhook."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Webhook."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Webhook."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the Webhook."
+							}
+					],
+					"resourceDefinition": "webhook-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "webhook-integration",
+			"title": "webhook-integration",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37c590011",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.729+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.729+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7066040020",
+									"kind": "ResourceDefinition",
+									"name": "webhook-integration",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/webhook-integration",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/webhook-integration"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "webhooks",
+							"singular": "webhook",
+							"shortNames": [
+									"wh",
+									"whs"
+							],
+							"shortNamesAlias": [
+									"webh"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Webhook."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Webhook was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Webhook."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Webhook."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Webhook."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the Webhook."
+							}
+					],
+					"resourceDefinition": "webhook-integration"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "ampruntimeconfig-environment",
+			"title": "ampruntimeconfig-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37c760013",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.758+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.758+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7069520035",
+									"kind": "ResourceDefinition",
+									"name": "ampruntimeconfig-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/ampruntimeconfig-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/ampruntimeconfig-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "ampruntimeconfigs",
+							"singular": "ampruntimeconfig",
+							"shortNames": [
+									"amprtcfg"
+							],
+							"shortNamesAlias": [
+									"amprtcfg"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.name",
+									"description": "The resource status."
+							}
+					],
+					"resourceDefinition": "ampruntimeconfig-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "credentialrequestdefinition-environment",
+			"title": "credentialrequestdefinition-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37c8c0015",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.780+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.780+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7069330034",
+									"kind": "ResourceDefinition",
+									"name": "credentialrequestdefinition-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/credentialrequestdefinition-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/credentialrequestdefinition-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "credentialrequestdefinitions",
+							"singular": "credentialrequestdefinition",
+							"shortNames": [
+									"credreqdef",
+									"credreqdefs"
+							],
+							"shortNamesAlias": [
+									"credreqdef"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the CredentialRequestDefinition."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the CredentialRequestDefinition was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the CredentialRequestDefinition."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the CredentialRequestDefinition."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the CredentialRequestDefinition."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "credentialrequestdefinition-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "apispec-k8scluster",
+			"title": "apispec-k8scluster",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37ca10017",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.801+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.801+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7064660015",
+									"kind": "ResourceDefinition",
+									"name": "apispec-k8scluster",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/apispec-k8scluster",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/apispec-k8scluster"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "apispecs",
+							"singular": "apispec",
+							"shortNames": [
+									"apispec",
+									"apispecs"
+							],
+							"shortNamesAlias": [
+									"apisp"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "apispec-k8scluster"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "governanceagent-environment",
+			"title": "governanceagent-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37cb60019",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.822+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.822+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706550001b",
+									"kind": "ResourceDefinition",
+									"name": "governanceagent-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/governanceagent-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/governanceagent-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "governanceagents",
+							"singular": "governanceagent",
+							"shortNames": [
+									"ga",
+									"gas"
+							],
+							"shortNamesAlias": [
+									"ga"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the governance agent."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the governance agent was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the governance agent."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the governance agent."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the governance agent."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the governance agent."
+							},
+							{
+									"name": "Dataplane Type",
+									"type": "string",
+									"jsonPath": ".spec.dataplaneType",
+									"description": "The dataplane type the agent connects to."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.state",
+									"description": "The current status of the governance agent."
+							}
+					],
+					"resourceDefinition": "governanceagent-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "managedapplication-environment",
+			"title": "managedapplication-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37ccb001b",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.843+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.843+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7064b40017",
+									"kind": "ResourceDefinition",
+									"name": "managedapplication-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/managedapplication-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/managedapplication-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "managedapplications",
+							"singular": "managedapplication",
+							"shortNames": [
+									"managedapp",
+									"managedapps"
+							],
+							"shortNamesAlias": [
+									"managedapp"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the ManagedApplication."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the ManagedApplication was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the ManagedApplication."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The ManagedApplication kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the ManagedApplication."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the ManagedApplication."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.level",
+									"description": "The resource status."
+							}
+					],
+					"resourceDefinition": "managedapplication-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "resourcehook-integration",
+			"title": "resourcehook-integration",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37ce0001d",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.864+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.864+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7069850037",
+									"kind": "ResourceDefinition",
+									"name": "resourcehook-integration",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/resourcehook-integration",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/resourcehook-integration"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "resourcehooks",
+							"singular": "resourcehook",
+							"shortNames": [
+									"reshook"
+							],
+							"shortNamesAlias": [
+									"resourceh"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource Hook."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource Hook was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource Hook."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource Hook."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource Hook."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "resourcehook-integration"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "externalsecret-environment",
+			"title": "externalsecret-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37cf7001f",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.887+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.887+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7067710028",
+									"kind": "ResourceDefinition",
+									"name": "externalsecret-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/externalsecret-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/externalsecret-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "externalsecrets",
+							"singular": "externalsecret",
+							"shortNames": [
+									"externalsecret",
+									"xsecret"
+							],
+							"shortNamesAlias": [
+									"externalsecret"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "externalsecret-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "externalsecret-virtualapi",
+			"title": "externalsecret-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37d0e0021",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.910+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.910+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7068c60030",
+									"kind": "ResourceDefinition",
+									"name": "externalsecret-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/externalsecret-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/externalsecret-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "externalsecrets",
+							"singular": "externalsecret",
+							"shortNames": [
+									"externalsecret",
+									"xsecret"
+							],
+							"shortNamesAlias": [
+									"externalsecret"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "externalsecret-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "externalsecret-virtualapirelease",
+			"title": "externalsecret-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37d240023",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.932+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.932+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7062ef000e",
+									"kind": "ResourceDefinition",
+									"name": "externalsecret-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/externalsecret-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/externalsecret-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "externalsecrets",
+							"singular": "externalsecret",
+							"shortNames": [
+									"externalsecret",
+									"xsecret"
+							],
+							"shortNamesAlias": [
+									"externalsecret"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "externalsecret-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "credential-environment",
+			"title": "credential-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37d390025",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.953+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.953+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706888002f",
+									"kind": "ResourceDefinition",
+									"name": "credential-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/credential-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/credential-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "credentials",
+							"singular": "credential",
+							"shortNames": [
+									"cred",
+									"creds"
+							],
+							"shortNamesAlias": [
+									"cred"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Credential."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Credential was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Credential."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Credential kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Credential."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Credential."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.level",
+									"description": "The Credential status."
+							}
+					],
+					"resourceDefinition": "credential-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accessrequestdefinition-environment",
+			"title": "accessrequestdefinition-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37d4f0027",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.975+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.975+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7068e80031",
+									"kind": "ResourceDefinition",
+									"name": "accessrequestdefinition-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accessrequestdefinition-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accessrequestdefinition-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accessrequestdefinitions",
+							"singular": "accessrequestdefinition",
+							"shortNames": [
+									"accreqdef"
+							],
+							"shortNamesAlias": [
+									"accreqdef"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "accessrequestdefinition-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "ratelimitrule-virtualapi",
+			"title": "ratelimitrule-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37d650029",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:28.997+0000",
+							"modifyTimestamp": "2023-03-02T20:11:28.997+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706576001c",
+									"kind": "ResourceDefinition",
+									"name": "ratelimitrule-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/ratelimitrule-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/ratelimitrule-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "ratelimitrules",
+							"singular": "ratelimitrule",
+							"shortNames": [
+									"ratelimit"
+							],
+							"shortNamesAlias": [
+									"ratelimit"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "ratelimitrule-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "ratelimitrule-virtualapirelease",
+			"title": "ratelimitrule-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37d7b002b",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.019+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.019+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70611b0005",
+									"kind": "ResourceDefinition",
+									"name": "ratelimitrule-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/ratelimitrule-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/ratelimitrule-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "ratelimitrules",
+							"singular": "ratelimitrule",
+							"shortNames": [
+									"ratelimit"
+							],
+							"shortNamesAlias": [
+									"ratelimit"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "ratelimitrule-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "releasetag-virtualapi",
+			"title": "releasetag-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37d90002d",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.040+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.040+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7069e6003a",
+									"kind": "ResourceDefinition",
+									"name": "releasetag-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/releasetag-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/releasetag-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "releasetags",
+							"singular": "releasetag",
+							"shortNames": [
+									"releasetag",
+									"releasetags"
+							],
+							"shortNamesAlias": [
+									"releasetag"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Release Tag."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Release Tag was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Release Tag."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The kind of the scope of the resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The name of the resource this Release Tag belongs to."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.level",
+									"description": "The status of the Resource."
+							}
+					],
+					"resourceDefinition": "releasetag-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "assetmapping-environment",
+			"title": "assetmapping-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37da6002f",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.062+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.062+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70627c000c",
+									"kind": "ResourceDefinition",
+									"name": "assetmapping-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/assetmapping-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/assetmapping-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "assetmappings",
+							"singular": "assetmapping",
+							"shortNames": [
+									"assetmapping",
+									"assetmappings"
+							],
+							"shortNamesAlias": [
+									"assetmpng"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "assetmapping-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "meshworkload-mesh",
+			"title": "meshworkload-mesh",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37dc40031",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.092+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.092+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70643f0014",
+									"kind": "ResourceDefinition",
+									"name": "meshworkload-mesh",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/meshworkload-mesh",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/meshworkload-mesh"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "meshworkloads",
+							"singular": "meshworkload",
+							"shortNames": [
+									"meshworkload",
+									"meshworkloads"
+							],
+							"shortNamesAlias": [
+									"meshwrk"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the mesh workload."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the mesh was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the mesh workload."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "meshworkload-mesh"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "oas3document-virtualapi",
+			"title": "oas3document-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37ddd0033",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.116+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.116+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7060ef0004",
+									"kind": "ResourceDefinition",
+									"name": "oas3document-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/oas3document-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/oas3document-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "oas3documents",
+							"singular": "oas3document",
+							"shortNames": [
+									"oas3"
+							],
+							"shortNamesAlias": []
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "oas3document-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "oas3document-virtualapirelease",
+			"title": "oas3document-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37df10035",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.137+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.137+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7063fb0013",
+									"kind": "ResourceDefinition",
+									"name": "oas3document-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/oas3document-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/oas3document-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "oas3documents",
+							"singular": "oas3document",
+							"shortNames": [
+									"oas3"
+							],
+							"shortNamesAlias": []
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "oas3document-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "apikeyauthrule-virtualapi",
+			"title": "apikeyauthrule-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37e040037",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.156+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.156+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7061de0009",
+									"kind": "ResourceDefinition",
+									"name": "apikeyauthrule-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/apikeyauthrule-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/apikeyauthrule-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "apikeyauthrules",
+							"singular": "apikeyauthrule",
+							"shortNames": [
+									"akar",
+									"apikeyauth",
+									"apikeyauthrule"
+							],
+							"shortNamesAlias": [
+									"apikeyauthrules"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "apikeyauthrule-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "apikeyauthrule-virtualapirelease",
+			"title": "apikeyauthrule-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37e160039",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.174+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.174+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706abe0040",
+									"kind": "ResourceDefinition",
+									"name": "apikeyauthrule-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/apikeyauthrule-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/apikeyauthrule-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "apikeyauthrules",
+							"singular": "apikeyauthrule",
+							"shortNames": [
+									"akar",
+									"apikeyauth",
+									"apikeyauthrule"
+							],
+							"shortNamesAlias": [
+									"apikeyauthrules"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "apikeyauthrule-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "specdiscovery-k8scluster",
+			"title": "specdiscovery-k8scluster",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37e29003b",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.193+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.193+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706316000f",
+									"kind": "ResourceDefinition",
+									"name": "specdiscovery-k8scluster",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/specdiscovery-k8scluster",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/specdiscovery-k8scluster"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "specdiscoveries",
+							"singular": "specdiscovery",
+							"shortNames": [
+									"specdisc",
+									"specdiscs"
+							],
+							"shortNamesAlias": [
+									"specd"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "specdiscovery-k8scluster"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "dataplane-environment",
+			"title": "dataplane-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37e3c003d",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.212+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.212+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac996f785cb7a200185cb7b4d760000",
+									"kind": "ResourceDefinition",
+									"name": "dataplane-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/dataplane-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/dataplane-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "dataplanes",
+							"singular": "dataplane",
+							"shortNames": [
+									"dp"
+							],
+							"shortNamesAlias": [
+									"dp"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the dataplane."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the data plane was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the data plane."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the dataplane."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the dataplane."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the dataplane."
+							},
+							{
+									"name": "Dataplane Type",
+									"type": "string",
+									"jsonPath": ".spec.dataplaneType",
+									"description": "The dataplane type the agent connects to."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.level",
+									"description": "The resource status."
+							}
+					],
+					"resourceDefinition": "dataplane-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "discoveryagent-environment",
+			"title": "discoveryagent-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37e51003f",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.233+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.233+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7066f20024",
+									"kind": "ResourceDefinition",
+									"name": "discoveryagent-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/discoveryagent-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/discoveryagent-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "discoveryagents",
+							"singular": "discoveryagent",
+							"shortNames": [
+									"da",
+									"das"
+							],
+							"shortNamesAlias": [
+									"da"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the discovery agent."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the discovery agent was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the discovery agent."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the discovery agent."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the discovery agent."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the discovery agent."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.level",
+									"description": "The resource status."
+							}
+					],
+					"resourceDefinition": "discoveryagent-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "apiservice-environment",
+			"title": "apiservice-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37e660041",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.254+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.254+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7063cf0012",
+									"kind": "ResourceDefinition",
+									"name": "apiservice-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/apiservice-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/apiservice-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "apiservices",
+							"singular": "apiservice",
+							"shortNames": [
+									"apisvc",
+									"apisvcs"
+							],
+							"shortNamesAlias": [
+									"apis"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the API Service."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the API Service was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the API Service."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the API Service."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the API Service."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							},
+							{
+									"name": "Owner",
+									"type": "teamGuid",
+									"jsonPath": ".owner.id",
+									"description": "The owner name."
+							}
+					],
+					"resourceDefinition": "apiservice-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "virtualservice-virtualapi",
+			"title": "virtualservice-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37e800043",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.280+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.280+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706a06003b",
+									"kind": "ResourceDefinition",
+									"name": "virtualservice-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualservice-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/virtualservice-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "virtualservices",
+							"singular": "virtualservice",
+							"shortNames": [
+									"virtualservice",
+									"virtualservices"
+							],
+							"shortNamesAlias": [
+									"virtualservices"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "virtualservice-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "virtualservice-virtualapirelease",
+			"title": "virtualservice-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37e960045",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.302+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.302+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70650c0019",
+									"kind": "ResourceDefinition",
+									"name": "virtualservice-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualservice-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/virtualservice-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "virtualservices",
+							"singular": "virtualservice",
+							"shortNames": [
+									"virtualservice",
+									"virtualservices"
+							],
+							"shortNamesAlias": [
+									"virtualservices"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "virtualservice-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "ampconfig-environment",
+			"title": "ampconfig-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37eb00047",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.327+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.327+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706241000b",
+									"kind": "ResourceDefinition",
+									"name": "ampconfig-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/ampconfig-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/ampconfig-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "ampconfigs",
+							"singular": "ampconfig",
+							"shortNames": [
+									"ampcfg"
+							],
+							"shortNamesAlias": [
+									"ampcfg"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "ampconfig-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "consumerinstance-environment",
+			"title": "consumerinstance-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37ecb0049",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.355+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.355+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7064e70018",
+									"kind": "ResourceDefinition",
+									"name": "consumerinstance-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/consumerinstance-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/consumerinstance-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "consumerinstances",
+							"singular": "consumerinstance",
+							"shortNames": [
+									"consinst",
+									"consinsts"
+							],
+							"shortNamesAlias": [
+									"consumeri"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Consumer Instance."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Consumer Instance was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Consumer Instance."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Consumer Instance."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Consumer Instance."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "consumerinstance-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "amplifyoauth2authrule-virtualapi",
+			"title": "amplifyoauth2authrule-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37ee4004b",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.380+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.380+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706ae40041",
+									"kind": "ResourceDefinition",
+									"name": "amplifyoauth2authrule-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/amplifyoauth2authrule-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/amplifyoauth2authrule-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "amplifyoauth2authrules",
+							"singular": "amplifyoauth2authrule",
+							"shortNames": [
+									"amplifyoauth2",
+									"ampoauth2"
+							],
+							"shortNamesAlias": [
+									"amplifyoauth2authrules"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "amplifyoauth2authrule-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "amplifyoauth2authrule-virtualapirelease",
+			"title": "amplifyoauth2authrule-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37efa004d",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.402+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.402+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706594001d",
+									"kind": "ResourceDefinition",
+									"name": "amplifyoauth2authrule-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/amplifyoauth2authrule-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/amplifyoauth2authrule-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "amplifyoauth2authrules",
+							"singular": "amplifyoauth2authrule",
+							"shortNames": [
+									"amplifyoauth2",
+									"ampoauth2"
+							],
+							"shortNamesAlias": [
+									"amplifyoauth2authrules"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "amplifyoauth2authrule-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "secret-environment",
+			"title": "secret-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37f0f004f",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.423+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.423+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70681a002c",
+									"kind": "ResourceDefinition",
+									"name": "secret-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/secret-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/secret-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "secrets",
+							"singular": "secret",
+							"shortNames": [],
+							"shortNamesAlias": [
+									"secret"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Secret."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Secret was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Secret."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Secret."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Secret."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the Secret."
+							}
+					],
+					"resourceDefinition": "secret-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "secret-integration",
+			"title": "secret-integration",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37f2f0051",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.455+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.455+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7061390006",
+									"kind": "ResourceDefinition",
+									"name": "secret-integration",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/secret-integration",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/secret-integration"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "secrets",
+							"singular": "secret",
+							"shortNames": [],
+							"shortNamesAlias": [
+									"secret"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Secret."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Secret was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Secret."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Secret."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Secret."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the Secret."
+							}
+					],
+					"resourceDefinition": "secret-integration"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "corsrule-virtualapi",
+			"title": "corsrule-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37f430053",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.475+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.475+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706b280043",
+									"kind": "ResourceDefinition",
+									"name": "corsrule-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/corsrule-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/corsrule-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "corsrules",
+							"singular": "corsrule",
+							"shortNames": [
+									"cors"
+							],
+							"shortNamesAlias": []
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Rule."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Rule was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Rule."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The VirtualAPI."
+							}
+					],
+					"resourceDefinition": "corsrule-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "corsrule-virtualapirelease",
+			"title": "corsrule-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37f570055",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.495+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.495+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7069cf0039",
+									"kind": "ResourceDefinition",
+									"name": "corsrule-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/corsrule-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/corsrule-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "corsrules",
+							"singular": "corsrule",
+							"shortNames": [
+									"cors"
+							],
+							"shortNamesAlias": []
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Rule."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Rule was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Rule."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The VirtualAPI."
+							}
+					],
+					"resourceDefinition": "corsrule-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "dataplanesecret-environment",
+			"title": "dataplanesecret-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37f6a0057",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.514+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.514+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac98a80867f15ae01867f16e8950000",
+									"kind": "ResourceDefinition",
+									"name": "dataplanesecret-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/dataplanesecret-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/dataplanesecret-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "dataplanesecrets",
+							"singular": "dataplanesecret",
+							"shortNames": [
+									"dps"
+							],
+							"shortNamesAlias": [
+									"dps"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the dataplane secret."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the dataplane secret was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the dataplane secret."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the dataplane secret."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the dataplane secret."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the dataplane secret."
+							}
+					],
+					"resourceDefinition": "dataplanesecret-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "apiservicerevision-environment",
+			"title": "apiservicerevision-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37f7d0059",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.533+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.533+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7067fb002b",
+									"kind": "ResourceDefinition",
+									"name": "apiservicerevision-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/apiservicerevision-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/apiservicerevision-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "apiservicerevisions",
+							"singular": "apiservicerevision",
+							"shortNames": [
+									"apisvcrev",
+									"apisvcrevs"
+							],
+							"shortNamesAlias": [
+									"apisr"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the API Service Revision."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the API Service Revision was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the API Service Revision."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the API Service Revision."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the API Service Revision."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "apiservicerevision-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "meshdiscovery-mesh",
+			"title": "meshdiscovery-mesh",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37f90005b",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.552+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.552+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7067140025",
+									"kind": "ResourceDefinition",
+									"name": "meshdiscovery-mesh",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/meshdiscovery-mesh",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/meshdiscovery-mesh"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "meshdiscoveries",
+							"singular": "meshdiscovery",
+							"shortNames": [
+									"meshdisc",
+									"meshdiscs"
+							],
+							"shortNamesAlias": [
+									"meshd"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "meshdiscovery-mesh"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "accessrequest-environment",
+			"title": "accessrequest-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37fa6005d",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.574+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.574+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c706a52003d",
+									"kind": "ResourceDefinition",
+									"name": "accessrequest-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/accessrequest-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/accessrequest-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "accessrequests",
+							"singular": "accessrequest",
+							"shortNames": [
+									"accessrequest"
+							],
+							"shortNamesAlias": [
+									"accreq"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.level",
+									"description": "The resource status."
+							}
+					],
+					"resourceDefinition": "accessrequest-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "virtualhost-environment",
+			"title": "virtualhost-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37fb9005f",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.593+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.593+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7060b90003",
+									"kind": "ResourceDefinition",
+									"name": "virtualhost-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualhost-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/virtualhost-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "virtualhosts",
+							"singular": "virtualhost",
+							"shortNames": [
+									"vhost"
+							],
+							"shortNamesAlias": [
+									"vhost"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "virtualhost-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "deployment-environment",
+			"title": "deployment-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37fce0061",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.613+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.613+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70675a0027",
+									"kind": "ResourceDefinition",
+									"name": "deployment-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/deployment-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/deployment-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "deployments",
+							"singular": "deployment",
+							"shortNames": [
+									"deploy"
+							],
+							"shortNamesAlias": [
+									"deploy"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.level",
+									"description": "The resource status."
+							},
+							{
+									"name": "State",
+									"type": "string",
+									"jsonPath": ".metadata.state",
+									"description": "The resource state."
+							}
+					],
+					"resourceDefinition": "deployment-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "consumersubscriptiondef-environment",
+			"title": "consumersubscriptiondef-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37fe30063",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.635+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.635+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7067870029",
+									"kind": "ResourceDefinition",
+									"name": "consumersubscriptiondef-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/consumersubscriptiondef-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/consumersubscriptiondef-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "consumersubscriptiondefs",
+							"singular": "consumersubscriptiondef",
+							"shortNames": [
+									"conssubcsrdef",
+									"conssubcsrdefs"
+							],
+							"shortNamesAlias": [
+									"consumersd"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Consumer Instance Subscription."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Consumer Instance Subscription was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Consumer Instance Subscription."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Consumer Instance Subscription."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Consumer Instance Subscription."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "consumersubscriptiondef-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "k8resource-k8scluster",
+			"title": "k8resource-k8scluster",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f37ff70065",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.655+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.655+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7065bb001e",
+									"kind": "ResourceDefinition",
+									"name": "k8resource-k8scluster",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/k8resource-k8scluster",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/k8resource-k8scluster"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "k8sresources",
+							"singular": "k8resource",
+							"shortNames": [
+									"k8sres"
+							],
+							"shortNamesAlias": [
+									"k8sr"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "k8resource-k8scluster"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "traceabilityagent-environment",
+			"title": "traceabilityagent-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f380250067",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.701+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.701+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7069090032",
+									"kind": "ResourceDefinition",
+									"name": "traceabilityagent-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/traceabilityagent-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/traceabilityagent-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "traceabilityagents",
+							"singular": "traceabilityagent",
+							"shortNames": [
+									"ta",
+									"tas"
+							],
+							"shortNamesAlias": [
+									"ta"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the traceability agent."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the traceability agent was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the traceability agent."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the traceability agent."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the traceability agent."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The group of the traceability agent."
+							},
+							{
+									"name": "Dataplane Type",
+									"type": "string",
+									"jsonPath": ".spec.dataplaneType",
+									"description": "The dataplane type the agent connects to."
+							},
+							{
+									"name": "Status",
+									"type": "string",
+									"jsonPath": ".status.state",
+									"description": "The current status of the traceability agent."
+							}
+					],
+					"resourceDefinition": "traceabilityagent-environment"
+			}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "complianceagent-environment",
+		"title": "complianceagent-environment",
+		"metadata": {
+				"id": "8ac996b686a3f2420186a3f380250067",
+				"audit": {
+						"createTimestamp": "2023-03-02T20:11:29.701+0000",
+						"modifyTimestamp": "2023-03-02T20:11:29.701+0000"
+				},
+				"scope": {
+						"id": "8ac985a3850c194c01850c705f980000",
+						"kind": "ResourceGroup",
+						"name": "management",
+						"title": "management",
+						"selfLink": "/definitions/v1alpha1/groups/management"
+				},
+				"acl": [],
+				"accessRights": {
+						"canChangeOwner": false,
+						"canDelete": false,
+						"canWrite": false,
+						"canRead": true
+				},
+				"resourceVersion": "0",
+				"references": [
+						{
+								"id": "8ac985a3850c194c01850c7069090032",
+								"kind": "ResourceDefinition",
+								"name": "complianceagent-environment",
+								"scopeKind": "ResourceGroup",
+								"scopeName": "management",
+								"selfLink": "/definitions/v1alpha1/groups/management/resources/complianceagent-environment",
+								"type": "hard",
+								"group": "definitions"
+						}
+				],
+				"selfLink": "/definitions/v1alpha1/groups/management/commandlines/complianceagent-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+				"names": {
+						"plural": "complianceagents",
+						"singular": "complianceagent",
+						"shortNames": [
+								"ca",
+								"cas"
+						],
+						"shortNamesAlias": [
+								"ca"
+						]
+				},
+				"columns": [
+						{
+								"name": "Name",
+								"type": "string",
+								"jsonPath": ".name",
+								"description": "The name of the compliance agent."
+						},
+						{
+								"name": "Age",
+								"type": "date",
+								"jsonPath": ".metadata.audit.createTimestamp",
+								"description": "The date when the compliance agent was created."
+						},
+						{
+								"name": "Title",
+								"type": "string",
+								"jsonPath": ".title",
+								"description": "The title of the compliance agent."
+						},
+						{
+								"name": "Resource Kind",
+								"type": "string",
+								"jsonPath": ".kind",
+								"description": "The resource kind."
+						},
+						{
+								"name": "Scope Kind",
+								"type": "string",
+								"jsonPath": ".metadata.scope.kind",
+								"description": "The scope kind of the compliance agent."
+						},
+						{
+								"name": "Scope Name",
+								"type": "string",
+								"jsonPath": ".metadata.scope.name",
+								"description": "The scope name of the compliance agent."
+						},
+						{
+								"name": "Resource Group",
+								"type": "string",
+								"jsonPath": ".group",
+								"description": "The group of the compliance agent."
+						},
+						{
+								"name": "Dataplane Type",
+								"type": "string",
+								"jsonPath": ".spec.dataplaneType",
+								"description": "The dataplane type the agent connects to."
+						},
+						{
+								"name": "Status",
+								"type": "string",
+								"jsonPath": ".status.state",
+								"description": "The current status of the compliance agent."
+						}
+				],
+				"resourceDefinition": "complianceagent-environment"
+		}
+},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "apiserviceinstance-environment",
+			"title": "apiserviceinstance-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f380410069",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.729+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.729+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70648b0016",
+									"kind": "ResourceDefinition",
+									"name": "apiserviceinstance-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/apiserviceinstance-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/apiserviceinstance-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "apiserviceinstances",
+							"singular": "apiserviceinstance",
+							"shortNames": [
+									"apisvcinst",
+									"apisvcinsts"
+							],
+							"shortNamesAlias": [
+									"apisi"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the API Service Instance."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the API Service Instance was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the API Service Instance."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the API Service Instance."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the API Service Instance."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "apiserviceinstance-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "amplifyjwtauthrule-virtualapi",
+			"title": "amplifyjwtauthrule-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f38062006b",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.762+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.762+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7067ba002a",
+									"kind": "ResourceDefinition",
+									"name": "amplifyjwtauthrule-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/amplifyjwtauthrule-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/amplifyjwtauthrule-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "amplifyjwtauthrules",
+							"singular": "amplifyjwtauthrule",
+							"shortNames": [
+									"ampjwt",
+									"amplifyjwt"
+							],
+							"shortNamesAlias": [
+									"amplifyjwtauthrules"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "amplifyjwtauthrule-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "amplifyjwtauthrule-virtualapirelease",
+			"title": "amplifyjwtauthrule-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f38088006d",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.800+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.800+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7061640007",
+									"kind": "ResourceDefinition",
+									"name": "amplifyjwtauthrule-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/amplifyjwtauthrule-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/amplifyjwtauthrule-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "amplifyjwtauthrules",
+							"singular": "amplifyjwtauthrule",
+							"shortNames": [
+									"ampjwt",
+									"amplifyjwt"
+							],
+							"shortNamesAlias": [
+									"amplifyjwtauthrules"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "amplifyjwtauthrule-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "resourcediscovery-k8scluster",
+			"title": "resourcediscovery-k8scluster",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f3809e006f",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.822+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.822+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7063420010",
+									"kind": "ResourceDefinition",
+									"name": "resourcediscovery-k8scluster",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/resourcediscovery-k8scluster",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/resourcediscovery-k8scluster"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "resourcediscoveries",
+							"singular": "resourcediscovery",
+							"shortNames": [
+									"resdisc",
+									"resdiscs"
+							],
+							"shortNamesAlias": [
+									"resourced"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "resourcediscovery-k8scluster"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "assetmappingtemplate-environment",
+			"title": "assetmappingtemplate-environment",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f380b10071",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.841+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.841+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7066210021",
+									"kind": "ResourceDefinition",
+									"name": "assetmappingtemplate-environment",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/assetmappingtemplate-environment",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/assetmappingtemplate-environment"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "assetmappingtemplates",
+							"singular": "assetmappingtemplate",
+							"shortNames": [
+									"assetmappingtemplate",
+									"assetmappingtemplates"
+							],
+							"shortNamesAlias": [
+									"assetmpngtmpl"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "assetmappingtemplate-environment"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "graphqldocument-virtualapi",
+			"title": "graphqldocument-virtualapi",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f380c50073",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.861+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.861+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7066990022",
+									"kind": "ResourceDefinition",
+									"name": "graphqldocument-virtualapi",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/graphqldocument-virtualapi",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/graphqldocument-virtualapi"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "graphqldocuments",
+							"singular": "graphqldocument",
+							"shortNames": [
+									"graphql"
+							],
+							"shortNamesAlias": []
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "graphqldocument-virtualapi"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "graphqldocument-virtualapirelease",
+			"title": "graphqldocument-virtualapirelease",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f380d70075",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.879+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.879+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c70652d001a",
+									"kind": "ResourceDefinition",
+									"name": "graphqldocument-virtualapirelease",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/graphqldocument-virtualapirelease",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/graphqldocument-virtualapirelease"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "graphqldocuments",
+							"singular": "graphqldocument",
+							"shortNames": [
+									"graphql"
+							],
+							"shortNamesAlias": []
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The Resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							}
+					],
+					"resourceDefinition": "graphqldocument-virtualapirelease"
+			}
+	},
+	{
+			"group": "definitions",
+			"apiVersion": "v1alpha1",
+			"kind": "CommandLineInterface",
+			"name": "meshservice-mesh",
+			"title": "meshservice-mesh",
+			"metadata": {
+					"id": "8ac996b686a3f2420186a3f380e90077",
+					"audit": {
+							"createTimestamp": "2023-03-02T20:11:29.897+0000",
+							"modifyTimestamp": "2023-03-02T20:11:29.897+0000"
+					},
+					"scope": {
+							"id": "8ac985a3850c194c01850c705f980000",
+							"kind": "ResourceGroup",
+							"name": "management",
+							"title": "management",
+							"selfLink": "/definitions/v1alpha1/groups/management"
+					},
+					"acl": [],
+					"accessRights": {
+							"canChangeOwner": false,
+							"canDelete": false,
+							"canWrite": false,
+							"canRead": true
+					},
+					"resourceVersion": "0",
+					"references": [
+							{
+									"id": "8ac985a3850c194c01850c7067320026",
+									"kind": "ResourceDefinition",
+									"name": "meshservice-mesh",
+									"scopeKind": "ResourceGroup",
+									"scopeName": "management",
+									"selfLink": "/definitions/v1alpha1/groups/management/resources/meshservice-mesh",
+									"type": "hard",
+									"group": "definitions"
+							}
+					],
+					"selfLink": "/definitions/v1alpha1/groups/management/commandlines/meshservice-mesh"
+			},
+			"attributes": {},
+			"finalizers": [],
+			"tags": [],
+			"spec": {
+					"names": {
+							"plural": "meshservices",
+							"singular": "meshservice",
+							"shortNames": [
+									"meshservice",
+									"meshservices"
+							],
+							"shortNamesAlias": [
+									"meshsvc"
+							]
+					},
+					"columns": [
+							{
+									"name": "Name",
+									"type": "string",
+									"jsonPath": ".name",
+									"description": "The name of the Resource."
+							},
+							{
+									"name": "Age",
+									"type": "date",
+									"jsonPath": ".metadata.audit.createTimestamp",
+									"description": "The date when the Resource was created."
+							},
+							{
+									"name": "Title",
+									"type": "string",
+									"jsonPath": ".title",
+									"description": "The title of the Resource."
+							},
+							{
+									"name": "Resource Kind",
+									"type": "string",
+									"jsonPath": ".kind",
+									"description": "The resource kind."
+							},
+							{
+									"name": "Scope Kind",
+									"type": "string",
+									"jsonPath": ".metadata.scope.kind",
+									"description": "The scope kind of the Resource."
+							},
+							{
+									"name": "Scope Name",
+									"type": "string",
+									"jsonPath": ".metadata.scope.name",
+									"description": "The scope name of the Resource."
+							},
+							{
+									"name": "Resource Group",
+									"type": "string",
+									"jsonPath": ".group",
+									"description": "The resource group."
+							}
+					],
+					"resourceDefinition": "meshservice-mesh"
+			}
+	}
+]

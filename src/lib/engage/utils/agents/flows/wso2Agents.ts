@@ -1,5 +1,4 @@
-import { InstallationFlowMethods, svcAccMsg } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, PublicDockerRepoBaseUrl } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg } from '../../../types.js';
 import { askInput, askList, validateRegex } from '../../basic-prompts.js';
 import { WSO2AgentValues, wso2DAEnvVarTemplate, wso2TAEnvVarTemplate } from '../templates/wso2Templates.js';
 import * as helpers from '../index.js';

@@ -1,5 +1,4 @@
-import { InstallationFlowMethods, svcAccMsg } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, PublicDockerRepoBaseUrl, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList } from '../../basic-prompts.js';
 import { SAPApiPortalAgentValues, sapAPIPortalDAEnvVarTemplate, sapAPIPortalTAEnvVarTemplate } from '../templates/sapApiPortalTemplates.js';
 import * as helpers from '../index.js';

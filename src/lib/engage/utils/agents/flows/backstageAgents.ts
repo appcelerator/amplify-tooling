@@ -1,5 +1,4 @@
-import { InstallationFlowMethods, svcAccMsg } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, PublicDockerRepoBaseUrl } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg } from '../../../types.js';
 import { askInput, askList } from '../../basic-prompts.js';
 import { AuthMode, BackstageAgentValues, backstageDAEnvVarTemplate, UrlScheme } from '../templates/backstageTemplates.js';
 import * as helpers from '../index.js';

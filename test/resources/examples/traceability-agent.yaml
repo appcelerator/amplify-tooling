@@ -1,0 +1,13 @@
+group: management
+apiVersion: v1alpha1
+kind: TraceabilityAgent
+name: v7-traceability-agent
+title: V7 Traceability Agent
+metadata:
+  scope:
+    kind: Environment
+    name: v7-agents
+spec:
+  config:
+    owningTeam: Default Team
+  dataplaneType: Edge

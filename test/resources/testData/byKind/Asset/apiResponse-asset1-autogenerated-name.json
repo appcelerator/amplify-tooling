@@ -1,0 +1,27 @@
+{
+	"group": "catalog",
+	"apiVersion": "v1alpha1",
+	"kind": "Asset",
+	"name": "lksdjfoiu342ojk",
+	"title": "title 111",
+	"metadata": {
+		"id": "8a0789c67c7ab740017c99ef35cd00ce",
+		"audit": {
+			"createTimestamp": "2021-10-19T19:02:43.405+0000",
+			"createUserId": "dddf8685-bfd1-4b1b-807b-f20619372492",
+			"modifyTimestamp": "2021-10-19T19:02:43.405+0000",
+			"modifyUserId": "dddf8685-bfd1-4b1b-807b-f20619372492"
+		},
+		"references": [],
+		"selfLink": "/catalog/v1alpha1/assets/lksdjfoiu342ojk"
+	},
+	"attributes": {},
+	"finalizers": [],
+	"tags": [],
+	"spec": {
+		"type": "API"
+	},
+	"icon": "data:image/svg+xml;base64,111",
+	"state": "state 111",
+	"x-custom": 111
+}

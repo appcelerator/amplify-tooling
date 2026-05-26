@@ -1,0 +1,36 @@
+---
+apiVersion: v1alpha1
+title: apisvc1 title
+name: apisvc1
+kind: APIService
+metadata:
+  scope:
+    id: "e4e086956ec6923b016ed352b2cf01f4"
+    kind: Environment
+    name: env1
+attributes:
+  createdBy: yaml
+tags:
+  - apisvc
+  - cli
+  - axway
+spec:
+  description: api service 1 description
+
+---
+apiVersion: v1alpha1
+title: apisvc2 title
+name: apisvc2
+kind: APIService
+attributes:
+  createdBy: yaml
+tags:
+  - axway
+  - cli
+  - apisvc
+metadata:
+  scope:
+    kind: Environment
+    name: env2
+spec:
+  description: api service 2 description

@@ -1,0 +1,65 @@
+[
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceGroup",
+		"name": "management",
+		"title": "management",
+		"metadata": {
+			"id": "e4e08f487156b7c8017156b9ed930000",
+			"audit": {
+				"createTimestamp": "2020-04-07T22:19:17.851+0000",
+				"modifyTimestamp": "2020-04-07T22:19:17.851+0000"
+			},
+			"resourceVersion": "1607",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceGroup",
+		"name": "definitions",
+		"title": "definitions",
+		"metadata": {
+			"id": "e4e08f487156b7c8017156b9ee220001",
+			"audit": {
+				"createTimestamp": "2020-04-07T22:19:17.936+0000",
+				"modifyTimestamp": "2020-04-07T22:19:17.936+0000"
+			},
+			"resourceVersion": "1608",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/definitions"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceGroup",
+		"name": "catalog",
+		"title": "catalog",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc23cb0000",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:15.722+0000",
+				"modifyTimestamp": "2021-03-27T00:01:15.722+0000"
+			},
+			"resourceVersion": "284679",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {}
+	}
+]

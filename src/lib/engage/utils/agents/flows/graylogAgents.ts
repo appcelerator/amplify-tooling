@@ -1,6 +1,5 @@
 import chalk from 'chalk';
-import { InstallationFlowMethods } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BundleType, GatewayTypes } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BundleType, GatewayTypes, InstallationFlowMethods } from '../../../types.js';
 import { askInput, validateRegex } from '../../basic-prompts.js';
 import { AgentHelmInfo, helmImageSecretInfo, helmInstallInfo, writeTemplates } from '../../utils.js';
 import { GraylogAgentValues } from '../index.js';

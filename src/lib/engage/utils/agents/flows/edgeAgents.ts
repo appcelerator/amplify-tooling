@@ -1,8 +1,7 @@
 import chalk from 'chalk';
 import fs from 'fs';
 import { dataService } from '../../../../request.js';
-import { InstallationFlowMethods, localhost, svcAccMsg } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, LoggingSource, PublicDockerRepoBaseUrl, PublicRepoUrl, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, localhost, LoggingSource, PublicDockerRepoBaseUrl, PublicRepoUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, askUsernameAndPassword } from '../../basic-prompts.js';
 import { writeTemplates, isWindows, AgentHelmInfo, helmImageSecretInfo, helmInstallInfo } from '../../utils.js';
 import { V7AgentValues } from '../index.js';

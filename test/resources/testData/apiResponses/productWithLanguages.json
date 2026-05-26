@@ -1,0 +1,138 @@
+[
+    {
+        "group": "catalog",
+        "apiVersion": "v1alpha1",
+        "kind": "Product",
+        "name": "test-product-1",
+        "title": "test-product-1",
+        "metadata": {
+            "id": "8a2e8aaa9126f35801912dd66cbe4517",
+            "audit": {
+                "createTimestamp": "2024-08-07T17:15:12.958+0000",
+                "createUserId": "bef7b97d-9637-4dc5-87e1-38c7ba63dca9",
+                "modifyTimestamp": "2024-08-07T17:15:14.536+0000",
+                "modifyUserId": "bef7b97d-9637-4dc5-87e1-38c7ba63dca9"
+            },
+            "acl": [],
+            "accessRights": {
+                "canChangeOwner": true,
+                "canDelete": true,
+                "canWrite": true,
+                "canRead": true
+            },
+            "resourceVersion": "3",
+            "references": [
+                {
+                    "id": "8a2e83f29127009001912dd66f1a63b7",
+                    "kind": "ReleaseTag",
+                    "name": "test-product-1",
+                    "scopeKind": "Product",
+                    "scopeName": "test-product-1",
+                    "selfLink": "/catalog/v1alpha1/products/test-product-1/releasetags/test-product-1",
+                    "type": "soft",
+                    "group": "catalog"
+                },
+                {
+                    "id": "8a2e89ce9126f24c01912dd66fe746c6",
+                    "kind": "ProductRelease",
+                    "name": "test-product-1-1.0.0",
+                    "selfLink": "/catalog/v1/productreleases/test-product-1-1.0.0",
+                    "type": "soft",
+                    "group": "catalog"
+                }
+            ],
+            "selfLink": "/catalog/v1alpha1/products/test-product-1"
+        },
+        "attributes": {},
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "assets": [],
+            "categories": []
+        },
+        "latestrelease": {
+            "name": "test-product-1-1.0.0",
+            "tagName": "test-product-1/test-product-1",
+            "version": "1.0.0"
+        },
+        "references": {
+            "assets": [],
+            "marketplaces": []
+        },
+        "state": "active",
+        "languages": {
+            "resource": {
+                "code": "fr-fr"
+            },
+            "metadata": {
+                "additional": [
+                    {
+                        "code": "de-de",
+                        "status": "complete"
+                    }
+                ],
+                "audit": {
+                    "createTimestamp": "2024-08-07T17:15:14.536+0000",
+                    "createUserId": "bef7b97d-9637-4dc5-87e1-38c7ba63dca9",
+                    "modifyTimestamp": "2024-08-07T17:15:14.536+0000",
+                    "modifyUserId": "bef7b97d-9637-4dc5-87e1-38c7ba63dca9"
+                }
+            }
+        },
+        "languages-de-de": {
+            "metadata": {
+                "code": "de-de",
+                "status": "complete",
+                "audit": {
+                    "createTimestamp": "2024-08-07T17:30:16.042+0000",
+                    "createUserId": "bef7b97d-9637-4dc5-87e1-38c7ba63dca9",
+                    "modifyTimestamp": "2024-08-07T17:30:40.905+0000",
+                    "modifyUserId": "bef7b97d-9637-4dc5-87e1-38c7ba63dca9"
+                }
+            },
+            "values": [
+                {
+                    "path": "/title",
+                    "value": "La souscription demande un identifiant de département",
+                    "status": "complete"
+                }
+            ]
+        },
+        "languages-en-us": {
+            "metadata": {
+                "code": "en-us",
+                "status": "undefined"
+            },
+            "values": [
+                {
+                    "path": "/title",
+                    "status": "undefined"
+                }
+            ]
+        },
+        "languages-pt-br": {
+            "metadata": {
+                "code": "pt-br",
+                "status": "undefined"
+            },
+            "values": [
+                {
+                    "path": "/title",
+                    "status": "undefined"
+                }
+            ]
+        },
+        "languages-fr-fr": {
+            "metadata": {
+                "code": "fr-fr",
+                "status": "undefined"
+            },
+            "values": [
+                {
+                    "path": "/title",
+                    "status": "undefined"
+                }
+            ]
+        }
+    }
+]

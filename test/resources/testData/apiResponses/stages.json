@@ -1,0 +1,58 @@
+[
+	{
+		"group": "catalog",
+		"apiVersion": "v1alpha1",
+		"kind": "Stage",
+		"name": "test",
+		"title": "Postman APIS Sample for promoting to Amplify Marketplace",
+		"metadata": {
+			"id": "8ac9890179baae620179bac6865900a5",
+			"audit": {
+				"createTimestamp": "2021-05-30T00:57:23.289+0000",
+				"createUserId": "197a23b1-a64b-46d7-a351-89425ef6079a",
+				"modifyTimestamp": "2021-05-30T00:57:23.289+0000",
+				"modifyUserId": "197a23b1-a64b-46d7-a351-89425ef6079a"
+			},
+			"resourceVersion": "0",
+			"references": [],
+			"selfLink": "/catalog/v1alpha1/stages/test"
+		},
+		"attributes": {
+			"release": "1.0.0",
+			"location": "USA"
+		},
+		"finalizers": [],
+		"tags": ["axway", "saas"],
+		"spec": {
+			"description": "Group of APIs to get promoted to Amplify Marketplace"
+		}
+	},
+	{
+		"group": "catalog",
+		"apiVersion": "v1alpha1",
+		"kind": "Stage",
+		"name": "prod",
+		"title": "Postman APIS Sample for promoting to Amplify Marketplace",
+		"metadata": {
+			"id": "8ac9890179baae620179bac6865900a5",
+			"audit": {
+				"createTimestamp": "2021-05-30T00:57:23.289+0000",
+				"createUserId": "197a23b1-a64b-46d7-a351-89425ef6079a",
+				"modifyTimestamp": "2021-05-30T00:57:23.289+0000",
+				"modifyUserId": "197a23b1-a64b-46d7-a351-89425ef6079a"
+			},
+			"resourceVersion": "0",
+			"references": [],
+			"selfLink": "/catalog/v1alpha1/stages/test"
+		},
+		"attributes": {
+			"release": "1.0.0",
+			"location": "USA"
+		},
+		"finalizers": [],
+		"tags": ["axway", "saas"],
+		"spec": {
+			"description": "Group of APIs to get promoted to Amplify Marketplace"
+		}
+	}
+]

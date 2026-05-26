@@ -21,6 +21,7 @@
     "build": "tsc",
     "pretest": "tsc",
     "test": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test",
+    "engagetest": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test/**/engage/**",
     "lint": "eslint . --ignore-pattern 'dist/**'",
     "watch": "tsc --watch",
     "postinstall": "node dist/scripts/postinstall.js || node -e true"
@@ -57,10 +58,14 @@
   "devDependencies": {
     "@koa/router": "^14.0.0",
     "@oclif/test": "^4.1.14",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.20",
     "@types/node": "^22",
+    "@types/sinon": "^10.0.14",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.59.3",
+    "c8": "^11.0.0",
     "caller-path": "^4.0.0",
     "chai": "6.2.0",
     "chai-as-promised": "^8.0.2",
@@ -75,6 +80,8 @@
     "mock-stdin": "^1.0.0",
     "mustache": "^4.2.0",
     "nock": "^14.0.10",
+    "sinon": "^15.0.3",
+    "testdouble": "^3.20.2",
     "tmp": "^0.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

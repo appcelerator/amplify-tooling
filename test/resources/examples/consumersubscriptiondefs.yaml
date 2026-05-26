@@ -1,0 +1,47 @@
+---
+apiVersion: v1alpha1
+title: consumersubdef1 title
+name: consumersubdef1
+kind: ConsumerSubscriptionDefinition
+metadata:
+  scope:
+    kind: Environment
+    name: env1
+attributes:
+  createdBy: yaml
+tags:
+  - apisvcinst
+  - cli
+  - axway
+spec:
+  webhooks:
+    - webhook1
+  schema:
+    properties:
+      - key: key1name
+        value:
+          subKey: subKeyValue
+
+---
+apiVersion: v1alpha1
+title: consumersubdef2 title
+name: consumersubdef2
+kind: ConsumerSubscriptionDefinition
+metadata:
+  scope:
+    kind: Environment
+    name: env2
+attributes:
+  createdBy: yaml
+tags:
+  - apisvcinst
+  - cli
+  - axway
+spec:
+  webhooks:
+    - webhook2
+  schema:
+    properties:
+      - key: key1name
+        value:
+          subKey: subKeyValue

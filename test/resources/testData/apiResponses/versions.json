@@ -1,0 +1,1756 @@
+[
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "resourcehookintegration-v1alpha1",
+        "title": "resourcehookintegration-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384e7d0523",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.629+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.629+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "21",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384d62051a",
+                    "kind": "ResourceDefinition",
+                    "name": "resourcehookintegration",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/resourcehookintegration"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/resourcehookintegration-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "triggers",
+                    "webhooks"
+                ],
+                "properties": {
+                    "triggers": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "kind",
+                                "name",
+                                "type",
+                                "group"
+                            ],
+                            "properties": {
+                                "kind": {
+                                    "type": "string",
+                                    "maxLength": 30,
+                                    "description": "Value for the Kind of the resource. Use \"*\" for any."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "pattern": "^([\\*])|([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)",
+                                    "maxLength": 100,
+                                    "description": "Name of the resource. Use \"*\" for any."
+                                },
+                                "type": {
+                                    "type": "array",
+                                    "items": {
+                                        "enum": [
+                                            "created",
+                                            "updated",
+                                            "deleted"
+                                        ],
+                                        "type": "string",
+                                        "description": "Type of the operation for the tracked resources."
+                                    }
+                                },
+                                "group": {
+                                    "type": "string",
+                                    "maxLength": 30,
+                                    "description": "Value for the group of the resource. Use \"*\" for any."
+                                },
+                                "scope": {
+                                    "type": "object",
+                                    "required": [
+                                        "kind",
+                                        "name"
+                                    ],
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string",
+                                            "maxLength": 30,
+                                            "description": "Value for the Kind of the scope of the resource. Use \"*\" for any."
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "pattern": "^([\\*])|([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)",
+                                            "maxLength": 100,
+                                            "description": "Name of the scope of the resource. Use \"*\" for any."
+                                        }
+                                    },
+                                    "description": "Resource scope trigger details.",
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "webhooks": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "Reference to webhooks to be invoked when a trigger matches.",
+                            "x-amplify-kind-ref": "Webhook",
+                            "x-amplify-kind-ref-type": "soft"
+                        },
+                        "description": "List of Webhook kind resource names that dictates what webhooks will be invoked on matching triggers."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "resourcehookintegration"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "apiserviceenvironment-v1alpha1",
+        "title": "apiserviceenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384e970526",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.655+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.655+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "22",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384e350520",
+                    "kind": "ResourceDefinition",
+                    "name": "apiserviceenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/apiserviceenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/apiserviceenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "properties": {
+                    "icon": {
+                        "type": "object",
+                        "properties": {
+                            "data": {
+                                "type": "string",
+                                "format": "base64",
+                                "description": "Base64 encoded image."
+                            },
+                            "contentType": {
+                                "enum": [
+                                    "image/jpeg",
+                                    "image/png"
+                                ],
+                                "type": "string",
+                                "description": "Content-Type of the image."
+                            }
+                        },
+                        "description": "Image for the APIService.",
+                        "additionalProperties": false
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "The description of the api service."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "apiserviceenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "edgedataplaneenvironment-v1alpha1",
+        "title": "edgedataplaneenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384eae0529",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.678+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.678+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "23",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384cdc0513",
+                    "kind": "ResourceDefinition",
+                    "name": "edgedataplaneenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/edgedataplaneenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/edgedataplaneenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "properties": {
+                    "apiManager": {
+                        "type": "object",
+                        "properties": {
+                            "host": {
+                                "type": "string",
+                                "description": "The host name where Axway API Manager is deployed"
+                            },
+                            "port": {
+                                "type": "integer",
+                                "description": "The Axway API Manager admin port. Defaults to 8075"
+                            },
+                            "pollInterval": {
+                                "type": "string",
+                                "pattern": "^(?:\\d+h)?(\\d+m?)?(\\d+s)?$",
+                                "description": "Interval the agent will poll the Axway API Manager. Defaults to '30s' indicating 30 seconds The value is a sequence of number with unit suffix. Example '30s', '1m30s'. Valid units:\n * 'h' - Hours\n * 'm' - Minutes\n * 's' - Seconds\n"
+                            }
+                        },
+                        "description": "Axway API Manager configuration."
+                    },
+                    "apiGatewayManager": {
+                        "type": "object",
+                        "properties": {
+                            "host": {
+                                "type": "string",
+                                "description": "The host name where Axway API Gateway Manager is deployed"
+                            },
+                            "port": {
+                                "type": "integer",
+                                "description": "The Axway API Gateway Manager admin port. Defaults to 8090"
+                            },
+                            "pollInterval": {
+                                "type": "string",
+                                "pattern": "^(?:\\d+h)?(\\d+m?)?(\\d+s)?$",
+                                "description": "Interval the agent will poll API Gateway. Defaults to '1m' indicating 1 minute. The value is a sequence of number with unit suffix. Example '30s', '1m30s'. Valid units:\n * 'h' - Hours\n * 'm' - Minutes\n * 's' - Seconds\n"
+                            }
+                        },
+                        "description": "Axway API Gateway Manager configuration."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "edgedataplaneenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "webhookenvironment-v1alpha1",
+        "title": "webhookenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384ec8052c",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.704+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.704+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "24",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384cb90511",
+                    "kind": "ResourceDefinition",
+                    "name": "webhookenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/webhookenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/webhookenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "pattern": "^https?://[\\w-_\\:\\.\\?\/=%&#~\\[\\]\\(\\)@!$&',;]*$"
+                    },
+                    "auth": {
+                        "type": "object",
+                        "properties": {
+                            "secret": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string",
+                                        "description": "Key to be used from the referenced secret."
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Secret name to be used as a reference. If the secret is removed, the reference gets removed and the webhook invocation will be done with no Authorization header.\n",
+                                        "x-amplify-kind-ref": "Secret",
+                                        "x-amplify-kind-ref-type": "soft"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "description": "Defines the authentication used to invoke the webhook. When invoking the webhook, the value from the secret/key will be sent in the Authorization header.\n",
+                        "additionalProperties": false
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "headers": {
+                        "type": "object",
+                        "description": "A list of headers that will be sent as par of the http call to the webhook endpoint.",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "webhookenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "secretintegration-v1alpha1",
+        "title": "secretintegration-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384ee2052f",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.730+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.730+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "25",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384d340518",
+                    "kind": "ResourceDefinition",
+                    "name": "secretintegration",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/secretintegration"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/secretintegration-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "description": "Key value pairs. The value will be stored encrypted.",
+                        "x-amplify-encrypted": true,
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "secretintegration"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "integration-v1alpha1",
+        "title": "integration-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384ef90532",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.753+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.753+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "26",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384e20051f",
+                    "kind": "ResourceDefinition",
+                    "name": "integration",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/integration"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/integration-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "integration"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "awstraceabilityagentenvironment-v1alpha1",
+        "title": "awstraceabilityagentenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384f0f0535",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.775+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.775+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "27",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384e490521",
+                    "kind": "ResourceDefinition",
+                    "name": "awstraceabilityagentenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/awstraceabilityagentenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/awstraceabilityagentenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "dataplane",
+                    "config"
+                ],
+                "properties": {
+                    "config": {
+                        "type": "object",
+                        "properties": {
+                            "excludeHeaders": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "List of header names that will not be included in the captured traffic by the agent"
+                            },
+                            "processHeaders": {
+                                "type": "boolean",
+                                "description": "Configures the agent to include request and response headers in captured traffic. Defaults to true"
+                            }
+                        },
+                        "description": "Represents the AWS traceability agent config"
+                    },
+                    "logging": {
+                        "type": "object",
+                        "properties": {
+                            "level": {
+                                "enum": [
+                                    "error",
+                                    "warn",
+                                    "info",
+                                    "debug"
+                                ],
+                                "type": "string",
+                                "description": "Defines the log level."
+                            }
+                        },
+                        "description": "Logging config"
+                    },
+                    "dataplane": {
+                        "type": "string",
+                        "description": "The name of the AWS dataplane associated to this agent",
+                        "x-amplify-kind-ref": "AWSDataplane"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "status": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "enum": [
+                            "running",
+                            "stopped",
+                            "failed"
+                        ],
+                        "type": "string",
+                        "description": "Agent status:\n * running - Passed all health checks.  Up and running\n * stopped - Agent is not running\n * failed - Failed health checks\n"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A way to communicate details about the current status by the agent"
+                    },
+                    "version": {
+                        "type": "string",
+                        "pattern": "^(?!\\s).*(?<!\\s)$",
+                        "maxLength": 255,
+                        "description": "Version name for the agent revision."
+                    }
+                }
+            },
+            "storage": true,
+            "resourceDefinition": "awstraceabilityagentenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "edgediscoveryagentenvironment-v1alpha1",
+        "title": "edgediscoveryagentenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384f250538",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.797+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.797+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "28",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384dc8051e",
+                    "kind": "ResourceDefinition",
+                    "name": "edgediscoveryagentenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/edgediscoveryagentenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/edgediscoveryagentenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "dataplane",
+                    "config"
+                ],
+                "properties": {
+                    "config": {
+                        "type": "object",
+                        "properties": {
+                            "filter": {
+                                "type": "string",
+                                "description": "Defines the filter expression to be evaluated for discovering the API from Axway Edge API Gateway The filter value is a conditional expression that can use logical operators to compare two value. The conditional expression must have \"tag\" as the prefix/selector in the symbol name. For e.g.\n``` tag.SOME_TAG == \"somevalue\" ```\nThe expression can be a simple condition as shown above or compound condition in which more than one simple conditions are evaluated using logical operator.\nFor e.g.\n``` tag.SOME_TAG == \"somevalue\" || tag.ANOTHER_TAG != \"some_other_value\" ```\nIn addition to logical expression, the filter can hold call based expressions. Below are the list of supported call expressions\n#### Exists\nExists call can be made to evaluate if the tag name exists in the list of tags on API. This call expression can be used as unary expression For e.g.\n``` tag.SOME_TAG.Exists() ```\n#### Any\nAny call can be made in a simple expression to evaluate if the tag with any name has specified value or not in the list of tags on the API. For e.g.\n``` tag.Any() == \"Tag with some value\" || tag.Any() != \"Tag with other value\" ```\n#### Contains\nContains call can be made in a simple expression to evaluate if the the specified tag contains specified argument as value. This call expression requires string argument that will be used to perform lookup in tag value For e.g.\n``` tag.Contains(\"somevalue\") ```\n#### MatchRegEx\nMatchRegEx call can be used for evaluating the specified tag value to match specified regular expression. This call expression requires a regular expression as the argument. For e.g.\n``` tag.MatchRegEx(\"(some){1}\") ```\n"
+                            },
+                            "ignoreTags": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "The list of tags to exclude from the API service resource that the agent publishes to Amplify Central"
+                            },
+                            "owningTeam": {
+                                "type": "string",
+                                "description": "Name of the team that owns the catalog item created by agent. If not provided, the default team will be used."
+                            },
+                            "additionalTags": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "The list of tags to be added to the API service resource that the agent publishes to Amplify Central"
+                            }
+                        },
+                        "description": "Represents the Axway Edge API Gateway discovery agent config"
+                    },
+                    "logging": {
+                        "type": "object",
+                        "properties": {
+                            "level": {
+                                "enum": [
+                                    "error",
+                                    "warn",
+                                    "info",
+                                    "debug"
+                                ],
+                                "type": "string",
+                                "description": "Defines the log level."
+                            }
+                        },
+                        "description": "Logging config"
+                    },
+                    "dataplane": {
+                        "type": "string",
+                        "description": "The name of the Axway Edge API Gateway dataplane associated to this agent",
+                        "x-amplify-kind-ref": "EdgeDataplane"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "status": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "enum": [
+                            "running",
+                            "stopped",
+                            "failed"
+                        ],
+                        "type": "string",
+                        "description": "Agent status:\n * running - Passed all health checks.  Up and running\n * stopped - Agent is not running\n * failed - Failed health checks\n"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A way to communicate details about the current status by the agent"
+                    },
+                    "version": {
+                        "type": "string",
+                        "pattern": "^(?!\\s).*(?<!\\s)$",
+                        "maxLength": 255,
+                        "description": "Version name for the agent revision."
+                    }
+                }
+            },
+            "storage": true,
+            "resourceDefinition": "edgediscoveryagentenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "apiserviceinstanceenvironment-v1alpha1",
+        "title": "apiserviceinstanceenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384f3b053b",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.819+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.819+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "29",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384d91051c",
+                    "kind": "ResourceDefinition",
+                    "name": "apiserviceinstanceenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/apiserviceinstanceenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/apiserviceinstanceenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "apiServiceRevision",
+                    "endpoint"
+                ],
+                "properties": {
+                    "endpoint": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "host",
+                                "protocol"
+                            ],
+                            "properties": {
+                                "host": {
+                                    "type": "string"
+                                },
+                                "port": {
+                                    "type": "integer"
+                                },
+                                "routing": {
+                                    "type": "object",
+                                    "properties": {
+                                        "basePath": {
+                                            "type": "string",
+                                            "pattern": "^/",
+                                            "description": "The base path to the API. Example: '/api'."
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                },
+                                "protocol": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "description": "A list of locations where the api is deployed."
+                    },
+                    "apiServiceRevision": {
+                        "type": "string",
+                        "x-amplify-kind-ref": "APIServiceRevision"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "apiserviceinstanceenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "consumerinstanceenvironment-v1alpha1",
+        "title": "consumerinstanceenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384f52053e",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.842+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.842+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "30",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384cee0514",
+                    "kind": "ResourceDefinition",
+                    "name": "consumerinstanceenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/consumerinstanceenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/consumerinstanceenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "properties": {
+                    "icon": {
+                        "type": "object",
+                        "properties": {
+                            "data": {
+                                "type": "string",
+                                "format": "base64",
+                                "description": "Base64 encoded image."
+                            },
+                            "contentType": {
+                                "enum": [
+                                    "image/jpeg",
+                                    "image/png"
+                                ],
+                                "type": "string",
+                                "description": "Content-Type of the image."
+                            }
+                        },
+                        "description": "Image for the Catalog Item.\nIf not present, the icon on the APISevice will be used in the Catalog Item.",
+                        "additionalProperties": false
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "description": "Maps to the name of the Catalog Item. If not provided, the resource title will be used."
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "maxLength": 80,
+                            "minLength": 1
+                        },
+                        "description": "List of tags to be set on the Catalog Item. Max allowed tags for the Catalog Item is 80."
+                    },
+                    "state": {
+                        "enum": [
+                            "UNPUBLISHED",
+                            "PUBLISHED"
+                        ],
+                        "type": "string",
+                        "description": "Catalog Item state:\n * UNPUBLISHED - Only developers in the owning team will be able to access the Catalog Item.\n * PUBLISHED - Developers and Consumers in the owning team and any additional team in the ACL will\nbe able to access the Catalog Item.\n"
+                    },
+                    "status": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "A way to communicate the status of the service to consumers. Examples: DRAFT, BETA, GA"
+                    },
+                    "version": {
+                        "type": "string",
+                        "pattern": "^(?!\\s).*(?<!\\s)$",
+                        "maxLength": 255,
+                        "description": "Version name for the revision."
+                    },
+                    "owningTeam": {
+                        "type": "string",
+                        "description": "Name of the team that owns the Catalog Item. If not provided, the Default team will be used."
+                    },
+                    "visibility": {
+                        "enum": [
+                            "RESTRICTED",
+                            "PUBLIC"
+                        ],
+                        "type": "string",
+                        "description": "The visibility of the Catalog Item:\n * PUBLIC - If Catalog Item is in PUBLISHED state, it will be visible to the entire organization.\n * RESTRICTED - If Catalog Item is in PUBLISHED state, it will be visible to the owning team and teams part of the Catalog Item Access Control List.\n"
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 350,
+                        "description": "Maps to the description of the Catalog Item. Defaults to the API service description."
+                    },
+                    "subscription": {
+                        "type": "object",
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean",
+                                "description": "Defines if subscriptions are allowed on the Catalog Item."
+                            },
+                            "autoSubscribe": {
+                                "type": "boolean",
+                                "description": "Defines if subscriptions need to be manually approved."
+                            },
+                            "subscriptionDefinition": {
+                                "type": "string",
+                                "description": "The name of a ConsumerSubscriptionDefinition kind that defines the schema and possible webhooks to get invoked.",
+                                "x-amplify-kind-ref": "ConsumerSubscriptionDefinition",
+                                "x-amplify-kind-ref-type": "soft"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "documentation": {
+                        "type": "string",
+                        "description": "Markdown documentation for the Catalog Item documentation."
+                    },
+                    "apiServiceInstance": {
+                        "type": "string",
+                        "description": "The name of an APIServiceInstance resource that specifies where the API is deployed.",
+                        "x-amplify-kind-ref": "APIServiceInstance"
+                    },
+                    "additionalDataProperties": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "contentType",
+                            "data"
+                        ],
+                        "properties": {
+                            "data": {
+                                "type": "string",
+                                "format": "base64",
+                                "description": "Base64 encoded data for the Catalog Item revision content."
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "Defines the unstrucured data type. Example 'APIBuilderConnector' or 'SDK'."
+                            },
+                            "label": {
+                                "type": "string",
+                                "description": "Short name for the unstructured data."
+                            },
+                            "fileName": {
+                                "type": "string",
+                                "description": "File name used to be sent as part of the content disposition header for revision unstructured data download."
+                            },
+                            "contentType": {
+                                "type": "string",
+                                "description": "Defines the Content Type of the data."
+                            }
+                        },
+                        "description": "The Catalog Item properties for additional data.",
+                        "additionalProperties": false
+                    },
+                    "unstructuredDataProperties": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "contentType"
+                        ],
+                        "properties": {
+                            "data": {
+                                "type": "string",
+                                "format": "base64",
+                                "description": "Base64 encoded data for the Catalog Item revision content."
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "Defines the unstrucured data type. Example 'APIBuilderConnector' or 'SDK'."
+                            },
+                            "label": {
+                                "type": "string",
+                                "description": "Short name for the unstructured data."
+                            },
+                            "fileName": {
+                                "type": "string",
+                                "description": "File name used to be sent as part of the content disposition header for revision unstructured data download."
+                            },
+                            "contentType": {
+                                "type": "string",
+                                "description": "Defines the Content Type of the data."
+                            }
+                        },
+                        "description": "The Catalog Item properties for unstructuded definition subtypes.",
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "status": {
+                "type": "object",
+                "required": [
+                    "phase"
+                ],
+                "properties": {
+                    "phase": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "level",
+                            "transitionTime"
+                        ],
+                        "properties": {
+                            "name": {
+                                "enum": [
+                                    "Update",
+                                    "Delete",
+                                    "Create"
+                                ],
+                                "type": "string"
+                            },
+                            "level": {
+                                "enum": [
+                                    "info",
+                                    "error"
+                                ],
+                                "type": "string",
+                                "description": "The criticality of the last update"
+                            },
+                            "message": {
+                                "type": "string",
+                                "description": "Description of the phase."
+                            },
+                            "transitionTime": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Time of the current phase."
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "storage": true,
+            "resourceDefinition": "consumerinstanceenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "environment-v1alpha1",
+        "title": "environment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384f6a0541",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.866+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.866+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "31",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384d79051b",
+                    "kind": "ResourceDefinition",
+                    "name": "environment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/environment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/environment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "properties": {
+                    "icon": {
+                        "type": "object",
+                        "properties": {
+                            "data": {
+                                "type": "string",
+                                "format": "base64",
+                                "description": "Base64 encoded image."
+                            },
+                            "contentType": {
+                                "enum": [
+                                    "image/jpeg",
+                                    "image/png"
+                                ],
+                                "type": "string",
+                                "description": "Content-Type of the image."
+                            }
+                        },
+                        "description": "Image for the Environment.",
+                        "additionalProperties": false
+                    },
+                    "variables": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "environment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "secretenvironment-v1alpha1",
+        "title": "secretenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384f800544",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.888+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.888+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "32",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384d210517",
+                    "kind": "ResourceDefinition",
+                    "name": "secretenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/secretenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/secretenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "description": "Key value pairs. The value will be stored encrypted.",
+                        "x-amplify-encrypted": true,
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "secretenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "awsdiscoveryagentenvironment-v1alpha1",
+        "title": "awsdiscoveryagentenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384f960547",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.910+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.910+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "33",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384d4b0519",
+                    "kind": "ResourceDefinition",
+                    "name": "awsdiscoveryagentenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/awsdiscoveryagentenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/awsdiscoveryagentenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "dataplane",
+                    "config"
+                ],
+                "properties": {
+                    "config": {
+                        "type": "object",
+                        "properties": {
+                            "filter": {
+                                "type": "string",
+                                "description": "Defines the tag based filter expression to be evaluated for discovering the API from AWS API Gateway The filter value is a conditional expression that can use logical operators to compare two value. The conditional expression must have \"tag\" as the prefix/selector in the symbol name. For e.g.\n``` tag.SOME_TAG == \"somevalue\" ```\nThe expression can be a simple condition as shown above or compound condition in which more than one simple conditions are evaluated using logical operator.\nFor e.g.\n``` tag.SOME_TAG == \"somevalue\" || tag.ANOTHER_TAG != \"some_other_value\" ```\nIn addition to logical expression, the filter can hold call based expressions. Below are the list of supported call expressions\n#### Exists\nExists call can be made to evaluate if the tag name exists in the list of tags on API. This call expression can be used as unary expression For e.g.\n``` tag.SOME_TAG.Exists() ```\n#### Any\nAny call can be made in a simple expression to evaluate if the tag with any name has specified value or not in the list of tags on the API. For e.g.\n``` tag.Any() == \"Tag with some value\" || tag.Any() != \"Tag with other value\" ```\n#### Contains\nContains call can be made in a simple expression to evaluate if the the specified tag contains specified argument as value. This call expression requires string argument that will be used to perform lookup in tag value For e.g.\n``` tag.Contains(\"somevalue\") ```\n#### MatchRegEx\nMatchRegEx call can be used for evaluating the specified tag value to match specified regular expression. This call expression requires a regular expression as the argument. For e.g.\n``` tag.MatchRegEx(\"(some){1}\") ```\n"
+                            },
+                            "ignoreTags": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "The list of tags to exclude from the API service resource that the agent publishes to Amplify Central"
+                            },
+                            "owningTeam": {
+                                "type": "string",
+                                "description": "Name of the team that owns the catalog item created by agent. If not provided, the default team will be used."
+                            },
+                            "additionalTags": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "The list of tags to be added to the API service resource that the agent publishes to Amplify Central"
+                            }
+                        },
+                        "description": "Represents the AWS discovery agent config"
+                    },
+                    "logging": {
+                        "type": "object",
+                        "properties": {
+                            "level": {
+                                "enum": [
+                                    "error",
+                                    "warn",
+                                    "info",
+                                    "debug"
+                                ],
+                                "type": "string",
+                                "description": "Defines the log level."
+                            }
+                        },
+                        "description": "Logging config"
+                    },
+                    "dataplane": {
+                        "type": "string",
+                        "description": "The name of the AWS dataplane associated to this agent",
+                        "x-amplify-kind-ref": "AWSDataplane"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "status": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "enum": [
+                            "running",
+                            "stopped",
+                            "failed"
+                        ],
+                        "type": "string",
+                        "description": "Agent status:\n * running - Passed all health checks.  Up and running\n * stopped - Agent is not running\n * failed - Failed health checks\n"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A way to communicate details about the current status by the agent"
+                    },
+                    "version": {
+                        "type": "string",
+                        "pattern": "^(?!\\s).*(?<!\\s)$",
+                        "maxLength": 255,
+                        "description": "Version name for the agent revision."
+                    }
+                }
+            },
+            "storage": true,
+            "resourceDefinition": "awsdiscoveryagentenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "apiservicerevisionenvironment-v1alpha1",
+        "title": "apiservicerevisionenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384fb0054a",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.936+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.936+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "34",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384dad051d",
+                    "kind": "ResourceDefinition",
+                    "name": "apiservicerevisionenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/apiservicerevisionenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/apiservicerevisionenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "apiService"
+                ],
+                "properties": {
+                    "apiService": {
+                        "type": "string",
+                        "x-amplify-kind-ref": "APIService"
+                    },
+                    "definition": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "The type of the api specification. Example oas3, oas2, wsdl, protobuf."
+                            },
+                            "value": {
+                                "type": "string",
+                                "format": "base64",
+                                "description": "Base64 encoded value of the api specification."
+                            }
+                        },
+                        "description": "The api specification details.",
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "apiservicerevisionenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "awsdataplaneenvironment-v1alpha1",
+        "title": "awsdataplaneenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384fc9054d",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.961+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.961+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "35",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384d0f0516",
+                    "kind": "ResourceDefinition",
+                    "name": "awsdataplaneenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/awsdataplaneenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/awsdataplaneenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "region",
+                    "resourceChangeEventQueue",
+                    "transactionEventQueue"
+                ],
+                "properties": {
+                    "region": {
+                        "type": "string",
+                        "description": "AWS region"
+                    },
+                    "transactionLogGroup": {
+                        "type": "string",
+                        "description": "The name of AWS log group to be used for traceability"
+                    },
+                    "transactionEventQueue": {
+                        "type": "string",
+                        "description": "Name of the queue to receive the transaction events"
+                    },
+                    "resourceChangeEventQueue": {
+                        "type": "string",
+                        "description": "Name of the queue to receive the AWS resource change events"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "awsdataplaneenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "consumersubscriptiondefenvironment-v1alpha1",
+        "title": "consumersubscriptiondefenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384fe10550",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:53.985+0000",
+                "modifyTimestamp": "2020-10-27T18:00:53.985+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "36",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384cff0515",
+                    "kind": "ResourceDefinition",
+                    "name": "consumersubscriptiondefenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/consumersubscriptiondefenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/consumersubscriptiondefenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "properties": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "properties": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "key",
+                                        "value"
+                                    ],
+                                    "properties": {
+                                        "key": {
+                                            "type": "string",
+                                            "description": "The Catalog Item subscription spec key.\nFor API type subscriptions, the key needs to be 'profile'."
+                                        },
+                                        "value": {
+                                            "type": "object",
+                                            "description": "JSON schema to specify data needed from consumers when subscriptions are created."
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                },
+                                "description": "Defines the subscription schema properties as key/value pairs."
+                            }
+                        },
+                        "description": "Subscription definition properties to be used by the consumers.",
+                        "additionalProperties": false
+                    },
+                    "webhooks": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "Reference to the webhook to be triggered on subscription updates.",
+                            "x-amplify-kind-ref": "Webhook",
+                            "x-amplify-kind-ref-type": "soft"
+                        },
+                        "description": "List of Webhook kind resource names that dictates what webhooks will be invoked on subscription changes."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "consumersubscriptiondefenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "edgetraceabilityagentenvironment-v1alpha1",
+        "title": "edgetraceabilityagentenvironment-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b384ffb0553",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:54.011+0000",
+                "modifyTimestamp": "2020-10-27T18:00:54.011+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "37",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384e5a0522",
+                    "kind": "ResourceDefinition",
+                    "name": "edgetraceabilityagentenvironment",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/edgetraceabilityagentenvironment"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/edgetraceabilityagentenvironment-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "dataplane",
+                    "config"
+                ],
+                "properties": {
+                    "config": {
+                        "type": "object",
+                        "properties": {
+                            "excludeHeaders": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "List of header names that will not be included in the captured traffic by the agent"
+                            },
+                            "processHeaders": {
+                                "type": "boolean",
+                                "description": "Configures the agent to include request and response headers in captured traffic. Defaults to true"
+                            }
+                        },
+                        "description": "Represents the Axway Edge API Gateway traceability agent config"
+                    },
+                    "logging": {
+                        "type": "object",
+                        "properties": {
+                            "level": {
+                                "enum": [
+                                    "error",
+                                    "warn",
+                                    "info",
+                                    "debug"
+                                ],
+                                "type": "string",
+                                "description": "Defines the log level."
+                            }
+                        },
+                        "description": "Logging config"
+                    },
+                    "dataplane": {
+                        "type": "string",
+                        "description": "The name of the Axway Edge API Gateway dataplane associated to this agent",
+                        "x-amplify-kind-ref": "EdgeDataplane"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "status": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "enum": [
+                            "running",
+                            "stopped",
+                            "failed"
+                        ],
+                        "type": "string",
+                        "description": "Agent status:\n * running - Passed all health checks.  Up and running\n * stopped - Agent is not running\n * failed - Failed health checks\n"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A way to communicate details about the current status by the agent"
+                    },
+                    "version": {
+                        "type": "string",
+                        "pattern": "^(?!\\s).*(?<!\\s)$",
+                        "maxLength": 255,
+                        "description": "Version name for the agent revision."
+                    }
+                }
+            },
+            "storage": true,
+            "resourceDefinition": "edgetraceabilityagentenvironment"
+        }
+    },
+    {
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinitionVersion",
+        "name": "webhookintegration-v1alpha1",
+        "title": "webhookintegration-v1alpha1",
+        "metadata": {
+            "id": "4028805e756b05b501756b3850160556",
+            "audit": {
+                "createTimestamp": "2020-10-27T18:00:54.038+0000",
+                "modifyTimestamp": "2020-10-27T18:00:54.038+0000"
+            },
+            "scope": {
+                "id": "4028805e756b05b501756b384c82050f",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "resourceVersion": "38",
+            "references": [
+                {
+                    "id": "4028805e756b05b501756b384cca0512",
+                    "kind": "ResourceDefinition",
+                    "name": "webhookintegration",
+                    "type": "hard",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/webhookintegration"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/resourceversions/webhookintegration-v1alpha1"
+        },
+        "attributes": {
+            "storage": "true"
+        },
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "name": "v1alpha1",
+            "spec": {
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "pattern": "^https?://[\\w-_\\:\\.\\?\/=%&#~\\[\\]\\(\\)@!$&',;]*$"
+                    },
+                    "auth": {
+                        "type": "object",
+                        "properties": {
+                            "secret": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string",
+                                        "description": "Key to be used from the referenced secret."
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Secret name to be used as a reference. If the secret is removed, the reference gets removed and the webhook invocation will be done with no Authorization header.\n",
+                                        "x-amplify-kind-ref": "Secret",
+                                        "x-amplify-kind-ref-type": "soft"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "description": "Defines the authentication used to invoke the webhook. When invoking the webhook, the value from the secret/key will be sent in the Authorization header.\n",
+                        "additionalProperties": false
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "headers": {
+                        "type": "object",
+                        "description": "A list of headers that will be sent as par of the http call to the webhook endpoint.",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "served": true,
+            "storage": true,
+            "resourceDefinition": "webhookintegration"
+        }
+    }
+]

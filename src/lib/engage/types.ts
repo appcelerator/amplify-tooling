@@ -20,6 +20,9 @@ export const MAX_CACHE_FILE_SIZE = 5 * 1024 * 1024;
 export const CACHE_FILE_TTL_MILLISECONDS
 	= process.env.NODE_ENV === 'test' ? 100 : 60000 * 60 * 12;
 export const WAIT_TIMEOUT = process.env.NODE_ENV === 'test' ? 1e3 : 1e4;
+export const localhost = 'localhost';
+export const svcAccMsg
+	= '\nPlease make sure to copy the "private_key.pem" and "public_key.pem" files for the existing service account you selected.';
 
 /**
  * Invoked multiple times to indicate progress on something, such as download progress.
@@ -1160,4 +1163,24 @@ export enum TraceableRegionType {
 	APAC2 = 'APAC-2',
 	Canada = 'Canada',
 	UAE = 'UAE',
+}
+
+export interface InstallationFlowMethods {
+	GetBundleType: (Gateway?: GatewayTypes) => Promise<BundleType>;
+	GetDeploymentType: () => Promise<AgentConfigTypes>;
+	AskGatewayQuestions: (
+		installConfig: AgentInstallConfig,
+		apiServerClient?: ApiServerClient,
+		defsManager?: DefinitionsManager
+	) => Promise<object>;
+	InstallPreprocess?: (installConfig: AgentInstallConfig) => Promise<AgentInstallConfig>;
+	AddIDP?: boolean;
+	FinalizeGatewayInstall: (
+		installConfig: AgentInstallConfig,
+		apiServerClient?: ApiServerClient,
+		defsManager?: DefinitionsManager
+	) => Promise<void>;
+	ConfigFiles: string[];
+	AgentNameMap?: { [key in AgentTypes]?: AgentNames };
+	GatewayDisplay: GatewayTypes | SaaSGatewayTypes;
 }

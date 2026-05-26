@@ -19,6 +19,7 @@ global.expect = global.chai.expect;
 export const mochaHooks = {
 	beforeAll: async function () {
 		this.servers = await startServers();
+		globalThis.__axwayTestServers = this.servers;
 		this.resetServers = resetServers.bind(this);
 		// Make it easy to get the telemetry events received by the platform server
 		this.getTelemetryEvents = () => this.servers[1].telemetryEvents || [];
@@ -36,6 +37,7 @@ export const mochaHooks = {
 
 	afterAll: async function () {
 		await stopServers.call(this);
+		delete globalThis.__axwayTestServers;
 	}
 };
 
