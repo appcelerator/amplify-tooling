@@ -32,8 +32,6 @@ jobs:
           node-version: ${{ matrix.nodeVersion }}
       - name: Install dependencies
         run: npm ci
-      - name: Rebuild native modules
-        run: npm rebuild keytar
       - name: Build CLI
         run: npm run build
       - name: Run tests
@@ -55,8 +53,6 @@ jobs:
           node-version: ${{ matrix.nodeVersion }}
       - name: Install dependencies
         run: npm ci
-      - name: Rebuild native modules
-        run: npm rebuild keytar
       - name: Build CLI
         run: npm run build
       - name: Run tests
@@ -80,8 +76,6 @@ jobs:
         run: sudo apt-get install -y libsecret-1-0
       - name: Install dependencies
         run: npm ci
-      - name: Rebuild native modules
-        run: npm rebuild keytar
       - name: Build CLI
         run: npm run build
       - name: Run tests

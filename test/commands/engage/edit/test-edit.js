@@ -11,9 +11,10 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Path to the simple shell editor that appends a comment to the file so
-// TmpFile detects a change (isUpdated = true).
-const testEditorPath = path.resolve(__dirname, '../../../helpers/test-editor.sh');
+// Path to the cross-platform editor script that appends a comment so
+// TmpFile detects a change (isUpdated = true). Invoked as: node <script> <file>
+const testEditorScript = path.resolve(__dirname, '../../../helpers/test-editor.js');
+const testEditor = `${process.execPath} ${testEditorScript}`;
 
 function makeEnv(name) {
 	return {
@@ -97,7 +98,7 @@ describe('axway engage edit', () => {
 
 				const { status } = await runAxwaySync(
 					[ 'engage', 'edit', 'environment', 'testenv1' ],
-					{ env: { ...engageEnv, EDITOR: testEditorPath } }
+					{ env: { ...engageEnv, EDITOR: testEditor } }
 				);
 
 				expect(status).to.equal(0);
@@ -115,7 +116,7 @@ describe('axway engage edit', () => {
 
 				const { status } = await runAxwaySync(
 					[ 'engage', 'edit', 'environment', 'testenv1' ],
-					{ env: { ...engageEnv, EDITOR: testEditorPath } }
+					{ env: { ...engageEnv, EDITOR: testEditor } }
 				);
 
 				// Current command implementation returns 0 here even if update returns API errors.
