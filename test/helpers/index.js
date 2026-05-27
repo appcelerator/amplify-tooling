@@ -1,6 +1,5 @@
 import fs from 'fs';
 import callerPath from 'caller-path';
-import chalk from 'chalk';
 import Mustache from 'mustache';
 import os from 'os';
 import path from 'path';
@@ -26,7 +25,7 @@ export function initHomeDir(templateDir) {
 }
 
 const defaultVars = {
-	check: process.platform === 'win32' ? '√' : '✔',
+	check: '(?:√|✔)',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
 	localeDateTime: '[\\w\\d/,: ]+',
 	nodeDeprecationWarning: '(?:\n*\u001b\\[33m ┃ ATTENTION! The Node\\.js version you are currently using \\(v\\d+\\.\\d+\\.\\d+\\) has been\u001b\\[39m\n\u001b\\[33m ┃ deprecated and is unsupported in Axway CLI v3 and newer\\. Please upgrade\u001b\\[39m\n\u001b\\[33m ┃ Node\\.js to the latest LTS release: https://nodejs\\.org/\u001b\\[39m)?',
@@ -38,16 +37,16 @@ const defaultVars = {
 	versionList: '(?:\u001b\\[36m(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)*\\s*\u001b\\[39m\n+)+',
 	versionWithColor: '(?:(?:\u001b\\[\\d\\dm)?\\d+(?:\\.(?:\u001b\\[\\d\\dm)?\\d+){2}(?:-[^\\s]*)?(?:\u001b\\[39m)?\\s*)',
 	whitespace: ' *',
-	x: process.platform === 'win32' ? 'x' : '✖',
+	x: '(?:x|✖)',
 	uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
 	year: (new Date()).getFullYear()
 };
 for (const fn of [ 'bold', 'blue', 'cyan', 'gray', 'green', 'greenBright', 'magenta', 'red', 'yellow' ]) {
 	defaultVars[fn] = () => {
 		return (text, render) => {
-			return chalk[fn]('8675309')
-				.replace(/(?<!\\)([()[\]?])/g, '\\$1')
-				.replace('8675309', render(text));
+			const rendered = render(text);
+			// Match both plain text and ANSI-colored output across OS/CI environments.
+			return `(?:\\u001b\\[[0-9;]*m)?${rendered}(?:\\u001b\\[[0-9;]*m)?`;
 		};
 	};
 }

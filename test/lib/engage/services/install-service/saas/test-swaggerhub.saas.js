@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import crypto from 'crypto';
 import * as td from 'testdouble';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const distRoot = path.resolve(__dirname, '../../../../../../dist');
+const distRoot = pathToFileURL(path.resolve(__dirname, '../../../../../../dist')).href;
 const BASIC_PROMPTS = `${distRoot}/lib/engage/utils/basic-prompts.js`;
 const AGENTS_INDEX = `${distRoot}/lib/engage/utils/agents/index.js`;
 const FLOW_MODULE = `${distRoot}/lib/engage/utils/agents/flows/swaggerHubSaasAgents.js`;
