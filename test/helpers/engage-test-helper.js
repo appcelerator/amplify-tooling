@@ -43,7 +43,7 @@ export { e400, e500 };
 export async function setupEngageAuth() {
 	initHomeDir('home-local');
 	await loginCLISync();
-	const engageServer = globalThis.__axwayEngageServer || this.servers?.[2] || globalThis.__axwayTestServers?.[2];
+	const engageServer = this.servers?.[2];
 	engageServer?.resetEngageState();
 	return engageServer;
 }
