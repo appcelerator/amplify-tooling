@@ -13,11 +13,11 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling",
   "bin": {
-    "axway": "./bin/run"
+    "axway": "./bin/run.js"
   },
   "scripts": {
     "debug": "node --inspect=9254 --enable-source-maps dist/index.js",
-    "start": "./bin/run",
+    "start": "node --enable-source-maps bin/run.js",
     "build": "tsc",
     "test": "sh -c 'mocha --exit --recursive -r test/helpers/setup.js --exclude \"test/helpers/**\" --slow 15000 --timeout 40000 \"${@:-test}\"' sh",
     "lint": "eslint . --ignore-pattern 'dist/**'",
