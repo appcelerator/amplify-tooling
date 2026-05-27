@@ -19,7 +19,7 @@
     "debug": "node --inspect=9254 --enable-source-maps dist/index.js",
     "start": "./bin/run",
     "build": "tsc",
-    "test": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test",
+    "test": "sh -c 'mocha --exit --recursive -r test/helpers/setup.js --exclude \"test/helpers/**\" --slow 15000 --timeout 40000 \"${@:-test}\"' sh",
     "lint": "eslint . --ignore-pattern 'dist/**'",
     "watch": "tsc --watch",
     "postinstall": "node dist/scripts/postinstall.js || node -e true"
