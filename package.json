@@ -24,7 +24,7 @@
     "engagetest": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test/**/engage/**",
     "lint": "eslint . --ignore-pattern 'dist/**'",
     "watch": "tsc --watch",
-    "postinstall": "node dist/scripts/postinstall.js || node -e true"
+    "postinstall": "node -e \"const fs=require('fs'); if(fs.existsSync('dist/scripts/postinstall.js')) require('./dist/scripts/postinstall.js')\""
   },
   "dependencies": {
     "@inquirer/prompts": "^7.9.0",
