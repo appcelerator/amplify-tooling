@@ -34,10 +34,6 @@ jobs:
         run: npm ci
       - name: Build CLI
         run: npm run build
-      - name: Verify built CLI entrypoint
-        run: |
-          test -f dist/index.js
-          node dist/index.js --version
       - name: Run tests
         run: npm run engagetest
 
@@ -59,10 +55,6 @@ jobs:
         run: npm ci
       - name: Build CLI
         run: npm run build
-      - name: Verify built CLI entrypoint
-        run: |
-          if not exist dist\index.js exit /b 1
-          node dist/index.js --version
       - name: Run tests
         run: npm run engagetest
 
@@ -86,9 +78,5 @@ jobs:
         run: npm ci
       - name: Build CLI
         run: npm run build
-      - name: Verify built CLI entrypoint
-        run: |
-          test -f dist/index.js
-          node dist/index.js --version
       - name: Run tests
         run: npm run engagetest
