@@ -21,7 +21,7 @@
     "build": "tsc",
     "pretest": "tsc",
     "test": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test",
-    "engagetest": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 test/**/engage/**",
+    "engagetest": "mocha --exit --recursive -r test/helpers/setup.js --slow 15000 --timeout 40000 \"test/**/engage/**/*.js\"",
     "lint": "eslint . --ignore-pattern 'dist/**'",
     "watch": "tsc --watch",
     "postinstall": "node -e \"const fs=require('fs'); if(fs.existsSync('dist/scripts/postinstall.js')) require('./dist/scripts/postinstall.js')\""

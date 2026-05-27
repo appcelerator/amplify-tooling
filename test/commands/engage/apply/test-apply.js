@@ -25,9 +25,7 @@ describe('axway engage apply', () => {
 		it('should error if not authenticated', async () => {
 			initHomeDir('home-local');
 			// home-local has valid config but no login tokens
-			const { status, stderr, stdout } = await runAxwaySync([ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.yaml') ], { env: engageEnv });
-			console.log(stderr);
-			console.log(stdout);
+			const { status, stderr } = await runAxwaySync([ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.yaml') ], { env: engageEnv });
 			expect(status).to.equal(1);
 			expect(stderr).to.match(renderRegexFromFile('templates/not-authenticated'));
 		});
