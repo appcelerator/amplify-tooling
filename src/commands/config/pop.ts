@@ -27,9 +27,8 @@ export default class ConfigPop extends Command {
 		const result = config.pop(args.key);
 		config.save();
 		if (this.jsonEnabled()) {
-			return { result };
+			return result;
 		}
-		this.log(result);
-		return undefined;
+		return this.log(result || 'undefined');
 	}
 }

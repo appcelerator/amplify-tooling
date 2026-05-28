@@ -214,18 +214,18 @@ export class Config {
 	/**
 	 * Adds a value to the end of an array in the configuration data.
 	 * If the array does not exist, it will be created.
+	 * If the existing value is not an array, it will be converted to an array.
 	 *
 	 * @param {String} key The key of the array to modify.
 	 * @param {any} value The value to add to the array.
 	 */
 	push(key: string, value: any) {
-		const _key = key;
 		if (this.#profile) {
 			key = `profiles.${this.#profile}.${key}`;
 		}
-		const arr = this.get(key, [], true);
+		let arr = this.get(key, [], true);
 		if (!Array.isArray(arr)) {
-			throw new TypeError(`Expected config key "${_key}" to be an array`);
+			arr = [arr];
 		}
 		arr.push(value);
 		this.set(key, arr, true);
@@ -233,6 +233,7 @@ export class Config {
 
 	/**
 	 * Removes and returns the last value from an array in the configuration data.
+	 * If the existing value is not an array, returns the value and deletes the key.
 	 *
 	 * @param {String} key The key of the array to modify.
 	 * @returns {any} The removed value.
@@ -243,16 +244,25 @@ export class Config {
 			key = `profiles.${this.#profile}.${key}`;
 		}
 		const arr = this.get(key, undefined, true);
+		if (arr === undefined) {
+			return undefined;
+		}
 		if (!Array.isArray(arr)) {
-			throw new TypeError(`Expected config key "${_key}" to be an array`);
+			this.delete(_key);
+			return arr;
 		}
 		const value = arr.pop();
-		this.set(key, arr, true);
+		if (arr.length === 0) {
+			this.delete(_key);
+		} else {
+			this.set(key, arr, true);
+		}
 		return value;
 	}
 
 	/**
 	 * Shifts the first value from an array in the configuration data.
+	 * If the existing value is not an array, returns the value and deletes the key.
 	 *
 	 * @param {String} key The key of the array to modify.
 	 * @returns {any} The removed value.
@@ -262,30 +272,38 @@ export class Config {
 		if (this.#profile) {
 			key = `profiles.${this.#profile}.${key}`;
 		}
-		const arr = this.get(key, [], true);
+		const arr = this.get(key, undefined, true);
+		if (arr === undefined) {
+			return undefined;
+		}
 		if (!Array.isArray(arr)) {
-			throw new TypeError(`Expected config key "${_key}" to be an array`);
+			this.delete(_key);
+			return arr;
 		}
 		const value = arr.shift();
-		this.set(key, arr, true);
+		if (arr.length === 0) {
+			this.delete(_key);
+		} else {
+			this.set(key, arr, true);
+		}
 		return value;
 	}
 
 	/**
 	 * Adds a value to the beginning of an array in the configuration data.
 	 * If the array does not exist, it will be created.
+	 * If the existing value is not an array, it will be converted to an array.
 	 *
 	 * @param {String} key The key of the array to modify.
 	 * @param {any} value The value to add to the array.
 	 */
 	unshift(key: string, value: any) {
-		const _key = key;
 		if (this.#profile) {
 			key = `profiles.${this.#profile}.${key}`;
 		}
-		const arr = this.get(key, [], true);
+		let arr = this.get(key, [], true);
 		if (!Array.isArray(arr)) {
-			throw new TypeError(`Expected config key "${_key}" to be an array`);
+			arr = [arr];
 		}
 		arr.unshift(value);
 		this.set(key, arr, true);

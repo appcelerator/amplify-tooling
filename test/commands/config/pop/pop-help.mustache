@@ -1,18 +1,22 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Remove the last value in a list
+Remove the last value in a list.
 
-USAGE: {{#cyan}}axway config pop <key> [options]{{/cyan}}
+USAGE
+  $ axway config pop KEY [--json] [--no-banner] [--no-color] [--profile <value>]
 
-POP ARGUMENTS:
-  {{#cyan}}key{{/cyan}}
+ARGUMENTS
+  KEY  Config key to pop from.
 
-CONFIG OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs the config as JSON
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+EXAMPLES
+  Remove the last value in a list.
+
+    $ axway config pop <key>
+

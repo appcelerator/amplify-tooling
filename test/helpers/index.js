@@ -63,6 +63,9 @@ export function renderRegex(str, vars) {
 	return new RegExp(str);
 }
 
+// Store the last log file created by runAxwaySync
+let lastLogFile = null;
+
 export function renderRegexFromFile(file, vars) {
 	if (!fs.existsSync(file) && !/\.mustache$/.test(file)) {
 		file += '.mustache';
@@ -79,6 +82,21 @@ export function renderRegexFromFile(file, vars) {
 		}
 		file = path.resolve(path.dirname(cp), file);
 	}
+
+	// If LOG_TEST_OUTPUT is enabled and we have a recent log file, update it with the template path
+	if (process.env.LOG_TEST_OUTPUT && lastLogFile && fs.existsSync(lastLogFile)) {
+		try {
+			const logData = JSON.parse(fs.readFileSync(lastLogFile, 'utf8'));
+			// Update the most recent invocation with the template path
+			if (Array.isArray(logData) && logData.length > 0) {
+				logData[logData.length - 1].template = file;
+				fs.writeFileSync(lastLogFile, JSON.stringify(logData, null, 2));
+			}
+		} catch {
+			// Ignore errors updating the log file
+		}
+	}
+
 	return renderRegex(fs.readFileSync(file, 'utf8').trim(), vars);
 }
 
@@ -161,21 +179,57 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
 
 		// Log output to file if LOG_TEST_OUTPUT is set
 		if (process.env.LOG_TEST_OUTPUT) {
-			const testName = (args.length > 0 ? args.join('_') : 'no-args').replace(/[^a-zA-Z0-9_-]/g, '_');
+			// Try to get the current test context from Mocha
+			let testName;
+			try {
+				// Access the current test context via Mocha's global state
+				const currentTest = global.currentTest || (typeof mocha !== 'undefined' && mocha.currentTest);
+				if (currentTest) {
+					// Build a test path from the suite hierarchy and test title
+					const titles = [];
+					let suite = currentTest.parent;
+					while (suite && suite.title) {
+						titles.unshift(suite.title);
+						suite = suite.parent;
+					}
+					titles.push(currentTest.title);
+					testName = titles.join(' - ').replace(/[^a-zA-Z0-9_-]/g, '_');
+				} else {
+					// Fallback to command-based naming
+					testName = (args.length > 0 ? args.join('_') : 'no-args').replace(/[^a-zA-Z0-9_-]/g, '_');
+				}
+			} catch {
+				// Fallback to command-based naming
+				testName = (args.length > 0 ? args.join('_') : 'no-args').replace(/[^a-zA-Z0-9_-]/g, '_');
+			}
+
 			const logDir = path.join(__dirname, '../.test-output-logs');
 			if (!fs.existsSync(logDir)) {
 				fs.mkdirSync(logDir, { recursive: true });
 			}
-			const logFile = path.join(logDir, `${testName}_${Date.now()}.log`);
-			const logContent = JSON.stringify({
+			const logFile = path.join(logDir, `${testName}.log`);
+
+			// Initialize the invocations array if it doesn't exist
+			if (!global.currentTestInvocations) {
+				global.currentTestInvocations = [];
+			}
+
+			// Add this invocation to the array
+			global.currentTestInvocations.push({
 				args,
 				opts: { color: opts.color, shim: opts.shim },
 				status,
 				stdout,
-				stderr
-			}, null, 2);
-			fs.writeFileSync(logFile, logContent);
+				stderr,
+				template: null
+			});
+
+			// Write all invocations to the log file
+			fs.writeFileSync(logFile, JSON.stringify(global.currentTestInvocations, null, 2));
 			console.log(`\n📝 Logged output to: ${logFile}`);
+
+			// Store the log file path so renderRegexFromFile can update it with the template path
+			lastLogFile = logFile;
 		}
 
 		resolve({ status, stdout, stderr });

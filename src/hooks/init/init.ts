@@ -38,7 +38,15 @@ const hook: Hook.Init = async function (opts) {
 	}
 
 	const command = opts.config.commands.find(cmd => cmd.id === opts.id);
-	if (config.get('banner.enabled') !== false && !opts.argv.includes('--no-banner') && !opts.argv.includes('--json') && command?.enableBanner !== false) {
+	// Include the banner if not disabled
+	if (config.get('banner.enabled') !== false
+		// Not opted-out
+		&& !opts.argv.includes('--no-banner')
+		// Not requesting JSON output
+		&& !opts.argv.includes('--json')
+		// And for commands that do not have it disabled (other than for help output)
+		&& (command?.enableBanner !== false || opts.argv.includes('--help'))
+	) {
 		const year = new Date(Date.now()).getFullYear().toString();
 		const [ supportedNodeVersion ] = opts.config.pjson.engines.node?.match(/\d{2}/) || [ '22' ];
 		let str = `${highlight('AXWAY CLI')}, version ${opts.config.version}

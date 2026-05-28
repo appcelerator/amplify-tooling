@@ -22,13 +22,13 @@ export default class ConfigShift extends Command {
 	static override enableBanner = false;
 	static override enableJsonFlag = true;
 
-	async run(): Promise<{ result: string } | void> {
+	async run() {
 		const { args, config } = await this.parse(ConfigShift);
 		const result = config.shift(args.key);
 		config.save();
 		if (this.jsonEnabled()) {
-			return { result };
+			return result;
 		}
-		this.log(result);
+		return this.log(result || 'undefined');
 	}
 }

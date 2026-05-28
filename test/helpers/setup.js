@@ -26,12 +26,27 @@ export const mochaHooks = {
 
 	beforeEach: function () {
 		this.resetServers();
+
+		// If test command output logging is enabled, set up the context for this test so the helper can log to the correct file
+		if (process.env.LOG_TEST_OUTPUT) {
+			// Store the current test context globally for logging purposes
+			global.currentTest = this.currentTest;
+			// Reset the invocations array for this test
+			global.currentTestInvocations = [];
+		}
 	},
 
 	afterEach: function () {
 		this.resetServers();
 		// Clean up all nock interceptors
 		nock.cleanAll();
+
+		// Reset the logging context after each test if command output logging is enabled
+		if (process.env.LOG_TEST_OUTPUT) {
+			// Clear the test context
+			global.currentTest = null;
+			global.currentTestInvocations = [];
+		}
 	},
 
 	afterAll: async function () {

@@ -26,20 +26,20 @@ export default class ConfigPush extends Command {
 	static override enableBanner = false;
 	static override enableJsonFlag = true;
 
-	async run(): Promise<{ result: string } | void> {
+	async run() {
 		const { args, config } = await this.parse(ConfigPush);
 		let val = args.value;
 		try {
 			// Try to parse the value as JSON
 			val = JSON.parse(val);
-		} catch (_err) {
+		} catch {
 			// If parsing fails, keep the value as a string
 		}
 		config.push(args.key, val);
 		config.save();
 		if (this.jsonEnabled()) {
-			return { result: 'OK' };
+			return 'OK';
 		}
-		this.log('OK');
+		return this.log('OK');
 	}
 }

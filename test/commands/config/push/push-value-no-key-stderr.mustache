@@ -1,18 +1,18 @@
-{{#red}}{{x}} Error: Missing required argument "key"{{/red}}
+ ›   Error: Missing 2 required args:
+ ›   key    Config key to push to.
+ ›   value  Value to add.
+ ›   See more help with --help
 
-Add a value to the end of a list
+USAGE
+  $ axway config push KEY VALUE [--json] [--no-banner] [--no-color] [--profile <value>]
 
-USAGE: {{#cyan}}axway config push <key> <value> [options]{{/cyan}}
+ARGUMENTS
+  KEY    Config key to push to.
+  VALUE  Value to add.
 
-PUSH ARGUMENTS:
-  {{#cyan}}key{{/cyan}}
-  {{#cyan}}value{{/cyan}}
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
 
-CONFIG OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs the config as JSON
-
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
