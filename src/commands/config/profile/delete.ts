@@ -18,6 +18,7 @@ export default class ConfigProfileDelete extends Command {
 	};
 
 	static override authenticated = false;
+	static override enableBanner = false;
 	static override enableProfileFlag = false;
 
 	async run(): Promise<void | any> {

@@ -16,6 +16,7 @@ export default class ConfigGet extends Command {
 	};
 
 	static override authenticated = false;
+	static override enableBanner = false;
 	static override enableJsonFlag = true;
 
 	async run() {

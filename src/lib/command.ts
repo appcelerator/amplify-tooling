@@ -56,6 +56,11 @@ export default abstract class AxwayCommand extends Command {
 	static readonly authenticated: boolean = true;
 
 	/**
+	 * Whether to enable the banner when running this command. Defaults to true.
+	 */
+	static readonly enableBanner: boolean = true;
+
+	/**
 	 * Whether this command should exclude the profile flag. Should only be set
 	 * to true for commands that manage profiles themselves.
 	 * Defaults to false.

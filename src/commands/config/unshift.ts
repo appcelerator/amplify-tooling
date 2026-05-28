@@ -23,6 +23,7 @@ export default class ConfigUnshift extends Command {
 	};
 
 	static override authenticated = false;
+	static override enableBanner = false;
 	static override enableJsonFlag = true;
 
 	async run(): Promise<{ result: string } | void> {

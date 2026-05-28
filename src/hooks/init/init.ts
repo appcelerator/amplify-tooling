@@ -37,7 +37,8 @@ const hook: Hook.Init = async function (opts) {
 		}).catch(() => {});
 	}
 
-	if (config.get('banner.enabled') !== false && !opts.argv.includes('--no-banner') && !opts.argv.includes('--json')) {
+	const command = opts.config.commands.find(cmd => cmd.id === opts.id);
+	if (config.get('banner.enabled') !== false && !opts.argv.includes('--no-banner') && !opts.argv.includes('--json') && command?.enableBanner !== false) {
 		const year = new Date(Date.now()).getFullYear().toString();
 		const [ supportedNodeVersion ] = opts.config.pjson.engines.node?.match(/\d{2}/) || [ '22' ];
 		let str = `${highlight('AXWAY CLI')}, version ${opts.config.version}
