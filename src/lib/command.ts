@@ -107,4 +107,14 @@ export default abstract class AxwayCommand extends Command {
 		const help = new Help(this.config);
 		await help.showHelp(this.id.split(':'));
 	}
+
+	/**
+	 * Override oclif's logJson to handle primitives correctly.
+	 * The base implementation expects objects and fails when given primitives.
+	 */
+	protected override logJson(json: unknown): void {
+		// Always stringify first, then let oclif colorize the stringified JSON
+		const stringified = JSON.stringify(json, null, 2);
+		super.logJson(stringified);
+	}
 }
