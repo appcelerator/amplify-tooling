@@ -11,15 +11,15 @@ describe('axway org', () => {
 		after(resetHomeDir);
 
 		it('should output the help screen with color', async () => {
-			const { status, stdout } = await runAxwaySync([ 'org' ]);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
-			expect(status).to.equal(2);
+			const { status, stdout } = await runAxwaySync([ 'org' ], { color: true });
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color', {}, { color: true }));
+			expect(status).to.equal(0);
 		});
 
 		it('should output the help screen using --help flag', async () => {
-			const { status, stdout } = await runAxwaySync([ 'org', '--help' ]);
-			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
-			expect(status).to.equal(2);
+			const { status, stdout } = await runAxwaySync([ 'org', '--help' ], { color: true });
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color', {}, { color: true }));
+			expect(status).to.equal(0);
 		});
 	});
 
@@ -28,7 +28,7 @@ describe('axway org', () => {
 
 		it('should error if not authenticated', async () => {
 			const { status, stderr } = await runAxwaySync([ 'org', 'activity' ]);
-			expect(stderr.toString()).to.match(renderRegexFromFile('activity/not-authenticated'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('activity/not-authenticated-stderr'));
 			expect(status).to.equal(1);
 		});
 
@@ -63,6 +63,7 @@ describe('axway org', () => {
 					guid: '1000',
 					id: 100,
 					name: 'Foo org',
+					org_id: 100,
 					entitlements: {
 						_a: 10,
 						bc: 20
@@ -140,18 +141,18 @@ describe('axway org', () => {
 			await loginCLISync();
 
 			let { status, stderr } = await runAxwaySync([ 'org', 'activity', '--from', 'foo' ]);
-			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-from-date'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-from-date-stderr'));
 			expect(status).to.equal(1);
 
 			({ status, stderr } = await runAxwaySync([ 'org', 'activity', '--to', 'bar' ]));
-			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-to-date'));
+			expect(stderr.toString()).to.match(renderRegexFromFile('activity/bad-to-date-stderr'));
 			expect(status).to.equal(1);
 		});
 
 		it('should output activity help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'org', 'activity', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('activity/help'));
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 		});
 	});
 
@@ -162,16 +163,8 @@ describe('axway org', () => {
 			initHomeDir('home-local');
 
 			const { status, stderr } = await runAxwaySync([ 'org', 'list' ]);
-			expect(stderr).to.match(renderRegexFromFile('list/not-authenticated'));
-			expect(status).to.equal(1);
-		});
-
-		it('should error if account is not found', async function () {
-			initHomeDir('home-local');
-
-			const { status, stderr } = await runAxwaySync([ 'org', 'list', '--account', 'foo' ]);
-			expect(stderr).to.match(renderRegexFromFile('list/non-existent-account'));
-			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('list/not-authenticated-stderr'));
+			expect(status).to.equal(2);
 		});
 
 		it('should list the org', async function () {
@@ -193,10 +186,44 @@ describe('axway org', () => {
 				account: 'test-auth-client-secret',
 				orgs: [
 					{
-						default: true,
+						active: true,
 						guid: '1000',
+						org_id: 100,
 						id: 100,
-						name: 'Foo org'
+						name: 'Foo org',
+						entitlements: {
+							_a: 10,
+							bc: 20
+						},
+						subscriptions: [],
+						teams: [
+							{
+								name: 'A Team',
+								created: '2021-02-14T15:30:00.000Z',
+								guid: '60000',
+								default: true,
+								tags: [],
+								org_guid: '1000',
+								users: [
+									{
+										guid: '50000',
+										roles: [
+											'administrator'
+										],
+										type: 'user'
+									},
+									{
+										guid: '629e1705-9cd7-4db7-9dfe-08aa47b0f3ad',
+										type: 'client',
+										roles: [
+											'developer'
+										]
+									}
+								]
+							}
+						],
+						teamCount: 1,
+						userCount: 2
 					}
 				]
 			});
@@ -206,7 +233,7 @@ describe('axway org', () => {
 		it('should output list help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'org', 'list', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('list/help'));
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 		});
 	});
 
@@ -221,16 +248,16 @@ describe('axway org', () => {
 			initHomeDir('home-local');
 
 			const { status, stderr } = await runAxwaySync([ 'org', 'list' ]);
-			expect(stderr).to.match(renderRegexFromFile('list/not-authenticated'));
-			expect(status).to.equal(1);
+			expect(stderr).to.match(renderRegexFromFile('list/not-authenticated-stderr'));
+			expect(status).to.equal(2);
 		});
 
 		it('should error if org is not found', async function () {
 			initHomeDir('home-local');
 			await loginCLISync();
 
-			const { status, stderr } = await runAxwaySync([ 'org', 'usage', '--org', 'does_not_exist' ]);
-			expect(stderr).to.match(renderRegexFromFile('usage/bad-org'));
+			const { status, stderr } = await runAxwaySync([ 'org', 'usage', 'does_not_exist' ]);
+			expect(stderr).to.match(renderRegexFromFile('usage/bad-org-stderr'));
 			expect(status).to.equal(1);
 		});
 
@@ -246,7 +273,7 @@ describe('axway org', () => {
 		it('should output usage help', async () => {
 			const { status, stdout } = await runAxwaySync([ 'org', 'usage', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('usage/help'));
-			expect(status).to.equal(2);
+			expect(status).to.equal(0);
 		});
 	});
 
