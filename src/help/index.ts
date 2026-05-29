@@ -6,6 +6,38 @@ import widestLine from 'widest-line';
 import wrapAnsi from 'wrap-ansi';
 
 /**
+ * Custom Help class that preserves leading whitespace in help output.
+ *
+ * This class overrides oclif's default Help class to prevent the stripping of
+ * leading whitespace in command descriptions and help text, allowing for properly
+ * indented content.
+ */
+export default class Help extends DefaultHelp {
+	/**
+	 * Use our custom CommandHelp class that supports custom sections and preserves whitespace
+	 */
+	protected override CommandHelpClass = CommandHelp;
+
+	/**
+	 * Override wrap to preserve leading whitespace by passing trim: false to wrap-ansi
+	 */
+	override wrap(body: string, spacing = this.indentSpacing): string {
+		return wrapPreservingWhitespace.call(this, body, spacing);
+	}
+
+	/**
+	 * Override renderList to not trim() the right-side descriptions, preserving leading whitespace.
+	 * Also preserves leading whitespace on the left side (flag names) for proper alignment.
+	 */
+	override renderList(
+		input: (string | undefined)[][],
+		opts: { indentation: number; multiline?: boolean; spacer?: string; stripAnsi?: boolean }
+	): string {
+		return renderListPreservingWhitespace.call(this, input, opts);
+	}
+}
+
+/**
  * Custom CommandHelp that preserves leading whitespace and supports custom sections.
  *
  * Commands can define a static `settings` property to add a custom SETTINGS section
@@ -43,211 +75,117 @@ class CommandHelp extends DefaultCommandHelp {
 	 * Override wrap to preserve leading whitespace by passing trim: false to wrap-ansi
 	 */
 	override wrap(body: string, spacing = this.indentSpacing): string {
-		const rendered = this.render(body);
-		return wrapAnsi(rendered, this.opts.maxWidth - spacing, { hard: true, trim: false });
+		return wrapPreservingWhitespace.call(this, body, spacing);
 	}
 
 	/**
-	 * Override renderList to not trim() the right-side descriptions, preserving leading whitespace
+	 * Override renderList to not trim() the right-side descriptions, preserving leading whitespace.
+	 * Also preserves leading whitespace on the left side (flag names) for proper alignment.
 	 */
 	override renderList(
 		input: (string | undefined)[][],
 		opts: { indentation: number; multiline?: boolean; spacer?: string; stripAnsi?: boolean }
 	): string {
-		if (input.length === 0) {
-			return '';
-		}
-
-		const renderMultiline = () => {
-			let output = '';
-			for (let [ left, right ] of input) {
-				if (!left && !right) {
-					continue;
-				}
-
-				if (left) {
-					if (opts.stripAnsi) {
-						left = ansis.strip(left);
-					}
-					output += this.wrap(left.trim(), opts.indentation);
-				}
-
-				if (right) {
-					if (opts.stripAnsi) {
-						right = ansis.strip(right);
-					}
-					output += '\n';
-					// Changed: removed .trim() from right to preserve leading whitespace
-					output += this.indent(this.wrap(right, opts.indentation + 2), 4);
-				}
-
-				output += '\n\n';
-			}
-
-			return output.trim();
-		};
-
-		if (opts.multiline) {
-			return renderMultiline();
-		}
-
-		const maxLength = widestLine(input.map((i) => i[0]).join('\n'));
-		let output = '';
-		const spacer = opts.spacer || '\n';
-		let cur = '';
-
-		for (const [ left, r ] of input) {
-			let right = r;
-			if (cur) {
-				output += spacer;
-				output += cur;
-			}
-
-			cur = left ?? '';
-			if (opts.stripAnsi) {
-				cur = ansis.strip(cur);
-			}
-			cur = cur.trim();
-
-			if (!right) {
-				cur = cur.trim();
-				continue;
-			}
-
-			if (opts.stripAnsi) {
-				right = ansis.strip(right);
-			}
-			// Changed: removed .trim() from right to preserve leading whitespace
-			right = this.wrap(right, opts.indentation + maxLength + 2);
-			const [ first, ...lines ] = right.split('\n').map((s) => s.trimEnd());
-			cur += ' '.repeat(maxLength - stringWidth(cur) + 2);
-			cur += first;
-
-			if (lines.length > 0) {
-				// indent: maxLength + spacer + indentation
-				cur += `\n${lines.map((s) => indentString(s, maxLength + 2 + 2)).join('\n')}`;
-			}
-		}
-
-		if (cur) {
-			output += spacer;
-			output += cur;
-		}
-
-		return output.trim();
+		return renderListPreservingWhitespace.call(this, input, opts);
 	}
 }
 
 /**
- * Custom Help class that preserves leading whitespace in help output.
- *
- * This class overrides oclif's default Help class to prevent the stripping of
- * leading whitespace in command descriptions and help text, allowing for properly
- * indented content.
+ * Shared wrap implementation that preserves leading whitespace by passing trim: false to wrap-ansi.
  */
-class Help extends DefaultHelp {
-	/**
-	 * Use our custom CommandHelp class that supports custom sections and preserves whitespace
-	 */
-	protected override CommandHelpClass = CommandHelp;
+function wrapPreservingWhitespace(this: any, body: string, spacing: number): string {
+	const rendered = this.render(body);
+	return wrapAnsi(rendered, this.opts.maxWidth - spacing, { hard: true, trim: false });
+}
 
-	/**
-	 * Override wrap to preserve leading whitespace by passing trim: false to wrap-ansi
-	 */
-	override wrap(body: string, spacing = this.indentSpacing): string {
-		const rendered = this.render(body);
-		return wrapAnsi(rendered, this.opts.maxWidth - spacing, { hard: true, trim: false });
+/**
+ * Shared renderList implementation that preserves leading whitespace on both left and right sides.
+ * This is needed for proper alignment of flags without short options.
+ */
+function renderListPreservingWhitespace(
+	this: any,
+	input: (string | undefined)[][],
+	opts: { indentation: number; multiline?: boolean; spacer?: string; stripAnsi?: boolean }
+): string {
+	if (input.length === 0) {
+		return '';
 	}
 
-	/**
-	 * Override renderList to not trim() the right-side descriptions, preserving leading whitespace
-	 */
-	override renderList(
-		input: (string | undefined)[][],
-		opts: { indentation: number; multiline?: boolean; spacer?: string; stripAnsi?: boolean }
-	): string {
-		if (input.length === 0) {
-			return '';
-		}
-
-		const renderMultiline = () => {
-			let output = '';
-			for (let [ left, right ] of input) {
-				if (!left && !right) {
-					continue;
-				}
-
-				if (left) {
-					if (opts.stripAnsi) {
-						left = ansis.strip(left);
-					}
-					output += this.wrap(left.trim(), opts.indentation);
-				}
-
-				if (right) {
-					if (opts.stripAnsi) {
-						right = ansis.strip(right);
-					}
-					output += '\n';
-					// Changed: removed .trim() from right to preserve leading whitespace
-					output += this.indent(this.wrap(right, opts.indentation + 2), 4);
-				}
-
-				output += '\n\n';
-			}
-
-			return output.trim();
-		};
-
-		if (opts.multiline) {
-			return renderMultiline();
-		}
-
-		const maxLength = widestLine(input.map((i) => i[0]).join('\n'));
+	const renderMultiline = () => {
 		let output = '';
-		const spacer = opts.spacer || '\n';
-		let cur = '';
-
-		for (const [ left, r ] of input) {
-			let right = r;
-			if (cur) {
-				output += spacer;
-				output += cur;
-			}
-
-			cur = left ?? '';
-			if (opts.stripAnsi) {
-				cur = ansis.strip(cur);
-			}
-			cur = cur.trim();
-
-			if (!right) {
-				cur = cur.trim();
+		for (let [ left, right ] of input) {
+			if (!left && !right) {
 				continue;
 			}
 
-			if (opts.stripAnsi) {
-				right = ansis.strip(right);
+			if (left) {
+				if (opts.stripAnsi) {
+					left = ansis.strip(left);
+				}
+				// Preserve leading whitespace for proper flag alignment
+				output += this.wrap(left.trimEnd(), opts.indentation);
 			}
-			// Changed: removed .trim() from right to preserve leading whitespace
-			right = this.wrap(right, opts.indentation + maxLength + 2);
-			const [ first, ...lines ] = right.split('\n').map((s) => s.trimEnd());
-			cur += ' '.repeat(maxLength - stringWidth(cur) + 2);
-			cur += first;
 
-			if (lines.length > 0) {
-				// indent: maxLength + spacer + indentation
-				cur += `\n${lines.map((s) => indentString(s, maxLength + 2 + 2)).join('\n')}`;
+			if (right) {
+				if (opts.stripAnsi) {
+					right = ansis.strip(right);
+				}
+				output += '\n';
+				output += this.indent(this.wrap(right, opts.indentation + 2), 4);
 			}
+
+			output += '\n\n';
 		}
 
+		return output.trim();
+	};
+
+	if (opts.multiline) {
+		return renderMultiline();
+	}
+
+	const maxLength = widestLine(input.map((i) => i[0]).join('\n'));
+	let output = '';
+	const spacer = opts.spacer || '\n';
+	let cur = '';
+
+	for (const [ left, r ] of input) {
+		let right = r;
 		if (cur) {
 			output += spacer;
 			output += cur;
 		}
 
-		return output.trim();
-	}
-}
+		cur = left ?? '';
+		if (opts.stripAnsi) {
+			cur = ansis.strip(cur);
+		}
+		// Preserve leading whitespace for proper flag alignment
+		cur = cur.trimEnd();
 
-export default Help;
+		if (!right) {
+			cur = cur.trimEnd();
+			continue;
+		}
+
+		if (opts.stripAnsi) {
+			right = ansis.strip(right);
+		}
+		right = this.wrap(right, opts.indentation + maxLength + 2);
+		const [ first, ...lines ] = right.split('\n').map((s: string) => s.trimEnd());
+		cur += ' '.repeat(maxLength - stringWidth(cur) + 2);
+		cur += first;
+
+		if (lines.length > 0) {
+			// indent: maxLength + spacer + indentation
+			cur += `\n${lines.map((s: string) => indentString(s, maxLength + 2 + 2)).join('\n')}`;
+		}
+	}
+
+	if (cur) {
+		output += spacer;
+		output += cur;
+	}
+
+	return output.trim();
+}
