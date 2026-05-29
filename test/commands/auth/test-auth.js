@@ -71,11 +71,11 @@ describe('axway auth', () => {
 			initHomeDir('home-local');
 
 			let { status, stderr } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', 'does_not_exist' ]);
-			expect(stderr).to.match(renderRegexFromFile('login/secret-file-not-found'));
+			expect(stderr).to.match(renderRegexFromFile('login/secret-file-not-found-stderr'));
 			expect(status).to.equal(1);
 
 			({ status, stderr } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', path.join(__dirname, 'login/bad-secret.pem') ]));
-			expect(stderr).to.match(renderRegexFromFile('login/invalid-secret-file'));
+			expect(stderr).to.match(renderRegexFromFile('login/invalid-secret-file-stderr'));
 			expect(status).to.equal(1);
 		});
 
@@ -156,13 +156,13 @@ describe('axway auth', () => {
 
 		it('should error if no authenticated accounts', async () => {
 			const { status, stderr } = await runAxwaySync([ 'auth', 'logout' ]);
-			expect(stderr).to.match(renderRegexFromFile('logout/no-accounts'));
+			expect(stderr).to.match(renderRegexFromFile('logout/no-accounts-stderr'));
 			expect(status).to.equal(2);
 		});
 
 		it('should error if specified account is not found', async () => {
 			const { status, stderr } = await runAxwaySync([ 'auth', 'logout', 'foo' ]);
-			expect(stderr).to.match(renderRegexFromFile('logout/not-found'));
+			expect(stderr).to.match(renderRegexFromFile('logout/not-found-stderr'));
 			expect(status).to.equal(1);
 		});
 
@@ -200,7 +200,7 @@ describe('axway auth', () => {
 			initHomeDir('home-local');
 
 			const { status, stderr } = await runAxwaySync([ 'auth', 'whoami', 'foo@bar.com' ]);
-			expect(stderr).to.match(renderRegexFromFile('whoami/not-logged-in-account'));
+			expect(stderr).to.match(renderRegexFromFile('whoami/not-logged-in-stderr'));
 			expect(status).to.equal(2);
 		});
 
