@@ -8,10 +8,6 @@ export default class TeamView extends Command {
 	static override summary = 'View team information.';
 
 	static override args = {
-		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		}),
 		team: Args.string({
 			description: 'The team name or guid.',
 			required: true
@@ -21,11 +17,11 @@ export default class TeamView extends Command {
 	static override examples = [
 		{
 			description: 'View information about a team',
-			command: '<%= config.bin %> <%= command.id %> AcmeCorp DevTeam'
+			command: '<%= config.bin %> <%= command.id %> <team>'
 		},
 		{
 			description: 'View information about a team as JSON',
-			command: '<%= config.bin %> <%= command.id %> AcmeCorp DevTeam --json'
+			command: '<%= config.bin %> <%= command.id %> <team> --json'
 		}
 	];
 
