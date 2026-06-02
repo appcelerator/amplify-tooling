@@ -26,7 +26,7 @@ function convertToTemplate(stdout, useColor = false) {
 		const coloredChalk = new Chalk({ level: 3 });
 
 		// Replace ANSI color codes with mustache color tags for all supported color functions
-		for (const fn of [ 'bold', 'blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'yellow', 'underline' ]) {
+		for (const fn of [ 'bold', 'cyan', 'gray', 'red', 'underline' ]) {
 			// Generate the ANSI codes for this color function by applying it to a placeholder
 			const ansiString = coloredChalk[fn]('PLACEHOLDER');
 
@@ -44,6 +44,16 @@ function convertToTemplate(stdout, useColor = false) {
 			template = template.replace(pattern, `{{#${fn}}}$1{{/${fn}}}`);
 		}
 	}
+
+	// Replace date/datetime strings — must come before version replacement so European
+	// numeric dates (DD.MM.YYYY) are not consumed by the \d+\.\d+\.\d+ version pattern.
+
+	// ISO 8601: YYYY-MM-DD optionally followed by a time component (e.g. 2021-03-24T13:13:11.567Z)
+	template = template.replace(/\b\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)?\b/g, '{{{localeDateTime}}}');
+	// M/D/YYYY or MM/DD/YYYY, optionally followed by a time (e.g. 3/24/2021, 1:30 PM)
+	template = template.replace(/\b\d{1,2}\/\d{1,2}\/\d{4}(?:,?\s+\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)?\b/g, '{{{localeDateTime}}}');
+	// D.M.YYYY or DD.MM.YYYY (e.g. 24.3.2021)
+	template = template.replace(/\b\d{1,2}\.\d{1,2}\.\d{4}\b/g, '{{{localeDateTime}}}');
 
 	// Replace version numbers
 	template = template.replace(/\b\d+\.\d+\.\d+(-[\w.]+)?\b/g, '{{version}}');

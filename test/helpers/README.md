@@ -4,7 +4,7 @@ This directory contains helper utilities for running and maintaining tests in th
 
 ## LOG_TEST_OUTPUT Environment Variable
 
-The `LOG_TEST_OUTPUT` environment variable enables detailed logging of test command invocations and their outputs. When enabled, it captures all command executions performed by `runAxwaySync()` and saves them to JSON log files in `test/.test-output-logs/`.
+The `LOG_TEST_OUTPUT` environment variable enables detailed logging of test command invocations and their outputs. When enabled, it captures all command executions performed by `runCommand()` and saves them to JSON log files in `test/.test-output-logs/`.
 
 ### Usage
 
@@ -36,7 +36,7 @@ Log files are created in `test/.test-output-logs/` with the naming convention:
 
 ### How It Works
 
-1. **Capturing Output**: When `LOG_TEST_OUTPUT` is set, `runAxwaySync()` in [index.js](index.js) captures stdout, stderr, and exit codes for each command execution.
+1. **Capturing Output**: When `LOG_TEST_OUTPUT` is set, `runCommand()` in [index.js](index.js) captures stdout, stderr, and exit codes for each command execution.
 
 2. **Test Context Tracking**: The helper builds test names from Mocha's suite hierarchy (`describe` blocks) and test titles (`it` blocks) to create meaningful log file names.
 
@@ -132,7 +132,7 @@ If all invocations are skipped, it means the test didn't use `renderRegexFromFil
 ## Related Files
 
 * [generate-template-from-log.js](generate-template-from-log.js) - Template generation script
-* [index.js](index.js) - Contains `runAxwaySync()` and `renderRegexFromFile()` that power the logging functionality
+* [index.js](index.js) - Contains `runCommand()` and `renderRegexFromFile()` that power the logging functionality
 * [setup.js](setup.js) - Test setup and configuration
 
 ## Best Practices

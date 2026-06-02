@@ -1,7 +1,7 @@
 import {
 	renderRegexFromFile,
 	resetHomeDir,
-	runAxwaySync
+	runCommand
 } from '../../helpers/index.js';
 
 describe('axway', () => {
@@ -9,25 +9,25 @@ describe('axway', () => {
 		after(resetHomeDir);
 
 		it('should output the help screen with color', async () => {
-			const { status, stdout } = await runAxwaySync([], { color: true });
+			const { status, stdout } = await runCommand([], { color: true });
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 			expect(status).to.equal(0);
 		});
 
 		it('should output the help screen without color', async () => {
-			const { status, stdout } = await runAxwaySync([ '--help', '--no-color' ]);
+			const { status, stdout } = await runCommand([ '--help', '--no-color' ]);
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-without-color'));
 			expect(status).to.equal(0);
 		});
 
 		it('should list suggestions if command does not exist', async () => {
-			const { status, stderr } = await runAxwaySync([ 'athu' ]);
+			const { status, stderr } = await runCommand([ 'athu' ]);
 			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command/bad-command-with-suggestions-stderr'));
 			expect(status).to.equal(2);
 		});
 
 		it('should error if command does not exist', async () => {
-			const { status, stderr } = await runAxwaySync([ 'foo' ]);
+			const { status, stderr } = await runCommand([ 'foo' ]);
 			expect(stderr.toString()).to.match(renderRegexFromFile('bad-command/bad-command-stderr'));
 			expect(status).to.equal(2);
 		});
@@ -35,7 +35,7 @@ describe('axway', () => {
 
 	describe('banner', () => {
 		it('should output the help without the banner', async () => {
-			const { status, stdout } = await runAxwaySync([ '--help', '--no-banner' ], { color: true });
+			const { status, stdout } = await runCommand([ '--help', '--no-banner' ], { color: true });
 			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color-no-banner'));
 			expect(status).to.equal(0);
 		});
@@ -43,11 +43,11 @@ describe('axway', () => {
 
 	describe('version', () => {
 		it('should display the version', async () => {
-			let { status, stdout } = await runAxwaySync([ '-v' ]);
+			let { status, stdout } = await runCommand([ '-v' ]);
 			expect(stdout.toString()).to.match(/\d\.\d\.\d(-[^\s]*)?/);
 			expect(status).to.equal(0);
 
-			({ status, stdout } = await runAxwaySync([ '--version' ]));
+			({ status, stdout } = await runCommand([ '--version' ]));
 			expect(stdout.toString()).to.match(/\d\.\d\.\d(-[^\s]*)?/);
 			expect(status).to.equal(0);
 		});

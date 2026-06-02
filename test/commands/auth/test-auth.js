@@ -3,7 +3,7 @@ import {
 	initHomeDir,
 	renderRegexFromFile,
 	resetHomeDir,
-	runAxwaySync
+	runCommand
 } from '../../helpers/index.js';
 import { readJsonSync } from '../../../dist/lib/fs.js';
 import { fileURLToPath } from 'url';
@@ -16,13 +16,13 @@ describe('axway auth', () => {
 		after(resetHomeDir);
 
 		it('should output the help screen with color', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth' ], { color: true });
+			const { status, stdout } = await runCommand([ 'auth' ], { color: true });
 			expect(stdout).to.match(renderRegexFromFile('help/help-with-color'));
 			expect(status).to.equal(0);
 		});
 
 		it('should output the help screen using --help flag', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth', '--help' ], { color: true });
+			const { status, stdout } = await runCommand([ 'auth', '--help' ], { color: true });
 			expect(stdout).to.match(renderRegexFromFile('help/help-with-color'));
 			expect(status).to.equal(0);
 		});
@@ -34,7 +34,7 @@ describe('axway auth', () => {
 		it('should list no authenticated accounts', async () => {
 			initHomeDir('home-local');
 
-			const { status, stdout } = await runAxwaySync([ 'auth', 'list' ]);
+			const { status, stdout } = await runCommand([ 'auth', 'list' ]);
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/no-accounts'));
 		});
@@ -42,13 +42,13 @@ describe('axway auth', () => {
 		it('should list no authenticated accounts as JSON', async () => {
 			initHomeDir('home-local');
 
-			const { status, stdout } = await runAxwaySync([ 'auth', 'list', '--json' ]);
+			const { status, stdout } = await runCommand([ 'auth', 'list', '--json' ]);
 			expect(status).to.equal(0);
 			expect(JSON.parse(stdout)).to.deep.equal([]);
 		});
 
 		it('should display list help', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth', 'list', '--help' ]);
+			const { status, stdout } = await runCommand([ 'auth', 'list', '--help' ]);
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/help'));
 		});
@@ -62,11 +62,11 @@ describe('axway auth', () => {
 		it('should log into service account using client secret', async function () {
 			initHomeDir('home-local');
 
-			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--client-secret', 'shhhh' ]);
+			let { status, stdout } = await runCommand([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--client-secret', 'shhhh' ]);
 			expect(stdout).to.match(renderRegexFromFile('login/client-secret-success'));
 			expect(status).to.equal(0);
 
-			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
+			({ status, stdout } = await runCommand([ 'auth', 'list' ]));
 			expect(stdout).to.match(renderRegexFromFile('list/test-auth-client-secret-account'));
 			expect(status).to.equal(0);
 		});
@@ -74,11 +74,11 @@ describe('axway auth', () => {
 		it('should error if secret file is invalid', async function () {
 			initHomeDir('home-local');
 
-			let { status, stderr } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', 'does_not_exist' ]);
+			let { status, stderr } = await runCommand([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', 'does_not_exist' ]);
 			expect(stderr).to.match(renderRegexFromFile('login/secret-file-not-found-stderr'));
 			expect(status).to.equal(1);
 
-			({ status, stderr } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', path.join(__dirname, 'login/bad-secret.pem') ]));
+			({ status, stderr } = await runCommand([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--secret-file', path.join(__dirname, 'login/bad-secret.pem') ]));
 			expect(stderr).to.match(renderRegexFromFile('login/invalid-secret-file-stderr'));
 			expect(status).to.equal(1);
 		});
@@ -86,11 +86,11 @@ describe('axway auth', () => {
 		it('should log into service account using signed JWT', async function () {
 			initHomeDir('home-local');
 
-			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-cert', '--secret-file', path.join(__dirname, '../../helpers/private_key.pem') ]);
+			let { status, stdout } = await runCommand([ 'auth', 'login', '--client-id', 'test-auth-client-cert', '--secret-file', path.join(__dirname, '../../helpers/private_key.pem') ]);
 			expect(stdout).to.match(renderRegexFromFile('login/client-cert-success'));
 			expect(status).to.equal(0);
 
-			({ status, stdout } = await runAxwaySync([ 'auth', 'list' ]));
+			({ status, stdout } = await runCommand([ 'auth', 'list' ]));
 			expect(stdout).to.match(renderRegexFromFile('list/test-auth-client-cert-account'));
 			expect(status).to.equal(0);
 		});
@@ -100,7 +100,7 @@ describe('axway auth', () => {
 		});
 
 		it('should display login help', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth', 'login', '--help' ]);
+			const { status, stdout } = await runCommand([ 'auth', 'login', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('login/help'));
 			expect(status).to.equal(0);
 		});
@@ -112,21 +112,21 @@ describe('axway auth', () => {
 		it('should logout of service account', async function () {
 			initHomeDir('home-local');
 
-			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--client-secret', 'shhhh' ]);
+			let { status, stdout } = await runCommand([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--client-secret', 'shhhh' ]);
 			expect(stdout).to.match(renderRegexFromFile('login/client-secret-success'));
 			expect(status).to.equal(0);
 
-			({ status, stdout } = await runAxwaySync([ 'auth', 'list', '--json' ]));
+			({ status, stdout } = await runCommand([ 'auth', 'list', '--json' ]));
 			let accounts = JSON.parse(stdout);
 			expect(accounts).to.be.an('array');
 			expect(accounts).to.have.lengthOf(1);
 			expect(accounts[0].name).to.equal('test-auth-client-secret');
 
-			({ status, stdout } = await runAxwaySync([ 'auth', 'logout' ]));
+			({ status, stdout } = await runCommand([ 'auth', 'logout' ]));
 			expect(stdout).to.match(renderRegexFromFile('logout/success'));
 			expect(status).to.equal(0);
 
-			({ status, stdout } = await runAxwaySync([ 'auth', 'list', '--json' ]));
+			({ status, stdout } = await runCommand([ 'auth', 'list', '--json' ]));
 			accounts = JSON.parse(stdout);
 			expect(accounts).to.be.an('array');
 			expect(accounts).to.have.lengthOf(0);
@@ -135,43 +135,43 @@ describe('axway auth', () => {
 		it('should logout of service account and return result as JSON', async function () {
 			initHomeDir('home-local');
 
-			let { status, stdout } = await runAxwaySync([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--client-secret', 'shhhh' ]);
+			let { status, stdout } = await runCommand([ 'auth', 'login', '--client-id', 'test-auth-client-secret', '--client-secret', 'shhhh' ]);
 			expect(stdout).to.match(renderRegexFromFile('login/client-secret-success'));
 			expect(status).to.equal(0);
 
-			({ status, stdout } = await runAxwaySync([ 'auth', 'list', '--json' ]));
+			({ status, stdout } = await runCommand([ 'auth', 'list', '--json' ]));
 			let accounts = JSON.parse(stdout);
 			expect(accounts).to.be.an('array');
 			expect(accounts).to.have.lengthOf(1);
 			expect(accounts[0].name).to.equal('test-auth-client-secret');
 
-			({ status, stdout } = await runAxwaySync([ 'auth', 'logout', '--json' ]));
+			({ status, stdout } = await runCommand([ 'auth', 'logout', '--json' ]));
 			expect(status).to.equal(0);
 			const revoked = JSON.parse(stdout);
 			expect(revoked).to.be.an('array');
 			expect(revoked).to.have.lengthOf(1);
 			expect(revoked[0].name).to.equal('test-auth-client-secret');
 
-			({ status, stdout } = await runAxwaySync([ 'auth', 'list', '--json' ]));
+			({ status, stdout } = await runCommand([ 'auth', 'list', '--json' ]));
 			accounts = JSON.parse(stdout);
 			expect(accounts).to.be.an('array');
 			expect(accounts).to.have.lengthOf(0);
 		});
 
 		it('should error if no authenticated accounts', async () => {
-			const { status, stderr } = await runAxwaySync([ 'auth', 'logout' ]);
+			const { status, stderr } = await runCommand([ 'auth', 'logout' ]);
 			expect(stderr).to.match(renderRegexFromFile('logout/no-accounts-stderr'));
 			expect(status).to.equal(2);
 		});
 
 		it('should error if specified account is not found', async () => {
-			const { status, stderr } = await runAxwaySync([ 'auth', 'logout', 'foo' ]);
+			const { status, stderr } = await runCommand([ 'auth', 'logout', 'foo' ]);
 			expect(stderr).to.match(renderRegexFromFile('logout/not-found-stderr'));
 			expect(status).to.equal(1);
 		});
 
 		it('should display logout help', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth', 'logout', '--help' ]);
+			const { status, stdout } = await runCommand([ 'auth', 'logout', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('logout/help'));
 			expect(status).to.equal(0);
 		});
@@ -185,7 +185,7 @@ describe('axway auth', () => {
 		});
 
 		it('should display switch help', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth', 'switch', '--help' ]);
+			const { status, stdout } = await runCommand([ 'auth', 'switch', '--help' ]);
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('switch/help'));
 		});
@@ -203,13 +203,13 @@ describe('axway auth', () => {
 		it('should login and display not logged into a specific account', async function () {
 			initHomeDir('home-local');
 
-			const { status, stderr } = await runAxwaySync([ 'auth', 'whoami', 'foo@bar.com' ]);
+			const { status, stderr } = await runCommand([ 'auth', 'whoami', 'foo@bar.com' ]);
 			expect(stderr).to.match(renderRegexFromFile('whoami/not-logged-in-stderr'));
 			expect(status).to.equal(2);
 		});
 
 		it('should display whoami help', async () => {
-			const { status, stdout } = await runAxwaySync([ 'auth', 'whoami', '--help' ]);
+			const { status, stdout } = await runCommand([ 'auth', 'whoami', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('whoami/help'));
 			expect(status).to.equal(0);
 		});
@@ -221,7 +221,7 @@ describe('axway auth', () => {
 		it('should get server info', async function () {
 			initHomeDir('home-local');
 
-			const { status, stdout } = await runAxwaySync([ 'auth', 'server-info', '--json' ]);
+			const { status, stdout } = await runCommand([ 'auth', 'server-info', '--json' ]);
 			const info = JSON.parse(stdout);
 			expect(info).to.deep.equal(readJsonSync(path.resolve(__dirname, '../../helpers/server-info.json')));
 			expect(status).to.equal(0);
