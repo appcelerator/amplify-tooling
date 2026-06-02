@@ -1,55 +1,68 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Create and manage service accounts, generate public/private keypairs, and
-assign teams.
+Create and manage service accounts.
 
-When authenticating using a service account in a headless environment, such as
-a SSH terminal, you must set the token store type to "file":
+{{#bold}}USAGE{{/bold}}
+  $ {{#cyan}}axway{{/cyan}} {{#cyan}}service-account{{/cyan}} [--no-banner] [--no-color] [--profile <value>]
 
-  {{#cyan}}axway config set auth.tokenStoreType file{{/cyan}}
+{{#bold}}GLOBAL FLAGS{{/bold}}
+  {{#cyan}}--no-banner{{/cyan}}        Disable the banner.
+  {{#cyan}}--no-color{{/cyan}}         Disable color output.
+  {{#cyan}}--profile={{#underline}}<value>{{/underline}}{{/cyan}}  Specify the configuration profile to use.
 
-USAGE: {{#cyan}}axway service-account <command> [options]{{/cyan}}
+{{#bold}}DESCRIPTION{{/bold}}
+  Create and manage service accounts.
 
-SERVICE-ACCOUNT COMMANDS:
-  {{#cyan}}add-team        {{/cyan}}  Add a team to a service account
-  {{#cyan}}create          {{/cyan}}  Create a service account
-  {{#cyan}}generate-keypair{{/cyan}}  Create a pem formatted public/private key pair
-  {{#cyan}}ls, list        {{/cyan}}  List all service accounts
-  {{#cyan}}rm, remove      {{/cyan}}  Remove a service account
-  {{#cyan}}remove-team     {{/cyan}}  Remove a team from a service account
-  {{#cyan}}roles           {{/cyan}}  View available service account roles
-  {{#cyan}}update          {{/cyan}}  Update a service account
-  {{#cyan}}v, view         {{/cyan}}  View service account details
+  Create and manage service accounts, generate public/private keypairs, and assign teams.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner     {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color      {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help      {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version   {{/cyan}}  Outputs the version
+  When authenticating using a service account in a headless environment, such as a SSH terminal, you must set the token store type to "file":
 
-EXAMPLES:
+    axway config set auth.tokenStoreType file
 
-  List all service accounts:
-    {{#cyan}}axway service-account list{{/cyan}}
+  Available roles can be viewed using the 'roles' subcommand.
 
-  Create a service account with interactive prompting:
-    {{#cyan}}axway service-account create{{/cyan}}
+{{#bold}}EXAMPLES{{/bold}}
+  List all service accounts
 
-  Create a service account with minimum non-interactive arguments:
-    {{#cyan}}axway service-account create --name foo --secret bar{{/cyan}}
+    $ axway service-account list
 
-  Change a service account name, description, and role:
-    {{#cyan}}axway service-account update <name/client-id> --name <new_name> --desc <desc> --role <role>{{/cyan}}
+  Create a service account with interactive prompting
 
-  Add a team to an existing service account:
-    {{#cyan}}axway service-account add-team <client-id/name> <team_guid> <team_role>{{/cyan}}
+    $ axway service-account create
 
-  Remove a team from a service account:
-    {{#cyan}}axway service-account remove-team <client-id/name> <team_guid>{{/cyan}}
+  Create a service account with minimum non-interactive arguments
 
-  Remove a service account:
-    {{#cyan}}axway service-account remove <client-id/name>{{/cyan}}
+    $ axway service-account create --name foo --secret bar
 
-  View available team roles:
-    {{#cyan}}axway service-account roles{{/cyan}}
+  Change a service account name, description, and role
+
+    $ axway service-account update <name/client-id> --name <new_name> --desc <desc> --role <role>
+
+  Add a team to an existing service account
+
+    $ axway service-account add-team <client-id/name> <team_guid> <team_role>
+
+  Remove a team from a service account
+
+    $ axway service-account remove-team <client-id/name> <team_guid>
+
+  Remove a service account
+
+    $ axway service-account remove <client-id/name>
+
+  View available team roles
+
+    $ axway service-account roles
+
+{{#bold}}COMMANDS{{/bold}}
+  {{#cyan}}service-account add-team{{/cyan}}          Add a team to a service account.
+  {{#cyan}}service-account create{{/cyan}}            Create a service account.
+  {{#cyan}}service-account generate-keypair{{/cyan}}  Create a pem formatted public/private key pair.
+  {{#cyan}}service-account list{{/cyan}}              List all service accounts.
+  {{#cyan}}service-account remove{{/cyan}}            Remove a service account.
+  {{#cyan}}service-account remove-team{{/cyan}}       Remove a team from a service account.
+  {{#cyan}}service-account roles{{/cyan}}             View available service account roles.
+  {{#cyan}}service-account update{{/cyan}}            Update a service account.
+  {{#cyan}}service-account view{{/cyan}}              View service account details.
+

@@ -60,7 +60,7 @@ export default class GenerateKeypair extends Command {
 		}
 
 		for (const { file, label } of Object.values(certs) as any) {
-			console.log(`Wrote ${label.toLowerCase()}: ${highlight(file)}`);
+			this.log(`Wrote ${label.toLowerCase()}: ${highlight(file)}`);
 		}
 	}
 }

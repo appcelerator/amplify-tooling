@@ -52,7 +52,7 @@ export async function generateKeypair(opts: any = {}) {
 	};
 
 	return Object.keys(files).reduce((result, type) => {
-		if (files[type]) {
+		if (files[type]?.file) {
 			writeFileSync(files[type].file, certs[type]);
 			result[type] = files[type];
 			result[type].cert = certs[type];

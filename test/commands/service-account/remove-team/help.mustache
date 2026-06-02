@@ -1,21 +1,27 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
 Remove a team from a service account.
 
-USAGE: {{#cyan}}axway service-account remove-team <client-id/name> <team-guid/name> [options]{{/cyan}}
+USAGE
+  $ axway service-account remove-team CLIENT-ID TEAM [--json] [--no-banner] [--no-color] [--profile <value>] [--org <value>] [--account <value>]
 
-REMOVE-TEAM ARGUMENTS:
-  {{#cyan}}id                  {{/cyan}}  The service account client id or name
-  {{#cyan}}guid                {{/cyan}}  The team name or guid
+ARGUMENTS
+  CLIENT-ID  The service account client id or name.
+  TEAM       The team name or guid.
 
-REMOVE-TEAM OPTIONS:
-  {{#cyan}}--account [name]    {{/cyan}}  The platform account to use
-  {{#cyan}}--json              {{/cyan}}  Outputs the result as JSON
-  {{#cyan}}--org [name|id|guid]{{/cyan}}  The organization name, id, or guid
+FLAGS
+  --account=<value>  The account to use within the active profile.
+  --org=<value>      The organization name, id, or guid; defaults to the current org.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color          {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
+
+DESCRIPTION
+  Remove a team from a service account.
+
+  You must have administrative access to modify a service account in the organization.
+

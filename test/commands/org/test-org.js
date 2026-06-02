@@ -27,6 +27,8 @@ describe('axway org', () => {
 		afterEach(resetHomeDir);
 
 		it('should error if not authenticated', async () => {
+			initHomeDir('home-local');
+
 			const { status, stderr } = await runAxwaySync([ 'org', 'activity' ]);
 			expect(stderr.toString()).to.match(renderRegexFromFile('activity/not-authenticated-stderr'));
 			expect(status).to.equal(1);

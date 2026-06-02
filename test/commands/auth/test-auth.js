@@ -32,12 +32,16 @@ describe('axway auth', () => {
 		afterEach(resetHomeDir);
 
 		it('should list no authenticated accounts', async () => {
+			initHomeDir('home-local');
+
 			const { status, stdout } = await runAxwaySync([ 'auth', 'list' ]);
 			expect(status).to.equal(0);
 			expect(stdout).to.match(renderRegexFromFile('list/no-accounts'));
 		});
 
 		it('should list no authenticated accounts as JSON', async () => {
+			initHomeDir('home-local');
+
 			const { status, stdout } = await runAxwaySync([ 'auth', 'list', '--json' ]);
 			expect(status).to.equal(0);
 			expect(JSON.parse(stdout)).to.deep.equal([]);

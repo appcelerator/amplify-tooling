@@ -90,6 +90,10 @@ export function renderRegexFromFile(file, vars) {
 			// Update the most recent invocation with the template path
 			if (Array.isArray(logData) && logData.length > 0) {
 				logData[logData.length - 1].template = file;
+				// Also update in-memory so subsequent runAxwaySync calls don't overwrite this
+				if (global.currentTestInvocations?.length > 0) {
+					global.currentTestInvocations[global.currentTestInvocations.length - 1].template = file;
+				}
 				fs.writeFileSync(lastLogFile, JSON.stringify(logData, null, 2));
 			}
 		} catch {
@@ -226,7 +230,7 @@ export function runAxwaySync(args = [], opts = {},  cfg) {
 
 			// Write all invocations to the log file
 			fs.writeFileSync(logFile, JSON.stringify(global.currentTestInvocations, null, 2));
-			console.log(`\n📝 Logged output to: ${logFile}`);
+			console.log(`📝 Logged output to: ${logFile}`);
 
 			// Store the log file path so renderRegexFromFile can update it with the template path
 			lastLogFile = logFile;
