@@ -13,6 +13,9 @@ let singletonConfig: Config;
 export function getConfigInstance(): Config {
 	return singletonConfig;
 }
+export function resetConfigInstance(): void {
+	singletonConfig = undefined;
+}
 
 /**
  * Load a users config, if no configFile is given then the default Axway CLI config will be

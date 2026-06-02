@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-import { loadConfig, Config, configFile } from '../../dist/lib/config.js';
+import { loadConfig, Config, configFile, resetConfigInstance } from '../../dist/lib/config.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -574,7 +574,10 @@ describe('config', () => {
 
 	describe('loadConfig()', () => {
 
+		beforeEach(() => resetConfigInstance());
+
 		afterEach(() => {
+			resetConfigInstance();
 			if (fs.existsSync(configFile)) {
 				fs.unlinkSync(configFile);
 			}

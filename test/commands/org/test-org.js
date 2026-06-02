@@ -31,7 +31,7 @@ describe('axway org', () => {
 
 			const { status, stderr } = await runAxwaySync([ 'org', 'activity' ]);
 			expect(stderr.toString()).to.match(renderRegexFromFile('activity/not-authenticated-stderr'));
-			expect(status).to.equal(1);
+			expect(status).to.equal(2);
 		});
 
 		it('should display org activity for a specific date range', async function () {

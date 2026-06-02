@@ -705,7 +705,7 @@ export function createPlatformRoutes(server, opts = {}) {
 
 	router.get('/v1/user/:id', ctx => {
 		const { id } = ctx.params;
-		const user = data.users.find(u => u.guid === id);
+		const user = data.users.find(u => u.guid === id || u.email === id);
 		if (user) {
 			ctx.body = {
 				success: true,

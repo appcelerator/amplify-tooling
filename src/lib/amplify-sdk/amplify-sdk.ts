@@ -152,11 +152,7 @@ export default class AmplifySDK {
 				return account;
 			},
 
-			list: async (opts) => {
-				if (!opts || typeof opts !== 'object') {
-					throw E.INVALID_ARGUMENT('Expected options to be an object');
-				}
-
+			list: async (opts = {} as any) => {
 				const accounts = await this.authClient.list();
 				const result = [];
 				for (let account of accounts) {
