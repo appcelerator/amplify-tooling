@@ -99,6 +99,21 @@ export default abstract class AxwayCommand extends Command {
 		return data;
 	}
 
+	override async catch(error: any) {
+		if (this.jsonEnabled()) {
+			const code = error?.oclif?.exit || process.exitCode || 1;
+			// Output the JSON block to stdout and exit cleanly
+			process.stdout.write(JSON.stringify({
+				code,
+				result: String(error) || 'An unexpected error occurred',
+			}, null, 2));
+			this.exit(code);
+		}
+
+		// Fall back to standard string error output if --json isn't requested
+		return super.catch(error)
+	}
+
 	/**
 	 * Log command help output to stdout
 	 */
