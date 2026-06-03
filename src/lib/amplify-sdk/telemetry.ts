@@ -18,6 +18,12 @@ const rootDir = path.resolve(__filename, '../../../..');
 
 const { log } = logger('amplify-sdk:telemetry');
 
+const allowedEvents = [ 'crash.report', 'session.start', 'session.end' ];
+
+function isAllowedEvent(event: string): boolean {
+	return (event.startsWith('cli.telemetry.') && !event.endsWith('.')) || allowedEvents.includes(event);
+}
+
 /**
  * A map of known send process exit codes.
  * @type {Object}
@@ -330,6 +336,9 @@ export default class Telemetry {
 	 * @access private
 	 */
 	writeEvent(event, data) {
+		if (!isAllowedEvent(event)) {
+			return log(`Skipping disallowed event: ${event}`);
+		}
 		const id = uuidv4();
 		const now = new Date();
 		const ts = `${now.toISOString().replace(/[\WZ]*/ig, '').replace('T', '-')}-${String(++this.count).padStart(4, '0')}`;
@@ -455,6 +464,11 @@ process.on('message', async (msg: any) => {
 					const event = readJsonSync(file);
 					if (!event.event) {
 						throw new Error('Incomplete event data');
+					}
+					if (!isAllowedEvent(event.event)) {
+						warn(`Batch ${batchCounter}: Disallowed event "${event.event}" in ${filename}, deleting`);
+						fs.rmSync(file, { force: true });
+						continue;
 					}
 					log(`Batch ${batchCounter}: Adding event ${event.timestamp} "${event.event}"`);
 					batch.push({ event, file });
