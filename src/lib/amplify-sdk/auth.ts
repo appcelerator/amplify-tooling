@@ -244,7 +244,7 @@ export default class Auth {
 			return new ClientSecret(opts);
 		}
 
-		if (typeof opts.secretFile === 'string' && opts.secretFile) {
+		if ((typeof opts.secretFile === 'string' && opts.secretFile) || (typeof opts.secret === 'string' && opts.secret)) {
 			log(`Creating ${highlight('SignedJWT')} authenticator`);
 			return new SignedJWT(opts);
 		}
