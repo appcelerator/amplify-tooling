@@ -21,13 +21,13 @@ describe('axway service-account', () => {
 
 		it('should output the help screen with color', async () => {
 			const { status, stdout } = await runCommand([ 'service-account' ], { color: true });
-			expect(stdout).to.match(renderRegexFromFile('help/help', {}, { color: true }));
+			expect(stdout).to.match(renderRegexFromFile('help/help'));
 			expect(status).to.equal(0);
 		});
 
 		it('should output the help screen using --help flag', async () => {
 			const { status, stdout } = await runCommand([ 'service-account', '--help' ], { color: true });
-			expect(stdout).to.match(renderRegexFromFile('help/help', {}, { color: true }));
+			expect(stdout).to.match(renderRegexFromFile('help/help'));
 			expect(status).to.equal(0);
 		});
 	});

@@ -9,7 +9,7 @@ describe('axway user', () => {
 	describe('help', () => {
 		it('should output the help screen using --help flag', async () => {
 			const { stdout } = await runCommand([ 'user', '--help' ], { color: true });
-			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color', {}, { color: true }));
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 		});
 	});
 

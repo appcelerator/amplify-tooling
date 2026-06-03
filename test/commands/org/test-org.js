@@ -12,13 +12,13 @@ describe('axway org', () => {
 
 		it('should output the help screen with color', async () => {
 			const { status, stdout } = await runCommand([ 'org' ], { color: true });
-			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color', {}, { color: true }));
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 			expect(status).to.equal(0);
 		});
 
 		it('should output the help screen using --help flag', async () => {
 			const { status, stdout } = await runCommand([ 'org', '--help' ], { color: true });
-			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color', {}, { color: true }));
+			expect(stdout.toString()).to.match(renderRegexFromFile('help/help-with-color'));
 			expect(status).to.equal(0);
 		});
 	});
