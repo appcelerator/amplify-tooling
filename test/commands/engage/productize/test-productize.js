@@ -1,5 +1,5 @@
 import path from 'path';
-import { runAxwaySync, renderRegexFromFile } from '../../../helpers/index.js';
+import { runCommand, renderRegexFromFile } from '../../../helpers/index.js';
 import {
 	engageEnv,
 	testDataDir,
@@ -55,7 +55,7 @@ const API_SVC2_ID = 'e4e0839f6efb5aa4016efc23f607033e';
 describe('axway engage productize', () => {
 	describe('help', () => {
 		it('should output the help screen', async () => {
-			const { status, stdout } = await runAxwaySync([ 'engage', 'productize', '--help' ]);
+			const { status, stdout } = await runCommand([ 'engage', 'productize', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('templates/help'));
 			expect(status).to.equal(0);
 		});
@@ -66,7 +66,7 @@ describe('axway engage productize', () => {
 
 		it('should error if not authenticated', async () => {
 			initHomeDir('home-local');
-			const { status } = await runAxwaySync(
+			const { status } = await runCommand(
 				[ 'engage', 'productize', '--file', path.join(testDataDir, 'test_productize.json') ],
 				{ env: engageEnv }
 			);
@@ -86,14 +86,14 @@ describe('axway engage productize', () => {
 
 		describe('args validation', () => {
 			it('should error if --file flag is not provided', async () => {
-				const { status } = await runAxwaySync([ 'engage', 'productize' ], { env: engageEnv });
+				const { status } = await runCommand([ 'engage', 'productize' ], { env: engageEnv });
 				expect(status).to.equal(0);
 			});
 		});
 
 		describe('sad paths', () => {
 			it('should error for entries without a logical name (test_productize_error.json)', async () => {
-				const { status, stdout, stderr } = await runAxwaySync(
+				const { status, stdout, stderr } = await runCommand(
 					[ 'engage', 'productize', '--file', path.join(testDataDir, 'test_productize_error.json') ],
 					{ env: engageEnv }
 				);
@@ -104,7 +104,7 @@ describe('axway engage productize', () => {
 			});
 
 			it('should error for entries without a scope name (test_productize_error.json)', async () => {
-				const { status, stdout, stderr } = await runAxwaySync(
+				const { status, stdout, stderr } = await runCommand(
 					[ 'engage', 'productize', '--file', path.join(testDataDir, 'test_productize_error.json') ],
 					{ env: engageEnv }
 				);
@@ -120,7 +120,7 @@ describe('axway engage productize', () => {
 					makeApiServiceInstance('inst1', 'env1', API_SVC1_ID)
 				);
 
-				const { status, stdout, stderr } = await runAxwaySync(
+				const { status, stdout, stderr } = await runCommand(
 					[ 'engage', 'productize', '--file', path.join(testDataDir, 'test_productize.json') ],
 					{ env: engageEnv }
 				);
@@ -150,7 +150,7 @@ describe('axway engage productize', () => {
 					{ status: 200, body: [] }
 				);
 
-				const { status, stdout, stderr } = await runAxwaySync(
+				const { status, stdout, stderr } = await runCommand(
 					[ 'engage', 'productize', '--file', path.join(testDataDir, 'test_productize.json') ],
 					{ env: engageEnv }
 				);
@@ -180,7 +180,7 @@ describe('axway engage productize', () => {
 					makeApiServiceInstance('inst2', 'env2', API_SVC2_ID)
 				);
 
-				const { status, stdout, stderr } = await runAxwaySync(
+				const { status, stdout, stderr } = await runCommand(
 					[ 'engage', 'productize', '--file', path.join(testDataDir, 'test_productize.json') ],
 					{ env: engageEnv }
 				);

@@ -16,7 +16,7 @@ jobs:
       - name: Lint
         run: npm run lint
 
-  EngageMacOsTest:
+  MacOsTest:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
     runs-on: ${{ matrix.os }}
@@ -35,9 +35,9 @@ jobs:
       - name: Build CLI
         run: npm run build
       - name: Run tests
-        run: npm run engagetest
+        run: npm run test
 
-  EngageWindowsTest:
+  WindowsTest:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
     runs-on: ${{ matrix.os }}
@@ -56,9 +56,9 @@ jobs:
       - name: Build CLI
         run: npm run build
       - name: Run tests
-        run: npm run engagetest
+        run: npm run test
 
-  EngageUbuntuTest:
+  UbuntuTest:
     needs: Lint
     name: ${{ matrix.os }} ${{ matrix.nodeVersion }} Tests
     runs-on: ${{ matrix.os }}
@@ -79,4 +79,4 @@ jobs:
       - name: Build CLI
         run: npm run build
       - name: Run tests
-        run: npm run engagetest
+        run: npm run test

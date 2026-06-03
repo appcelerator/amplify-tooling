@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { runAxwaySync, renderRegexFromFile } from '../../../helpers/index.js';
+import { runCommand, renderRegexFromFile } from '../../../helpers/index.js';
 import {
 	engageEnv,
 	setupEngageAuth,
@@ -38,7 +38,7 @@ function makeEnv(name) {
 describe('axway engage edit', () => {
 	describe('help', () => {
 		it('should output the top-level help screen', async () => {
-			const { status, stdout } = await runAxwaySync([ 'engage', 'edit', '--help' ]);
+			const { status, stdout } = await runCommand([ 'engage', 'edit', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('templates/help'));
 			expect(status).to.equal(0);
 		});
@@ -49,7 +49,7 @@ describe('axway engage edit', () => {
 
 		it('should error if not authenticated', async () => {
 			initHomeDir('home-local');
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[ 'engage', 'edit', 'environment', 'testenv1' ],
 				{ env: { ...engageEnv, EDITOR: 'true' } }
 			);
@@ -71,7 +71,7 @@ describe('axway engage edit', () => {
 		describe('edit environment', () => {
 			it('should error if the environment does not exist (404)', async () => {
 				// Nothing seeded → mock returns 404
-				const { status, stderr } = await runAxwaySync(
+				const { status, stderr } = await runCommand(
 					[ 'engage', 'edit', 'environment', 'nonexistent' ],
 					{ env: { ...engageEnv, EDITOR: 'true' } }
 				);
@@ -83,7 +83,7 @@ describe('axway engage edit', () => {
 			it('should cancel the edit when no changes are made (EDITOR=true exits immediately)', async () => {
 				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
 
-				const { status, stdout, stderr } = await runAxwaySync(
+				const { status, stdout, stderr } = await runCommand(
 					[ 'engage', 'edit', 'environment', 'testenv1' ],
 					{ env: { ...engageEnv, EDITOR: 'true' } }
 				);
@@ -96,7 +96,7 @@ describe('axway engage edit', () => {
 			it('should successfully edit and update an environment', async () => {
 				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
 
-				const { status } = await runAxwaySync(
+				const { status } = await runCommand(
 					[ 'engage', 'edit', 'environment', 'testenv1' ],
 					{ env: { ...engageEnv, EDITOR: testEditor } }
 				);
@@ -114,7 +114,7 @@ describe('axway engage edit', () => {
 					{ status: 400, body: { errors: [ { status: 400, title: 'Validation error', detail: 'Name is not valid.' } ] } }
 				);
 
-				const { status } = await runAxwaySync(
+				const { status } = await runCommand(
 					[ 'engage', 'edit', 'environment', 'testenv1' ],
 					{ env: { ...engageEnv, EDITOR: testEditor } }
 				);

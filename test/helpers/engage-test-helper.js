@@ -4,7 +4,7 @@
 
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { initHomeDir, loginCLISync, resetHomeDir } from './index.js';
+import { initHomeDir, loginCLI, resetHomeDir } from './index.js';
 import { e400, e500 } from '../resources/testData/errors.js';
 
 export { initHomeDir, resetHomeDir };
@@ -17,7 +17,7 @@ export const testDataDir = path.resolve(__dirname, '../resources/testData');
 
 /**
  * Env vars that point the CLI at the local mock engage server.
- * Pass as `{ env: engageEnv }` in runAxwaySync options.
+ * Pass as `{ env: engageEnv }` in runCommand options.
  */
 export const engageEnv = {
 	AXWAY_CENTRAL_BASE_URL: 'http://127.0.0.1:8777',
@@ -42,7 +42,7 @@ export { e400, e500 };
  */
 export async function setupEngageAuth() {
 	initHomeDir('home-local');
-	await loginCLISync();
+	await loginCLI();
 	const engageServer = this.servers?.[2];
 	engageServer?.resetEngageState();
 	return engageServer;

@@ -1,5 +1,5 @@
 import path from 'path';
-import { runAxwaySync, renderRegexFromFile } from '../../../helpers/index.js';
+import { runCommand, renderRegexFromFile } from '../../../helpers/index.js';
 import {
 	engageEnv,
 	testDataDir,
@@ -11,7 +11,7 @@ import {
 describe('axway engage create', () => {
 	describe('help', () => {
 		it('should output the help screen', async () => {
-			const { status, stdout } = await runAxwaySync([ 'engage', 'create', '--help' ]);
+			const { status, stdout } = await runCommand([ 'engage', 'create', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('templates/help'));
 			expect(status).to.equal(0);
 		});
@@ -22,7 +22,7 @@ describe('axway engage create', () => {
 
 		it('should error if not authenticated', async () => {
 			initHomeDir('home-local');
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[ 'engage', 'create', '--file', path.join(testDataDir, 'testInstances1short.yaml') ],
 				{ env: engageEnv }
 			);
@@ -45,13 +45,13 @@ describe('axway engage create', () => {
 
 		describe('bulk create from file', () => {
 			it('should error if --file flag is not provided', async () => {
-				const { status, stderr } = await runAxwaySync([ 'engage', 'create' ], { env: engageEnv });
+				const { status, stderr } = await runCommand([ 'engage', 'create' ], { env: engageEnv });
 				expect(status).to.equal(1);
 				expect(stderr).to.match(renderRegexFromFile('templates/file-required'));
 			});
 
 			it('should create resources from yaml', async () => {
-				const { status, stderr } = await runAxwaySync(
+				const { status, stderr } = await runCommand(
 					[ 'engage', 'create', '--file', path.join(testDataDir, 'testInstances1short.yaml') ],
 					{ env: engageEnv }
 				);
@@ -60,7 +60,7 @@ describe('axway engage create', () => {
 			});
 
 			it('should create resources with --output yaml', async () => {
-				const { status, stdout } = await runAxwaySync(
+				const { status, stdout } = await runCommand(
 					[ 'engage', 'create', '--file', path.join(testDataDir, 'testInstances1short.yaml'), '--output', 'yaml' ],
 					{ env: engageEnv }
 				);
@@ -70,7 +70,7 @@ describe('axway engage create', () => {
 			});
 
 			it('should create resources with --output json', async () => {
-				const { status, stdout } = await runAxwaySync(
+				const { status, stdout } = await runCommand(
 					[ 'engage', 'create', '--file', path.join(testDataDir, 'testInstances1short.json'), '--output', 'json', '--no-banner' ],
 					{ env: engageEnv }
 				);
@@ -80,7 +80,7 @@ describe('axway engage create', () => {
 			});
 
 			it('should create resources with missing logical names with --yes flag', async () => {
-				const { status, stderr } = await runAxwaySync(
+				const { status, stderr } = await runCommand(
 					[ 'engage', 'create', '--file', path.join(testDataDir, 'envsWithoutLogicalNames.yaml'), '--yes' ],
 					{ env: engageEnv }
 				);
@@ -89,7 +89,7 @@ describe('axway engage create', () => {
 			});
 
 			it('should prompt for missing logical names and proceed when answered Yes', async () => {
-				const { status } = await runAxwaySync(
+				const { status } = await runCommand(
 					[ 'engage', 'create', '--file', path.join(testDataDir, 'envsWithoutLogicalNames.yaml') ],
 					{ env: { ...engageEnv, AXWAY_TEST_ASK_LIST_RESPONSE: 'Yes' } }
 				);
@@ -97,7 +97,7 @@ describe('axway engage create', () => {
 			});
 
 			it('should abort when missing-name prompt is answered No', async () => {
-				const { status } = await runAxwaySync(
+				const { status } = await runCommand(
 					[ 'engage', 'create', '--file', path.join(testDataDir, 'envsWithoutLogicalNames.yaml') ],
 					{ env: { ...engageEnv, AXWAY_TEST_ASK_LIST_RESPONSE: 'No' } }
 				);
@@ -109,7 +109,7 @@ describe('axway engage create', () => {
 					'POST:management/v1alpha1/environments',
 					{ status: 400, body: { errors: [ { status: 400, title: 'Validation error', detail: 'Name is not valid.' } ] } }
 				);
-				const { status, stderr } = await runAxwaySync(
+				const { status, stderr } = await runCommand(
 					[ 'engage', 'create', '--file', path.join(testDataDir, 'testInstances1short.yaml') ],
 					{ env: engageEnv }
 				);
@@ -122,7 +122,7 @@ describe('axway engage create', () => {
 					'POST:management/v1alpha1/environments',
 					{ status: 500, body: { errors: [ { status: 500, title: 'ApiServer error', detail: 'Internal error.' } ] } }
 				);
-				const { status } = await runAxwaySync(
+				const { status } = await runCommand(
 					[ 'engage', 'create', '--file', path.join(testDataDir, 'testInstances1short.yaml') ],
 					{ env: engageEnv }
 				);
@@ -134,7 +134,7 @@ describe('axway engage create', () => {
 
 		describe('create environment by name', () => {
 			it('should create a single environment', async () => {
-				const { status } = await runAxwaySync(
+				const { status } = await runCommand(
 					[ 'engage', 'create', 'environment', 'testenv1' ],
 					{ env: engageEnv }
 				);
@@ -147,7 +147,7 @@ describe('axway engage create', () => {
 					'POST:management/v1alpha1/environments',
 					{ status: 400, body: { errors: [ { status: 400, title: 'Validation error', detail: 'Name is not valid.' } ] } }
 				);
-				const { status, stderr } = await runAxwaySync(
+				const { status, stderr } = await runCommand(
 					[ 'engage', 'create', 'environment', 'bad-name' ],
 					{ env: engageEnv }
 				);

@@ -1,5 +1,5 @@
 import path from 'path';
-import { runAxwaySync, renderRegexFromFile } from '../../../helpers/index.js';
+import { runCommand, renderRegexFromFile } from '../../../helpers/index.js';
 import {
 	engageEnv,
 	testDataDir,
@@ -13,7 +13,7 @@ import {
 describe('axway engage apply', () => {
 	describe('help', () => {
 		it('should output the help screen', async () => {
-			const { status, stdout } = await runAxwaySync([ 'engage', 'apply', '--help' ]);
+			const { status, stdout } = await runCommand([ 'engage', 'apply', '--help' ]);
 			expect(stdout).to.match(renderRegexFromFile('templates/help'));
 			expect(status).to.equal(0);
 		});
@@ -25,7 +25,7 @@ describe('axway engage apply', () => {
 		it('should error if not authenticated', async () => {
 			initHomeDir('home-local');
 			// home-local has valid config but no login tokens
-			const { status, stderr } = await runAxwaySync([ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.yaml') ], { env: engageEnv });
+			const { status, stderr } = await runCommand([ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.yaml') ], { env: engageEnv });
 			expect(status).to.equal(1);
 			expect(stderr).to.match(renderRegexFromFile('templates/not-authenticated'));
 		});
@@ -42,7 +42,7 @@ describe('axway engage apply', () => {
 		afterEach(resetHomeDir);
 
 		it('should error if --file flag is not provided', async () => {
-			const { status, stderr } = await runAxwaySync([ 'engage', 'apply' ], { env: engageEnv });
+			const { status, stderr } = await runCommand([ 'engage', 'apply' ], { env: engageEnv });
 			expect(status).to.equal(1);
 			expect(stderr).to.match(renderRegexFromFile('templates/file-required'));
 		});
@@ -60,7 +60,7 @@ describe('axway engage apply', () => {
 			};
 			engageServer.engageResources.set('management/v1alpha1/environments/testenv1', envResponse);
 
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.yaml') ],
 				{ env: engageEnv }
 			);
@@ -77,7 +77,7 @@ describe('axway engage apply', () => {
 			engageServer.engageResources.set('management/v1/environments/testenv1', envResponse);
 			engageServer.engageResources.set('management/v1/environments/testenv1/webhooks/webhook1', webhookResponse);
 
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstancesV1short.yaml') ],
 				{ env: engageEnv }
 			);
@@ -87,7 +87,7 @@ describe('axway engage apply', () => {
 		});
 
 		it('should create resources with --output yaml flag', async () => {
-			const { status, stdout } = await runAxwaySync(
+			const { status, stdout } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.yaml'), '--output', 'yaml' ],
 				{ env: engageEnv }
 			);
@@ -97,7 +97,7 @@ describe('axway engage apply', () => {
 		});
 
 		it('should create resources with --output json flag', async () => {
-			const { status, stdout } = await runAxwaySync(
+			const { status, stdout } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.json'), '--output', 'json', '--no-banner' ],
 				{ env: engageEnv }
 			);
@@ -108,7 +108,7 @@ describe('axway engage apply', () => {
 		});
 
 		it('should skip prompt and create resources with missing names when --yes flag is provided', async () => {
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[
 					'engage', 'apply',
 					'--file', path.join(testDataDir, 'testInstancesWithMissingLogicalNames.yaml'),
@@ -126,7 +126,7 @@ describe('axway engage apply', () => {
 			// so the batch continues. Note: success messages are silently dropped
 			// when spinner=null (set by stopSpin inside onMissingNames), so we
 			// verify exit code rather than output content.
-			const { status } = await runAxwaySync(
+			const { status } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstancesWithMissingLogicalNames.yaml') ],
 				{ env: { ...engageEnv, AXWAY_TEST_ASK_LIST_RESPONSE: 'Yes' } }
 			);
@@ -134,7 +134,7 @@ describe('axway engage apply', () => {
 		});
 
 		it('should abort when prompt is answered No via AXWAY_TEST_ASK_LIST_RESPONSE=No', async () => {
-			const { status } = await runAxwaySync(
+			const { status } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstancesWithMissingLogicalNames.yaml') ],
 				{ env: { ...engageEnv, AXWAY_TEST_ASK_LIST_RESPONSE: 'No' } }
 			);
@@ -148,7 +148,7 @@ describe('axway engage apply', () => {
 				metadata: { id: 'id1', resourceVersion: '1', references: [] }, spec: { type: 'API' },
 			});
 
-			const { status, stdout } = await runAxwaySync(
+			const { status, stdout } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'byKind/Asset/input.yaml'), '--output', 'yaml' ],
 				{ env: engageEnv }
 			);
@@ -160,7 +160,7 @@ describe('axway engage apply', () => {
 		});
 
 		it('should create assets without names using --yes and get autogenerated names', async () => {
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'byKind/Asset/input-without-names.yaml'), '--yes' ],
 				{ env: engageEnv }
 			);
@@ -182,7 +182,7 @@ describe('axway engage apply', () => {
 				icon: 'data:image/svg+xml;base64,222', state: 'state 222', 'x-custom': 222,
 			});
 
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'byKind/Asset/input.yaml'), '--subresource', 'icon' ],
 				{ env: engageEnv }
 			);
@@ -198,7 +198,7 @@ describe('axway engage apply', () => {
 				metadata: { id: 'prod1', resourceVersion: '15', references: [] }, spec: { assets: [] },
 			});
 
-			const { status, stdout } = await runAxwaySync(
+			const { status, stdout } = await runCommand(
 				[
 					'engage', 'apply',
 					'--file', path.join(testDataDir, 'apiResponses/frenchLanguageDefinition.json'),
@@ -217,7 +217,7 @@ describe('axway engage apply', () => {
 
 		it('should create product with French language sub-resource', async () => {
 			// No pre-seeded product → POST (create path)
-			const { status, stdout } = await runAxwaySync(
+			const { status, stdout } = await runCommand(
 				[
 					'engage', 'apply',
 					'--file', path.join(testDataDir, 'apiResponses/frenchLanguageDefinition.json'),
@@ -238,7 +238,7 @@ describe('axway engage apply', () => {
 			// All GETs return 404 (create path); force APIService POST to return 400
 			engageServer.forceErrors.set('POST:management/v1alpha1/environments/testenv1/apiservices', { status: 400, body: e400 });
 
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.yaml') ],
 				{ env: engageEnv }
 			);
@@ -251,7 +251,7 @@ describe('axway engage apply', () => {
 			// Force secrets GET to return 500
 			engageServer.forceErrors.set('GET:management/v1alpha1/environments/testenv1/secrets/secret1', { status: 500, body: e500 });
 
-			const { status, stderr } = await runAxwaySync(
+			const { status, stderr } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.yaml') ],
 				{ env: engageEnv }
 			);
@@ -268,7 +268,7 @@ describe('axway engage apply', () => {
 			});
 			engageServer.forceErrors.set('PUT:catalog/v1alpha1/assets/testasset2/state', { status: 400, body: e400 });
 
-			const { status, stdout } = await runAxwaySync(
+			const { status, stdout } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'byKind/Asset/input.yaml'), '--output', 'yaml' ],
 				{ env: engageEnv }
 			);
@@ -279,7 +279,7 @@ describe('axway engage apply', () => {
 		});
 
 		it('should exit with code 1 on a 400 server error for one resource', async () => {
-			const { status } = await runAxwaySync(
+			const { status } = await runCommand(
 				[ 'engage', 'apply', '--file', path.join(testDataDir, 'testInstances1short.json'), '--output', 'json' ],
 				{
 					env: {
