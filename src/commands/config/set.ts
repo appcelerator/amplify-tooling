@@ -23,9 +23,10 @@ export default class ConfigSet extends Command {
 	};
 
 	static override authenticated = false;
+	static override enableBanner = false;
 	static override enableJsonFlag = true;
 
-	async run(): Promise<{ result: string } | void> {
+	async run() {
 		const { args, config } = await this.parse(ConfigSet);
 		let val = args.value;
 		try {
@@ -37,8 +38,8 @@ export default class ConfigSet extends Command {
 		config.set(args.key, val);
 		config.save();
 		if (this.jsonEnabled()) {
-			return { result: 'OK' };
+			return 'OK';
 		}
-		this.log('OK');
+		return this.log('OK');
 	}
 }

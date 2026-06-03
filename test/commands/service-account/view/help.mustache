@@ -1,20 +1,31 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
 View service account details.
 
-USAGE: {{#cyan}}axway service-account view <client-id/name> [options]{{/cyan}}
+USAGE
+  $ axway service-account view CLIENT-ID [--json] [--no-banner] [--no-color] [--profile <value>] [--org <value>] [--account <value>]
 
-VIEW ARGUMENTS:
-  {{#cyan}}id                  {{/cyan}}  The service account client id or name
+ARGUMENTS
+  CLIENT-ID  The service account client id or name.
 
-VIEW OPTIONS:
-  {{#cyan}}--account [name]    {{/cyan}}  The platform account to use
-  {{#cyan}}--json              {{/cyan}}  Outputs service account as JSON
-  {{#cyan}}--org [name|id|guid]{{/cyan}}  The organization name, id, or guid
+FLAGS
+  --account=<value>  The account to use within the active profile.
+  --org=<value>      The organization name, id, or guid; defaults to the current org.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color          {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
+
+DESCRIPTION
+  View service account details.
+
+  Displays information about a service account, including its roles, teams, and authentication method.
+
+ALIASES
+  $ axway service-account v
+  $ axway service-account info
+  $ axway service-account show
+

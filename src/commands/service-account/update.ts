@@ -28,7 +28,7 @@ You cannot change a service account's authentication method from client secret t
 		org: Flags.string({
 			description: 'The organization name, id, or guid.'
 		}),
-		publicKey: Flags.string({
+		'public-key': Flags.string({
 			description: 'The path to the public key.'
 		}),
 		role: Flags.string({
@@ -76,14 +76,14 @@ You cannot change a service account's authentication method from client secret t
 			data.desc = flags.desc;
 		}
 
-		if (flags.publicKey !== undefined) {
-			if (!existsSync(flags.publicKey)) {
-				throw new Error(`Public key ${flags.publicKey} does not exist`);
+		if (flags['public-key'] !== undefined) {
+			if (!existsSync(flags['public-key'])) {
+				throw new Error(`Public key ${flags['public-key']} does not exist`);
 			}
-			if (!isFile(flags.publicKey)) {
-				throw new Error(`Public key ${flags.publicKey} is not a file`);
+			if (!isFile(flags['public-key'])) {
+				throw new Error(`Public key ${flags['public-key']} is not a file`);
 			}
-			const publicKeyFile = flags.publicKey;
+			const publicKeyFile = flags['public-key'];
 			data.publicKey = readFileSync(publicKeyFile, 'utf-8');
 			if (!data.publicKey.startsWith('-----BEGIN PUBLIC KEY-----')) {
 				throw new Error(`Public key ${publicKeyFile} is not a PKCS#8 PEM formatted file`);

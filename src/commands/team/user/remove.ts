@@ -9,21 +9,17 @@ export default class TeamUserRemove extends Command {
 		'team:users:remove'
 	];
 
-	static override summary = 'Remove a user from a team.';
+	static override summary = 'Remove a user or service account from a team.';
 
 	static override description = 'You must have administrative access to perform this action.';
 
 	static override args = {
-		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		}),
 		team: Args.string({
 			description: 'The team name or guid.',
 			required: true
 		}),
 		user: Args.string({
-			description: 'The user guid or email address.',
+			description: 'The user guid or email address, or service account guid or client id.',
 			required: true
 		})
 	};

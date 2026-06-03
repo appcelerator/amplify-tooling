@@ -1,68 +1,33 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
 Manage Amplify Platform organization teams.
 
-USAGE: {{#cyan}}axway team <command> [options]{{/cyan}}
+{{#bold}}USAGE{{/bold}}
+  $ {{#cyan}}axway{{/cyan}} {{#cyan}}team{{/cyan}} [--no-banner] [--no-color] [--profile <value>]
 
-TEAM COMMANDS:
-  {{#cyan}}create       {{/cyan}}  Create a new team for an organization
-  {{#cyan}}ls, list     {{/cyan}}  List organization teams
-  {{#cyan}}rm, remove   {{/cyan}}  Remove a team from an organization
-  {{#cyan}}update       {{/cyan}}  Update team information
-  {{#cyan}}user         {{/cyan}}  Manage team users
-  {{#cyan}}view         {{/cyan}}  View team information
+{{#bold}}GLOBAL FLAGS{{/bold}}
+  {{#cyan}}--no-banner{{/cyan}}        Disable the banner.
+  {{#cyan}}--no-color{{/cyan}}         Disable color output.
+  {{#cyan}}--profile={{#underline}}<value>{{/underline}}{{/cyan}}  Specify the configuration profile to use.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
-
-GENERAL TEAM EXAMPLES:
+{{#bold}}DESCRIPTION{{/bold}}
+  Manage Amplify Platform organization teams.
 
   You must be authenticated to view or manage organization teams.
   Run {{#cyan}}"axway auth login"{{/cyan}} to authenticate.
 
-  You may specify an organization by name, id, or guid as well as the team by
-  name or guid.
+  You may specify the team by name or guid.
 
-  List all organization teams:
-    {{#cyan}}axway team list <org>{{/cyan}}
+  For team user commands, you may refer to a user by email address or guid, or a service account by guid or client id.
 
-  View team details:
-    {{#cyan}}axway team view <org> <team>{{/cyan}}
+{{#bold}}TOPICS{{/bold}}
+  {{#cyan}}team user{{/cyan}}  Manage team users.
 
-  Create a new team in an organization:
-    {{#cyan}}axway team create <org> <team name>{{/cyan}}
+{{#bold}}COMMANDS{{/bold}}
+  {{#cyan}}team create{{/cyan}}  Create a new team for an organization.
+  {{#cyan}}team list{{/cyan}}    List organization teams.
+  {{#cyan}}team remove{{/cyan}}  Remove a team from an organization.
+  {{#cyan}}team update{{/cyan}}  Update team information.
+  {{#cyan}}team view{{/cyan}}    View team information.
 
-  Update team information:
-    {{#cyan}}axway team update <org> <team> [options]{{/cyan}}
-
-    Available options:
-      {{#cyan}}--default{{/cyan}}          Set the team as the default team.
-      {{#cyan}}--desc <text>{{/cyan}}      The description of the team.
-      {{#cyan}}--name <new name>{{/cyan}}  The team name.
-      {{#cyan}}--tag <value>{{/cyan}}      One or more tags to assign to the team.
-
-  Remove a team:
-    {{#cyan}}axway team remove <org> <team>{{/cyan}}
-
-TEAM USER MANAGEMENT EXAMPLES:
-
-  You may refer to a user by email address or guid.
-
-  List all users in a team:
-    {{#cyan}}axway team user list <org>{{/cyan}}
-
-  View available user roles:
-    {{#cyan}}axway org user roles{{/cyan}}
-
-  Add a user to a team:
-    {{#cyan}}axway team user add <org> <team> <user> --role <role>{{/cyan}}
-
-  Change a user's role within a team:
-    {{#cyan}}axway team user update <org> <team> <user> --role <role>{{/cyan}}
-
-  Remove a user from a team:
-    {{#cyan}}axway team user remove <org> <team> <user>{{/cyan}}

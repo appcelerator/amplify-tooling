@@ -23,22 +23,23 @@ export default class ConfigUnshift extends Command {
 	};
 
 	static override authenticated = false;
+	static override enableBanner = false;
 	static override enableJsonFlag = true;
 
-	async run(): Promise<{ result: string } | void> {
+	async run() {
 		const { args, config } = await this.parse(ConfigUnshift);
 		let val = args.value;
 		try {
 			// Try to parse the value as JSON
 			val = JSON.parse(val);
-		} catch (_err) {
+		} catch {
 			// If parsing fails, keep the value as a string
 		}
 		config.unshift(args.key, val);
 		config.save();
 		if (this.jsonEnabled()) {
-			return { result: 'OK' };
+			return 'OK';
 		}
-		this.log('OK');
+		return this.log('OK');
 	}
 }

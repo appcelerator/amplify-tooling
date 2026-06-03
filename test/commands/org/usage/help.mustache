@@ -1,33 +1,42 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
 Display organization usage report.
 
-USAGE: {{#cyan}}axway org usage [options] [<org>]{{/cyan}}
+USAGE
+  $ axway org usage [ORG] [--json] [--no-banner] [--no-color] [--profile <value>] [--month <value> | --from <value> | --to <value>] [--account <value>]
 
-USAGE ARGUMENTS:
-  {{#cyan}}org                 {{/cyan}}  The organization name, id, or guid; defaults to the current org
+ARGUMENTS
+  [ORG]  The organization name, id, or guid; defaults to the current org.
 
-USAGE OPTIONS:
-  {{#cyan}}--account [name]    {{/cyan}}  The platform account to use
-  {{#cyan}}--from [yyyy-mm-dd] {{/cyan}}  The start date
-  {{#cyan}}--json              {{/cyan}}  Outputs the usage as JSON
-  {{#cyan}}--month [mm|yyyy-mm]{{/cyan}}  A month date range; overrides --to and --from
-  {{#cyan}}--to [yyyy-mm-dd]   {{/cyan}}  The end date
+FLAGS
+  --account=<value>  The account to use within the active profile.
+  --from=<value>     The start date (yyyy-mm-dd).
+  --month=<value>    A month date range; overrides --to and --from.
+  --to=<value>       The end date (yyyy-mm-dd).
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color          {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
 
-EXAMPLE:
+DESCRIPTION
+  Display organization usage report.
 
-  You must be authenticated into an Amplify Platform account to view or manage
-  organizations. Run {{#cyan}}"axway auth login"{{/cyan}} to authenticate.
+  You must be authenticated to view or manage organizations.
+  Run "axway auth login" to authenticate.
 
-  Display organization usage for the past 14 days:
-    {{#cyan}}axway org usage <org>{{/cyan}}
+EXAMPLES
+  Display organization usage for the past 14 days
 
-  Display organization usage for a specific date range:
-    {{#cyan}}axway org usage <org> --from 2021-04-01 --to 2021-04-30{{/cyan}}
+    $ axway org usage <org>
+
+  Display organization usage for a specific date range
+
+    $ axway org usage <org> --from {{year}}-04-01 --to {{year}}-04-30
+
+  Display organization usage for the current month
+
+    $ axway org usage <org> --month
+

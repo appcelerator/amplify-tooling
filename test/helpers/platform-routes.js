@@ -51,7 +51,7 @@ export function createPlatformRoutes(server, opts = {}) {
 			result: data.activity.filter(a => {
 				return a.ts >= from
 					&& a.ts <= to
-					&& (!org_id || String(a.org_id) === org_id)
+					&& (!org_id || String(a.org_id) === String(org_id))
 					&& (!user_guid || a.user_guid === user_guid);
 			})
 		};
@@ -705,7 +705,7 @@ export function createPlatformRoutes(server, opts = {}) {
 
 	router.get('/v1/user/:id', ctx => {
 		const { id } = ctx.params;
-		const user = data.users.find(u => u.guid === id);
+		const user = data.users.find(u => u.guid === id || u.email === id);
 		if (user) {
 			ctx.body = {
 				success: true,

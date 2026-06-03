@@ -1,11 +1,13 @@
 {{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-The "user" commands are no longer supported as of version 5.0.0.
+The "user" commands are no longer supported as of version {{version}}.
 
 {{#bold}}USAGE{{/bold}}
-  $ {{#cyan}}axway{{/cyan}} {{#cyan}}user{{/cyan}} [--no-banner] [--no-color]
+  $ {{#cyan}}axway{{/cyan}} {{#cyan}}user{{/cyan}} [--no-banner] [--no-color] [--profile <value>]
 
 {{#bold}}GLOBAL FLAGS{{/bold}}
-  {{#cyan}}--no-banner{{/cyan}}  Disable the banner.
-  {{#cyan}}--no-color{{/cyan}}   Disable color output.
+  {{#cyan}}--no-banner{{/cyan}}        Disable the banner.
+  {{#cyan}}--no-color{{/cyan}}         Disable color output.
+  {{#cyan}}--profile={{#underline}}<value>{{/underline}}{{/cyan}}  Specify the configuration profile to use.
+

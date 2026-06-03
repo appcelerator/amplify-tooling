@@ -1,16 +1,33 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-List organizations
+List organizations.
 
-USAGE: {{#cyan}}axway org list [options]{{/cyan}}
+USAGE
+  $ axway org list [--json] [--no-banner] [--no-color] [--profile <value>] [--account <value>]
 
-LIST OPTIONS:
-  {{#cyan}}--account [name]{{/cyan}}  The account to use
-  {{#cyan}}--json          {{/cyan}}  Outputs the organizations as JSON
+FLAGS
+  --account=<value>  The account to use within the active profile.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner     {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color      {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help      {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version   {{/cyan}}  Outputs the version
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
+
+ALIASES
+  $ axway org ls
+
+EXAMPLES
+  List organizations for the default account
+
+    $ axway org list
+
+  List organizations for a specific account
+
+    $ axway org list --account my-account
+
+  Output organizations as JSON
+
+    $ axway org list --json
+

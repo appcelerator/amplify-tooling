@@ -10,6 +10,8 @@ export default class AuthLogout extends Command {
 
 	static override aliases = [ 'auth:revoke' ];
 
+	static override authenticated = false;
+
 	static override args = {
 		accounts: Args.string({
 			description: 'One or more specific accounts to revoke credentials.',
@@ -17,12 +19,13 @@ export default class AuthLogout extends Command {
 			multiple: true
 		})
 	};
-	static override authenticated = false;
 
 	static override enableJsonFlag = true;
 
 	async run() {
 		const { args, config } = await this.parse(AuthLogout);
+
+		// Initialize SDK manually since this command doesn't require authentication
 		const sdk = await initSDK({}, config);
 
 		const accounts = args.accounts ?? [];

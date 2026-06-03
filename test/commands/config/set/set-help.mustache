@@ -1,19 +1,23 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Change a config setting
+Change a config setting.
 
-USAGE: {{#cyan}}axway config set <key> <value> [options]{{/cyan}}
+USAGE
+  $ axway config set KEY VALUE [--json] [--no-banner] [--no-color] [--profile <value>]
 
-SET ARGUMENTS:
-  {{#cyan}}key{{/cyan}}
-  {{#cyan}}value{{/cyan}}
+ARGUMENTS
+  KEY    Config key to set.
+  VALUE  Value to set.
 
-CONFIG OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs the config as JSON
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+EXAMPLES
+  Set a config setting.
+
+    $ axway config set <key> <value>
+

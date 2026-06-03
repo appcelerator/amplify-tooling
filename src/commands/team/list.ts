@@ -1,6 +1,5 @@
 import { createTable } from '../../lib/formatter.js';
 import { active, highlight, note } from '../../lib/logger.js';
-import { Args } from '@oclif/core';
 import Command from '../../lib/command.js';
 
 export default class TeamList extends Command {
@@ -10,16 +9,9 @@ export default class TeamList extends Command {
 
 	static override summary = 'List organization teams.';
 
-	static override description = 'Lists all teams for an organization.';
+	static override description = 'Lists all teams for the organization.';
 
 	static override enableJsonFlag = true;
-
-	static override args = {
-		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		})
-	};
 
 	async run(): Promise<any | void> {
 		const { account, org, sdk } = await this.parse(TeamList);

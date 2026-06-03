@@ -153,11 +153,7 @@ export default class AmplifySDK {
 				return account;
 			},
 
-			list: async (opts) => {
-				if (!opts || typeof opts !== 'object') {
-					throw E.INVALID_ARGUMENT('Expected options to be an object');
-				}
-
+			list: async (opts = {} as any) => {
 				const accounts = await this.authClient.list();
 				const result = [];
 				for (let account of accounts) {
@@ -609,7 +605,7 @@ export default class AmplifySDK {
 				find: async (account, org, user) => {
 					const { users } = await this.org.user.list(account, org);
 					user = user.toLowerCase();
-					return users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user);
+					return users.find(m => String(m.email).toLowerCase() === user || String(m.guid).toLowerCase() === user || String(m.client_id).toLowerCase() === user);
 				},
 
 				list: async (account, _org) => {

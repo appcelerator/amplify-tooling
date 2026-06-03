@@ -1,28 +1,26 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Once authenticated, the "switch" command allows you to change the default
-account, organization, and current team to use for "axway" commands.
+Select default account and team.
 
-Only platform accounts have organizations. If the selected account is a service
-account, then the organization selection is skipped.
+USAGE
+  $ axway auth switch [--json] [--no-banner] [--no-color] [--profile <value>] [--account <value>] [--team <value>]
 
-Changing the current team will only affect your local machine and does not
-change the actual default team.
+FLAGS
+  --account=<value>  The account to use within the active profile.
+  --team=<value>     The team to use for the selected account.
 
-The --org and --team options are required when --json flag is set and there are
-more than one of org or team.
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
 
-USAGE: {{#cyan}}axway auth switch [options]{{/cyan}}
+DESCRIPTION
+  Select default account and team.
 
-SWITCH OPTIONS:
-  {{#cyan}}--account [name]    {{/cyan}}  The account to switch to
-  {{#cyan}}--json              {{/cyan}}  Disables prompting and outputs selected account and org as JSON
-  {{#cyan}}--org [guid|id|name]{{/cyan}}  The platform organization to switch to
-  {{#cyan}}--team [guid|name]  {{/cyan}}  The team to use for the selected account
+  Once authenticated, the "switch" command allows you to change the default account and current team to use for "axway" commands.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color          {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version
+  Changing the current team will only affect your local machine and does not change the actual default team.
+
+  The --team option is required when --json flag is set and there is more than one team.

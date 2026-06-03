@@ -1,7 +1,6 @@
-import { AmplifySDK } from '../../../dist/lib/amplify-sdk/index.js';
+import { AmplifySDK, Auth, MemoryStore } from '../../../dist/lib/amplify-sdk/index.js';
 import fs from 'fs';
 import path from 'path';
-import { createSdkSync } from '../../helpers/index.js';
 import { resolveMonthRange } from '../../../dist/lib/amplify-sdk/amplify-sdk.js';
 import { fileURLToPath } from 'url';
 
@@ -1532,3 +1531,52 @@ describe('amplify-sdk', () => {
 		});
 	});
 });
+
+/**
+ * Creates an AmplifySDK instance and logs in with the default test service account.
+ *
+ * @param {boolean|object} authenticated If truthy then the SDK will be authenticated. If an object then it is used as the login options.
+ * @returns {Promise<{
+ * 	auth: Auth,
+ * 	account: import('../../dist/lib/amplify-sdk/auth').Account,
+ * 	sdk: AmplifySDK,
+ * 	tokenStore: MemoryStore
+ * }>}
+ */
+export async function createSdkSync(authenticated) {
+	const tokenStore = new MemoryStore();
+	let auth;
+	let account;
+
+	// If authentication is requested, create an Auth instance and log in
+	if (authenticated) {
+		auth = new Auth({
+			baseUrl: 'http://127.0.0.1:8555',
+			clientId: 'test_client',
+			realm: 'test_realm',
+			tokenStore
+		});
+		// If authenticated is an object then use it as the login options
+		account = await auth.login(typeof authenticated === 'object' ? authenticated : {
+			clientId: 'test-auth-client-secret',
+			clientSecret: 'shhhh'
+		});
+	}
+
+	// Create the SDK instance
+	const sdk = new AmplifySDK({
+		baseUrl: 'http://127.0.0.1:8555',
+		clientId: 'test_client',
+		platformUrl: 'http://127.0.0.1:8666',
+		realm: 'test_realm',
+		tokenStore,
+		tokenStoreType: 'memory'
+	});
+
+	// If we authenticated above then find the session to populate the SDK with the necessary session info
+	if (authenticated && account) {
+		await sdk.auth.findSession(account);
+	}
+
+	return { auth, account, sdk, tokenStore };
+}

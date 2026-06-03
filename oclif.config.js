@@ -3,6 +3,7 @@ export default {
 	bin: 'axway',
 	commands: './dist/commands',
 	dirname: 'axway',
+	helpClass: './dist/help',
 	theme: 'theme.json',
 	topicSeparator: ' ',
 	flexibleTaxonomy: true,

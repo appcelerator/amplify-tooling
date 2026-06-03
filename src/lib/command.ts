@@ -62,6 +62,11 @@ export default abstract class AxwayCommand extends Command {
 	static readonly authenticated: boolean = true;
 
 	/**
+	 * Whether to enable the banner when running this command. Defaults to true.
+	 */
+	static readonly enableBanner: boolean = true;
+
+	/**
    * Whether this command should exclude the profile flag. Should only be set
    * to true for commands that manage profiles themselves.
    * Defaults to false.
@@ -122,6 +127,21 @@ export default abstract class AxwayCommand extends Command {
 		return data;
 	}
 
+	override async catch(error: any) {
+		if (this.jsonEnabled()) {
+			const code = error?.oclif?.exit || process.exitCode || 1;
+			// Output the JSON block to stdout and exit cleanly
+			process.stdout.write(JSON.stringify({
+				code,
+				result: String(error) || 'An unexpected error occurred',
+			}, null, 2));
+			this.exit(code);
+		}
+
+		// Fall back to standard string error output if --json isn't requested
+		return super.catch(error);
+	}
+
 	/**
    * Log command help output to stdout
    */
@@ -129,5 +149,15 @@ export default abstract class AxwayCommand extends Command {
 		const Help = await loadHelpClass(this.config);
 		const help = new Help(this.config);
 		await help.showHelp(this.id.split(':'));
+	}
+
+	/**
+	 * Override oclif's logJson to handle primitives correctly.
+	 * The base implementation expects objects and fails when given primitives.
+	 */
+	protected override logJson(json: unknown): void {
+		// Always stringify first, then let oclif colorize the stringified JSON
+		const stringified = JSON.stringify(json, null, 2);
+		super.logJson(stringified);
 	}
 }

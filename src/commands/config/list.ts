@@ -1,4 +1,5 @@
 import Command from '../../lib/command.js';
+import { createKeyList } from '../../lib/formatter.js';
 
 export default class ConfigList extends Command {
 	static override aliases = [ 'config:ls' ];
@@ -17,6 +18,7 @@ export default class ConfigList extends Command {
 	];
 
 	static override authenticated = false;
+	static override enableBanner = false;
 	static override enableJsonFlag = true;
 
 	async run() {
@@ -26,31 +28,9 @@ export default class ConfigList extends Command {
 			return configData;
 		}
 		if (configData && typeof configData === 'object') {
-			let width = 0;
-			const rows = [];
-			(function walk(scope, segments) {
-				if (Array.isArray(scope) && !scope.length) {
-					const path = segments.join('.');
-					width = Math.max(width, path.length);
-					rows.push([ path, '[]' ]);
-					return;
-				}
-				for (const key of Object.keys(scope).sort()) {
-					segments.push(key);
-					if (scope[key] && typeof scope[key] === 'object') {
-						walk(scope[key], segments);
-					} else {
-						const path = segments.join('.');
-						width = Math.max(width, path.length);
-						rows.push([ path, scope[key] ]);
-					}
-					segments.pop();
-				}
-			}(configData, []));
-			if (rows.length) {
-				for (const row of rows) {
-					this.log(`${row[0].padEnd(width)} = ${row[1]}`);
-				}
+			const keyList = createKeyList(configData);
+			if (keyList) {
+				this.log(keyList);
 			} else {
 				this.log('No config settings found');
 			}

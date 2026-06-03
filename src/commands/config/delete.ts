@@ -21,15 +21,16 @@ export default class ConfigDelete extends Command {
 	};
 
 	static override authenticated = false;
+	static override enableBanner = false;
 	static override enableJsonFlag = true;
 
-	async run(): Promise<{ result: string } | void> {
+	async run() {
 		const { args, config } = await this.parse(ConfigDelete);
 		config.delete(args.key);
 		config.save();
 		if (this.jsonEnabled()) {
-			return { result: 'OK' };
+			return 'OK';
 		}
-		this.log('OK');
+		return this.log('OK');
 	}
 }

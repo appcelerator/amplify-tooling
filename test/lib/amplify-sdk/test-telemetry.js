@@ -64,20 +64,6 @@ describe('Telemetry', () => {
 			}).to.throw(TypeError, 'Expected telemetry cache dir to be a non-empty string');
 		});
 
-		it('should error if environment is invalid', () => {
-			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 'bar' });
-			}).to.throw(TypeError, 'Expected environment to be a non-empty string');
-
-			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 'bar', environment: '' });
-			}).to.throw(TypeError, 'Expected environment to be a non-empty string');
-
-			expect(() => {
-				new Telemetry({ appGuid: 'foo', appVersion: '1.0.0', cacheDir: 'bar', environment: 123 });
-			}).to.throw(TypeError, 'Expected environment to be a non-empty string');
-		});
-
 		it('should error if request options are invalid', () => {
 			expect(() => {
 				new Telemetry({
@@ -147,7 +133,9 @@ describe('Telemetry', () => {
 		});
 
 		it('should error adding an crash without a payload', () => {
-			const { telemetry } = createTelemetry({ environment: 'production' });
+			const origNodeEnv = process.env.NODE_ENV;
+			process.env.NODE_ENV = 'production';
+			const { telemetry } = createTelemetry();
 
 			expect(() => {
 				telemetry.addCrash();
@@ -160,10 +148,14 @@ describe('Telemetry', () => {
 			expect(() => {
 				telemetry.addCrash('foo');
 			}).to.throw(TypeError, 'Expected crash payload to be an object');
+
+			process.env.NODE_ENV = origNodeEnv;
 		});
 
 		it('should error adding an crash without a message', () => {
-			const { telemetry } = createTelemetry({ environment: 'production' });
+			const origNodeEnv = process.env.NODE_ENV;
+			process.env.NODE_ENV = 'production';
+			const { telemetry } = createTelemetry();
 
 			expect(() => {
 				telemetry.addCrash({});
@@ -176,6 +168,8 @@ describe('Telemetry', () => {
 			expect(() => {
 				telemetry.addCrash({ message: 123 });
 			}).to.throw(TypeError, 'Expected crash payload to have a message');
+
+			process.env.NODE_ENV = origNodeEnv;
 		});
 
 		it('should not add crash if not production', () => {
@@ -277,7 +271,9 @@ describe('Telemetry', () => {
 			this.timeout(5000);
 			this.slow(4000);
 
-			const { appDir, telemetry } = createTelemetry({ environment: 'production' });
+			const origNodeEnv = process.env.NODE_ENV;
+			process.env.NODE_ENV = 'production';
+			const { appDir, telemetry } = createTelemetry();
 
 			telemetry.addCrash({ message: 'This is not an error' });
 			telemetry.addCrash(new Error('This is an error'));
@@ -323,6 +319,8 @@ describe('Telemetry', () => {
 			expect(events[3].data.name).to.equal('CustomError');
 			expect(events[3].data.message).to.equal('This is a custom error');
 			expect(events[3].data.stack[0]).to.match(/^CustomError: This is a custom error/);
+
+			process.env.NODE_ENV = origNodeEnv;
 		});
 
 		it('should not add a crash event when not production', async function () {

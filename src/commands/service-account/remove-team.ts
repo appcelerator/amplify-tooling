@@ -12,7 +12,7 @@ export default class RemoveTeam extends Command {
 			description: 'The service account client id or name.',
 			required: true
 		}),
-		'team-guid': Args.string({
+		team: Args.string({
 			description: 'The team name or guid.',
 			required: true
 		})
@@ -34,7 +34,7 @@ export default class RemoveTeam extends Command {
 		}
 
 		const { client: existing } = await sdk.client.find(account, org, args['client-id']);
-		const { team } = await sdk.team.find(account, org, args['team-guid']);
+		const { team } = await sdk.team.find(account, org, args.team);
 
 		const teams = (existing.teams || [])
 			.map(({ guid, roles }) => ({ guid, roles }))

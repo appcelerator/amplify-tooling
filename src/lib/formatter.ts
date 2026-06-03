@@ -27,3 +27,41 @@ export function createTable(head?, indent = 0) {
 		}
 	});
 }
+
+/**
+ * Creates a list of key/value pairs from the provided object.
+ *
+ * @param {Object|Array} items - The object to convert into key/value pairs.
+ * @returns {String} A formatted string of key/value pairs.
+ */
+export function createKeyList(items) {
+	if (!items || typeof items !== 'object') {
+		return items;
+	}
+	let width = 0;
+	const rows = [];
+	walk(items, []);
+	return rows.reduce((str, row) => {
+		return str + `${row[0].padEnd(width)} = ${row[1]}\n`;
+	}, '').trim();
+
+	function walk(scope, segments) {
+		if (Array.isArray(scope) && !scope.length) {
+			const path = segments.join('.');
+			width = Math.max(width, path.length);
+			rows.push([ path, '[]' ]);
+			return;
+		}
+		for (const key of Object.keys(scope).sort()) {
+			segments.push(key);
+			if (scope[key] && typeof scope[key] === 'object') {
+				walk(scope[key], segments);
+			} else {
+				const path = segments.join('.');
+				width = Math.max(width, path.length);
+				rows.push([ path, scope[key] ]);
+			}
+			segments.pop();
+		}
+	};
+}
