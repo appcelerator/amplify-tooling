@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-import { loadConfig, Config, configFile } from '../../dist/lib/config.js';
+import { loadConfig, Config, configFile, resetConfigInstance } from '../../dist/lib/config.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -309,12 +309,10 @@ describe('config', () => {
 				expect(cfg.get('newArray')).to.deep.equal([ 'firstItem' ]);
 			});
 
-			it('should error when pushing to non-array key', () => {
+			it('should convert non-array value to array when pushing', () => {
 				const cfg = new Config().init({ file: sampleFile, data: sampleData });
-				expect(() => cfg.push('foo', 'value')).to.throw(
-					TypeError,
-					'Expected config key "foo" to be an array'
-				);
+				cfg.push('foo', 'value');
+				expect(cfg.get('foo')).to.deep.equal([ 'bar', 'value' ]);
 			});
 
 			it('should push a new value onto an array in a profile', () => {
@@ -337,16 +335,14 @@ describe('config', () => {
 				expect(cfg.get('newArray')).to.deep.equal([ 'firstItem' ]);
 			});
 
-			it('should error when pushing to non-array key in a profile', () => {
+			it('should convert non-array value to array when pushing in a profile', () => {
 				const profileData = {
 					...sampleData,
 					profiles: { dev: { foo: 'devBar' } }
 				};
 				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
-				expect(() => cfg.push('foo', 'value')).to.throw(
-					TypeError,
-					'Expected config key "foo" to be an array'
-				);
+				cfg.push('foo', 'value');
+				expect(cfg.get('foo')).to.deep.equal([ 'devBar', 'value' ]);
 			});
 		});
 
@@ -359,12 +355,24 @@ describe('config', () => {
 				expect(cfg.get('corge')).to.deep.equal([ 1, 2 ]);
 			});
 
-			it('should error when popping from non-array key', () => {
+			it('should return non-array value and delete key when popping', () => {
 				const cfg = new Config().init({ file: sampleFile, data: sampleData });
-				expect(() => cfg.pop('foo')).to.throw(
-					TypeError,
-					'Expected config key "foo" to be an array'
-				);
+				const popped = cfg.pop('foo');
+				expect(popped).to.equal('bar');
+				expect(cfg.get('foo')).to.be.undefined;
+			});
+
+			it('should return undefined when popping from non-existent key', () => {
+				const cfg = new Config().init({ file: sampleFile, data: sampleData });
+				const popped = cfg.pop('nonexistent');
+				expect(popped).to.be.undefined;
+			});
+
+			it('should delete key when array becomes empty after pop', () => {
+				const cfg = new Config().init({ file: sampleFile, data: { singleItem: [ 'only' ] } });
+				const popped = cfg.pop('singleItem');
+				expect(popped).to.equal('only');
+				expect(cfg.get('singleItem')).to.be.undefined;
 			});
 
 			it('should pop a value from an array in a profile', () => {
@@ -378,16 +386,27 @@ describe('config', () => {
 				expect(cfg.get('corge')).to.deep.equal([ 10, 20 ]);
 			});
 
-			it('should error when popping from non-array key in a profile', () => {
+			it('should return non-array value and delete key when popping in a profile', () => {
 				const profileData = {
 					...sampleData,
 					profiles: { dev: { foo: 'devBar' } }
 				};
 				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
-				expect(() => cfg.pop('foo')).to.throw(
-					TypeError,
-					'Expected config key "foo" to be an array'
-				);
+				const popped = cfg.pop('foo');
+				expect(popped).to.equal('devBar');
+				// Should fall back to global value after deleting profile value
+				expect(cfg.get('foo')).to.equal('bar');
+			});
+
+			it('should delete key when array becomes empty after pop in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { singleItem: [ 'only' ] } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				const popped = cfg.pop('singleItem');
+				expect(popped).to.equal('only');
+				expect(cfg.get('singleItem')).to.be.undefined;
 			});
 		});
 
@@ -400,12 +419,24 @@ describe('config', () => {
 				expect(cfg.get('corge')).to.deep.equal([ 2, 3 ]);
 			});
 
-			it('should error when shifting from non-array key', () => {
+			it('should return non-array value and delete key when shifting', () => {
 				const cfg = new Config().init({ file: sampleFile, data: sampleData });
-				expect(() => cfg.shift('foo')).to.throw(
-					TypeError,
-					'Expected config key "foo" to be an array'
-				);
+				const shifted = cfg.shift('foo');
+				expect(shifted).to.equal('bar');
+				expect(cfg.get('foo')).to.be.undefined;
+			});
+
+			it('should return undefined when shifting from non-existent key', () => {
+				const cfg = new Config().init({ file: sampleFile, data: sampleData });
+				const shifted = cfg.shift('nonexistent');
+				expect(shifted).to.be.undefined;
+			});
+
+			it('should delete key when array becomes empty after shift', () => {
+				const cfg = new Config().init({ file: sampleFile, data: { singleItem: [ 'only' ] } });
+				const shifted = cfg.shift('singleItem');
+				expect(shifted).to.equal('only');
+				expect(cfg.get('singleItem')).to.be.undefined;
 			});
 
 			it('should shift a value from an array in a profile', () => {
@@ -419,16 +450,27 @@ describe('config', () => {
 				expect(cfg.get('corge')).to.deep.equal([ 20, 30 ]);
 			});
 
-			it('should error when shifting from non-array key in a profile', () => {
+			it('should return non-array value and delete key when shifting in a profile', () => {
 				const profileData = {
 					...sampleData,
 					profiles: { dev: { foo: 'devBar' } }
 				};
 				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
-				expect(() => cfg.shift('foo')).to.throw(
-					TypeError,
-					'Expected config key "foo" to be an array'
-				);
+				const shifted = cfg.shift('foo');
+				expect(shifted).to.equal('devBar');
+				// Should fall back to global value after deleting profile value
+				expect(cfg.get('foo')).to.equal('bar');
+			});
+
+			it('should delete key when array becomes empty after shift in a profile', () => {
+				const profileData = {
+					...sampleData,
+					profiles: { dev: { singleItem: [ 'only' ] } }
+				};
+				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
+				const shifted = cfg.shift('singleItem');
+				expect(shifted).to.equal('only');
+				expect(cfg.get('singleItem')).to.be.undefined;
 			});
 		});
 
@@ -446,12 +488,10 @@ describe('config', () => {
 				expect(cfg.get('newArray')).to.deep.equal([ 'firstItem' ]);
 			});
 
-			it('should error when unshifting to non-array key', () => {
+			it('should convert non-array value to array when unshifting', () => {
 				const cfg = new Config().init({ file: sampleFile, data: sampleData });
-				expect(() => cfg.unshift('foo', 'value')).to.throw(
-					TypeError,
-					'Expected config key "foo" to be an array'
-				);
+				cfg.unshift('foo', 'value');
+				expect(cfg.get('foo')).to.deep.equal([ 'value', 'bar' ]);
 			});
 
 			it('should unshift a new value onto an array in a profile', () => {
@@ -474,16 +514,14 @@ describe('config', () => {
 				expect(cfg.get('newArray')).to.deep.equal([ 'firstItem' ]);
 			});
 
-			it('should error when unshifting to non-array key in a profile', () => {
+			it('should convert non-array value to array when unshifting in a profile', () => {
 				const profileData = {
 					...sampleData,
 					profiles: { dev: { foo: 'devBar' } }
 				};
 				const cfg = new Config().init({ file: sampleFile, data: profileData, profile: 'dev' });
-				expect(() => cfg.unshift('foo', 'value')).to.throw(
-					TypeError,
-					'Expected config key "foo" to be an array'
-				);
+				cfg.unshift('foo', 'value');
+				expect(cfg.get('foo')).to.deep.equal([ 'value', 'devBar' ]);
 			});
 		});
 
@@ -536,7 +574,10 @@ describe('config', () => {
 
 	describe('loadConfig()', () => {
 
+		beforeEach(() => resetConfigInstance());
+
 		afterEach(() => {
+			resetConfigInstance();
 			if (fs.existsSync(configFile)) {
 				fs.unlinkSync(configFile);
 			}

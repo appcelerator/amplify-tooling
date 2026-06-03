@@ -1,22 +1,28 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
 Add a team to a service account.
 
-USAGE: {{#cyan}}axway service-account add-team <client-id/name> <team-guid/name> <role> [options]{{/cyan}}
+USAGE
+  $ axway service-account add-team CLIENT-ID TEAM ROLE [--json] [--no-banner] [--no-color] [--profile <value>] [--org <value>] [--account <value>]
 
-ADD-TEAM ARGUMENTS:
-  {{#cyan}}id                  {{/cyan}}  The service account client id or name
-  {{#cyan}}guid                {{/cyan}}  The team name or guid
-  {{#cyan}}role                {{/cyan}}  The team role
+ARGUMENTS
+  CLIENT-ID  The service account client id or name.
+  TEAM       The team name or guid.
+  ROLE       The team role.
 
-ADD-TEAM OPTIONS:
-  {{#cyan}}--account [name]    {{/cyan}}  The platform account to use
-  {{#cyan}}--json              {{/cyan}}  Outputs the result as JSON
-  {{#cyan}}--org [name|id|guid]{{/cyan}}  The organization name, id, or guid
+FLAGS
+  --account=<value>  The account to use within the active profile.
+  --org=<value>      The organization name, id, or guid; defaults to the current org.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner         {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color          {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help          {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version       {{/cyan}}  Outputs the version
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
+
+DESCRIPTION
+  Add a team to a service account.
+
+  You must have administrative access to modify a service account.
+

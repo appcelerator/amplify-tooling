@@ -7,13 +7,9 @@ export default class TeamRemove extends Command {
 
 	static override summary = 'Remove a team from an organization.';
 
-	static override description = 'Removes a team from the specified organization. You must have administrative access to perform this action.';
+	static override description = 'You must have administrative access to perform this action.';
 
 	static override args = {
-		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		}),
 		team: Args.string({
 			description: 'The team name or guid.',
 			required: true

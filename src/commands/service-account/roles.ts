@@ -6,7 +6,7 @@ import Command from '../../lib/command.js';
 export default class RolesCommand extends Command {
 	static override summary = 'View available service account roles.';
 
-	static override description = 'Organization roles and team roles may vary by organization.';
+	static override description = 'Available organization and team roles may vary by organization.';
 
 	static override flags = {
 		org: Flags.string({

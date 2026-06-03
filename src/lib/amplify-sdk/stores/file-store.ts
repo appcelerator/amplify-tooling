@@ -73,7 +73,11 @@ export default class FileStore extends TokenStore {
 	 */
 	override async clear(baseUrl): Promise<any> {
 		const { entries, removed } = await super._clear(baseUrl);
-		await this.save(entries);
+		if (entries.length) {
+			await this.save(entries);
+		} else {
+			await this.remove();
+		}
 		return removed;
 	}
 

@@ -8,14 +8,11 @@ import { initSDK } from '../../lib/amplify-sdk/index.js';
 export default class AuthSwitch extends Command {
 	static override summary = 'Select default account and team.';
 
-	static override description = `Once authenticated, the "switch" command allows you to change the default
-account and current team to use for "<%= config.bin %>" commands.
+	static override description = `Once authenticated, the "switch" command allows you to change the default account and current team to use for "<%= config.bin %>" commands.
 
-Changing the current team will only affect your local machine and does not
-change the actual default team.
+Changing the current team will only affect your local machine and does not change the actual default team.
 
-The --team option is required when --json flag is set and there is more
-than one team.`;
+The --team option is required when --json flag is set and there is more than one team.`;
 
 	static override flags = {
 		account: Flags.string({

@@ -1,15 +1,26 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Display all config settings
+Display all config settings.
 
-USAGE: {{#cyan}}axway config list [options]{{/cyan}}
+USAGE
+  $ axway config list [--json] [--no-banner] [--no-color] [--profile <value>]
 
-CONFIG OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs the config as JSON
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+ALIASES
+  $ axway config ls
+
+EXAMPLES
+  List all config settings.
+
+    $ axway config list
+
+  Return the config as JSON.
+
+    $ axway config list --json
+

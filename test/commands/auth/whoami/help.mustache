@@ -1,18 +1,23 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Display the currently selected account, organizations, roles, and teams.
+Display info for an authenticated account
 
-USAGE: {{#cyan}}axway auth whoami [options] [<account-name>]{{/cyan}}
+USAGE
+  $ axway auth whoami [ACCOUNTNAME] [--json] [--no-banner] [--no-color] [--profile <value>] [--account <value>]
 
-WHOAMI ARGUMENTS:
-  {{#cyan}}account-name {{/cyan}}  The account to display
+ARGUMENTS
+  [ACCOUNTNAME]  The account to display.
 
-WHOAMI OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs accounts as JSON
+FLAGS
+  --account=<value>  The account to use within the active profile.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
+
+DESCRIPTION
+  Display info for an authenticated account
+

@@ -7,26 +7,21 @@ export default class TeamUserAdd extends Command {
 		'team:users:add'
 	];
 
-	static override summary = 'Add a user to a team.';
+	static override summary = 'Add a user or service account to a team.';
 
-	static override description = `You may specify an organization by name, id, or guid.
+	static override description = `The user or service account must already be registered on the platform.
 
-The user must already be a platform user.
+A team user must be assigned a platform role and optionally a product specific role. You may specify the roles with multiple --role "role" options or a single --role "role1,role2,role3" option with a comma-separated list of roles.
 
-A team user must be assigned a platform role and optionally a product specific role. You may specify the roles with multiple --role "role" options or a single --role "role1,role2,role3" option with a comma-separated list of roles. To view available user roles, run: axway team user roles
-`;
+To view available team user roles, run: ${highlight(`"<%= config.bin %> team user roles"`)}`;
 
 	static override args = {
-		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		}),
 		team: Args.string({
 			description: 'The team name or guid',
 			required: true
 		}),
 		user: Args.string({
-			description: 'The user guid or email address',
+			description: 'The user guid or email address or service account guid or client id',
 			required: true
 		})
 	};
@@ -40,8 +35,12 @@ A team user must be assigned a platform role and optionally a product specific r
 
 	static override examples = [
 		{
-			description: 'Add a user to an organization with administrator privileges.',
-			command: '<%= config.bin %> <%= command.id %> <org> <team> <email> --role administrator'
+			description: 'Add a user to a team with administrator privileges.',
+			command: '<%= config.bin %> <%= command.id %> <team> <email> --role administrator'
+		},
+		{
+			description: 'Add a service account to a team with administrator privileges.',
+			command: '<%= config.bin %> <%= command.id %> <team> <client_id> --role administrator'
 		}
 	];
 

@@ -1,18 +1,24 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Log out all or specific accounts
+Log out all or specific accounts.
 
-USAGE: {{#cyan}}axway auth logout [options] [<accounts...>]{{/cyan}}
+USAGE
+  $ axway auth logout [ACCOUNTS] [--json] [--no-banner] [--no-color] [--profile <value>]
 
-LOGOUT ARGUMENTS:
-  {{#cyan}}accounts...  {{/cyan}}  One or more specific accounts to revoke credentials
+ARGUMENTS
+  [ACCOUNTS]  One or more specific accounts to revoke credentials.
 
-LOGOUT OPTIONS:
-  {{#cyan}}--json       {{/cyan}}  Outputs revoked accounts as JSON
+GLOBAL FLAGS
+  --json             Format output as json.
+  --no-banner        Disable the banner.
+  --no-color         Disable color output.
+  --profile=<value>  Specify the configuration profile to use.
 
-GLOBAL OPTIONS:
-  {{#cyan}}--no-banner  {{/cyan}}  Suppress the banner
-  {{#cyan}}--no-color   {{/cyan}}  Disable colors
-  {{#cyan}}-h, --help   {{/cyan}}  Displays the help screen
-  {{#cyan}}-v, --version{{/cyan}}  Outputs the version
+DESCRIPTION
+  Log out all or specific accounts.
+
+  Optionally outputs revoked accounts as JSON.
+
+ALIASES
+  $ axway auth revoke

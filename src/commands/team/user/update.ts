@@ -7,28 +7,24 @@ export default class TeamUserUpdate extends Command {
 		'team:users:update'
 	];
 
-	static override summary = 'Update a user\'s team roles.';
+	static override summary = 'Update a user or service account\'s team roles.';
 
-	static override description = 'You must have administrative access to update a user\'s team roles.';
+	static override description = 'You must have administrative access to update a user or service account\'s team roles.';
 
 	static override args = {
-		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		}),
 		team: Args.string({
 			description: 'The team name or guid.',
 			required: true
 		}),
 		user: Args.string({
-			description: 'The user guid or email address.',
+			description: 'The user guid or email address, or service account guid or client id.',
 			required: true
 		})
 	};
 
 	static override flags = {
 		role: Flags.string({
-			description: 'Assign one or more team roles to a user.',
+			description: 'Assign one or more team roles to a user or service account.',
 			multiple: true
 		})
 	};
@@ -39,7 +35,7 @@ export default class TeamUserUpdate extends Command {
 		const { args, flags, account, org, sdk } = await this.parse(TeamUserUpdate);
 
 		if (!account.user.roles.includes('administrator')) {
-			throw new Error(`You do not have administrative access to update a user's team roles in the "${org.name}" organization`);
+			throw new Error(`You do not have administrative access to update a user or service account's team roles in the "${org.name}" organization`);
 		}
 
 		const { team, user } = await sdk.team.user.update(account, org, args.team, args.user, flags.role);

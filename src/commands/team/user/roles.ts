@@ -1,6 +1,5 @@
 import { createTable } from '../../../lib/formatter.js';
 import { highlight, note } from '../../../lib/logger.js';
-import { Flags } from '@oclif/core';
 import Command from '../../../lib/command.js';
 
 export default class TeamUserRoles extends Command {
@@ -11,13 +10,6 @@ export default class TeamUserRoles extends Command {
 	static override summary = 'View available team user roles.';
 
 	static override description = 'Roles may vary by organization.';
-
-	static override flags = {
-		org: Flags.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		})
-	};
 
 	static override enableJsonFlag = true;
 

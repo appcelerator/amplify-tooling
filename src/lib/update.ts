@@ -8,7 +8,7 @@ import { readJsonSync, writeFileSync } from './fs.js';
 
 const { error, log, warn } = logger('update');
 
-let pendingCheck: Promise<UpdateMeta>;
+export let pendingCheck: Promise<UpdateMeta>;
 
 interface UpdateMeta {
 	latest: string | null;

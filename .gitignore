@@ -12,3 +12,4 @@ retire_output.json
 yarn-error.log
 /packages/**/yarn.lock
 dist/
+test/.*

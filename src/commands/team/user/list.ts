@@ -12,13 +12,9 @@ export default class TeamUserList extends Command {
 
 	static override summary = 'List users in a team.';
 
-	static override description = 'The organization can be specified by name, id, or guid. The team can be specified by name or guid.';
+	static override description = 'The team can be specified by name or guid.';
 
 	static override args = {
-		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		}),
 		team: Args.string({
 			description: 'The team name or guid',
 			required: true

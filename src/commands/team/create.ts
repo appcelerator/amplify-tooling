@@ -12,26 +12,22 @@ export default class TeamCreate extends Command {
 
 	static override examples = [
 		{
-			description: 'Create a team named "devs" for organization "acme"',
-			command: 'amplify team create acme devs'
+			description: 'Create a team named "devs"',
+			command: '<%= config.bin %> <%= command.id %> devs'
 		},
 		{
 			description: 'Create a team with tags and description',
-			command: 'amplify team create acme devs --desc "Developers team" --tag frontend --tag backend'
+			command: '<%= config.bin %> <%= command.id %> devs --desc "Developers team" --tag frontend --tag backend'
 		},
 		{
 			description: 'Create a team and output as JSON',
-			command: 'amplify team create acme devs --json'
+			command: '<%= config.bin %> <%= command.id %> devs --json'
 		}
 	];
 
 	static override enableJsonFlag = true;
 
 	static override args = {
-		org: Args.string({
-			description: 'The organization name, id, or guid; defaults to the current org.',
-			required: false
-		}),
 		name: Args.string({
 			description: 'The name of the team.',
 			required: true

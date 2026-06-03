@@ -1,26 +1,26 @@
-{{#cyan}}AXWAY CLI{{/cyan}}, version {{version}}
-Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.{{{nodeDeprecationWarning}}}
+AXWAY CLI, version {{version}}
+Copyright (c) 2018-{{year}}, Axway, Inc. All Rights Reserved.
 
-Account:      {{#cyan}}test-auth-client-secret{{/cyan}}
-Organization: {{#cyan}}Foo org{{/cyan}} {{#gray}}(1000){{/gray}}
-Date Range:   {{#cyan}}2/1/2021{{/cyan}} and {{#cyan}}2/28/2021{{/cyan}}
+Account:      test-auth-client-secret
+Organization: Foo org (1000)
+Date Range:   {{{localeDateTime}}} and {{{localeDateTime}}}
 
-{{#bold}}Amplify API Management Platform{{/bold}} - {{#cyan}}Standard{{/cyan}}
-  {{#cyan}}280,234 / 1,000,000{{/cyan}} Tokens  {{#green}}■■■■■■■■■■■■{{/green}}{{#gray}}⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂{{/gray}}  28%
+Amplify API Management Platform - Standard
+  280,234 / 1,000,000 Tokens  ■■■■■■■■■■■■⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂  28%
 
-  {{#bold}}API Gateway Transactions{{/bold}}                                                      {{#cyan}}799{{/cyan}} Tokens
-  ├─ 1111111111                                      {{#cyan}}39,321{{/cyan}} Transactions
-  ├─ Foo {{#gray}}Production{{/gray}}                                  {{#cyan}}   511{{/cyan}} Transactions        {{#cyan}}511{{/cyan}} Tokens
-  └─ Bar                                             {{#cyan}}   288{{/cyan}} Transactions        {{#cyan}}288{{/cyan}} Tokens
-  {{#bold}}AWS API Gateway Traceability Agent Transactions{{/bold}}                                 {{#cyan}}2{{/cyan}} Tokens
-  └─ Baz {{#gray}}Production{{/gray}}                                  {{#cyan}}    12{{/cyan}} Transactions{{#cyan}} x 0.1{{/cyan}}    {{#cyan}}2{{/cyan}} Tokens
-  {{#bold}}Azure API Gateway Traceability Agent Transactions{{/bold}}                              {{#cyan}}27{{/cyan}} Tokens
-  └─ Pow                                             {{#cyan}}   214{{/cyan}} Transactions{{#cyan}} x 0.1{{/cyan}}   {{#cyan}}27{{/cyan}} Tokens
+  API Gateway Transactions                                                      799 Tokens
+  ├─ 1111111111                                      39,321 Transactions
+  ├─ Foo Production                                     511 Transactions        511 Tokens
+  └─ Bar                                                288 Transactions        288 Tokens
+  AWS API Gateway Traceability Agent Transactions                                 2 Tokens
+  └─ Baz Production                                      12 Transactions x 0.1    2 Tokens
+  Azure API Gateway Traceability Agent Transactions                              27 Tokens
+  └─ Pow                                                214 Transactions x 0.1   27 Tokens
 
-{{#bold}}SaaS{{/bold}}
-  {{#bold}}API Calls{{/bold}}           {{#cyan}}       1,294 of 5,000{{/cyan}} Calls   {{#green}}■■■■■{{/green}}{{#gray}}⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂{{/gray}}  25%
-  {{#bold}}Push Notifications{{/bold}}  {{#cyan}}       1,211 of 2,000{{/cyan}} Calls   {{#green}}■■■■■■■■■■■■{{/green}}{{#gray}}⠂⠂⠂⠂⠂⠂⠂⠂{{/gray}}  60%
-  {{#bold}}File Storage{{/bold}}        {{#cyan}}         0.001 of 100{{/cyan}} GB      {{#gray}}⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂{{/gray}}   0%
-  {{#bold}}Database Storage{{/bold}}    {{#cyan}}          0.32 of 100{{/cyan}} GB      {{#gray}}⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂{{/gray}}   0%
-  {{#bold}}Container Points{{/bold}}    {{#cyan}}       2,266 of 1,000{{/cyan}} Points  {{#red}}■■■■■■■■■■■■■■■■■■■■{{/red}} {{#red}}226%{{/red}}
-  {{#bold}}Analytics Events{{/bold}}    {{#cyan}}423,110 of 10,000,000{{/cyan}} Events  {{#green}}■{{/green}}{{#gray}}⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂{{/gray}}   4%
+SaaS
+  API Calls                  1,294 of 5,000 Calls   ■■■■■⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂  25%
+  Push Notifications         1,211 of 2,000 Calls   ■■■■■■■■■■■■⠂⠂⠂⠂⠂⠂⠂⠂  60%
+  File Storage                 0.001 of 100 GB      ⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂   0%
+  Database Storage              0.32 of 100 GB      ⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂   0%
+  Container Points           2,266 of 1,000 Points  ■■■■■■■■■■■■■■■■■■■■ 226%
+  Analytics Events    423,110 of 10,000,000 Events  ■⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂   4%

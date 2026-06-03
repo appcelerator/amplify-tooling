@@ -10,12 +10,15 @@ export default class AuthList extends Command {
 	static override description = 'Displays a list of all authenticated accounts, their selected platform organization, and the current team.';
 
 	static override aliases = [ 'auth:ls' ];
+
 	static override authenticated = false;
 
 	static override enableJsonFlag = true;
 
 	async run() {
 		const { config } = await this.parse(AuthList);
+
+		// Initialize SDK manually since this command doesn't require authentication
 		const sdk = await initSDK({}, config);
 
 		const accounts = await sdk.auth.list({
