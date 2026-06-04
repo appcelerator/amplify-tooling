@@ -94,6 +94,11 @@ export function renderRegexFromFile(file, vars) {
 		file = path.resolve(path.dirname(cp), file);
 	}
 
+	// Update in-memory command output with the template reference
+	if (global.currentTestInvocations?.length > 0) {
+		global.currentTestInvocations[global.currentTestInvocations.length - 1].template = file;
+	}
+
 	// If LOG_TEST_OUTPUT is enabled and we have a recent log file, update it with the template path
 	if (process.env.LOG_TEST_OUTPUT && lastLogFile && fs.existsSync(lastLogFile)) {
 		try {
@@ -101,10 +106,6 @@ export function renderRegexFromFile(file, vars) {
 			// Update the most recent invocation with the template path
 			if (Array.isArray(logData) && logData.length > 0) {
 				logData[logData.length - 1].template = file;
-				// Also update in-memory so subsequent runCommand calls don't overwrite this
-				if (global.currentTestInvocations?.length > 0) {
-					global.currentTestInvocations[global.currentTestInvocations.length - 1].template = file;
-				}
 				fs.writeFileSync(lastLogFile, JSON.stringify(logData, null, 2));
 			}
 		} catch {
@@ -166,6 +167,16 @@ export function runCommand(args = [], opts = {}, cfg) {
 	return new Promise(resolve => child.on('close', status => {
 		log(`Process exited (code ${status})`);
 
+		// Store the command invocation in the global array
+		global.currentTestInvocations.push({
+			args,
+			opts: { color: opts.color, shim: opts.shim },
+			status,
+			stdout,
+			stderr,
+			template: null
+		});
+
 		// Log output to file if LOG_TEST_OUTPUT is set
 		if (process.env.LOG_TEST_OUTPUT) {
 			// Try to get the current test context from Mocha
@@ -197,22 +208,6 @@ export function runCommand(args = [], opts = {}, cfg) {
 				fs.mkdirSync(logDir, { recursive: true });
 			}
 			const logFile = path.join(logDir, `${testName}.log`);
-
-			// Initialize the invocations array if it doesn't exist
-			if (!global.currentTestInvocations) {
-				global.currentTestInvocations = [];
-			}
-
-			// Add this invocation to the array
-			global.currentTestInvocations.push({
-				args,
-				opts: { color: opts.color, shim: opts.shim },
-				status,
-				stdout,
-				stderr,
-				template: null
-			});
-
 			// Write all invocations to the log file
 			fs.writeFileSync(logFile, JSON.stringify(global.currentTestInvocations, null, 2));
 			console.log(`📝 Logged output to: ${logFile}`);

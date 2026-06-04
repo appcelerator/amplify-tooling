@@ -28,8 +28,8 @@ export const mochaHooks = {
 	beforeEach: function () {
 		this.resetServers();
 
-		// If test command output logging is enabled, set up the context for this test so the helper can log to the correct file
-		if (process.env.LOG_TEST_OUTPUT) {
+		// If running a command test, set up the context for this test so the helper can store references to executed command outputs
+		if (this.currentTest.file.includes('/test/commands/')) {
 			// Store the current test context globally for logging purposes
 			global.currentTest = this.currentTest;
 			// Reset the invocations array for this test
@@ -42,9 +42,21 @@ export const mochaHooks = {
 		// Clean up all nock interceptors
 		nock.cleanAll();
 
-		// Reset the logging context after each test if command output logging is enabled
-		if (process.env.LOG_TEST_OUTPUT) {
-			// Clear the test context
+		// If running a command test, log command output on test failure and reset the global context
+		if (this.currentTest.file.includes('/test/commands/')) {
+			if (this.currentTest.state === 'failed' && global.currentTestInvocations?.length > 0) {
+				console.log('Test failed. Command invocations during the test:');
+				global.currentTestInvocations.forEach((invocation, index) => {
+					console.log(`Command ${index + 1}:`);
+					console.log(`  Args: ${invocation.args.slice(1).join(' ')}`);
+					console.log(`  Code: ${invocation.status}`);
+					console.log(`  Stdout: ${JSON.stringify(String(invocation.stdout))}`);
+					console.log(`  Stderr: ${JSON.stringify(String(invocation.stderr))}`);
+					console.log(`  Template: ${typeof invocation.template === 'string' ? path.relative(path.resolve(__dirname, '..', '..'), invocation.template) : invocation.template}`);
+				});
+			}
+
+			// Reset the logging context after each test
 			global.currentTest = null;
 			global.currentTestInvocations = [];
 		}
