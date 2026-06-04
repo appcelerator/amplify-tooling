@@ -21,7 +21,7 @@ const { log } = logger('amplify-sdk:telemetry');
 const allowedEvents = [ 'crash.report', 'session.start', 'session.end' ];
 
 function isAllowedEvent(event: string): boolean {
-	return (event.startsWith('cli.telemetry.') && !event.endsWith('.')) || allowedEvents.includes(event);
+	return (event.startsWith('telemetry.cli.') && !event.endsWith('.')) || allowedEvents.includes(event);
 }
 
 /**

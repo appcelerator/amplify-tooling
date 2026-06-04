@@ -218,7 +218,7 @@ describe('Telemetry', () => {
 			const { appDir, telemetry } = createTelemetry();
 
 			telemetry.addEvent({
-				event: 'foo.bar',
+				event: 'telemetry.cli.foo.bar',
 				meaningOfLife: 42
 			});
 
@@ -231,7 +231,7 @@ describe('Telemetry', () => {
 
 			expect(this.getTelemetryEvents()).to.have.lengthOf(1);
 			expect(this.getTelemetryEvents()[0][0].event).to.equal('session.start');
-			expect(this.getTelemetryEvents()[0][1].event).to.equal('foo.bar');
+			expect(this.getTelemetryEvents()[0][1].event).to.equal('telemetry.cli.foo.bar');
 			expect(this.getTelemetryEvents()[0][1].data).to.deep.equal({ meaningOfLife: 42 });
 		});
 
@@ -242,7 +242,7 @@ describe('Telemetry', () => {
 			const { appDir, telemetry } = createTelemetry();
 
 			for (let i = 1; i <= 15; i++) {
-				telemetry.addEvent({ event: `test${i}` });
+				telemetry.addEvent({ event: `telemetry.cli.test${i}` });
 			}
 
 			const files = fs.readdirSync(appDir);
@@ -257,13 +257,13 @@ describe('Telemetry', () => {
 			expect(events[0].event).to.equal('session.start');
 			let counter = 1;
 			for (let i = 1; i < events.length; i++) {
-				expect(events[i].event).to.equal(`test${counter++}`);
+				expect(events[i].event).to.equal(`telemetry.cli.test${counter++}`);
 			}
 
 			events = this.getTelemetryEvents()[1];
 			expect(events).to.have.lengthOf(6);
 			for (let i = 0; i < events.length; i++) {
-				expect(events[i].event).to.equal(`test${counter++}`);
+				expect(events[i].event).to.equal(`telemetry.cli.test${counter++}`);
 			}
 		});
 
@@ -338,7 +338,7 @@ describe('Telemetry', () => {
 
 			const { appDir, telemetry } = createTelemetry();
 
-			telemetry.addEvent({ event: 'foo.bar' });
+			telemetry.addEvent({ event: 'telemetry.cli.foo.bar' });
 
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(4);
 
@@ -350,7 +350,7 @@ describe('Telemetry', () => {
 			expect(this.getTelemetryEvents()).to.have.lengthOf(1);
 			const events = this.getTelemetryEvents()[0];
 			expect(events[0].event).to.equal('session.start');
-			expect(events[1].event).to.equal('foo.bar');
+			expect(events[1].event).to.equal('telemetry.cli.foo.bar');
 		});
 
 		it('should override a stale pid', async function () {
@@ -359,7 +359,7 @@ describe('Telemetry', () => {
 
 			const { appDir, telemetry } = createTelemetry();
 
-			telemetry.addEvent({ event: 'foo.bar' });
+			telemetry.addEvent({ event: 'telemetry.cli.foo.bar' });
 
 			// we need to find a pid that doesn't actually exist
 			let luckyPid;
@@ -380,7 +380,7 @@ describe('Telemetry', () => {
 			expect(this.getTelemetryEvents()).to.have.lengthOf(1);
 			const events = this.getTelemetryEvents()[0];
 			expect(events[0].event).to.equal('session.start');
-			expect(events[1].event).to.equal('foo.bar');
+			expect(events[1].event).to.equal('telemetry.cli.foo.bar');
 		});
 
 		it('should not send bad events', async function () {
@@ -427,7 +427,7 @@ describe('Telemetry', () => {
 				url: 'http://127.0.0.1:13372/does_not_exist'
 			});
 
-			telemetry.addEvent({ event: 'foo.bar' });
+			telemetry.addEvent({ event: 'telemetry.cli.foo.bar' });
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(4);
 
 			await telemetry.send();
@@ -484,6 +484,23 @@ describe('Telemetry', () => {
 			expect(json.id).to.not.equal('foo');
 		});
 
+		it('should only queue allowed events for publish', () => {
+			const { appDir, telemetry } = createTelemetry();
+
+			expect(fs.readdirSync(appDir)).to.have.lengthOf(3); // .hid, .sid, session.start
+
+			// disallowed events must not be written to disk
+			telemetry.addEvent({ event: 'bad.event' });
+			telemetry.addEvent({ event: 'telemetry.cli.' }); // trailing dot — not a valid sub-event
+			telemetry.addEvent({ event: 'telemetry.other.foo' }); // wrong prefix
+			expect(fs.readdirSync(appDir)).to.have.lengthOf(3);
+
+			// allowed telemetry.cli.* events must be written to disk
+			telemetry.addEvent({ event: 'telemetry.cli.foo' });
+			telemetry.addEvent({ event: 'telemetry.cli.foo.bar' });
+			expect(fs.readdirSync(appDir)).to.have.lengthOf(5);
+		});
+
 		it('should not add events if telemetry is disabled', async function () {
 			this.timeout(5000);
 			this.slow(4000);
@@ -493,7 +510,7 @@ describe('Telemetry', () => {
 			let { appDir, telemetry } = createTelemetry();
 			expect(fs.readdirSync(appDir)).to.have.lengthOf(2);
 
-			telemetry.addEvent({ event: 'foo.bar' });
+			telemetry.addEvent({ event: 'telemetry.cli.foo.bar' });
 			telemetry.addCrash(new Error('This is an error'));
 			await telemetry.send();
 
