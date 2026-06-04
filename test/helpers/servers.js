@@ -3,9 +3,10 @@ import Koa from 'koa';
 import Router from '@koa/router';
 import logger, { highlight } from '../../dist/lib/logger.js';
 import { createAuthRoutes } from './auth-routes.js';
+import { createEngageRoutes } from './engage-routes.js';
 import { createPlatformRoutes } from './platform-routes.js';
 
-const { log } = logger('test:servers');
+const log = logger('test:servers');
 
 function createServer({ port }) {
 	return new Promise((resolve, reject) => {
@@ -21,6 +22,7 @@ function createServer({ port }) {
 
 		const server = app.listen(port, '127.0.0.1');
 		server.__connections = {};
+		server.app = app;
 		server.router = router;
 
 		server.on('connection', conn => {
@@ -52,11 +54,18 @@ export async function startPlatformServer(opts = {}) {
 	return server;
 }
 
+export async function startEngageServer(opts = {}) {
+	const server = await createServer({ port: 8777 });
+	await createEngageRoutes(server, opts);
+	return server;
+}
+
 export async function startServers() {
 	const state = {};
 	return [
 		await startAuthServer({ state }),
-		await startPlatformServer({ state })
+		await startPlatformServer({ state }),
+		await startEngageServer({ state })
 	];
 }
 

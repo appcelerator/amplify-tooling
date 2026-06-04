@@ -1,6 +1,5 @@
 import chalk from 'chalk';
-import { InstallationFlowMethods } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, BundleType, Certificate, GatewayTypes, IstioAgentValues, IstioInstallValues, IstioProfileChoices, Protocol, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, BundleType, Certificate, GatewayTypes, InstallationFlowMethods, IstioAgentValues, IstioInstallValues, IstioProfileChoices, Protocol, YesNo, YesNoChoices } from '../../../types.js';
 import { createTlsCert } from '../../bash-commands.js';
 import { askInput, askList, validateRegex } from '../../basic-prompts.js';
 import { AgentHelmInfo, helmImageSecretInfo, helmInstallInfo, writeTemplates } from '../../utils.js';

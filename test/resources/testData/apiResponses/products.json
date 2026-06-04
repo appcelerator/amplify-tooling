@@ -1,0 +1,130 @@
+{
+    "group": "catalog",
+    "apiVersion": "v1alpha1",
+    "kind": "Product",
+    "name": "test-product-1",
+    "title": "test-product-1",
+    "metadata": {
+        "id": "8a2e8e7c91fb25fa0191fcb760c551dd",
+        "audit": {
+            "createTimestamp": "2024-09-16T21:22:41.989+0000",
+            "createUserId": "bef7b97d-9637-4dc5-87e1-38c7ba63dca9",
+            "modifyTimestamp": "2024-09-18T17:39:56.357+0000",
+            "modifyUserId": "bef7b97d-9637-4dc5-87e1-38c7ba63dca9"
+        },
+        "acl": [],
+        "accessRights": {
+            "canChangeOwner": true,
+            "canDelete": true,
+            "canWrite": true,
+            "canRead": true
+        },
+        "resourceVersion": "15",
+        "references": [
+            {
+                "id": "8a2e8e7c91fb25fa0191fcb7632c51ed",
+                "kind": "ReleaseTag",
+                "name": "test-product-1",
+                "scopeKind": "Product",
+                "scopeName": "test-product-1",
+                "selfLink": "/catalog/v1alpha1/products/test-product-1/releasetags/test-product-1",
+                "type": "soft",
+                "group": "catalog"
+            },
+            {
+                "id": "8a2e85478c1cc7b5018c1dda7a970aef",
+                "kind": "Asset",
+                "name": "jlq-state-asset",
+                "selfLink": "/catalog/v1alpha1/assets/jlq-state-asset",
+                "type": "soft",
+                "group": "catalog"
+            },
+            {
+                "id": "8a2e90ac91fb26b70191fcb763d23e47",
+                "kind": "ProductRelease",
+                "name": "test-product-1-0.0.1",
+                "selfLink": "/catalog/v1/productreleases/test-product-1-0.0.1",
+                "type": "soft",
+                "group": "catalog"
+            },
+            {
+                "id": "8a2e914e8c1cc6bf018c1dd88d7e0b33",
+                "kind": "APIService",
+                "name": "jlq-service-1",
+                "scopeKind": "Environment",
+                "scopeName": "jlq-state-env",
+                "selfLink": "/management/v1alpha1/environments/jlq-state-env/apiservices/jlq-service-1",
+                "type": "soft",
+                "group": "management"
+            },
+            {
+                "id": "8a2e8c6590c1696b0190cd48f1527c6c",
+                "kind": "AssetRelease",
+                "name": "jlq-state-asset-2.5.0",
+                "selfLink": "/catalog/v1alpha1/assetreleases/jlq-state-asset-2.5.0",
+                "type": "soft",
+                "group": "catalog"
+            }
+        ],
+        "selfLink": "/catalog/v1alpha1/products/test-product-1"
+    },
+    "attributes": {},
+    "finalizers": [],
+    "tags": [],
+    "spec": {
+        "assets": [
+            {
+                "name": "jlq-state-asset"
+            }
+        ],
+        "autoRelease": {
+            "releaseType": "patch"
+        }
+    },
+    "latestrelease": {
+        "name": "test-product-1-0.0.1",
+        "tagName": "test-product-1/test-product-1",
+        "version": "0.0.1"
+    },
+    "references": {
+        "assets": [
+            {
+                "name": "jlq-state-asset",
+                "release": {
+                    "name": "jlq-state-asset-2.5.0",
+                    "state": "active",
+                    "version": "2.5.0",
+                    "apiServices": [
+                        "management/jlq-state-env/jlq-service-1"
+                    ]
+                }
+            }
+        ],
+        "marketplaces": []
+    },
+    "state": "active",
+    "languages": {
+        "resource": {
+            "code": "en-us"
+        }
+    },
+    "languages-fr-fr": {
+        "values": [
+            {
+                "path": "/title",
+                "value": "La sous updated demande un identifiant de département",
+                "status": "complete",
+                "_embedded": {
+                    "resource": {
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 350,
+                            "description": "The resource title."
+                        },
+                        "value": "test-product-1"
+                    }
+                }
+            }
+        ]
+    }
+}

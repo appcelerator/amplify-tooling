@@ -2,10 +2,9 @@ import chalk from 'chalk';
 import * as crypto from 'crypto';
 import { ApiServerClient } from '../../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../../results/DefinitionsManager.js';
-import { validateFrequency } from '../../../services/install-service.js';
 import { AgentInstallConfig, AgentResourceKind, AgentTypes, CentralAgentConfig, GatewayTypeToDataPlane, GatewayTypes, GenericResource, IDPAuthConfiguration, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateRegex, validateValidRegex } from '../../basic-prompts.js';
-import { FormatString } from '../../utils.js';
+import { FormatString, validateFrequency } from '../../utils.js';
 import * as helpers from '../index.js';
 
 export class DataplaneConfig {

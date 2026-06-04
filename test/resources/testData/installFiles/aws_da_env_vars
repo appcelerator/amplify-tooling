@@ -1,0 +1,19 @@
+# Amplify Engage configs
+CENTRAL_AUTH_CLIENTID=${ampcClientId}
+CENTRAL_ORGANIZATIONID=${organizationId}
+CENTRAL_ENVIRONMENT=${ampcEnvName}
+CENTRAL_AGENTNAME=${ampcDAName}
+CENTRAL_URL=${centralRegion}
+
+# AWS configs
+AWS_REGION=${region}
+AWS_QUEUENAME=${discoveryQueue}
+AWS_LOGGROUP=${logGroup}
+
+# Logging configs
+# Define the logging level: info, debug, error
+LOG_LEVEL=info
+# Specify where to send the log: stdout, file, both
+LOG_OUTPUT=stdout
+# Define where the log files are written
+LOG_FILE_PATH=logs

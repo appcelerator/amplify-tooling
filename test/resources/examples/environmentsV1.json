@@ -1,0 +1,32 @@
+[
+    {
+		"apiVersion": "v1",
+		"group": "management",
+		"title": "Json env title three",
+		"name": "env3",
+		"kind": "Environment",
+		"attributes": {
+			"createdBy": "json",
+			"randomNum": "3"
+		},
+		"tags": ["cli", "axway"],
+		"spec": {
+			"description": "spec description three"
+		}
+	},
+	{
+		"apiVersion": "v1",
+		"group": "management",
+		"title": "Json env title four",
+		"name": "env4",
+		"kind": "Environment",
+		"attributes": {
+			"createdBy": "json",
+			"randomNum": "4"
+		},
+		"tags": ["cli", "axway"],
+		"spec": {
+			"description": "spec description four"
+		}
+	}
+]

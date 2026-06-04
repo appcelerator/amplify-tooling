@@ -56,14 +56,15 @@ export default class TmpFile {
 	/**
 	 * Open file in editor and return promise with flags indicating if edit was successful or not
 	 * (process killed, vim q! happened etc. ), and if file content has been changed or not.
-	 * Using vim or "EDITOR" env on linux and only notepad on windows.
+	 * Respects the EDITOR environment variable on all platforms; falls back to notepad on
+	 * Windows or vi on Unix.
 	 * @returns {object} represent result of editing:
 	 * isComplete: editor process completed successfully
 	 * isUpdated: content of the file changed
 	 */
 	async edit(): Promise<{ isComplete: boolean; isUpdated: boolean }> {
 		log.log(`editing: ${this.path}`);
-		const editorToUse = isWindows ? 'notepad' : process.env.EDITOR || 'vi';
+		const editorToUse = process.env.EDITOR || (isWindows ? 'notepad' : 'vi');
 		const contentBeforeEdit = Buffer.from(this.read());
 		const editorExitCode = await editor(editorToUse, this.path);
 		const isUpdated = !contentBeforeEdit.equals(Buffer.from(this.read()));

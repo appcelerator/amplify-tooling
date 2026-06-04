@@ -7,7 +7,7 @@ export default class TeamCommand extends Command {
 	static override summary = 'Manage Amplify Platform organization teams.';
 
 	static override description = `You must be authenticated to view or manage organization teams.
-Run ${highlight(`"<%= config.bin %> auth login"`) } to authenticate.
+Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.
 
 You may specify the team by name or guid.
 

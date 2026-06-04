@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 import logger from '../../../../logger.js';
-import { InstallationFlowMethods } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AzureDataplaneMode, BundleType, GatewayTypes } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AzureDataplaneMode, BundleType, GatewayTypes, InstallationFlowMethods } from '../../../types.js';
 import { askInput, askList, validateRegex } from '../../basic-prompts.js';
 import * as helpers from '../index.js';
 import { ApiServerClient } from '../../../clients-external/apiserverclient.js';

@@ -1,0 +1,2150 @@
+[
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "product",
+		"title": "product",
+		"metadata": {
+			"id": "8a2e88127a214a69017a214cb9dd002e",
+			"audit": {
+				"createTimestamp": "2021-06-18T22:45:14.333+0000",
+				"modifyTimestamp": "2021-10-15T23:19:12.104+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "26",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Product",
+			"plural": "products",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "ProductRelease",
+						"group": "catalog",
+						"types": ["hard"]
+					},
+					{
+						"kind": "PublishedProduct",
+						"group": "catalog",
+						"types": ["hard"],
+						"scopeKind": "Marketplace"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"state"
+			],
+			"subResources": {
+				"names": ["references", "icon", "state", "languages", "languages-fr-fr", "languages-de-de", "languages-en-us", "languages-pt-br"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetresource-assetrelease",
+		"title": "assetresource-assetrelease",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc50b80051",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:27.224+0000",
+				"modifyTimestamp": "2021-10-15T23:19:13.942+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284757",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetresource-assetrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetResource",
+			"scope": {
+				"kind": "AssetRelease"
+			},
+			"plural": "assetresources",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Stage",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetRequestDefinition",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "AssetRequest",
+						"group": "catalog",
+						"types": ["hard"],
+						"scopeKind": "Asset"
+					},
+					{
+						"kind": "Documentation",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Product"
+					},
+					{
+						"kind": "Documentation",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "ProductRelease"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["references"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "stage",
+		"title": "stage",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc50e40052",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:27.268+0000",
+				"modifyTimestamp": "2021-10-15T23:19:14.100+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284749",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/stage"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Stage",
+			"plural": "stages",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["icon"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetrelease",
+		"title": "assetrelease",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc51210053",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:27.329+0000",
+				"modifyTimestamp": "2021-10-15T23:19:12.223+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284759",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetRelease",
+			"plural": "assetreleases",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Stage",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetMappingTemplate",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Environment",
+						"group": "management",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["hard"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "ReleaseTag",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "ProductRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Product",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "AssetRequest",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"spec.version",
+				"spec.type",
+				"spec.state"
+			],
+			"subResources": {
+				"names": ["references", "icon"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetresource-asset",
+		"title": "assetresource-asset",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc51c30057",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:27.491+0000",
+				"modifyTimestamp": "2021-10-15T23:19:15.039+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284764",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetresource-asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetResource",
+			"scope": {
+				"kind": "Asset"
+			},
+			"plural": "assetresources",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Stage",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "AssetRequestDefinition",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["references"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetmapping-asset",
+		"title": "assetmapping-asset",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc27120001",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:16.562+0000",
+				"modifyTimestamp": "2021-10-15T23:18:50.313+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284721",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/assetmapping-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetMapping",
+			"scope": {
+				"kind": "Asset"
+			},
+			"plural": "assetmappings",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetMappingTemplate",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AccessRequestDefinition",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetRequestDefinition",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"kind": "AccessRequestDefinition",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "APIService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "Stage",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMappingTemplate",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "APIService",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "asset",
+		"title": "asset",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc51f60058",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:27.542+0000",
+				"modifyTimestamp": "2021-10-15T23:19:15.721+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284763",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Asset",
+			"plural": "assets",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetMappingTemplate",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Stage",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Environment",
+						"group": "management",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "Product",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "ProductRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["hard"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Product",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"spec.type",
+				"state"
+			],
+			"subResources": {
+				"names": ["references", "icon", "state"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetrequestdefinition-asset",
+		"title": "assetrequestdefinition-asset",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc52160059",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:27.574+0000",
+				"modifyTimestamp": "2021-10-15T23:19:13.251+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284750",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetrequestdefinition-asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetRequestDefinition",
+			"scope": {
+				"kind": "Asset"
+			},
+			"plural": "assetrequestdefinitions",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AccessRequestDefinition",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["references"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetrequest-asset",
+		"title": "assetrequest-asset",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc5258005b",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:27.640+0000",
+				"modifyTimestamp": "2021-10-15T23:19:13.500+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284755",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetrequest-asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetRequest",
+			"scope": {
+				"kind": "Asset"
+			},
+			"plural": "assetrequests",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AccessRequest",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["hard"],
+						"scopeKind": "AssetRelease"
+					},
+					{
+						"kind": "AssetRequestDefinition",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AccessRequest",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"state.name",
+				"status.level"
+			],
+			"subResources": {
+				"names": ["references", "state", "status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "marketplace",
+		"title": "marketplace",
+		"metadata": {
+			"id": "8a2e8e477b5fc617017b5fc77402004d",
+			"audit": {
+				"createTimestamp": "2021-08-19T18:58:32.066+0000",
+				"modifyTimestamp": "2021-10-15T23:19:12.381+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/marketplace"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Marketplace",
+			"plural": "marketplaces",
+			"references": {
+				"toResources": [],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "publishedproduct-marketplace",
+		"title": "publishedproduct-marketplace",
+		"metadata": {
+			"id": "8a2e93457c5c29b0017c5c2c2578004b",
+			"audit": {
+				"createTimestamp": "2021-10-07T19:12:49.528+0000",
+				"modifyTimestamp": "2021-10-15T23:19:12.777+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/publishedproduct-marketplace"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "PublishedProduct",
+			"scope": {
+				"kind": "Marketplace"
+			},
+			"plural": "publishedproducts",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "ProductRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "Product",
+						"group": "catalog",
+						"types": ["hard"]
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["references"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "category",
+		"title": "category",
+		"metadata": {
+			"id": "8a2e93bb7a3a4d96017a3a5009cd005c",
+			"audit": {
+				"createTimestamp": "2021-06-23T19:19:21.804+0000",
+				"modifyTimestamp": "2021-10-15T23:19:15.873+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "24",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/category"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Category",
+			"plural": "categories",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "Product",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "AssetMappingTemplate",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "APIService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "ConsumerInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "ProductRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "documentation-product",
+		"title": "documentation-product",
+		"metadata": {
+			"id": "8a2e94e27b418d1e017b418f8cf1004c",
+			"audit": {
+				"createTimestamp": "2021-08-13T22:08:51.953+0000",
+				"modifyTimestamp": "2021-10-15T23:19:12.962+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "16",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/documentation-product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Documentation",
+			"scope": {
+				"kind": "Product"
+			},
+			"plural": "documentation",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Terms",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Product"
+					},
+					{
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					},
+					{
+						"kind": "ReleaseNotes",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Product"
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"status.level"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "releasenote-product",
+		"title": "releasenote-product",
+		"metadata": {
+			"id": "8a2e94e27b418d1e017b418f8d05004d",
+			"audit": {
+				"createTimestamp": "2021-08-13T22:08:51.973+0000",
+				"modifyTimestamp": "2021-10-15T23:19:15.342+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/releasenote-product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ReleaseNotes",
+			"scope": {
+				"kind": "Product"
+			},
+			"plural": "releasenotes",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "Documentation",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Product"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "terms-product",
+		"title": "terms-product",
+		"metadata": {
+			"id": "8a2e94e27b418d1e017b418f8d17004e",
+			"audit": {
+				"createTimestamp": "2021-08-13T22:08:51.991+0000",
+				"modifyTimestamp": "2021-10-15T23:19:15.587+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/terms-product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Terms",
+			"scope": {
+				"kind": "Product"
+			},
+			"plural": "terms",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "Documentation",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Product"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "terms-productrelease",
+		"title": "terms-productrelease",
+		"metadata": {
+			"id": "8a2e95697b84d780017b84d98c940012",
+			"audit": {
+				"createTimestamp": "2021-08-26T23:44:14.996+0000",
+				"modifyTimestamp": "2021-10-15T23:19:11.897+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "1",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/terms-productrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Terms",
+			"scope": {
+				"kind": "ProductRelease"
+			},
+			"plural": "terms",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "Documentation",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "ProductRelease"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "releasetag-product",
+		"title": "releasetag-product",
+		"metadata": {
+			"id": "8a2e95697b84d780017b84d98cb20013",
+			"audit": {
+				"createTimestamp": "2021-08-26T23:44:15.026+0000",
+				"modifyTimestamp": "2021-10-15T23:19:12.614+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/releasetag-product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ReleaseTag",
+			"scope": {
+				"kind": "Product"
+			},
+			"plural": "releasetags",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "ProductRelease",
+						"group": "catalog",
+						"types": ["hard"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"status.level"
+			],
+			"subResources": {
+				"names": ["state", "status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "releasenote-productrelease",
+		"title": "releasenote-productrelease",
+		"metadata": {
+			"id": "8a2e95697b84d780017b84d98cd80014",
+			"audit": {
+				"createTimestamp": "2021-08-26T23:44:15.064+0000",
+				"modifyTimestamp": "2021-10-15T23:19:13.082+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "1",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/releasenote-productrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ReleaseNotes",
+			"scope": {
+				"kind": "ProductRelease"
+			},
+			"plural": "releasenotes",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "Documentation",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "ProductRelease"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "documentation-productrelease",
+		"title": "documentation-productrelease",
+		"metadata": {
+			"id": "8a2e95697b84d780017b84d98d030015",
+			"audit": {
+				"createTimestamp": "2021-08-26T23:44:15.107+0000",
+				"modifyTimestamp": "2021-10-15T23:19:14.411+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "13",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/documentation-productrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Documentation",
+			"scope": {
+				"kind": "ProductRelease"
+			},
+			"plural": "documentation",
+			"references": {
+				"toResources": [
+					{
+						"kind": "ReleaseNotes",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "ProductRelease"
+					},
+					{
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					},
+					{
+						"kind": "Terms",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "ProductRelease"
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"status.level"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "productrelease",
+		"title": "productrelease",
+		"metadata": {
+			"id": "8a2e95697b84d780017b84d98d2b0016",
+			"audit": {
+				"createTimestamp": "2021-08-26T23:44:15.147+0000",
+				"modifyTimestamp": "2021-10-15T23:19:14.785+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "13",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/productrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ProductRelease",
+			"plural": "productreleases",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "ReleaseTag",
+						"group": "catalog",
+						"types": ["hard"],
+						"scopeKind": "Product"
+					},
+					{
+						"kind": "Product",
+						"group": "catalog",
+						"types": ["hard"]
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "PublishedProduct",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Marketplace"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"spec.version",
+				"status.level",
+				"spec.state"
+			],
+			"subResources": {
+				"names": ["icon", "status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetrequestdefinition-assetrelease",
+		"title": "assetrequestdefinition-assetrelease",
+		"metadata": {
+			"id": "8a2e97c1798bedb401798beeda24002e",
+			"audit": {
+				"createTimestamp": "2021-05-20T22:39:17.028+0000",
+				"modifyTimestamp": "2021-10-15T23:19:15.160+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "17",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetrequestdefinition-assetrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetRequestDefinition",
+			"scope": {
+				"kind": "AssetRelease"
+			},
+			"plural": "assetrequestdefinitions",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AccessRequestDefinition",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "AssetRequest",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["references"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "releasetag-asset",
+		"title": "releasetag-asset",
+		"metadata": {
+			"id": "8a2e97c1798bedb401798beeda4a002f",
+			"audit": {
+				"createTimestamp": "2021-05-20T22:39:17.066+0000",
+				"modifyTimestamp": "2021-10-15T23:19:13.752+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "4",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/resources/releasetag-asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ReleaseTag",
+			"scope": {
+				"kind": "Asset"
+			},
+			"plural": "releasetags",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"status.level"
+			],
+			"subResources": {
+				"names": ["state", "status"]
+			}
+		}
+	},
+	{
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "ResourceDefinition",
+        "name": "identityprovider",
+        "title": "identityprovider",
+        "metadata": {
+            "id": "8ac9842c90c13dc90190c14326df0007",
+            "audit": {
+                "createTimestamp": "2024-07-17T15:15:21.951+0000",
+                "modifyTimestamp": "2024-07-17T15:15:21.951+0000"
+            },
+            "scope": {
+                "id": "8ac9842c90c13dc90190c14325410000",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "title": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "acl": [],
+            "accessRights": {
+                "canChangeOwner": false,
+                "canDelete": false,
+                "canWrite": false,
+                "canRead": true
+            },
+            "resourceVersion": "0",
+            "references": [],
+            "selfLink": "/definitions/v1alpha1/groups/management/resources/identityprovider"
+        },
+        "attributes": {},
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "kind": "IdentityProvider",
+            "plural": "identityproviders",
+            "references": {
+                "toResources": [],
+                "fromResources": [
+                    {
+                        "from": {
+                            "subResourceName": "references"
+                        },
+                        "kind": "Environment",
+                        "group": "management",
+                        "types": [
+                            "soft"
+                        ]
+                    },
+                    {
+                        "kind": "CredentialRequestDefinition",
+                        "group": "catalog",
+                        "types": [
+                            "hard"
+                        ],
+                        "scopeKind": "AuthorizationProfile"
+                    },
+                    {
+                        "kind": "CredentialRequestDefinition",
+                        "group": "management",
+                        "types": [
+                            "hard"
+                        ],
+                        "scopeKind": "Environment"
+                    }
+                ]
+            },
+            "queryParams": [
+                "metadata.resourceVersion",
+                "metadata.state",
+                "languages.additional.de-de.status",
+                "metadata.references.kind",
+                "metadata.scope.owner.id",
+                "metadata.scope.name",
+                "metadata.deletedReferences.kind",
+                "metadata.id",
+                "metadata.audit.modifyTimestamp",
+                "metadata.references.name",
+                "metadata.deletedReferences.id",
+                "title",
+                "metadata.audit.createTimestamp",
+                "languages.additional.en-us.status",
+                "tags",
+                "metadata.scope.kind",
+                "metadata.references.id",
+                "owner.id",
+                "languages.resource.code",
+                "name",
+                "languages.additional.fr-fr.status",
+                "attributes",
+                "languages.additional.pt-br.status",
+                "metadata.deletedReferences.name"
+            ],
+            "subResources": {
+                "names": [
+                    "security"
+                ]
+            }
+        }
+    },
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "idpsecret-identityprovider",
+		"title": "idpsecret-identityprovider",
+		"metadata": {
+			"id": "8ac9842c90c13dc90190c1432a36001c",
+			"audit": {
+				"createTimestamp": "2024-07-17T15:15:22.806+0000",
+				"modifyTimestamp": "2024-07-17T15:15:22.806+0000"
+			},
+			"scope": {
+				"id": "8ac9842c90c13dc90190c14325410000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"title": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"acl": [],
+			"accessRights": {
+				"canChangeOwner": false,
+				"canDelete": false,
+				"canWrite": false,
+				"canRead": true
+			},
+			"resourceVersion": "0",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/idpsecret-identityprovider"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "IdentityProviderSecret",
+			"scope": { 
+				"kind": "IdentityProvider" 
+			},
+			"plural": "idpsecrets",
+			"references": { 
+				"toResources": [], 
+				"fromResources": [] 
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.state",
+				"languages.additional.de-de.status",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.deletedReferences.kind",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"metadata.deletedReferences.id",
+				"title",
+				"metadata.audit.createTimestamp",
+				"languages.additional.en-us.status",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"languages.resource.code",
+				"name",
+				"languages.additional.fr-fr.status",
+				"attributes",
+				"languages.additional.pt-br.status",
+				"metadata.deletedReferences.name"
+			],
+			"subResources": { 
+				"names": [] 
+			}
+		}
+	}
+]

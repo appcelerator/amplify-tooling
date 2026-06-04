@@ -80,10 +80,13 @@ export const createTlsCert = async (
 	return { cert, privateKey };
 };
 
-export const editor = (editor: string, filePath: string): Promise<number | null> => {
+export const editor = (editorCmd: string, filePath: string): Promise<number | null> => {
 	log.log(`editor ${filePath}`);
+	// editorCmd may be a multi-word string like "node /path/to/script.js"; split into
+	// executable + pre-defined args so that shell:true is not required.
+	const [ cmd, ...editorArgs ] = editorCmd.split(' ');
 	return new Promise((resolve) => {
-		spawn(editor, [ filePath ], { stdio: 'inherit' }).on('exit', (code) => {
+		spawn(cmd, [ ...editorArgs, filePath ], { stdio: 'inherit' }).on('exit', (code) => {
 			log.log(`editor exit code ${code}`);
 			resolve(code);
 		});

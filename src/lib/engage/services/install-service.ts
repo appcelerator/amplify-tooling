@@ -4,11 +4,10 @@ import * as helpers from '../utils/agents/index.js';
 import logger from '../../logger.js';
 import { ApiServerClient } from '../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../results/DefinitionsManager.js';
-import { AccountRole, AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BundleType, GatewayTypes, InstallAgentsCommandParams, Regions, SaaSGatewayTypes, YesNo, YesNoChoices } from '../types.js';
-import { askList, InputValidation, validateRegex } from '../utils/basic-prompts.js';
+import { AccountRole, AgentConfigTypes, AgentInstallConfig, AgentTypes, BundleType, GatewayTypes, InstallAgentsCommandParams, InstallationFlowMethods, Regions, SaaSGatewayTypes, YesNo, YesNoChoices } from '../types.js';
+import { askList } from '../utils/basic-prompts.js';
 import { loadConfig } from '../../config.js';
 import { PlatformClient } from '../clients-external/platformclient.js';
-
 import * as akamaiAgents from '../utils/agents/flows/akamaiAgent.js';
 import * as akamaiSaasAgents from '../utils/agents/flows/akamaiSaasAgents.js';
 import * as apigeeXAgents from '../utils/agents/flows/apigeexAgents.js';
@@ -36,36 +35,12 @@ import { Account } from '../../../types.js';
 
 const log = logger('engage:install-service');
 
-export const localhost = 'localhost';
-export const svcAccMsg
-	= '\nPlease make sure to copy the "private_key.pem" and "public_key.pem" files for the existing service account you selected.';
-
 export const prompts = {
 	hostedAgentOption: 'Will this be an embedded agent',
 	selectGatewayType: 'Select the type of gateway you want to connect',
 };
 
-export interface InstallationFlowMethods {
-	GetBundleType: (Gateway?: GatewayTypes) => Promise<BundleType>;
-	GetDeploymentType: () => Promise<AgentConfigTypes>;
-	AskGatewayQuestions: (
-		installConfig: AgentInstallConfig,
-		apiServerClient?: ApiServerClient,
-		defsManager?: DefinitionsManager
-	) => Promise<object>;
-	InstallPreprocess?: (installConfig: AgentInstallConfig) => Promise<AgentInstallConfig>;
-	AddIDP?: boolean;
-	FinalizeGatewayInstall: (
-		installConfig: AgentInstallConfig,
-		apiServerClient?: ApiServerClient,
-		defsManager?: DefinitionsManager
-	) => Promise<void>;
-	ConfigFiles: string[];
-	AgentNameMap?: { [key in AgentTypes]?: AgentNames };
-	GatewayDisplay: GatewayTypes | SaaSGatewayTypes;
-}
-
-const agentInstallFlows: { [key in GatewayTypes]: InstallationFlowMethods } = {
+export const agentInstallFlows: { [key in GatewayTypes]: InstallationFlowMethods } = {
 	[GatewayTypes.AKAMAI]: akamaiAgents.AkamaiInstallMethods,
 	[GatewayTypes.EDGE_GATEWAY]: edgeAgents.EdgeInstallMethods,
 	[GatewayTypes.EDGE_GATEWAY_ONLY]: edgeAgents.EdgeGWOnlyInstallMethods,
@@ -86,7 +61,7 @@ const agentInstallFlows: { [key in GatewayTypes]: InstallationFlowMethods } = {
 	[GatewayTypes.WSO2]: wso2Agents.WSO2InstallMethods,
 };
 
-const saasAgentInstallFlows: { [key: string]: InstallationFlowMethods } = {
+export const saasAgentInstallFlows: { [key: string]: InstallationFlowMethods } = {
 	[GatewayTypes.AKAMAI]: akamaiSaasAgents.AkamaiSaaSInstallMethods,
 	[SaaSGatewayTypes.AWS_GATEWAY as string]: awsSaaSAgents.AWSSaaSInstallMethods,
 	[SaaSGatewayTypes.GITHUB]: gitHubAgents.GitHubSaaSInstallMethods,
@@ -155,24 +130,6 @@ function checkUserRole(isCentralAdmin: boolean, isPlatformAdmin: boolean, accoun
 		throw new Error(msg);
 	}
 }
-
-export const validateFrequency = (lowerLimit?: number): InputValidation => (input: string | number) => {
-	const val = validateRegex(helpers.frequencyRegex, helpers.invalidValueExampleErrMsg('frequency', '3d5h12m'))(input);
-	if (typeof val === 'string') {
-		return val;
-	}
-	const r = input.toString().match(/^(\d*)m/);
-	if (r) {
-		// only minutes
-		const mins = r[1];
-		const minValue = parseInt(mins as string, 10);
-		const minimumRequired = lowerLimit ?? 30; // Use provided lowerLimit or default to 30
-		if (minValue < minimumRequired) {
-			return `Minimum frequency is ${minimumRequired}m`;
-		}
-	}
-	return true;
-};
 
 export async function installAgents(params: InstallAgentsCommandParams): Promise<void> {
 	try {

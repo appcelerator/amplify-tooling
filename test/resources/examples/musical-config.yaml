@@ -1,0 +1,10 @@
+apiVersion: v1 # This version ensures backward compatibility and would not mandate a frequent update from a client side
+proxy:
+  name: "CLI Proxy"
+  basePath: /new/v1
+  swagger: "https://ec062a054a2977120b7e721801edb38ca24dfbb3.cloudapp-enterprise.appcelerator.com/apidoc/swagger.json"
+  policy:
+    type: pass-through
+  tags: ["musical", "instruments"]
+  team:
+    name: "Default Team"

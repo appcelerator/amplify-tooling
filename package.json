@@ -13,7 +13,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling",
   "bin": {
-    "axway": "./bin/run.js"
+    "axway": "./bin/run"
   },
   "scripts": {
     "debug": "node --inspect=9254 --enable-source-maps dist/index.js",
@@ -22,7 +22,7 @@
     "test": "sh -c 'mocha --exit --recursive -r test/helpers/setup.js --exclude \"test/helpers/**\" --slow 15000 --timeout 40000 \"${@:-test}\"' sh",
     "lint": "eslint . --ignore-pattern 'dist/**'",
     "watch": "tsc --watch",
-    "postinstall": "node dist/scripts/postinstall.js || node -e true"
+    "postinstall": "node -e \"const fs=require('fs'); if(fs.existsSync('dist/scripts/postinstall.js')) require('./dist/scripts/postinstall.js')\""
   },
   "dependencies": {
     "@inquirer/prompts": "^7.9.0",
@@ -56,10 +56,13 @@
   "devDependencies": {
     "@koa/router": "^14.0.0",
     "@oclif/test": "^4.1.14",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.20",
     "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.59.3",
+    "c8": "^11.0.0",
     "caller-path": "^4.0.0",
     "chai": "6.2.0",
     "chai-as-promised": "^8.0.2",
@@ -74,6 +77,7 @@
     "mock-stdin": "^1.0.0",
     "mustache": "^4.2.0",
     "nock": "^14.0.10",
+    "testdouble": "^3.20.2",
     "tmp": "^0.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

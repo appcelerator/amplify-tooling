@@ -5,6 +5,8 @@ import { loadAll } from 'js-yaml';
 import chalk from 'chalk';
 
 import hbs from 'handlebars';
+import { InputValidation, validateRegex } from './basic-prompts.js';
+import { frequencyRegex } from './agents/regex.js';
 import {
 	ApiServerError,
 	ApiServerErrorResponse,
@@ -26,6 +28,23 @@ import { extname } from 'path';
 import { CompositeError } from '../results/compositeerror.js';
 
 export const isWindows = /^win/.test(process.platform);
+
+export const validateFrequency = (lowerLimit?: number): InputValidation => (input: string | number) => {
+	const val = validateRegex(frequencyRegex, 'Invalid frequency entered. frequency must be in the form of 3d5h12m')(input);
+	if (typeof val === 'string') {
+		return val;
+	}
+	const r = input.toString().match(/^(\d*)m/);
+	if (r) {
+		const mins = r[1];
+		const minValue = parseInt(mins as string, 10);
+		const minimumRequired = lowerLimit ?? 30;
+		if (minValue < minimumRequired) {
+			return `Minimum frequency is ${minimumRequired}m`;
+		}
+	}
+	return true;
+};
 
 export const writeToFile = (path: string, data: any): void => {
 	try {

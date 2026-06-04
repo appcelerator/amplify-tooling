@@ -1,8 +1,7 @@
 import chalk from 'chalk';
 import { ApiServerClient } from '../../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../../results/DefinitionsManager.js';
-import { InstallationFlowMethods, svcAccMsg } from '../../../services/install-service.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, GenericResource, PublicDockerRepoBaseUrl, TraceableRegionType, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, GenericResource, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg, TraceableRegionType, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList } from '../../basic-prompts.js';
 import { AgentHelmInfo, helmImageSecretInfo, helmInstallInfo, isWindows, writeTemplates } from '../../utils.js';
 import { TraceableAgentValues } from '../index.js';

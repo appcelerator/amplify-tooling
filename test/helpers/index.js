@@ -18,12 +18,12 @@ const cliBin = path.resolve(__dirname, `../../bin/${process.env.AXWAY_COVERAGE ?
 let lastLogFile = null;
 
 const defaultVars = {
-	check: process.platform === 'win32' ? '√' : '✔',
+	check: '(?:√|✔)',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
 	localeDateTime: '[\\w\\d/,: ]+',
 	string: '[^\\s]+',
 	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
-	x: process.platform === 'win32' ? 'x' : '✖',
+	x: '(?:x|✖)',
 	uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
 	year: (new Date()).getFullYear()
 };
@@ -125,12 +125,12 @@ export function resetHomeDir() {
 	// sanity check that we're not nuking the real home directory
 	const homedir = os.homedir();
 	if (homedir.includes(os.tmpdir())) {
-		log.log(`Emptying temp home directory: ${highlight(homedir)}`);
+		log(`Emptying temp home directory: ${highlight(homedir)}`);
 		for (const name of fs.readdirSync(homedir)) {
 			fs.rmSync(path.join(homedir, name), { recursive: true, force: true });
 		}
 	} else {
-		log.log(`Refusing to empty home directory! ${highlight(homedir)}`);
+		log(`Refusing to empty home directory! ${highlight(homedir)}`);
 	}
 }
 
@@ -154,14 +154,14 @@ export function runCommand(args = [], opts = {}, cfg) {
 		if (process.env.ECHO_CHILD) {
 			process.stdout.write(s.toString());
 		}
-		log.log(s.toString().trim());
+		log(s.toString().trim());
 	});
 	child.stderr.on('data', s => {
 		stderr += s.toString();
 		if (process.env.ECHO_CHILD) {
 			process.stderr.write(s.toString());
 		}
-		log.log(s.toString().trim());
+		log(s.toString().trim());
 	});
 	return new Promise(resolve => child.on('close', status => {
 		log(`Process exited (code ${status})`);

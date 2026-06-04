@@ -168,6 +168,25 @@ export const askList = async (opts: {
 	const choices = opts.choices.map((c) =>
 		(typeof c === 'string' ? { value: c, name: c } : c)
 	) as (Separator | { value: string; name?: string })[];
+	const testResponse = process.env.AXWAY_TEST_ASK_LIST_RESPONSE;
+	if (testResponse !== undefined) {
+		for (const choice of choices) {
+			if (choice instanceof Separator) {
+				continue;
+			}
+			if (choice.value === testResponse || choice.name === testResponse) {
+				return choice.value;
+			}
+		}
+		if (opts.default !== undefined) {
+			return opts.default;
+		}
+		for (const choice of choices) {
+			if (!(choice instanceof Separator)) {
+				return choice.value;
+			}
+		}
+	}
 	return select({
 		message: `${opts.msg}: `,
 		choices,
