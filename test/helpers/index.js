@@ -20,7 +20,7 @@ let lastLogFile = null;
 const defaultVars = {
 	check: '(?:√|✔)',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
-	localeDateTime: '[\\w\\d/,: ]+',
+	localeDateTime: '[\\w\\d/,: ]+ *',
 	string: '[^\\s]+',
 	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
 	x: '(?:x|✖)',
