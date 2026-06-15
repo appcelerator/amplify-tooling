@@ -288,11 +288,13 @@ const updateRequestError = (err: Error) => {
 export const dataService = async ({
 	account,
 	baseUrl = '',
+	authToken = ''
 }: {
 	account?: Account;
 	baseUrl?: string;
+	authToken?: string;
 }): Promise<DataServiceMethods> => {
-	const token = account.auth?.tokens?.access_token;
+	const token = authToken ? authToken : account?.auth?.tokens?.access_token;
 	if (!token) {
 		throw new Error('Invalid/expired account');
 	}

@@ -113,13 +113,13 @@ export default class EngageGet extends Command {
 			let teamGuid: string | undefined;
 			if (flags.team) {
 				const match = teams?.teams?.find((t: PlatformTeam) =>
-					t.guid.toLowerCase() === flags.team.toLowerCase()
-					|| t.name.toLowerCase() === flags.team.toLowerCase()
+					t?.guid.toLowerCase() === flags.team.toLowerCase()
+					|| t?.name.toLowerCase() === flags.team.toLowerCase()
 				);
 				if (!match) {
 					throw new Error(`Unable to find team "${flags.team}" in the "${account.org.name}" organization`);
 				}
-				teamGuid = match.metadata.guid;
+				teamGuid = match?.guid;
 			}
 
 			// Warn if both simple and advanced query params were provided.

@@ -71,16 +71,16 @@ export class ApiServerClient {
 		this.forceGetAuthInfo = forceGetAuthInfo;
 		this.basePath = basePath;
 		if (baseUrl) {
-			this._baseUrl = baseUrl + (basePath || BasePaths.ApiServer);
+			this._baseUrl = baseUrl.replace(/\/$/, '') + (basePath || BasePaths.ApiServer);
 		}
 	}
 
 	private async initializeDataService() {
+		const config = await loadConfig();
 		if (this._baseUrl === undefined) {
-			const config = await loadConfig();
 			const envBaseUrl = process.env.AXWAY_CENTRAL_BASE_URL || config.get('auth.engageUrl');
 			if (envBaseUrl) {
-				this._baseUrl = envBaseUrl + (this.basePath || BasePaths.ApiServer);
+				this._baseUrl = envBaseUrl.replace(/\/$/, '') + (this.basePath || BasePaths.ApiServer);
 			} else {
 				const regionKey = String(
 					this.region || this.account?.org?.region || Regions.US
@@ -94,6 +94,10 @@ export class ApiServerClient {
 				this._baseUrl = prodBaseUrl + (this.basePath || BasePaths.ApiServer);
 			}
 		}
+		if (config.profile && config.get('engage.authToken')) {
+			return dataService({ account: this.account, baseUrl: this._baseUrl, authToken: config.get('engage.authToken') });
+		}
+
 		return dataService({ account: this.account, baseUrl: this._baseUrl });
 	}
 

@@ -23,10 +23,6 @@ Run ${highlight('"<%= config.bin %> auth login"')} to authenticate.`;
 			description: 'Output shell completion code'
 		},
 		{
-			command: '<%= config.bin %> <%= command.id %> config',
-			description: 'Configure Engage CLI settings'
-		},
-		{
 			command: '<%= config.bin %> <%= command.id %> create',
 			description: 'Create one or more resources from a file or stdin'
 		},
