@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import fs from 'fs';
 import logger from '../../../../logger.js';
 import { dataService } from '../../../../request.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSRegions, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, PublicRepoUrl, TrueFalse, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSCognitoConfig, AWSRegions, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, PublicRepoUrl, TrueFalse, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateInputLength, validateRegex } from '../../basic-prompts.js';
 import { isWindows, writeTemplates, writeToFile } from '../../utils.js';
 import { AWSAgentValues } from '../index.js';
@@ -77,6 +77,14 @@ export const AWSPrompts = {
 	FULL_TRANSACTION_LOGGING: 'Do you want to enable Full Transaction Logging? Please note that CloudWatch costs would increase when Full Transaction Logging is enabled',
 	TA_QUEUE: 'Enter the traceability queue name',
 	VPC_ID: 'Enter the VPC ID to deploy the EC2 instance to. Leave blank to create entire infrastructure',
+	AGENT_CORE_GATEWAY_MODE: 'Do you want to enable Agent Core Gateway Mode? (If not, the default will be to run the agent in API Gateway mode)',
+	AGENT_CORE_LOG_GROUP_PREFIX: 'Enter the prefix for the Agent Core Gateway vendored logs',
+	AGENT_CORE_IAM_AUTH: 'Do you want to enable IAM Authentication for Agent Core Gateway requests?',
+	ENTER_MORE_COGNITO_USER_POOLS: 'Do you want to enter another Cognito User Pool for Agent Core Gateway mode?',
+	COGNITO: 'Enter the List of AWS Cognito user pools used for authentication in Agent Core Gateway mode',
+	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the Agent Core will use for authentication',
+	ASK_COGNITO_REGION: 'Do you want to specify a region for the Cognito User Pool? (If not, the agent will use the same region as the gateway)',
+	COGNITO_REGION: 'Select the AWS region of the Cognito user pool. Defaults to the agent region if omitted',
 };
 
 export const askBundleType = async (): Promise<BundleType> => {
@@ -309,6 +317,64 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	})) === YesNo.Yes);
 
 	awsAgentValues.fullTransactionLogging = fullTransactionLogging;
+
+	awsAgentValues.agentCoreGatewayMode = (await askList({
+		msg: AWSPrompts.AGENT_CORE_GATEWAY_MODE,
+		default: YesNo.No,
+		choices: YesNoChoices,
+	})) === YesNo.Yes;
+
+	if (awsAgentValues.agentCoreGatewayMode) {
+		awsAgentValues.agentCore.logGroupPrefix = (await askInput({
+			msg: AWSPrompts.AGENT_CORE_LOG_GROUP_PREFIX,
+			defaultValue: awsAgentValues.agentCore.logGroupPrefix !== '' ? awsAgentValues.agentCore.logGroupPrefix : undefined,
+			allowEmptyInput: true,
+		})) as string;
+
+		awsAgentValues.agentCore.iamAuthEnabled = (await askList({
+			msg: AWSPrompts.AGENT_CORE_IAM_AUTH,
+			default: YesNo.No,
+			choices: YesNoChoices,
+		})) === YesNo.Yes;
+		installConfig.log(chalk.gray(AWSPrompts.COGNITO));
+		const cognitoUserPools: AWSCognitoConfig[] = [];
+		let askCognitoUserPools = true;
+
+		while (askCognitoUserPools) {
+			const userPoolId = (await askInput({
+				msg: AWSPrompts.COGNITO_USER_POOL_ID,
+			})) as string;
+
+			const askRegion = (await askList({
+				msg: AWSPrompts.ASK_COGNITO_REGION,
+				default: YesNo.No,
+				choices: YesNoChoices,
+			})) === YesNo.Yes;
+
+			if (askRegion) {
+
+				const regions = Object.values(AWSRegions).map((str) => ({ name: str, value: str }));
+
+				const region = await askList({
+					msg: AWSPrompts.COGNITO_REGION,
+					choices: regions,
+
+				});
+
+				cognitoUserPools.push({ userPoolId, region });
+			} else {
+				cognitoUserPools.push({ userPoolId, region: awsAgentValues.region });
+			}
+
+			askCognitoUserPools = await askList({
+				msg: AWSPrompts.ENTER_MORE_COGNITO_USER_POOLS,
+				choices: YesNoChoices,
+				default: YesNo.No,
+			}) === YesNo.Yes;
+		}
+
+		awsAgentValues.cognito = cognitoUserPools;
+	}
 
 	// set agent versions
 	awsAgentValues.cloudFormationConfig.DiscoveryAgentVersion = installConfig.daVersion;

@@ -1,4 +1,6 @@
 import {
+	AWSAgentCoreConfig,
+	AWSCognitoConfig,
 	CentralAgentConfig,
 	CloudFormationConfig,
 	TraceabilityConfig,
@@ -19,6 +21,9 @@ export class AWSAgentValues {
 	centralConfig: CentralAgentConfig;
 	traceabilityConfig: TraceabilityConfig;
 	cloudFormationConfig: CloudFormationConfig;
+	agentCoreGatewayMode: boolean;
+	agentCore: AWSAgentCoreConfig;
+	cognito: AWSCognitoConfig[];
 
 	constructor(awsDeployment: string) {
 		this.accessKey = awsDeployment === 'Other' ? '**Insert Access Key**' : '';
@@ -31,6 +36,9 @@ export class AWSAgentValues {
 		this.centralConfig = new CentralAgentConfig();
 		this.traceabilityConfig = new TraceabilityConfig();
 		this.cloudFormationConfig = new CloudFormationConfig();
+		this.agentCoreGatewayMode = false;
+		this.agentCore = new AWSAgentCoreConfig();
+		this.cognito = [];
 	}
 
 	updateCloudFormationConfig = () => {
@@ -102,6 +110,17 @@ AWS_AUTH_SECRETKEY={{secretKey}}
 {{/if}}
 AWS_LOGGROUP={{logGroup}}
 AWS_STAGETAGNAME={{stageTagName}}
+{{#if agentCoreGatewayMode}}
+AWS_GATEWAYMODE=agentcore-gateway
+AWS_AGENTCORE_LOGGROUPPREFIX={{agentCore.logGroupPrefix}}
+AWS_AGENTCORE_IAMAUTHENABLED={{agentCore.iamAuthEnabled}}
+{{#each cognito}}
+AWS_COGNITO_USERPOOLID_{{add @index 1}}={{this.userPoolId}}
+AWS_COGNITO_REGION_{{add @index 1}}={{this.region}}
+{{/each}}
+{{else}}
+AWS_GATEWAYMODE=api-gateway
+{{/if}}
 
 # Amplify Central configs
 CENTRAL_AGENTNAME={{centralConfig.daAgentName}}

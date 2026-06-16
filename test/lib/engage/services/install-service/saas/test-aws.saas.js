@@ -70,12 +70,13 @@ describe('AWS SaaS agent flow', () => {
 			'arn:aws:logs:us-east-1:000000000000:log-group:my-group',
 		];
 		td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
-		const askListResponses = [ 'Assume Role Policy', engageTypes.YesNo.Yes ];
+		const askListResponses = [ 'Assume Role Policy', engageTypes.YesNo.No, engageTypes.YesNo.Yes ];
 		td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
 
 		const result = await flowModule.AWSSaaSInstallMethods.AskGatewayQuestions(buildInstallConfig(engageTypes.GatewayTypes.AWS_GATEWAY, true));
 		expect(result.authType).to.equal('Assume Role Policy');
 		expect(result.assumeRole).to.contain('arn:aws:iam');
+		expect(result.agentCoreGatewayMode).to.equal(false);
 		expect(result.fullTransactionLogging).to.equal(true);
 	});
 
@@ -132,6 +133,7 @@ describe('AWS SaaS agent flow', () => {
 
 		const askListResponses = [
 			'Assume Role Policy',
+			engageTypes.YesNo.No,
 			engageTypes.YesNo.Yes,
 			engageTypes.YesNo.No,
 			engageTypes.YesNo.No,
@@ -154,12 +156,45 @@ describe('AWS SaaS agent flow', () => {
 		expect(result.redaction.maskingCharacter).to.equal('***');
 	});
 
+	it('collects agent core gateway mode with IAM auth enabled and a single cognito pool', async () => {
+		const askInputResponses = [
+			'arn:aws:iam::000000000000:role/name-of-role',
+			'external-id',
+			'stage-tag',
+			'/aws/prefix',
+			'us-east-1_123456789',
+			'arn:aws:logs:us-east-1:000000000000:log-group:my-group',
+		];
+		td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
+
+		const askListResponses = [
+			'Assume Role Policy',
+			engageTypes.YesNo.Yes,
+			engageTypes.YesNo.Yes,
+			engageTypes.YesNo.No,
+			engageTypes.YesNo.No,
+			engageTypes.YesNo.No,
+		];
+		td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
+
+		const result = await flowModule.AWSSaaSInstallMethods.AskGatewayQuestions(buildInstallConfig(engageTypes.GatewayTypes.AWS_GATEWAY, true));
+		expect(result.agentCoreGatewayMode).to.equal(true);
+		expect(result.agentCore.logGroupPrefix).to.equal('/aws/prefix');
+		expect(result.agentCore.iamAuthEnabled).to.equal(true);
+		expect(result.cognito).to.have.length(1);
+		expect(result.cognito[0].userPoolId).to.equal('us-east-1_123456789');
+		expect(result.cognito[0].region).to.equal('us-east-1');
+		expect(result.fullTransactionLogging).to.equal(false);
+	});
+
 	it('builds AWS dataplane config when TA enabled', async () => {
 		const installConfig = buildInstallConfig(engageTypes.GatewayTypes.AWS_GATEWAY, true);
 		installConfig.gatewayConfig = {
 			accessLogARN: 'arn:aws:logs:us-east-1:000000000000:log-group:my-group',
 			fullTransactionLogging: true,
 			stageTagName: 'stage-tag',
+			agentCore: { logGroupPrefix: '/aws/prefix', iamAuthEnabled: true },
+			cognito: [ { userPoolId: 'us-east-1_123456789', region: 'us-east-1' } ],
 			redaction: {},
 		};
 
@@ -167,6 +202,8 @@ describe('AWS SaaS agent flow', () => {
 		const dataplaneArg = td.explain(saasBaseStubs.createDataplaneResources).calls[0].args[1];
 		expect(dataplaneArg.type).to.equal('AWS');
 		expect(dataplaneArg.accessLogARN).to.contain('arn:aws:logs');
+		expect(dataplaneArg.agentCore).to.deep.equal({ logGroupPrefix: '/aws/prefix', iamAuthEnabled: true });
+		expect(dataplaneArg.cognito).to.deep.equal([ { userPoolId: 'us-east-1_123456789', region: 'us-east-1' } ]);
 	});
 
 	it('passes IDP config in completeInstall context', async () => {

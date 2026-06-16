@@ -549,6 +549,8 @@ export const writeTemplates = (fileName: string, values: object, templateFunc: (
 	writeToFile(fileName, data);
 };
 
+hbs.registerHelper('add', (a: number, b: number) => a + b);
+
 export const buildTemplate = (templateFunc: () => string, input: object): string => {
 	const template = hbs.compile(templateFunc(), { noEscape: true });
 	return template(input);

@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import logger from '../../../../logger.js';
 import { ApiServerClient } from '../../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../../results/DefinitionsManager.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BundleType, GatewayTypes, InstallationFlowMethods, SaaSGatewayTypes, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSAgentCoreConfig, AWSCognitoConfig, AWSGatewayMode, AWSRegions, BundleType, GatewayTypes, InstallationFlowMethods, SaaSGatewayTypes, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateInputLength, validateRegex } from '../../basic-prompts.js';
 import * as helpers from '../index.js';
 import {
@@ -23,12 +23,17 @@ class AWSDataplaneConfig extends DataplaneConfig {
 	accessLogARN: string;
 	fullTransactionLogging: boolean;
 	stageTagName: string;
+	gatewayMode: AWSGatewayMode;
+	agentCore: AWSAgentCoreConfig;
+	cognito: AWSCognitoConfig[];
 
-	constructor(arn: string, enableFullTransactionLogging: boolean, stageTagName: string) {
+	constructor(arn: string, enableFullTransactionLogging: boolean, stageTagName: string, agentCoreConfig: AWSAgentCoreConfig, cognitoConfig: AWSCognitoConfig[]) {
 		super('AWS');
 		this.accessLogARN = arn;
 		this.fullTransactionLogging = enableFullTransactionLogging;
 		this.stageTagName = stageTagName;
+		this.agentCore = agentCoreConfig;
+		this.cognito = cognitoConfig;
 	}
 }
 
@@ -47,6 +52,9 @@ class SaasAWSAgentValues extends SaasAgentValues {
 	accessLogARN: string;
 	fullTransactionLogging: boolean;
 	stageTagName: string;
+	agentCoreGatewayMode: boolean;
+	agentCore: AWSAgentCoreConfig;
+	cognito: AWSCognitoConfig[];
 
 	constructor() {
 		super();
@@ -59,8 +67,9 @@ class SaasAWSAgentValues extends SaasAgentValues {
 		this.accessLogARN = '';
 		this.fullTransactionLogging = false;
 		this.stageTagName = '';
+		this.agentCore = {} as AWSAgentCoreConfig;
+		this.cognito = [] as AWSCognitoConfig[];
 	}
-
 	override getAccessData(): string {
 		if (this.authType === AWSAuthType.KEYS) {
 			return JSON.stringify({
@@ -87,6 +96,14 @@ const SaasPrompts = {
 	ACCESS_LOG_ARN: 'Enter the ARN for the Access Log that the Discovery will add and the Traceability will use',
 	STAGE_TAG_NAME: 'Enter the name of the tag on AWS API Gateway Stage that holds mapped stage on Amplify Engage',
 	FULL_TRANSACTION_LOGGING: 'Do you want to enable Full Transaction Logging? Please note that CloudWatch costs would increase when Full Transaction Logging is enabled',
+	AGENT_CORE_GATEWAY_MODE: 'Do you want to enable Agent Core Gateway Mode? (If not, the default will be to run the agent in API Gateway mode)',
+	AGENT_CORE_LOG_GROUP_PREFIX: 'Enter the prefix for the Agent Core Gateway vendored logs',
+	AGENT_CORE_IAM_AUTH: 'Do you want to enable IAM Authentication for Agent Core Gateway requests?',
+	ENTER_MORE_COGNITO_USER_POOLS: 'Do you want to enter another Cognito User Pool for Agent Core Gateway mode?',
+	COGNITO: 'Enter the List of AWS Cognito user pools used for authentication in Agent Core Gateway mode',
+	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the Agent Core will use for authentication',
+	ASK_COGNITO_REGION: 'Do you want to specify a region for the Cognito User Pool? (If not, the agent will use the same region as the gateway)',
+	COGNITO_REGION: 'Select the AWS region of the Cognito user pool. Defaults to the agent region if omitted',
 };
 
 export const askBundleType = async (): Promise<BundleType> => {
@@ -155,6 +172,69 @@ const askForAWSCredentials = async (agentValues: SaasAWSAgentValues, log: (text:
 	return agentValues;
 };
 
+const askForAgentCoreGatewayMode = async (agentValues: SaasAWSAgentValues, log: (text: string) => void = () => {}): Promise<SaasAWSAgentValues> => {
+	agentValues.agentCoreGatewayMode = (await askList({
+		msg: SaasPrompts.AGENT_CORE_GATEWAY_MODE,
+		default: YesNo.No,
+		choices: YesNoChoices,
+	})) === YesNo.Yes;
+
+	if (agentValues.agentCoreGatewayMode) {
+		agentValues.agentCore.logGroupPrefix = (await askInput({
+			msg: SaasPrompts.AGENT_CORE_LOG_GROUP_PREFIX,
+			defaultValue: agentValues.agentCore.logGroupPrefix !== '' ? agentValues.agentCore.logGroupPrefix : undefined,
+			allowEmptyInput: true,
+		})) as string;
+
+		agentValues.agentCore.iamAuthEnabled = (await askList({
+			msg: SaasPrompts.AGENT_CORE_IAM_AUTH,
+			default: YesNo.No,
+			choices: YesNoChoices,
+		})) === YesNo.Yes;
+		log(chalk.gray(SaasPrompts.COGNITO));
+		const cognitoUserPools: AWSCognitoConfig[] = [];
+		let askCognitoUserPools = true;
+
+		while (askCognitoUserPools) {
+			const userPoolId = (await askInput({
+				msg: SaasPrompts.COGNITO_USER_POOL_ID,
+			})) as string;
+
+			const askRegion = (await askList({
+				msg: SaasPrompts.ASK_COGNITO_REGION,
+				default: YesNo.No,
+				choices: YesNoChoices,
+			})) === YesNo.Yes;
+
+			if (askRegion) {
+
+				const regions = Object.values(AWSRegions).map((str) => ({ name: str, value: str }));
+
+				const region = await askList({
+					msg: SaasPrompts.COGNITO_REGION,
+					choices: regions,
+
+				});
+
+				cognitoUserPools.push({ userPoolId, region });
+			} else {
+				cognitoUserPools.push({ userPoolId, region: agentValues.region });
+			}
+
+			askCognitoUserPools = await askList({
+				msg: SaasPrompts.ENTER_MORE_COGNITO_USER_POOLS,
+				choices: YesNoChoices,
+				default: YesNo.No,
+			}) === YesNo.Yes;
+		}
+
+		agentValues.cognito = cognitoUserPools;
+
+	}
+
+	return agentValues;
+};
+
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
 	installConfig.log('\nCONNECTION TO AMAZON API GATEWAY:');
 	installConfig.log(
@@ -173,6 +253,8 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 			msg: SaasPrompts.STAGE_TAG_NAME,
 			validate: validateInputLength(STAGE_TAG_NAME_LENGTH, 'Maximum length of \'stage tag name\' is 127'),
 		})) as string;
+
+		agentValues = await askForAgentCoreGatewayMode(awsValues, installConfig.log);
 
 		if (installConfig.switches.isTaEnabled) {
 			installConfig.log(chalk.gray('\nThe access log ARN is a cloud watch log group amazon resource name'));
@@ -226,7 +308,9 @@ export const completeInstall = async (
 		dataplaneConfig = new AWSDataplaneConfig(
 			awsAgentValues.accessLogARN,
 			awsAgentValues.fullTransactionLogging,
-			awsAgentValues.stageTagName
+			awsAgentValues.stageTagName,
+			awsAgentValues.agentCore,
+			awsAgentValues.cognito
 		);
 	} else {
 		dataplaneConfig = new DataplaneConfig('AWS');

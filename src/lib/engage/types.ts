@@ -752,6 +752,31 @@ export enum GatewayMode {
 	GatewayOnlyMode = 'Gateway only',
 }
 
+export enum AWSGatewayMode {
+	APIGateway = 'api-gateway',
+	AgentCoreGateway = 'agent-core-gateway',
+}
+
+export class AWSAgentCoreConfig {
+	logGroupPrefix?: string;
+	iamAuthEnabled?: boolean;
+
+	constructor(logGroupPrefix?: string, iamAuthEnabled?: boolean) {
+		this.logGroupPrefix = logGroupPrefix ?? '';
+		this.iamAuthEnabled = iamAuthEnabled ?? false;
+	}
+}
+
+export class AWSCognitoConfig {
+	userPoolId: string;
+	region?: string;
+
+	constructor(userPoolId: string, region?: string) {
+		this.userPoolId = userPoolId;
+		this.region = region;
+	}
+}
+
 export enum AgentNames {
 	AKAMAI_CA = 'akamai-compliance-agent',
 	AWS_DA = 'aws-apigw-discovery-agent',

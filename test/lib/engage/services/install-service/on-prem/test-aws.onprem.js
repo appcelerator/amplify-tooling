@@ -94,6 +94,7 @@ describe('AWS on-prem agent flow', () => {
 				flowModule.DeploymentTypes.EC2,
 				'Yes',
 				'No',
+				'No',
 				't3.micro',
 				'Yes',
 			];
@@ -124,14 +125,16 @@ describe('AWS on-prem agent flow', () => {
 			expect(result.logGroup).to.equal('/aws/apigw/logs');
 			expect(result.stageTagName).to.equal('stage-tag');
 			expect(result.fullTransactionLogging).to.equal(false);
+			expect(result.agentCoreGatewayMode).to.equal(false);
 			expect(td.explain(promptStubs.askInput).callCount).to.equal(12);
-			expect(td.explain(promptStubs.askList).callCount).to.equal(5);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(6);
 		});
 
 		it('skips VPC-derived prompts when EC2 VPC is empty', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.EC2,
 				'Yes',
+				'No',
 				'No',
 				't3.micro',
 			];
@@ -157,13 +160,14 @@ describe('AWS on-prem agent flow', () => {
 			expect(result.cloudFormationConfig.SecurityGroup).to.equal('');
 			expect(result.cloudFormationConfig.Subnet).to.equal('');
 			expect(td.explain(promptStubs.askInput).callCount).to.equal(10);
-			expect(td.explain(promptStubs.askList).callCount).to.equal(4);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(5);
 		});
 
 		it('collects ECS-only deployment prompts', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.ECS_FARGATE,
 				'Yes',
+				'No',
 				'No',
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
@@ -190,13 +194,14 @@ describe('AWS on-prem agent flow', () => {
 			expect(result.cloudFormationConfig.EC2KeyName).to.equal('');
 			expect(logs.some((line) => line.includes('ECS Cluster Name'))).to.equal(true);
 			expect(td.explain(promptStubs.askInput).callCount).to.equal(10);
-			expect(td.explain(promptStubs.askList).callCount).to.equal(3);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(4);
 		});
 
 		it('collects minimal prompts for OTHER deployment type', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.OTHER,
 				'Yes',
+				'No',
 				'No',
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
@@ -218,7 +223,82 @@ describe('AWS on-prem agent flow', () => {
 			expect(result.cloudFormationConfig.ECSClusterName).to.equal('');
 			expect(logs.some((line) => line.includes('AWS Access Key'))).to.equal(true);
 			expect(td.explain(promptStubs.askInput).callCount).to.equal(5);
-			expect(td.explain(promptStubs.askList).callCount).to.equal(3);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(4);
+		});
+
+		it('enables agent core gateway mode and collects a single cognito pool', async () => {
+			const askListResponses = [
+				flowModule.DeploymentTypes.OTHER,
+				'Yes',   // APIGWCWRoleSetup
+				'No',    // fullTransactionLogging
+				'Yes',   // AGENT_CORE_GATEWAY_MODE
+				'Yes',   // iamAuthEnabled
+				'No',    // askRegion? (use agent region)
+				'No',    // enterMore?
+			];
+			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
+
+			const askInputResponses = [
+				'agents-bucket',
+				'/aws/apigw/logs',
+				'stage-tag',
+				'/aws/prefix',
+				'us-east-1_123456789',
+				'/aws/da/logs',
+				'/aws/ta/logs',
+			];
+			td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
+
+			const result = await flowModule.gatewayConnectivity(buildInstallConfig({ isDaEnabled: true, isTaEnabled: true }));
+
+			expect(result.agentCoreGatewayMode).to.equal(true);
+			expect(result.agentCore.logGroupPrefix).to.equal('/aws/prefix');
+			expect(result.agentCore.iamAuthEnabled).to.equal(true);
+			expect(result.cognito).to.have.length(1);
+			expect(result.cognito[0].userPoolId).to.equal('us-east-1_123456789');
+			expect(result.cognito[0].region).to.equal('us-east-1');
+			expect(td.explain(promptStubs.askInput).callCount).to.equal(7);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(7);
+		});
+
+		it('enables agent core gateway mode and collects multiple cognito pools', async () => {
+			const askListResponses = [
+				flowModule.DeploymentTypes.OTHER,
+				'Yes',   // APIGWCWRoleSetup
+				'No',    // fullTransactionLogging
+				'Yes',   // AGENT_CORE_GATEWAY_MODE
+				'No',    // iamAuthEnabled
+				'No',    // askRegion? pool 1
+				'Yes',   // enterMore? (add another pool)
+				'No',    // askRegion? pool 2
+				'No',    // enterMore?
+			];
+			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
+
+			const askInputResponses = [
+				'agents-bucket',
+				'/aws/apigw/logs',
+				'stage-tag',
+				'',
+				'us-east-1_111111111',
+				'eu-west-1_222222222',
+				'/aws/da/logs',
+				'/aws/ta/logs',
+			];
+			td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
+
+			const result = await flowModule.gatewayConnectivity(buildInstallConfig({ isDaEnabled: true, isTaEnabled: true }));
+
+			expect(result.agentCoreGatewayMode).to.equal(true);
+			expect(result.agentCore.logGroupPrefix).to.equal('');
+			expect(result.agentCore.iamAuthEnabled).to.equal(false);
+			expect(result.cognito).to.have.length(2);
+			expect(result.cognito[0].userPoolId).to.equal('us-east-1_111111111');
+			expect(result.cognito[0].region).to.equal('us-east-1');
+			expect(result.cognito[1].userPoolId).to.equal('eu-west-1_222222222');
+			expect(result.cognito[1].region).to.equal('us-east-1');
+			expect(td.explain(promptStubs.askInput).callCount).to.equal(8);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(9);
 		});
 
 		it('stops question flow when AWS region lookup fails', async () => {
@@ -354,6 +434,9 @@ function createHelpersStubs() {
 			this.logGroup = '';
 			this.region = 'us-east-1';
 			this.stageTagName = '';
+			this.agentCoreGatewayMode = false;
+			this.agentCore = { logGroupPrefix: '', iamAuthEnabled: false };
+			this.cognito = [];
 			this.cloudFormationConfig = {
 				APIGWCWRoleSetup: '',
 				APIGWTrafficLogGroupName: '/aws/apigw/logs',
@@ -383,6 +466,18 @@ function createHelpersStubs() {
 
 	return {
 		AWSAgentValues,
+		AWSCognitoConfig: class AWSCognitoConfig {
+			constructor(userPoolId, region) {
+				this.userPoolId = userPoolId;
+				this.region = region;
+			}
+		},
+		AWSAgentCoreConfig: class AWSAgentCoreConfig {
+			constructor(logGroupPrefix, iamAuthEnabled) {
+				this.logGroupPrefix = logGroupPrefix ?? '';
+				this.iamAuthEnabled = iamAuthEnabled ?? false;
+			}
+		},
 		AWSRegexPatterns: {
 			AWS_REGEXP: /.*/,
 			AWS_REGEXP_LOG_GROUP_NAME: /.*/,
