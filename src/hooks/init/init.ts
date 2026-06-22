@@ -27,8 +27,11 @@ const hook: Hook.Init = async function (opts) {
 	const hasStructuredOutput = opts.argv.some((arg, i) =>
 		(arg === '-o' || arg === '--output') && (opts.argv[i + 1] === 'json' || opts.argv[i + 1] === 'yaml')
 	);
+	const commandId = opts.id ?? '';
+	const isAutocompleteCommand = commandId.includes('autocomplete') || opts.argv.includes('autocomplete');
+	const isAutocompleteScript = isAutocompleteCommand && (commandId.includes('script') || opts.argv.includes('script'));
 
-	if (config.get('update.check') === false || opts.argv.includes('--no-banner') || opts.argv.includes('--json') || hasStructuredOutput) {
+	if (config.get('update.check') === false || opts.argv.includes('--no-banner') || opts.argv.includes('--json') || hasStructuredOutput || isAutocompleteScript) {
 		log('Skipping update check');
 	} else {
 		// Trigger the update check fetch and let it continue asynchronously while the command runs
@@ -50,6 +53,7 @@ const hook: Hook.Init = async function (opts) {
 		// Not requesting JSON output (oclif built-in or engage -o/--output flag)
 		&& !opts.argv.includes('--json')
 		&& !hasStructuredOutput
+		&& !isAutocompleteScript
 		// And for commands that do not have it disabled (other than for help output)
 		&& (command?.enableBanner !== false || opts.argv.includes('--help'))
 	) {

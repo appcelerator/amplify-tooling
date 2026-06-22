@@ -29,8 +29,7 @@ export class EngageInstallAgentsCommand extends Command {
 			});
 		} catch (err: any) {
 			renderer.anyError(err);
-			process.exit(1);
+			this.exit(1);
 		}
-		process.exit(0);
 	}
 }

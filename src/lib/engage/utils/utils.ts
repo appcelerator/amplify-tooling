@@ -282,7 +282,7 @@ export const transformSimpleFilters = (title?: string, attribute?: string, tag?:
 	const tagFilter = tag ? `tags==${tag}` : '';
 	const teamGuidFilter = teamGuid
 		? `owner.id==${teamGuid},(owner.id==null;metadata.scope.owner.id==${teamGuid})`
-		: 'owner.id==null';
+		: '';
 	const formattedFilter = `${titleFilter && `${titleFilter};`}${attributeFilter && `${attributeFilter};`}${tagFilter && `${tagFilter};`}${teamGuidFilter}`;
 	const transformedFilter
 		= formattedFilter.charAt(formattedFilter.length - 1) === ';' ? formattedFilter.slice(0, -1) : formattedFilter;
@@ -548,6 +548,60 @@ export const writeTemplates = (fileName: string, values: object, templateFunc: (
 	const data = buildTemplate(templateFunc, values);
 	writeToFile(fileName, data);
 };
+
+const resolveTemplateValue = (context: any, property: any): any => {
+	if (typeof property !== 'string') {
+		return property;
+	}
+
+	if (property === '.' || property === 'this') {
+		return context;
+	}
+
+	return property.split('.').reduce((current, key) => {
+		if (current === null || current === undefined) {
+			return undefined;
+		}
+
+		return current[key];
+	}, context);
+};
+
+/**
+ * helper function to extend the handlebars helpers functionality
+ * to add a way to compare equality and ordering of values.
+ * @param  {string|number} lvalue
+ * @param  {string|number} rvalue
+ */
+export const hbsCompare = () => {
+	if (Reflect.has(hbs.helpers, 'compare')) {
+		return;
+	}
+
+	hbs.registerHelper('compare', (context: any, lvalue: any, rvalue: any, options: any) => {
+		const operator = (options.hash?.operator || '===') as string;
+		const left = resolveTemplateValue(context, lvalue);
+		const right = resolveTemplateValue(context, rvalue);
+
+		const operators: { [key: string]: (l: any, r: any) => boolean } = {
+			'==': (l, r) => l == r, // eslint-disable-line eqeqeq
+			'===': (l, r) => l === r,
+			'!=': (l, r) => l != r, // eslint-disable-line eqeqeq
+			'!==': (l, r) => l !== r,
+			'<': (l, r) => l < r,
+			'>': (l, r) => l > r,
+			'<=': (l, r) => l <= r,
+			'>=': (l, r) => l >= r,
+			typeof: (l, r) => typeof l === r,
+		};
+
+		const compareFn = operators[operator] || operators['==='];
+		const result = compareFn(left, right);
+		return result ? options.fn(context) : options.inverse(context);
+	});
+};
+
+hbsCompare();
 
 export const buildTemplate = (templateFunc: () => string, input: object): string => {
 	const template = hbs.compile(templateFunc(), { noEscape: true });
