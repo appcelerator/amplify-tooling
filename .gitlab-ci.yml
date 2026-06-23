@@ -65,7 +65,7 @@ unit_tests:
     - sudo apt-get install -y libsecret-1-0
     - npm ci
     - npm run build
-    - npx run test
+    - npm run test
   except:
     - schedules
   allow_failure: true
