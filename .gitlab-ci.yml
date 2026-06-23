@@ -11,6 +11,13 @@ variables:
   BLACKDUCK_PROJECT_NAME: "$SRM_PROJECT_NAME"
   BLACKDUCK_CUSTOM_OPTIONS: --detect.excluded.detector.types=LERNA
 
+  # Checkmarx One
+  CX_CLIENT_ID: "axway-$SRM_PROJECT_NAME"
+  #CX_CLIENT_SECRET: defined in UI
+  CHECKMARX_PROJECT_NAME: "$SRM_PROJECT_NAME"
+  CHECKMARX_EXCLUDE: "!testdata,!*_test.go"
+
+
   ########################################
   # set up custom names for the pipelines of releases and nightly schedules
   ########################################
@@ -57,7 +64,6 @@ unit_tests:
   image: dockerhub.artifactory-phx.ecd.axway.int/node:24.16.0-alpine
   stage: test
   script:
-    - sudo apt-get install -y libsecret-1-0
     - npm ci
     - npm run build
     - npx run test
