@@ -51,20 +51,21 @@ report-snapshot-and-push:
     - fetch-third-party
 
 install_dependencies:
-  image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+  image: dockerhub.artifactory-phx.ecd.axway.int/node:24.16.0-alpine
   stage: install
   script:
-    - npm install
+    - npm ci
   except:
     - schedules
 
 unit_tests:
-  image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+  image: dockerhub.artifactory-phx.ecd.axway.int/node:24.16.0-alpine
   stage: test
   script:
-    - npm install gulp-cli -g
-    - npm install gulp
-    - npx gulp test
+    - sudo apt-get install -y libsecret-1-0
+    - npm ci
+    - npm run build
+    - npx run test
   except:
     - schedules
   allow_failure: true
