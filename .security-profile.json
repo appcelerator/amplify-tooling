@@ -4,7 +4,7 @@
 	"repo_url": "https://github.com/appcelerator/amplify-tooling",
 	"security_guide": "https://docs.axway.com/bundle/axway_resources/page/amplify_api_management_platform_security_white_paper.html",
 	"requirements": {
-		"fortify": true,
+		"fortify": false,
 		"irius-risk": false,
 		"pentest": false,
 		"twistlock": false,
