@@ -21,6 +21,7 @@ const defaultVars = {
 	check: '(?:√|✔)',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
 	localeDateTime: '[\\w\\d/,: ]+ *',
+	pathSep: '[/\\\\]',
 	string: '[^\\s]+',
 	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
 	x: '(?:x|✖)',
