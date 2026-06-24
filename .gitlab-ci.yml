@@ -63,6 +63,7 @@ unit_tests:
   image: dockerhub.artifactory-phx.ecd.axway.int/node:24.16.0-alpine
   stage: test
   script:
+    - apk add --no-cache libsecret-dev
     - npm ci
     - npm run build
     - npm run test
