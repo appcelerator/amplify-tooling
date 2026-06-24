@@ -24,11 +24,13 @@ export default class Renderer {
 	private spinner: ora.Ora | null;
 	private _log: (text: string) => void;
 	private output: OutputTypes | undefined;
+	private showLines: boolean;
 
-	constructor(log: (text: string) => void, output?: OutputTypes) {
+	constructor(log: (text: string) => void, output?: OutputTypes, showLines?: boolean) {
 		this.spinner = process.env['DEBUG'] || !!output ? null : ora({ spinner: 'dots3' });
 		this._log = log;
 		this.output = output;
+		this.showLines = showLines ?? false;
 	}
 
 	/**
@@ -297,10 +299,11 @@ export default class Renderer {
 					this._log,
 					sortedSuccess.empty[0].response.data!,
 					this.output,
-					sortedSuccess.empty[0].columns
+					sortedSuccess.empty[0].columns,
+					this.showLines
 				);
 			} else {
-				sortedSuccess.notEmpty.forEach((v) => renderResponse(this._log, v.response.data!, this.output, v.columns));
+				sortedSuccess.notEmpty.forEach((v) => renderResponse(this._log, v.response.data!, this.output, v.columns, this.showLines));
 			}
 		}
 		// rendering errors only if there are zero successful results,

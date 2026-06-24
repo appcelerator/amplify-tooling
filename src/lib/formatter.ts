@@ -6,18 +6,27 @@ import Table from 'cli-table3';
  *
  * @param {Array.<String>} head - One or more headings.
  * @param {Number} [indent] - The number of spaces to indent the table.
+ * @param {Boolean} [showLines] - Whether to show table border lines. Defaults to false.
  * @returns {Table}
  */
 
-export function createTable(head?, indent = 0) {
+export function createTable(head?, indent = 0, showLines = false) {
+	const chars = showLines ? {
+		bottom: '─', 'bottom-left': '└', 'bottom-mid': '┴', 'bottom-right': '┘',
+		left: '│', 'left-mid': '├',
+		mid: '─', 'mid-mid': '┼', middle: '│',
+		right: '│', 'right-mid': '┤',
+		top: '─', 'top-left': '┌', 'top-mid': '┬', 'top-right': '┐'
+	} : {
+		bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
+		left: ' '.repeat(indent), 'left-mid': '',
+		mid: '', 'mid-mid': '', middle: '  ',
+		right: '', 'right-mid': '',
+		top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
+	};
+
 	return new Table({
-		chars: {
-			bottom: '', 'bottom-left': '', 'bottom-mid': '', 'bottom-right': '',
-			left: ' '.repeat(indent), 'left-mid': '',
-			mid: '', 'mid-mid': '', middle: '  ',
-			right: '', 'right-mid': '',
-			top: '', 'top-left': '', 'top-mid': '', 'top-right': ''
-		},
+		chars,
 		head: Array.isArray(head) ? head.map(heading) : head,
 		style: {
 			border: [],

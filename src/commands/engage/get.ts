@@ -91,6 +91,10 @@ export default class EngageGet extends Command {
 		languageDefinition: Flags.string({
 			description: `Show the language definition constraint of the returned object. One of: Comma Separated values of ${LanguageTypes.French} | ${LanguageTypes.US} | ${LanguageTypes.German} | ${LanguageTypes.Portugese}`,
 		}),
+		'table-lines': Flags.boolean({
+			description: 'Show table border lines',
+			default: false,
+		}),
 	};
 
 	async run(): Promise<any> {
@@ -99,7 +103,7 @@ export default class EngageGet extends Command {
 		let isCmdError = true;
 		try {
 			const { args, flags, account, teams } = await this.parse(EngageGet);
-			renderer = new Renderer((text: string) => this.log(text), flags.output);
+			renderer = new Renderer((text: string) => this.log(text), flags.output, flags['table-lines']);
 
 			if (!flags.team && flags['no-owner']) {
 				flags.team = null;
