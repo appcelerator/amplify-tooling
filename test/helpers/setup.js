@@ -23,16 +23,22 @@ export const mochaHooks = {
 		this.resetServers = resetServers.bind(this);
 		// Make it easy to get the telemetry events received by the platform server
 		this.getTelemetryEvents = () => this.servers[1].telemetryEvents || [];
+		global.currentTest = null;
+		global.currentTestInvocations = [];
 	},
 
 	beforeEach: function () {
 		this.resetServers();
+		const testFilePath = this.currentTest?.file?.replace(/\\/g, '/') || '';
 
 		// If running a command test, set up the context for this test so the helper can store references to executed command outputs
-		if (this.currentTest.file.includes('/test/commands/')) {
+		if (testFilePath.includes('/test/commands/')) {
 			// Store the current test context globally for logging purposes
 			global.currentTest = this.currentTest;
 			// Reset the invocations array for this test
+			global.currentTestInvocations = [];
+		} else {
+			global.currentTest = null;
 			global.currentTestInvocations = [];
 		}
 	},
@@ -41,9 +47,10 @@ export const mochaHooks = {
 		this.resetServers();
 		// Clean up all nock interceptors
 		nock.cleanAll();
+		const testFilePath = this.currentTest?.file?.replace(/\\/g, '/') || '';
 
 		// If running a command test, log command output on test failure and reset the global context
-		if (this.currentTest.file.includes('/test/commands/')) {
+		if (testFilePath.includes('/test/commands/')) {
 			if (this.currentTest.state === 'failed' && global.currentTestInvocations?.length > 0) {
 				console.log('Test failed. Command invocations during the test:');
 				global.currentTestInvocations.forEach((invocation, index) => {
