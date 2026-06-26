@@ -767,16 +767,6 @@ export class AWSAgentCoreConfig {
 	}
 }
 
-export class AWSCognitoConfig {
-	userPoolId: string;
-	region?: string;
-
-	constructor(userPoolId: string, region?: string) {
-		this.userPoolId = userPoolId;
-		this.region = region;
-	}
-}
-
 export enum AgentNames {
 	AKAMAI_CA = 'akamai-compliance-agent',
 	AWS_DA = 'aws-apigw-discovery-agent',

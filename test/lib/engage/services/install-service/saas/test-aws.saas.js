@@ -173,7 +173,6 @@ describe('AWS SaaS agent flow', () => {
 			engageTypes.YesNo.Yes,
 			engageTypes.YesNo.No,
 			engageTypes.YesNo.No,
-			engageTypes.YesNo.No,
 		];
 		td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
 
@@ -181,9 +180,8 @@ describe('AWS SaaS agent flow', () => {
 		expect(result.agentCoreGatewayMode).to.equal(true);
 		expect(result.agentCore.logGroupPrefix).to.equal('/aws/prefix');
 		expect(result.agentCore.iamAuthEnabled).to.equal(true);
-		expect(result.cognito).to.have.length(1);
-		expect(result.cognito[0].userPoolId).to.equal('us-east-1_123456789');
-		expect(result.cognito[0].region).to.equal('us-east-1');
+		expect(result.cognitoUserPoolIDs).to.have.length(1);
+		expect(result.cognitoUserPoolIDs[0]).to.equal('us-east-1_123456789');
 		expect(result.fullTransactionLogging).to.equal(false);
 	});
 
@@ -194,7 +192,7 @@ describe('AWS SaaS agent flow', () => {
 			fullTransactionLogging: true,
 			stageTagName: 'stage-tag',
 			agentCore: { logGroupPrefix: '/aws/prefix', iamAuthEnabled: true },
-			cognito: [ { userPoolId: 'us-east-1_123456789', region: 'us-east-1' } ],
+			cognitoUserPoolIDs: [ 'us-east-1_123456789' ],
 			redaction: {},
 		};
 
@@ -203,7 +201,7 @@ describe('AWS SaaS agent flow', () => {
 		expect(dataplaneArg.type).to.equal('AWS');
 		expect(dataplaneArg.accessLogARN).to.contain('arn:aws:logs');
 		expect(dataplaneArg.agentCore).to.deep.equal({ logGroupPrefix: '/aws/prefix', iamAuthEnabled: true });
-		expect(dataplaneArg.cognito).to.deep.equal([ { userPoolId: 'us-east-1_123456789', region: 'us-east-1' } ]);
+		expect(dataplaneArg.cognitoUserPoolIDs).to.deep.equal([ 'us-east-1_123456789' ]);
 	});
 
 	it('passes IDP config in completeInstall context', async () => {

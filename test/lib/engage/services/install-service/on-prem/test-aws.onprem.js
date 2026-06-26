@@ -233,7 +233,6 @@ describe('AWS on-prem agent flow', () => {
 				'No',    // fullTransactionLogging
 				'Yes',   // AGENT_CORE_GATEWAY_MODE
 				'Yes',   // iamAuthEnabled
-				'No',    // askRegion? (use agent region)
 				'No',    // enterMore?
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
@@ -254,11 +253,10 @@ describe('AWS on-prem agent flow', () => {
 			expect(result.agentCoreGatewayMode).to.equal(true);
 			expect(result.agentCore.logGroupPrefix).to.equal('/aws/prefix');
 			expect(result.agentCore.iamAuthEnabled).to.equal(true);
-			expect(result.cognito).to.have.length(1);
-			expect(result.cognito[0].userPoolId).to.equal('us-east-1_123456789');
-			expect(result.cognito[0].region).to.equal('us-east-1');
+			expect(result.cognitoUserPoolIDs).to.have.length(1);
+			expect(result.cognitoUserPoolIDs[0]).to.equal('us-east-1_123456789');
 			expect(td.explain(promptStubs.askInput).callCount).to.equal(7);
-			expect(td.explain(promptStubs.askList).callCount).to.equal(7);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(6);
 		});
 
 		it('enables agent core gateway mode and collects multiple cognito pools', async () => {
@@ -268,9 +266,7 @@ describe('AWS on-prem agent flow', () => {
 				'No',    // fullTransactionLogging
 				'Yes',   // AGENT_CORE_GATEWAY_MODE
 				'No',    // iamAuthEnabled
-				'No',    // askRegion? pool 1
 				'Yes',   // enterMore? (add another pool)
-				'No',    // askRegion? pool 2
 				'No',    // enterMore?
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
@@ -292,13 +288,11 @@ describe('AWS on-prem agent flow', () => {
 			expect(result.agentCoreGatewayMode).to.equal(true);
 			expect(result.agentCore.logGroupPrefix).to.equal('');
 			expect(result.agentCore.iamAuthEnabled).to.equal(false);
-			expect(result.cognito).to.have.length(2);
-			expect(result.cognito[0].userPoolId).to.equal('us-east-1_111111111');
-			expect(result.cognito[0].region).to.equal('us-east-1');
-			expect(result.cognito[1].userPoolId).to.equal('eu-west-1_222222222');
-			expect(result.cognito[1].region).to.equal('us-east-1');
+			expect(result.cognitoUserPoolIDs).to.have.length(2);
+			expect(result.cognitoUserPoolIDs[0]).to.equal('us-east-1_111111111');
+			expect(result.cognitoUserPoolIDs[1]).to.equal('eu-west-1_222222222');
 			expect(td.explain(promptStubs.askInput).callCount).to.equal(8);
-			expect(td.explain(promptStubs.askList).callCount).to.equal(9);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(7);
 		});
 
 		it('stops question flow when AWS region lookup fails', async () => {
@@ -436,7 +430,7 @@ function createHelpersStubs() {
 			this.stageTagName = '';
 			this.agentCoreGatewayMode = false;
 			this.agentCore = { logGroupPrefix: '', iamAuthEnabled: false };
-			this.cognito = [];
+			this.cognitoUserPoolIDs = [];
 			this.cloudFormationConfig = {
 				APIGWCWRoleSetup: '',
 				APIGWTrafficLogGroupName: '/aws/apigw/logs',
@@ -466,12 +460,6 @@ function createHelpersStubs() {
 
 	return {
 		AWSAgentValues,
-		AWSCognitoConfig: class AWSCognitoConfig {
-			constructor(userPoolId, region) {
-				this.userPoolId = userPoolId;
-				this.region = region;
-			}
-		},
 		AWSAgentCoreConfig: class AWSAgentCoreConfig {
 			constructor(logGroupPrefix, iamAuthEnabled) {
 				this.logGroupPrefix = logGroupPrefix ?? '';

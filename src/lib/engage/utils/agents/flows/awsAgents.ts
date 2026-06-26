@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import fs from 'fs';
 import logger from '../../../../logger.js';
 import { dataService } from '../../../../request.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSCognitoConfig, AWSRegions, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, PublicRepoUrl, TrueFalse, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSRegions, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, PublicRepoUrl, TrueFalse, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateInputLength, validateRegex } from '../../basic-prompts.js';
 import { isWindows, writeTemplates, writeToFile } from '../../utils.js';
 import { AWSAgentValues } from '../index.js';
@@ -80,11 +80,9 @@ export const AWSPrompts = {
 	AGENT_CORE_GATEWAY_MODE: 'Do you want to enable Agent Core Gateway Mode? (If not, the default will be to run the agent in API Gateway mode)',
 	AGENT_CORE_LOG_GROUP_PREFIX: 'Enter the prefix for the Agent Core Gateway vendored logs',
 	AGENT_CORE_IAM_AUTH: 'Do you want to enable IAM Authentication for Agent Core Gateway requests?',
-	ENTER_MORE_COGNITO_USER_POOLS: 'Do you want to enter another Cognito User Pool for Agent Core Gateway mode?',
-	COGNITO: 'Enter the List of AWS Cognito user pools used for authentication in Agent Core Gateway mode',
+	ENTER_MORE_COGNITO_USER_POOL_IDS: 'Do you want to enter another Cognito User Pool ID for Agent Core Gateway mode?',
+	COGNITO: 'Enter the List of AWS Cognito user pool IDs used for authentication in Agent Core Gateway mode',
 	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the Agent Core will use for authentication',
-	ASK_COGNITO_REGION: 'Do you want to specify a region for the Cognito User Pool? (If not, the agent will use the same region as the gateway)',
-	COGNITO_REGION: 'Select the AWS region of the Cognito user pool. Defaults to the agent region if omitted',
 };
 
 export const askBundleType = async (): Promise<BundleType> => {
@@ -337,7 +335,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 			choices: YesNoChoices,
 		})) === YesNo.Yes;
 		installConfig.log(chalk.gray(AWSPrompts.COGNITO));
-		const cognitoUserPools: AWSCognitoConfig[] = [];
+		const cognitoUserPoolIDs: string[] = [];
 		let askCognitoUserPools = true;
 
 		while (askCognitoUserPools) {
@@ -345,35 +343,16 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 				msg: AWSPrompts.COGNITO_USER_POOL_ID,
 			})) as string;
 
-			const askRegion = (await askList({
-				msg: AWSPrompts.ASK_COGNITO_REGION,
-				default: YesNo.No,
-				choices: YesNoChoices,
-			})) === YesNo.Yes;
-
-			if (askRegion) {
-
-				const regions = Object.values(AWSRegions).map((str) => ({ name: str, value: str }));
-
-				const region = await askList({
-					msg: AWSPrompts.COGNITO_REGION,
-					choices: regions,
-
-				});
-
-				cognitoUserPools.push({ userPoolId, region });
-			} else {
-				cognitoUserPools.push({ userPoolId, region: awsAgentValues.region });
-			}
+			cognitoUserPoolIDs.push(userPoolId);
 
 			askCognitoUserPools = await askList({
-				msg: AWSPrompts.ENTER_MORE_COGNITO_USER_POOLS,
+				msg: AWSPrompts.ENTER_MORE_COGNITO_USER_POOL_IDS,
 				choices: YesNoChoices,
 				default: YesNo.No,
 			}) === YesNo.Yes;
 		}
 
-		awsAgentValues.cognito = cognitoUserPools;
+		awsAgentValues.cognitoUserPoolIDs = cognitoUserPoolIDs;
 	}
 
 	// set agent versions

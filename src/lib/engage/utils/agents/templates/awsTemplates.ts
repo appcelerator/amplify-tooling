@@ -1,6 +1,5 @@
 import {
 	AWSAgentCoreConfig,
-	AWSCognitoConfig,
 	CentralAgentConfig,
 	CloudFormationConfig,
 	TraceabilityConfig,
@@ -23,7 +22,7 @@ export class AWSAgentValues {
 	cloudFormationConfig: CloudFormationConfig;
 	agentCoreGatewayMode: boolean;
 	agentCore: AWSAgentCoreConfig;
-	cognito: AWSCognitoConfig[];
+	cognitoUserPoolIDs: string[];
 
 	constructor(awsDeployment: string) {
 		this.accessKey = awsDeployment === 'Other' ? '**Insert Access Key**' : '';
@@ -38,7 +37,7 @@ export class AWSAgentValues {
 		this.cloudFormationConfig = new CloudFormationConfig();
 		this.agentCoreGatewayMode = false;
 		this.agentCore = new AWSAgentCoreConfig();
-		this.cognito = [];
+		this.cognitoUserPoolIDs = [];
 	}
 
 	updateCloudFormationConfig = () => {
@@ -114,9 +113,8 @@ AWS_STAGETAGNAME={{stageTagName}}
 AWS_GATEWAYMODE=agentcore-gateway
 AWS_AGENTCORE_LOGGROUPPREFIX={{agentCore.logGroupPrefix}}
 AWS_AGENTCORE_IAMAUTHENABLED={{agentCore.iamAuthEnabled}}
-{{#each cognito}}
-AWS_COGNITO_USERPOOLID_{{add @index 1}}={{this.userPoolId}}
-AWS_COGNITO_REGION_{{add @index 1}}={{this.region}}
+{{#each cognitoUserPoolIDs}}
+AWS_COGNITO_USERPOOLID_{{add @index 1}}={{this}}
 {{/each}}
 {{else}}
 AWS_GATEWAYMODE=api-gateway
