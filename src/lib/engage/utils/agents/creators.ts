@@ -8,7 +8,7 @@ import { AgentResourceKind, AgentTypes, DataPlaneNames, DosaAccount, GenericReso
 import logger from '../../../logger.js';
 import { PlatformClient, PlatformServiceAccountRole } from '../../clients-external/platformclient.js';
 import chalk from 'chalk';
-import { createKeyPair } from '../bash-commands.js';
+import { generateKeypair } from '../../../auth/keypair.js';
 
 const debugLog = logger('lib: engage: utils: agents: creators');
 
@@ -43,7 +43,14 @@ export const createBackUpConfigs = async (configFiles: string[], log: (text: str
 
 export const createDosaAndCerts = async (client: PlatformClient, name: string, log: (text: string) => void): Promise<DosaAccount> => {
 	log('Creating a new service account.');
-	const { publicKey, privateKey } = await createKeyPair();
+	const keypair = await generateKeypair({
+		silent: true,
+		force: true,
+		privateKey: 'private_key.pem',
+		publicKey: 'public_key.pem',
+	}) as { publicKey: { file: string }; privateKey: { file: string } };
+	const publicKey = keypair.publicKey.file;
+	const privateKey = keypair.privateKey.file;
 	const publicCert = readFileSync(publicKey).toString();
 	const account = await client.createServiceAccount({
 		name: name,
