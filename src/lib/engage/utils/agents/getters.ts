@@ -1,9 +1,7 @@
 import { ApiServerClient } from '../../clients-external/apiserverclient.js';
-import { ApiServerClientListResult, BasePaths, PublicRepoUrl } from '../../types.js';
-import { dataService } from '../../../request.js';
+import { ApiServerClientListResult } from '../../types.js';
 import { DefinitionsManager } from '../../results/DefinitionsManager.js';
 import logger from '../../../logger.js';
-import { Account } from '../../../../types.js';
 
 const { log, error } = logger('lib: engage: utils: agents: getters');
 
@@ -56,49 +54,17 @@ export const getEnvironmentId = async (
 	return resource.data?.metadata ? resource.data.metadata.id || '' : '';
 };
 
-export const getLatestAgentVersion = async (agent: string, account: Account): Promise<string> => {
+export const getLatestAgentVersion = async (client: ApiServerClient, agentName: string): Promise<string> => {
 	try {
-		const service = await dataService({ account, baseUrl: PublicRepoUrl + BasePaths.DockerAgentAPIRepoPath });
-
-		const response = await service.get(
-			`/${agent}/tags/list`,
-			{
-				// docker api requires auth, even if its just anonymous
-				Authorization: `Basic ${Buffer.from('anonymous:').toString('base64')}`,
-			},
-			true
-		);
-
-		if (response.tags.length === 0) {
-			return 'latest';
+		const componentDef = await client.getComponentDefinitionsByName(agentName);
+		const version = componentDef.spec?.latest?.version;
+		if (version) {
+			log(`Latest Version (${agentName}): ${version}`);
+			return version;
 		}
-		const latestVersion = response.tags.reduce((prev: string, current: string) => {
-			// skip any tags that are latest
-			if (prev === 'latest') {
-				return current;
-			} else if (current === 'latest') {
-				return prev;
-			}
-
-			// find the largest tag
-			const [ pMajor, pMinor, pPatch ] = prev.split('.').map(Number);
-			const [ cMajor, cMinor, cPatch ] = current.split('.').map(Number);
-
-			if (cMajor > pMajor) {
-				return current;
-			}
-			if (cMajor === pMajor && cMinor > pMinor) {
-				return current;
-			}
-			if (cMajor === pMajor && cMinor === pMinor && cPatch > pPatch) {
-				return current;
-			}
-			return prev;
-		});
-		log(`Latest Version (${agent}): ${latestVersion}`);
-		return latestVersion;
+		return 'latest';
 	} catch (e: any) {
-		error('Error hit retrieving latest version of agent, setting tag to latest');
+		error('Error retrieving latest version, setting tag to latest');
 		error(e);
 		return 'latest';
 	}
