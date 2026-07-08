@@ -900,7 +900,7 @@ export class ApiServerClient {
 		log.info('get component definitions');
 		try {
 			const service = await this.initializeDataService();
-			const component: Component = await service.get(`definitions/${version}/components/${componentName}`);
+			const component: Component = await service.get(`/definitions/${version}/components/${componentName}`);
 
 			return component;
 
