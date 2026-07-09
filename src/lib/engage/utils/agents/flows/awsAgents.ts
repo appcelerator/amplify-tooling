@@ -1,13 +1,10 @@
 import chalk from 'chalk';
-import fs from 'fs';
 import logger from '../../../../logger.js';
-import { dataService } from '../../../../request.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSRegions, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, PublicRepoUrl, TrueFalse, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSRegions, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, TrueFalse, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateInputLength, validateRegex } from '../../basic-prompts.js';
 import { isWindows, writeTemplates, writeToFile } from '../../utils.js';
 import { AWSAgentValues } from '../index.js';
 import * as helpers from '../index.js';
-import { Account } from '../../../../../types.js';
 
 const debugLog = logger('lib: engage: utils: agents: flows: awsAgents');
 const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.AWS_DA}`;
@@ -361,8 +358,6 @@ ${chalk.cyan(
 ${chalk.cyan(
 	`    aws ssm put-parameter --type SecureString --name ${awsAgentValues.cloudFormationConfig.SSMPublicKeyParameter} --value "file://public_key.pem"`
 )}`;
-			// Cleanup EC2 file
-			fs.unlinkSync(ConfigFiles.EC2DeployYAML);
 			break;
 		}
 		case DeploymentTypes.OTHER: {
@@ -373,10 +368,6 @@ ${chalk.cyan(
 				(value) => (s3ResourcesIncludes += `--include "${value}" `)
 			);
 
-			// Cleanup EC2 file
-			fs.unlinkSync(ConfigFiles.EC2DeployYAML);
-			// Cleanup ECS Fargate file
-			fs.unlinkSync(ConfigFiles.FargateDeployYAML);
 			const info = `To utilize the agents, pull the latest Docker images and run them using the appropriate supplied environment files, (${helpers.configFiles.DA_ENV_VARS} & ${helpers.configFiles.TA_ENV_VARS}):`;
 
 			dockerEnvConfig = `Wait for the CloudFormation Stack to complete.
@@ -451,8 +442,6 @@ ${chalk.cyan(
 ${chalk.cyan(
 	`    aws ssm put-parameter --type SecureString --name ${awsAgentValues.cloudFormationConfig.SSMPublicKeyParameter} --value "file://public_key.pem"`
 )}`;
-			// Cleanup Fargate file
-			fs.unlinkSync(ConfigFiles.FargateDeployYAML);
 			break;
 		}
 	}
@@ -463,7 +452,13 @@ ${chalk.cyan(
 	const s3Region = awsAgentValues.region === AWSRegions.US_EAST_1 ? 's3' : `s3.${awsAgentValues.region}`;
 
 	return `
-To complete the install, run the following AWS CLI command:
+To complete the install, first download and extract the CloudFormation templates:
+  - Download the CloudFormation package:
+${chalk.cyan(`    curl -O https://repository.axway.com/artifactory/ampc-public-generic-release/aws-agents/aws_apigw_agent_config/latest/${ConfigFiles.AgentConfigZip}`)}
+  - Extract the package:
+${chalk.cyan(`    unzip ${ConfigFiles.AgentConfigZip}`)}
+
+Then run the following AWS CLI commands:
   - Create, if necessary, and upload all files to your S3 bucket
 ${chalk.cyan(
 	`    aws s3api create-bucket --bucket ${awsAgentValues.cloudFormationConfig.AgentResourcesBucket} --create-bucket-configuration LocationConstraint=${awsAgentValues.region}`
@@ -487,55 +482,6 @@ ${chalk.gray(`Additional information about agent features can be found here:\n${
 `;
 };
 
-// Download latest aws apigw config zip
-const downloadAPIGWAgentConfigZip = async (account: Account): Promise<string> => {
-	const url = `${BasePaths.AWSAgents}/aws_apigw_agent_config/latest/${ConfigFiles.AgentConfigZip}`;
-
-	const service = await dataService({
-		account,
-		baseUrl: PublicRepoUrl,
-	});
-	try {
-		const token = account.auth?.tokens?.access_token;
-		if (!token) {
-			throw new Error('Invalid/expired account');
-		}
-		const { stream } = await service.download(url);
-		await helpers.streamPipeline(stream, fs.createWriteStream(ConfigFiles.AgentConfigZip));
-		return ConfigFiles.AgentConfigZip;
-	} catch (err: any) {
-		throw new Error(`Failed to download the agent: ${err.message}`);
-	}
-};
-
-// Unzip latest aws apigw config zip
-const unzipAPIGWAgentConfigZip = async (zipFile: string, log: (text: string) => void = () => {}): Promise<boolean> => {
-	await helpers.unzip(zipFile);
-	fs.unlinkSync(zipFile);
-
-	const isCloudFormation = fs.existsSync(ConfigFiles.DeployAllYAML);
-	if (!isCloudFormation) {
-		log(`${ConfigFiles.DeployAllYAML} was not extracted from ${ConfigFiles.AgentConfigZip}`);
-		return false;
-	}
-	return true;
-};
-
-export const installPreprocess = async (installConfig: AgentInstallConfig): Promise<AgentInstallConfig> => {
-	// attempt to download the cloud formation files
-	installConfig.log(chalk.gray('Downloading the latest Cloud formation template...'));
-	const account = installConfig.centralConfig.apiServerClient?.account;
-	if (!account) {
-		throw new Error('Unable to resolve account for DataService call during AWS agent install preprocess');
-	}
-	const apigwAgentConfigZipFile = await downloadAPIGWAgentConfigZip(account);
-	if (apigwAgentConfigZipFile !== '') {
-		installConfig.log(chalk.gray('\nSuccess'));
-	}
-	(installConfig.gatewayConfig as helpers.AWSAgentValues).apigwAgentConfigZipFile = apigwAgentConfigZipFile;
-	return installConfig;
-};
-
 export const completeInstall = async (installConfig: AgentInstallConfig): Promise<void> => {
 	/**
 	 * Create agent resources
@@ -546,11 +492,7 @@ export const completeInstall = async (installConfig: AgentInstallConfig): Promis
 	awsAgentValues.centralConfig = installConfig.centralConfig;
 	awsAgentValues.traceabilityConfig = installConfig.traceabilityConfig;
 
-	const unpackZip = await unzipAPIGWAgentConfigZip(awsAgentValues.apigwAgentConfigZipFile, installConfig.log);
-	if (unpackZip) {
-		installConfig.log('\nCreating the agent environment files for AWS...');
-	}
-
+	installConfig.log('\nCreating the agent environment files for AWS...');
 	installConfig.log('Generating the configuration file(s)...');
 
 	installConfig.log('Generating the cloud formation parameters file...');
@@ -586,9 +528,12 @@ export const AWSInstallMethods: InstallationFlowMethods = {
 	GetBundleType: askBundleType,
 	GetDeploymentType: askConfigType,
 	AskGatewayQuestions: gatewayConnectivity,
-	InstallPreprocess: installPreprocess,
 	FinalizeGatewayInstall: completeInstall,
-	ConfigFiles: Object.values(ConfigFiles),
+	ConfigFiles: [
+		ConfigFiles.DAEnvVars,
+		ConfigFiles.TAEnvVars,
+		ConfigFiles.CFProperties,
+	],
 	AgentNameMap: {
 		[AgentTypes.da]: AgentNames.AWS_DA,
 		[AgentTypes.ta]: AgentNames.AWS_TA,

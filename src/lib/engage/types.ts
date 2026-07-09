@@ -878,7 +878,6 @@ export const GatewayTypeToDataPlane = {
 	[GatewayTypes.WSO2]: DataPlaneNames.WSO2,
 };
 
-export const PublicRepoUrl = 'https://axway.jfrog.io';
 export const PublicDockerRepoBaseUrl = 'repository.axway.com/ampc-public-docker-release';
 
 export class DOSAConfigInfo {

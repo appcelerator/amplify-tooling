@@ -1,14 +1,11 @@
 import chalk from 'chalk';
-import fs from 'fs';
-import { dataService } from '../../../../request.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, localhost, LoggingSource, PublicDockerRepoBaseUrl, PublicRepoUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, localhost, LoggingSource, PublicDockerRepoBaseUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, askUsernameAndPassword } from '../../basic-prompts.js';
 import { writeTemplates, isWindows, AgentHelmInfo, helmImageSecretInfo, helmInstallInfo } from '../../utils.js';
 import { V7AgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { kubectl } from '../kubectl.js';
 import { amplifyAgentsNs } from './akamaiAgent.js';
-import { Account } from '../../../../../types.js';
 
 const defaultLogFiles = '/group-*_instance-*.log';
 const defaultOTLogFiles = '/group-*_instance-*_traffic*.log';
@@ -43,47 +40,6 @@ export const prompts = {
 	enterGatewayManagerMode: 'Do you want to use API Manager with the API Gateway',
 	askIfOrgReplication:
 		'Do you want to replicate your original organization structure for your newly discovered APIs? If yes, make sure the organization names match the team names that are created in Amplify platform',
-};
-
-const downloadV7AgentBundle = async (account: Account, type: BundleType, version: string): Promise<string> => {
-	const fileName
-		= type === BundleType.DISCOVERY ? `discovery_agent-${version}.zip` : `traceability_agent-${version}.zip`;
-	const url
-		= type === BundleType.DISCOVERY
-			? `${BasePaths.V7Agents}/v7_discovery_agent/${version}/discovery_agent-${version}.zip`
-			: `${BasePaths.V7Agents}/v7_traceability_agent/${version}/traceability_agent-${version}.zip`;
-	const service = await dataService({
-		account: account,
-		baseUrl: PublicRepoUrl,
-	});
-	try {
-		const { stream } = await service.download(url);
-		await helpers.streamPipeline(stream, fs.createWriteStream(fileName));
-		return fileName;
-	} catch (err: any) {
-		throw new Error(`Failed to download the agent: ${err.message}`);
-	}
-};
-
-const downloadBinary = async (account: Account, bundleType: BundleType, version: string) => {
-	const fileName = await downloadV7AgentBundle(account, bundleType, version);
-	await helpers.unzip(fileName);
-	fs.unlinkSync(fileName);
-};
-
-const downloadBinaries = async (installConfig: AgentInstallConfig) => {
-	const account = installConfig.centralConfig.apiServerClient?.account;
-	if (!account) {
-		throw new Error('Unable to resolve account for DataService call during AWS agent install preprocess');
-	}
-	installConfig.log('Downloading and unpacking binary files...');
-	if (installConfig.switches.isDaEnabled) {
-		await downloadBinary(account, BundleType.DISCOVERY, installConfig.daVersion);
-	}
-	if (installConfig.switches.isTaEnabled) {
-		await downloadBinary(account, BundleType.TRACEABILITY, installConfig.taVersion);
-	}
-	installConfig.log('Downloading and unpacking is complete.');
 };
 
 export const askIsGatewayOnlyMode = async (): Promise<GatewayTypes> => {
@@ -273,6 +229,8 @@ const generateSuccessHelpMsg = (installConfig: AgentInstallConfig) => {
 			installConfig.centralConfig.ampcDosaInfo.isNew,
 			installConfig.switches.isDaEnabled,
 			installConfig.switches.isTaEnabled,
+			installConfig.daVersion,
+			installConfig.taVersion,
 			installConfig.log
 		);
 	} else if (configType === AgentConfigTypes.DOCKERIZED) {
@@ -296,11 +254,6 @@ export const installPreprocess = async (installConfig: AgentInstallConfig): Prom
 	if (installConfig.deploymentType === AgentConfigTypes.HELM && !installConfig.centralConfig.ampcDosaInfo.isNew) {
 		[ installConfig.centralConfig.dosaAccount.publicKey, installConfig.centralConfig.dosaAccount.privateKey ]
 			= await helpers.askPublicAndPrivateKeysPath();
-	}
-
-	// attempt to download the binaries prior to creating resources
-	if (installConfig.switches.isBinaryInstall) {
-		await downloadBinaries(installConfig);
 	}
 
 	return installConfig;
@@ -418,7 +371,20 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig, eventLogPath: strin
 	}
 };
 
-const binarySuccessMsg = (isNewDosa: boolean, isDaEnabled: boolean, isTaEnabled: boolean, log: (text: string) => void = () => {}) => {
+const binarySuccessMsg = (isNewDosa: boolean, isDaEnabled: boolean, isTaEnabled: boolean, daVersion: string, taVersion: string, log: (text: string) => void = () => {}) => {
+	const baseUrl = 'https://repository.axway.com/artifactory/ampc-public-generic-release/v7-agents';
+
+	if (isDaEnabled) {
+		log(chalk.whiteBright('\nDownload the Discovery Agent binary:'));
+		log(chalk.cyan(`curl -O ${baseUrl}/v7_discovery_agent/${daVersion}/discovery_agent-${daVersion}.zip`));
+		log(chalk.cyan(`unzip discovery_agent-${daVersion}.zip`));
+	}
+	if (isTaEnabled) {
+		log(chalk.whiteBright('\nDownload the Traceability Agent binary:'));
+		log(chalk.cyan(`curl -O ${baseUrl}/v7_traceability_agent/${taVersion}/traceability_agent-${taVersion}.zip`));
+		log(chalk.cyan(`unzip traceability_agent-${taVersion}.zip`));
+	}
+
 	const daFiles = [ ConfigFiles.DAEnvVars, ConfigFiles.EdgeDABinaryFile, ConfigFiles.EdgeDAYaml ];
 	const taFiles = [ ConfigFiles.TAEnvVars, ConfigFiles.EdgeTABinaryFile, ConfigFiles.EdgeTAYaml ];
 	const keys = [ 'private_key.pem', 'public_key.pem' ];
@@ -435,7 +401,7 @@ const binarySuccessMsg = (isNewDosa: boolean, isDaEnabled: boolean, isTaEnabled:
 	}
 	const agents = isDaEnabled && isTaEnabled ? 'agents' : 'agent';
 
-	log(chalk.whiteBright('Please copy following files from current folder to API Gateway machine:'));
+	log(chalk.whiteBright('\nPlease copy following files from current folder to API Gateway machine:'));
 	log(chalk.cyan(files.join('\n')));
 	log(chalk.whiteBright('for example') + ' ' + chalk.cyan(`scp ${files.join(' ')} root@host:~/some_folder/`));
 
