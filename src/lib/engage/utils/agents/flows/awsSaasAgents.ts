@@ -96,12 +96,12 @@ const SaasPrompts = {
 	ACCESS_LOG_ARN: 'Enter the ARN for the Access Log that the Discovery will add and the Traceability will use',
 	STAGE_TAG_NAME: 'Enter the name of the tag on AWS API Gateway Stage that holds mapped stage on Amplify Engage',
 	FULL_TRANSACTION_LOGGING: 'Do you want to enable Full Transaction Logging? Please note that CloudWatch costs would increase when Full Transaction Logging is enabled',
-	AGENT_CORE_GATEWAY_MODE: 'Do you want to enable Agent Core Gateway Mode? (If not, the default will be to run the agent in API Gateway mode)',
-	AGENT_CORE_LOG_GROUP_PREFIX: 'Enter the prefix for the Agent Core Gateway vendored logs',
-	AGENT_CORE_IAM_AUTH: 'Do you want to enable IAM Authentication for Agent Core Gateway requests?',
-	ENTER_MORE_COGNITO_USER_POOL_IDS: 'Do you want to enter another Cognito User Pool ID for Agent Core Gateway mode?',
-	COGNITO: 'Enter the List of AWS Cognito user pool IDs used for authentication in Agent Core Gateway mode',
-	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the Agent Core will use for authentication',
+	AGENT_CORE_GATEWAY_MODE: 'Do you want to enable AgentCore Gateway Mode? (If not, the default will be to run the agent in API Gateway mode)',
+	AGENT_CORE_LOG_GROUP_PREFIX: 'Enter the prefix for the AgentCore Gateway vendored logs',
+	AGENT_CORE_IAM_AUTH: 'Do you want to enable IAM Authentication for AgentCore Gateway requests?',
+	ENTER_MORE_COGNITO_USER_POOL_IDS: 'Do you want to enter another Cognito User Pool ID for AgentCore Gateway mode?',
+	COGNITO: 'Enter the List of AWS Cognito user pool IDs used for authentication in AgentCore Gateway mode',
+	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the AgentCore will use for authentication',
 };
 
 export const askBundleType = async (): Promise<BundleType> => {

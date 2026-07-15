@@ -226,7 +226,7 @@ describe('AWS on-prem agent flow', () => {
 			expect(td.explain(promptStubs.askList).callCount).to.equal(4);
 		});
 
-		it('enables agent core gateway mode and collects a single cognito pool', async () => {
+		it('enables agentcore gateway mode and collects a single cognito pool', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.OTHER,
 				'Yes',   // APIGWCWRoleSetup
@@ -259,7 +259,7 @@ describe('AWS on-prem agent flow', () => {
 			expect(td.explain(promptStubs.askList).callCount).to.equal(6);
 		});
 
-		it('enables agent core gateway mode and collects multiple cognito pools', async () => {
+		it('enables agentcore gateway mode and collects multiple cognito pools', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.OTHER,
 				'Yes',   // APIGWCWRoleSetup

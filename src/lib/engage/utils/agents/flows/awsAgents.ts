@@ -77,12 +77,12 @@ export const AWSPrompts = {
 	FULL_TRANSACTION_LOGGING: 'Do you want to enable Full Transaction Logging? Please note that CloudWatch costs would increase when Full Transaction Logging is enabled',
 	TA_QUEUE: 'Enter the traceability queue name',
 	VPC_ID: 'Enter the VPC ID to deploy the EC2 instance to. Leave blank to create entire infrastructure',
-	AGENT_CORE_GATEWAY_MODE: 'Do you want to enable Agent Core Gateway Mode? (If not, the default will be to run the agent in API Gateway mode)',
-	AGENT_CORE_LOG_GROUP_PREFIX: 'Enter the prefix for the Agent Core Gateway vendored logs',
-	AGENT_CORE_IAM_AUTH: 'Do you want to enable IAM Authentication for Agent Core Gateway requests?',
-	ENTER_MORE_COGNITO_USER_POOL_IDS: 'Do you want to enter another Cognito User Pool ID for Agent Core Gateway mode?',
-	COGNITO: 'Enter the List of AWS Cognito user pool IDs used for authentication in Agent Core Gateway mode',
-	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the Agent Core will use for authentication',
+	AGENT_CORE_GATEWAY_MODE: 'Do you want to enable AgentCore Gateway Mode? (If not, the default will be to run the agent in API Gateway mode)',
+	AGENT_CORE_LOG_GROUP_PREFIX: 'Enter the prefix for the AgentCore Gateway vendored logs',
+	AGENT_CORE_IAM_AUTH: 'Do you want to enable IAM Authentication for AgentCore Gateway requests?',
+	ENTER_MORE_COGNITO_USER_POOL_IDS: 'Do you want to enter another Cognito User Pool ID for AgentCore Gateway mode?',
+	COGNITO: 'Enter the List of AWS Cognito user pool IDs used for authentication in AgentCore Gateway mode',
+	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the AgentCore will use for authentication',
 };
 
 export const askBundleType = async (): Promise<BundleType> => {
@@ -282,40 +282,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	// AWS Region
 	awsAgentValues.region = await helpers.askAWSRegion();
 
-	// S3 bucket
-	awsAgentValues.cloudFormationConfig.AgentResourcesBucket = (await askInput({
-		msg: AWSPrompts.S3_BUCKET,
-		validate: validateRegex(helpers.AWSRegexPatterns.AWS_REGEXP, InvalidMsg.S3_BUCKET),
-	})) as string;
-
-	// APIGWCWRoleSetup
-	awsAgentValues.cloudFormationConfig.APIGWCWRoleSetup = await askToCreateRoleSetup();
-
-	// APIGWTrafficLogGroupName
-	const apiGWTrafficLogGroupName = (await askInput({
-		msg: AWSPrompts.APIGW_LOG_GROUP,
-		defaultValue: awsAgentValues.cloudFormationConfig.APIGWTrafficLogGroupName,
-		validate: validateRegex(helpers.AWSRegexPatterns.AWS_REGEXP_LOG_GROUP_NAME, InvalidMsg.LOG_GROUP),
-	})) as string;
-	awsAgentValues.logGroup = apiGWTrafficLogGroupName;
-	awsAgentValues.cloudFormationConfig.APIGWTrafficLogGroupName = apiGWTrafficLogGroupName;
-
-	// StageTagName
-	const stageTagName = (await askInput({
-		msg: AWSPrompts.STAGE_TAG_NAME,
-		validate: validateInputLength(STAGE_TAG_NAME_LENGTH, 'Maximum length of \'stage tag name\' is 127'),
-	})) as string;
-	awsAgentValues.stageTagName = stageTagName;
-
-	// FullTransactionLogging
-	const fullTransactionLogging = ((await askList({
-		msg: AWSPrompts.FULL_TRANSACTION_LOGGING,
-		choices: YesNoChoices,
-		default: YesNo.No,
-	})) === YesNo.Yes);
-
-	awsAgentValues.fullTransactionLogging = fullTransactionLogging;
-
+	// Determine gateway mode early to skip irrelevant API GW prompts
 	awsAgentValues.agentCoreGatewayMode = (await askList({
 		msg: AWSPrompts.AGENT_CORE_GATEWAY_MODE,
 		default: YesNo.No,
@@ -353,37 +320,60 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 		}
 
 		awsAgentValues.cognitoUserPoolIDs = cognitoUserPoolIDs;
-	}
+	} else {
+		// API Gateway mode — collect all API GW-specific configuration
+		awsAgentValues.cloudFormationConfig.AgentResourcesBucket = (await askInput({
+			msg: AWSPrompts.S3_BUCKET,
+			validate: validateRegex(helpers.AWSRegexPatterns.AWS_REGEXP, InvalidMsg.S3_BUCKET),
+		})) as string;
 
-	// set agent versions
-	awsAgentValues.cloudFormationConfig.DiscoveryAgentVersion = installConfig.daVersion;
-	awsAgentValues.cloudFormationConfig.TraceabilityAgentVersion = installConfig.taVersion;
+		awsAgentValues.cloudFormationConfig.APIGWCWRoleSetup = await askToCreateRoleSetup();
 
-	// Configure appropriate Gateway type
-	switch (awsAgentValues.cloudFormationConfig.DeploymentType) {
-		case DeploymentTypes.ECS_FARGATE: {
-			awsAgentValues = await configureECSDeployment(awsAgentValues);
-			break;
+		const apiGWTrafficLogGroupName = (await askInput({
+			msg: AWSPrompts.APIGW_LOG_GROUP,
+			defaultValue: awsAgentValues.cloudFormationConfig.APIGWTrafficLogGroupName,
+			validate: validateRegex(helpers.AWSRegexPatterns.AWS_REGEXP_LOG_GROUP_NAME, InvalidMsg.LOG_GROUP),
+		})) as string;
+		awsAgentValues.logGroup = apiGWTrafficLogGroupName;
+		awsAgentValues.cloudFormationConfig.APIGWTrafficLogGroupName = apiGWTrafficLogGroupName;
+
+		awsAgentValues.stageTagName = (await askInput({
+			msg: AWSPrompts.STAGE_TAG_NAME,
+			validate: validateInputLength(STAGE_TAG_NAME_LENGTH, 'Maximum length of \'stage tag name\' is 127'),
+		})) as string;
+
+		awsAgentValues.fullTransactionLogging = ((await askList({
+			msg: AWSPrompts.FULL_TRANSACTION_LOGGING,
+			choices: YesNoChoices,
+			default: YesNo.No,
+		})) === YesNo.Yes);
+
+		awsAgentValues.cloudFormationConfig.DiscoveryAgentVersion = installConfig.daVersion;
+		awsAgentValues.cloudFormationConfig.TraceabilityAgentVersion = installConfig.taVersion;
+
+		switch (awsAgentValues.cloudFormationConfig.DeploymentType) {
+			case DeploymentTypes.ECS_FARGATE: {
+				awsAgentValues = await configureECSDeployment(awsAgentValues);
+				break;
+			}
+			case DeploymentTypes.EC2: {
+				awsAgentValues = await configureEC2Deployment(awsAgentValues, installConfig.log);
+				break;
+			}
 		}
-		case DeploymentTypes.EC2: {
-			awsAgentValues = await configureEC2Deployment(awsAgentValues, installConfig.log);
-			break;
-		}
+
+		awsAgentValues.cloudFormationConfig.DiscoveryAgentLogGroupName = (await askInput({
+			msg: AWSPrompts.DA_LOG_GROUP,
+			defaultValue: awsAgentValues.cloudFormationConfig.DiscoveryAgentLogGroupName,
+			validate: validateRegex(helpers.AWSRegexPatterns.AWS_REGEXP_LOG_GROUP_NAME, InvalidMsg.LOG_GROUP),
+		})) as string;
+
+		awsAgentValues.cloudFormationConfig.TraceabilityAgentLogGroupName = (await askInput({
+			msg: AWSPrompts.TA_LOG_GROUP,
+			defaultValue: awsAgentValues.cloudFormationConfig.TraceabilityAgentLogGroupName,
+			validate: validateRegex(helpers.AWSRegexPatterns.AWS_REGEXP_LOG_GROUP_NAME, InvalidMsg.LOG_GROUP),
+		})) as string;
 	}
-
-	// DiscoveryAgentLogGroupName
-	awsAgentValues.cloudFormationConfig.DiscoveryAgentLogGroupName = (await askInput({
-		msg: AWSPrompts.DA_LOG_GROUP,
-		defaultValue: awsAgentValues.cloudFormationConfig.DiscoveryAgentLogGroupName,
-		validate: validateRegex(helpers.AWSRegexPatterns.AWS_REGEXP_LOG_GROUP_NAME, InvalidMsg.LOG_GROUP),
-	})) as string;
-
-	// TraceabilityAgentLogGroupName
-	awsAgentValues.cloudFormationConfig.TraceabilityAgentLogGroupName = (await askInput({
-		msg: AWSPrompts.TA_LOG_GROUP,
-		defaultValue: awsAgentValues.cloudFormationConfig.TraceabilityAgentLogGroupName,
-		validate: validateRegex(helpers.AWSRegexPatterns.AWS_REGEXP_LOG_GROUP_NAME, InvalidMsg.LOG_GROUP),
-	})) as string;
 
 	return awsAgentValues;
 };

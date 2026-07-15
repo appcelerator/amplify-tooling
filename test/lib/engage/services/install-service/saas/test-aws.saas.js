@@ -156,7 +156,7 @@ describe('AWS SaaS agent flow', () => {
 		expect(result.redaction.maskingCharacter).to.equal('***');
 	});
 
-	it('collects agent core gateway mode with IAM auth enabled and a single cognito pool', async () => {
+	it('collects agentcore gateway mode with IAM auth enabled and a single cognito pool', async () => {
 		const askInputResponses = [
 			'arn:aws:iam::000000000000:role/name-of-role',
 			'external-id',

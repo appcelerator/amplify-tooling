@@ -107,8 +107,6 @@ AWS_AUTH_ACCESSKEY={{accessKey}}
 {{#if secretKey}}
 AWS_AUTH_SECRETKEY={{secretKey}}
 {{/if}}
-AWS_LOGGROUP={{logGroup}}
-AWS_STAGETAGNAME={{stageTagName}}
 {{#if agentCoreGatewayMode}}
 AWS_GATEWAYMODE=agentcore-gateway
 AWS_AGENTCORE_LOGGROUPPREFIX={{agentCore.logGroupPrefix}}
@@ -117,6 +115,8 @@ AWS_AGENTCORE_IAMAUTHENABLED={{agentCore.iamAuthEnabled}}
 AWS_COGNITO_USERPOOLID_{{add @index 1}}={{this}}
 {{/each}}
 {{else}}
+AWS_LOGGROUP={{logGroup}}
+AWS_STAGETAGNAME={{stageTagName}}
 AWS_GATEWAYMODE=api-gateway
 {{/if}}
 
