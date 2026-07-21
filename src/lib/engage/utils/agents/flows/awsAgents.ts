@@ -83,6 +83,8 @@ export const AWSPrompts = {
 	ENTER_MORE_COGNITO_USER_POOL_IDS: 'Do you want to enter another Cognito User Pool ID for AgentCore Gateway mode?',
 	COGNITO: 'Enter the List of AWS Cognito user pool IDs used for authentication in AgentCore Gateway mode',
 	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the AgentCore will use for authentication',
+	AGENTCORE_CLOUDTRAILENABLED: 'Do you want to enable CloudTrail-based consumer attribution for Cognito gateway?',
+	AGENTCORE_CLOUDTRAILBUCKET: 'Enter the name of the S3 bucket that stores the CloudTrail data-event logs'
 };
 
 export const askBundleType = async (): Promise<BundleType> => {
@@ -290,12 +292,6 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	})) === YesNo.Yes;
 
 	if (awsAgentValues.agentCoreGatewayMode) {
-		awsAgentValues.agentCore.logGroupPrefix = (await askInput({
-			msg: AWSPrompts.AGENT_CORE_LOG_GROUP_PREFIX,
-			defaultValue: awsAgentValues.agentCore.logGroupPrefix !== '' ? awsAgentValues.agentCore.logGroupPrefix : undefined,
-			allowEmptyInput: true,
-		})) as string;
-
 		awsAgentValues.agentCore.iamAuthEnabled = (await askList({
 			msg: AWSPrompts.AGENT_CORE_IAM_AUTH,
 			default: YesNo.No,
@@ -320,6 +316,25 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 		}
 
 		awsAgentValues.cognitoUserPoolIDs = cognitoUserPoolIDs;
+		if (installConfig.switches.isTaEnabled) {
+			awsAgentValues.agentCore.logGroupPrefix = (await askInput({
+				msg: AWSPrompts.AGENT_CORE_LOG_GROUP_PREFIX,
+				defaultValue: awsAgentValues.agentCore.logGroupPrefix !== '' ? awsAgentValues.agentCore.logGroupPrefix : undefined,
+				allowEmptyInput: true,
+			})) as string;
+
+			awsAgentValues.agentCore.cloudTrailEnabled = (await askList({
+				msg: AWSPrompts.AGENTCORE_CLOUDTRAILENABLED,
+				default: YesNo.No,
+				choices: YesNoChoices,
+			})) === YesNo.Yes;
+
+			awsAgentValues.agentCore.cloudTrailBucket = (await askInput({
+				msg: AWSPrompts.AGENTCORE_CLOUDTRAILBUCKET,
+				defaultValue: awsAgentValues.agentCore.cloudTrailBucket !== '' ? awsAgentValues.agentCore.cloudTrailBucket : undefined,
+				allowEmptyInput: false,
+			})) as string;
+		}
 	} else {
 		// API Gateway mode — collect all API GW-specific configuration
 		awsAgentValues.cloudFormationConfig.AgentResourcesBucket = (await askInput({

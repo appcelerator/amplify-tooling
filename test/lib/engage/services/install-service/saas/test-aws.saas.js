@@ -161,18 +161,20 @@ describe('AWS SaaS agent flow', () => {
 			'arn:aws:iam::000000000000:role/name-of-role',
 			'external-id',
 			'stage-tag',
-			'/aws/prefix',
 			'us-east-1_123456789',
+			'/aws/prefix',
+			'my-cloudtrail-bucket',
 			'arn:aws:logs:us-east-1:000000000000:log-group:my-group',
 		];
 		td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
 
 		const askListResponses = [
 			'Assume Role Policy',
-			engageTypes.YesNo.Yes,
-			engageTypes.YesNo.Yes,
-			engageTypes.YesNo.No,
-			engageTypes.YesNo.No,
+			engageTypes.YesNo.Yes,   // AGENT_CORE_GATEWAY_MODE
+			engageTypes.YesNo.Yes,   // AGENT_CORE_IAM_AUTH
+			engageTypes.YesNo.No,    // ENTER_MORE_COGNITO_USER_POOL_IDS
+			engageTypes.YesNo.Yes,   // AGENTCORE_CLOUDTRAILENABLED
+			engageTypes.YesNo.No,    // FULL_TRANSACTION_LOGGING
 		];
 		td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
 
@@ -182,7 +184,35 @@ describe('AWS SaaS agent flow', () => {
 		expect(result.agentCore.iamAuthEnabled).to.equal(true);
 		expect(result.cognitoUserPoolIDs).to.have.length(1);
 		expect(result.cognitoUserPoolIDs[0]).to.equal('us-east-1_123456789');
+		expect(result.agentCore.cloudTrailEnabled).to.equal(true);
+		expect(result.agentCore.cloudTrailBucket).to.equal('my-cloudtrail-bucket');
 		expect(result.fullTransactionLogging).to.equal(false);
+	});
+
+	it('skips the log group prefix and CloudTrail prompts when TA is not enabled', async () => {
+		const askInputResponses = [
+			'arn:aws:iam::000000000000:role/name-of-role',
+			'external-id',
+			'stage-tag',
+			'us-east-1_999999999',
+		];
+		td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
+
+		const askListResponses = [
+			'Assume Role Policy',
+			engageTypes.YesNo.Yes,   // AGENT_CORE_GATEWAY_MODE
+			engageTypes.YesNo.No,    // AGENT_CORE_IAM_AUTH
+			engageTypes.YesNo.No,    // ENTER_MORE_COGNITO_USER_POOL_IDS
+		];
+		td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
+
+		const result = await flowModule.AWSSaaSInstallMethods.AskGatewayQuestions(buildInstallConfig(engageTypes.GatewayTypes.AWS_GATEWAY, false));
+		expect(result.agentCoreGatewayMode).to.equal(true);
+		expect(result.agentCore.logGroupPrefix).to.be.undefined;
+		expect(result.agentCore.cloudTrailEnabled).to.be.undefined;
+		expect(result.agentCore.cloudTrailBucket).to.be.undefined;
+		expect(td.explain(promptStubs.askInput).callCount).to.equal(4);
+		expect(td.explain(promptStubs.askList).callCount).to.equal(4);
 	});
 
 	it('builds AWS dataplane config when TA enabled', async () => {

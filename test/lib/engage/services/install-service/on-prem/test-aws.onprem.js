@@ -92,11 +92,11 @@ describe('AWS on-prem agent flow', () => {
 		it('collects EC2 values and includes VPC-derived prompts when VPC is set', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.EC2,
-				'Yes',
-				'No',
-				'No',
+				'No',    // AGENT_CORE_GATEWAY_MODE
+				'Yes',   // APIGWCWRoleSetup
+				'No',    // fullTransactionLogging
 				't3.micro',
-				'Yes',
+				'Yes',   // PUBLIC_IP
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
 
@@ -133,9 +133,9 @@ describe('AWS on-prem agent flow', () => {
 		it('skips VPC-derived prompts when EC2 VPC is empty', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.EC2,
-				'Yes',
-				'No',
-				'No',
+				'No',    // AGENT_CORE_GATEWAY_MODE
+				'Yes',   // APIGWCWRoleSetup
+				'No',    // fullTransactionLogging
 				't3.micro',
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
@@ -166,9 +166,9 @@ describe('AWS on-prem agent flow', () => {
 		it('collects ECS-only deployment prompts', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.ECS_FARGATE,
-				'Yes',
-				'No',
-				'No',
+				'No',    // AGENT_CORE_GATEWAY_MODE
+				'Yes',   // APIGWCWRoleSetup
+				'No',    // fullTransactionLogging
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
 
@@ -200,9 +200,9 @@ describe('AWS on-prem agent flow', () => {
 		it('collects minimal prompts for OTHER deployment type', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.OTHER,
-				'Yes',
-				'No',
-				'No',
+				'No',    // AGENT_CORE_GATEWAY_MODE
+				'Yes',   // APIGWCWRoleSetup
+				'No',    // fullTransactionLogging
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
 
@@ -229,22 +229,17 @@ describe('AWS on-prem agent flow', () => {
 		it('enables agentcore gateway mode and collects a single cognito pool', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.OTHER,
-				'Yes',   // APIGWCWRoleSetup
-				'No',    // fullTransactionLogging
 				'Yes',   // AGENT_CORE_GATEWAY_MODE
 				'Yes',   // iamAuthEnabled
 				'No',    // enterMore?
+				'Yes',   // AGENTCORE_CLOUDTRAILENABLED
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
 
 			const askInputResponses = [
-				'agents-bucket',
-				'/aws/apigw/logs',
-				'stage-tag',
-				'/aws/prefix',
 				'us-east-1_123456789',
-				'/aws/da/logs',
-				'/aws/ta/logs',
+				'/aws/prefix',
+				'my-cloudtrail-bucket',
 			];
 			td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
 
@@ -255,31 +250,52 @@ describe('AWS on-prem agent flow', () => {
 			expect(result.agentCore.iamAuthEnabled).to.equal(true);
 			expect(result.cognitoUserPoolIDs).to.have.length(1);
 			expect(result.cognitoUserPoolIDs[0]).to.equal('us-east-1_123456789');
-			expect(td.explain(promptStubs.askInput).callCount).to.equal(7);
-			expect(td.explain(promptStubs.askList).callCount).to.equal(6);
+			expect(result.agentCore.cloudTrailEnabled).to.equal(true);
+			expect(result.agentCore.cloudTrailBucket).to.equal('my-cloudtrail-bucket');
+			expect(td.explain(promptStubs.askInput).callCount).to.equal(3);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(5);
 		});
 
-		it('enables agentcore gateway mode and collects multiple cognito pools', async () => {
+		it('skips the log group prefix and CloudTrail prompts when TA is not enabled', async () => {
 			const askListResponses = [
 				flowModule.DeploymentTypes.OTHER,
-				'Yes',   // APIGWCWRoleSetup
-				'No',    // fullTransactionLogging
 				'Yes',   // AGENT_CORE_GATEWAY_MODE
 				'No',    // iamAuthEnabled
-				'Yes',   // enterMore? (add another pool)
 				'No',    // enterMore?
 			];
 			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
 
 			const askInputResponses = [
-				'agents-bucket',
-				'/aws/apigw/logs',
-				'stage-tag',
-				'',
+				'us-east-1_999999999',
+			];
+			td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
+
+			const result = await flowModule.gatewayConnectivity(buildInstallConfig({ isDaEnabled: true, isTaEnabled: false }));
+
+			expect(result.agentCoreGatewayMode).to.equal(true);
+			expect(result.agentCore.logGroupPrefix).to.equal('');
+			expect(result.agentCore.cloudTrailEnabled).to.equal(false);
+			expect(result.agentCore.cloudTrailBucket).to.equal('');
+			expect(td.explain(promptStubs.askInput).callCount).to.equal(1);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(4);
+		});
+
+		it('enables agentcore gateway mode and collects multiple cognito pools', async () => {
+			const askListResponses = [
+				flowModule.DeploymentTypes.OTHER,
+				'Yes',   // AGENT_CORE_GATEWAY_MODE
+				'No',    // iamAuthEnabled
+				'Yes',   // enterMore? (add another pool)
+				'No',    // enterMore?
+				'No',    // AGENTCORE_CLOUDTRAILENABLED
+			];
+			td.when(promptStubs.askList(td.matchers.anything())).thenDo(() => askListResponses.shift());
+
+			const askInputResponses = [
 				'us-east-1_111111111',
 				'eu-west-1_222222222',
-				'/aws/da/logs',
-				'/aws/ta/logs',
+				'',
+				'my-bucket-2',
 			];
 			td.when(promptStubs.askInput(td.matchers.anything())).thenDo(() => askInputResponses.shift());
 
@@ -291,8 +307,10 @@ describe('AWS on-prem agent flow', () => {
 			expect(result.cognitoUserPoolIDs).to.have.length(2);
 			expect(result.cognitoUserPoolIDs[0]).to.equal('us-east-1_111111111');
 			expect(result.cognitoUserPoolIDs[1]).to.equal('eu-west-1_222222222');
-			expect(td.explain(promptStubs.askInput).callCount).to.equal(8);
-			expect(td.explain(promptStubs.askList).callCount).to.equal(7);
+			expect(result.agentCore.cloudTrailEnabled).to.equal(false);
+			expect(result.agentCore.cloudTrailBucket).to.equal('my-bucket-2');
+			expect(td.explain(promptStubs.askInput).callCount).to.equal(4);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(6);
 		});
 
 		it('stops question flow when AWS region lookup fails', async () => {
@@ -429,7 +447,7 @@ function createHelpersStubs() {
 			this.region = 'us-east-1';
 			this.stageTagName = '';
 			this.agentCoreGatewayMode = false;
-			this.agentCore = { logGroupPrefix: '', iamAuthEnabled: false };
+			this.agentCore = { logGroupPrefix: '', iamAuthEnabled: false, cloudTrailEnabled: false, cloudTrailBucket: '' };
 			this.cognitoUserPoolIDs = [];
 			this.cloudFormationConfig = {
 				APIGWCWRoleSetup: '',
@@ -461,9 +479,11 @@ function createHelpersStubs() {
 	return {
 		AWSAgentValues,
 		AWSAgentCoreConfig: class AWSAgentCoreConfig {
-			constructor(logGroupPrefix, iamAuthEnabled) {
+			constructor(logGroupPrefix, iamAuthEnabled, cloudTrailEnabled, cloudTrailBucket) {
 				this.logGroupPrefix = logGroupPrefix ?? '';
 				this.iamAuthEnabled = iamAuthEnabled ?? false;
+				this.cloudTrailEnabled = cloudTrailEnabled ?? false;
+				this.cloudTrailBucket = cloudTrailBucket ?? '';
 			}
 		},
 		AWSRegexPatterns: {

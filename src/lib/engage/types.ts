@@ -760,10 +760,14 @@ export enum AWSGatewayMode {
 export class AWSAgentCoreConfig {
 	logGroupPrefix?: string;
 	iamAuthEnabled?: boolean;
+	cloudTrailEnabled?: boolean;
+	cloudTrailBucket?: string;
 
-	constructor(logGroupPrefix?: string, iamAuthEnabled?: boolean) {
+	constructor(logGroupPrefix?: string, iamAuthEnabled?: boolean, cloudTrailEnabled?: boolean, cloudTrailBucket?: string) {
 		this.logGroupPrefix = logGroupPrefix ?? '';
 		this.iamAuthEnabled = iamAuthEnabled ?? false;
+		this.cloudTrailEnabled = cloudTrailEnabled ?? false;
+		this.cloudTrailBucket = cloudTrailBucket ?? '';
 	}
 }
 

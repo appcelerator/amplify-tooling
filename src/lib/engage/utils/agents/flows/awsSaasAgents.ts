@@ -102,6 +102,8 @@ const SaasPrompts = {
 	ENTER_MORE_COGNITO_USER_POOL_IDS: 'Do you want to enter another Cognito User Pool ID for AgentCore Gateway mode?',
 	COGNITO: 'Enter the List of AWS Cognito user pool IDs used for authentication in AgentCore Gateway mode',
 	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the AgentCore will use for authentication',
+	AGENTCORE_CLOUDTRAILENABLED: 'Do you want to enable CloudTrail-based consumer attribution for Cognito gateway?',
+	AGENTCORE_CLOUDTRAILBUCKET: 'Enter the name of the S3 bucket that stores the CloudTrail data-event logs'
 };
 
 export const askBundleType = async (): Promise<BundleType> => {
@@ -170,7 +172,7 @@ const askForAWSCredentials = async (agentValues: SaasAWSAgentValues, log: (text:
 	return agentValues;
 };
 
-const askForAgentCoreGatewayMode = async (agentValues: SaasAWSAgentValues, log: (text: string) => void = () => {}): Promise<SaasAWSAgentValues> => {
+const askForAgentCoreGatewayMode = async (agentValues: SaasAWSAgentValues, installConfig: AgentInstallConfig): Promise<SaasAWSAgentValues> => {
 	agentValues.agentCoreGatewayMode = (await askList({
 		msg: SaasPrompts.AGENT_CORE_GATEWAY_MODE,
 		default: YesNo.No,
@@ -178,18 +180,12 @@ const askForAgentCoreGatewayMode = async (agentValues: SaasAWSAgentValues, log: 
 	})) === YesNo.Yes;
 
 	if (agentValues.agentCoreGatewayMode) {
-		agentValues.agentCore.logGroupPrefix = (await askInput({
-			msg: SaasPrompts.AGENT_CORE_LOG_GROUP_PREFIX,
-			defaultValue: agentValues.agentCore.logGroupPrefix !== '' ? agentValues.agentCore.logGroupPrefix : undefined,
-			allowEmptyInput: true,
-		})) as string;
-
 		agentValues.agentCore.iamAuthEnabled = (await askList({
 			msg: SaasPrompts.AGENT_CORE_IAM_AUTH,
 			default: YesNo.No,
 			choices: YesNoChoices,
 		})) === YesNo.Yes;
-		log(chalk.gray(SaasPrompts.COGNITO));
+		installConfig.log(chalk.gray(SaasPrompts.COGNITO));
 		const cognitoUserPoolIDs: string[] = [];
 		let askCognitoUserPools = true;
 
@@ -208,6 +204,26 @@ const askForAgentCoreGatewayMode = async (agentValues: SaasAWSAgentValues, log: 
 		}
 
 		agentValues.cognitoUserPoolIDs = cognitoUserPoolIDs;
+
+		if (installConfig.switches.isTaEnabled) {
+			agentValues.agentCore.logGroupPrefix = (await askInput({
+				msg: SaasPrompts.AGENT_CORE_LOG_GROUP_PREFIX,
+				defaultValue: agentValues.agentCore.logGroupPrefix !== '' ? agentValues.agentCore.logGroupPrefix : undefined,
+				allowEmptyInput: true,
+			})) as string;
+
+			agentValues.agentCore.cloudTrailEnabled = (await askList({
+				msg: SaasPrompts.AGENTCORE_CLOUDTRAILENABLED,
+				default: YesNo.No,
+				choices: YesNoChoices,
+			})) === YesNo.Yes;
+
+			agentValues.agentCore.cloudTrailBucket = (await askInput({
+				msg: SaasPrompts.AGENTCORE_CLOUDTRAILBUCKET,
+				defaultValue: agentValues.agentCore.cloudTrailBucket !== '' ? agentValues.agentCore.cloudTrailBucket : undefined,
+				allowEmptyInput: false,
+			})) as string;
+		}
 
 	}
 
@@ -233,7 +249,7 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 			validate: validateInputLength(STAGE_TAG_NAME_LENGTH, 'Maximum length of \'stage tag name\' is 127'),
 		})) as string;
 
-		agentValues = await askForAgentCoreGatewayMode(awsValues, installConfig.log);
+		agentValues = await askForAgentCoreGatewayMode(awsValues, installConfig);
 
 		if (installConfig.switches.isTaEnabled) {
 			installConfig.log(chalk.gray('\nThe access log ARN is a cloud watch log group amazon resource name'));

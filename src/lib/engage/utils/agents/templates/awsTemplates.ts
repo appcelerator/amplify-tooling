@@ -67,6 +67,14 @@ AWS_AUTH_SECRETKEY={{secretKey}}
 {{#if fullTransactionLogging}}
 AWS_FULLTRANSACTIONLOGGING={{fullTransactionLogging}}
 {{/if}}
+{{#if agentCoreGatewayMode}}
+AWS_GATEWAYMODE=agentcore-gateway
+AWS_AGENTCORE_LOGGROUPPREFIX={{agentCore.logGroupPrefix}}
+AWS_AGENTCORE_CLOUDTRAILENABLED={{agentCore.cloudTrailEnabled}}
+{{#if agentCore.cloudTrailEnabled}}
+AWS_AGENTCORE_CLOUDTRAILBUCKET={{agentCore.cloudTrailBucket}}
+{{/if }}
+{{/if}}
 
 # Amplify Central configs
 {{#if traceabilityConfig.usageReportingOffline}}
@@ -109,7 +117,6 @@ AWS_AUTH_SECRETKEY={{secretKey}}
 {{/if}}
 {{#if agentCoreGatewayMode}}
 AWS_GATEWAYMODE=agentcore-gateway
-AWS_AGENTCORE_LOGGROUPPREFIX={{agentCore.logGroupPrefix}}
 AWS_AGENTCORE_IAMAUTHENABLED={{agentCore.iamAuthEnabled}}
 {{#each cognitoUserPoolIDs}}
 AWS_COGNITO_USERPOOLID_{{add @index 1}}={{this}}
