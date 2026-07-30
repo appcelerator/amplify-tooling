@@ -106,7 +106,7 @@ export class ApiServerClient {
 		resourceName,
 		scopeDef,
 		scopeName,
-		version = ApiServerVersions.v1alpha1,
+		version = ApiServerVersions.v1,
 		forceDelete = false,
 		expand,
 		langDef,
@@ -821,7 +821,7 @@ export class ApiServerClient {
 		return result;
 	}
 
-	async getSpecs(version = ApiServerVersions.v1alpha1): Promise<{
+	async getSpecs(version = ApiServerVersions.v1): Promise<{
 		[groupName: string]: {
 			resources: Map<string, ResourceDefinition>;
 			cli: Map<string, CommandLineInterface>;

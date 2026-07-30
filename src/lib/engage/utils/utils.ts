@@ -134,10 +134,10 @@ export const getLatestServedAPIVersion = (
 				return version.name;
 			}
 		}
-		return ApiServerVersions.v1alpha1;
+		return ApiServerVersions.v1;
 	}
-	// if the apiVersions are not set on the resource definition, fallback to v1alpha1 version
-	return ApiServerVersions.v1alpha1;
+	// if the apiVersions are not set on the resource definition, fallback to v1 version
+	return ApiServerVersions.v1;
 };
 
 /**

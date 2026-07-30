@@ -34,7 +34,7 @@ export type ProgressListener = (progress: number) => void;
  * ApiServer backend types
  */
 export enum ApiServerVersions {
-	v1alpha1 = 'v1alpha1',
+	v1 = 'v1',
 }
 
 export enum OutputTypes {
