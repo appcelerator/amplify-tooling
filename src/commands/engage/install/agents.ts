@@ -5,7 +5,7 @@ import { installAgents } from '../../../lib/engage/services/install-service.js';
 import { highlight } from '../../../lib/logger.js';
 
 export class EngageInstallAgentsCommand extends Command {
-	static override summary = 'Amplify API Gateway / Apigee X Gateway / Amazon API Gateway / Azure API Gateway / Azure EventHub / Backstage / GitLab / Istio / Kafka /'
+	static override summary = 'Amplify API Gateway / Apigee X Gateway / AWS / Azure API Gateway / Azure EventHub / Backstage / GitLab / Istio / Kafka /'
 		+ ' Graylog / IBM API Connect / SwaggerHub / Software AG WebMethods / Traceable / SAP API Portal / Sensedia / WSO2';
 
 	static override aliases = [ 'central:install:agents' ];

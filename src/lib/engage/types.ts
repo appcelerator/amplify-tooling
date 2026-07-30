@@ -806,7 +806,7 @@ export enum GatewayTypes {
 	AKAMAI = 'Akamai',
 	EDGE_GATEWAY = 'Amplify API Gateway',
 	APIGEEX_GATEWAY = 'Apigee X Gateway',
-	AWS_GATEWAY = 'Amazon API Gateway',
+	AWS_GATEWAY = 'AWS',
 	AZURE_GATEWAY = 'Azure API Gateway',
 	AZURE_EVENTHUB = 'Azure EventHub',
 	GITLAB = 'GitLab',
@@ -825,7 +825,7 @@ export enum GatewayTypes {
 
 export enum SaaSGatewayTypes {
 	AKAMAI = 'Akamai',
-	AWS_GATEWAY = 'Amazon API Gateway',
+	AWS_GATEWAY = 'AWS',
 	APIGEEX_GATEWAY = 'Apigee X Gateway',
 	GITHUB = 'GitHub',
 	SWAGGERHUB = 'SwaggerHub',

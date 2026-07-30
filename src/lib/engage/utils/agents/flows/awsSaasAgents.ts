@@ -231,10 +231,10 @@ const askForAgentCoreGatewayMode = async (agentValues: SaasAWSAgentValues, insta
 };
 
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	installConfig.log('\nCONNECTION TO AMAZON API GATEWAY:');
+	installConfig.log('\nCONNECTION TO AWS:');
 	installConfig.log(
 		chalk.gray(
-			'The Discovery Agent needs to connect to the AWS API Gateway to discover API\'s for publishing to Amplify Engage'
+			'The Discovery Agent needs to connect to the AWS to discover API\'s for publishing to Amplify Engage'
 		)
 	);
 

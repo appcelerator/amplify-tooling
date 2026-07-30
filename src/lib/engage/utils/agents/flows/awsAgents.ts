@@ -67,7 +67,7 @@ export const AWSPrompts = {
 	PUBLIC_IP: 'Assign a Public IP Address to this, only change if your VPC has a NAT Gateway',
 	SECURITY_GROUP: 'Enter the Security Group for the EC2 Instance of ECS Container',
 	SETUP_APIGW_CW:
-		'The Amazon API Gateway service requires a role to write usage logs to Cloud Watch. Do you want to configure that?',
+		'The AWS API Gateway service requires a role to write usage logs to Cloud Watch. Do you want to configure that?',
 	SSH_LOCATION: 'Enter the IP address range that can be used to SSH to the EC2 instances',
 	SSM_PRIVATE: 'Enter the name of the SSM Parameter holding the Private Key',
 	SSM_PUBLIC: 'Enter the name of the SSM Parameter holding the Public Key',
@@ -249,7 +249,7 @@ async function configureECSDeployment(awsAgentValues: helpers.AWSAgentValues): P
 }
 
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<AWSAgentValues> => {
-	installConfig.log('\nCONNECTION TO AMAZON API GATEWAY:');
+	installConfig.log('\nCONNECTION TO AWS:');
 	installConfig.log(
 		chalk.gray(
 			'You need credentials for executing the AWS CLI commands.\n'
