@@ -33,35 +33,6 @@ export const openssl = (params: string, showStdio: boolean = false) => {
 	});
 };
 
-export const isOpenSslInstalled = async () =>
-	await openssl('version').then((res) => {
-		if (res && !res.isComplete) {
-			throw Error(
-				'OpenSSL is not installed, and must be installed to proceed with TLS certificate creation. Please install OpenSSL and try again.'
-			);
-		}
-		return true;
-	});
-
-export const createKeyPair = async (): Promise<{ publicKey: string; privateKey: string }> => {
-	// note: space in file name is not supported
-	const privateKey = path.join(process.cwd(), 'private_key.pem');
-	const publicKey = path.join(process.cwd(), 'public_key.pem');
-	const privKeyRes = await openssl(
-		`genpkey -algorithm RSA -out ${maskSpaces(privateKey)} -pkeyopt rsa_keygen_bits:2048`
-	);
-	if (privKeyRes.code === 1) {
-		throw new Error('OpenSSL failed to create the private key');
-	}
-
-	const pubKeyRes = await openssl(`rsa -pubout -in ${maskSpaces(privateKey)} -out ${maskSpaces(publicKey)}`);
-	if (pubKeyRes.code === 1) {
-		throw new Error('OpenSSL failed to create the public key');
-	}
-
-	return { publicKey, privateKey };
-};
-
 export const createTlsCert = async (
 	secretName: string,
 	domain: string
@@ -69,15 +40,19 @@ export const createTlsCert = async (
 	// note: space in file name is not supported
 	const cert = path.join(process.cwd(), `${secretName}.crt`);
 	const privateKey = path.join(process.cwd(), `${secretName}.key`);
-	const output = await openssl(
-		`req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj /C=US/ST=AZ/L=Phoenix/O=Axway/CN=${domain} -keyout ${maskSpaces(
-			privateKey
-		)} -out ${maskSpaces(cert)}`
-	);
-	if (output.code === 1) {
-		throw new Error('OpenSSL failed to create the certificate');
+	try {
+		const output = await openssl(
+			`req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj /C=US/ST=AZ/L=Phoenix/O=Axway/CN=${domain} -keyout ${maskSpaces(
+				privateKey
+			)} -out ${maskSpaces(cert)}`
+		);
+		if (!output?.isComplete || output.code !== 0) {
+			throw new Error(`OpenSSL failed to create the certificate (result: ${String(output?.code)})`);
+		}
+		return { cert, privateKey };
+	} catch (err: any) {
+		throw new Error(`Failed to create TLS certificate: ${err?.message || String(err)}`);
 	}
-	return { cert, privateKey };
 };
 
 export const editor = (editorCmd: string, filePath: string): Promise<number | null> => {

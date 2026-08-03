@@ -2,7 +2,7 @@ import logger from '../../logger.js';
 import Table from 'cli-table3';
 import loadash from 'lodash';
 import { ApiServerClient } from '../clients-external/apiserverclient.js';
-import { ResourceDefinition, CommandLineInterface, GetSpecsResult } from '../types.js';
+import { ResourceDefinition, CommandLineInterface, GetSpecsResult, ApiServerVersions } from '../types.js';
 import chalk from 'chalk';
 
 const { log } = logger('engage:class.DefinitionsManager');
@@ -164,7 +164,7 @@ export class DefinitionsManager {
 	 */
 	async init(): Promise<DefinitionsManager> {
 		log('init');
-		this.specs = await this.apiServerClient.getSpecs();
+		this.specs = await this.apiServerClient.getSpecs(ApiServerVersions.v1);
 		const filteredSpecs = loadash.omit(this.specs, 'definitions');
 		const cliArray = [];
 		const resourcesArray = [];

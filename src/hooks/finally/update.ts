@@ -7,9 +7,12 @@ import { loadConfig } from '../../lib/config.js';
 
 const hook: Hook.Finally = async function (opts) {
 	const config = await loadConfig();
+	const commandId = opts.id ?? '';
+	const isAutocompleteCommand = commandId.includes('autocomplete') || opts.argv.includes('autocomplete');
+	const isAutocompleteScript = isAutocompleteCommand && (commandId.includes('script') || opts.argv.includes('script'));
 
 	// If update checks are disabled or --json or --no-banner is present, fall out now
-	if (config.get('update.check') === false || opts.argv.includes('--json') || opts.argv.includes('--no-banner')) {
+	if (config.get('update.check') === false || opts.argv.includes('--json') || opts.argv.includes('--no-banner') || isAutocompleteScript) {
 		return;
 	}
 

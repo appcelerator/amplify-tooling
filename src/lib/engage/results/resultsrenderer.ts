@@ -1,11 +1,12 @@
 import chalk from 'chalk';
-import Table from 'cli-table3';
+// import Table from 'cli-table3';
 import { dump } from 'js-yaml';
 import _ from 'lodash';
 import { CommandLineInterfaceColumns, GenericResource, MAX_TABLE_STRING_LENGTH, OutputTypes } from '../types.js';
 import { initSDK } from '../../amplify-sdk/index.js';
 import { Account } from '../../../types.js';
 import { fromNow } from '../utils/utils.js';
+import { createTable } from '../../formatter.js';
 /**
  * Parse JSON object | array of objects as YAML
  * @param response request response payload
@@ -30,14 +31,16 @@ export const parseAsYaml = (response: object | object[]): string => {
  * @param response request response payload
  * @param console current console
  * @param columns columns config from CommandLineInterface resource definition
+ * @param showLines whether to show table border lines
  *  @returns parsed string with table objects representation
  */
 const parseAsTable = (
 	response: GenericResource | GenericResource[],
-	columns: CommandLineInterfaceColumns[]
+	columns: CommandLineInterfaceColumns[],
+	showLines = false
 ): string => {
 	const data = Array.isArray(response) ? response : [ response ];
-	const t = new Table({ head: columns.map(col => col.name.toUpperCase()) });
+	const t = createTable(columns.map(col => col.name.toUpperCase()), 0, showLines);
 	for (const i of data) {
 		const row: string[] = [];
 		for (const col of columns) {
@@ -74,12 +77,15 @@ export const parseAsJson = (response: object | object[]): string => JSON.stringi
  * @param response request response payload
  * @param output type of output to render (table (default) / yaml / json)
  * @param console current console
+ * @param columns columns config to use for table rendering
+ * @param showLines whether to show table border lines
  */
 export const renderResponse = (
 	log: (text: string) => void,
 	response: object | object[],
 	output?: OutputTypes,
-	columns?: CommandLineInterfaceColumns[]
+	columns?: CommandLineInterfaceColumns[],
+	showLines = false
 ): void => {
 	switch (output) {
 		case OutputTypes.yaml:
@@ -90,7 +96,7 @@ export const renderResponse = (
 			break;
 		default:
 			// @ts-expect-error TODO: fix types error once more types are used
-			log(parseAsTable(response, columns));
+			log(parseAsTable(response, columns, showLines));
 	}
 };
 
