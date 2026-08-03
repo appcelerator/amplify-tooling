@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { ApiServerClient } from '../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../results/DefinitionsManager.js';
-import { AgentResourceCreateResult, AgentResourceKind, AgentTypes, ApiServerClientSingleResult, ApiServerVersions, BundleType, CreateCommandParams, CreateCommandResult, CreateEnvironmentCommandParams, DataPlaneNames, EngageCommandParams, GenericResource } from '../types.js';
+import { AgentResourceCreateResult, AgentResourceKind, AgentTypes, ApiServerClientSingleResult, BundleType, CreateCommandParams, CreateCommandResult, CreateEnvironmentCommandParams, DataPlaneNames, EngageCommandParams, GenericResource } from '../types.js';
 import { getLatestServedAPIVersion, loadAndVerifySpecs, verifyFile } from '../utils/utils.js';
 import { askInput, askList } from '../utils/basic-prompts.js';
 import { askAgentName, askEnvironmentName } from '../utils/agents/inputs.js';
