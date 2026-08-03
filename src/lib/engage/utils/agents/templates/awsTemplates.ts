@@ -1,4 +1,5 @@
 import {
+	AWSAgentCoreConfig,
 	CentralAgentConfig,
 	CloudFormationConfig,
 	TraceabilityConfig,
@@ -19,6 +20,9 @@ export class AWSAgentValues {
 	centralConfig: CentralAgentConfig;
 	traceabilityConfig: TraceabilityConfig;
 	cloudFormationConfig: CloudFormationConfig;
+	agentCoreGatewayMode: boolean;
+	agentCore: AWSAgentCoreConfig;
+	cognitoUserPoolIDs: string[];
 
 	constructor(awsDeployment: string) {
 		this.accessKey = awsDeployment === 'Other' ? '**Insert Access Key**' : '';
@@ -31,6 +35,9 @@ export class AWSAgentValues {
 		this.centralConfig = new CentralAgentConfig();
 		this.traceabilityConfig = new TraceabilityConfig();
 		this.cloudFormationConfig = new CloudFormationConfig();
+		this.agentCoreGatewayMode = false;
+		this.agentCore = new AWSAgentCoreConfig();
+		this.cognitoUserPoolIDs = [];
 	}
 
 	updateCloudFormationConfig = () => {
@@ -59,6 +66,14 @@ AWS_AUTH_SECRETKEY={{secretKey}}
 {{/if}}
 {{#if fullTransactionLogging}}
 AWS_FULLTRANSACTIONLOGGING={{fullTransactionLogging}}
+{{/if}}
+{{#if agentCoreGatewayMode}}
+AWS_GATEWAYMODE=agentcore-gateway
+AWS_AGENTCORE_LOGGROUPPREFIX={{agentCore.logGroupPrefix}}
+AWS_AGENTCORE_CLOUDTRAILENABLED={{agentCore.cloudTrailEnabled}}
+{{#if agentCore.cloudTrailEnabled}}
+AWS_AGENTCORE_CLOUDTRAILBUCKET={{agentCore.cloudTrailBucket}}
+{{/if }}
 {{/if}}
 
 # Amplify Central configs
@@ -100,8 +115,17 @@ AWS_AUTH_ACCESSKEY={{accessKey}}
 {{#if secretKey}}
 AWS_AUTH_SECRETKEY={{secretKey}}
 {{/if}}
+{{#if agentCoreGatewayMode}}
+AWS_GATEWAYMODE=agentcore-gateway
+AWS_AGENTCORE_IAMAUTHENABLED={{agentCore.iamAuthEnabled}}
+{{#each cognitoUserPoolIDs}}
+AWS_COGNITO_USERPOOLID_{{add @index 1}}={{this}}
+{{/each}}
+{{else}}
 AWS_LOGGROUP={{logGroup}}
 AWS_STAGETAGNAME={{stageTagName}}
+AWS_GATEWAYMODE=api-gateway
+{{/if}}
 
 # Amplify Central configs
 CENTRAL_AGENTNAME={{centralConfig.daAgentName}}

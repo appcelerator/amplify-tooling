@@ -752,6 +752,25 @@ export enum GatewayMode {
 	GatewayOnlyMode = 'Gateway only',
 }
 
+export enum AWSGatewayMode {
+	APIGateway = 'api-gateway',
+	AgentCoreGateway = 'agent-core-gateway',
+}
+
+export class AWSAgentCoreConfig {
+	logGroupPrefix?: string;
+	iamAuthEnabled?: boolean;
+	cloudTrailEnabled?: boolean;
+	cloudTrailBucket?: string;
+
+	constructor(logGroupPrefix?: string, iamAuthEnabled?: boolean, cloudTrailEnabled?: boolean, cloudTrailBucket?: string) {
+		this.logGroupPrefix = logGroupPrefix ?? '';
+		this.iamAuthEnabled = iamAuthEnabled ?? false;
+		this.cloudTrailEnabled = cloudTrailEnabled ?? false;
+		this.cloudTrailBucket = cloudTrailBucket ?? '';
+	}
+}
+
 export enum AgentNames {
 	AKAMAI_CA = 'akamai-compliance-agent',
 	AWS_DA = 'aws-apigw-discovery-agent',
@@ -787,7 +806,7 @@ export enum GatewayTypes {
 	AKAMAI = 'Akamai',
 	EDGE_GATEWAY = 'Amplify API Gateway',
 	APIGEEX_GATEWAY = 'Apigee X Gateway',
-	AWS_GATEWAY = 'Amazon API Gateway',
+	AWS_GATEWAY = 'AWS',
 	AZURE_GATEWAY = 'Azure API Gateway',
 	AZURE_EVENTHUB = 'Azure EventHub',
 	GITLAB = 'GitLab',
@@ -806,7 +825,7 @@ export enum GatewayTypes {
 
 export enum SaaSGatewayTypes {
 	AKAMAI = 'Akamai',
-	AWS_GATEWAY = 'Amazon API Gateway',
+	AWS_GATEWAY = 'AWS',
 	APIGEEX_GATEWAY = 'Apigee X Gateway',
 	GITHUB = 'GitHub',
 	SWAGGERHUB = 'SwaggerHub',

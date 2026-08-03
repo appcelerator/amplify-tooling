@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import logger from '../../../../logger.js';
 import { ApiServerClient } from '../../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../../results/DefinitionsManager.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BundleType, GatewayTypes, InstallationFlowMethods, SaaSGatewayTypes, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSAgentCoreConfig, AWSGatewayMode, BundleType, GatewayTypes, InstallationFlowMethods, SaaSGatewayTypes, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateInputLength, validateRegex } from '../../basic-prompts.js';
 import * as helpers from '../index.js';
 import {
@@ -23,12 +23,17 @@ class AWSDataplaneConfig extends DataplaneConfig {
 	accessLogARN: string;
 	fullTransactionLogging: boolean;
 	stageTagName: string;
+	gatewayMode: AWSGatewayMode;
+	agentCore: AWSAgentCoreConfig;
+	cognitoUserPoolIDs: string[];
 
-	constructor(arn: string, enableFullTransactionLogging: boolean, stageTagName: string) {
+	constructor(arn: string, enableFullTransactionLogging: boolean, stageTagName: string, agentCoreConfig: AWSAgentCoreConfig, cognitoUserPoolIDs: string[]) {
 		super('AWS');
 		this.accessLogARN = arn;
 		this.fullTransactionLogging = enableFullTransactionLogging;
 		this.stageTagName = stageTagName;
+		this.agentCore = agentCoreConfig;
+		this.cognitoUserPoolIDs = cognitoUserPoolIDs;
 	}
 }
 
@@ -47,6 +52,9 @@ class SaasAWSAgentValues extends SaasAgentValues {
 	accessLogARN: string;
 	fullTransactionLogging: boolean;
 	stageTagName: string;
+	agentCoreGatewayMode: boolean;
+	agentCore: AWSAgentCoreConfig;
+	cognitoUserPoolIDs: string[];
 
 	constructor() {
 		super();
@@ -59,8 +67,9 @@ class SaasAWSAgentValues extends SaasAgentValues {
 		this.accessLogARN = '';
 		this.fullTransactionLogging = false;
 		this.stageTagName = '';
+		this.agentCore = {} as AWSAgentCoreConfig;
+		this.cognitoUserPoolIDs = [] as string[];
 	}
-
 	override getAccessData(): string {
 		if (this.authType === AWSAuthType.KEYS) {
 			return JSON.stringify({
@@ -87,6 +96,14 @@ const SaasPrompts = {
 	ACCESS_LOG_ARN: 'Enter the ARN for the Access Log that the Discovery will add and the Traceability will use',
 	STAGE_TAG_NAME: 'Enter the name of the tag on AWS API Gateway Stage that holds mapped stage on Amplify Engage',
 	FULL_TRANSACTION_LOGGING: 'Do you want to enable Full Transaction Logging? Please note that CloudWatch costs would increase when Full Transaction Logging is enabled',
+	AGENT_CORE_GATEWAY_MODE: 'Do you want to enable AgentCore Gateway Mode? (If not, the default will be to run the agent in API Gateway mode)',
+	AGENT_CORE_LOG_GROUP_PREFIX: 'Enter the prefix for the AgentCore Gateway vendored logs',
+	AGENT_CORE_IAM_AUTH: 'Do you want to enable IAM Authentication for AgentCore Gateway requests?',
+	ENTER_MORE_COGNITO_USER_POOL_IDS: 'Do you want to enter another Cognito User Pool ID for AgentCore Gateway mode?',
+	COGNITO: 'Enter the List of AWS Cognito user pool IDs used for authentication in AgentCore Gateway mode',
+	COGNITO_USER_POOL_ID: 'Enter the User Pool ID for the Cognito User Pool the AgentCore will use for authentication',
+	AGENTCORE_CLOUDTRAILENABLED: 'Do you want to enable CloudTrail-based consumer attribution for Cognito gateway?',
+	AGENTCORE_CLOUDTRAILBUCKET: 'Enter the name of the S3 bucket that stores the CloudTrail data-event logs'
 };
 
 export const askBundleType = async (): Promise<BundleType> => {
@@ -155,11 +172,69 @@ const askForAWSCredentials = async (agentValues: SaasAWSAgentValues, log: (text:
 	return agentValues;
 };
 
+const askForAgentCoreGatewayMode = async (agentValues: SaasAWSAgentValues, installConfig: AgentInstallConfig): Promise<SaasAWSAgentValues> => {
+	agentValues.agentCoreGatewayMode = (await askList({
+		msg: SaasPrompts.AGENT_CORE_GATEWAY_MODE,
+		default: YesNo.No,
+		choices: YesNoChoices,
+	})) === YesNo.Yes;
+
+	if (agentValues.agentCoreGatewayMode) {
+		agentValues.agentCore.iamAuthEnabled = (await askList({
+			msg: SaasPrompts.AGENT_CORE_IAM_AUTH,
+			default: YesNo.No,
+			choices: YesNoChoices,
+		})) === YesNo.Yes;
+		installConfig.log(chalk.gray(SaasPrompts.COGNITO));
+		const cognitoUserPoolIDs: string[] = [];
+		let askCognitoUserPools = true;
+
+		while (askCognitoUserPools) {
+			const userPoolId = (await askInput({
+				msg: SaasPrompts.COGNITO_USER_POOL_ID,
+			})) as string;
+
+			cognitoUserPoolIDs.push(userPoolId);
+
+			askCognitoUserPools = await askList({
+				msg: SaasPrompts.ENTER_MORE_COGNITO_USER_POOL_IDS,
+				choices: YesNoChoices,
+				default: YesNo.No,
+			}) === YesNo.Yes;
+		}
+
+		agentValues.cognitoUserPoolIDs = cognitoUserPoolIDs;
+
+		if (installConfig.switches.isTaEnabled) {
+			agentValues.agentCore.logGroupPrefix = (await askInput({
+				msg: SaasPrompts.AGENT_CORE_LOG_GROUP_PREFIX,
+				defaultValue: agentValues.agentCore.logGroupPrefix !== '' ? agentValues.agentCore.logGroupPrefix : undefined,
+				allowEmptyInput: true,
+			})) as string;
+
+			agentValues.agentCore.cloudTrailEnabled = (await askList({
+				msg: SaasPrompts.AGENTCORE_CLOUDTRAILENABLED,
+				default: YesNo.No,
+				choices: YesNoChoices,
+			})) === YesNo.Yes;
+
+			agentValues.agentCore.cloudTrailBucket = (await askInput({
+				msg: SaasPrompts.AGENTCORE_CLOUDTRAILBUCKET,
+				defaultValue: agentValues.agentCore.cloudTrailBucket !== '' ? agentValues.agentCore.cloudTrailBucket : undefined,
+				allowEmptyInput: false,
+			})) as string;
+		}
+
+	}
+
+	return agentValues;
+};
+
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	installConfig.log('\nCONNECTION TO AMAZON API GATEWAY:');
+	installConfig.log('\nCONNECTION TO AWS:');
 	installConfig.log(
 		chalk.gray(
-			'The Discovery Agent needs to connect to the AWS API Gateway to discover API\'s for publishing to Amplify Engage'
+			'The Discovery Agent needs to connect to the AWS to discover API\'s for publishing to Amplify Engage'
 		)
 	);
 
@@ -173,6 +248,8 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 			msg: SaasPrompts.STAGE_TAG_NAME,
 			validate: validateInputLength(STAGE_TAG_NAME_LENGTH, 'Maximum length of \'stage tag name\' is 127'),
 		})) as string;
+
+		agentValues = await askForAgentCoreGatewayMode(awsValues, installConfig);
 
 		if (installConfig.switches.isTaEnabled) {
 			installConfig.log(chalk.gray('\nThe access log ARN is a cloud watch log group amazon resource name'));
@@ -226,7 +303,9 @@ export const completeInstall = async (
 		dataplaneConfig = new AWSDataplaneConfig(
 			awsAgentValues.accessLogARN,
 			awsAgentValues.fullTransactionLogging,
-			awsAgentValues.stageTagName
+			awsAgentValues.stageTagName,
+			awsAgentValues.agentCore,
+			awsAgentValues.cognitoUserPoolIDs
 		);
 	} else {
 		dataplaneConfig = new DataplaneConfig('AWS');
