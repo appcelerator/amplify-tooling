@@ -153,6 +153,49 @@ export interface CommandLineInterface {
 	};
 }
 
+export interface Component {
+	group: 'definitions',
+	apiVersion: ApiServerVersions,
+	kind: 'Component',
+	name: string,
+	title: string,
+	metadata: {
+		id: string,
+		audit: {
+			createTimestamp: string,
+			modifyTimestamp: string
+		},
+		accessRights: {
+			canChangeOwner: boolean,
+			canDelete: boolean,
+			canWrite: boolean,
+			canRead: boolean
+		},
+		resourceVersion: string,
+		selfLink: string
+	},
+	spec: {
+		type: ComponentType,
+		latest: ComponentSpecVersionInfo,
+		retracted: string[],
+		supported: ComponentSpecVersionInfo[]
+	}
+
+}
+
+export enum ComponentType {
+	Agent = 'agent',
+	DA = 'DiscoveryAgent',
+	TA = 'TraceabilityAgent',
+	CA = 'ComplianceAgent'
+}
+
+export interface ComponentSpecVersionInfo {
+	version: string;
+	releaseDate: string;
+	endOfSupportDate: string;
+}
+
 export interface AuditMetadata {
 	createTimestamp: string; // '2020-08-04T21:05:32.106Z';
 	createUserId: string; // '07e6b449-3a31-4a96-8920-e87dd504cb87';
@@ -349,7 +392,6 @@ export enum BasePaths {
 	V7Agents = '/artifactory/ampc-public-generic-release/v7-agents',
 	AWSAgents = '/artifactory/ampc-public-generic-release/aws-agents',
 	DockerAgentPublicRepo = '/agent',
-	DockerAgentAPIRepoPath = '/artifactory/api/docker/ampc-public-docker-release/v2/agent',
 }
 
 export interface ValidatedDocs {
@@ -855,8 +897,7 @@ export const GatewayTypeToDataPlane = {
 	[GatewayTypes.WSO2]: DataPlaneNames.WSO2,
 };
 
-export const PublicRepoUrl = 'https://axway.jfrog.io';
-export const PublicDockerRepoBaseUrl = 'axway.jfrog.io/ampc-public-docker-release';
+export const PublicDockerRepoBaseUrl = 'repository.axway.com/ampc-public-docker-release';
 
 export class DOSAConfigInfo {
 	clientId: string | null;

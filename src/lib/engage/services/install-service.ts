@@ -89,17 +89,17 @@ const determineRegion = async (region: string | undefined): Promise<string> => {
 	return configurationRegion ? configurationRegion : Regions.US;
 };
 
-async function getAgentVersions(agentInstallFlow: InstallationFlowMethods, installConfig: AgentInstallConfig, account: Account): Promise<void> {
+async function getAgentVersions(agentInstallFlow: InstallationFlowMethods, installConfig: AgentInstallConfig, apiServerClient: ApiServerClient): Promise<void> {
 	if (agentInstallFlow.AgentNameMap && !installConfig.switches.isHostedInstall && installConfig.switches.isDaEnabled) {
 		installConfig.daVersion = await helpers.getLatestAgentVersion(
+			apiServerClient,
 			agentInstallFlow.AgentNameMap[AgentTypes.da] as string,
-			account
 		);
 	}
 	if (agentInstallFlow.AgentNameMap && !installConfig.switches.isHostedInstall && installConfig.switches.isTaEnabled) {
 		installConfig.taVersion = await helpers.getLatestAgentVersion(
+			apiServerClient,
 			agentInstallFlow.AgentNameMap[AgentTypes.ta] as string,
-			account
 		);
 	}
 }
@@ -249,8 +249,8 @@ export async function installAgents(params: InstallAgentsCommandParams): Promise
 		installConfig.switches.isDockerInstall = installConfig.deploymentType === AgentConfigTypes.DOCKERIZED;
 		installConfig.switches.isBinaryInstall = installConfig.deploymentType === AgentConfigTypes.BINARIES;
 
-		// Get the version of the agents from jfrog, not needed in hosted install
-		await getAgentVersions(agentInstallFlow, installConfig, params.account);
+		// Get the version of the agents from Engage, not needed in hosted install
+		await getAgentVersions(agentInstallFlow, installConfig, apiServerClient);
 
 		// if EDGE_GATEWAY or EDGE_GATEWAY_ONLY and isDaEnabled, ask if the organization structure should replicate
 		if (

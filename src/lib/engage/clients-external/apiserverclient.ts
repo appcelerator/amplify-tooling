@@ -10,6 +10,7 @@ import {
 	ApiServerVersions,
 	BasePaths,
 	CommandLineInterface,
+	Component,
 	GenericResource,
 	GenericResourceWithoutName,
 	LanguageTypes,
@@ -888,6 +889,21 @@ export class ApiServerClient {
 				}
 			}
 			return specs;
+		} catch (e: any) {
+			log.error('get specs, error: ', e);
+			throw e;
+		}
+	}
+
+	async getComponentDefinitionsByName(componentName: string, version = ApiServerVersions.v1alpha1): Promise<Component> {
+		const log = logger('ApiServerClient.getComponentDefinitionsByName');
+		log.info('get component definitions');
+		try {
+			const service = await this.initializeDataService();
+			const component: Component = await service.get(`/definitions/${version}/components/${componentName}`);
+
+			return component;
+
 		} catch (e: any) {
 			log.error('get specs, error: ', e);
 			throw e;
