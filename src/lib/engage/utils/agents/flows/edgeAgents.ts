@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, localhost, LoggingSource, PublicDockerRepoBaseUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, askUsernameAndPassword } from '../../basic-prompts.js';
-import { writeTemplates, isWindows, AgentHelmInfo, helmImageSecretInfo, helmInstallInfo } from '../../utils.js';
+import { writeTemplates, isWindows, AgentHelmInfo, helmImageSecretInfo, helmInstallInfo, dockerLoginInfo } from '../../utils.js';
 import { V7AgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { kubectl } from '../kubectl.js';
@@ -352,6 +352,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig, eventLogPath: strin
 		dockerInfo = `To utilize the traceability agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.TA_ENV_VARS}):`;
 	}
 	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
+	dockerLoginInfo();
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;

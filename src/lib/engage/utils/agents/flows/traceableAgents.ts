@@ -3,7 +3,7 @@ import { ApiServerClient } from '../../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../../results/DefinitionsManager.js';
 import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, GenericResource, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg, TraceableRegionType, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList } from '../../basic-prompts.js';
-import { AgentHelmInfo, helmImageSecretInfo, helmInstallInfo, isWindows, writeTemplates } from '../../utils.js';
+import { AgentHelmInfo, dockerLoginInfo, helmImageSecretInfo, helmInstallInfo, isWindows, writeTemplates } from '../../utils.js';
 import { TraceableAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { kubectl } from '../kubectl.js';
@@ -165,6 +165,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	if (installConfig.switches.isTaEnabled) {
 		dockerInfo = `To utilize the agent, pull the latest Docker image and run it using the appropriate supplied environment file, (${helpers.configFiles.AGENT_ENV_VARS}):`;
 		installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
+		dockerLoginInfo();
 		const caImageVersion = `${caImage}:${installConfig.taVersion}`;
 		installConfig.log(chalk.white('Pull the latest image of the Agent:'));
 		installConfig.log(chalk.cyan(`docker pull ${caImageVersion}`));

@@ -391,7 +391,7 @@ export enum BasePaths {
 	Platform = '/platform/api/v1',
 	V7Agents = '/artifactory/ampc-public-generic-release/v7-agents',
 	AWSAgents = '/artifactory/ampc-public-generic-release/aws-agents',
-	DockerAgentPublicRepo = '/agent',
+	DockerAgentPublicRepo = '/ampc-docker-prod/1.2',
 }
 
 export interface ValidatedDocs {
@@ -897,7 +897,7 @@ export const GatewayTypeToDataPlane = {
 	[GatewayTypes.WSO2]: DataPlaneNames.WSO2,
 };
 
-export const PublicDockerRepoBaseUrl = 'repository.axway.com/ampc-public-docker-release';
+export const PublicDockerRepoBaseUrl = 'docker.repository.axway.com';
 
 export class DOSAConfigInfo {
 	clientId: string | null;

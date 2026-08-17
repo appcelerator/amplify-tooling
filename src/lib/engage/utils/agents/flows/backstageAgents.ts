@@ -3,7 +3,7 @@ import { askInput, askList } from '../../basic-prompts.js';
 import { AuthMode, BackstageAgentValues, backstageDAEnvVarTemplate, UrlScheme } from '../templates/backstageTemplates.js';
 import * as helpers from '../index.js';
 import chalk from 'chalk';
-import { isWindows, writeTemplates } from '../../utils.js';
+import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 
 const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.BACKSTAGE_DA}`;
 
@@ -125,6 +125,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 
 	const dockerInfo = `To utilize the agents, pull the latest Docker images and run them using the appropriate supplied environment files, (${helpers.configFiles.DA_ENV_VARS}:`;
 	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
+	dockerLoginInfo();
 
 	const daImageVersion = `${daImage}:${installConfig.daVersion}`;
 	installConfig.log(chalk.white('Pull the latest image of the Discovery Agent:'));

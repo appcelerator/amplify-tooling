@@ -3,7 +3,7 @@ import { ApiServerClient } from '../../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../../results/DefinitionsManager.js';
 import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, BasePaths, BundleType, GatewayTypes, GenericResource, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateRegex, validateValueRange } from '../../basic-prompts.js';
-import { AgentHelmInfo, helmImageSecretInfo, helmInstallInfo, isWindows, writeTemplates } from '../../utils.js';
+import { AgentHelmInfo, helmImageSecretInfo, helmInstallInfo, isWindows, writeTemplates, dockerLoginInfo } from '../../utils.js';
 import { AkamaiAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { kubectl } from '../kubectl.js';
@@ -178,6 +178,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	const dockerInfo = `To utilize the agent, pull the latest Docker image and run it using the appropriate supplied environment file, (${helpers.configFiles.AGENT_ENV_VARS}):`;
 	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
 	const caImageVersion = `${caImage}:${installConfig.caVersion}`;
+	dockerLoginInfo();
 	installConfig.log(chalk.white('Pull the latest image of the Agent:'));
 	installConfig.log(chalk.cyan(`docker pull ${caImageVersion}`));
 	installConfig.log(chalk.white(isWindows ? startAgentWinMsg : startAgentLinuxMsg));

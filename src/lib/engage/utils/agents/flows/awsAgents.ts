@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import logger from '../../../../logger.js';
 import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, AWSRegions, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, TrueFalse, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateInputLength, validateRegex } from '../../basic-prompts.js';
-import { isWindows, writeTemplates, writeToFile } from '../../utils.js';
+import { dockerLoginMsg, isWindows, writeTemplates, writeToFile } from '../../utils.js';
 import { AWSAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 
@@ -432,7 +432,7 @@ ${chalk.cyan(`    aws iam create-access-key  --user-name AxwayAmplifyAgentsUser-
     AWS_AUTH_ACCESSKEY=${chalk.yellow('Your_AccessKeyId')}
     AWS_AUTH_SECRETKEY=${chalk.yellow('Your_SecretAccessKey')}`;
 			runCommands = `${chalk.whiteBright(info)}
-
+${dockerLoginMsg()}
 Pull the latest image of the Discovery Agent:
 ${chalk.cyan(`docker pull ${daImage}:${installConfig.daVersion}`)}
 

@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, ApigeeMetricsFilterConfig, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateRegex } from '../../basic-prompts.js';
-import { isWindows, writeTemplates } from '../../utils.js';
+import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 import { ApigeeXAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 
@@ -177,6 +177,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 		dockerInfo = `To utilize the traceability agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.TA_ENV_VARS}):`;
 	}
 	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
+	dockerLoginInfo();
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;

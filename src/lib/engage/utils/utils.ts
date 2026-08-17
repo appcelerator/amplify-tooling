@@ -607,3 +607,15 @@ export const buildTemplate = (templateFunc: () => string, input: object): string
 	const template = hbs.compile(templateFunc(), { noEscape: true });
 	return template(input);
 };
+
+export const dockerLoginMsg = (): string => {
+	return `${chalk.white('Login to the Axway Docker repository:')}
+${chalk.cyan('docker login docker.repository.axway.com --username <client_id> --password <client_secret>')}
+${chalk.white('* client_id - service account id for your Amplify Platform organization')}
+${chalk.white('* client_secret - service account secret for your Amplify Platform organization')}
+`;
+};
+
+export const dockerLoginInfo = (): void => {
+	console.log(dockerLoginMsg());
+};

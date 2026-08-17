@@ -3,7 +3,7 @@ import { askInput, askList, validateRegex } from '../../basic-prompts.js';
 import { WSO2AgentValues, wso2DAEnvVarTemplate, wso2TAEnvVarTemplate } from '../templates/wso2Templates.js';
 import * as helpers from '../index.js';
 import chalk from 'chalk';
-import { isWindows, writeTemplates } from '../../utils.js';
+import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 
 const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.WSO2_DA}`;
 const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.WSO2_TA}`;
@@ -112,6 +112,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 		dockerInfo = `To utilize the traceability agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.TA_ENV_VARS}):`;
 	}
 	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
+	dockerLoginInfo();
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;

@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { AgentConfigTypes, AgentInstallConfig, AgentNames, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateRegex } from '../../basic-prompts.js';
-import { isWindows, writeTemplates } from '../../utils.js';
+import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 import { GitLabAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 
@@ -145,6 +145,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 		dockerInfo = `To utilize the discovery agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.DA_ENV_VARS}):`;
 	}
 	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
+	dockerLoginInfo();
 
 	if (installConfig.switches.isDaEnabled) {
 		const daImageVersion = `${daImage}:${installConfig.daVersion}`;
