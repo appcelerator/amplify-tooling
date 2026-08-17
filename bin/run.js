@@ -4,4 +4,5 @@ enableCompileCache();
 
 import { execute, settings } from '@oclif/core';
 settings.performanceEnabled = true;
+settings.enableAutoTranspile = false;
 await execute({ dir: import.meta.url });

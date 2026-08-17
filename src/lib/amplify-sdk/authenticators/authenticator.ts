@@ -10,6 +10,7 @@ import * as request from '../../request.js';
 import { md5, prepareForm } from '../util.js';
 
 import { type Got } from 'got';
+import { Account } from '../../../types.js';
 
 const { log, warn } = logger('amplify-sdk:authenticator');
 

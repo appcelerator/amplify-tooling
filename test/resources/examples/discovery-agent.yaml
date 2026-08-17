@@ -1,0 +1,16 @@
+group: management
+apiVersion: v1alpha1
+kind: DiscoveryAgent
+name: v7-discovery-agent
+title: V7 Discovery Agent
+metadata:
+  scope:
+    kind: Environment
+    name: v7-agents
+attributes: {}
+finalizers: []
+tags: []
+spec:
+  config:
+    owningTeam: Default Team
+  dataplaneType: Edge

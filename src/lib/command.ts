@@ -1,8 +1,13 @@
-import { Command, type Config as OclifConfig, Flags, loadHelpClass } from '@oclif/core';
+import {
+	Command,
+	type Config as OclifConfig,
+	Flags,
+	loadHelpClass,
+} from '@oclif/core';
 import loadConfig, { type Config } from './config.js';
-import { initSDK } from './amplify-sdk/index.js';
-
 import type AmplifySDK from './amplify-sdk/index.js';
+// eslint-disable-next-line no-duplicate-imports
+import { initSDK } from './amplify-sdk/index.js';
 
 import type { FlagInput, ParserOutput } from '@oclif/core/interfaces';
 
@@ -11,6 +16,7 @@ interface AxwayParserOutput extends ParserOutput {
 	sdk?: AmplifySDK;
 	account?: Awaited<ReturnType<AmplifySDK['auth']['find']>>;
 	org?: Awaited<ReturnType<AmplifySDK['org']['find']>>;
+	teams?: Awaited<ReturnType<AmplifySDK['team']['list']>>;
 }
 
 /**
@@ -24,8 +30,8 @@ interface AxwayParserOutput extends ParserOutput {
 export const authenticatedFlags = {
 	account: Flags.string({
 		description: 'The account to use within the active profile.',
-		required: false
-	})
+		required: false,
+	}),
 };
 
 export default abstract class AxwayCommand extends Command {
@@ -36,23 +42,23 @@ export default abstract class AxwayCommand extends Command {
 		'no-banner': Flags.boolean({
 			description: 'Disable the banner.',
 			default: false,
-			helpGroup: 'GLOBAL'
+			helpGroup: 'GLOBAL',
 		}),
 		'no-color': Flags.boolean({
 			description: 'Disable color output.',
 			default: false,
-			helpGroup: 'GLOBAL'
+			helpGroup: 'GLOBAL',
 		}),
 		profile: Flags.string({
 			description: 'Specify the configuration profile to use.',
-			helpGroup: 'GLOBAL'
-		})
+			helpGroup: 'GLOBAL',
+		}),
 	};
 
 	/**
-	 * Whether authentication is required to run this command.
-	 * Defaults to true.
-	 */
+   * Whether authentication is required to run this command.
+   * Defaults to true.
+   */
 	static readonly authenticated: boolean = true;
 
 	/**
@@ -61,11 +67,18 @@ export default abstract class AxwayCommand extends Command {
 	static readonly enableBanner: boolean = true;
 
 	/**
-	 * Whether this command should exclude the profile flag. Should only be set
-	 * to true for commands that manage profiles themselves.
-	 * Defaults to false.
-	 */
+   * Whether this command should exclude the profile flag. Should only be set
+   * to true for commands that manage profiles themselves.
+   * Defaults to false.
+   */
 	static readonly enableProfileFlag: boolean = true;
+
+	/**
+   * Whether this command needs the full organization team list pre-fetched
+   * during parse.
+   * Defaults to false.
+   */
+	static readonly fetchTeams: boolean = false;
 
 	override async parse(options = this.ctor as any): Promise<AxwayParserOutput> {
 		const parsed = await super.parse(options);
@@ -74,7 +87,7 @@ export default abstract class AxwayCommand extends Command {
 
 		const data: AxwayParserOutput = {
 			...parsed,
-			config: await loadConfig()
+			config: await loadConfig(),
 		};
 
 		// Load the config, applying the profile if specified.
@@ -83,17 +96,32 @@ export default abstract class AxwayCommand extends Command {
 		}
 
 		if (options.authenticated) {
-			data.sdk = await initSDK();
+			data.sdk = await initSDK({}, data.config);
 
-			data.account = await data.sdk.auth.find(parsed.args?.accountName || parsed.flags?.account || data.config.get('auth.defaultAccount'));
+			data.account = await data.sdk.auth.find(
+				parsed.args?.accountName
+          || parsed.flags?.account
+          || data.config.get('auth.defaultAccount'),
+			);
 			if (!data.account) {
 				if (parsed.args?.accountName || parsed.flags?.account) {
-					return this.error(`The account "${parsed.args?.accountName || parsed.flags?.account}" is not logged in.\n\nTo login, run: ${this.config.bin} auth login`);
+					return this.error(
+						`The account "${parsed.args?.accountName || parsed.flags?.account}" is not logged in.\n\nTo login, run: ${this.config.bin} auth login`,
+					);
 				}
-				return this.error(`You must be authenticated\n\nTo login, run: ${this.config.bin} auth login`);
+				return this.error(
+					`You must be authenticated\n\nTo login, run: ${this.config.bin} auth login`,
+				);
 			}
 
-			data.org = await data.sdk.org.find(data.account, parsed.args?.org || parsed.flags?.org);
+			data.org = await data.sdk.org.find(
+				data.account,
+				parsed.args?.org || parsed.flags?.org,
+			);
+
+			if (options.fetchTeams) {
+				data.teams = await data.sdk.team.list(data.account, data.org);
+			}
 		}
 
 		return data;
@@ -111,12 +139,12 @@ export default abstract class AxwayCommand extends Command {
 		}
 
 		// Fall back to standard string error output if --json isn't requested
-		return super.catch(error)
+		return super.catch(error);
 	}
 
 	/**
-	 * Log command help output to stdout
-	 */
+   * Log command help output to stdout
+   */
 	async help() {
 		const Help = await loadHelpClass(this.config);
 		const help = new Help(this.config);

@@ -1,0 +1,28 @@
+[
+	{
+		"apiVersion": "v1alpha1",
+		"kind": "Product",
+		"name": "apisvc1",
+		"title": "title",
+		"tags": [],
+		"spec": {
+			"autoRelease": {
+				"releaseType": "patch",
+				"requiresInitialActivation": true
+			}
+		}
+	},
+	{
+		"apiVersion": "v1alpha1",
+		"kind": "Product",
+		"name": "apisvc2",
+		"title": "title",
+		"tags": [],
+		"spec": {
+			"autoRelease": {
+				"releaseType": "patch",
+				"requiresInitialActivation": true
+			}
+		}
+	}
+]

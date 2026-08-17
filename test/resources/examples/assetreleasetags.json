@@ -1,0 +1,17 @@
+{
+    "data": [{
+        "name": "apisvc1",
+        "kind": "ReleaseTag",
+        "status": {
+            "level": "Success"
+        }
+    },
+    {
+        "name": "apisvc2",
+        "kind": "ReleaseTag",
+        "status": {
+            "level": "Success"
+        }
+    }
+]
+}

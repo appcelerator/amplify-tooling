@@ -3,9 +3,10 @@ import Koa from 'koa';
 import Router from '@koa/router';
 import logger, { highlight } from '../../dist/lib/logger.js';
 import { createAuthRoutes } from './auth-routes.js';
+import { createEngageRoutes } from './engage-routes.js';
 import { createPlatformRoutes } from './platform-routes.js';
 
-const { log } = logger('test:servers');
+const log = logger('test:servers');
 
 function createServer({ port }) {
 	return new Promise((resolve, reject) => {
@@ -14,26 +15,27 @@ function createServer({ port }) {
 
 		app.use(bodyParser());
 		app.use(async (ctx, next) => {
-			log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
+			log.log(`Incoming request: ${highlight(`${ctx.method} ${ctx.url}`)}`);
 			await next();
 		});
 		app.use(router.routes());
 
 		const server = app.listen(port, '127.0.0.1');
 		server.__connections = {};
+		server.app = app;
 		server.router = router;
 
 		server.on('connection', conn => {
 			const key = conn.remoteAddress + ':' + conn.remotePort;
-			log(`${highlight(key)} connected`);
+			log.log(`${highlight(key)} connected`);
 			server.__connections[key] = conn;
 			conn.on('close', () => {
 				delete server.__connections[key];
-				log(`${highlight(key)} disconnected`);
+				log.log(`${highlight(key)} disconnected`);
 			});
 		});
 		server.on('listening', () => {
-			log(`Started test server: http://127.0.0.1:${port}`);
+			log.log(`Started test server: http://127.0.0.1:${port}`);
 			resolve(server);
 		});
 		server.on('error', reject);
@@ -52,11 +54,18 @@ export async function startPlatformServer(opts = {}) {
 	return server;
 }
 
+export async function startEngageServer(opts = {}) {
+	const server = await createServer({ port: 8777 });
+	await createEngageRoutes(server, opts);
+	return server;
+}
+
 export async function startServers() {
 	const state = {};
 	return [
 		await startAuthServer({ state }),
-		await startPlatformServer({ state })
+		await startPlatformServer({ state }),
+		await startEngageServer({ state })
 	];
 }
 
@@ -64,7 +73,7 @@ export async function stopServers() {
 	this.timeout(10000);
 
 	if (this.servers) {
-		log(`Stopping ${this.servers.length} server${this.servers.length === 1 ? '' : 's'}...`);
+		log.log(`Stopping ${this.servers.length} server${this.servers.length === 1 ? '' : 's'}...`);
 		for (const server of this.servers) {
 			for (const conn of Object.values(server.__connections)) {
 				conn.destroy();

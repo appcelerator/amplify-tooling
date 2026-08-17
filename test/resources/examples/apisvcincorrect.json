@@ -1,0 +1,31 @@
+[
+{
+    "apiVersion": "v1alpha1",
+    "group": "management",
+    "kind": "APIService",
+    "name": "apisvc1",
+    "title": "apisvc1 title",
+    "metadata": {
+        "audit": {
+            "createTimestamp": "2019-12-04T23:50:43.100+0000",
+            "createUserId": "DOSA_00000000000000000000000000000001",
+            "modifyTimestamp": "2019-12-04T23:50:43.100+0000",
+            "modifyUserId": "DOSA_00000000000000000000000000000001"
+        },
+        "resourceVersion": "846",
+        "scope": {
+            "id": "e4e0839f6efb5aa4016efc23f41d0338",
+            "kind": "Environment",
+            "name": "env1"
+        },
+        "id": "e4e0839f6efb5aa4016efc23f607033d"
+    },
+    "attributes": {
+        "createdBy": "yaml"
+    },
+    "tags": ["apisvc", "cli", "axway"],
+    "spec": {
+        "description": "api service 1 description"
+    }
+}
+]

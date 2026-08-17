@@ -39,6 +39,7 @@ function convertToTemplate(stdout, useColor = false) {
 			const closeEscaped = closeCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 			// Create regex pattern and replacement
+			// eslint-disable-next-line security/detect-non-literal-regexp
 			const pattern = new RegExp(`${openEscaped}(.*?)${closeEscaped}`, 'g');
 
 			template = template.replace(pattern, `{{#${fn}}}$1{{/${fn}}}`);
@@ -85,7 +86,7 @@ if (!logFile) {
 const logData = JSON.parse(fs.readFileSync(logFile, 'utf8'));
 
 // Handle both single invocation (legacy) and array format (new)
-const invocations = Array.isArray(logData) ? logData : [logData];
+const invocations = Array.isArray(logData) ? logData : [ logData ];
 
 let generated = 0;
 let skipped = 0;

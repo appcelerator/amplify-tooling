@@ -1,0 +1,25 @@
+---
+apiVersion: v1alpha1
+title: cli-agentname
+name: cli-agentname
+kind: DiscoveryAgent
+metadata:
+  scope:
+    kind: Environment
+    name: env1
+tags:
+spec:
+  dataplaneType: AWS
+
+---
+apiVersion: v1alpha1
+title: cli-agentname2
+name: cli-agentname2
+kind: TraceabilityAgent
+metadata:
+  scope:
+    kind: Environment
+    name: env2
+tags:
+spec:
+  dataplaneType: Azure

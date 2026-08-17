@@ -1,4 +1,4 @@
-type Account = {
+export type Account = {
 	/** Optional name of a configuration profile the account is associated with */
 	profile?: string;
 	/** Unique hash for the account */
@@ -103,7 +103,6 @@ type Account = {
 		/** Tags associated with the team */
 		tags?: string[];
 	};
-
 	/** Indicates if this is the default account */
 	default?: boolean;
 };

@@ -18,12 +18,13 @@ const cliBin = path.resolve(__dirname, `../../bin/${process.env.AXWAY_COVERAGE ?
 let lastLogFile = null;
 
 const defaultVars = {
-	check: process.platform === 'win32' ? '√' : '✔',
+	check: '(?:√|✔)',
 	delta: '\\d+(\\.\\d+)?\\w( \\d+(\\.\\d+)?\\w)*\\s*',
 	localeDateTime: '[\\w\\d/,: ]+ *',
+	pathSep: '[/\\\\]',
 	string: '[^\\s]+',
 	version: '(?:\\d+\\.\\d+\\.\\d+(?:-[^\\s]*)?\\s*)',
-	x: process.platform === 'win32' ? 'x' : '✖',
+	x: '(?:x|✖)',
 	uuid: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
 	year: (new Date()).getFullYear()
 };

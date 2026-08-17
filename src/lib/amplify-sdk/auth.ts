@@ -59,8 +59,7 @@ export default class Auth {
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
 	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
 	 * @param {String} [opts.clientSecret] - The secret token to use to authenticate.
-	 * @param {String} [opts.env=prod] - The environment name. Must be `staging` or `prod`.
-	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {String} [opts.env=prod] - The environment name.
 	 * @param {Function} [opts.got] - A reference to a `got` HTTP client. If not defined, the
 	 * default `got` instance will be used.
 	 * @param {String} [opts.homeDir] - The path to the home directory containing the `lib`
@@ -371,8 +370,22 @@ export default class Auth {
 	 */
 	async list() {
 		if (this.tokenStore) {
+			const resolvedBaseUrl = this.baseUrl?.replace(/\/$/, '');
 			return (await this.tokenStore.list())
-				.filter(account => (account.auth.env || 'prod') === this.env);
+				.filter(account => {
+					const accountEnv = account.auth?.env;
+					if (accountEnv) {
+						return accountEnv === this.env;
+					}
+
+					// Backward compatibility: older token entries may not have auth.env set.
+					const accountBaseUrl = account.auth?.baseUrl?.replace(/\/$/, '');
+					if (resolvedBaseUrl && accountBaseUrl) {
+						return accountBaseUrl === resolvedBaseUrl;
+					}
+
+					return this.env === 'prod';
+				});
 		}
 		return [];
 	}
@@ -387,8 +400,7 @@ export default class Auth {
 	 * specified, one will be auto-selected based on the options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
 	 * @param {String} [opts.clientId] - The client id to specify when authenticating.
-	 * @param {String} [opts.env=prod] - The environment name. Must be `staging` or `prod`.
-	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {String} [opts.env=prod] - The environment name.
 	 * @param {Function} [opts.onOpenBrowser] - A callback when the web browser is about to be
 	 * launched.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
@@ -445,8 +457,7 @@ export default class Auth {
 	 *
 	 * @param {Object} [opts] - Various options.
 	 * @param {String} [opts.baseUrl] - The base URL to use for all outgoing requests.
-	 * @param {String} [opts.env=prod] - The environment name. Must be `staging` or `prod`.
-	 * The environment is a shorthand way of specifying a Axway default base URL.
+	 * @param {String} [opts.env=prod] - The environment name.
 	 * @param {String} [opts.realm] - The name of the realm to authenticate with.
 	 * @param {String} [opts.url] - An optional URL to discover the available endpoints.
 	 * @returns {Promise<Object>}
