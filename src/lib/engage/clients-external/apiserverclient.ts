@@ -895,7 +895,7 @@ export class ApiServerClient {
 		}
 	}
 
-	async getComponentDefinitionsByName(componentName: string, version = ApiServerVersions.v1alpha1): Promise<Component> {
+	async getComponentDefinitionsByName(componentName: string, version = ApiServerVersions.v1): Promise<Component> {
 		const log = logger('ApiServerClient.getComponentDefinitionsByName');
 		log.info('get component definitions');
 		try {
