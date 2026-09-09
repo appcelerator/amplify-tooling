@@ -30,7 +30,7 @@
     "gulp-chug": "^0.5.1",
     "gulp-debug": "^5.0.1",
     "gulp-plumber": "^1.2.1",
-    "lerna": "^10.0.1",
+    "lerna": "^8.2.4",
     "mocha": "^11.1.0",
     "rollup": "^4.34.9"
   },
