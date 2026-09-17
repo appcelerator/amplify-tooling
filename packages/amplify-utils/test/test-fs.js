@@ -28,7 +28,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 describe('fs', () => {
-	after(() => removeCallback());
+	// some tests below rmdirSync() the shared tmpDir directly as part of their own
+	// setup/cleanup, so by the time this runs it may already be gone
+	after(() => existsSync(tmpDir) && removeCallback());
 
 	describe('existsSync()', () => {
 		it('should check if a file exists', () => {

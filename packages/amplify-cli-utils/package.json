@@ -29,20 +29,20 @@
     "@axway/amplify-sdk": "^4.1.0",
     "boxen": "^8.0.1",
     "check-kit": "^4.0.0",
-    "cli-kit": "^2.1.1",
+    "cli-kit": "github:appcelerator/cli-kit#APIGOV-33776",
     "cli-table3": "^0.6.2",
     "fs-extra": "^10.1.0",
     "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^5.0.1"
+    "@axway/gulp-tasks": "github:appcelerator/axway-gulp-tasks#APIGOV-33776"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-utils",
   "engines": {
-    "node": ">=20.18.2"
+    "node": ">=22.13.0"
   },
   "gitHead": "911132219b963f56dfc1f9820a743b4e55e1355d"
 }

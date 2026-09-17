@@ -1,4 +1,4 @@
-/* eslint-disable node/no-deprecated-api, no-new-func */
+/* eslint-disable n/no-deprecated-api, no-new-func */
 
 import crypto from 'crypto';
 import fs from 'fs';
