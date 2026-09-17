@@ -20,7 +20,7 @@
     "uuid": "^11.0.5"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^5.0.1",
+    "@axway/gulp-tasks": "github:appcelerator/axway-gulp-tasks#APIGOV-33776",
     "@rollup/plugin-commonjs": "28.0.2",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
@@ -30,7 +30,7 @@
     "gulp-chug": "^0.5.1",
     "gulp-debug": "^5.0.1",
     "gulp-plumber": "^1.2.1",
-    "lerna": "^8.2.4",
+    "lerna": "^10.0.1",
     "mocha": "^11.1.0",
     "rollup": "^4.34.9"
   },
