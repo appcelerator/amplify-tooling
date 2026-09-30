@@ -24,10 +24,10 @@ variables:
 
 include:
   - project: "apigov/gitlabci"
-    ref: $GITLAB_CICD_GREEN
+    ref: $GITLAB_CICD_BLUE
     file: "/.gitlab-ci-sonar.yml"
   - project: "apigov/security/gitlabci"
-    ref: $SECURITY_CICD_GREEN
+    ref: $SECURITY_CICD_BLUE
     file:
       - "/.gitlab-ci-cxone.yml"
       - "/.gitlab-ci-blackduck.yml"
@@ -41,7 +41,7 @@ stages:
   - security-review
 
 install_dependencies:
-  image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+  image: dockerhub.artifactory.axway.com/node:20.11.1-bookworm-slim
   stage: install
   script:
     - npm install
@@ -49,7 +49,7 @@ install_dependencies:
     - schedules
 
 unit_tests:
-  image: dockerhub.artifactory-phx.ecd.axway.int/node:20.11.1-bookworm-slim
+  image: dockerhub.artifactory.axway.com/node:20.11.1-bookworm-slim
   stage: test
   script:
     - npm install gulp-cli -g
