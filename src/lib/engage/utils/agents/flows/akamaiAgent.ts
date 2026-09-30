@@ -8,7 +8,6 @@ import { AkamaiAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { kubectl } from '../kubectl.js';
 
-const caImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.AKAMAI_CA}`;
 export const amplifyAgentsNs = 'amplify-agents';
 
 // ConfigFiles - all the config file that are used in the setup
@@ -169,15 +168,18 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 	return akamaiAgentValues;
 };
 
-const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
+const dockerSuccessMsg = async (installConfig: AgentInstallConfig) => {
 	const runAgentLinuxMsg = `docker run -it --env-file ${helpers.pwd}/${helpers.configFiles.AGENT_ENV_VARS} -v ${helpers.pwd}:/keys ${helpers.eolChar}`;
 	const runAgentWinMsg = `docker run -it --env-file ${helpers.pwdWin}/${helpers.configFiles.AGENT_ENV_VARS} -v ${helpers.pwdWin}:/keys ${helpers.eolCharWin}`;
 	const startAgentLinuxMsg = '\nStart the Akamai Agent on a Linux based machine';
 	const startAgentWinMsg = '\nStart the Akamai Agent on a Windows machine';
+	const caVersion = await helpers.getLatestAgentVersion(installConfig.centralConfig.apiServerClient as ApiServerClient, AgentNames.AKAMAI_CA);
+	const dockerRepoVersion = caVersion.split('.').slice(0, 2).join('.');
+	const caImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${dockerRepoVersion}/${AgentNames.AKAMAI_CA}`;
 
 	const dockerInfo = `To utilize the agent, pull the latest Docker image and run it using the appropriate supplied environment file, (${helpers.configFiles.AGENT_ENV_VARS}):`;
 	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');
-	const caImageVersion = `${caImage}:${installConfig.caVersion}`;
+	const caImageVersion = `${caImage}:${caVersion}`;
 	dockerLoginInfo();
 	installConfig.log(chalk.white('Pull the latest image of the Agent:'));
 	installConfig.log(chalk.cyan(`docker pull ${caImageVersion}`));

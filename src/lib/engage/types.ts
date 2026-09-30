@@ -391,7 +391,7 @@ export enum BasePaths {
 	Platform = '/platform/api/v1',
 	V7Agents = '/artifactory/ampc-public-generic-release/v7-agents',
 	AWSAgents = '/artifactory/ampc-public-generic-release/aws-agents',
-	DockerAgentPublicRepo = '/ampc-docker-prod/1.2',
+	DockerAgentPublicRepo = '/ampc-docker-prod',
 }
 
 export interface ValidatedDocs {
@@ -978,6 +978,7 @@ export class AgentInstallConfig {
 	daVersion: string;
 	taVersion: string;
 	caVersion: string;
+	dockerRepoVersion: string;
 	gatewayConfig: object;
 	idpConfig: [IDPConfiguration[], IDPAuthConfiguration[]];
 	traceabilityConfig: TraceabilityConfig;
@@ -995,6 +996,7 @@ export class AgentInstallConfig {
 		this.daVersion = 'latest';
 		this.taVersion = 'latest';
 		this.caVersion = 'latest';
+		this.dockerRepoVersion = '';
 		this.switches = new AgentInstallSwitches();
 		this.traceabilityConfig = new TraceabilityConfig();
 		this.log = () => {};
@@ -1093,60 +1095,6 @@ export enum Protocol {
 export enum Certificate {
 	PROVIDE = 'PROVIDE',
 	GENERATE = 'GENERATE',
-}
-
-export class CloudFormationConfig {
-	AgentResourcesBucket: string;
-	APIGWCWRoleSetup: string;
-	APIGWTrafficLogGroupName: string;
-	DeploymentType: string;
-	EC2VPCID: string;
-	EC2KeyName: string;
-	EC2InstanceType: string;
-	EC2SSHLocation: string;
-	EC2PublicIPAddress: string;
-	ECSClusterName: string;
-	ECSCentralOrganizationID: string;
-	ECSCentralEnvironmentName: string;
-	ECSCentralDiscoveryAgentName: string;
-	ECSCentralTraceabilityAgentName: string;
-	ECSCentralClientID: string | null;
-	ECSCentralRegion: string;
-	DiscoveryAgentLogGroupName: string;
-	DiscoveryAgentVersion: string;
-	TraceabilityAgentLogGroupName: string;
-	TraceabilityAgentVersion: string;
-	SSMPrivateKeyParameter: string;
-	SSMPublicKeyParameter: string;
-	SecurityGroup: string;
-	Subnet: string;
-
-	constructor() {
-		this.AgentResourcesBucket = '';
-		this.APIGWCWRoleSetup = 'true';
-		this.APIGWTrafficLogGroupName = 'aws-apigw-traffic-logs';
-		this.DeploymentType = 'EC2';
-		this.EC2VPCID = '';
-		this.EC2KeyName = '';
-		this.EC2InstanceType = 't3.micro';
-		this.EC2SSHLocation = '0.0.0.0/0';
-		this.EC2PublicIPAddress = 'true';
-		this.ECSClusterName = '';
-		this.ECSCentralOrganizationID = '';
-		this.ECSCentralEnvironmentName = '';
-		this.ECSCentralClientID = '';
-		this.ECSCentralDiscoveryAgentName = '';
-		this.ECSCentralTraceabilityAgentName = '';
-		this.ECSCentralRegion = '';
-		this.DiscoveryAgentLogGroupName = 'amplify-discovery-agent-logs';
-		this.DiscoveryAgentVersion = 'latest';
-		this.TraceabilityAgentLogGroupName = 'amplify-traceability-agent-logs';
-		this.TraceabilityAgentVersion = 'latest';
-		this.SSMPrivateKeyParameter = 'AmplifyPrivateKey';
-		this.SSMPublicKeyParameter = 'AmplifyPublicKey';
-		this.SecurityGroup = '';
-		this.Subnet = '';
-	}
 }
 
 export class IstioAgentValues {

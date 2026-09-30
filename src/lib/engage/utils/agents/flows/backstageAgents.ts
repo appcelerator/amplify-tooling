@@ -5,8 +5,6 @@ import * as helpers from '../index.js';
 import chalk from 'chalk';
 import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 
-const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.BACKSTAGE_DA}`;
-
 export const defaultLogFiles = '/group-*_instance-*.log';
 
 // ConfigFiles - all the config file that are used in the setup
@@ -122,6 +120,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	const runDaWinMsg = `docker run -it --env-file ${helpers.pwdWin}/${helpers.configFiles.DA_ENV_VARS} -v ${helpers.pwdWin}:/keys ${helpers.eolCharWin}`;
 	const startDaLinuxMsg = '\nStart the Discovery Agent on a Linux based machine';
 	const startDaWinMsg = '\nStart the Discovery Agent on a Windows machine';
+	const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.BACKSTAGE_DA}`;
 
 	const dockerInfo = `To utilize the agents, pull the latest Docker images and run them using the appropriate supplied environment files, (${helpers.configFiles.DA_ENV_VARS}:`;
 	installConfig.log(chalk.whiteBright(dockerInfo) + '\n');

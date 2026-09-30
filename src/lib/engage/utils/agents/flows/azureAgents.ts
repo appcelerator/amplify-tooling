@@ -5,9 +5,6 @@ import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 import { AzureAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 
-const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.AZURE_DA}`;
-const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.AZURE_TA}`;
-
 const InvalidMessages = {
 	enterApiManagementServiceName: 'The API Management Service Name can contain only letters, numbers and hyphens. The first character must be a letter and last character must be a letter or a number.',
 };
@@ -187,6 +184,8 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	const startDaWinMsg = '\nStart the Discovery Agent on a Windows machine';
 	const startTaLinuxMsg = '\nStart the Traceability Agent on a Linux based machine';
 	const startTaWinMsg = '\nStart the Traceability Agent on a Windows machine';
+	const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.AZURE_DA}`;
+	const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.AZURE_TA}`;
 
 	if (installConfig.switches.isDaEnabled && installConfig.switches.isTaEnabled) {
 		dockerInfo = `To utilize the agents, pull the latest Docker images and run them using the appropriate supplied environment files, (${helpers.configFiles.DA_ENV_VARS} & ${helpers.configFiles.TA_ENV_VARS}):`;

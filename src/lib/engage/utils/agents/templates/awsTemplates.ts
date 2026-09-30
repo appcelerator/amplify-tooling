@@ -1,7 +1,6 @@
 import {
 	AWSAgentCoreConfig,
 	CentralAgentConfig,
-	CloudFormationConfig,
 	TraceabilityConfig,
 } from '../../../types.js';
 
@@ -19,14 +18,13 @@ export class AWSAgentValues {
 	apigwAgentConfigZipFile: string;
 	centralConfig: CentralAgentConfig;
 	traceabilityConfig: TraceabilityConfig;
-	cloudFormationConfig: CloudFormationConfig;
 	agentCoreGatewayMode: boolean;
 	agentCore: AWSAgentCoreConfig;
 	cognitoUserPoolIDs: string[];
 
-	constructor(awsDeployment: string) {
-		this.accessKey = awsDeployment === 'Other' ? '**Insert Access Key**' : '';
-		this.secretKey = awsDeployment === 'Other' ? '**Insert Secret Key**' : '';
+	constructor() {
+		this.accessKey = '**Insert Access Key**';
+		this.secretKey = '**Insert Secret Key**';
 		this.logGroup = '';
 		this.stageTagName = '';
 		this.fullTransactionLogging = false;
@@ -34,22 +32,10 @@ export class AWSAgentValues {
 		this.apigwAgentConfigZipFile = '';
 		this.centralConfig = new CentralAgentConfig();
 		this.traceabilityConfig = new TraceabilityConfig();
-		this.cloudFormationConfig = new CloudFormationConfig();
 		this.agentCoreGatewayMode = false;
 		this.agentCore = new AWSAgentCoreConfig();
 		this.cognitoUserPoolIDs = [];
 	}
-
-	updateCloudFormationConfig = () => {
-		this.cloudFormationConfig.ECSCentralRegion = this.centralConfig.region;
-		if (this.cloudFormationConfig.DeploymentType === 'ECS Fargate') {
-			this.cloudFormationConfig.ECSCentralOrganizationID = this.centralConfig.orgId;
-			this.cloudFormationConfig.ECSCentralEnvironmentName = this.centralConfig.environment;
-			this.cloudFormationConfig.ECSCentralClientID = this.centralConfig.dosaAccount.clientId;
-			this.cloudFormationConfig.ECSCentralDiscoveryAgentName = this.centralConfig.daAgentName;
-			this.cloudFormationConfig.ECSCentralTraceabilityAgentName = this.centralConfig.taAgentName;
-		}
-	};
 }
 
 /**

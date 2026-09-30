@@ -24,10 +24,10 @@ variables:
 
 include:
   - project: "apigov/gitlabci"
-    ref: $GITLAB_CICD_GREEN
+    ref: $GITLAB_CICD_BLUE
     file: "/.gitlab-ci-sonar.yml"
   - project: "apigov/security/gitlabci"
-    ref: $SECURITY_CICD_GREEN
+    ref: $GITLAB_CICD_BLUE
     file:
       - "/.gitlab-ci-blackduck.yml"
       - "/.gitlab-ci-cxone.yml"
@@ -52,7 +52,7 @@ report-snapshot:
     - fetch-third-party
 
 install_dependencies:
-  image: dockerhub.artifactory-phx.ecd.axway.int/node:24.16.0-alpine
+  image: dockerhub.artifactory.axway.com/node:24.16.0-alpine
   stage: install
   script:
     - npm ci
@@ -60,7 +60,7 @@ install_dependencies:
     - schedules
 
 unit_tests:
-  image: dockerhub.artifactory-phx.ecd.axway.int/node:24.16.0-alpine
+  image: dockerhub.artifactory.axway.com/node:24.16.0-alpine
   stage: test
   script:
     - apk add --no-cache libsecret-dev

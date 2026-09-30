@@ -12,9 +12,6 @@ const defaultOTLogFiles = '/group-*_instance-*_traffic*.log';
 export const dockerPrivateKey = '/keys/private_key.pem';
 export const dockerPublicKey = '/keys/public_key.pem';
 
-const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.EDGE_DA}`;
-const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.EDGE_TA}`;
-
 // ConfigFiles - all the config file that are used in the setup
 export const ConfigFiles = {
 	DAEnvVars: `${helpers.configFiles.DA_ENV_VARS}`,
@@ -343,6 +340,8 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig, eventLogPath: strin
 	const startDaWinMsg = '\nStart the Discovery Agent on a Windows machine';
 	const startTaLinuxMsg = '\nStart the Traceability Agent on a Linux based machine';
 	const startTaWinMsg = '\nStart the Traceability Agent on a Windows machine';
+	const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.EDGE_DA}`;
+	const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.EDGE_TA}`;
 
 	if (installConfig.switches.isDaEnabled && installConfig.switches.isTaEnabled) {
 		dockerInfo = `To utilize the agents, pull the latest Docker images and run them using the appropriate supplied environment files, (${helpers.configFiles.DA_ENV_VARS} & ${helpers.configFiles.TA_ENV_VARS}):`;

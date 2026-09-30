@@ -8,7 +8,6 @@ import { TraceableAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 import { kubectl } from '../kubectl.js';
 
-const caImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.TRACEABLE_CA}`;
 export const amplifyAgentsNs = 'amplify-agents';
 
 // ConfigFiles - all the config file that are used in the setup
@@ -161,6 +160,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	const runAgentWinMsg = `docker run -it --env-file ${helpers.pwdWin}/${helpers.configFiles.AGENT_ENV_VARS} -v ${helpers.pwdWin}:/keys ${helpers.eolCharWin}`;
 	const startAgentLinuxMsg = '\nStart the Traceable Agent on a Linux based machine';
 	const startAgentWinMsg = '\nStart the Traceable Agent on a Windows machine';
+	const caImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.TRACEABLE_CA}`;
 
 	if (installConfig.switches.isTaEnabled) {
 		dockerInfo = `To utilize the agent, pull the latest Docker image and run it using the appropriate supplied environment file, (${helpers.configFiles.AGENT_ENV_VARS}):`;

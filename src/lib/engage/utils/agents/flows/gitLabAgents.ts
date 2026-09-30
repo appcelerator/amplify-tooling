@@ -5,8 +5,6 @@ import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 import { GitLabAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 
-const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.GITLAB_DA}`;
-
 // ConfigFiles - all the config file that are used in the setup
 export const ConfigFiles = {
 	DAEnvVars: `${helpers.configFiles.DA_ENV_VARS}`,
@@ -140,6 +138,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	const runDaWinMsg = `docker run -it --env-file ${helpers.pwdWin}/${helpers.configFiles.DA_ENV_VARS} -v ${helpers.pwdWin}:/keys ${helpers.eolCharWin}`;
 	const startDaLinuxMsg = '\nStart the Discovery Agent on a Linux based machine';
 	const startDaWinMsg = '\nStart the Discovery Agent on a Windows machine';
+	const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.GITLAB_DA}`;
 
 	if (installConfig.switches.isDaEnabled) {
 		dockerInfo = `To utilize the discovery agent, pull the latest Docker image and run it using the supplied environment file, (${helpers.configFiles.DA_ENV_VARS}):`;

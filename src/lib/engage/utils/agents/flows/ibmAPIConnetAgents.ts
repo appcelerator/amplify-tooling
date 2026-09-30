@@ -5,9 +5,6 @@ import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 import { IBMAPIConnectAgentValues } from '../index.js';
 import * as helpers from '../index.js';
 
-const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.IBMAPICONNECT_DA}`;
-const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${AgentNames.IBMAPICONNECT_TA}`;
-
 export const defaultLogFiles = '/group-*_instance-*.log';
 
 // ConfigFiles - all the config file that are used in the setup
@@ -145,6 +142,8 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 	const startDaWinMsg = '\nStart the Discovery Agent on a Windows machine';
 	const startTaLinuxMsg = '\nStart the Traceability Agent on a Linux based machine';
 	const startTaWinMsg = '\nStart the Traceability Agent on a Windows machine';
+	const daImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.IBMAPICONNECT_DA}`;
+	const taImage = `${PublicDockerRepoBaseUrl}${BasePaths.DockerAgentPublicRepo}/${installConfig.dockerRepoVersion}/${AgentNames.IBMAPICONNECT_TA}`;
 
 	if (installConfig.switches.isDaEnabled && installConfig.switches.isTaEnabled) {
 		dockerInfo = `To utilize the agents, pull the latest Docker images and run them using the appropriate supplied environment files, (${helpers.configFiles.DA_ENV_VARS} & ${helpers.configFiles.TA_ENV_VARS}):`;

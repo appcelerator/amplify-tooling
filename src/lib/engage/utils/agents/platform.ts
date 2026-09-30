@@ -20,9 +20,7 @@ import {
 	YesNo,
 	YesNoChoices,
 } from '../../types.js';
-// import { DeploymentTypes } from './awsAgents';
 import * as helpers from '../../utils/agents/index.js';
-import { DeploymentTypes } from './flows/awsAgents.js';
 import { Account } from '../../../../types.js';
 import loadConfig from '../../../config.js';
 // import { AWSAgentValues } from './helpers';
@@ -57,7 +55,6 @@ export const getTraceabilityConfig = async (installConfig: AgentInstallConfig): 
 
 	if (
 		installConfig.gatewayType === GatewayTypes.AWS_GATEWAY
-		&& (installConfig.gatewayConfig as helpers.AWSAgentValues).cloudFormationConfig.DeploymentType === DeploymentTypes.ECS_FARGATE
 	) {
 		return traceabilityConfig;
 	}

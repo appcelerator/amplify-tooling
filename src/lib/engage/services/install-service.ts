@@ -95,12 +95,14 @@ async function getAgentVersions(agentInstallFlow: InstallationFlowMethods, insta
 			apiServerClient,
 			agentInstallFlow.AgentNameMap[AgentTypes.da] as string,
 		);
+		installConfig.dockerRepoVersion = installConfig.daVersion.split('.').slice(0, 2).join('.');
 	}
 	if (agentInstallFlow.AgentNameMap && !installConfig.switches.isHostedInstall && installConfig.switches.isTaEnabled) {
 		installConfig.taVersion = await helpers.getLatestAgentVersion(
 			apiServerClient,
 			agentInstallFlow.AgentNameMap[AgentTypes.ta] as string,
 		);
+		installConfig.dockerRepoVersion = installConfig.taVersion.split('.').slice(0, 2).join('.');
 	}
 }
 
