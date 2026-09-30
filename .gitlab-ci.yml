@@ -24,10 +24,10 @@ variables:
 
 include:
   - project: "apigov/gitlabci"
-    ref: $GITLAB_CICD_GREEN
+    ref: $GITLAB_CICD_BLUE
     file: "/.gitlab-ci-sonar.yml"
   - project: "apigov/security/gitlabci"
-    ref: $SECURITY_CICD_GREEN
+    ref: $SECURITY_CICD_BLUE
     file:
       - "/.gitlab-ci-cxone.yml"
       - "/.gitlab-ci-blackduck.yml"
