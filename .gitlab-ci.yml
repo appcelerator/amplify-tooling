@@ -27,7 +27,7 @@ include:
     ref: $GITLAB_CICD_BLUE
     file: "/.gitlab-ci-sonar.yml"
   - project: "apigov/security/gitlabci"
-    ref: $GITLAB_CICD_BLUE
+    ref: $SECURITY_CICD_BLUE
     file:
       - "/.gitlab-ci-blackduck.yml"
       - "/.gitlab-ci-cxone.yml"
