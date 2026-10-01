@@ -1,0 +1,144 @@
+---
+apiVersion: v1alpha1
+kind: AssetRelease
+name: asset1
+title: title
+tags: []
+spec:
+  asset: asset1
+  type: random
+  version: "0.1.0"
+
+---
+apiVersion: v1alpha1
+kind: Asset
+name: asset1
+title: title
+tags: []
+spec: {}
+
+---
+apiVersion: v1alpha1
+kind: Stage
+name: stage1
+title: title
+tags: []
+spec: {}
+
+---
+apiVersion: v1alpha1
+kind: AssetRequestDefinition
+name: assetrd1
+title: title
+metadata:
+  scope:
+    kind: Asset
+    name: asset1
+spec:
+   schema: "test"
+
+---
+apiVersion: v1alpha1
+kind: ReleaseTag
+name: releasetag1
+title: title
+metadata:
+  scope:
+    kind: Asset
+    name: asset1
+spec:
+   releaseType: "minor"
+
+---
+apiVersion: v1alpha1
+kind: AssetResource
+name: assetresource1
+title: title
+metadata:
+  scope:
+    kind: Asset
+    name: asset1
+spec:
+  stage: stage1
+  type: "oas2"
+
+---
+apiVersion: v1alpha1
+kind: AssetResource
+name: assetresource1
+title: title
+metadata:
+  scope:
+    kind: AssetRelease
+    name: asset1
+spec:
+  stage: stage1
+  type: "oas2"
+
+---
+apiVersion: v1alpha1
+kind: Document
+name: doc1
+title: title
+metadata:
+  scope:
+    kind: Asset
+    name: asset1
+spec:
+  stages:
+    - stage1
+  content: test
+
+---
+apiVersion: v1alpha1
+kind: Document
+name: doc1
+title: title
+metadata:
+  scope:
+    kind: AssetRelease
+    name: asset1
+spec:
+  stages:
+    - stage1
+  content: test
+
+
+# NOTE: resources below are still WIP so can be un-commented when ready
+# ---
+# apiVersion: v1alpha1
+# kind: AssetRequestDefinition
+# name: assetrd1
+# title: title
+# metadata:
+#   scope:
+#     kind: AssetRelease
+#     name: asset1
+# spec:
+#    schema: "test"
+
+# ---
+# apiVersion: v1alpha1
+# kind: AssetRequest
+# name: assetrequest1
+# title: title
+# metadata:
+#   scope:
+#     kind: AssetRelease
+#     name: asset1
+# spec:
+#   stage: stage1
+#   type: "oas2"
+
+# ---
+# apiVersion: v1alpha1
+# kind: AssetRequest
+# name: assetrequest1
+# title: title
+# metadata:
+#   scope:
+#     kind: Asset
+#     name: asset1
+# spec:
+#   stage: stage1
+#   type: "oas2"

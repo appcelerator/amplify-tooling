@@ -1,0 +1,90 @@
+[
+	{
+		"apiVersion": "v1alpha1",
+		"group": "management",
+		"kind": "APIServiceInstance",
+		"name": "apisvcinst1",
+		"title": "apisvcinst1 title",
+		"metadata": {
+			"references": [
+				{
+					"id": "e4e0839d6efb5a5c016efc23f81703f3",
+					"kind": "APIServiceRevision",
+					"name": "apisvcrev1",
+					"type": "HARD"
+				}
+			],
+			"audit": {
+				"createTimestamp": "2019-12-12T22:04:06.280+0000",
+				"createUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7",
+				"modifyTimestamp": "2019-12-12T22:04:06.280+0000",
+				"modifyUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7"
+			},
+			"resourceVersion": "849",
+			"scope": {
+				"id": "e4e0839f6efb5aa4016efc23f41d0338",
+				"kind": "Environment",
+				"name": "env1"
+			},
+			"id": "e4e0839d6efb5a5c016efc23f90803f9"
+		},
+		"attributes": {
+			"createdBy": "yaml"
+		},
+		"tags": ["cli", "apisvcinst", "axway"],
+		"spec": {
+			"endpoint": [
+				{
+					"host": "test-endpoint.com",
+					"port": 8080,
+					"protocol": "https"
+				}
+			],
+			"apiServiceRevision": "apisvcrev1"
+		}
+	},
+	{
+		"apiVersion": "v1alpha1",
+		"group": "management",
+		"kind": "APIServiceInstance",
+		"name": "apisvcinst2",
+		"title": "apisvcinst2 title",
+		"metadata": {
+			"references": [
+				{
+					"id": "e4e0839d6efb5a5c016efc23f70d03ed",
+					"kind": "APIServiceRevision",
+					"name": "apisvcrev2",
+					"type": "HARD"
+				}
+			],
+			"audit": {
+				"createTimestamp": "2019-12-12T22:04:06.581+0000",
+				"createUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7",
+				"modifyTimestamp": "2019-12-12T22:04:06.581+0000",
+				"modifyUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7"
+			},
+			"resourceVersion": "850",
+			"scope": {
+				"id": "e4e0839f6efb5aa4016efc23f3040333",
+				"kind": "Environment",
+				"name": "env2"
+			},
+			"id": "e4e0839d6efb5a5c016efc23fa3503ff"
+		},
+		"attributes": {
+			"createdBy": "yaml"
+		},
+		"tags": ["cli", "apisvcinst", "axway"],
+		"spec": {
+			"endpoint": [
+				{
+					"host": "test-endpoint2.com",
+					"port": 8080,
+					"protocol": "https"
+				}
+			],
+			"apiServiceRevision": "apisvcrev2"
+		}
+	}
+]

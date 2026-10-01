@@ -7,7 +7,7 @@ export default class TeamUserCommand extends Command {
 
 	static override summary = 'Manage team users.';
 
-	static override description = `You may specify the team by name or guid, user by email address or guid, or service account by guid or client id.`;
+	static override description = 'You may specify the team by name or guid, user by email address or guid, or service account by guid or client id.';
 
 	static override examples = [
 		{

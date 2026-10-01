@@ -1,0 +1,28 @@
+[
+    {
+        "metadata": {
+            "scope": {
+                "kind": "Environment",
+                "name": "env1"
+            }
+        },
+        "spec": {
+            "apiService": {
+                "name": "apisvc1"
+            }
+        }  
+    },
+    {
+        "metadata": {
+            "scope": {
+                "kind": "Environment",
+                "name": "env2"
+            }
+        },
+        "spec": {
+            "apiService": {
+                "name": "apisvc2"
+            }
+        }
+    }
+]

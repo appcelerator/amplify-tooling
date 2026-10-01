@@ -58,6 +58,7 @@ export async function initSDK(opts: any = {}, config?: Config) {
 		baseUrl?: string;
 		clientId: string;
 		clientSecret?: string;
+		env?: string;
 		homeDir: string;
 		password?: string;
 		persistSecrets?: boolean;
@@ -80,6 +81,7 @@ export async function initSDK(opts: any = {}, config?: Config) {
 		baseUrl: undefined,
 		clientId: undefined,
 		clientSecret: undefined,
+		env: env?.name,
 		homeDir: axwayHome,
 		password: undefined,
 		persistSecrets: undefined,

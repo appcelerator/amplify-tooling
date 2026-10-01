@@ -1,0 +1,98 @@
+[
+	{
+		"group": "management",
+		"apiVersion": "v1alpha1",
+		"kind": "Webhook",
+		"name": "webhook1",
+		"title": "webhook1 title",
+		"metadata": {
+			"id": "e4e8e508720d140801722f231a304f71",
+			"audit": {
+				"createTimestamp": "2020-05-19T22:52:09.136+0000",
+				"createUserId": "DOSA_0832cea74d4a4c409a788688a0dc0bb6",
+				"modifyTimestamp": "2020-05-19T22:52:09.136+0000",
+				"modifyUserId": "DOSA_0832cea74d4a4c409a788688a0dc0bb6"
+			},
+			"scope": {
+				"id": "e4e56388720d64e301722f2315c64f6d",
+				"kind": "Environment",
+				"name": "testenv1"
+			},
+			"resourceVersion": "13093",
+			"references": [
+				{
+					"id": "e4e8e508720d140801722f2318dd4f6c",
+					"kind": "Secret",
+					"name": "secret1",
+					"type": "soft"
+				}
+			]
+		},
+		"attributes": {
+			"createdBy": "yaml"
+		},
+		"tags": ["cli", "axway", "testing"],
+		"spec": {
+			"url": "https://webhookurl.com/path",
+			"auth": {
+				"secret": {
+					"key": "key1",
+					"name": "secret1"
+				}
+			},
+			"enabled": true,
+			"headers": {
+				"header1": "header1val",
+				"header2": "header2val"
+			}
+		}
+	},
+	{
+		"group": "management",
+		"apiVersion": "v1alpha1",
+		"kind": "Webhook",
+		"name": "webhook2",
+		"title": "webhook2 title",
+		"metadata": {
+			"id": "e4e0892e71a3f7b00171c2d2b4e60558",
+			"audit": {
+				"createTimestamp": "2020-04-28T22:05:20.998+0000",
+				"createUserId": "DOSA_0832cea74d4a4c409a788688a0dc0bb6",
+				"modifyTimestamp": "2020-05-19T23:17:15.826+0000",
+				"modifyUserId": "DOSA_0832cea74d4a4c409a788688a0dc0bb6"
+			},
+			"scope": {
+				"id": "e4e0892e71a3f7b00171c2d2acbf0547",
+				"kind": "Environment",
+				"name": "testenv2"
+			},
+			"resourceVersion": "5139",
+			"references": [
+				{
+					"id": "e4e0888f71a3f8b10171c2d2b34e0558",
+					"kind": "Secret",
+					"name": "secret2",
+					"type": "soft"
+				}
+			]
+		},
+		"attributes": {
+			"createdBy": "yaml"
+		},
+		"tags": ["cli", "axway", "testing"],
+		"spec": {
+			"url": "https://webhookurl.com/path",
+			"auth": {
+				"secret": {
+					"key": "key1",
+					"name": "secret2"
+				}
+			},
+			"enabled": true,
+			"headers": {
+				"header1": "header1val",
+				"header2": "header2val"
+			}
+		}
+	}
+]

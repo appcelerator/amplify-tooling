@@ -1,0 +1,22 @@
+---
+apiVersion: v1alpha1
+kind: Asset
+name: testasset1
+title: title 111
+spec:
+  type: API
+x-custom: 111
+state: state 111
+icon: data:image/svg+xml;base64,111
+
+---
+apiVersion: v1alpha1
+kind: Asset
+name: testasset2
+title: title 222
+spec:
+  type: API
+x-custom: 222
+state: state 222
+icon: data:image/svg+xml;base64,222
+

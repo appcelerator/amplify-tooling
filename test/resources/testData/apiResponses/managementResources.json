@@ -1,0 +1,3238 @@
+[
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "meshdiscovery-mesh",
+		"title": "meshdiscovery-mesh",
+		"metadata": {
+			"id": "8a2e839b76fe2efa0176fe3026750000",
+			"audit": {
+				"createTimestamp": "2021-01-13T23:58:57.141+0000",
+				"modifyTimestamp": "2021-10-15T23:18:48.804+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "63823",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/meshdiscovery-mesh"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "MeshDiscovery",
+			"scope": {
+				"kind": "Mesh"
+			},
+			"plural": "meshdiscoveries",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Environment",
+						"group": "management",
+						"types": ["hard"]
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "meshservice-mesh",
+		"title": "meshservice-mesh",
+		"metadata": {
+			"id": "8a2e839b76fe2efa0176fe3027160001",
+			"audit": {
+				"createTimestamp": "2021-01-13T23:58:57.302+0000",
+				"modifyTimestamp": "2021-10-15T23:18:49.205+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "63853",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/meshservice-mesh"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "MeshService",
+			"scope": {
+				"kind": "Mesh"
+			},
+			"plural": "meshservices",
+			"references": {
+				"toResources": [
+					{
+						"kind": "K8SResource",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "K8SCluster"
+					},
+					{
+						"kind": "APISpec",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "K8SCluster"
+					},
+					{
+						"kind": "MeshWorkload",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Mesh"
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetmapping-environment",
+		"title": "assetmapping-environment",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc27120001",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:16.562+0000",
+				"modifyTimestamp": "2021-10-15T23:18:50.313+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "284721",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/assetmapping-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetMapping",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "assetmappings",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetMappingTemplate",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AccessRequestDefinition",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetRequestDefinition",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"kind": "AccessRequestDefinition",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "APIService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "Stage",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMappingTemplate",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "APIService",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "accessrequestdefinition-environment",
+		"title": "accessrequestdefinition-environment",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc27740002",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:16.660+0000",
+				"modifyTimestamp": "2021-10-15T23:18:50.629+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "284710",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/accessrequestdefinition-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AccessRequestDefinition",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "accessrequestdefinitions",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRequestDefinition",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					},
+					{
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRequestDefinition",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "accessrequest-environment",
+		"title": "accessrequest-environment",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc27c00003",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:16.736+0000",
+				"modifyTimestamp": "2021-10-15T23:18:53.229+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "284688",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/accessrequest-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AccessRequest",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "accessrequests",
+			"references": {
+				"toResources": [
+					{
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRequest",
+						"group": "catalog",
+						"types": ["hard"],
+						"scopeKind": "Asset"
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRequest",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"state.name"
+			],
+			"subResources": {
+				"names": ["references", "state"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "assetmappingtemplate-environment",
+		"title": "assetmappingtemplate-environment",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc27fa0004",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:16.794+0000",
+				"modifyTimestamp": "2021-10-15T23:18:54.233+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "284710",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/assetmappingtemplate-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AssetMappingTemplate",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "assetmappingtemplates",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "apiservice-environment",
+		"title": "apiservice-environment",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d8480fe20000",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:42.722+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.850+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50680",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/apiservice-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "APIService",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "apiservices",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "ConsumerInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Deployment",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "apispec-k8scluster",
+		"title": "apispec-k8scluster",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d84810500002",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:42.832+0000",
+				"modifyTimestamp": "2021-10-15T23:18:52.219+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50672",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/apispec-k8scluster"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "APISpec",
+			"scope": {
+				"kind": "K8SCluster"
+			},
+			"plural": "apispecs",
+			"references": {
+				"toResources": [
+					{
+						"kind": "SpecDiscovery",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "K8SCluster"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "MeshService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Mesh"
+					},
+					{
+						"kind": "MeshWorkload",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Mesh"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "secret-integration",
+		"title": "secret-integration",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d848107a0003",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:42.874+0000",
+				"modifyTimestamp": "2021-10-15T23:18:49.007+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50656",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/secret-integration"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Secret",
+			"scope": {
+				"kind": "Integration"
+			},
+			"plural": "secrets",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "Webhook",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Integration"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "apiserviceinstance-environment",
+		"title": "apiserviceinstance-environment",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d848114d0006",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.085+0000",
+				"modifyTimestamp": "2021-10-15T23:18:52.439+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50688",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/apiserviceinstance-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "APIServiceInstance",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "apiserviceinstances",
+			"references": {
+				"toResources": [
+					{
+						"kind": "AccessRequestDefinition",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					},
+					{
+						"kind": "ConsumerInstance",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AccessRequest",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "consumerinstance-environment",
+		"title": "consumerinstance-environment",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d848118a0007",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.146+0000",
+				"modifyTimestamp": "2021-10-15T23:18:52.782+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50692",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/consumerinstance-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ConsumerInstance",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "consumerinstances",
+			"references": {
+				"toResources": [
+					{
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIServiceRevision",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "Category",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "ConsumerSubscriptionDefinition",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"status.phase.level",
+				"spec.owningTeam"
+			],
+			"subResources": {
+				"names": ["references", "status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "webhook-environment",
+		"title": "webhook-environment",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d84811bc0008",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.196+0000",
+				"modifyTimestamp": "2021-10-15T23:18:49.543+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50661",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/webhook-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Webhook",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "webhooks",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Secret",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "ConsumerSubscriptionDefinition",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "consumersubscriptiondef-environment",
+		"title": "consumersubscriptiondef-environment",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d84811e70009",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.239+0000",
+				"modifyTimestamp": "2021-10-15T23:18:49.693+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50662",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/consumersubscriptiondef-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ConsumerSubscriptionDefinition",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "consumersubscriptiondefs",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Webhook",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "ConsumerInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "apiservicerevision-environment",
+		"title": "apiservicerevision-environment",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d8481210000a",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.280+0000",
+				"modifyTimestamp": "2021-10-15T23:18:49.858+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50690",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/apiservicerevision-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "APIServiceRevision",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "apiservicerevisions",
+			"references": {
+				"toResources": [
+					{
+						"kind": "APIService",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "ConsumerInstance",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "status"
+						},
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AssetMapping",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "AssetRelease"
+					},
+					{
+						"kind": "APIServiceInstance",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetResource",
+						"group": "catalog",
+						"types": ["soft"],
+						"scopeKind": "Asset"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"spec.definition.type"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "secret-environment",
+		"title": "secret-environment",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d8481236000b",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.318+0000",
+				"modifyTimestamp": "2021-10-15T23:18:50.089+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50664",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/secret-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Secret",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "secrets",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "Webhook",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "k8resource-k8scluster",
+		"title": "k8resource-k8scluster",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d84812a8000e",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.432+0000",
+				"modifyTimestamp": "2021-10-15T23:18:53.895+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50681",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/k8resource-k8scluster"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "K8SResource",
+			"scope": {
+				"kind": "K8SCluster"
+			},
+			"plural": "k8sresources",
+			"references": {
+				"toResources": [
+					{
+						"kind": "ResourceDiscovery",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "K8SCluster"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "MeshWorkload",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Mesh"
+					},
+					{
+						"kind": "MeshService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Mesh"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "specdiscovery-k8scluster",
+		"title": "specdiscovery-k8scluster",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d84812e9000f",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.496+0000",
+				"modifyTimestamp": "2021-10-15T23:18:50.725+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50668",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/specdiscovery-k8scluster"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "SpecDiscovery",
+			"scope": {
+				"kind": "K8SCluster"
+			},
+			"plural": "specdiscoveries",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "APISpec",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "K8SCluster"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "resourcediscovery-k8scluster",
+		"title": "resourcediscovery-k8scluster",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d84813050010",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.525+0000",
+				"modifyTimestamp": "2021-10-15T23:18:50.900+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50669",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/resourcediscovery-k8scluster"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ResourceDiscovery",
+			"scope": {
+				"kind": "K8SCluster"
+			},
+			"plural": "resourcediscoveries",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "K8SResource",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "K8SCluster"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "webhook-integration",
+		"title": "webhook-integration",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d848133a0011",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.578+0000",
+				"modifyTimestamp": "2021-10-15T23:18:54.129+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50670",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/webhook-integration"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Webhook",
+			"scope": {
+				"kind": "Integration"
+			},
+			"plural": "webhooks",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Secret",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Integration"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "ResourceHook",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Integration"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "resourcehook-integration",
+		"title": "resourcehook-integration",
+		"metadata": {
+			"id": "8a2e8aed75d8459b0175d848139c0013",
+			"audit": {
+				"createTimestamp": "2020-11-17T22:16:43.676+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.765+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "50672",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/resourcehook-integration"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ResourceHook",
+			"scope": {
+				"kind": "Integration"
+			},
+			"plural": "resourcehooks",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Webhook",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Integration"
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "traceabilityagent-environment",
+		"title": "traceabilityagent-environment",
+		"metadata": {
+			"id": "8a2e8c85779860f90177986340710000",
+			"audit": {
+				"createTimestamp": "2021-02-12T22:36:17.393+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.100+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "93306",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/traceabilityagent-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "TraceabilityAgent",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "traceabilityagents",
+			"references": {
+				"toResources": [],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "complianceagent-environment",
+		"title": "complianceagent-environment",
+		"metadata": {
+			"id": "8a2e8c85779860f90177986340710000",
+			"audit": {
+				"createTimestamp": "2021-02-12T22:36:17.393+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.100+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "93306",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/complianceagent-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ComplianceAgent",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "complianceagents",
+			"references": {
+				"toResources": [],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "discoveryagent-environment",
+		"title": "discoveryagent-environment",
+		"metadata": {
+			"id": "8a2e8c85779860f90177986341440001",
+			"audit": {
+				"createTimestamp": "2021-02-12T22:36:17.604+0000",
+				"modifyTimestamp": "2021-10-15T23:18:54.445+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "93307",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/discoveryagent-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "DiscoveryAgent",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "discoveryagents",
+			"references": {
+				"toResources": [],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "dataplane-environment",
+		"title": "dataplane-environment",
+		"metadata": {
+			"id": "8a2e8c85779860f90177986341440001",
+			"audit": {
+				"createTimestamp": "2021-02-12T22:36:17.604+0000",
+				"modifyTimestamp": "2021-10-15T23:18:54.445+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "93307",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/dataplane-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Dataplane",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "dataplanes",
+			"references": {
+				"toResources": [],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "dataplanesecret-environment",
+		"title": "dataplanesecret-environment",
+		"metadata": {
+			"id": "8a2e8c85779860f90177986341440001",
+			"audit": {
+				"createTimestamp": "2021-02-12T22:36:17.604+0000",
+				"modifyTimestamp": "2021-10-15T23:18:54.445+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "93307",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/dataplanesecret-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "DataplaneSecret",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "dataplanesecrets",
+			"references": {
+				"toResources": [],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "meshworkload-mesh",
+		"title": "meshworkload-mesh",
+		"metadata": {
+			"id": "8a2e8cc976ab509e0176ab52e9590000",
+			"audit": {
+				"createTimestamp": "2020-12-28T21:48:26.328+0000",
+				"modifyTimestamp": "2021-10-15T23:18:52.118+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "59318",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/meshworkload-mesh"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "MeshWorkload",
+			"scope": {
+				"kind": "Mesh"
+			},
+			"plural": "meshworkloads",
+			"references": {
+				"toResources": [
+					{
+						"kind": "K8SResource",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "K8SCluster"
+					},
+					{
+						"kind": "APISpec",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "K8SCluster"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "MeshService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Mesh"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "ampconfig-environment",
+		"title": "ampconfig-environment",
+		"metadata": {
+			"id": "8a2e8fd77b84d790017b84d91c070012",
+			"audit": {
+				"createTimestamp": "2021-08-26T23:43:46.183+0000",
+				"modifyTimestamp": "2021-10-15T23:18:50.186+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "1",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/ampconfig-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AmplifyConfig",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "ampconfigs",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "AmplifyRuntimeConfig",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "ampruntimeconfig-environment",
+		"title": "ampruntimeconfig-environment",
+		"metadata": {
+			"id": "8a2e8fd77b84d790017b84d91c9e0013",
+			"audit": {
+				"createTimestamp": "2021-08-26T23:43:46.334+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.481+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "8",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/ampruntimeconfig-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "AmplifyRuntimeConfig",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "ampruntimeconfigs",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Deployment",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "AmplifyConfig",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "oas3document-virtualapi",
+		"title": "oas3document-virtualapi",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e0111c00011",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.272+0000",
+				"modifyTimestamp": "2021-10-15T23:18:48.598+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/oas3document-virtualapi"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "OAS3Document",
+			"scope": {
+				"kind": "VirtualAPI"
+			},
+			"plural": "oas3documents",
+			"references": {
+				"toResources": [
+					{
+						"kind": "VirtualService",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "VirtualAPI"
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "deployment-environment",
+		"title": "deployment-environment",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e0112040012",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.340+0000",
+				"modifyTimestamp": "2021-10-15T23:18:49.401+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "11",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/deployment-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Deployment",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "deployments",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "APIService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "VirtualAPIRelease",
+						"group": "management",
+						"types": ["hard"]
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "VirtualAPI",
+						"group": "management",
+						"types": ["soft"]
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "AmplifyRuntimeConfig",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes",
+				"references.virtualAPI"
+			],
+			"subResources": {
+				"names": ["references", "state"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "virtualapirelease",
+		"title": "virtualapirelease",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e01122c0013",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.380+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.202+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "13",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualapirelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "VirtualAPIRelease",
+			"plural": "virtualapireleases",
+			"references": {
+				"toResources": [
+					{
+						"kind": "VirtualAPI",
+						"group": "management",
+						"types": ["hard"]
+					}
+				],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "ReleaseTag",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "VirtualAPI"
+					},
+					{
+						"kind": "Deployment",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Environment"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["icon", "state"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "virtualapi",
+		"title": "virtualapi",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e0112600014",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.432+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.314+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "5",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualapi"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "VirtualAPI",
+			"plural": "virtualapis",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Deployment",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "Environment"
+					},
+					{
+						"kind": "VirtualAPIRelease",
+						"group": "management",
+						"types": ["hard"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["icon", "state"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "oas3document-virtualapirelease",
+		"title": "oas3document-virtualapirelease",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e0112870015",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.471+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.966+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/oas3document-virtualapirelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "OAS3Document",
+			"scope": {
+				"kind": "VirtualAPIRelease"
+			},
+			"plural": "oas3documents",
+			"references": {
+				"toResources": [
+					{
+						"kind": "VirtualService",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "VirtualAPIRelease"
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "corsrule-virtualapirelease",
+		"title": "corsrule-virtualapirelease",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e0112b90016",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.521+0000",
+				"modifyTimestamp": "2021-10-15T23:18:52.329+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/corsrule-virtualapirelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "CorsRule",
+			"scope": {
+				"kind": "VirtualAPIRelease"
+			},
+			"plural": "corsrules",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "VirtualService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "VirtualAPIRelease"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "releasetag-virtualapi",
+		"title": "releasetag-virtualapi",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e0112ed0017",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.573+0000",
+				"modifyTimestamp": "2021-10-15T23:18:52.586+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/releasetag-virtualapi"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "ReleaseTag",
+			"scope": {
+				"kind": "VirtualAPI"
+			},
+			"plural": "releasetags",
+			"references": {
+				"toResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "VirtualAPIRelease",
+						"group": "management",
+						"types": ["soft"]
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["references", "status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "virtualservice-virtualapi",
+		"title": "virtualservice-virtualapi",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e01133c0018",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.652+0000",
+				"modifyTimestamp": "2021-10-15T23:18:52.938+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualservice-virtualapi"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "VirtualService",
+			"scope": {
+				"kind": "VirtualAPI"
+			},
+			"plural": "virtualservices",
+			"references": {
+				"toResources": [
+					{
+						"kind": "CorsRule",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "VirtualAPI"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "OAS3Document",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "VirtualAPI"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "virtualservice-virtualapirelease",
+		"title": "virtualservice-virtualapirelease",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e01136c0019",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.700+0000",
+				"modifyTimestamp": "2021-10-15T23:18:53.080+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/virtualservice-virtualapirelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "VirtualService",
+			"scope": {
+				"kind": "VirtualAPIRelease"
+			},
+			"plural": "virtualservices",
+			"references": {
+				"toResources": [
+					{
+						"kind": "CorsRule",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "VirtualAPIRelease"
+					}
+				],
+				"fromResources": [
+					{
+						"kind": "OAS3Document",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "VirtualAPIRelease"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "governanceagent-environment",
+		"title": "governanceagent-environment",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e0113a8001a",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.760+0000",
+				"modifyTimestamp": "2021-10-15T23:18:53.528+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/governanceagent-environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "GovernanceAgent",
+			"scope": {
+				"kind": "Environment"
+			},
+			"plural": "governanceagents",
+			"references": {
+				"toResources": [],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["agentconfigstatus", "status"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "corsrule-virtualapi",
+		"title": "corsrule-virtualapi",
+		"metadata": {
+			"id": "8a2e967b7a5dfeea017a5e0113e0001b",
+			"audit": {
+				"createTimestamp": "2021-06-30T17:39:26.816+0000",
+				"modifyTimestamp": "2021-10-15T23:18:54.031+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "2",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/corsrule-virtualapi"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "CorsRule",
+			"scope": {
+				"kind": "VirtualAPI"
+			},
+			"plural": "corsrules",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "VirtualService",
+						"group": "management",
+						"types": ["soft"],
+						"scopeKind": "VirtualAPI"
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "environment",
+		"title": "environment",
+		"metadata": {
+			"id": "e4e08f487156b7c8017156b9eef60002",
+			"audit": {
+				"createTimestamp": "2020-04-07T22:19:18.141+0000",
+				"modifyTimestamp": "2021-10-15T23:18:53.389+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "1624",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/environment"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Environment",
+			"plural": "environments",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "Asset",
+						"group": "catalog",
+						"types": ["soft"]
+					},
+					{
+						"kind": "MeshDiscovery",
+						"group": "management",
+						"types": ["hard"],
+						"scopeKind": "Mesh"
+					},
+					{
+						"from": {
+							"subResourceName": "references"
+						},
+						"kind": "AssetRelease",
+						"group": "catalog",
+						"types": ["soft"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": ["references"]
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "k8scluster",
+		"title": "k8scluster",
+		"metadata": {
+			"id": "e4e540a975678cb90175678ed2dc0003",
+			"audit": {
+				"createTimestamp": "2020-10-27T00:56:54.748+0000",
+				"modifyTimestamp": "2021-10-15T23:18:50.451+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "41372",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/k8scluster"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "K8SCluster",
+			"plural": "k8sclusters",
+			"references": {
+				"toResources": [
+					{
+						"kind": "Mesh",
+						"group": "management",
+						"types": ["hard"]
+					}
+				],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "mesh",
+		"title": "mesh",
+		"metadata": {
+			"id": "e4e540a975678cb90175678ed32f0005",
+			"audit": {
+				"createTimestamp": "2020-10-27T00:56:54.830+0000",
+				"modifyTimestamp": "2021-10-15T23:18:51.660+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "41374",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/mesh"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Mesh",
+			"plural": "meshes",
+			"references": {
+				"toResources": [],
+				"fromResources": [
+					{
+						"kind": "K8SCluster",
+						"group": "management",
+						"types": ["hard"]
+					}
+				]
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "ResourceDefinition",
+		"name": "integration",
+		"title": "integration",
+		"metadata": {
+			"id": "e4e91d0f744bc01401744bc27d8e0002",
+			"audit": {
+				"createTimestamp": "2020-09-01T22:21:11.438+0000",
+				"modifyTimestamp": "2021-10-15T23:18:53.740+0000"
+			},
+			"scope": {
+				"id": "e4e08f487156b7c8017156b9ed930000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"resourceVersion": "21299",
+			"references": [],
+			"selfLink": "/definitions/v1alpha1/groups/management/resources/integration"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"kind": "Integration",
+			"plural": "integrations",
+			"references": {
+				"toResources": [],
+				"fromResources": []
+			},
+			"queryParams": [
+				"metadata.resourceVersion",
+				"metadata.references.kind",
+				"metadata.scope.owner.id",
+				"metadata.scope.name",
+				"metadata.id",
+				"metadata.audit.modifyTimestamp",
+				"metadata.references.name",
+				"title",
+				"metadata.audit.createTimestamp",
+				"tags",
+				"metadata.scope.kind",
+				"metadata.references.id",
+				"owner.id",
+				"name",
+				"attributes"
+			],
+			"subResources": {
+				"names": []
+			}
+		}
+	}
+]

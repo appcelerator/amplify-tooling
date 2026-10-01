@@ -1,0 +1,96 @@
+[
+	{
+		"apiVersion": "v1alpha1",
+		"group": "management",
+		"kind": "ConsumerSubscriptionDefinition",
+		"name": "consumersubdef1",
+		"title": "consumersubdef1 title",
+		"metadata": {
+			"references": [
+				{
+					"id": "e4e0839f6efb5aa4016efc23fe000347",
+					"kind": "Webhook",
+					"name": "webhook1",
+					"type": "SOFT"
+				}
+			],
+			"audit": {
+				"createTimestamp": "2019-12-12T22:04:08.065+0000",
+				"createUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7",
+				"modifyTimestamp": "2019-12-12T22:04:08.065+0000",
+				"modifyUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7"
+			},
+			"resourceVersion": "856",
+			"scope": {
+				"id": "e4e0839f6efb5aa4016efc23f41d0338",
+				"kind": "Environment",
+				"name": "env1"
+			},
+			"id": "e4e0839f6efb5aa4016efc240001034d"
+		},
+		"attributes": {
+			"createdBy": "yaml"
+		},
+		"tags": ["cli", "apisvcinst", "axway"],
+		"spec": {
+			"schema": {
+				"properties": [
+					{
+						"key": "key1name",
+						"value": {
+							"subKey": "subKeyValue"
+						}
+					}
+				]
+			},
+			"webhooks": ["webhook1"]
+		}
+	},
+	{
+		"apiVersion": "v1alpha1",
+		"group": "management",
+		"kind": "ConsumerSubscriptionDefinition",
+		"name": "consumersubdef2",
+		"title": "consumersubdef2 title",
+		"metadata": {
+			"references": [
+				{
+					"id": "e4e0839f6efb5aa4016efc2458790382",
+					"kind": "Webhook",
+					"name": "webhook2",
+					"type": "SOFT"
+				}
+			],
+			"audit": {
+				"createTimestamp": "2019-12-12T22:04:31.183+0000",
+				"createUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7",
+				"modifyTimestamp": "2019-12-12T22:04:31.183+0000",
+				"modifyUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7"
+			},
+			"resourceVersion": "871",
+			"scope": {
+				"id": "e4e0839f6efb5aa4016efc23f3040333",
+				"kind": "Environment",
+				"name": "env2"
+			},
+			"id": "e4e0839d6efb5a5c016efc245a4f0423"
+		},
+		"attributes": {
+			"createdBy": "yaml"
+		},
+		"tags": ["cli", "apisvcinst", "axway"],
+		"spec": {
+			"schema": {
+				"properties": [
+					{
+						"key": "key1name",
+						"value": {
+							"subKey": "subKeyValue"
+						}
+					}
+				]
+			},
+			"webhooks": ["webhook2"]
+		}
+	}
+]

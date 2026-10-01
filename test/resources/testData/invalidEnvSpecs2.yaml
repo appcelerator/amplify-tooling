@@ -1,0 +1,16 @@
+---
+apiVersion: v1alpha1
+title: Some title here
+name: validenv
+kind: Environment
+attributes:
+  createdBy: yaml
+  randomNum: 1
+tags:
+  - axway
+  - cli
+spec:
+  description: description string here
+
+---
+random string

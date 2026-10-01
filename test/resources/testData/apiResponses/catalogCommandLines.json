@@ -1,0 +1,1930 @@
+[
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "releasetag-asset",
+		"title": "releasetag-asset",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640bdb2004a",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.290+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.290+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e97c1798bedb401798beeda4a002f",
+					"kind": "ResourceDefinition",
+					"name": "releasetag-asset",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/releasetag-asset",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/releasetag-asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "releasetags",
+				"singular": "releasetag",
+				"shortNames": ["releasetag", "releasetags"],
+				"shortNamesAlias": ["releasetag"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Release Tag."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Release Tag was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Release Tag."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The kind of the scope of the resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The name of the resource this Release Tag belongs to."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				},
+				{
+					"name": "Status",
+					"type": "string",
+					"jsonPath": ".status.level",
+					"description": "The status of the Resource."
+				}
+			],
+			"resourceDefinition": "releasetag-asset"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "releasetag-product",
+		"title": "releasetag-product",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640bde0004c",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.336+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.336+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e95697b84d780017b84d98cb20013",
+					"kind": "ResourceDefinition",
+					"name": "releasetag-product",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/releasetag-product",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/releasetag-product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "releasetags",
+				"singular": "releasetag",
+				"shortNames": ["releasetag", "releasetags"],
+				"shortNamesAlias": ["releasetag"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Release Tag."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Release Tag was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Release Tag."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The kind of the scope of the resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The name of the resource this Release Tag belongs to."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				},
+				{
+					"name": "Status",
+					"type": "string",
+					"jsonPath": ".status.level",
+					"description": "The status of the Resource."
+				}
+			],
+			"resourceDefinition": "releasetag-product"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "documentation-product",
+		"title": "documentation-product",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640be07004e",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.375+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.375+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e94e27b418d1e017b418f8cf1004c",
+					"kind": "ResourceDefinition",
+					"name": "documentation-product",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/documentation-product",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/documentation-product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "documentation",
+				"singular": "documentation",
+				"shortNames": ["doc"],
+				"shortNamesAlias": ["doc"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Documentation."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Documentation was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Documentation."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The Resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the Resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the Resource."
+				},
+				{
+					"name": "Status",
+					"type": "string",
+					"jsonPath": ".status.level",
+					"description": "The status of the Resource."
+				}
+			],
+			"resourceDefinition": "documentation-product"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "documentation-productrelease",
+		"title": "documentation-productrelease",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640be400050",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.432+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.432+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e95697b84d780017b84d98d030015",
+					"kind": "ResourceDefinition",
+					"name": "documentation-productrelease",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/documentation-productrelease",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/documentation-productrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "documentation",
+				"singular": "documentation",
+				"shortNames": ["doc"],
+				"shortNamesAlias": ["doc"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Documentation."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Documentation was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Documentation."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The Resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the Resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the Resource."
+				},
+				{
+					"name": "Status",
+					"type": "string",
+					"jsonPath": ".status.level",
+					"description": "The status of the Resource."
+				}
+			],
+			"resourceDefinition": "documentation-productrelease"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "assetresource-asset",
+		"title": "assetresource-asset",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640be610052",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.465+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.465+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e89737870faf8017870fc51c30057",
+					"kind": "ResourceDefinition",
+					"name": "assetresource-asset",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetresource-asset",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/assetresource-asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "assetresources",
+				"singular": "assetresource",
+				"shortNames": ["assetres"],
+				"shortNamesAlias": ["assetres"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Asset Resource."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Asset Resource was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Asset Resource."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "Asset"
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The name of the Asset this Asset Resource belongs to."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "assetresource-asset"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "assetresource-assetrelease",
+		"title": "assetresource-assetrelease",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640be8c0054",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.508+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.508+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e89737870faf8017870fc50b80051",
+					"kind": "ResourceDefinition",
+					"name": "assetresource-assetrelease",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetresource-assetrelease",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/assetresource-assetrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "assetresources",
+				"singular": "assetresource",
+				"shortNames": ["assetres"],
+				"shortNamesAlias": ["assetres"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Asset Resource."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Asset Resource was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Asset Resource."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "Asset"
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The name of the Asset this Asset Resource belongs to."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "assetresource-assetrelease"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "assetrequestdefinition-asset",
+		"title": "assetrequestdefinition-asset",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640bebe0056",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.558+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.558+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e89737870faf8017870fc52160059",
+					"kind": "ResourceDefinition",
+					"name": "assetrequestdefinition-asset",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetrequestdefinition-asset",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/assetrequestdefinition-asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "assetrequestdefinitions",
+				"singular": "assetrequestdefinition",
+				"shortNames": ["assetreqdef"],
+				"shortNamesAlias": ["assetreqdef"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Resource."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Resource was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Resource."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The Resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the Resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the Resource."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "assetrequestdefinition-asset"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "assetrequestdefinition-assetrelease",
+		"title": "assetrequestdefinition-assetrelease",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640bf310058",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.673+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.673+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e97c1798bedb401798beeda24002e",
+					"kind": "ResourceDefinition",
+					"name": "assetrequestdefinition-assetrelease",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetrequestdefinition-assetrelease",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/assetrequestdefinition-assetrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "assetrequestdefinitions",
+				"singular": "assetrequestdefinition",
+				"shortNames": ["assetreqdef"],
+				"shortNamesAlias": ["assetreqdef"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Resource."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Resource was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Resource."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The Resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the Resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the Resource."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "assetrequestdefinition-assetrelease"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "terms-product",
+		"title": "terms-product",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640bf59005a",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.713+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.713+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e94e27b418d1e017b418f8d17004e",
+					"kind": "ResourceDefinition",
+					"name": "terms-product",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/terms-product",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/terms-product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "terms",
+				"singular": "terms",
+				"shortNames": ["terms"],
+				"shortNamesAlias": ["terms"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Terms ."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Terms were created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Terms."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The Resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the Resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the Resource."
+				}
+			],
+			"resourceDefinition": "terms-product"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "terms-productrelease",
+		"title": "terms-productrelease",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640bf92005c",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.770+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.770+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e95697b84d780017b84d98c940012",
+					"kind": "ResourceDefinition",
+					"name": "terms-productrelease",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/terms-productrelease",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/terms-productrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "terms",
+				"singular": "terms",
+				"shortNames": ["terms"],
+				"shortNamesAlias": ["terms"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Terms ."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Terms were created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Terms."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The Resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the Resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the Resource."
+				}
+			],
+			"resourceDefinition": "terms-productrelease"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "publishedproduct-marketplace",
+		"title": "publishedproduct-marketplace",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640bfb5005e",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.805+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.805+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e93457c5c29b0017c5c2c2578004b",
+					"kind": "ResourceDefinition",
+					"name": "publishedproduct-marketplace",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/publishedproduct-marketplace",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/publishedproduct-marketplace"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "publishedproducts",
+				"singular": "publishedproduct",
+				"shortNames": ["publishedproduct", "publishedproducts"],
+				"shortNamesAlias": ["publishedproduct"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the published product."
+				},
+				{
+					"name": "Description",
+					"type": "string",
+					"jsonPath": ".spec.description",
+					"description": "The description of the published product."
+				},
+				{
+					"name": "Product",
+					"type": "string",
+					"jsonPath": ".spec.product.name",
+					"description": "The name of the product."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the published product was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the published product."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the Resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the Resource."
+				}
+			],
+			"resourceDefinition": "publishedproduct-marketplace"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "releasenote-product",
+		"title": "releasenote-product",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640bfea0060",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.858+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.858+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e94e27b418d1e017b418f8d05004d",
+					"kind": "ResourceDefinition",
+					"name": "releasenote-product",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/releasenote-product",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/releasenote-product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "releasenotes",
+				"singular": "releasenote",
+				"shortNames": ["releasenotes"],
+				"shortNamesAlias": ["releasenotes"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Release notes."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Release Notes was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Release Notes."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "Asset"
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The name of the scope to which the Release Notes belong to."
+				}
+			],
+			"resourceDefinition": "releasenote-product"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "releasenote-productrelease",
+		"title": "releasenote-productrelease",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640c0140062",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.900+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.900+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e95697b84d780017b84d98cd80014",
+					"kind": "ResourceDefinition",
+					"name": "releasenote-productrelease",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/releasenote-productrelease",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/releasenote-productrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "releasenotes",
+				"singular": "releasenote",
+				"shortNames": ["releasenotes"],
+				"shortNamesAlias": ["releasenotes"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Release notes."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Release Notes was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Release Notes."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "Asset"
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The name of the scope to which the Release Notes belong to."
+				}
+			],
+			"resourceDefinition": "releasenote-productrelease"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "assetrequest-asset",
+		"title": "assetrequest-asset",
+		"metadata": {
+			"id": "8a2e85dd7c863e3e017c8640c0480064",
+			"audit": {
+				"createTimestamp": "2021-10-15T23:19:22.952+0000",
+				"modifyTimestamp": "2021-10-15T23:19:22.952+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e89737870faf8017870fc5258005b",
+					"kind": "ResourceDefinition",
+					"name": "assetrequest-asset",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetrequest-asset",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/assetrequest-asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "assetrequests",
+				"singular": "assetrequest",
+				"shortNames": ["assetrequest"],
+				"shortNamesAlias": ["assetreq"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Resource."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Resource was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Resource."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The Resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the Resource."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the Resource."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				},
+				{
+					"name": "Status",
+					"type": "string",
+					"jsonPath": ".status.level",
+					"description": "The status of the Resource."
+				}
+			],
+			"resourceDefinition": "assetrequest-asset"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "product",
+		"title": "product",
+		"metadata": {
+			"id": "8a2e88127a214a69017a214cc9480034",
+			"audit": {
+				"createTimestamp": "2021-06-18T22:45:18.280+0000",
+				"modifyTimestamp": "2021-10-07T21:55:20.645+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "1",
+			"references": [
+				{
+					"id": "8a2e88127a214a69017a214cb9dd002e",
+					"kind": "ResourceDefinition",
+					"name": "product",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/product",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/product"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "products",
+				"singular": "product",
+				"shortNames": ["product", "products"],
+				"shortNamesAlias": ["products"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the product."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Product was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Product."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "State",
+					"type": "string",
+					"jsonPath": ".state",
+					"description": "The state of the Product."
+				}
+			],
+			"resourceDefinition": "product"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "stage",
+		"title": "stage",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc54ea007d",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:28.298+0000",
+				"modifyTimestamp": "2021-06-09T22:29:13.141+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284740",
+			"references": [
+				{
+					"id": "8a2e89737870faf8017870fc50e40052",
+					"kind": "ResourceDefinition",
+					"name": "stage",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/stage",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/stage"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "stages",
+				"singular": "stage",
+				"shortNames": ["stg", "stgs"],
+				"shortNamesAlias": ["stg"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the stage."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the stage was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the stage."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "stage"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "assetrelease",
+		"title": "assetrelease",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc5519007f",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:28.345+0000",
+				"modifyTimestamp": "2021-06-09T22:29:13.300+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284741",
+			"references": [
+				{
+					"id": "8a2e89737870faf8017870fc51210053",
+					"kind": "ResourceDefinition",
+					"name": "assetrelease",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/assetrelease",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/assetrelease"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "assetreleases",
+				"singular": "assetrelease",
+				"shortNames": ["assetrelease", "assetsreleases"],
+				"shortNamesAlias": ["assetrelease"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the asset release."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the asset release was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the asset release."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "assetrelease"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "asset",
+		"title": "asset",
+		"metadata": {
+			"id": "8a2e89737870faf8017870fc5613008d",
+			"audit": {
+				"createTimestamp": "2021-03-27T00:01:28.595+0000",
+				"modifyTimestamp": "2021-06-09T22:29:13.414+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "284748",
+			"references": [
+				{
+					"id": "8a2e89737870faf8017870fc51f60058",
+					"kind": "ResourceDefinition",
+					"name": "asset",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/asset",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/asset"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "assets",
+				"singular": "asset",
+				"shortNames": ["asset", "assets"],
+				"shortNamesAlias": ["asset"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the asset."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the asset was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the asset."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "asset"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "marketplace",
+		"title": "marketplace",
+		"metadata": {
+			"id": "8a2e8e477b5fc617017b5fc785230053",
+			"audit": {
+				"createTimestamp": "2021-08-19T18:58:36.451+0000",
+				"modifyTimestamp": "2021-08-19T18:58:36.451+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e8e477b5fc617017b5fc77402004d",
+					"kind": "ResourceDefinition",
+					"name": "marketplace",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/marketplace",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/marketplace"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "marketplaces",
+				"singular": "marketplace",
+				"shortNames": ["marketplace", "marketplaces"],
+				"shortNamesAlias": ["marketplaces"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the marketplace."
+				},
+				{
+					"name": "Description",
+					"type": "string",
+					"jsonPath": ".spec.description",
+					"description": "The description of the marketplace."
+				},
+				{
+					"name": "Base Path",
+					"type": "string",
+					"jsonPath": ".spec.basePath",
+					"description": "The base path of the marketplace."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the marketplace was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the marketplace."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "marketplace"
+		}
+	},
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "category",
+		"title": "category",
+		"metadata": {
+			"id": "8a2e93bb7a3a4d96017a3a501ab2006e",
+			"audit": {
+				"createTimestamp": "2021-06-23T19:19:26.130+0000",
+				"modifyTimestamp": "2021-06-23T19:19:26.130+0000"
+			},
+			"scope": {
+				"id": "8a2e89737870faf8017870fc23cb0000",
+				"kind": "ResourceGroup",
+				"name": "catalog",
+				"selfLink": "/definitions/v1alpha1/groups/catalog"
+			},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8a2e93bb7a3a4d96017a3a5009cd005c",
+					"kind": "ResourceDefinition",
+					"name": "category",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "catalog",
+					"selfLink": "/definitions/v1alpha1/groups/catalog/resources/category",
+					"type": "hard",
+					"group": "definitions"
+				}
+			],
+			"selfLink": "/definitions/v1alpha1/groups/catalog/commandlines/category"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "categories",
+				"singular": "category",
+				"shortNames": ["category"],
+				"shortNamesAlias": ["category"]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the Category."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the Category was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the Category."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The resource group."
+				}
+			],
+			"resourceDefinition": "category"
+		}
+	},
+	{
+        "group": "definitions",
+        "apiVersion": "v1alpha1",
+        "kind": "CommandLineInterface",
+        "name": "identityprovider",
+        "title": "identityprovider",
+        "metadata": {
+            "id": "8ac9842c90c13dc90190c143363800dc",
+            "audit": {
+                "createTimestamp": "2024-07-17T15:15:25.880+0000",
+                "modifyTimestamp": "2024-07-17T15:15:25.880+0000"
+            },
+            "scope": {
+                "id": "8ac9842c90c13dc90190c14325410000",
+                "kind": "ResourceGroup",
+                "name": "management",
+                "title": "management",
+                "selfLink": "/definitions/v1alpha1/groups/management"
+            },
+            "acl": [],
+            "accessRights": {
+                "canChangeOwner": false,
+                "canDelete": false,
+                "canWrite": false,
+                "canRead": true
+            },
+            "resourceVersion": "0",
+            "references": [
+                {
+                    "id": "8ac9842c90c13dc90190c14326df0007",
+                    "kind": "ResourceDefinition",
+                    "name": "identityprovider",
+                    "scopeKind": "ResourceGroup",
+                    "scopeName": "management",
+                    "selfLink": "/definitions/v1alpha1/groups/management/resources/identityprovider",
+                    "type": "hard",
+                    "group": "definitions"
+                }
+            ],
+            "selfLink": "/definitions/v1alpha1/groups/management/commandlines/identityprovider"
+        },
+        "attributes": {},
+        "finalizers": [],
+        "tags": [],
+        "spec": {
+            "names": {
+                "plural": "identityproviders",
+                "singular": "identityprovider",
+                "shortNames": [
+                    "idp"
+                ],
+                "shortNamesAlias": [
+                    "idp"
+                ]
+            },
+            "columns": [
+                {
+                    "name": "Name",
+                    "type": "string",
+                    "jsonPath": ".name",
+                    "description": "The name of the identity provider."
+                },
+                {
+                    "name": "Age",
+                    "type": "date",
+                    "jsonPath": ".metadata.audit.createTimestamp",
+                    "description": "The date when the identity provider was created."
+                },
+                {
+                    "name": "Title",
+                    "type": "string",
+                    "jsonPath": ".title",
+                    "description": "The title of the identity provider."
+                },
+                {
+                    "name": "Resource Kind",
+                    "type": "string",
+                    "jsonPath": ".kind",
+                    "description": "The resource kind."
+                },
+                {
+                    "name": "Resource Group",
+                    "type": "string",
+                    "jsonPath": ".group",
+                    "description": "The group of the identity provider."
+                }
+            ],
+            "resourceDefinition": "identityprovider"
+        }
+    },
+	{
+		"group": "definitions",
+		"apiVersion": "v1alpha1",
+		"kind": "CommandLineInterface",
+		"name": "idpsecret-identityprovider",
+		"title": "idpsecret-identityprovider",
+		"metadata": {
+			"id": "8ac9842c90c13dc90190c143379000f2",
+			"audit": {
+			"createTimestamp": "2024-07-17T15:15:26.224+0000",
+			"modifyTimestamp": "2024-07-17T15:15:26.224+0000"
+			},
+			"scope": {
+				"id": "8ac9842c90c13dc90190c14325410000",
+				"kind": "ResourceGroup",
+				"name": "management",
+				"title": "management",
+				"selfLink": "/definitions/v1alpha1/groups/management"
+			},
+			"acl": [],
+			"accessRights": {
+				"canChangeOwner": false,
+				"canDelete": false,
+				"canWrite": false,
+				"canRead": true
+				},
+			"resourceVersion": "0",
+			"references": [
+				{
+					"id": "8ac9842c90c13dc90190c1432a36001c",
+					"kind": "ResourceDefinition",
+					"name": "idpsecret-identityprovider",
+					"scopeKind": "ResourceGroup",
+					"scopeName": "management",
+					"selfLink": "/definitions/v1alpha1/groups/management/resources/idpsecret-identityprovider",
+					"type": "hard",
+					"group": "definitions"
+			}
+			],
+		"selfLink": "/definitions/v1alpha1/groups/management/commandlines/idpsecret-identityprovider"
+		},
+		"attributes": {},
+		"finalizers": [],
+		"tags": [],
+		"spec": {
+			"names": {
+				"plural": "idpsecrets",
+				"singular": "idpsecret",
+				"shortNames": [ "idpsec" ],
+				"shortNamesAlias": [ "idpsec" ]
+			},
+			"columns": [
+				{
+					"name": "Name",
+					"type": "string",
+					"jsonPath": ".name",
+					"description": "The name of the identity provider secret."
+				},
+				{
+					"name": "Age",
+					"type": "date",
+					"jsonPath": ".metadata.audit.createTimestamp",
+					"description": "The date when the identity provider secret was created."
+				},
+				{
+					"name": "Title",
+					"type": "string",
+					"jsonPath": ".title",
+					"description": "The title of the identity provider secret."
+				},
+				{
+					"name": "Resource Kind",
+					"type": "string",
+					"jsonPath": ".kind",
+					"description": "The resource kind."
+				},
+				{
+					"name": "Scope Kind",
+					"type": "string",
+					"jsonPath": ".metadata.scope.kind",
+					"description": "The scope kind of the identity provider secret."
+				},
+				{
+					"name": "Scope Name",
+					"type": "string",
+					"jsonPath": ".metadata.scope.name",
+					"description": "The scope name of the identity provider secret."
+				},
+				{
+					"name": "Resource Group",
+					"type": "string",
+					"jsonPath": ".group",
+					"description": "The group of the identity provider secret."	
+				}
+			],
+			"resourceDefinition": "idpsecret-identityprovider"
+		}
+	}
+]

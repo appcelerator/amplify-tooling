@@ -1,0 +1,21 @@
+apiVersion: v1
+version: v1
+proxy:
+  name: 'Musical Instruments'
+  basePath: /api/v1
+  swagger: 'https://ec062a054a2977120b7e721801edb38ca24dfbb3.cloudapp-enterprise.appcelerator.com/apidoc/swagger.json'
+  policies:
+    clientAuth:
+      type: api-key
+      app: 'Sample App'
+    backendAuth:
+      type: auth-http-basic
+      username: Joe
+      password: changeme
+    rateLimit:
+      perProxy: 5
+      perProxyAndApp: 3
+  apps:
+    - name: 'Second Sample App'
+  team:
+    name: 'Default Team'

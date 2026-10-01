@@ -1,0 +1,35 @@
+{
+    "group": "catalog",
+    "apiVersion": "v1alpha1",
+    "kind": "Product",
+    "name": "test-product-1",
+    "metadata": {
+        "id": "8a2e8e7c91fb25fa0191fcb760c551dd",
+        "resourceVersion": "15",
+        "selfLink": "/catalog/v1alpha1/products/test-product-1"
+    },
+    "languages": {
+        "resource": {
+            "code": "en-us"
+        }
+    },
+    "languages-fr-fr": {
+        "values": [
+            {
+                "path": "/title",
+                "value": "La sous updated demande un identifiant de département",
+                "status": "complete",
+                "_embedded": {
+                    "resource": {
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 350,
+                            "description": "The resource title."
+                        },
+                        "value": "test-product-1"
+                    }
+                }
+            }
+        ]
+    }
+}

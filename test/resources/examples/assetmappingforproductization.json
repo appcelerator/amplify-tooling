@@ -1,0 +1,40 @@
+[
+    {
+        "apiVersion": "v1alpha1",
+        "kind": "AssetMapping",
+        "name": "apisvc1",
+        "title": "music",
+        "tags": [],
+        "metadata": {
+            "scope": {
+                "kind": "Asset",
+                "name": "apisvc1"
+            }
+        },
+        "spec": {
+            "inputs": {
+                "apiService": "apisvc1",
+                "apiServiceInstance": "apisvc1"
+            }
+        }
+    },
+    {
+        "apiVersion": "v1alpha1",
+        "kind": "AssetMapping",
+        "name": "apisvc2",
+        "title": "music",
+        "tags": [],
+        "metadata": {
+            "scope": {
+                "kind": "Asset",
+                "name": "apisvc2"
+            }
+        },
+        "spec": {
+            "inputs": {
+                "apiService": "apisvc2",
+                "apiServiceInstance": "apisvc2"
+            }
+        }
+    }
+]
