@@ -38,7 +38,7 @@ export default {
 
 			table.push([
 				managed || Object.keys(pkg.versions).some(ver => pkg.versions[ver].managed) ? pkg.name : `${pkg.name} ${gray('(unmanaged)')}`,
-				versions.map(v => version && semver.eq(v, version) ? green(v) : v).join(', ')
+				versions.map(v => (version && semver.eq(v, version) ? green(v) : v)).join(', ')
 			]);
 			if (!managed) {
 				unmanaged[`${pkg.name}${pkg.version}`] = 1;

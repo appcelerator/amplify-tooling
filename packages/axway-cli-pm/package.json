@@ -24,7 +24,7 @@
   "dependencies": {
     "@axway/amplify-cli-utils": "^6.1.0",
     "@axway/amplify-utils": "^2.1.0",
-    "cli-kit": "^2.1.1",
+    "cli-kit": "github:appcelerator/cli-kit#APIGOV-33776",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
     "libnpmsearch": "^9.0.0",
@@ -39,13 +39,13 @@
     "which": "^2.0.2"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^5.0.1"
+    "@axway/gulp-tasks": "github:appcelerator/axway-gulp-tasks#APIGOV-33776"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-cli-pm",
   "engines": {
-    "node": ">=20.18.2"
+    "node": ">=22.13.0"
   },
   "cli-kit": {
     "main": "./dist/index.js",

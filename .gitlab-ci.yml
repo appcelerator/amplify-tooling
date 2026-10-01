@@ -41,7 +41,7 @@ stages:
   - security-review
 
 install_dependencies:
-  image: dockerhub.artifactory.axway.com/node:20.11.1-bookworm-slim
+  image: dockerhub.artifactory.axway.com/node:22-bookworm-slim
   stage: install
   script:
     - npm install
@@ -49,7 +49,7 @@ install_dependencies:
     - schedules
 
 unit_tests:
-  image: dockerhub.artifactory.axway.com/node:20.11.1-bookworm-slim
+  image: dockerhub.artifactory.axway.com/node:22-bookworm-slim
   stage: test
   script:
     - npm install gulp-cli -g

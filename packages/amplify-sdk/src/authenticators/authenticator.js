@@ -547,6 +547,7 @@ export default class Authenticator {
 						await this.timeout();
 						return await this.getToken(undefined, undefined, true);
 					}
+					return undefined;
 				});
 		}).finally(() => server.stop());
 
