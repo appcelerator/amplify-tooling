@@ -4,7 +4,7 @@ variables:
   PROJECT: "amplify-tooling"
 
   # SRM
-  SRM_PROJECT_NAME: "Catalog Commons - Axway CLI"
+  SRM_PROJECT_NAME: "Amplify - Axway CLI"
   SRM_PROJECT_ID: "11"
 
   # Blackduck
