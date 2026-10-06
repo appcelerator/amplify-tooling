@@ -55,13 +55,13 @@ export function createEngageRoutes(server) {
 	const catalogCommandLines = readJson(path.join(testDataDir, 'apiResponses/catalogCommandLines.json'));
 
 	// Spec/definition routes
-	router.get('/apis/definitions/v1alpha1/groups', ctx => pagedResponse(ctx, groups));
-	router.get('/apis/definitions/v1alpha1/groups/management/resources', ctx => pagedResponse(ctx, managementResources));
-	router.get('/apis/definitions/v1alpha1/groups/management/commandlines', ctx => pagedResponse(ctx, managementCommandLines));
-	router.get('/apis/definitions/v1alpha1/groups/catalog/resources', ctx => pagedResponse(ctx, catalogResources));
-	router.get('/apis/definitions/v1alpha1/groups/catalog/commandlines', ctx => pagedResponse(ctx, catalogCommandLines));
-	router.get('/apis/definitions/v1alpha1/groups/definitions/resources', ctx => pagedResponse(ctx, managementResources));
-	router.get('/apis/definitions/v1alpha1/groups/definitions/commandlines', ctx => pagedResponse(ctx, managementResources));
+	router.get('/apis/definitions/v1/groups', ctx => pagedResponse(ctx, groups));
+	router.get('/apis/definitions/v1/groups/management/resources', ctx => pagedResponse(ctx, managementResources));
+	router.get('/apis/definitions/v1/groups/management/commandlines', ctx => pagedResponse(ctx, managementCommandLines));
+	router.get('/apis/definitions/v1/groups/catalog/resources', ctx => pagedResponse(ctx, catalogResources));
+	router.get('/apis/definitions/v1/groups/catalog/commandlines', ctx => pagedResponse(ctx, catalogCommandLines));
+	router.get('/apis/definitions/v1/groups/definitions/resources', ctx => pagedResponse(ctx, managementResources));
+	router.get('/apis/definitions/v1/groups/definitions/commandlines', ctx => pagedResponse(ctx, managementResources));
 
 	// Generic resource routes - delegates to server.engageResources for test control.
 	// server.forceErrors map can override any route's response: key = 'METHOD:group/version/...rest'

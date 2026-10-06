@@ -11,7 +11,7 @@ import {
 function makeApiService(name, envName, id) {
 	return {
 		group: 'management',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'APIService',
 		name,
 		title: `${name} title`,
@@ -31,7 +31,7 @@ function makeApiService(name, envName, id) {
 function makeApiServiceInstance(name, envName, apiSvcId) {
 	return {
 		group: 'management',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'APIServiceInstance',
 		name,
 		title: `${name} title`,
@@ -116,7 +116,7 @@ describe('axway engage productize', () => {
 			it('should error when the API service does not exist', async () => {
 				// Seed instances but NOT the api service → GET apiservice returns 404
 				engageServer.engageResources.set(
-					'management/v1alpha1/environments/env1/apiserviceinstances/inst1',
+					'management/v1/environments/env1/apiserviceinstances/inst1',
 					makeApiServiceInstance('inst1', 'env1', API_SVC1_ID)
 				);
 
@@ -133,20 +133,20 @@ describe('axway engage productize', () => {
 			it('should error when there are no APIServiceInstances for an API service', async () => {
 				// Seed the api service but NOT its instances
 				engageServer.engageResources.set(
-					'management/v1alpha1/environments/env1/apiservices/apisvc1',
+					'management/v1/environments/env1/apiservices/apisvc1',
 					makeApiService('apisvc1', 'env1', API_SVC1_ID)
 				);
 				engageServer.engageResources.set(
-					'management/v1alpha1/environments/env2/apiservices/apisvc2',
+					'management/v1/environments/env2/apiservices/apisvc2',
 					makeApiService('apisvc2', 'env2', API_SVC2_ID)
 				);
 				// Force empty instance list for both envs
 				engageServer.forceErrors.set(
-					'GET:management/v1alpha1/environments/env1/apiserviceinstances',
+					'GET:management/v1/environments/env1/apiserviceinstances',
 					{ status: 200, body: [] }
 				);
 				engageServer.forceErrors.set(
-					'GET:management/v1alpha1/environments/env2/apiserviceinstances',
+					'GET:management/v1/environments/env2/apiserviceinstances',
 					{ status: 200, body: [] }
 				);
 
@@ -164,19 +164,19 @@ describe('axway engage productize', () => {
 			it('should productize API services from a json file', async () => {
 				// Seed api services and their instances so the productize service can proceed
 				engageServer.engageResources.set(
-					'management/v1alpha1/environments/env1/apiservices/apisvc1',
+					'management/v1/environments/env1/apiservices/apisvc1',
 					makeApiService('apisvc1', 'env1', API_SVC1_ID)
 				);
 				engageServer.engageResources.set(
-					'management/v1alpha1/environments/env1/apiserviceinstances/inst1',
+					'management/v1/environments/env1/apiserviceinstances/inst1',
 					makeApiServiceInstance('inst1', 'env1', API_SVC1_ID)
 				);
 				engageServer.engageResources.set(
-					'management/v1alpha1/environments/env2/apiservices/apisvc2',
+					'management/v1/environments/env2/apiservices/apisvc2',
 					makeApiService('apisvc2', 'env2', API_SVC2_ID)
 				);
 				engageServer.engageResources.set(
-					'management/v1alpha1/environments/env2/apiserviceinstances/inst2',
+					'management/v1/environments/env2/apiserviceinstances/inst2',
 					makeApiServiceInstance('inst2', 'env2', API_SVC2_ID)
 				);
 

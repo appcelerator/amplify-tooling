@@ -11,7 +11,7 @@ import {
 function makeEnv(name) {
 	return {
 		group: 'management',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'Environment',
 		name,
 		title: `${name} title`,
@@ -30,7 +30,7 @@ function makeEnv(name) {
 function makeSecret(name, scopeName) {
 	return {
 		group: 'management',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'Secret',
 		name,
 		title: `${name} title`,
@@ -90,7 +90,7 @@ describe('axway engage delete', () => {
 
 		describe('delete by name', () => {
 			it('should delete an unscoped resource with --yes (no confirmation prompt)', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status, stdout, stderr } = await runCommand(
 					[ 'engage', 'delete', 'environment', 'testenv1', '--yes' ],
@@ -99,11 +99,11 @@ describe('axway engage delete', () => {
 
 				expect(status).to.equal(0);
 				expect(stdout + stderr).to.include('has successfully been deleted');
-				expect(engageServer.engageResources.has('management/v1alpha1/environments/testenv1')).to.be.false;
+				expect(engageServer.engageResources.has('management/v1/environments/testenv1')).to.be.false;
 			});
 
 			it('should delete when confirmation prompt is answered Yes', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status } = await runCommand(
 					[ 'engage', 'delete', 'environment', 'testenv1' ],
@@ -111,11 +111,11 @@ describe('axway engage delete', () => {
 				);
 
 				expect(status).to.equal(0);
-				expect(engageServer.engageResources.has('management/v1alpha1/environments/testenv1')).to.be.false;
+				expect(engageServer.engageResources.has('management/v1/environments/testenv1')).to.be.false;
 			});
 
 			it('should abort deletion when confirmation prompt is answered No', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status } = await runCommand(
 					[ 'engage', 'delete', 'environment', 'testenv1' ],
@@ -124,11 +124,11 @@ describe('axway engage delete', () => {
 
 				// User declined – command exits with error and without deleting.
 				expect(status).to.equal(1);
-				expect(engageServer.engageResources.has('management/v1alpha1/environments/testenv1')).to.be.true;
+				expect(engageServer.engageResources.has('management/v1/environments/testenv1')).to.be.true;
 			});
 
 			it('should force-delete an unscoped resource with --force-delete and --yes', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status } = await runCommand(
 					[ 'engage', 'delete', 'environment', 'testenv1', '--yes', '--force-delete' ],
@@ -139,8 +139,8 @@ describe('axway engage delete', () => {
 			});
 
 			it('should delete a scoped resource with explicit scope kind and --yes', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1/secrets/secret1', makeSecret('secret1', 'testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1/secrets/secret1', makeSecret('secret1', 'testenv1'));
 
 				const { status } = await runCommand(
 					[ 'engage', 'delete', 'secret', 'secret1', '--scope', 'Environment/testenv1', '--yes' ],
@@ -148,7 +148,7 @@ describe('axway engage delete', () => {
 				);
 
 				expect(status).to.equal(0);
-				expect(engageServer.engageResources.has('management/v1alpha1/environments/testenv1/secrets/secret1')).to.be.false;
+				expect(engageServer.engageResources.has('management/v1/environments/testenv1/secrets/secret1')).to.be.false;
 			});
 
 			it('should error if resource is not found', async () => {
@@ -174,6 +174,10 @@ describe('axway engage delete', () => {
 		});
 
 		describe('delete from file', () => {
+			// environments.yaml/.json still declare apiVersion: v1alpha1, and bulkDelete()
+			// passes the resource's own apiVersion straight through to the API call
+			// (see ApiServerClient#bulkDelete -> resourceAPIVersion: resource.apiVersion),
+			// so these resources must be seeded under the v1alpha1 path.
 			it('should bulk-delete resources from a yaml file', async () => {
 				engageServer.engageResources.set('management/v1alpha1/environments/env1', makeEnv('env1'));
 				engageServer.engageResources.set('management/v1alpha1/environments/env2', makeEnv('env2'));

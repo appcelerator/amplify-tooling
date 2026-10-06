@@ -104,6 +104,9 @@ describe('axway engage create', () => {
 				expect(status).to.equal(0);
 			});
 
+			// testInstances1short.yaml declares apiVersion: v1alpha1, and bulkCreate()'s
+			// createResource() uses the resource's own apiVersion when it's set rather than
+			// the defsManager-resolved version, so the real POST targets v1alpha1.
 			it('should report 400 validation error on resource creation', async () => {
 				engageServer.forceErrors.set(
 					'POST:management/v1alpha1/environments',
@@ -139,12 +142,12 @@ describe('axway engage create', () => {
 					{ env: engageEnv }
 				);
 				expect(status).to.equal(0);
-				expect(engageServer.engageResources.has('management/v1alpha1/environments/testenv1')).to.be.true;
+				expect(engageServer.engageResources.has('management/v1/environments/testenv1')).to.be.true;
 			});
 
 			it('should report 400 error when creating environment by name', async () => {
 				engageServer.forceErrors.set(
-					'POST:management/v1alpha1/environments',
+					'POST:management/v1/environments',
 					{ status: 400, body: { errors: [ { status: 400, title: 'Validation error', detail: 'Name is not valid.' } ] } }
 				);
 				const { status, stderr } = await runCommand(

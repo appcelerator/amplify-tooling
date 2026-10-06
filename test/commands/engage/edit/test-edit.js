@@ -19,7 +19,7 @@ const testEditor = `${process.execPath} ${testEditorScript}`;
 function makeEnv(name) {
 	return {
 		group: 'management',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'Environment',
 		name,
 		title: `${name} title`,
@@ -81,7 +81,7 @@ describe('axway engage edit', () => {
 			});
 
 			it('should cancel the edit when no changes are made (EDITOR=true exits immediately)', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status, stdout, stderr } = await runCommand(
 					[ 'engage', 'edit', 'environment', 'testenv1' ],
@@ -94,7 +94,7 @@ describe('axway engage edit', () => {
 			});
 
 			it('should successfully edit and update an environment', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status } = await runCommand(
 					[ 'engage', 'edit', 'environment', 'testenv1' ],
@@ -103,14 +103,14 @@ describe('axway engage edit', () => {
 
 				expect(status).to.equal(0);
 				// Resource should have been updated in the mock server
-				expect(engageServer.engageResources.has('management/v1alpha1/environments/testenv1')).to.be.true;
+				expect(engageServer.engageResources.has('management/v1/environments/testenv1')).to.be.true;
 			});
 
 			it('should handle a 400 error during resource update', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 				// Force a 400 on the PUT update call
 				engageServer.forceErrors.set(
-					'PUT:management/v1alpha1/environments/testenv1',
+					'PUT:management/v1/environments/testenv1',
 					{ status: 400, body: { errors: [ { status: 400, title: 'Validation error', detail: 'Name is not valid.' } ] } }
 				);
 

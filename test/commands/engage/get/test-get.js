@@ -11,7 +11,7 @@ import {
 function makeEnv(name) {
 	return {
 		group: 'management',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'Environment',
 		name,
 		title: `${name} title`,
@@ -30,7 +30,7 @@ function makeEnv(name) {
 function makeWebhook(name) {
 	return {
 		group: 'management',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'Webhook',
 		name,
 		title: `${name} title`,
@@ -49,7 +49,7 @@ function makeWebhook(name) {
 function makeStage(name) {
 	return {
 		group: 'catalog',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'Stage',
 		name,
 		title: `${name} title`,
@@ -68,7 +68,7 @@ function makeStage(name) {
 function makeSecret(name, scopeName) {
 	return {
 		group: 'management',
-		apiVersion: 'v1alpha1',
+		apiVersion: 'v1',
 		kind: 'Secret',
 		name,
 		title: `${name} title`,
@@ -131,8 +131,8 @@ describe('axway engage get', () => {
 
 		describe('get list', () => {
 			it('should list environments (management group) as a table', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv2', makeEnv('testenv2'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv2', makeEnv('testenv2'));
 
 				const { status, stdout } = await runCommand([ 'engage', 'get', 'environment' ], { env: engageEnv });
 
@@ -142,8 +142,8 @@ describe('axway engage get', () => {
 			});
 
 			it('should list webhooks using the "wh" shortName', async () => {
-				engageServer.engageResources.set('management/v1alpha1/webhooks/webhook1', makeWebhook('webhook1'));
-				engageServer.engageResources.set('management/v1alpha1/webhooks/webhook2', makeWebhook('webhook2'));
+				engageServer.engageResources.set('management/v1/webhooks/webhook1', makeWebhook('webhook1'));
+				engageServer.engageResources.set('management/v1/webhooks/webhook2', makeWebhook('webhook2'));
 
 				const { status, stdout } = await runCommand([ 'engage', 'get', 'wh' ], { env: engageEnv });
 
@@ -153,8 +153,8 @@ describe('axway engage get', () => {
 			});
 
 			it('should list catalog resources (stages) as a table', async () => {
-				engageServer.engageResources.set('catalog/v1alpha1/stages/stage1', makeStage('stage1'));
-				engageServer.engageResources.set('catalog/v1alpha1/stages/stage2', makeStage('stage2'));
+				engageServer.engageResources.set('catalog/v1/stages/stage1', makeStage('stage1'));
+				engageServer.engageResources.set('catalog/v1/stages/stage2', makeStage('stage2'));
 
 				const { status, stdout } = await runCommand([ 'engage', 'get', 'stage' ], { env: engageEnv });
 
@@ -165,9 +165,9 @@ describe('axway engage get', () => {
 
 			it('should list secrets scoped to an environment', async () => {
 				// Seed the environment so the scope resolution succeeds
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1/secrets/secret1', makeSecret('secret1', 'testenv1'));
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1/secrets/secret2', makeSecret('secret2', 'testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1/secrets/secret1', makeSecret('secret1', 'testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1/secrets/secret2', makeSecret('secret2', 'testenv1'));
 
 				const { status, stdout } = await runCommand(
 					[ 'engage', 'get', 'secret', '--scope', 'Environment/testenv1' ],
@@ -180,7 +180,7 @@ describe('axway engage get', () => {
 			});
 
 			it('should list resources with --output yaml', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status, stdout } = await runCommand(
 					[ 'engage', 'get', 'environment', '--output', 'yaml' ],
@@ -193,7 +193,7 @@ describe('axway engage get', () => {
 			});
 
 			it('should list resources with --output json', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status, stdout } = await runCommand(
 					[ 'engage', 'get', 'environment', '--output', 'json', '--no-banner' ],
@@ -207,8 +207,8 @@ describe('axway engage get', () => {
 			});
 
 			it('should list multiple comma-separated resource types', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
-				engageServer.engageResources.set('catalog/v1alpha1/stages/stage1', makeStage('stage1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('catalog/v1/stages/stage1', makeStage('stage1'));
 
 				const { status, stdout } = await runCommand(
 					[ 'engage', 'get', 'environment,stage' ],
@@ -232,7 +232,7 @@ describe('axway engage get', () => {
 
 		describe('get by name', () => {
 			it('should get a specific environment by name as a table', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status, stdout } = await runCommand(
 					[ 'engage', 'get', 'environment', 'testenv1' ],
@@ -244,7 +244,7 @@ describe('axway engage get', () => {
 			});
 
 			it('should get a specific environment by name with --output yaml', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status, stdout } = await runCommand(
 					[ 'engage', 'get', 'environment', 'testenv1', '--output', 'yaml' ],
@@ -257,7 +257,7 @@ describe('axway engage get', () => {
 			});
 
 			it('should get a specific environment by name with --output json', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1', makeEnv('testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1', makeEnv('testenv1'));
 
 				const { status, stdout } = await runCommand(
 					[ 'engage', 'get', 'environment', 'testenv1', '--output', 'json', '--no-banner' ],
@@ -270,7 +270,7 @@ describe('axway engage get', () => {
 			});
 
 			it('should get a scoped resource by name', async () => {
-				engageServer.engageResources.set('management/v1alpha1/environments/testenv1/secrets/secret1', makeSecret('secret1', 'testenv1'));
+				engageServer.engageResources.set('management/v1/environments/testenv1/secrets/secret1', makeSecret('secret1', 'testenv1'));
 
 				const { status, stdout } = await runCommand(
 					[ 'engage', 'get', 'secret', 'secret1', '--scope', 'Environment/testenv1' ],
@@ -295,7 +295,7 @@ describe('axway engage get', () => {
 			});
 
 			it('should show error on server error (500)', async () => {
-				engageServer.forceErrors.set('GET:management/v1alpha1/environments', { status: 500, body: e500 });
+				engageServer.forceErrors.set('GET:management/v1/environments', { status: 500, body: e500 });
 
 				const { status, stderr } = await runCommand([ 'engage', 'get', 'environment' ], { env: engageEnv });
 
