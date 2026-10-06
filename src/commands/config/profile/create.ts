@@ -98,6 +98,14 @@ export default class ConfigProfileCreate extends Command {
 			}
 		};
 
+		if (profile.auth) {
+			for (const key of [ 'baseUrl', 'platformUrl', 'engageUrl', 'region' ] as const) {
+				if (typeof profile.auth[key] === 'string') {
+					profile.auth[key] = profile.auth[key].trim();
+				}
+			}
+		}
+
 		const exists = config.has(`profiles.${profileName}`);
 		if (exists) {
 			return this.error(`Profile "${profileName}" already exists.`);
@@ -115,7 +123,7 @@ export default class ConfigProfileCreate extends Command {
 
 function urlValidate(input: string): boolean {
 	try {
-		new URL(input);
+		new URL(input.trim());
 		return true;
 	} catch {
 		return false;

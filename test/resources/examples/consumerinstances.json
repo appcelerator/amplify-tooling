@@ -1,0 +1,124 @@
+[
+	{
+		"apiVersion": "v1alpha1",
+		"group": "management",
+		"kind": "ConsumerInstance",
+		"name": "consumerinst1",
+		"title": "consumerinst1 title",
+		"metadata": {
+			"references": [
+				{
+					"id": "e4e0839d6efb5a5c016efc23f90803f9",
+					"kind": "APIServiceInstance",
+					"name": "apisvcinst1",
+					"type": "HARD"
+				},
+				{
+					"id": "e4e0839f6efb5aa4016efc240001034d",
+					"kind": "ConsumerSubscriptionDefinition",
+					"name": "consumersubdef1",
+					"type": "SOFT"
+				}
+			],
+			"audit": {
+				"createTimestamp": "2019-12-12T22:04:08.576+0000",
+				"createUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7",
+				"modifyTimestamp": "2019-12-12T22:04:08.576+0000",
+				"modifyUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7"
+			},
+			"resourceVersion": "858",
+			"scope": {
+				"id": "e4e0839f6efb5aa4016efc23f41d0338",
+				"kind": "Environment",
+				"name": "env1"
+			},
+			"id": "e4e0839f6efb5aa4016efc2401ff0358"
+		},
+		"attributes": {
+			"createdBy": "yaml"
+		},
+		"tags": ["cli", "axway", "consumerinst"],
+		"spec": {
+			"icon": {
+				"data": "string",
+				"contentType": "image/jpeg"
+			},
+			"name": "Consumer Instance Name",
+			"tags": ["instance", "cli"],
+			"state": "UNPUBLISHED",
+			"status": "statusValue",
+			"version": "1.0",
+			"owningTeam": "team1",
+			"visibility": "RESTRICTED",
+			"description": "Catalog description",
+			"subscription": {
+				"enabled": false,
+				"autoSubscribe": true,
+				"subscriptionDefinition": "consumersubdef1"
+			},
+			"documentation": "documentation string",
+			"apiServiceInstance": "apisvcinst1"
+		}
+	},
+	{
+		"apiVersion": "v1alpha1",
+		"group": "management",
+		"kind": "ConsumerInstance",
+		"name": "consumerinst2",
+		"title": "consumerinst1 title",
+		"metadata": {
+			"references": [
+				{
+					"id": "e4e0839d6efb5a5c016efc23fa3503ff",
+					"kind": "APIServiceInstance",
+					"name": "apisvcinst2",
+					"type": "HARD"
+				},
+				{
+					"id": "e4e0839d6efb5a5c016efc245a4f0423",
+					"kind": "ConsumerSubscriptionDefinition",
+					"name": "consumersubdef2",
+					"type": "SOFT"
+				}
+			],
+			"audit": {
+				"createTimestamp": "2019-12-12T22:04:31.657+0000",
+				"createUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7",
+				"modifyTimestamp": "2019-12-12T22:04:31.657+0000",
+				"modifyUserId": "DOSA_c6222da2490c46a1a34a1aeeee4bb7e7"
+			},
+			"resourceVersion": "873",
+			"scope": {
+				"id": "e4e0839f6efb5aa4016efc23f3040333",
+				"kind": "Environment",
+				"name": "env2"
+			},
+			"id": "e4e0839f6efb5aa4016efc245c28038d"
+		},
+		"attributes": {
+			"createdBy": "yaml"
+		},
+		"tags": ["cli", "axway", "consumerinst"],
+		"spec": {
+			"icon": {
+				"data": "string",
+				"contentType": "image/jpeg"
+			},
+			"name": "Consumer Instance Name",
+			"tags": ["instance", "cli"],
+			"state": "UNPUBLISHED",
+			"status": "statusValue",
+			"version": "1.0",
+			"owningTeam": "team1",
+			"visibility": "RESTRICTED",
+			"description": "Catalog description",
+			"subscription": {
+				"enabled": false,
+				"autoSubscribe": true,
+				"subscriptionDefinition": "consumersubdef2"
+			},
+			"documentation": "documentation string",
+			"apiServiceInstance": "apisvcinst2"
+		}
+	}
+]

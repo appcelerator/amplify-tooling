@@ -1,0 +1,71 @@
+---
+apiVersion: v1alpha1
+title: consumerinst1 title
+name: consumerinst1
+kind: ConsumerInstance
+metadata:
+  scope:
+    kind: Environment
+    name: env1
+attributes:
+  createdBy: yaml
+tags:
+  - consumerinst
+  - cli
+  - axway
+spec:
+  name: Consumer Instance Name
+  apiServiceInstance: apisvcinst1
+  owningTeam: team1
+  description: Catalog description
+  visibility: RESTRICTED
+  version: "1.0"
+  state: UNPUBLISHED
+  status: statusValue
+  tags:
+    - instance
+    - cli
+  icon:
+    contentType: image/jpeg
+    data: string
+  documentation: documentation string
+  subscription:
+    enabled: false
+    autoSubscribe: true
+    subscriptionDefinition: consumersubdef1
+
+---
+apiVersion: v1alpha1
+title: consumerinst1 title
+name: consumerinst2
+kind: ConsumerInstance
+metadata:
+  scope:
+    kind: Environment
+    name: env2
+attributes:
+  createdBy: yaml
+tags:
+  - consumerinst
+  - cli
+  - axway
+spec:
+  name: Consumer Instance Name
+  apiServiceInstance: apisvcinst2
+  owningTeam: team1
+  description: Catalog description
+  visibility: RESTRICTED
+  version: "1.0"
+  state: UNPUBLISHED
+  status: statusValue
+  tags:
+    - instance
+    - cli
+  icon:
+    contentType: image/jpeg
+    data: string
+  documentation: documentation string
+  subscription:
+    enabled: false
+    autoSubscribe: true
+    subscriptionDefinition: consumersubdef2

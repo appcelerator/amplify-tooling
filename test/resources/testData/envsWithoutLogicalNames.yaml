@@ -1,0 +1,26 @@
+---
+apiVersion: v1alpha1
+title: missing title env1
+kind: Environment
+attributes:
+  createdBy: yaml
+  randomNum: 1
+tags:
+  - testing
+  - cli
+  - axway
+spec:
+  description: description1
+---
+apiVersion: v1alpha1
+title: missing title env2
+kind: Environment
+attributes:
+  createdBy: yaml
+  randomNum: 1
+tags:
+  - testing
+  - cli
+  - axway
+spec:
+  description: description2

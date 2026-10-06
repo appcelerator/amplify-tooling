@@ -1,0 +1,104 @@
+---
+apiVersion: v1alpha1
+title: testenv1 title
+name: testenv1
+kind: Environment
+attributes:
+  createdBy: yaml
+  randomNum: 1
+tags:
+  - testing
+  - cli
+  - axway
+spec:
+  description: testenv1 description
+
+---
+apiVersion: v1alpha1
+title: apisvc1 title
+name: apisvc1
+kind: APIService
+metadata:
+  scope:
+    kind: Environment
+    name: testenv1
+attributes:
+  createdBy: yaml
+tags:
+  - testing
+  - cli
+  - axway
+spec:
+  description: apisvc1 description
+
+---
+apiVersion: v1alpha1
+title: secret1 title
+name: secret1
+kind: Secret
+metadata:
+  scope:
+    kind: Environment
+    name: testenv1
+attributes:
+  createdBy: yaml
+tags:
+  - testing
+  - cli
+  - axway
+spec:
+  data:
+    key1: val1
+    key2: val2
+
+---
+apiVersion: v1alpha1
+title: webhook1 title
+name: webhook1
+kind: Webhook
+metadata:
+  scope:
+    kind: Environment
+    name: testenv1
+attributes:
+  createdBy: yaml
+tags:
+  - testing
+  - cli
+  - axway
+spec:
+  auth:
+    secret:
+      name: secret1
+      key: key1
+  enabled: true
+  url: https://webhookurl.com/path
+  headers:
+    header1: header1val
+    header2: header2val
+---
+apiVersion: v1alpha1
+title: missing title env1
+kind: Environment
+attributes:
+  createdBy: yaml
+  randomNum: 1
+tags:
+  - testing
+  - cli
+  - axway
+spec:
+  description: description1
+---
+apiVersion: v1alpha1
+title: missing title env2
+kind: Environment
+attributes:
+  createdBy: yaml
+  randomNum: 1
+tags:
+  - testing
+  - cli
+  - axway
+spec:
+  description: description2

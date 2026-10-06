@@ -94,10 +94,10 @@ Once authenticated, the account's current team is set to its configured default 
 			}
 
 			if (authMethod === 'Client Certificate' && !flags['secret-file']) {
-				flags['secret-file'] = await input({
+				flags['secret-file'] = (await input({
 					message: 'Path to the PEM formatted private key:',
-					validate: s => (s ? true : 'Please enter the path to your PEM formatted private key file')
-				});
+					validate: s => (s?.trim() ? true : 'Please enter the path to your PEM formatted private key file')
+				})).trim();
 			}
 			this.log('');
 		}
@@ -105,7 +105,8 @@ Once authenticated, the account's current team is set to its configured default 
 		const sdk = await initSDK({
 			clientId: flags['client-id'],
 			clientSecret: flags['client-secret'],
-			secretFile: flags['secret-file']
+			secretFile: flags['secret-file']?.trim(),
+			env: config.get('env')
 		});
 		let account;
 

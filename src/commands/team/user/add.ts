@@ -13,7 +13,7 @@ export default class TeamUserAdd extends Command {
 
 A team user must be assigned a platform role and optionally a product specific role. You may specify the roles with multiple --role "role" options or a single --role "role1,role2,role3" option with a comma-separated list of roles.
 
-To view available team user roles, run: ${highlight(`"<%= config.bin %> team user roles"`)}`;
+To view available team user roles, run: ${highlight('"<%= config.bin %> team user roles"')}`;
 
 	static override args = {
 		team: Args.string({

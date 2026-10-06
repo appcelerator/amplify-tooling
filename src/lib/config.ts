@@ -228,7 +228,7 @@ export class Config {
 		}
 		let arr = this.get(key, [], true);
 		if (!Array.isArray(arr)) {
-			arr = [arr];
+			arr = [ arr ];
 		}
 		arr.push(value);
 		this.set(key, arr, true);
@@ -306,7 +306,7 @@ export class Config {
 		}
 		let arr = this.get(key, [], true);
 		if (!Array.isArray(arr)) {
-			arr = [arr];
+			arr = [ arr ];
 		}
 		arr.unshift(value);
 		this.set(key, arr, true);

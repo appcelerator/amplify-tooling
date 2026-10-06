@@ -8,6 +8,7 @@ import { readJsonSync, writeFileSync } from './fs.js';
 
 const { error, log, warn } = logger('update');
 
+// eslint-disable-next-line import/no-mutable-exports
 export let pendingCheck: Promise<UpdateMeta>;
 
 interface UpdateMeta {

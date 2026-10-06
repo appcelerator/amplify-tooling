@@ -1,0 +1,42 @@
+---
+apiVersion: v1alpha1
+title: apisvcinst1 title
+name: apisvcinst1
+kind: APIServiceInstance
+metadata:
+  scope:
+    kind: Environment
+    name: env1
+attributes:
+  createdBy: yaml
+tags:
+  - apisvcinst
+  - cli
+  - axway
+spec:
+  apiServiceRevision: apisvcrev1
+  endpoint:
+    - host: test-endpoint.com
+      port: 8080
+      protocol: https
+---
+apiVersion: v1alpha1
+title: apisvcinst2 title
+name: apisvcinst2
+kind: APIServiceInstance
+metadata:
+  scope:
+    kind: Environment
+    name: env2
+attributes:
+  createdBy: yaml
+tags:
+  - apisvcinst
+  - cli
+  - axway
+spec:
+  apiServiceRevision: apisvcrev2
+  endpoint:
+    - host: test-endpoint2.com
+      port: 8080
+      protocol: https
