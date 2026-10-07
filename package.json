@@ -38,11 +38,9 @@
     "build": "lerna exec gulp build",
     "test": "yarn run gulp test"
   },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "resolutions": {
     "minimist": "1.2.6",
     "tough-cookie": "4.1.3",
