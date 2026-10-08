@@ -31,7 +31,6 @@ include:
     file:
       - "/.gitlab-ci-cxone.yml"
       - "/.gitlab-ci-blackduck.yml"
-      - "/.gitlab-ci-security.yml"
 
 stages:
   - install
