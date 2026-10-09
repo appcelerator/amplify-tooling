@@ -34,7 +34,7 @@
     "@axway/axway-cli-oum": "^3.1.0",
     "@axway/axway-cli-pm": "^5.1.0",
     "boxen": "^8.0.1",
-    "check-kit": "^4.0.0",
+    "check-kit": "github:appcelerator/check-kit#APIGOV-33776",
     "cli-kit": "github:appcelerator/cli-kit#APIGOV-33776",
     "serialize-error": "^8.1.0",
     "snooplogg": "^5.1.0",

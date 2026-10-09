@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nodeVersion: ["22", "24"]
+        nodeVersion: ["22", "24", "26"]
         os: [macos-latest]
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nodeVersion: ["22", "24"]
+        nodeVersion: ["22", "24", "26"]
         os: [windows-latest]
     steps:
       - uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nodeVersion: ["22", "24"]
+        nodeVersion: ["22", "24", "26"]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
