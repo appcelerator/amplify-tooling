@@ -63,7 +63,7 @@ export function options(opts = {}) {
 	delete opts.proxy;
 	delete opts.strictSSL;
 
-	const load = it => Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : undefined;
+	const load = it => (Buffer.isBuffer(it) ? it : typeof it === 'string' ? fs.readFileSync(it) : undefined);
 
 	opts.hooks = mergeDeep(opts.hooks, {
 		afterResponse: [

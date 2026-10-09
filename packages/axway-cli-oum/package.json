@@ -23,19 +23,19 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^6.1.0",
-    "cli-kit": "^2.1.1",
+    "cli-kit": "github:appcelerator/cli-kit#APIGOV-33776",
     "open": "^8.4.0",
     "snooplogg": "^5.1.0",
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^5.0.1"
+    "@axway/gulp-tasks": "github:appcelerator/axway-gulp-tasks#APIGOV-33776"
   },
   "homepage": "https://github.com/appcelerator/amplify-tooling#readme",
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/axway-cli-oum",
   "engines": {
-    "node": ">=20.18.2"
+    "node": ">=22.13.0"
   },
   "cli-kit": {
     "exports": {

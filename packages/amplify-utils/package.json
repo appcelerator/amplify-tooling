@@ -29,7 +29,7 @@
     "tmp": "^0.2.1"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "^5.0.1",
+    "@axway/gulp-tasks": "github:appcelerator/axway-gulp-tasks#APIGOV-33776",
     "fs-extra": "^10.1.0",
     "tmp": "^0.2.1"
   },
@@ -37,7 +37,7 @@
   "bugs": "https://github.com/appcelerator/amplify-tooling/issues",
   "repository": "https://github.com/appcelerator/amplify-tooling/tree/master/packages/amplify-utils",
   "engines": {
-    "node": ">=20.18.2"
+    "node": ">=22.13.0"
   },
   "gitHead": "911132219b963f56dfc1f9820a743b4e55e1355d"
 }
