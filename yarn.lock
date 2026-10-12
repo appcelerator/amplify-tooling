@@ -4,7 +4,7 @@
 
 "@axway/gulp-tasks@github:appcelerator/axway-gulp-tasks#APIGOV-33776":
   version "5.0.1"
-  resolved "https://codeload.github.com/appcelerator/axway-gulp-tasks/tar.gz/2157113008ca0fbf382ca06508446a5a2387aa24"
+  resolved "https://codeload.github.com/appcelerator/axway-gulp-tasks/tar.gz/4008ec077a9102c697ef66ef4a2eec3e55f229f0"
   dependencies:
     "@babel/core" "^7.29.7"
     "@babel/plugin-transform-modules-commonjs" "^7.29.7"
