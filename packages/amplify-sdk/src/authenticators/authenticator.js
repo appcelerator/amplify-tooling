@@ -362,7 +362,7 @@ export default class Authenticator {
 			if (orgId) {
 				org = { name: orgId, id: orgId };
 			}
-		} catch (e) {
+		} catch (_e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
 		}
 
