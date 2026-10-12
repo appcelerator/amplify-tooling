@@ -284,7 +284,7 @@ export default class Authenticator {
 				log(`${(response.statusCode >= 400 ? red : green)(String(response.statusCode))} ${highlight(url)}`);
 				return response;
 			} catch (err) {
-				if (err.code === 'ECONNREFUSED') {
+				if (err.code === 'ECONNREFUSED' || err.code === 'ERR_SOCKET_CLOSED_BEFORE_CONNECTION') {
 					// don't change the code, just re-throw
 					throw err;
 				}
