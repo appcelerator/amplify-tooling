@@ -78,6 +78,6 @@ blackduck-rapid:
   before_script:
     - npm install -g lerna
 
-blackduck_snapshot:
+blackduck-snapshot:
   before_script:
     - npm install -g lerna
