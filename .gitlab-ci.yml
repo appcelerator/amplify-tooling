@@ -84,3 +84,6 @@ blackduck-snapshot:
     - apk update && apk add nodejs npm
     - npm install
     - npm install -g lerna
+    - npm version
+    - lerna --version
+    - npm lerna ls --json
