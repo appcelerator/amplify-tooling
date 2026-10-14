@@ -86,4 +86,6 @@ blackduck-snapshot:
     - npm install -g lerna
     - npm version
     - lerna --version
-    - npm lerna ls --json
+    - npm list -g lerna
+    - echo $PATH
+    - lerna ls --json
