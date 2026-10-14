@@ -89,3 +89,6 @@ blackduck-snapshot:
     - npm list -g lerna
     - echo $PATH
     - lerna ls --json
+    - ls -la /usr/local/bin
+    - ls -la ~/.npm-global/gin/lerna
+    - npm config get prefix
