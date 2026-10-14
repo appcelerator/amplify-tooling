@@ -81,7 +81,7 @@ blackduck-rapid:
 blackduck-snapshot:
   before_script:
     - set -x
-    - apk update && apk add nodejs npm
+    - apk update && apk add nodejs npm yarn
     - npm install
     - npm install -g lerna
     - npm version
