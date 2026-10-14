@@ -80,4 +80,7 @@ blackduck-rapid:
 
 blackduck-snapshot:
   before_script:
+    - set -x
+    - apk update && add nodejs npm
+    - npm install
     - npm install -g lerna
