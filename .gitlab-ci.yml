@@ -10,7 +10,7 @@ variables:
   # Blackduck
   BLACKDUCK_PROJECT_NAME: "$SRM_PROJECT_NAME"
   # BLACKDUCK_CUSTOM_OPTIONS: --detect.excluded.detector.types=LERNA
-  BLACKDUCK_CUSTOM_OPTIONS: --detect.lerna.included.packages=amplify-cli-utils,amplify-config,amplify-request,amplify-sdk,amplify-utils,axway-cli,axway-cli-auth,axway-cli-oum,axway-cli-pm
+  BLACKDUCK_CUSTOM_OPTIONS: --detect.lerna.enabled=false --detect.lerna.included.packages=amplify-*,axway-*
   # Checkmarx One
   CX_CLIENT_ID: "axway-$SRM_PROJECT_NAME"
   #CX_CLIENT_SECRET: defined in UI
