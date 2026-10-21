@@ -21,16 +21,16 @@
   },
   "dependencies": {
     "@axway/amplify-cli-utils": "^5.0.0",
-    "cli-kit": "github:appcelerator/cli-kit#APIGOV-33776"
+    "cli-kit": "^3.0.0"
   },
   "devDependencies": {
-    "@axway/gulp-tasks": "github:appcelerator/axway-gulp-tasks#APIGOV-33776"
+    "@axway/gulp-tasks": "^6.0.0"
   },
   "homepage": "",
   "bugs": "",
   "repository": "",
   "engines": {
-    "node": ">=20.18.2"
+    "node": ">=22.22.2"
   },
   "amplify": {
     "type": "amplify-cli-plugin"
