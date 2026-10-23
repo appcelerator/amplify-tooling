@@ -1,6 +1,6 @@
 import bodyParser from 'koa-bodyparser';
 import callerPath from 'caller-path';
-import chalk from 'chalk';
+import { Chalk } from 'chalk';
 import pkg from 'fs-extra';
 import Koa from 'koa';
 import Mustache from 'mustache';
@@ -24,7 +24,13 @@ const { log } = logger;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const { highlight } = snooplogg.styles;
-const { readFileSync, existsSync, readdirSync, copySync, removeSync } = pkg;
+const { readFileSync, existsSync, readdirSync, copySync, removeSync, realpathSync } = pkg;
+
+// cli-kit renders styled output via snooplogg, which always uses a forced-color
+// chalk instance (level 3) regardless of TTY/CI detection. Match that here so the
+// expected regexes built below aren't dependent on this process's own color
+// auto-detection, which can disagree with the child CLI process's output.
+const chalk = new Chalk({ level: 3 });
 
 const axwayBin = path.resolve(__dirname, `../../packages/axway-cli/${process.env.AXWAY_COVERAGE ? 'src' : 'dist'}/main.js`);
 
@@ -96,8 +102,12 @@ export function resetHomeDir() {
 	this.timeout(60000);
 
 	// sanity check that we're not nuking the real home directory
-	const homedir = os.homedir();
-	if (homedir.startsWith(os.tmpdir())) {
+	// note: realpath both sides since on macOS os.tmpdir() returns a path
+	// through the `/var` symlink while the actual temp dir is often reported
+	// via its resolved `/private/var` form (or vice versa), which otherwise
+	// makes this startsWith() check always fail and silently no-op.
+	const homedir = realpathSync(os.homedir());
+	if (homedir.startsWith(realpathSync(os.tmpdir()))) {
 		log(`Emptying temp home directory: ${highlight(homedir)}`);
 		for (const name of readdirSync(homedir)) {
 			removeSync(path.join(homedir, name));

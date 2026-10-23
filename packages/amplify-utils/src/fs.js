@@ -30,7 +30,7 @@ function execute(dest, opts, fn) {
 					opts = Object.assign({}, opts, { gid: st.gid, uid: st.uid });
 					break;
 				}
-			} catch (err) {
+			} catch (_err) {
 				// continue
 			}
 		}
@@ -45,7 +45,7 @@ function execute(dest, opts, fn) {
 			chownSync(dest, opts.uid, opts.gid);
 			dest = path.dirname(dest);
 			stat = fs.lstatSync(dest);
-		} catch (e) {
+		} catch (_e) {
 			break;
 		}
 	}
@@ -61,7 +61,7 @@ export function existsSync(file) {
 	try {
 		fs.statSync(file);
 		return true;
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 }
@@ -75,7 +75,7 @@ export function existsSync(file) {
 export function isDir(dir) {
 	try {
 		return fs.statSync(dir).isDirectory();
-	} catch (e) {
+	} catch (_e) {
 		// squelch
 	}
 	return false;
@@ -90,7 +90,7 @@ export function isDir(dir) {
 export function isFile(file) {
 	try {
 		return fs.statSync(file).isFile();
-	} catch (e) {
+	} catch (_e) {
 		// squelch
 	}
 	return false;
@@ -121,12 +121,12 @@ export function locate(dir, filename, depth) {
 					} else if ((typeof filename === 'string' && name === filename) || (filename instanceof RegExp && filename.test(name))) {
 						return file;
 					}
-				} catch (e) {
+				} catch (_e) {
 					// probably a permission issue, go to next file
 				}
 			}
 		}
-	} catch (e) {
+	} catch (_e) {
 		// dir does not exist or permission issue
 	}
 	return null;

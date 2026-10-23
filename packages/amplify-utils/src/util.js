@@ -1,4 +1,4 @@
-/* eslint-disable node/no-deprecated-api, no-new-func */
+/* eslint-disable n/no-deprecated-api, no-new-func */
 
 import crypto from 'crypto';
 import fs from 'fs';
@@ -15,7 +15,7 @@ import * as asyncHooks from 'async_hooks';
 function getBinding(name) {
 	try {
 		return process.binding(name);
-	} catch (e) {
+	} catch (_e) {
 		// squelch
 	}
 	return {};
@@ -91,7 +91,7 @@ export function assertNodeEngineVersion(pkgJson) {
 		try {
 			pkgJson = JSON.parse(fs.readFileSync(pkgJson, 'utf8'));
 		} catch (e) {
-			throw new Error(`Unable to parse package.json: ${e.message}`);
+			throw new Error(`Unable to parse package.json: ${e.message}`, { cause: e });
 		}
 	} else if (typeof pkgJson !== 'object' || Array.isArray(pkgJson)) {
 		throw new TypeError('Expected pkgJson to be an object or string to a package.json file');
@@ -105,7 +105,7 @@ export function assertNodeEngineVersion(pkgJson) {
 			return true;
 		}
 	} catch (e) {
-		throw new Error(`Invalid Node engine version in package.json: ${required}`);
+		throw new Error(`Invalid Node engine version in package.json: ${required}`, { cause: e });
 	}
 
 	throw new Error(`Requires Node.js '${required}', but the current version is '${current}'`);
@@ -232,7 +232,7 @@ export function decodeOctalUTF8(input) {
 			try {
 				result += String.fromCharCode(parseInt(octByte, 8));
 				i += 3;
-			} catch (e) {
+			} catch (_e) {
 				result += '\\';
 				input = octByte + input;
 			}
@@ -845,7 +845,7 @@ export function trackTimers() {
 						delete activeTimers[asyncId];
 					}
 				});
-		} catch (e) {
+		} catch (_e) {
 			// squelch
 		}
 	}
