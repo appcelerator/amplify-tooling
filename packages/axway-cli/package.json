@@ -24,6 +24,7 @@
     "build": "gulp build",
     "coverage": "gulp coverage",
     "docs": "gulp docs",
+    "preinstall": "node scripts/check-node.cjs",
     "postinstall": "node scripts/postinstall.js || node -e true",
     "test": "gulp test"
   },
