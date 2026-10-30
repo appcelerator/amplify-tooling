@@ -55,7 +55,7 @@ export function real(path) {
 			} else {
 				path = current;
 			}
-		} catch (e) {
+		} catch (_e) {
 			// current does not exist which means all subdirectories also do not exist, so just
 			// stitch everything back together
 			return _path.resolve(current, ...dirs);

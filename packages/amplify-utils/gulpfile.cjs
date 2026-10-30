@@ -5,5 +5,5 @@ require('@axway/gulp-tasks')({
 	projectDir: './',
 	pkgJson:  require('./package.json'),
 	template: 'standard',
-	babel:    'node12'
+	babel:    'node14'
 });
