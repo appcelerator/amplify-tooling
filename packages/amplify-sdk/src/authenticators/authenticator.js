@@ -284,7 +284,7 @@ export default class Authenticator {
 				log(`${(response.statusCode >= 400 ? red : green)(String(response.statusCode))} ${highlight(url)}`);
 				return response;
 			} catch (err) {
-				if (err.code === 'ECONNREFUSED') {
+				if (err.code === 'ECONNREFUSED' || err.code === 'ERR_SOCKET_CLOSED_BEFORE_CONNECTION') {
 					// don't change the code, just re-throw
 					throw err;
 				}
@@ -362,7 +362,7 @@ export default class Authenticator {
 			if (orgId) {
 				org = { name: orgId, id: orgId };
 			}
-		} catch (e) {
+		} catch (_e) {
 			throw E.AUTH_FAILED('Authentication failed: Invalid server response');
 		}
 
@@ -547,6 +547,7 @@ export default class Authenticator {
 						await this.timeout();
 						return await this.getToken(undefined, undefined, true);
 					}
+					return undefined;
 				});
 		}).finally(() => server.stop());
 

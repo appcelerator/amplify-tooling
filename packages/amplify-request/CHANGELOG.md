@@ -1,3 +1,8 @@
+# v5.0.0 (Nov 16, 2026)
+
+- BREAKING CHANGE: Node.js version upgrade to 22.22.2 (minimum) and Security Updates.
+  ([APIGOV-33776] (https://jira.axway.com/browse/APIGOV-33776))
+
 # v4.1.0 (Mar 03, 2026)
 
 - chore: Add support for preproduction environment.

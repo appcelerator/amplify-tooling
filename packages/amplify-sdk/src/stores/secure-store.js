@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-require */
-
 import crypto from 'crypto';
 import E from '../errors.js';
 import FileStore from './file-store.js';
@@ -91,7 +89,7 @@ export default class SecureStore extends FileStore {
 						'To use the insecure token store, run the following:',
 						'',
 						'  axway config set auth.tokenStoreType file'
-					].join('\n'));
+					].join('\n'), { cause: err });
 				}
 				throw err;
 			}

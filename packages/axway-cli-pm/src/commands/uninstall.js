@@ -128,7 +128,7 @@ export default {
 				if (!argv.json && replacement.path) {
 					console.log(`\n${highlight(`${name}@${replacement.version}`)} is now the active version`);
 				}
-			} catch (err) {
+			} catch (_err) {
 				// squelch
 			}
 		}

@@ -1,3 +1,12 @@
 #!/usr/bin/env node
+const required = '22.22.2';
+const current = process.versions.node;
+const [ a, b, c ] = current.split('.').map(Number);
+const [ x, y, z ] = required.split('.').map(Number);
+if (a < x || (a === x && (b < y || (b === y && c < z)))) {
+	console.error(`Axway CLI requires Node.js >=${required}, but found v${current}.\nPlease upgrade Node.js and try again.`);
+	process.exit(1);
+}
+
 import ('v8-compile-cache');
 import ('../dist/main.js');

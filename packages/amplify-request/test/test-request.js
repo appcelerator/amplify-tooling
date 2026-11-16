@@ -48,9 +48,12 @@ describe('init', () => {
 		this.timeout(10000);
 
 		try {
-			await init()('http://127.0.0.1:1337');
+			// retries disabled: a retried attempt can reject asynchronously after this call
+			// already settled, surfacing as an uncaught error in a later, unrelated test
+			await init()('http://127.0.0.1:1337', { retry: { limit: 0 } });
 		} catch (err) {
-			expect(err.code).to.equal('ECONNREFUSED');
+			// Node 24.20.0+ reports refused connections as ERR_SOCKET_CLOSED_BEFORE_CONNECTION
+			expect(err.code).to.be.oneOf([ 'ECONNREFUSED', 'ERR_SOCKET_CLOSED_BEFORE_CONNECTION' ]);
 			return;
 		}
 
@@ -77,10 +80,15 @@ describe('init', () => {
 		this.timeout(10000);
 
 		try {
-			await init()({ url: 'http://127.0.0.1:1336' });
+			// retries disabled: a retried attempt can reject asynchronously after this call
+			// already settled, surfacing as an uncaught error in a later, unrelated test
+			await init()({ url: 'http://127.0.0.1:1336', retry: { limit: 0 } });
 		} catch (err) {
-			expect(err.code).to.equal('ECONNREFUSED');
-			expect(err.message).to.equal('connect ECONNREFUSED 127.0.0.1:1336');
+			// Node 24.20.0+ reports refused connections as ERR_SOCKET_CLOSED_BEFORE_CONNECTION
+			expect(err.code).to.be.oneOf([ 'ECONNREFUSED', 'ERR_SOCKET_CLOSED_BEFORE_CONNECTION' ]);
+			if (err.code === 'ECONNREFUSED') {
+				expect(err.message).to.equal('connect ECONNREFUSED 127.0.0.1:1336');
+			}
 			return;
 		}
 

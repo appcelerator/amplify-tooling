@@ -77,7 +77,7 @@ export default {
 
 		try {
 			await runListr({ console, json: argv.json, tasks });
-		} catch (err) {
+		} catch (_err) {
 			// errors are stored in the results
 		}
 

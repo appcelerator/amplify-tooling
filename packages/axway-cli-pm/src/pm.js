@@ -87,7 +87,7 @@ export function install(pkgName) {
 			let npm;
 			try {
 				npm = await which('npm');
-			} catch (e) {
+			} catch (_e) {
 				const err = new Error('Unable to find the "npm" executable. Please ensure you have "npm" installed on your machine');
 				err.code = 'ENONPM';
 				throw err;
@@ -278,7 +278,7 @@ function loadPackageData(name, extensions, pkgDir) {
 				path: versionDir,
 				managed: true
 			};
-		} catch (e) {
+		} catch (_e) {
 			// squelch
 		}
 	}
@@ -323,7 +323,7 @@ export async function uninstallPackage(dir) {
 				error(stderr);
 			}
 		}
-	} catch (e) {
+	} catch (_e) {
 		// squelch
 	}
 
@@ -363,7 +363,7 @@ export async function search({ keyword, limit, type } = {}) {
 				if (pkg) {
 					results.push(pkg);
 				}
-			} catch (err) {
+			} catch (_err) {
 				// squelch
 			}
 		});
@@ -398,7 +398,7 @@ export async function view(pkgName, { requestOpts = createRequestOptions(), type
 		});
 	} catch (err) {
 		if (err.statusCode === 404) {
-			throw new Error(`Package "${pkgName}" not found`);
+			throw new Error(`Package "${pkgName}" not found`, { cause: err });
 		}
 		throw err;
 	}

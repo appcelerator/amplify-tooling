@@ -1873,7 +1873,7 @@ export default class AmplifySDK {
 					log(`${method.toUpperCase()} ${highlight(url)} ${note(`(${account.sid ? `sid ${account.sid}` : `token ${token}`})`)}`);
 					try {
 						response = await this.got[method](url, opts);
-					} catch (err) {
+					} catch (_err) {
 						// access token is invalid
 						throw E.SESSION_INVALIDATED('Platform session has been invalidated');
 					}

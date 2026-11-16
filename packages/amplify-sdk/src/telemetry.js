@@ -259,7 +259,7 @@ export default class Telemetry {
 				prev = id;
 				throw new Error();
 			}
-		} catch (err) {
+		} catch (_err) {
 			id = uuid.v4();
 			ts = null;
 		}
@@ -397,7 +397,7 @@ process.on('message', async msg => {
 					writeFileSync(lockFile, String(process.pid), { flag: 'wx' });
 					log(`Attempt ${i}: Successfully acquired lock`);
 					return true;
-				} catch (e) {
+				} catch (_e) {
 					const contents = fs.readFileSync(lockFile, 'utf-8').trim();
 					const pid = parseInt(contents, 10);
 
@@ -411,7 +411,7 @@ process.on('message', async msg => {
 							process.kill(pid, 0);
 							log(`Attempt ${i}: Another send process (pid: ${pid}) is currently running`);
 							return false;
-						} catch (e2) {
+						} catch (_e2) {
 							log(`Attempt ${i}: Lock file exists, but has stale pid, continuing...`);
 							fs.removeSync(lockFile);
 						}
@@ -459,7 +459,7 @@ process.on('message', async msg => {
 					if (batch.length >= sendBatchSize) {
 						break;
 					}
-				} catch (err) {
+				} catch (_err) {
 					warn(`Batch ${batchCounter}: Bad event ${filename}, deleting`);
 					fs.removeSync(file);
 				}
