@@ -1,4 +1,4 @@
-import { ApigeeMetricsFilterConfig, APIGEEXDISCOVERYMODES, CentralAgentConfig, TraceabilityConfig } from '../../../types.js';
+import { ApigeeMetricsFilterConfig, APIGEEXDISCOVERYMODES, CentralAgentConfig, GeminiAgentPlatformConfig, TraceabilityConfig } from '../../../types.js';
 
 /**
  * @description Parameters to provide to the Apigee X handlebars templates.
@@ -7,6 +7,8 @@ export class ApigeeXAgentValues {
 	projectId: string;
 	developerEmailAddress: string;
 	mode: APIGEEXDISCOVERYMODES;
+	geminiAgentPlatformMode: boolean;
+	geminiAgentPlatform: GeminiAgentPlatformConfig;
 	environment: string;
 	fileName: string;
 	metricsFilter: ApigeeMetricsFilterConfig;
@@ -17,6 +19,8 @@ export class ApigeeXAgentValues {
 		this.projectId = '';
 		this.developerEmailAddress = '';
 		this.mode = APIGEEXDISCOVERYMODES.PROXY;
+		this.geminiAgentPlatformMode = false;
+		this.geminiAgentPlatform = new GeminiAgentPlatformConfig();
 		this.environment = '';
 		this.fileName = '';
 		this.metricsFilter = new ApigeeMetricsFilterConfig(true, []);
@@ -33,12 +37,16 @@ export const apigeeXTAEnvVarTemplate = () => {
 APIGEE_PROJECTID={{projectId}}
 APIGEE_DEVELOPEREMAIL={{developerEmailAddress}}
 APIGEE_MODE={{mode}}
+{{#unless geminiAgentPlatformMode}}
 APIGEE_ENVIRONMENT={{environment}}
+{{/unless}}
 APIGEE_AUTHFILEPATH=/keys/{{fileName}}
+{{#unless geminiAgentPlatformMode}}
 APIGEE_METRICSFILTER_FILTERMETRICS={{metricsFilter.filterMetrics}}
 {{#if metricsFilter.filterMetrics}}
 APIGEE_METRICSFILTER_FILTEREDAPIS={{metricsFilter.filteredAPIs}}
 {{/if}}
+{{/unless}}
 
 # Amplify Central configs
 {{#if traceabilityConfig.usageReportingOffline}}
@@ -71,12 +79,26 @@ LOG_FILE_PATH=logs
  * @description Generates the ApigeeX DA env vars file.
  */
 export const apigeeXDAEnvVarTemplate = () => {
-	return `# Azure configs
+	return `# ApigeeX configs
 APIGEE_PROJECTID={{projectId}}
 APIGEE_DEVELOPEREMAIL={{developerEmailAddress}}
 APIGEE_MODE={{mode}}
+{{#unless geminiAgentPlatformMode}}
 APIGEE_ENVIRONMENT={{environment}}
+{{/unless}}
 APIGEE_AUTHFILEPATH=/keys/{{fileName}}
+{{#if geminiAgentPlatformMode}}
+{{#if geminiAgentPlatform.locations}}
+APIGEE_GEMINIAGENTPLATFORM_LOCATIONS={{geminiAgentPlatform.locations}}
+{{/if}}
+{{#if geminiAgentPlatform.runtimes}}
+APIGEE_GEMINIAGENTPLATFORM_RUNTIMES={{geminiAgentPlatform.runtimes}}
+{{/if}}
+{{#if geminiAgentPlatform.gateways}}
+APIGEE_GEMINIAGENTPLATFORM_GATEWAYS={{geminiAgentPlatform.gateways}}
+{{/if}}
+APIGEE_GEMINIAGENTPLATFORM_MCPDISCOVERYENABLED={{geminiAgentPlatform.mcpDiscoveryEnabled}}
+{{/if}}
 
 # Amplify Central configs
 CENTRAL_AGENTNAME={{centralConfig.daAgentName}}

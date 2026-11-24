@@ -31,6 +31,7 @@ export const AWSRegexPatterns = {
 export const APIGEEXRegexPatterns = {
 	APIGEEX_REGEXP_PROJECT_ID: '^[a-z][a-z0-9-]{4,28}[a-z0-9]$',
 	APIGEEX_REGEXP_EMAIL_ADDRESS: '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
+	APIGEEX_REGEXP_GCP_LOCATION: '^[a-z][a-z0-9-]*[a-z0-9]$',
 };
 
 // AzureRegexPatterns - regex patters to validate user inputs

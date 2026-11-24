@@ -1080,6 +1080,28 @@ export enum AWSRegions {
 export enum APIGEEXDISCOVERYMODES {
 	PROXY = 'proxy',
 	PRODUCT = 'product',
+	GEMINI_AGENT_PLATFORM = 'gemini-agent-platform',
+}
+
+// GeminiAgentPlatformRuntime - the runtimes the discovery can be limited to in gemini-agent-platform mode
+export enum GeminiAgentPlatformRuntime {
+	AGENT_RUNTIME = 'agent-runtime',
+	AGENT_REGISTRY = 'agent-registry',
+}
+
+// GeminiAgentPlatformConfig - the settings of the gemini-agent-platform mode
+export class GeminiAgentPlatformConfig {
+	locations?: string[];
+	runtimes?: GeminiAgentPlatformRuntime[];
+	gateways?: string[];
+	mcpDiscoveryEnabled?: boolean;
+
+	constructor(locations?: string[], runtimes?: GeminiAgentPlatformRuntime[], gateways?: string[], mcpDiscoveryEnabled?: boolean) {
+		this.locations = locations ?? [];
+		this.runtimes = runtimes ?? [];
+		this.gateways = gateways ?? [];
+		this.mcpDiscoveryEnabled = mcpDiscoveryEnabled ?? true;
+	}
 }
 
 export enum AzureDataplaneMode {

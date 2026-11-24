@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, ApigeeMetricsFilterConfig, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentTypes, ApigeeMetricsFilterConfig, APIGEEXDISCOVERYMODES, BasePaths, BundleType, GatewayTypes, InstallationFlowMethods, PublicDockerRepoBaseUrl, svcAccMsg, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, validateRegex } from '../../basic-prompts.js';
 import { dockerLoginInfo, isWindows, writeTemplates } from '../../utils.js';
 import { ApigeeXAgentValues } from '../index.js';
@@ -21,6 +21,7 @@ export const ConfigFiles = {
 const ApigeeXPrompts = {
 	AUTHENTICATION_TYPE: 'Authenticate with an Impersonation of a Service Account or by providing a Credential File',
 	PROJECT_ID: 'Enter the APIGEE X Project ID the agent will use',
+	GEMINI_PROJECT_ID: 'Enter the Google Cloud Project ID of the Gemini Enterprise Agent Platform the agent will use',
 	DEVELOPER_EMAIL_ADDRESS: 'Enter the APIGEE X Developer Email Address the agent will use',
 	AUTH_FILE_NAME: 'Enter the GCP key file name (place in the same directory as your Axway public and private keys)',
 	UPLOAD_CREDENTIAL_FILE: 'Upload a JSON Credential file to be used for APIGEE X Authentication',
@@ -52,9 +53,9 @@ export const askConfigType = async (): Promise<AgentConfigTypes> => {
 //
 // Questions for the configuration of Apigee X agents
 //
-const askApigeeXProjectId = async (): Promise<string> =>
+const askApigeeXProjectId = async (msg: string = ApigeeXPrompts.PROJECT_ID): Promise<string> =>
 	(await askInput({
-		msg: ApigeeXPrompts.PROJECT_ID,
+		msg,
 		validate: validateRegex(
 			helpers.APIGEEXRegexPatterns.APIGEEX_REGEXP_PROJECT_ID,
 			helpers.invalidValueExampleErrMsg('Project ID', 'rd-amplify-apigee-x')
@@ -110,11 +111,23 @@ const askApigeeXMetricFilterConfig = async (log: (text: string) => void = () => 
 export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<ApigeeXAgentValues> => {
 	const apigeeXAgentValues: ApigeeXAgentValues = new ApigeeXAgentValues();
 
-	installConfig.log('\nCONNECTION TO APIGEE X API GATEWAY:');
-	installConfig.log(
-		chalk.gray(
-			'The discovery agent needs to connect to the APIGEE X API Gateway to discover API\'s for publishing to Amplify.\n'
-		));
+	// Determine the mode first, as it decides which prompts follow
+	apigeeXAgentValues.mode = await helpers.askApigeeXMode();
+	apigeeXAgentValues.geminiAgentPlatformMode = apigeeXAgentValues.mode === APIGEEXDISCOVERYMODES.GEMINI_AGENT_PLATFORM;
+
+	if (apigeeXAgentValues.geminiAgentPlatformMode) {
+		installConfig.log('\nCONNECTION TO GEMINI ENTERPRISE AGENT PLATFORM:');
+		installConfig.log(
+			chalk.gray(
+				'The discovery agent needs to connect to the Gemini Enterprise Agent Platform to discover agents and MCP servers for publishing to Amplify.\n'
+			));
+	} else {
+		installConfig.log('\nCONNECTION TO APIGEE X API GATEWAY:');
+		installConfig.log(
+			chalk.gray(
+				'The discovery agent needs to connect to the APIGEE X API Gateway to discover API\'s for publishing to Amplify.\n'
+			));
+	}
 
 	// Apigee X Discovery Agent Prompts
 	if (installConfig.switches.isDaEnabled) {
@@ -127,8 +140,9 @@ export const gatewayConnectivity = async (installConfig: AgentInstallConfig): Pr
 		await askDiscoveryPrompts(apigeeXAgentValues, installConfig.log);
 	}
 
-	// Apigee X Traceability Agent Prompts
-	if (installConfig.switches.isTaEnabled) {
+	// Apigee X Traceability Agent Prompts. Gemini Enterprise Agent Platform mode reports the usage of every
+	// published agent and MCP server, with no metrics filter, so its traceability agent has nothing to ask
+	if (installConfig.switches.isTaEnabled && !apigeeXAgentValues.geminiAgentPlatformMode) {
 		installConfig.log(
 			chalk.gray(
 				'\nTraceability Agent Configuration\n'
@@ -199,11 +213,20 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 // ApigeeX DA prompts
 async function askDiscoveryPrompts(apigeeXAgentValues: ApigeeXAgentValues, log: (text: string) => void = () => {}) {
 	// Apigee X ProjectId
-	apigeeXAgentValues.projectId = await askApigeeXProjectId();
+	apigeeXAgentValues.projectId = await askApigeeXProjectId(
+		apigeeXAgentValues.geminiAgentPlatformMode ? ApigeeXPrompts.GEMINI_PROJECT_ID : ApigeeXPrompts.PROJECT_ID
+	);
 	// Apigee X Developer Email Address
 	apigeeXAgentValues.developerEmailAddress = await askApigeeXDeveloperEmailAddress();
 	// Apigee X Auth File Path
 	apigeeXAgentValues.fileName = await askApigeeXAuthFileName();
+
+	// Gemini Enterprise Agent Platform mode discovers agents and MCP servers rather than API proxies, so it
+	// has its own settings in place of the environment and metrics filter
+	if (apigeeXAgentValues.geminiAgentPlatformMode) {
+		apigeeXAgentValues.geminiAgentPlatform = await helpers.askGeminiAgentPlatformConfig();
+		return;
+	}
 	// Apigee X Environment
 	apigeeXAgentValues.environment = await askApigeeXEnvironment();
 	// Apigee X Metric Filter Config

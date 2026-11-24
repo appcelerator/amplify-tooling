@@ -7,10 +7,13 @@ import { kubectl } from '../../utils/agents/kubectl.js';
 import { PlatformClient, PlatformServiceAccountRole } from '../../clients-external/platformclient.js';
 import {
 	AgentTypes,
+	APIGEEXDISCOVERYMODES,
 	AWSRegions,
 	BundleType,
 	DOSAConfigInfo,
 	EnvironmentConfigInfo,
+	GeminiAgentPlatformConfig,
+	GeminiAgentPlatformRuntime,
 	GenericResource,
 	IDPAuthAccessToken,
 	IDPAuthClientSecret,
@@ -23,6 +26,7 @@ import {
 	YesNoChoices,
 } from '../../types.js';
 import { getListByResource } from '../../utils/agents/getters.js';
+import { APIGEEXRegexPatterns } from '../../utils/agents/regex.js';
 import {
 	dosaRegex,
 	GitLabRegexPatterns,
@@ -63,6 +67,14 @@ export const agentMessages = {
 	getAgentsError: 'Error getting agents.',
 	agentAlreadyExists: 'Agent already exists. Please enter a new name.',
 	selectAgentType: 'Select the type of agent(s) you want to install',
+};
+
+export const apigeeXMessages = {
+	selectMode: 'Select what the agents connect to',
+	enterGeminiLocations: 'Enter the Google Cloud locations to discover agents and MCP servers in, comma-separated. Leave empty to discover every location',
+	selectGeminiRuntimes: 'Select the runtimes of the agents to discover',
+	enterGeminiGateways: 'Enter the client-to-agent gateways that Agent Runtime agents must use, by name or full resource name, comma-separated. Leave empty for no gateway filter',
+	enableGeminiMCPDiscovery: 'Do you want to discover MCP servers?',
 };
 
 export const idpMessages = {
@@ -111,6 +123,71 @@ export const askAWSRegion = async (region: string = ''): Promise<string> => {
 		return answer;
 	}
 };
+
+export const askApigeeXMode = async (): Promise<APIGEEXDISCOVERYMODES> =>
+	(await askList({
+		msg: apigeeXMessages.selectMode,
+		default: APIGEEXDISCOVERYMODES.PROXY,
+		choices: [
+			{ name: 'Apigee X API proxies', value: APIGEEXDISCOVERYMODES.PROXY },
+			{ name: 'Gemini Enterprise Agent Platform', value: APIGEEXDISCOVERYMODES.GEMINI_AGENT_PLATFORM },
+		],
+	})) as APIGEEXDISCOVERYMODES;
+
+// splitCommaSeparatedList - the trimmed, non-empty entries of a comma-separated input
+export const splitCommaSeparatedList = (input: string | number): string[] =>
+	input.toString()
+		.split(',')
+		.map((entry) => entry.trim())
+		.filter((entry) => entry !== '');
+
+// validateGCPLocations - checks that every entry of a comma-separated input is a Google Cloud location
+export const validateGCPLocations: InputValidation = (input: string | number) => {
+	const invalid = splitCommaSeparatedList(input)
+		.filter((location) => !location.match(APIGEEXRegexPatterns.APIGEEX_REGEXP_GCP_LOCATION));
+	return invalid.length === 0
+		? true
+		: `Invalid location(s) entered: ${invalid.join(', ')}. A location must be in the form of us-central1`;
+};
+
+export const askGeminiAgentPlatformConfig = async (): Promise<GeminiAgentPlatformConfig> => {
+	const allRuntimes = 'ALL';
+	const config = new GeminiAgentPlatformConfig();
+
+	config.locations = splitCommaSeparatedList((await askInput({
+		msg: apigeeXMessages.enterGeminiLocations,
+		allowEmptyInput: true,
+		validate: validateGCPLocations,
+	})) as string);
+
+	const runtime = await askList({
+		msg: apigeeXMessages.selectGeminiRuntimes,
+		default: allRuntimes,
+		choices: [
+			{ name: 'All runtimes', value: allRuntimes },
+			{ name: 'Agents deployed on Agent Runtime', value: GeminiAgentPlatformRuntime.AGENT_RUNTIME },
+			{ name: 'Agents registered in Agent Registry and hosted elsewhere', value: GeminiAgentPlatformRuntime.AGENT_REGISTRY },
+		],
+	});
+	config.runtimes = runtime === allRuntimes ? [] : [ runtime as GeminiAgentPlatformRuntime ];
+
+	// the gateway filter only applies to Agent Runtime agents
+	if (runtime !== GeminiAgentPlatformRuntime.AGENT_REGISTRY) {
+		config.gateways = splitCommaSeparatedList((await askInput({
+			msg: apigeeXMessages.enterGeminiGateways,
+			allowEmptyInput: true,
+		})) as string);
+	}
+
+	config.mcpDiscoveryEnabled = (await askList({
+		msg: apigeeXMessages.enableGeminiMCPDiscovery,
+		default: YesNo.Yes,
+		choices: YesNoChoices,
+	})) === YesNo.Yes;
+
+	return config;
+};
+
 export const askServiceAccountName = async (serviceAccountNames: string[]): Promise<string> => {
 	console.warn(
 		chalk.yellow(
