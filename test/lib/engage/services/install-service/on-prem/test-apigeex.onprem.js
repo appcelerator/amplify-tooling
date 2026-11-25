@@ -13,11 +13,12 @@ const FLOW_MODULE = `${distRoot}/lib/engage/utils/agents/flows/apigeexAgents.js`
 describe('Apigee X on-prem agent flow', () => {
 	let flowModule;
 	let promptStubs;
+	let helpersStubs;
 	let utilsStubs;
 
 	beforeEach(async () => {
 		promptStubs = await td.replaceEsm(BASIC_PROMPTS);
-		await td.replaceEsm(AGENTS_INDEX);
+		helpersStubs = await td.replaceEsm(AGENTS_INDEX);
 		utilsStubs = await td.replaceEsm(UTILS_MODULE);
 
 		flowModule = await import(FLOW_MODULE);
@@ -59,6 +60,10 @@ describe('Apigee X on-prem agent flow', () => {
 	});
 
 	describe('AskGatewayQuestions', () => {
+		beforeEach(() => {
+			td.when(helpersStubs.askApigeeXMode()).thenResolve('proxy');
+		});
+
 		it('collects DA prompts when discovery is enabled and metrics filtering is disabled', async () => {
 			const askInputResponses = [
 				'rd-amplify-apigee-x',
@@ -76,6 +81,8 @@ describe('Apigee X on-prem agent flow', () => {
 				buildInstallConfig({ isDaEnabled: true, isTaEnabled: false })
 			);
 
+			expect(result.mode).to.equal('proxy');
+			expect(result.geminiAgentPlatformMode).to.equal(false);
 			expect(result.projectId).to.equal('rd-amplify-apigee-x');
 			expect(result.developerEmailAddress).to.equal('dev@axway.com');
 			expect(result.fileName).to.equal('auth.json');
@@ -154,8 +161,36 @@ describe('Apigee X on-prem agent flow', () => {
 
 			await flowModule.gatewayConnectivity(buildInstallConfig({ isDaEnabled: true, isTaEnabled: false }));
 
-			expect(promptConfigs.find((config) => config.msg === 'Enter the APIGEE X Project ID the agent will use').validate).to.equal(validator);
+			expect(promptConfigs.find((config) => config.msg === 'Enter the GCP Project ID the agent will use').validate).to.equal(validator);
 			expect(td.explain(promptStubs.validateRegex).callCount).to.equal(1);
+		});
+
+		it('collects the Gemini Enterprise Agent Platform settings in place of the environment and metrics filter', async () => {
+			const geminiAgentPlatform = { locations: [ 'us-central1' ], runtimes: [ ], gateways: [ ], mcpDiscoveryEnabled: true };
+			td.when(helpersStubs.askApigeeXMode()).thenResolve('gemini-agent-platform');
+			td.when(helpersStubs.askGeminiAgentPlatformConfig()).thenResolve(geminiAgentPlatform);
+
+			const askInputResponses = [
+				'rd-amplify-apigee-x',
+				'dev@axway.com',
+				'auth.json',
+			];
+			td.when(promptStubs.askInput(td.matchers.anything()))
+				.thenDo(() => askInputResponses.shift());
+
+			const result = await flowModule.gatewayConnectivity(
+				buildInstallConfig({ isDaEnabled: true, isTaEnabled: true })
+			);
+
+			expect(result.mode).to.equal('gemini-agent-platform');
+			expect(result.geminiAgentPlatformMode).to.equal(true);
+			expect(result.projectId).to.equal('rd-amplify-apigee-x');
+			expect(result.developerEmailAddress).to.equal('dev@axway.com');
+			expect(result.fileName).to.equal('auth.json');
+			expect(result.geminiAgentPlatform).to.deep.equal(geminiAgentPlatform);
+			// no environment, metrics filter or traceability prompts
+			expect(td.explain(promptStubs.askInput).callCount).to.equal(3);
+			expect(td.explain(promptStubs.askList).callCount).to.equal(0);
 		});
 	});
 

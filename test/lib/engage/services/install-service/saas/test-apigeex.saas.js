@@ -41,6 +41,8 @@ describe('Apigee X SaaS agent flow', () => {
 
 		helpersStubs = {
 			...realHelpers,
+			askApigeeXMode: td.func('askApigeeXMode'),
+			askGeminiAgentPlatformConfig: td.func('askGeminiAgentPlatformConfig'),
 			createByResourceType: td.func('createByResourceType'),
 			createNewDataPlaneResource: td.func('createNewDataPlaneResource'),
 			createNewDataPlaneSecretResource: td.func('createNewDataPlaneSecretResource'),
@@ -84,6 +86,38 @@ describe('Apigee X SaaS agent flow', () => {
 		expect(bundleType).to.equal(engageTypes.BundleType.ALL_AGENTS);
 	});
 
+	it('collects the Gemini Enterprise Agent Platform settings in place of the metrics filter and environment', async () => {
+		const geminiAgentPlatform = { locations: [ 'us-central1' ], runtimes: [ ], gateways: [ ], mcpDiscoveryEnabled: true };
+		td.when(helpersStubs.askApigeeXMode()).thenResolve(engageTypes.APIGEEXDISCOVERYMODES.GEMINI_AGENT_PLATFORM);
+		td.when(helpersStubs.askGeminiAgentPlatformConfig()).thenResolve(geminiAgentPlatform);
+
+		const askInputResponses = [
+			'rd-amplify-apigee-x',
+			'dev@example.com',
+			'client@example.com',
+			'30m',
+			'1h',
+		];
+		td.when(promptStubs.askInput(td.matchers.anything()))
+			.thenDo(() => askInputResponses.shift());
+		td.when(promptStubs.askList(td.matchers.anything())).thenResolve('No');
+
+		const result = await flowModule.APIGEEXSaaSInstallMethods.AskGatewayQuestions(
+			buildInstallConfig(engageTypes.SaaSGatewayTypes.APIGEEX_GATEWAY, true)
+		);
+
+		expect(result.mode).to.equal(engageTypes.APIGEEXDISCOVERYMODES.GEMINI_AGENT_PLATFORM);
+		expect(result.projectId).to.equal('rd-amplify-apigee-x');
+		expect(result.developerEmailAddress).to.equal('dev@example.com');
+		expect(result.clientEmailAddress).to.equal('client@example.com');
+		expect(result.geminiAgentPlatform).to.deep.equal(geminiAgentPlatform);
+		expect(result.frequencyDA).to.equal('30m');
+		expect(result.frequencyTA).to.equal('1h');
+		// no metrics filter or environment prompts: the only list left is queueing the discovery
+		expect(td.explain(promptStubs.askInput).callCount).to.equal(5);
+		expect(td.explain(promptStubs.askList).callCount).to.equal(1);
+	});
+
 	it('creates DA and TA resources when TA is enabled', async () => {
 		const config = buildInstallConfig(engageTypes.SaaSGatewayTypes.APIGEEX_GATEWAY, true);
 		config.gatewayConfig = {
@@ -100,6 +134,57 @@ describe('Apigee X SaaS agent flow', () => {
 
 		await flowModule.APIGEEXSaaSInstallMethods.FinalizeGatewayInstall(config, {}, {});
 		expect(td.explain(helpersStubs.createNewAgentResource).callCount).to.equal(2);
+	});
+
+	it('sends the Gemini Enterprise Agent Platform settings on the dataplane in place of the metrics filter and environment', async () => {
+		const geminiAgentPlatform = { locations: [ 'us-central1' ], runtimes: [ ], gateways: [ ], mcpDiscoveryEnabled: true };
+		const config = buildInstallConfig(engageTypes.SaaSGatewayTypes.APIGEEX_GATEWAY, true);
+		config.gatewayConfig = {
+			projectId: 'rd-amplify-apigee-x',
+			developerEmailAddress: 'dev@example.com',
+			mode: engageTypes.APIGEEXDISCOVERYMODES.GEMINI_AGENT_PLATFORM,
+			geminiAgentPlatform,
+			metricsFilter: new engageTypes.ApigeeMetricsFilterConfig(true, [ ]),
+			environment: '',
+			frequencyDA: '30m',
+			queueDA: false,
+			frequencyTA: '1h',
+			getAccessData: () => JSON.stringify({ client_email: 'client@example.com' }),
+		};
+
+		await flowModule.APIGEEXSaaSInstallMethods.FinalizeGatewayInstall(config, {}, {});
+
+		// the dataplane config is sent as JSON, which leaves out the fields a mode does not set
+		const sent = JSON.parse(JSON.stringify(td.explain(helpersStubs.createNewDataPlaneResource).calls[0].args[4]));
+		expect(sent.mode).to.equal(engageTypes.APIGEEXDISCOVERYMODES.GEMINI_AGENT_PLATFORM);
+		expect(sent.projectId).to.equal('rd-amplify-apigee-x');
+		expect(sent.developerEmail).to.equal('dev@example.com');
+		expect(sent.geminiAgentPlatform).to.deep.equal(geminiAgentPlatform);
+		expect(sent).to.not.have.any.keys('metricsFilter', 'environment');
+	});
+
+	it('sends the metrics filter and environment on the dataplane in proxy mode', async () => {
+		const config = buildInstallConfig(engageTypes.SaaSGatewayTypes.APIGEEX_GATEWAY, true);
+		config.gatewayConfig = {
+			projectId: 'rd-amplify-apigee-x',
+			developerEmailAddress: 'dev@example.com',
+			mode: engageTypes.APIGEEXDISCOVERYMODES.PROXY,
+			geminiAgentPlatform: { locations: [ ], runtimes: [ ], gateways: [ ], mcpDiscoveryEnabled: true },
+			metricsFilter: new engageTypes.ApigeeMetricsFilterConfig(true, [ 'payments-api' ]),
+			environment: 'prod',
+			frequencyDA: '30m',
+			queueDA: false,
+			frequencyTA: '1h',
+			getAccessData: () => JSON.stringify({ client_email: 'client@example.com' }),
+		};
+
+		await flowModule.APIGEEXSaaSInstallMethods.FinalizeGatewayInstall(config, {}, {});
+
+		const sent = JSON.parse(JSON.stringify(td.explain(helpersStubs.createNewDataPlaneResource).calls[0].args[4]));
+		expect(sent.mode).to.equal(engageTypes.APIGEEXDISCOVERYMODES.PROXY);
+		expect(sent.metricsFilter).to.deep.equal({ filterMetrics: true, filteredAPIs: [ 'payments-api' ] });
+		expect(sent.environment).to.equal('prod');
+		expect(sent).to.not.have.property('geminiAgentPlatform');
 	});
 
 	it('rolls back by deleting environment when secret creation fails for new env', async () => {
