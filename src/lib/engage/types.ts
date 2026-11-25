@@ -593,7 +593,7 @@ export enum AccountRole {
 
 export enum DataPlaneNames {
 	AKAMAI = 'Akamai',
-	APIGEEX = 'Apigee X',
+	APIGEEX = 'Apigee',
 	AWS = 'AWS',
 	GITHUB = 'GitHub',
 	GITLAB = 'GitLab',

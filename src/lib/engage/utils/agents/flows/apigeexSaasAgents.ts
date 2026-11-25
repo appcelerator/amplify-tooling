@@ -19,7 +19,7 @@ class APIGEEXDataplaneConfig extends DataplaneConfig {
 	geminiAgentPlatform?: GeminiAgentPlatformConfig;
 
 	constructor(projectID: string, developerEmail: string, mode: APIGEEXDISCOVERYMODES, metricsFilter: ApigeeMetricsFilterConfig, environment: string, geminiAgentPlatform: GeminiAgentPlatformConfig) {
-		super('Apigee X');
+		super('Apigee');
 		this.projectId = projectID;
 		this.developerEmail = developerEmail;
 		this.mode = mode;
