@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import logger from '../../../../logger.js';
 import { ApiServerClient } from '../../../clients-external/apiserverclient.js';
 import { DefinitionsManager } from '../../../results/DefinitionsManager.js';
-import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentResourceKind, AgentTypes, ApigeeMetricsFilterConfig, APIGEEXAuthType, APIGEEXDISCOVERYMODES, BundleType, CentralAgentConfig, GatewayTypeToDataPlane, GenericResource, InstallationFlowMethods, SaaSGatewayTypes, YesNo, YesNoChoices } from '../../../types.js';
+import { AgentConfigTypes, AgentInstallConfig, AgentNames, AgentResourceKind, AgentTypes, ApigeeMetricsFilterConfig, APIGEEXAuthType, APIGEEXDISCOVERYMODES, BundleType, CentralAgentConfig, GatewayTypeToDataPlane, GeminiAgentPlatformConfig, GenericResource, InstallationFlowMethods, SaaSGatewayTypes, YesNo, YesNoChoices } from '../../../types.js';
 import { askInput, askList, InputValidation, validateRegex } from '../../basic-prompts.js';
 import * as helpers from '../index.js';
 import * as crypto from 'crypto';
@@ -14,16 +14,23 @@ class APIGEEXDataplaneConfig extends DataplaneConfig {
 	projectId: string;
 	developerEmail: string;
 	mode: APIGEEXDISCOVERYMODES;
-	metricsFilter: ApigeeMetricsFilterConfig;
-	environment: string;
+	metricsFilter?: ApigeeMetricsFilterConfig;
+	environment?: string;
+	geminiAgentPlatform?: GeminiAgentPlatformConfig;
 
-	constructor(projectID: string, developerEmail: string, mode: APIGEEXDISCOVERYMODES, metricsFilter: ApigeeMetricsFilterConfig, environment: string) {
+	constructor(projectID: string, developerEmail: string, mode: APIGEEXDISCOVERYMODES, metricsFilter: ApigeeMetricsFilterConfig, environment: string, geminiAgentPlatform: GeminiAgentPlatformConfig) {
 		super('Apigee X');
 		this.projectId = projectID;
 		this.developerEmail = developerEmail;
 		this.mode = mode;
-		this.metricsFilter = metricsFilter;
-		this.environment = environment;
+		// Gemini Enterprise Agent Platform mode discovers agents and MCP servers rather than API proxies, so it
+		// sends its own settings in place of the metrics filter and environment
+		if (mode === APIGEEXDISCOVERYMODES.GEMINI_AGENT_PLATFORM) {
+			this.geminiAgentPlatform = geminiAgentPlatform;
+		} else {
+			this.metricsFilter = metricsFilter;
+			this.environment = environment;
+		}
 	}
 }
 
@@ -50,6 +57,7 @@ class SaasAPIGEEXAgentValues extends SaasAgentValues {
 	projectId: string;
 	developerEmailAddress: string;
 	mode: APIGEEXDISCOVERYMODES;
+	geminiAgentPlatform: GeminiAgentPlatformConfig;
 	metricsFilter: ApigeeMetricsFilterConfig;
 	environment: string;
 
@@ -61,6 +69,7 @@ class SaasAPIGEEXAgentValues extends SaasAgentValues {
 		this.projectId = '';
 		this.developerEmailAddress = '';
 		this.mode = APIGEEXDISCOVERYMODES.PROXY;
+		this.geminiAgentPlatform = new GeminiAgentPlatformConfig();
 		this.metricsFilter = new ApigeeMetricsFilterConfig(true, []);
 		this.environment = '';
 	}
@@ -81,7 +90,7 @@ class SaasAPIGEEXAgentValues extends SaasAgentValues {
 // APIGEEX SaaSPrompts - all APIGEEX Saas prompts to the user for input
 const SaasPrompts = {
 	AUTHENTICATION_TYPE: 'Authenticate with an Impersonation of a Service Account or by providing a Credential File',
-	PROJECT_ID: 'Enter the APIGEE X Project ID the agent will use',
+	PROJECT_ID: 'Enter the GCP Project ID the agent will use',
 	DEVELOPER_EMAIL_ADDRESS: 'Enter the APIGEE X Developer Email Address the agent will use',
 	CLIENT_EMAIL_ADDRESS: 'Enter the Client Email Address the agent will use for the APIGEE X Service Account',
 	UPLOAD_CREDENTIAL_FILE: 'Upload a JSON Credential file to be used for APIGEE X Authentication',
@@ -108,6 +117,22 @@ const askConfigType = async (): Promise<AgentConfigTypes> => {
 
 const askForAPIGEEXCredentials = async (hostedAgentValues: SaasAPIGEEXAgentValues, log: (text: string) => void = () => {}): Promise<SaasAgentValues> => {
 	debugLog.log('gathering access details for apigee x');
+
+	// Determine the mode first, as it decides the connection and which prompts follow
+	hostedAgentValues.mode = await helpers.askApigeeXMode();
+	const geminiAgentPlatformMode = hostedAgentValues.mode === APIGEEXDISCOVERYMODES.GEMINI_AGENT_PLATFORM;
+
+	if (geminiAgentPlatformMode) {
+		log('\nCONNECTION TO GEMINI ENTERPRISE AGENT PLATFORM:');
+		log(
+			chalk.gray('The Discovery Agent needs to connect to the Gemini Enterprise Agent Platform to discover agents and MCP servers for publishing to Amplify Engage')
+		);
+	} else {
+		log('\nCONNECTION TO APIGEE X API GATEWAY:');
+		log(
+			chalk.gray('The Discovery Agent needs to connect to the APIGEE X API Gateway to discover API\'s for publishing to Amplify Engage')
+		);
+	}
 
 	hostedAgentValues.projectId = (await askInput({
 		msg: SaasPrompts.PROJECT_ID,
@@ -139,6 +164,13 @@ const askForAPIGEEXCredentials = async (hostedAgentValues: SaasAPIGEEXAgentValue
 			defaultValue: hostedAgentValues.clientEmailAddress !== '' ? hostedAgentValues.clientEmailAddress : undefined,
 			allowEmptyInput: true,
 		})) as string;
+	}
+
+	// Gemini Enterprise Agent Platform mode discovers agents and MCP servers rather than API proxies, so it
+	// has its own settings in place of the metrics filter and environment
+	if (geminiAgentPlatformMode) {
+		hostedAgentValues.geminiAgentPlatform = await helpers.askGeminiAgentPlatformConfig();
+		return hostedAgentValues;
 	}
 
 	hostedAgentValues.metricsFilter.filterMetrics = await askList({
@@ -195,11 +227,6 @@ const validateFrequency = (): InputValidation => (input: string | number) => {
 };
 
 const gatewayConnectivity = async (installConfig: AgentInstallConfig): Promise<SaasAgentValues> => {
-	installConfig.log('\nCONNECTION TO APIGEE X API GATEWAY:');
-	installConfig.log(
-		chalk.gray('The Discovery Agent needs to connect to the APIGEE X API Gateway to discover API\'s for publishing to Amplify Engage')
-	);
-
 	// DeploymentType
 	let hostedAgentValues: SaasAgentValues = new SaasAgentValues();
 
@@ -294,7 +321,8 @@ const completeInstall = async (installConfig: AgentInstallConfig, apiServerClien
 		apigeeXAgentValues.dataplaneConfig
 			= new APIGEEXDataplaneConfig((apigeeXAgentValues as SaasAPIGEEXAgentValues).projectId,
 				(apigeeXAgentValues as SaasAPIGEEXAgentValues).developerEmailAddress, (apigeeXAgentValues as SaasAPIGEEXAgentValues).mode,
-				(apigeeXAgentValues as SaasAPIGEEXAgentValues).metricsFilter, (apigeeXAgentValues as SaasAPIGEEXAgentValues).environment);
+				(apigeeXAgentValues as SaasAPIGEEXAgentValues).metricsFilter, (apigeeXAgentValues as SaasAPIGEEXAgentValues).environment,
+				(apigeeXAgentValues as SaasAPIGEEXAgentValues).geminiAgentPlatform);
 	}
 
 	// create the data plane resource

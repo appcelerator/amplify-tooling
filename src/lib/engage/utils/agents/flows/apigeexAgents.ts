@@ -20,8 +20,7 @@ export const ConfigFiles = {
 // ApigeeXPrompts - prompts for user inputs
 const ApigeeXPrompts = {
 	AUTHENTICATION_TYPE: 'Authenticate with an Impersonation of a Service Account or by providing a Credential File',
-	PROJECT_ID: 'Enter the APIGEE X Project ID the agent will use',
-	GEMINI_PROJECT_ID: 'Enter the Google Cloud Project ID of the Gemini Enterprise Agent Platform the agent will use',
+	PROJECT_ID: 'Enter the GCP Project ID the agent will use',
 	DEVELOPER_EMAIL_ADDRESS: 'Enter the APIGEE X Developer Email Address the agent will use',
 	AUTH_FILE_NAME: 'Enter the GCP key file name (place in the same directory as your Axway public and private keys)',
 	UPLOAD_CREDENTIAL_FILE: 'Upload a JSON Credential file to be used for APIGEE X Authentication',
@@ -53,9 +52,9 @@ export const askConfigType = async (): Promise<AgentConfigTypes> => {
 //
 // Questions for the configuration of Apigee X agents
 //
-const askApigeeXProjectId = async (msg: string = ApigeeXPrompts.PROJECT_ID): Promise<string> =>
+const askApigeeXProjectId = async (): Promise<string> =>
 	(await askInput({
-		msg,
+		msg: ApigeeXPrompts.PROJECT_ID,
 		validate: validateRegex(
 			helpers.APIGEEXRegexPatterns.APIGEEX_REGEXP_PROJECT_ID,
 			helpers.invalidValueExampleErrMsg('Project ID', 'rd-amplify-apigee-x')
@@ -213,9 +212,7 @@ const dockerSuccessMsg = (installConfig: AgentInstallConfig) => {
 // ApigeeX DA prompts
 async function askDiscoveryPrompts(apigeeXAgentValues: ApigeeXAgentValues, log: (text: string) => void = () => {}) {
 	// Apigee X ProjectId
-	apigeeXAgentValues.projectId = await askApigeeXProjectId(
-		apigeeXAgentValues.geminiAgentPlatformMode ? ApigeeXPrompts.GEMINI_PROJECT_ID : ApigeeXPrompts.PROJECT_ID
-	);
+	apigeeXAgentValues.projectId = await askApigeeXProjectId();
 	// Apigee X Developer Email Address
 	apigeeXAgentValues.developerEmailAddress = await askApigeeXDeveloperEmailAddress();
 	// Apigee X Auth File Path
